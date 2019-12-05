@@ -15,4 +15,7 @@ if [ ! $(command -v ${DOCKER_CMD}) ]; then
     exit 0
 fi
 
-${DOCKER_CMD} run --rm -e GOPROXY=${GOPROXY} -v $(pwd):/opt/workspace -w /opt/workspace golangci/golangci-lint:v1.21 golangci-lint run
+${DOCKER_CMD} run --rm -v $(pwd):/opt/workspace -w /opt/workspace golangci/golangci-lint:v1.21 golangci-lint run
+${DOCKER_CMD} run --rm -e GOOS=js -e GOARCH=wasm -v $(pwd):/opt/workspace -w /opt/workspace golangci/golangci-lint:v1.21 golangci-lint run
+${DOCKER_CMD} run --rm -e GOOS=js -e GOARCH=wasm -v $(pwd):/opt/workspace -w /opt/workspace/cmd/issuer-agent-wasm golangci/golangci-lint:v1.21 golangci-lint run -c ../../.golangci.yml
+${DOCKER_CMD} run --rm -v $(pwd):/opt/workspace -w /opt/workspace/cmd/http-server golangci/golangci-lint:v1.21 golangci-lint run -c ../../.golangci.yml
