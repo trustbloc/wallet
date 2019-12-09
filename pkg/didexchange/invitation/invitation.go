@@ -18,26 +18,33 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/common/service"
 )
 
+type didexchangeClient interface {
+	RegisterMsgEvent(ch chan<- service.StateMsg) error
+	HandleInvitation(invitation *didexchange.Invitation) (string, error)
+}
+
 // RegisterHandleInvitationJSCallback register handle invitation js callback
-func RegisterHandleInvitationJSCallback(didexchangeClient *didexchange.Client) {
-	statusCh := make(chan service.StateMsg, 10)
+func RegisterHandleInvitationJSCallback(didexchangeClient didexchangeClient) error {
+	statusCh := make(chan service.StateMsg)
 	if err := didexchangeClient.RegisterMsgEvent(statusCh); err != nil {
-		js.Global().Call("alert", err.Error())
+		return fmt.Errorf("failed to register msg event: %w", err)
 	}
 
 	c := callback{didexchangeClient: didexchangeClient, statusCh: statusCh}
 	js.Global().Set("acceptInvitation", js.FuncOf(c.handleInvitation))
+
+	return nil
 }
 
 type callback struct {
-	didexchangeClient *didexchange.Client
+	didexchangeClient didexchangeClient
 	statusCh          chan service.StateMsg
 }
 
 func (c *callback) handleInvitation(this js.Value, inputs []js.Value) interface{} {
 	// https://github.com/golang/go/issues/26382
 	go func() {
-		invitationData := js.Global().Get("document").
+		invitationData := js.Global().
 			Call("getElementById", inputs[0].String()).Get("value").String()
 		if invitationData == "" {
 			js.Global().Call("alert", "invitation data is empty")
@@ -45,13 +52,13 @@ func (c *callback) handleInvitation(this js.Value, inputs []js.Value) interface{
 		}
 		var invitation *didexchange.Invitation
 		if err := json.Unmarshal([]byte(invitationData), &invitation); err != nil {
-			js.Global().Call("alert", err.Error())
+			js.Global().Call("alert", fmt.Errorf("failed to unmarshal invitation: %s", err).Error())
 			return
 		}
 		fmt.Printf("handle invitation %s\n", invitationData)
 		connID, err := c.didexchangeClient.HandleInvitation(invitation)
 		if err != nil {
-			js.Global().Call("alert", err.Error())
+			js.Global().Call("alert", fmt.Errorf("failed to handle invitation: %s", err).Error())
 			return
 		}
 		fmt.Printf("handle invitation is successful connenction id :%s\n", connID)

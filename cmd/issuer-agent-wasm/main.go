@@ -50,7 +50,9 @@ func main() {
 	go func() { service.AutoExecuteActionEvent(e) }()
 
 	// register js callback
-	invitation.RegisterHandleInvitationJSCallback(c)
+	if err := invitation.RegisterHandleInvitationJSCallback(c); err != nil {
+		js.Global().Call("alert", err.Error())
+	}
 
 	<-done
 }

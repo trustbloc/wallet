@@ -25,7 +25,7 @@ const (
 
 	wasmPathFlagName      = "wasm-path"
 	wasmPathFlagShorthand = "w"
-	wasmPathFlagUsage     = "Wasm path." +
+	wasmPathFlagUsage     = "WASM path." +
 		" Defaults to current directory." +
 		" Alternatively, this can be set with the following environment variable: " + wasmPathEnvKey
 	wasmPathEnvKey = "HTTP_SERVER_WASM_PATH"

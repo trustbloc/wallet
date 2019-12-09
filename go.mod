@@ -6,4 +6,8 @@ module github.com/trustbloc/edge-agent
 
 go 1.13
 
-require github.com/hyperledger/aries-framework-go v0.1.1-0.20191206154601-75b0717f2ff2
+require (
+	github.com/hyperledger/aries-framework-go v0.1.1-0.20191206154601-75b0717f2ff2
+	github.com/stretchr/testify v1.4.0
+
+)
