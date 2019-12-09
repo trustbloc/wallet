@@ -18,3 +18,15 @@ jobs:
       - checkout: self
       - script: make checks
         displayName: Run checks
+
+  - job: UnitTest
+    pool:
+      vmImage: ubuntu-18.04
+    timeoutInMinutes: 30
+    steps:
+      - template: azp-dependencies.yml
+      - checkout: self
+      - script: make unit-test
+        displayName: Run unit test
+      - script: bash <(curl https://codecov.io/bash)
+        displayName: Upload coverage to Codecov
