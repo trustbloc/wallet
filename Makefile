@@ -7,10 +7,16 @@ WASM_EXEC              = $(shell go env GOROOT)/misc/wasm/wasm_exec.js
 ISSUER_AGENT_WASM_PATH = cmd/issuer-agent-wasm
 WASM_COMPONENTS        = cmd/components
 HTTP_SERVER_PATH       = cmd/http-server
+GOBIN_PATH             = $(abspath .)/build/bin
 
 
 .PHONY: all
-all: checks unit-test
+all: clean checks unit-test unit-test-wasm
+
+.PHONY: depend
+depend:
+	@mkdir -p ./build/bin
+	GO111MODULE=off GOBIN=$(GOBIN_PATH) go get github.com/agnivade/wasmbrowsertest
 
 .PHONY: checks
 checks: license lint
@@ -26,6 +32,11 @@ license:
 .PHONY: unit-test
 unit-test:
 	@scripts/check_unit.sh
+
+.PHONY: unit-test-wasm
+unit-test-wasm: export GOBIN=$(GOBIN_PATH)
+unit-test-wasm: depend
+	@scripts/check_unit_wasm.sh
 
 .PHONY: issuer-agent-wasm
 issuer-agent-wasm:
