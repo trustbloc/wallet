@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #
 # Copyright SecureKey Technologies Inc. All Rights Reserved.
