@@ -40,3 +40,29 @@ jobs:
       - checkout: self
       - script: make unit-test-wasm
         displayName: Run unit test wasm
+
+  - job: Publish
+    dependsOn:
+      - Checks
+      - UnitTest
+      - UnitTestWasm
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    pool:
+      vmImage: ubuntu-18.04
+    timeoutInMinutes: 30
+    steps:
+      - template: azp-dependencies.yml
+      - checkout: self
+      - bash: |
+          function logout {
+            docker logout
+          }
+          trap logout EXIT
+          source ci/version_var.sh
+          echo $DOCKER_PASSWORD | docker login docker.pkg.github.com --username $DOCKER_USER --password-stdin
+          make issuer-agent-wasm-docker
+          docker tag docker.pkg.github.com/trustbloc/edge-agent/issuer-agent-wasm:latest docker.pkg.github.com/trustbloc/edge-agent/issuer-agent-wasm:$EDGE_AGENT_TAG
+          docker push docker.pkg.github.com/trustbloc/edge-agent/issuer-agent-wasm:$EDGE_AGENT_TAG
+        env:
+          DOCKER_USER: $(DOCKER_USER)
+          DOCKER_PASSWORD: $(DOCKER_PASSWORD)

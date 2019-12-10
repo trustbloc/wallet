@@ -9,6 +9,15 @@ WASM_COMPONENTS        = cmd/components
 HTTP_SERVER_PATH       = cmd/http-server
 GOBIN_PATH             = $(abspath .)/build/bin
 
+# GO version
+ALPINE_VER ?= 3.10
+GO_TAGS    ?=
+GO_VER     ?= 1.13.1
+
+# Namespace for the images
+DOCKER_OUTPUT_NS         ?= docker.pkg.github.com
+ISSUER_WASM_IMAGE_NAME   ?= trustbloc/edge-agent/issuer-agent-wasm
+
 
 .PHONY: all
 all: clean checks unit-test unit-test-wasm
@@ -46,13 +55,21 @@ issuer-agent-wasm:
 	@cp ${ISSUER_AGENT_WASM_PATH}/*.html  ./build/bin/wasm/issuer
 	@cp -r ${WASM_COMPONENTS}  ./build/bin/wasm/issuer
 	@cd ${ISSUER_AGENT_WASM_PATH} && GOOS=js GOARCH=wasm go build -o ../../build/bin/wasm/issuer/issuer-agent.wasm main.go
-	@gzip --best build/bin/wasm/issuer/issuer-agent.wasm
+	@gzip build/bin/wasm/issuer/issuer-agent.wasm
 
 .PHONY: http-server
 http-server:
 	@echo "Building http-server"
 	@mkdir -p ./build/bin/wasm
 	@cd ${HTTP_SERVER_PATH} && go build -o ../../build/bin/http-server main.go
+
+.PHONY: issuer-agent-wasm-docker
+issuer-agent-wasm-docker: clean
+	@echo "Building issuer agent wasm docker image"
+	@docker build -f ./images/issuer-agent-wasm/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(ISSUER_WASM_IMAGE_NAME):latest \
+	--build-arg GO_VER=$(GO_VER) \
+	--build-arg ALPINE_VER=$(ALPINE_VER) \
+	--build-arg GO_TAGS=$(GO_TAGS) .
 
 .PHONY: clean
 clean: clean-build
