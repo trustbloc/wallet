@@ -38,10 +38,11 @@ func TestRegisterHandleInvitationJSCallback(t *testing.T) {
 func TestHandleInvitationSuccess(t *testing.T) {
 	t.Run("test success", func(t *testing.T) {
 		statusCh := make(chan service.StateMsg, 1)
+		js.Global().Set("document1", make(map[string]interface{}))
 		c := callback{didexchangeClient: &mockDidExchangeClient{handleInvitationValue: "conn1"},
-			statusCh: statusCh}
+			statusCh: statusCh, jsDoc: js.Global().Get("document1")}
 		w := js.ValueOf("element1")
-		js.Global().Set("getElementById", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		c.jsDoc.Set("getElementById", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			m := make(map[string]interface{})
 			invitationData, err := json.Marshal(didexchange.Invitation{})
 			require.NoError(t, err)
@@ -70,9 +71,11 @@ func TestHandleInvitationSuccess(t *testing.T) {
 func TestHandleInvitationError(t *testing.T) {
 	t.Run("test empty invitation data", func(t *testing.T) {
 		statusCh := make(chan service.StateMsg, 1)
-		c := callback{didexchangeClient: &mockDidExchangeClient{}, statusCh: statusCh}
+		js.Global().Set("document1", make(map[string]interface{}))
+		c := callback{didexchangeClient: &mockDidExchangeClient{}, statusCh: statusCh,
+			jsDoc: js.Global().Get("document1")}
 		w := js.ValueOf("element1")
-		js.Global().Set("getElementById", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		c.jsDoc.Set("getElementById", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			m := make(map[string]interface{})
 			m["value"] = js.ValueOf("")
 			return m
@@ -94,9 +97,11 @@ func TestHandleInvitationError(t *testing.T) {
 	})
 	t.Run("test error unmarshal invitation data", func(t *testing.T) {
 		statusCh := make(chan service.StateMsg, 1)
-		c := callback{didexchangeClient: &mockDidExchangeClient{}, statusCh: statusCh}
+		js.Global().Set("document1", make(map[string]interface{}))
+		c := callback{didexchangeClient: &mockDidExchangeClient{}, statusCh: statusCh,
+			jsDoc: js.Global().Get("document1")}
 		w := js.ValueOf("element1")
-		js.Global().Set("getElementById", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		c.jsDoc.Set("getElementById", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			m := make(map[string]interface{})
 			m["value"] = js.ValueOf("invalidInvitation")
 			return m
@@ -118,10 +123,11 @@ func TestHandleInvitationError(t *testing.T) {
 	})
 	t.Run("test error handle invitation", func(t *testing.T) {
 		statusCh := make(chan service.StateMsg, 1)
+		js.Global().Set("document1", make(map[string]interface{}))
 		c := callback{didexchangeClient: &mockDidExchangeClient{handleInvitationErr: fmt.Errorf("error")},
-			statusCh: statusCh}
+			statusCh: statusCh, jsDoc: js.Global().Get("document1")}
 		w := js.ValueOf("element1")
-		js.Global().Set("getElementById", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		c.jsDoc.Set("getElementById", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			m := make(map[string]interface{})
 			invitationData, err := json.Marshal(didexchange.Invitation{})
 			require.NoError(t, err)
@@ -143,13 +149,13 @@ func TestHandleInvitationError(t *testing.T) {
 			require.Fail(t, "timeout waiting for error")
 		}
 	})
-
 	t.Run("test error from service processing", func(t *testing.T) {
 		statusCh := make(chan service.StateMsg, 1)
+		js.Global().Set("document1", make(map[string]interface{}))
 		c := callback{didexchangeClient: &mockDidExchangeClient{handleInvitationValue: "conn1"},
-			statusCh: statusCh}
+			statusCh: statusCh, jsDoc: js.Global().Get("document1")}
 		w := js.ValueOf("element1")
-		js.Global().Set("getElementById", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		c.jsDoc.Set("getElementById", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			m := make(map[string]interface{})
 			invitationData, err := json.Marshal(didexchange.Invitation{})
 			require.NoError(t, err)

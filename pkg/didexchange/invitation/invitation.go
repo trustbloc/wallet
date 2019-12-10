@@ -30,7 +30,7 @@ func RegisterHandleInvitationJSCallback(didexchangeClient didexchangeClient) err
 		return fmt.Errorf("failed to register msg event: %w", err)
 	}
 
-	c := callback{didexchangeClient: didexchangeClient, statusCh: statusCh}
+	c := callback{didexchangeClient: didexchangeClient, statusCh: statusCh, jsDoc: js.Global().Get("document")}
 	js.Global().Set("acceptInvitation", js.FuncOf(c.handleInvitation))
 
 	return nil
@@ -39,12 +39,13 @@ func RegisterHandleInvitationJSCallback(didexchangeClient didexchangeClient) err
 type callback struct {
 	didexchangeClient didexchangeClient
 	statusCh          chan service.StateMsg
+	jsDoc             js.Value
 }
 
 func (c *callback) handleInvitation(this js.Value, inputs []js.Value) interface{} {
 	// https://github.com/golang/go/issues/26382
 	go func() {
-		invitationData := js.Global().
+		invitationData := c.jsDoc.
 			Call("getElementById", inputs[0].String()).Get("value").String()
 		if invitationData == "" {
 			js.Global().Call("alert", "invitation data is empty")

@@ -1,0 +1,18 @@
+
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+services:
+
+  issuer.agent.example.com:
+    container_name: issuer.agent.example.com
+    image: ${ISSUER_WASM_IMAGE}:latest
+    environment:
+      - HTTP_SERVER_HOST_URL=0.0.0.0:8090
+    ports:
+      - 8090:8090
+    command: start
