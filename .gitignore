@@ -14,6 +14,12 @@
 # Editor and go temporary files & folders
 .swp
 vendor
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # Test binary, build with `go test -c`
 *.test
@@ -25,3 +31,15 @@ vendor
 bin
 coverage.txt
 .build
+
+node_modules
+/dist
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
