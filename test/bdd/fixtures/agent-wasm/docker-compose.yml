@@ -25,3 +25,12 @@ services:
     ports:
       - 8091:8091
     command: start
+
+  rp.agent.example.com:
+    container_name: rp.agent.example.com
+    image: ${RP_WASM_IMAGE}:latest
+    environment:
+      - HTTP_SERVER_HOST_URL=0.0.0.0:8092
+    ports:
+      - 8092:8092
+    command: start
