@@ -3,9 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-WASM_EXEC              = $(shell go env GOROOT)/misc/wasm/wasm_exec.js
-ISSUER_AGENT_WASM_PATH = cmd/issuer-agent-wasm
-WASM_COMPONENTS        = cmd/components
 HTTP_SERVER_PATH       = cmd/http-server
 GOBIN_PATH             = $(abspath .)/build/bin
 
@@ -49,13 +46,7 @@ unit-test-wasm: depend
 
 .PHONY: issuer-agent-wasm
 issuer-agent-wasm:
-	@echo "Building issuer-agent-wasm"
-	@mkdir -p ./build/bin/wasm/issuer
-	@cp $(WASM_EXEC)  ./build/bin/wasm/issuer
-	@cp ${ISSUER_AGENT_WASM_PATH}/*.html  ./build/bin/wasm/issuer
-	@cp -r ${WASM_COMPONENTS}  ./build/bin/wasm/issuer
-	@cd ${ISSUER_AGENT_WASM_PATH} && GOOS=js GOARCH=wasm go build -o ../../build/bin/wasm/issuer/issuer-agent.wasm main.go
-	@gzip build/bin/wasm/issuer/issuer-agent.wasm
+	@scripts/build_agent_wasm.sh issuer
 
 .PHONY: http-server
 http-server:
@@ -77,3 +68,5 @@ clean: clean-build
 .PHONY: clean-build
 clean-build:
 	@rm -Rf ./build
+	@rm -Rf ./cmd/issuer-agent/web/dist
+	@rm -Rf ./cmd/issuer-agent/web/node_modules
