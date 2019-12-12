@@ -22,11 +22,13 @@ ENV EXECUTABLES go git
 
 FROM golang as golang_build
 ARG GO_TAGS
-RUN GO_TAGS=${GO_TAGS} make issuer-agent-wasm http-server
+ARG NAME
+RUN GO_TAGS=${GO_TAGS} make ${NAME}-agent-wasm http-server
 
 FROM alpine:${ALPINE_VER} as base
-COPY --from=golang_build /opt/workspace/edge-agent/build/bin/wasm/issuer /usr/local/bin/issuer
-COPY --from=golang_build /opt/workspace/edge-agent/build/bin/http-server /usr/local/bin/issuer
-ENV PATH=/usr/local/bin/issuer:$PATH
-ENV HTTP_SERVER_WASM_PATH=/usr/local/bin/issuer
+ARG NAME
+COPY --from=golang_build /opt/workspace/edge-agent/build/bin/wasm/${NAME} /usr/local/bin/${NAME}
+COPY --from=golang_build /opt/workspace/edge-agent/build/bin/http-server /usr/local/bin/${NAME}
+ENV PATH=/usr/local/bin/${NAME}:$PATH
+ENV HTTP_SERVER_WASM_PATH=/usr/local/bin/${NAME}
 ENTRYPOINT ["http-server"]
