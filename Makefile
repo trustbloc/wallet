@@ -13,7 +13,7 @@ GO_VER     ?= 1.13.1
 
 # Namespace for the images
 DOCKER_OUTPUT_NS         ?= docker.pkg.github.com
-ISSUER_WASM_IMAGE_NAME   ?= trustbloc/edge-agent/issuer-agent-wasm
+WASM_IMAGE_NAME          ?= trustbloc/edge-agent
 
 
 .PHONY: all
@@ -44,9 +44,17 @@ unit-test-wasm: export GOBIN=$(GOBIN_PATH)
 unit-test-wasm: depend
 	@scripts/check_unit_wasm.sh
 
+.PHONY: agent-wasm
+agent-wasm:
+	@scripts/build_agent_wasm.sh ${AGENT_NAME}
+
 .PHONY: issuer-agent-wasm
 issuer-agent-wasm:
-	@scripts/build_agent_wasm.sh issuer
+	AGENT_NAME="issuer" make agent-wasm
+
+.PHONY: issuer-agent-wasm
+user-agent-wasm:
+	AGENT_NAME="user" make agent-wasm
 
 .PHONY: http-server
 http-server:
@@ -55,12 +63,21 @@ http-server:
 	@cd ${HTTP_SERVER_PATH} && go build -o ../../build/bin/http-server main.go
 
 .PHONY: issuer-agent-wasm-docker
-issuer-agent-wasm-docker: clean
+issuer-agent-wasm-docker:
+	AGENT_NAME="issuer" make agent-wasm-docker
+
+.PHONY: user-agent-wasm-docker
+user-agent-wasm-docker:
+	AGENT_NAME="user" make agent-wasm-docker
+
+.PHONY: agent-wasm-docker
+agent-wasm-docker: clean
 	@echo "Building issuer agent wasm docker image"
-	@docker build -f ./images/issuer-agent-wasm/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(ISSUER_WASM_IMAGE_NAME):latest \
+	@docker build -f ./images/agent-wasm/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(WASM_IMAGE_NAME)/${AGENT_NAME}-agent-wasm:latest \
 	--build-arg GO_VER=$(GO_VER) \
 	--build-arg ALPINE_VER=$(ALPINE_VER) \
-	--build-arg GO_TAGS=$(GO_TAGS) .
+	--build-arg GO_TAGS=$(GO_TAGS) \
+	--build-arg NAME=${AGENT_NAME} .
 
 .PHONY: clean
 clean: clean-build
@@ -69,4 +86,6 @@ clean: clean-build
 clean-build:
 	@rm -Rf ./build
 	@rm -Rf ./cmd/issuer-agent/web/dist
+	@rm -Rf ./cmd/user-agent/web/dist
 	@rm -Rf ./cmd/issuer-agent/web/node_modules
+	@rm -Rf ./cmd/user-agent/web/node_modules

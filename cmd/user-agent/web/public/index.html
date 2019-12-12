@@ -19,11 +19,11 @@ SPDX-License-Identifier: Apache-2.0
       };
     }
     const go = new Go();
-    WebAssembly.instantiateStreaming(fetch("issuer-agent.wasm"), go.importObject).then((result) => {
+    WebAssembly.instantiateStreaming(fetch("user-agent.wasm"), go.importObject).then((result) => {
       go.run(result.instance);
     });
   </script>
-  <title>Issuer Agent</title>
+  <title>User Agent</title>
 </head>
 <body>
 <noscript>

@@ -60,9 +60,11 @@ jobs:
           trap logout EXIT
           source ci/version_var.sh
           echo $DOCKER_PASSWORD | docker login docker.pkg.github.com --username $DOCKER_USER --password-stdin
-          make issuer-agent-wasm-docker
+          make issuer-agent-wasm-docker user-agent-wasm-docker
           docker tag docker.pkg.github.com/trustbloc/edge-agent/issuer-agent-wasm:latest docker.pkg.github.com/trustbloc/edge-agent/issuer-agent-wasm:$EDGE_AGENT_TAG
+          docker tag docker.pkg.github.com/trustbloc/edge-agent/user-agent-wasm:latest docker.pkg.github.com/trustbloc/edge-agent/user-agent-wasm:$EDGE_AGENT_TAG
           docker push docker.pkg.github.com/trustbloc/edge-agent/issuer-agent-wasm:$EDGE_AGENT_TAG
+          docker push docker.pkg.github.com/trustbloc/edge-agent/user-agent-wasm:$EDGE_AGENT_TAG
         env:
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)
