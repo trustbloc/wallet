@@ -29,24 +29,36 @@ const (
 		" Defaults to current directory." +
 		" Alternatively, this can be set with the following environment variable: " + wasmPathEnvKey
 	wasmPathEnvKey = "HTTP_SERVER_WASM_PATH"
+
+	tlsCertFileFlagName      = "tls-cert-file"
+	tlsCertFileFlagShorthand = "c"
+	tlsCertFileFlagUsage     = "tls certificate file." +
+		" Alternatively, this can be set with the following environment variable: " + tlsCertFileEnvKey
+	tlsCertFileEnvKey = "TLS_CERT_FILE"
+
+	tlsKeyFileFlagName      = "tls-key-file"
+	tlsKeyFileFlagShorthand = "k"
+	tlsKeyFileFlagUsage     = "tls key file." +
+		" Alternatively, this can be set with the following environment variable: " + tlsKeyFileEnvKey
+	tlsKeyFileEnvKey = "TLS_KEY_FILE"
 )
 
 type server interface {
-	ListenAndServe(host, rootPath string) error
+	ListenAndServe(host, certFile, keyFile, rootPath string) error
 }
 
 // HTTPServer represents an actual HTTP server implementation.
 type HTTPServer struct{}
 
 // ListenAndServe starts the server using the standard Go HTTP server implementation.
-func (s *HTTPServer) ListenAndServe(host, rootPath string) error {
+func (s *HTTPServer) ListenAndServe(host, certFile, keyFile, rootPath string) error {
 	h := gzipped.FileServer(http.Dir(rootPath))
-	return http.ListenAndServe(host, h)
+	return http.ListenAndServeTLS(host, certFile, keyFile, h)
 }
 
 type httpServerParameters struct {
-	srv               server
-	hostURL, wasmPath string
+	srv                                        server
+	hostURL, wasmPath, tlsCertFile, tlsKeyFile string
 }
 
 // GetStartCmd returns the Cobra start command.
@@ -74,10 +86,22 @@ func createStartCmd(srv server) *cobra.Command {
 				return err
 			}
 
+			tlsCertFile, err := getUserSetVar(cmd, tlsCertFileFlagName, tlsCertFileEnvKey, false)
+			if err != nil {
+				return err
+			}
+
+			tlsKeyFile, err := getUserSetVar(cmd, tlsKeyFileFlagName, tlsKeyFileEnvKey, false)
+			if err != nil {
+				return err
+			}
+
 			parameters := &httpServerParameters{
-				srv:      srv,
-				hostURL:  hostURL,
-				wasmPath: wasmPath,
+				srv:         srv,
+				hostURL:     hostURL,
+				wasmPath:    wasmPath,
+				tlsCertFile: tlsCertFile,
+				tlsKeyFile:  tlsKeyFile,
 			}
 			return startHTTPServer(parameters)
 		},
@@ -87,6 +111,8 @@ func createStartCmd(srv server) *cobra.Command {
 func createFlags(startCmd *cobra.Command) {
 	startCmd.Flags().StringP(hostURLFlagName, hostURLFlagShorthand, "", hostURLFlagUsage)
 	startCmd.Flags().StringP(wasmPathFlagName, wasmPathFlagShorthand, "", wasmPathFlagUsage)
+	startCmd.Flags().StringP(tlsCertFileFlagName, tlsCertFileFlagShorthand, "", tlsCertFileFlagUsage)
+	startCmd.Flags().StringP(tlsKeyFileFlagName, tlsKeyFileFlagShorthand, "", tlsKeyFileFlagUsage)
 }
 
 func getUserSetVar(cmd *cobra.Command, flagName, envKey string, isOptional bool) (string, error) {
@@ -96,12 +122,20 @@ func getUserSetVar(cmd *cobra.Command, flagName, envKey string, isOptional bool)
 			return "", fmt.Errorf(flagName+" flag not found: %s", err)
 		}
 
+		if value == "" {
+			return "", fmt.Errorf("%s value is empty", flagName)
+		}
+
 		return value, nil
 	}
 
 	value, isSet := os.LookupEnv(envKey)
 
 	if isOptional || isSet {
+		if !isOptional && value == "" {
+			return "", fmt.Errorf("%s value is empty", envKey)
+		}
+
 		return value, nil
 	}
 
@@ -110,15 +144,12 @@ func getUserSetVar(cmd *cobra.Command, flagName, envKey string, isOptional bool)
 }
 
 func startHTTPServer(parameters *httpServerParameters) error {
-	if parameters.hostURL == "" {
-		return errors.New("host URL not provided")
-	}
-
 	if parameters.wasmPath == "" {
 		parameters.wasmPath = "."
 	}
 
-	err := parameters.srv.ListenAndServe(parameters.hostURL, parameters.wasmPath)
+	err := parameters.srv.ListenAndServe(
+		parameters.hostURL, parameters.tlsCertFile, parameters.tlsKeyFile, parameters.wasmPath)
 	if err != nil {
 		return fmt.Errorf("http server closed unexpectedly: %s", err)
 	}
