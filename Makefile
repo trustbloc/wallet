@@ -87,12 +87,20 @@ agent-wasm-docker: clean
 	--build-arg GO_TAGS=$(GO_TAGS) \
 	--build-arg NAME=${AGENT_NAME} .
 
+generate-test-keys: clean
+	@mkdir -p -p test/bdd/fixtures/keys/tls
+	@docker run -i --rm \
+		-v $(abspath .):/opt/workspace/edge-agent \
+		--entrypoint "/opt/workspace/edge-agent/scripts/generate_test_keys.sh" \
+		frapsoft/openssl
+
 .PHONY: clean
 clean: clean-build
 
 .PHONY: clean-build
 clean-build:
 	@rm -Rf ./build
+	@rm -Rf ./test/bdd/fixtures/keys/tls
 	@rm -Rf ./cmd/issuer-agent/web/dist
 	@rm -Rf ./cmd/user-agent/web/dist
 	@rm -Rf ./cmd/rp-agent/web/dist

@@ -16,7 +16,7 @@ import (
 
 type mockServer struct{}
 
-func (s *mockServer) ListenAndServe(host, rootPath string) error {
+func (s *mockServer) ListenAndServe(host, certFile, keyFile, rootPath string) error {
 	return nil
 }
 
@@ -30,39 +30,89 @@ func TestStartCmdContents(t *testing.T) {
 	checkFlagPropertiesCorrect(t, startCmd, hostURLFlagName, hostURLFlagShorthand, hostURLFlagUsage)
 }
 
-func TestStartCmdWithBlankHostArg(t *testing.T) {
-	startCmd := GetStartCmd(&mockServer{})
+func TestStartCmdWithBlankArg(t *testing.T) {
+	t.Run("test blank host arg", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
 
-	args := []string{"--" + hostURLFlagName, ""}
-	startCmd.SetArgs(args)
+		args := []string{"--" + hostURLFlagName, "", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key"}
+		startCmd.SetArgs(args)
 
-	err := startCmd.Execute()
-	require.Error(t, err)
-	require.Equal(t, "host URL not provided", err.Error())
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t, "host-url value is empty", err.Error())
+	})
+
+	t.Run("test blank tls cert arg", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "",
+			"--" + tlsKeyFileFlagName, "key"}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t, "tls-cert-file value is empty", err.Error())
+	})
+
+	t.Run("test blank tls cert arg", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, ""}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t, "tls-key-file value is empty", err.Error())
+	})
 }
 
-func TestStartCmdWithMissingHostArg(t *testing.T) {
-	startCmd := GetStartCmd(&mockServer{})
+func TestStartCmdWithMissingArg(t *testing.T) {
+	t.Run("test missing host arg", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
 
-	err := startCmd.Execute()
-	require.Error(t, err)
-	require.Equal(t,
-		"Neither host-url (command line flag) nor HTTP_SERVER_HOST_URL (environment variable) have been set.",
-		err.Error())
-}
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t,
+			"Neither host-url (command line flag) nor HTTP_SERVER_HOST_URL (environment variable) have been set.",
+			err.Error())
+	})
+	t.Run("test missing tls cert arg", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
 
-func TestStartHttpServerWithBlankHost(t *testing.T) {
-	parameters := &httpServerParameters{hostURL: ""}
+		args := []string{"--" + hostURLFlagName, "localhost:8080",
+			"--" + tlsKeyFileFlagName, "key"}
+		startCmd.SetArgs(args)
 
-	err := startHTTPServer(parameters)
-	require.NotNil(t, err)
-	require.Equal(t, "host URL not provided", err.Error())
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t,
+			"Neither tls-cert-file (command line flag) nor TLS_CERT_FILE (environment variable) have been set.",
+			err.Error())
+	})
+
+	t.Run("test missing tls key arg", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{"--" + hostURLFlagName, "localhost:8080",
+			"--" + tlsCertFileFlagName, "cert"}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t,
+			"Neither tls-key-file (command line flag) nor TLS_KEY_FILE (environment variable) have been set.",
+			err.Error())
+	})
 }
 
 func TestStartCmdValidArgs(t *testing.T) {
 	startCmd := GetStartCmd(&mockServer{})
 
-	args := []string{"--" + hostURLFlagName, "localhost:8080"}
+	args := []string{
+		"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+		"--" + tlsKeyFileFlagName, "key"}
 	startCmd.SetArgs(args)
 
 	err := startCmd.Execute()
@@ -76,9 +126,68 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	err := os.Setenv(hostURLEnvKey, "localhost:8080")
 	require.NoError(t, err)
 
+	err = os.Setenv(tlsCertFileEnvKey, "cert")
+	require.NoError(t, err)
+
+	err = os.Setenv(tlsKeyFileEnvKey, "key")
+	require.NoError(t, err)
+
 	err = startCmd.Execute()
 
 	require.NoError(t, err)
+}
+
+func TestStartCmdWithBlankEnvVar(t *testing.T) {
+	t.Run("test blank host env var", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		err := os.Setenv(hostURLEnvKey, "")
+		require.NoError(t, err)
+
+		err = os.Setenv(tlsCertFileEnvKey, "cert")
+		require.NoError(t, err)
+
+		err = os.Setenv(tlsKeyFileEnvKey, "key")
+		require.NoError(t, err)
+
+		err = startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t, "HTTP_SERVER_HOST_URL value is empty", err.Error())
+	})
+
+	t.Run("test blank tls cert env var", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		err := os.Setenv(hostURLEnvKey, "localhost:8080")
+		require.NoError(t, err)
+
+		err = os.Setenv(tlsCertFileEnvKey, "")
+		require.NoError(t, err)
+
+		err = os.Setenv(tlsKeyFileEnvKey, "key")
+		require.NoError(t, err)
+
+		err = startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t, "TLS_CERT_FILE value is empty", err.Error())
+	})
+
+	t.Run("test blank tls key env var", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		err := os.Setenv(hostURLEnvKey, "localhost:8080")
+		require.NoError(t, err)
+
+		err = os.Setenv(tlsCertFileEnvKey, "cert")
+		require.NoError(t, err)
+
+		err = os.Setenv(tlsKeyFileEnvKey, "")
+		require.NoError(t, err)
+
+		err = startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t, "TLS_KEY_FILE value is empty", err.Error())
+	})
 }
 
 func checkFlagPropertiesCorrect(t *testing.T, cmd *cobra.Command, flagName, flagShorthand, flagUsage string) {
