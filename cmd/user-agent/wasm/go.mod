@@ -7,7 +7,7 @@ module github.com/trustbloc/edge-agent/cmd/user-agent/wasm
 go 1.13
 
 require (
-	github.com/hyperledger/aries-framework-go v0.1.1-0.20191206154601-75b0717f2ff2
+	github.com/hyperledger/aries-framework-go v0.1.1-0.20200114193257-789d490a1bdf
 	github.com/trustbloc/edge-agent v0.0.0
 )
 

@@ -87,7 +87,7 @@ agent-wasm-docker: clean
 	--build-arg GO_TAGS=$(GO_TAGS) \
 	--build-arg NAME=${AGENT_NAME} .
 
-generate-test-keys: clean
+generate-test-keys:
 	@mkdir -p -p test/bdd/fixtures/keys/tls
 	@docker run -i --rm \
 		-v $(abspath .):/opt/workspace/edge-agent \
