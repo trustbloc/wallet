@@ -16,6 +16,7 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/transport/ws"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/aries"
 	"github.com/trustbloc/edge-agent/pkg/didexchange/invitation"
+	vcstore "github.com/trustbloc/edge-agent/pkg/store/vc"
 )
 
 func main() {
@@ -51,6 +52,10 @@ func main() {
 
 	// register js callback
 	if err := invitation.RegisterHandleInvitationJSCallback(c); err != nil {
+		js.Global().Call("alert", err.Error())
+	}
+
+	if err := vcstore.RegisterHandleJSCallback(ctx); err != nil {
 		js.Global().Call("alert", err.Error())
 	}
 

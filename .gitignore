@@ -44,5 +44,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-
+cmd/user-agent/web/dist
+cmd/rp-agent/web/dist
+cmd/issuer-agent/web/dist
 test/bdd/fixtures/keys/tls
