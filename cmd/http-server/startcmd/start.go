@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path"
+	"strings"
 
 	"github.com/lpar/gzipped"
 	"github.com/spf13/cobra"
@@ -52,8 +54,25 @@ type HTTPServer struct{}
 
 // ListenAndServe starts the server using the standard Go HTTP server implementation.
 func (s *HTTPServer) ListenAndServe(host, certFile, keyFile, rootPath string) error {
-	h := gzipped.FileServer(http.Dir(rootPath))
-	return http.ListenAndServeTLS(host, certFile, keyFile, h)
+	return http.ListenAndServeTLS(host, certFile, keyFile, VueHandler(rootPath))
+}
+
+// VueHandler return a http.Handler that supports Vue Router app with history mode
+func VueHandler(publicDir string) http.Handler {
+	handler := gzipped.FileServer(http.Dir(publicDir))
+
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		urlPath := req.URL.Path
+
+		// static files
+		if strings.Contains(urlPath, ".") || urlPath == "/" {
+			handler.ServeHTTP(w, req)
+			return
+		}
+
+		// the all 404 gonna be served as root
+		http.ServeFile(w, req, path.Join(publicDir, "/index.html"))
+	})
 }
 
 type httpServerParameters struct {

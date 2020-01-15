@@ -6,12 +6,12 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div id="app">
-    <nav>
-      <router-link :to="{ name: 'createInvitation' }">create invitation</router-link>
-    </nav>
-    <nav>
-      <router-link :to="{ name: 'storeVC' }">store vc</router-link>
-    </nav>
+    <ul>
+      <li><router-link to="/" exact>Homepage</router-link></li>
+      <li><router-link to="/CreateInvitation">Create Invitation</router-link></li>
+      <li><router-link to="/StoreVC">Store VC</router-link></li>
+      <li><router-link to="/RegisterWallet">Register Wallet</router-link></li>
+    </ul>
     <router-view></router-view>
   </div>
 </template>

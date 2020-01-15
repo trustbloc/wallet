@@ -7,6 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package startcmd
 
 import (
+	"net/http"
+	"net/url"
 	"os"
 	"testing"
 
@@ -18,6 +20,34 @@ type mockServer struct{}
 
 func (s *mockServer) ListenAndServe(host, certFile, keyFile, rootPath string) error {
 	return nil
+}
+
+type mockHTTPResponseWriter struct{}
+
+func (m *mockHTTPResponseWriter) Header() http.Header {
+	return http.Header{}
+}
+
+func (m *mockHTTPResponseWriter) Write([]byte) (int, error) {
+	return 0, nil
+}
+
+func (m *mockHTTPResponseWriter) WriteHeader(statusCode int) {
+
+}
+
+func TestVueHandler(t *testing.T) {
+	h := VueHandler("")
+	require.NotNil(t, h)
+	h.ServeHTTP(&mockHTTPResponseWriter{}, &http.Request{URL: &url.URL{}})
+	h.ServeHTTP(&mockHTTPResponseWriter{}, &http.Request{URL: &url.URL{Path: "."}})
+}
+
+func TestListenAndServe(t *testing.T) {
+	h := HTTPServer{}
+	err := h.ListenAndServe("localhost:8080", "test.key", "test.cert", "")
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "open test.key: no such file or directory")
 }
 
 func TestStartCmdContents(t *testing.T) {

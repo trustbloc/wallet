@@ -13,21 +13,20 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-    import * as polyfill from "credential-handler-polyfill";
-    import * as webCredentialHandler from "web-credential-handler";
-
     async function handleWalletReceiveEvent() {
-        const credentialEvent = await webCredentialHandler.receiveCredentialEvent();
+        const credentialEvent = await window.$webCredentialHandler.receiveCredentialEvent();
         const vcData = credentialEvent.credential.data
-        window.console.log('Received event:', vcData);
+        window.console.log('Received vc data:', vcData);
         document.getElementById('vcDataTextArea').value=vcData
         document.getElementById('storeVCBtn').addEventListener('click', () => {
             window.storeVC(credentialEvent)
         });
     }
-    polyfill.loadOnce().then(handleWalletReceiveEvent)
     export default {
-        polyfill
+        beforeCreate:function(){
+                window.$webCredentialHandler=this.$webCredentialHandler
+            this.$polyfill.loadOnce().then(handleWalletReceiveEvent)
+        },
     }
 </script>
 

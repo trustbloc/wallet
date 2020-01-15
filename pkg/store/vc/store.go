@@ -53,6 +53,8 @@ func (c *callback) storeVC(this js.Value, inputs []js.Value) interface{} {
 		vc, _, err := verifiable.NewCredential([]byte(vcData))
 		if err != nil {
 			m["data"] = fmt.Sprintf("failed to create new credential: %s", err.Error())
+			inputs[0].Call("respondWith", js.Global().Get("Promise").Call("resolve", m))
+			return
 		}
 
 		if err := c.store.SaveVC(vc); err != nil {
