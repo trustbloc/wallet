@@ -140,7 +140,7 @@ func TestStoreVC(t *testing.T) {
 		case value := <-valueFlag:
 			require.Equal(t, "Response", value.Get("dataType").String())
 			require.Contains(t, value.Get("data").String(), "failed to create new credential")
-		case <-time.After(1 * time.Second):
+		case <-time.After(2 * time.Second):
 			require.Fail(t, "timeout waiting for response")
 		}
 	})
@@ -170,7 +170,7 @@ func TestStoreVC(t *testing.T) {
 		case value := <-valueFlag:
 			require.Equal(t, "Response", value.Get("dataType").String())
 			require.Contains(t, value.Get("data").String(), "failed to put in vc store")
-		case <-time.After(1 * time.Second):
+		case <-time.After(2 * time.Second):
 			require.Fail(t, "timeout waiting for response")
 		}
 	})
@@ -200,7 +200,7 @@ func TestStoreVC(t *testing.T) {
 		case value := <-valueFlag:
 			require.Equal(t, "Response", value.Get("dataType").String())
 			require.Equal(t, "success", value.Get("data").String())
-		case <-time.After(1 * time.Second):
+		case <-time.After(2 * time.Second):
 			require.Fail(t, "timeout waiting for response")
 		}
 	})

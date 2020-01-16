@@ -9,7 +9,13 @@ import Router from "vue-router";
 Vue.use(Router);
 
 export default new Router({
+    mode: 'history',
     routes: [
+        {
+            name: "homepage",
+            path: "/",
+            component: () => import("@/views/Homepage")
+        },
         {
             name: "createInvitation",
             path: "/CreateInvitation",
@@ -19,6 +25,16 @@ export default new Router({
             name: "storeVC",
             path: "/StoreVC",
             component: () => import("@/views/StoreVC")
+        },
+        {
+            name: "registerWallet",
+            path: "/RegisterWallet",
+            component: () => import("@/views/RegisterWallet")
+        },
+        {
+            name: "worker",
+            path: "/Worker",
+            component: () => import("@/views/Worker")
         }
     ]
 });
