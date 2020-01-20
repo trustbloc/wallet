@@ -8,6 +8,8 @@ SPDX-License-Identifier: Apache-2.0
     <div>
         <textarea id="vcDataTextArea" readonly rows="30" cols="200"/>
         <br>
+        <input id="friendlyName" placeholder="friendly name">
+        <br>
         <button id='storeVCBtn'>Store VC</button>
     </div>
 </template>
@@ -19,7 +21,12 @@ SPDX-License-Identifier: Apache-2.0
         window.console.log('Received vc data:', vcData);
         document.getElementById('vcDataTextArea').value=vcData
         document.getElementById('storeVCBtn').addEventListener('click', () => {
-            window.storeVC(credentialEvent)
+            const friendlyName =  document.getElementById('friendlyName').value
+            if (!friendlyName) {
+                alert("please enter friendly name")
+                return
+            }
+            window.storeVC(credentialEvent,friendlyName)
         });
     }
     export default {
