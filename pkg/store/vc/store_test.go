@@ -105,7 +105,7 @@ func TestRegisterHandleInvitationJSCallback(t *testing.T) {
 		require.True(t, js.Global().Get("storeVC").Truthy())
 	})
 
-	t.Run("test error from register msg event", func(t *testing.T) {
+	t.Run("test error from open store", func(t *testing.T) {
 		err := RegisterHandleJSCallback(&mockProvider{
 			storageProviderValue: &mockstorage.MockStoreProvider{
 				ErrOpenStoreHandle: fmt.Errorf("open store error")}})
@@ -175,8 +175,8 @@ func TestStoreVC(t *testing.T) {
 		}
 	})
 
-	t.Run("test success", func(t *testing.T) {
-		c := callback{store: &mockVCStore{}}
+	t.Run("test error from vc friendly name store", func(t *testing.T) {
+		c := callback{store: &mockVCStore{}, vcFriendlyNameStore: &mockstorage.MockStore{ErrPut: fmt.Errorf("error put")}}
 		m := make(map[string]interface{})
 		m1 := make(map[string]interface{})
 		m1["data"] = credential
@@ -193,7 +193,38 @@ func TestStoreVC(t *testing.T) {
 			return nil
 		})
 		js.Global().Set("Promise", js.ValueOf(m2))
-		c.storeVC(js.Value{}, []js.Value{vcEvent})
+		c.storeVC(js.Value{}, []js.Value{vcEvent, js.ValueOf("vc1")})
+
+		time.Sleep(500 * time.Millisecond)
+		select {
+		case value := <-valueFlag:
+			require.Equal(t, "Response", value.Get("dataType").String())
+			require.Contains(t, value.Get("data").String(), "failed to put in vc friendly name store")
+		case <-time.After(2 * time.Second):
+			require.Fail(t, "timeout waiting for response")
+		}
+	})
+
+	t.Run("test success", func(t *testing.T) {
+		c := callback{store: &mockVCStore{}, vcFriendlyNameStore: &mockstorage.MockStore{
+			Store: make(map[string][]byte)}}
+		m := make(map[string]interface{})
+		m1 := make(map[string]interface{})
+		m1["data"] = credential
+		m["credential"] = m1
+		vcEvent := js.ValueOf(m)
+		vcEvent.Set("respondWith", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			return nil
+		}))
+
+		m2 := make(map[string]interface{})
+		valueFlag := make(chan js.Value, 2)
+		m2["resolve"] = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			valueFlag <- args[0]
+			return nil
+		})
+		js.Global().Set("Promise", js.ValueOf(m2))
+		c.storeVC(js.Value{}, []js.Value{vcEvent, js.ValueOf("vc1")})
 
 		time.Sleep(500 * time.Millisecond)
 		select {

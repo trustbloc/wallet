@@ -13,7 +13,6 @@ import (
 	"syscall/js"
 
 	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
-
 	"github.com/hyperledger/aries-framework-go/pkg/storage"
 	verifiablestore "github.com/hyperledger/aries-framework-go/pkg/store/verifiable"
 )
@@ -33,14 +32,20 @@ func RegisterHandleJSCallback(ctx provider) error {
 		return fmt.Errorf("failed to create new instance of verifiable store: %w", err)
 	}
 
-	c := callback{store: store}
+	vcFriendlyNameStore, err := ctx.StorageProvider().OpenStore("vc-friendlyname")
+	if err != nil {
+		return fmt.Errorf("failed to open vc frindly name store: %w", err)
+	}
+
+	c := callback{store: store, vcFriendlyNameStore: vcFriendlyNameStore}
 	js.Global().Set("storeVC", js.FuncOf(c.storeVC))
 
 	return nil
 }
 
 type callback struct {
-	store vcStore
+	store               vcStore
+	vcFriendlyNameStore storage.Store
 }
 
 func (c *callback) storeVC(this js.Value, inputs []js.Value) interface{} {
@@ -59,6 +64,12 @@ func (c *callback) storeVC(this js.Value, inputs []js.Value) interface{} {
 
 		if err := c.store.SaveVC(vc); err != nil {
 			m["data"] = fmt.Sprintf("failed to put in vc store: %s", err.Error())
+			inputs[0].Call("respondWith", js.Global().Get("Promise").Call("resolve", m))
+			return
+		}
+
+		if err := c.vcFriendlyNameStore.Put(inputs[1].String(), []byte(vc.ID)); err != nil {
+			m["data"] = fmt.Sprintf("failed to put in vc friendly name store: %s", err.Error())
 		}
 
 		inputs[0].Call("respondWith", js.Global().Get("Promise").Call("resolve", m))
