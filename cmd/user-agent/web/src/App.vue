@@ -9,7 +9,6 @@ SPDX-License-Identifier: Apache-2.0
     <ul>
       <li><router-link to="/" exact>Homepage</router-link></li>
       <li><router-link to="/CreateInvitation">Create Invitation</router-link></li>
-      <li><router-link to="/StoreVC">Store VC</router-link></li>
       <li><router-link to="/RegisterWallet">Register Wallet</router-link></li>
     </ul>
     <router-view></router-view>

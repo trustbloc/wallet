@@ -15,7 +15,7 @@ SPDX-License-Identifier: Apache-2.0
         window.console.log('Polyfill loaded.');
 
         const registration = await  window.$webCredentialHandler
-            .installHandler({url: '/Worker'})
+            .installHandler({url: '/worker.html'})
 
         await registration.credentialManager.hints.set(
             'test', {

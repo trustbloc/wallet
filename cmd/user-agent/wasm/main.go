@@ -59,5 +59,8 @@ func main() {
 		js.Global().Call("alert", err.Error())
 	}
 
+	customEvent := js.Global().Get("CustomEvent")
+	js.Global().Get("document").Call("dispatchEvent", customEvent.New("afterLoadingWasm"))
+
 	<-done
 }
