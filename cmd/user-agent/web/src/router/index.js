@@ -27,14 +27,14 @@ export default new Router({
             component: () => import("@/views/StoreVC")
         },
         {
+            name: "getVC",
+            path: "/GetVC",
+            component: () => import("@/views/GetVC")
+        },
+        {
             name: "registerWallet",
             path: "/RegisterWallet",
             component: () => import("@/views/RegisterWallet")
-        },
-        {
-            name: "worker",
-            path: "/Worker",
-            component: () => import("@/views/Worker")
         }
     ]
 });

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Minimal Dev Wallet - Worker</title>
+    <meta charset="utf-8">
+    <script src="https://unpkg.com/credential-handler-polyfill@2.1.1/dist/credential-handler-polyfill.min.js"></script>
+    <script src="https://unpkg.com/web-credential-handler@1.0.1/dist/web-credential-handler.min.js"></script>
+</head>
+<body>
+
+<script>
+    async function activateHandler() {
+        try {
+            await credentialHandlerPolyfill.loadOnce();
+        } catch(e) {
+            console.error('Error in loadOnce:', e);
+        }
+
+        console.log('Worker Polyfill loaded.');
+
+        return WebCredentialHandler.activateHandler({
+            async get(event) {
+                window.console.log('Received get() event:', event.event);
+                return {type: 'redirect', url: '/GetVC'};
+            },
+            async store(event) {
+                window.console.log('Received store() event:', event.event);
+                return {type: 'redirect', url: '/StoreVC'};
+            }
+        })
+    }
+
+    activateHandler();
+</script>
+</body>
+</html>
