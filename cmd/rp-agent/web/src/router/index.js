@@ -20,11 +20,6 @@ export default new Router({
             name: "createInvitation",
             path: "/CreateInvitation",
             component: () => import("@/views/CreateInvitation")
-        },
-        {
-            name: "getVC",
-            path: "/GetVC",
-            component: () => import("@/views/GetVC")
         }
     ]
 });
