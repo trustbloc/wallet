@@ -7,3 +7,22 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/trustbloc/edge-agent)](https://goreportcard.com/report/github.com/trustbloc/edge-agent)
 
 # edge-agent
+
+Edge Agent is agent involved in sending (creating) and receiving (processing) an Agent Message
+
+
+# Components
+
+- [Relying Party Agent WASM](docs/components/rp_agent_wasm.md)
+- [Issuer Agent WASM](docs/components/issuer_agent_wasm.md)
+- [User Agent WASM](docs/components/user_agent_wasm.md)
+
+# Test
+
+- [Test](docs/test/test.md)
+
+## Contributing
+Thank you for your interest in contributing. Please see our [community contribution guidelines](https://github.com/trustbloc/community/blob/master/CONTRIBUTING.md) for more information.
+
+## License
+Apache License, Version 2.0 (Apache-2.0). See the [LICENSE](LICENSE) file.
