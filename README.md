@@ -8,7 +8,7 @@
 
 # edge-agent
 
-Edge Agent is agent involved in sending (creating) and receiving (processing) an Agent Message
+Edge Agent is agent involved in sending (creating) and receiving (processing) an Agent Message.
 
 
 # Components
