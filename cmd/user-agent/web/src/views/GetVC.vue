@@ -10,7 +10,7 @@ SPDX-License-Identifier: Apache-2.0
         <option value="0">Select VC</option>
         </select>
         <br>
-        <button id='getVCBtn'>Get VC</button>
+        <button id='getVCBtn'>Send VC</button>
     </div>
 </template>
 

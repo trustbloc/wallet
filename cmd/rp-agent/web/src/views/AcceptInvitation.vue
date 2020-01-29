@@ -6,6 +6,6 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
     <div>
-        <create-invitation/>
+        <accept-invitation/>
     </div>
 </template>
