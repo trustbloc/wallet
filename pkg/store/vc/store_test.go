@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 	"github.com/hyperledger/aries-framework-go/pkg/storage"
+
 	"github.com/stretchr/testify/require"
 	mockstorage "github.com/trustbloc/edge-agent/pkg/internal/mock/storage"
 )
@@ -54,23 +54,15 @@ var credential = `
 
 func TestRegisterHandleInvitationJSCallback(t *testing.T) {
 	t.Run("test success", func(t *testing.T) {
-		require.NoError(t, RegisterHandleJSCallback(&mockProvider{
-			storageProviderValue: &mockstorage.MockStoreProvider{}}))
+		require.NoError(t, RegisterHandleJSCallback(
+			&mockProvider{storageProviderValue: &mockstorage.MockStoreProvider{}}))
 		require.True(t, js.Global().Get("storeVC").Truthy())
-	})
-
-	t.Run("test error from open store", func(t *testing.T) {
-		err := RegisterHandleJSCallback(&mockProvider{
-			storageProviderValue: &mockstorage.MockStoreProvider{
-				ErrOpenStoreHandle: fmt.Errorf("open store error")}})
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "open store error")
 	})
 }
 
 func TestStoreVC(t *testing.T) {
 	t.Run("test error from new credential", func(t *testing.T) {
-		c := callback{store: &mockVCStore{}}
+		c := callback{vcStore: &mockstorage.MockStore{}}
 		m := make(map[string]interface{})
 		m1 := make(map[string]interface{})
 		m1["data"] = "wrongVC"
@@ -93,14 +85,14 @@ func TestStoreVC(t *testing.T) {
 		select {
 		case value := <-valueFlag:
 			require.Equal(t, "Response", value.Get("dataType").String())
-			require.Contains(t, value.Get("data").String(), "failed to create new credential")
+			require.Contains(t, value.Get("data").String(), "failed to unmarshal vc json")
 		case <-time.After(2 * time.Second):
 			require.Fail(t, "timeout waiting for response")
 		}
 	})
 
 	t.Run("test error from vc store", func(t *testing.T) {
-		c := callback{store: &mockVCStore{saveVCError: fmt.Errorf("put error")}}
+		c := callback{vcStore: &mockstorage.MockStore{ErrPut: fmt.Errorf("put error")}}
 		m := make(map[string]interface{})
 		m1 := make(map[string]interface{})
 		m1["data"] = credential
@@ -130,7 +122,8 @@ func TestStoreVC(t *testing.T) {
 	})
 
 	t.Run("test error from vc friendly name store", func(t *testing.T) {
-		c := callback{store: &mockVCStore{}, vcFriendlyNameStore: &mockstorage.MockStore{ErrPut: fmt.Errorf("error put")}}
+		c := callback{vcStore: &mockstorage.MockStore{
+			Store: make(map[string][]byte)}, vcFriendlyNameStore: &mockstorage.MockStore{ErrPut: fmt.Errorf("error put")}}
 		m := make(map[string]interface{})
 		m1 := make(map[string]interface{})
 		m1["data"] = credential
@@ -160,7 +153,8 @@ func TestStoreVC(t *testing.T) {
 	})
 
 	t.Run("test success", func(t *testing.T) {
-		c := callback{store: &mockVCStore{}, vcFriendlyNameStore: &mockstorage.MockStore{
+		c := callback{vcStore: &mockstorage.MockStore{
+			Store: make(map[string][]byte)}, vcFriendlyNameStore: &mockstorage.MockStore{
 			Store: make(map[string][]byte)}}
 		m := make(map[string]interface{})
 		m1 := make(map[string]interface{})
@@ -195,7 +189,8 @@ func TestPopulateVC(t *testing.T) {
 	t.Run("test success", func(t *testing.T) {
 		s := make(map[string][]byte)
 		js.Global().Set("document1", make(map[string]interface{}))
-		c := callback{store: &mockVCStore{}, vcFriendlyNameStore: &mockstorage.MockStore{
+		c := callback{vcStore: &mockstorage.MockStore{
+			Store: make(map[string][]byte)}, vcFriendlyNameStore: &mockstorage.MockStore{
 			Store: s}, jsDoc: js.Global().Get("document")}
 		c.jsDoc.Set("createElement", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			m := make(map[string]interface{})
@@ -225,7 +220,8 @@ func TestPopulateVC(t *testing.T) {
 
 func TestGetVC(t *testing.T) {
 	t.Run("test error from vc friendly name store", func(t *testing.T) {
-		c := callback{store: &mockVCStore{}, vcFriendlyNameStore: &mockstorage.MockStore{ErrGet: fmt.Errorf("error get")}}
+		c := callback{vcStore: &mockstorage.MockStore{
+			Store: make(map[string][]byte)}, vcFriendlyNameStore: &mockstorage.MockStore{ErrGet: fmt.Errorf("error get")}}
 
 		m := make(map[string]interface{})
 		vcEvent := js.ValueOf(m)
@@ -254,9 +250,7 @@ func TestGetVC(t *testing.T) {
 
 	t.Run("test error from vc store", func(t *testing.T) {
 		s := make(map[string][]byte)
-		c := callback{store: &mockVCStore{getVCFunc: func(vcID string) (v *verifiable.Credential, err error) {
-			return nil, fmt.Errorf("vc store error")
-		}},
+		c := callback{vcStore: &mockstorage.MockStore{ErrGet: fmt.Errorf("vc store error")},
 			vcFriendlyNameStore: &mockstorage.MockStore{Store: s}}
 
 		s[friendlyNamePreFix+"key"] = []byte("vcKey")
@@ -288,11 +282,11 @@ func TestGetVC(t *testing.T) {
 
 	t.Run("test success", func(t *testing.T) {
 		s := make(map[string][]byte)
-		c := callback{store: &mockVCStore{getVCFunc: func(vcID string) (v *verifiable.Credential, err error) {
-			return &verifiable.Credential{ID: "vcID"}, nil
-		}},
+		c := callback{vcStore: &mockstorage.MockStore{
+			Store: s},
 			vcFriendlyNameStore: &mockstorage.MockStore{Store: s}}
 
+		s["vcKey"] = []byte("vcID")
 		s[friendlyNamePreFix+"key"] = []byte("vcKey")
 
 		m := make(map[string]interface{})
@@ -327,17 +321,4 @@ type mockProvider struct {
 
 func (m *mockProvider) StorageProvider() storage.Provider {
 	return m.storageProviderValue
-}
-
-type mockVCStore struct {
-	saveVCError error
-	getVCFunc   func(vcID string) (*verifiable.Credential, error)
-}
-
-func (m *mockVCStore) SaveVC(vc *verifiable.Credential) error {
-	return m.saveVCError
-}
-
-func (m *mockVCStore) GetVC(vcID string) (*verifiable.Credential, error) {
-	return m.getVCFunc(vcID)
 }
