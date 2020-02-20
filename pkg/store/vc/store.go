@@ -2,19 +2,19 @@
 
 /*
 Copyright SecureKey Technologies Inc. All Rights Reserved.
-
 SPDX-License-Identifier: Apache-2.0
 */
 
 package vc
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"syscall/js"
 
+	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 	"github.com/hyperledger/aries-framework-go/pkg/storage"
+	verifiablestore "github.com/hyperledger/aries-framework-go/pkg/store/verifiable"
 )
 
 const (
@@ -25,19 +25,24 @@ type provider interface {
 	StorageProvider() storage.Provider
 }
 
+type vcStore interface {
+	SaveVC(vc *verifiable.Credential) error
+	GetVC(vcID string) (*verifiable.Credential, error)
+}
+
 // RegisterHandleJSCallback register handle vc store js callback
 func RegisterHandleJSCallback(ctx provider) error {
+	store, err := verifiablestore.New(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to create new instance of verifiable store: %w", err)
+	}
+
 	vcFriendlyNameStore, err := ctx.StorageProvider().OpenStore("vc-friendlyname")
 	if err != nil {
 		return fmt.Errorf("failed to open vc frindly name store: %w", err)
 	}
 
-	vcStore, err := ctx.StorageProvider().OpenStore("verifiable")
-	if err != nil {
-		return fmt.Errorf("failed to open vc frindly name store: %w", err)
-	}
-
-	c := callback{vcStore: vcStore, vcFriendlyNameStore: vcFriendlyNameStore, jsDoc: js.Global().Get("document")}
+	c := callback{store: store, vcFriendlyNameStore: vcFriendlyNameStore, jsDoc: js.Global().Get("document")}
 	js.Global().Set("storeVC", js.FuncOf(c.storeVC))
 	js.Global().Set("populateVC", js.FuncOf(c.populateVC))
 	js.Global().Set("getVC", js.FuncOf(c.getVC))
@@ -46,7 +51,7 @@ func RegisterHandleJSCallback(ctx provider) error {
 }
 
 type callback struct {
-	vcStore             storage.Store
+	store               vcStore
 	vcFriendlyNameStore storage.Store
 	jsDoc               js.Value
 }
@@ -58,30 +63,24 @@ func (c *callback) storeVC(this js.Value, inputs []js.Value) interface{} {
 		m["dataType"] = "Response"
 		m["data"] = "success"
 		vcData := inputs[0].Get("credential").Get("data").String()
-
-		var vcMap map[string]interface{}
-		if err := json.Unmarshal([]byte(vcData), &vcMap); err != nil {
-			m["data"] = fmt.Sprintf("failed to unmarshal vc json: %s", err.Error())
+		vc, err := verifiable.NewUnverifiedCredential([]byte(vcData))
+		if err != nil {
+			m["data"] = fmt.Sprintf("failed to create new credential: %s", err.Error())
 			inputs[0].Call("respondWith", js.Global().Get("Promise").Call("resolve", m))
 			return
 		}
 
-		vcID := stringEntry(vcMap["id"])
-		if vcID == "" {
-			m["data"] = fmt.Sprintf("vc id not exist")
-			inputs[0].Call("respondWith", js.Global().Get("Promise").Call("resolve", m))
-			return
-		}
-
-		if err := c.vcStore.Put(vcID, []byte(vcData)); err != nil {
+		if err := c.store.SaveVC(vc); err != nil {
 			m["data"] = fmt.Sprintf("failed to put in vc store: %s", err.Error())
 			inputs[0].Call("respondWith", js.Global().Get("Promise").Call("resolve", m))
 			return
 		}
 
-		if err := c.vcFriendlyNameStore.Put(friendlyNamePreFix+inputs[1].String(), []byte(vcID)); err != nil {
+		if err := c.vcFriendlyNameStore.Put(friendlyNamePreFix+inputs[1].String(), []byte(vc.ID)); err != nil {
 			m["data"] = fmt.Sprintf("failed to put in vc friendly name store: %s", err.Error())
 		}
+
+		fmt.Println("put key in friendlyname store succeeded")
 
 		inputs[0].Call("respondWith", js.Global().Get("Promise").Call("resolve", m))
 	}()
@@ -118,9 +117,16 @@ func (c *callback) getVC(this js.Value, inputs []js.Value) interface{} {
 			return
 		}
 
-		vcBytes, err := c.vcStore.Get(string(vcID))
+		vc, err := c.store.GetVC(string(vcID))
 		if err != nil {
 			m["data"] = fmt.Sprintf("failed to get in vc store: %s", err.Error())
+			inputs[0].Call("respondWith", js.Global().Get("Promise").Call("resolve", m))
+			return
+		}
+
+		vcBytes, err := vc.MarshalJSON()
+		if err != nil {
+			m["data"] = fmt.Sprintf("failed to marshal vc: %s", err.Error())
 			inputs[0].Call("respondWith", js.Global().Get("Promise").Call("resolve", m))
 			return
 		}
@@ -130,13 +136,4 @@ func (c *callback) getVC(this js.Value, inputs []js.Value) interface{} {
 	}()
 
 	return nil
-}
-
-// stringEntry
-func stringEntry(entry interface{}) string {
-	if entry == nil {
-		return ""
-	}
-
-	return entry.(string)
 }
