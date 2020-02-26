@@ -32,6 +32,11 @@ export default new Router({
             component: () => import("@/views/GetVC")
         },
         {
+            name: "myVC",
+            path: "/MyVC",
+            component: () => import("@/views/myVC")
+        },
+        {
             name: "registerWallet",
             path: "/RegisterWallet",
             component: () => import("@/views/RegisterWallet")

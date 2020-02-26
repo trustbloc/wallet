@@ -66,7 +66,9 @@ github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/hyperledger/aries-framework-go v0.1.2-0.20200220221823-fb5c1d69a845 h1:bWjirDFdao/xtNxXWrZYoSaM+v2hMfPP9r/dtPcFHII=
 github.com/hyperledger/aries-framework-go v0.1.2-0.20200220221823-fb5c1d69a845/go.mod h1:/Fy3iGC4G2sD4HgKDC17CGcLLFFBTTgR5lEp2INNXbw=
+github.com/hyperledger/aries-framework-go v0.1.2-0.20200226031908-1aef12b7b826 h1:SKdGTcCWO5FyNh2eUdL0b00sN11UOCBBqd8mutCesYY=
 github.com/hyperledger/aries-framework-go v0.1.2-0.20200226031908-1aef12b7b826/go.mod h1:e2VM3jE+OQgICspFVhUkV6n1MmiHXaD+6xG7TxdHaGI=
+github.com/hyperledger/aries-framework-go v0.1.2 h1:7KIj/6Z9xYb+M951/GlIE48LqFAVbTBju1rB/e4zCgk=
 github.com/hyperledger/aries-framework-go v0.1.2/go.mod h1:p7zzPz5BTer52kgbbEaLuNFtZ83Q7GnW1cUnKkIRDc0=
 github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
@@ -104,6 +106,8 @@ github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZN
 github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 h1:J9b7z+QKAmPf4YLrFg6oQUotqHQeUNWwkvo7jZp1GLU=
 github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35/go.mod h1:prYjPmNq4d1NPVmpShWobRqXY3q7Vp+80DqgxxUrUIA=
 github.com/rs/cors v1.7.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
+github.com/skip2/go-qrcode v0.0.0-20191027152451-9434209cb086 h1:RYiqpb2ii2Z6J4x0wxK46kvPBbFuZcdhS+CIztmYgZs=
+github.com/skip2/go-qrcode v0.0.0-20191027152451-9434209cb086/go.mod h1:PLPIyL7ikehBD1OAjmKKiOEhbvWyHGaNDjquXMcYABo=
 github.com/spaolacci/murmur3 v1.1.0 h1:7c1g84S4BPRrfL5Xrdp6fOJ206sU9y293DDHaoy0bLI=
 github.com/spaolacci/murmur3 v1.1.0/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
 github.com/square/go-jose/v3 v3.0.0-20191119004800-96c717272387 h1:PjfQbTWDEoNh4v+4NNirclXoCIxjjLXsqSAP1iYxuOM=
