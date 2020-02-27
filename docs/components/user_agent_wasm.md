@@ -5,3 +5,4 @@ User Agent WASM is a javascript project that use [Vue](https://vuejs.org) framew
 features:
 - Create [DID exchange](https://github.com/hyperledger/aries-rfcs/tree/master/features/0023-did-exchange)
 - Storing and retrieving verifiable credentials using [CHAPI](https://github.com/digitalbazaar/credential-handler-polyfill)
+- Create QR Code for the stored verifiable presentations (VP) (right now it's verifiable credentials but will eventually be replaced by VP)
