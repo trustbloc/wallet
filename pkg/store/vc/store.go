@@ -161,12 +161,20 @@ func (c *callback) createQRCode(this js.Value, inputs []js.Value) interface{} {
 			m["data"] = fmt.Sprintf("failed to get in vc store: %s", err.Error())
 			return
 		}
-		vcBytes, err := vc.MarshalJSON()
+
+		// create verifiable presentation for retrieved credential
+		vp, err := vc.Presentation()
 		if err != nil {
-			m["data"] = fmt.Sprintf("failed to marshal vc: %s", err.Error())
+			m["data"] = fmt.Sprintf("failed to get the verifiable presentation: %s", err.Error())
 			return
 		}
-		generateQRCode(string(vcBytes))
+
+		vpBytes, err := vp.MarshalJSON()
+		if err != nil {
+			m["data"] = fmt.Sprintf("failed to marshal vp: %s", err.Error())
+			return
+		}
+		generateQRCode(string(vpBytes))
 	}()
 
 	return nil
@@ -179,7 +187,7 @@ func generateQRCode(data string) {
 
 	generateQRCode = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		if len(data) > 0 {
-			fmt.Println("Building QR Code for", data)
+			fmt.Println("Building QR Code for VP", data)
 
 			png, err := qrcode.Encode(data, qrcode.Medium, 256)
 			if err != nil {
