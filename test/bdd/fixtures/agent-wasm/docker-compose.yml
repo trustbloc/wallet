@@ -8,19 +8,6 @@ version: '2'
 
 services:
 
-  issuer.agent.example.com:
-    container_name: issuer.agent.example.com
-    image: ${ISSUER_WASM_IMAGE}:latest
-    environment:
-      - HTTP_SERVER_HOST_URL=0.0.0.0:8090
-      - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
-      - TLS_KEY_FILE=/etc/tls/ec-key.pem
-    ports:
-      - 8090:8090
-    volumes:
-      - ../keys/tls:/etc/tls
-    command: start
-
   user.agent.example.com:
     container_name: user.agent.example.com
     image: ${USER_WASM_IMAGE}:latest
@@ -30,19 +17,6 @@ services:
       - TLS_KEY_FILE=/etc/tls/ec-key.pem
     ports:
       - 8091:8091
-    volumes:
-      - ../keys/tls:/etc/tls
-    command: start
-
-  rp.agent.example.com:
-    container_name: rp.agent.example.com
-    image: ${RP_WASM_IMAGE}:latest
-    environment:
-      - HTTP_SERVER_HOST_URL=0.0.0.0:8092
-      - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
-      - TLS_KEY_FILE=/etc/tls/ec-key.pem
-    ports:
-      - 8092:8092
     volumes:
       - ../keys/tls:/etc/tls
     command: start

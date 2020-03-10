@@ -48,17 +48,9 @@ unit-test-wasm: depend
 agent-wasm:
 	@scripts/build_agent_wasm.sh ${AGENT_NAME}
 
-.PHONY: issuer-agent-wasm
-issuer-agent-wasm:
-	AGENT_NAME="issuer" make agent-wasm
-
 .PHONY: user-agent-wasm
 user-agent-wasm:
 	AGENT_NAME="user" make agent-wasm
-
-.PHONY: rp-agent-wasm
-rp-agent-wasm:
-	AGENT_NAME="rp" make agent-wasm
 
 .PHONY: http-server
 http-server:
@@ -66,17 +58,9 @@ http-server:
 	@mkdir -p ./build/bin/wasm
 	@cd ${HTTP_SERVER_PATH} && go build -o ../../build/bin/http-server main.go
 
-.PHONY: issuer-agent-wasm-docker
-issuer-agent-wasm-docker:
-	AGENT_NAME="issuer" make agent-wasm-docker
-
 .PHONY: user-agent-wasm-docker
 user-agent-wasm-docker:
 	AGENT_NAME="user" make agent-wasm-docker
-
-.PHONY: rp-agent-wasm-docker
-rp-agent-wasm-docker:
-	AGENT_NAME="rp" make agent-wasm-docker
 
 .PHONY: agent-wasm-docker
 agent-wasm-docker: clean
@@ -101,9 +85,5 @@ clean: clean-build
 clean-build:
 	@rm -Rf ./build
 	@rm -Rf ./test/bdd/fixtures/keys/tls
-	@rm -Rf ./cmd/issuer-agent/web/dist
 	@rm -Rf ./cmd/user-agent/web/dist
-	@rm -Rf ./cmd/rp-agent/web/dist
-	@rm -Rf ./cmd/issuer-agent/web/node_modules
 	@rm -Rf ./cmd/user-agent/web/node_modules
-	@rm -Rf ./cmd/rp-agent/web/node_modules
