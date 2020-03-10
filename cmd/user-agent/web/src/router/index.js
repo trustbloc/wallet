@@ -17,11 +17,6 @@ export default new Router({
             component: () => import("@/views/Homepage")
         },
         {
-            name: "acceptInvitation",
-            path: "/AcceptInvitation",
-            component: () => import("@/views/AcceptInvitation")
-        },
-        {
             name: "storeVC",
             path: "/StoreVC",
             component: () => import("@/views/StoreVC")

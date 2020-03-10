@@ -13,8 +13,6 @@ Edge Agent is agent involved in sending (creating) and receiving (processing) an
 
 # Components
 
-- [Relying Party Agent WASM](docs/components/rp_agent_wasm.md)
-- [Issuer Agent WASM](docs/components/issuer_agent_wasm.md)
 - [User Agent WASM](docs/components/user_agent_wasm.md)
 
 # Test

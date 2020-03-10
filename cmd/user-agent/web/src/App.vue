@@ -8,7 +8,6 @@ SPDX-License-Identifier: Apache-2.0
   <div id="app">
     <ul>
       <li><router-link to="/" exact>Homepage</router-link></li>
-      <li><router-link to="/AcceptInvitation">Accept Invitation</router-link></li>
       <li><router-link to="/RegisterWallet">Register Wallet</router-link></li>
       <li><router-link to="/MyVC">My Credentials</router-link></li>
     </ul>
