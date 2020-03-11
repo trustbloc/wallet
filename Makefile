@@ -64,11 +64,12 @@ user-agent-wasm-docker:
 
 .PHONY: agent-wasm-docker
 agent-wasm-docker: clean
-	@echo "Building issuer agent wasm docker image"
+	@echo "Building agent wasm docker image"
 	@docker build -f ./images/agent-wasm/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(WASM_IMAGE_NAME)/${AGENT_NAME}-agent-wasm:latest \
 	--build-arg GO_VER=$(GO_VER) \
 	--build-arg ALPINE_VER=$(ALPINE_VER) \
 	--build-arg GO_TAGS=$(GO_TAGS) \
+	--build-arg GITHUB_NPM_TOKEN=$(GITHUB_NPM_TOKEN) \
 	--build-arg NAME=${AGENT_NAME} .
 
 generate-test-keys:
@@ -77,6 +78,10 @@ generate-test-keys:
 		-v $(abspath .):/opt/workspace/edge-agent \
 		--entrypoint "/opt/workspace/edge-agent/scripts/generate_test_keys.sh" \
 		frapsoft/openssl
+
+.PHONY: user-agent-start
+user-agent-start: clean user-agent-wasm-docker generate-test-keys
+	@scripts/user_agent_start.sh
 
 .PHONY: clean
 clean: clean-build
