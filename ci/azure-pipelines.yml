@@ -17,6 +17,8 @@ jobs:
       - template: azp-dependencies.yml
       - checkout: self
       - script: make checks
+        env:
+          GITHUB_NPM_TOKEN: $(DOCKER_PASSWORD)
         displayName: Run checks
 
   - job: UnitTest
@@ -68,3 +70,4 @@ jobs:
         env:
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)
+          GITHUB_NPM_TOKEN: $(DOCKER_PASSWORD)
