@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-    <h>User agent homepage</h>
+    <h4>User agent homepage</h4>
 </template>
 
 

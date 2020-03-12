@@ -17,7 +17,7 @@ WASM_IMAGE_NAME          ?= trustbloc/edge-agent
 
 
 .PHONY: all
-all: clean checks unit-test unit-test-wasm
+all: clean checks unit-test
 
 .PHONY: depend
 depend:
@@ -38,11 +38,6 @@ license:
 .PHONY: unit-test
 unit-test:
 	@scripts/check_unit.sh
-
-.PHONY: unit-test-wasm
-unit-test-wasm: export GOBIN=$(GOBIN_PATH)
-unit-test-wasm: depend
-	@scripts/check_unit_wasm.sh
 
 .PHONY: agent-wasm
 agent-wasm:
@@ -69,7 +64,7 @@ agent-wasm-docker: clean
 	--build-arg GO_VER=$(GO_VER) \
 	--build-arg ALPINE_VER=$(ALPINE_VER) \
 	--build-arg GO_TAGS=$(GO_TAGS) \
-	--build-arg GITHUB_NPM_TOKEN=$(GITHUB_NPM_TOKEN) \
+	--build-arg GITHUB_TOKEN=$(GITHUB_TOKEN) \
 	--build-arg NAME=${AGENT_NAME} .
 
 generate-test-keys:
@@ -90,5 +85,5 @@ clean: clean-build
 clean-build:
 	@rm -Rf ./build
 	@rm -Rf ./test/bdd/fixtures/keys/tls
-	@rm -Rf ./cmd/user-agent/web/dist
+	@rm -Rf ./cmd/user-agent/dist
 	@rm -Rf ./cmd/user-agent/web/node_modules
