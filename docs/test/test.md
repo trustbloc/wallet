@@ -5,6 +5,8 @@
 - Vue.js
 - Go 1.13
 - Npm
+- GitHub packages setup : generate github [personal token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line#creating-a-token) 
+and set it to GITHUB_TOKEN [environment variable](https://en.wikipedia.org/wiki/Environment_variable).
 
 ## Prerequisites (for running tests and demos)
 - Docker

@@ -29,7 +29,7 @@ export default new Router({
         {
             name: "myVC",
             path: "/MyVC",
-            component: () => import("@/views/myVC")
+            component: () => import("@/views/MyVC")
         },
         {
             name: "registerWallet",

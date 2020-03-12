@@ -21,17 +21,7 @@ async function loadAriesOnce() {
         .catch(err => console.log('error importing aries library : errMsg=' + err.message))
 
     if (!Vue.prototype.$aries) {
-        // TODO start up option should be fetched from environment
-        await new Aries.Framework({
-            assetsPath: "/aries-framework-go/assets",
-            "agent-default-label": "dem-js-agent",
-            "http-resolver-url": [],
-            "auto-accept": true,
-            "outbound-transport": ["ws", "http"],
-            "transport-return-route": "all",
-            "log-level": "debug",
-            "db-namespace": "agent"
-        }).then(resp => {
+        await new Aries.Framework(ariesStartupOpts()).then(resp => {
             Vue.prototype.$aries = resp
             console.log('aries started successfully')
         }).catch(err => {
@@ -42,9 +32,24 @@ async function loadAriesOnce() {
     return Vue.prototype.$aries
 }
 
+function ariesStartupOpts() {
+    // TODO start up option should be fetched from environment
+    return {
+        assetsPath: "/aries-framework-go/assets",
+        "agent-default-label": "dem-js-agent",
+        "http-resolver-url": [],
+        "auto-accept": true,
+        "outbound-transport": ["ws", "http"],
+        "transport-return-route": "all",
+        "log-level": "debug",
+        "db-namespace": "agent"
+    }
+}
+
 Vue.prototype.$arieslib = loadAriesOnce()
 
 new Vue({
     router,
     render: h => h(App),
 }).$mount('#app')
+
