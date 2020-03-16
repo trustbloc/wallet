@@ -7,11 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 package startcmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/lpar/gzipped"
@@ -43,41 +45,100 @@ const (
 	tlsKeyFileFlagUsage     = "tls key file." +
 		" Alternatively, this can be set with the following environment variable: " + tlsKeyFileEnvKey
 	tlsKeyFileEnvKey = "TLS_KEY_FILE"
+
+	// auto accept flag
+	agentAutoAcceptFlagName  = "auto-accept"
+	agentAutoAcceptEnvKey    = "ARIESD_AUTO_ACCEPT"
+	agentAutoAcceptFlagUsage = "Auto accept requests." +
+		" Possible values [true] [false]. Defaults to false if not set." +
+		" Alternatively, this can be set with the following environment variable: " + agentAutoAcceptEnvKey
+
+	// log level
+	agentLogLevelFlagName  = "log-level"
+	agentLogLevelEnvKey    = "ARIESD_LOG_LEVEL"
+	agentLogLevelFlagUsage = "Log Level." +
+		" Possible values [INFO] [DEBUG] [ERROR] [WARNING] [CRITICAL] . Defaults to INFO if not set." +
+		" Alternatively, this can be set with the following environment variable (in CSV format): " + agentLogLevelEnvKey
+
+	// default label flag
+	agentDefaultLabelFlagName      = "agent-default-label"
+	agentDefaultLabelEnvKey        = "ARIESD_DEFAULT_LABEL"
+	agentDefaultLabelFlagShorthand = "l"
+	agentDefaultLabelFlagUsage     = "Default Label for this agent. Defaults to blank if not set." +
+		" Alternatively, this can be set with the following environment variable: " + agentDefaultLabelEnvKey
+
+	// db namespace flag
+	agentDBNSFlagName      = "db-namespace"
+	agentDBNSEnvKey        = "ARIESD_DB_NAMESPACE"
+	agentDBNSFlagShorthand = "d"
+	agentDBNSFlagUsage     = "database namespace." +
+		" Alternatively, this can be set with the following environment variable: " + agentDBNSEnvKey
+
+	// http resolver url flag
+	agentHTTPResolverFlagName      = "http-resolver-url"
+	agentHTTPResolverEnvKey        = "ARIESD_HTTP_RESOLVER"
+	agentHTTPResolverFlagShorthand = "r"
+	agentHTTPResolverFlagUsage     = "HTTP binding DID resolver method and url. Values should be in `method@url` format." +
+		" This flag can be repeated, allowing multiple http resolvers. Defaults to peer DID resolver if not set." +
+		" Alternatively, this can be set with the following environment variable (in CSV format): " +
+		agentHTTPResolverEnvKey
+
+	// aries opts path
+	ariesStartupOptsPath = "/aries/jsopts"
+	indexHTLMPath        = "/index.html"
+	basePath             = "/"
 )
 
 type server interface {
-	ListenAndServe(host, certFile, keyFile, rootPath string) error
+	ListenAndServe(host, certFile, keyFile, rootPath string, opts *ariesJSOpts) error
 }
 
 // HTTPServer represents an actual HTTP server implementation.
 type HTTPServer struct{}
 
 // ListenAndServe starts the server using the standard Go HTTP server implementation.
-func (s *HTTPServer) ListenAndServe(host, certFile, keyFile, rootPath string) error {
-	return http.ListenAndServeTLS(host, certFile, keyFile, VueHandler(rootPath))
+func (s *HTTPServer) ListenAndServe(host, certFile, keyFile, rootPath string, opts *ariesJSOpts) error {
+	return http.ListenAndServeTLS(host, certFile, keyFile, VueHandler(rootPath, opts))
+}
+
+type ariesJSOpts struct {
+	HTTPResolvedURLs  []string `json:"http-resolver-url,omitempty"`
+	AgentDefaultLabel string   `json:"agent-default-label,omitempty"`
+	AutoAccept        bool     `json:"auto-accept,omitempty"`
+	LogLevel          string   `json:"log-level,omitempty"`
+	DBNamespace       string   `json:"db-namespace,omitempty"`
 }
 
 // VueHandler return a http.Handler that supports Vue Router app with history mode
-func VueHandler(publicDir string) http.Handler {
+func VueHandler(publicDir string, opts *ariesJSOpts) http.Handler {
 	handler := gzipped.FileServer(http.Dir(publicDir))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		urlPath := req.URL.Path
 
+		// aries js opts
+		if urlPath == ariesStartupOptsPath {
+			j, _ := json.Marshal(opts) // nolint errcheck
+
+			w.Write(j) // nolint errcheck
+			return
+		}
+
 		// static files
-		if strings.Contains(urlPath, ".") || urlPath == "/" {
+		if urlPath == basePath || strings.Contains(urlPath, ".") {
 			handler.ServeHTTP(w, req)
 			return
 		}
 
 		// the all 404 gonna be served as root
-		http.ServeFile(w, req, path.Join(publicDir, "/index.html"))
+		http.ServeFile(w, req, path.Join(publicDir, indexHTLMPath))
 	})
 }
 
 type httpServerParameters struct {
 	srv                                        server
 	hostURL, wasmPath, tlsCertFile, tlsKeyFile string
+	opts                                       *ariesJSOpts
 }
 
 // GetStartCmd returns the Cobra start command.
@@ -95,9 +156,9 @@ func createStartCmd(srv server) *cobra.Command {
 		Short: "Start http server",
 		Long:  "Start http server",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			hostURL, err := getUserSetVar(cmd, hostURLFlagName, hostURLEnvKey, false)
-			if err != nil {
-				return err
+			hostURL, hostURLErr := getUserSetVar(cmd, hostURLFlagName, hostURLEnvKey, false)
+			if hostURLErr != nil {
+				return hostURLErr
 			}
 
 			wasmPath, err := getUserSetVar(cmd, wasmPathFlagName, wasmPathEnvKey, true)
@@ -105,22 +166,28 @@ func createStartCmd(srv server) *cobra.Command {
 				return err
 			}
 
-			tlsCertFile, err := getUserSetVar(cmd, tlsCertFileFlagName, tlsCertFileEnvKey, false)
-			if err != nil {
-				return err
+			tlsCertFile, tlsCertFileErr := getUserSetVar(cmd, tlsCertFileFlagName, tlsCertFileEnvKey, false)
+			if tlsCertFileErr != nil {
+				return tlsCertFileErr
 			}
 
-			tlsKeyFile, err := getUserSetVar(cmd, tlsKeyFileFlagName, tlsKeyFileEnvKey, false)
-			if err != nil {
-				return err
+			tlsKeyFile, tlsKeyFileErr := getUserSetVar(cmd, tlsKeyFileFlagName, tlsKeyFileEnvKey, false)
+			if tlsKeyFileErr != nil {
+				return tlsKeyFileErr
+			}
+
+			opt, optErr := fetchAriesWASMAgentOpts(cmd)
+			if optErr != nil {
+				return optErr
 			}
 
 			parameters := &httpServerParameters{
 				srv:         srv,
-				hostURL:     hostURL,
 				wasmPath:    wasmPath,
+				hostURL:     hostURL,
 				tlsCertFile: tlsCertFile,
 				tlsKeyFile:  tlsKeyFile,
+				opts:        opt,
 			}
 			return startHTTPServer(parameters)
 		},
@@ -128,10 +195,26 @@ func createStartCmd(srv server) *cobra.Command {
 }
 
 func createFlags(startCmd *cobra.Command) {
-	startCmd.Flags().StringP(hostURLFlagName, hostURLFlagShorthand, "", hostURLFlagUsage)
+	// wasm path flag
 	startCmd.Flags().StringP(wasmPathFlagName, wasmPathFlagShorthand, "", wasmPathFlagUsage)
-	startCmd.Flags().StringP(tlsCertFileFlagName, tlsCertFileFlagShorthand, "", tlsCertFileFlagUsage)
+	// tls cert key flag
 	startCmd.Flags().StringP(tlsKeyFileFlagName, tlsKeyFileFlagShorthand, "", tlsKeyFileFlagUsage)
+	// host url flag
+	startCmd.Flags().StringP(hostURLFlagName, hostURLFlagShorthand, "", hostURLFlagUsage)
+	// tls cert file flag
+	startCmd.Flags().StringP(tlsCertFileFlagName, tlsCertFileFlagShorthand, "", tlsCertFileFlagUsage)
+	// aries db path flag
+	startCmd.Flags().StringP(agentDBNSFlagName, agentDBNSFlagShorthand, "", agentDBNSFlagUsage)
+	// aries log level
+	startCmd.Flags().StringP(agentLogLevelFlagName, "", "", agentLogLevelFlagUsage)
+	// aries agent default label flag
+	startCmd.Flags().StringP(agentDefaultLabelFlagName, agentDefaultLabelFlagShorthand, "",
+		agentDefaultLabelFlagUsage)
+	// aries auto accept flag
+	startCmd.Flags().StringP(agentAutoAcceptFlagName, "", "", agentAutoAcceptFlagUsage)
+	// aries http resolver url flag
+	startCmd.Flags().StringSliceP(agentHTTPResolverFlagName, agentHTTPResolverFlagShorthand, []string{},
+		agentHTTPResolverFlagUsage)
 }
 
 func getUserSetVar(cmd *cobra.Command, flagName, envKey string, isOptional bool) (string, error) {
@@ -162,13 +245,93 @@ func getUserSetVar(cmd *cobra.Command, flagName, envKey string, isOptional bool)
 		" (environment variable) have been set.")
 }
 
+func getUserSetVars(cmd *cobra.Command, hostFlagName,
+	envKey string, isOptional bool) ([]string, error) {
+	if cmd.Flags().Changed(hostFlagName) {
+		value, err := cmd.Flags().GetStringSlice(hostFlagName)
+		if err != nil {
+			return nil, fmt.Errorf(hostFlagName+" flag not found: %s", err)
+		}
+
+		return value, nil
+	}
+
+	value, isSet := os.LookupEnv(envKey)
+
+	var values []string
+
+	if isSet {
+		values = strings.Split(value, ",")
+	}
+
+	if isOptional || isSet {
+		return values, nil
+	}
+
+	return nil, fmt.Errorf(" %s not set. "+
+		"It must be set via either command line or environment variable", hostFlagName)
+}
+
+func fetchAriesWASMAgentOpts(cmd *cobra.Command) (*ariesJSOpts, error) {
+	defaultLabel, err := getUserSetVar(cmd, agentDefaultLabelFlagName, agentDefaultLabelEnvKey, true)
+	if err != nil {
+		return nil, err
+	}
+
+	dbNS, err := getUserSetVar(cmd, agentDBNSFlagName, agentDBNSEnvKey, true)
+	if err != nil {
+		return nil, err
+	}
+
+	logLevel, err := getUserSetVar(cmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
+	if err != nil {
+		return nil, err
+	}
+
+	autoAccept, err := getAutoAcceptValue(cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	httpResolvers, err := getUserSetVars(cmd, agentHTTPResolverFlagName, agentHTTPResolverEnvKey, true)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ariesJSOpts{
+		HTTPResolvedURLs:  httpResolvers,
+		AgentDefaultLabel: defaultLabel,
+		AutoAccept:        autoAccept,
+		LogLevel:          logLevel,
+		DBNamespace:       dbNS,
+	}, nil
+}
+
+func getAutoAcceptValue(cmd *cobra.Command) (bool, error) {
+	v, err := getUserSetVar(cmd, agentAutoAcceptFlagName, agentAutoAcceptEnvKey, true)
+	if err != nil {
+		return false, err
+	}
+
+	if v == "" {
+		return false, nil
+	}
+
+	val, err := strconv.ParseBool(v)
+	if err != nil {
+		return false, fmt.Errorf("invalid option - set true or false as the value")
+	}
+
+	return val, nil
+}
+
 func startHTTPServer(parameters *httpServerParameters) error {
 	if parameters.wasmPath == "" {
 		parameters.wasmPath = "."
 	}
 
 	err := parameters.srv.ListenAndServe(
-		parameters.hostURL, parameters.tlsCertFile, parameters.tlsKeyFile, parameters.wasmPath)
+		parameters.hostURL, parameters.tlsCertFile, parameters.tlsKeyFile, parameters.wasmPath, parameters.opts)
 	if err != nil {
 		return fmt.Errorf("http server closed unexpectedly: %s", err)
 	}

@@ -15,6 +15,7 @@ services:
       - HTTP_SERVER_HOST_URL=0.0.0.0:8091
       - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
       - TLS_KEY_FILE=/etc/tls/ec-key.pem
+      - ARIESD_DEFAULT_LABEL=user-agent
     ports:
       - 8091:8091
     volumes:
