@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package startcmd
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"os"
@@ -16,10 +17,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type mockServer struct{}
+type mockServer struct {
+	Err error
+}
 
-func (s *mockServer) ListenAndServe(host, certFile, keyFile, rootPath string) error {
-	return nil
+func (s *mockServer) ListenAndServe(host, certFile, keyFile, rootPath string, opts *ariesJSOpts) error {
+	return s.Err
 }
 
 type mockHTTPResponseWriter struct{}
@@ -37,15 +40,16 @@ func (m *mockHTTPResponseWriter) WriteHeader(statusCode int) {
 }
 
 func TestVueHandler(t *testing.T) {
-	h := VueHandler("")
+	h := VueHandler("", &ariesJSOpts{})
 	require.NotNil(t, h)
 	h.ServeHTTP(&mockHTTPResponseWriter{}, &http.Request{URL: &url.URL{}})
 	h.ServeHTTP(&mockHTTPResponseWriter{}, &http.Request{URL: &url.URL{Path: "."}})
+	h.ServeHTTP(&mockHTTPResponseWriter{}, &http.Request{URL: &url.URL{Path: "/aries/jsopts"}})
 }
 
 func TestListenAndServe(t *testing.T) {
 	h := HTTPServer{}
-	err := h.ListenAndServe("localhost:8080", "test.key", "test.cert", "")
+	err := h.ListenAndServe("localhost:8080", "test.key", "test.cert", "", &ariesJSOpts{})
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "open test.key: no such file or directory")
 }
@@ -135,6 +139,39 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"Neither tls-key-file (command line flag) nor TLS_KEY_FILE (environment variable) have been set.",
 			err.Error())
 	})
+
+	t.Run("test invalid auto accept flag", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + agentAutoAcceptFlagName, "invalid",
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t,
+			"invalid option - set true or false as the value",
+			err.Error())
+	})
+
+	t.Run("test invalid auto accept flag", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{Err: errors.New("error starting the server")})
+
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + agentAutoAcceptFlagName, "false",
+			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "error starting the server")
+	})
 }
 
 func TestStartCmdValidArgs(t *testing.T) {
@@ -142,7 +179,9 @@ func TestStartCmdValidArgs(t *testing.T) {
 
 	args := []string{
 		"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-		"--" + tlsKeyFileFlagName, "key"}
+		"--" + tlsKeyFileFlagName, "key",
+		"--" + agentAutoAcceptFlagName, "false",
+		"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901"}
 	startCmd.SetArgs(args)
 
 	err := startCmd.Execute()
@@ -217,6 +256,28 @@ func TestStartCmdWithBlankEnvVar(t *testing.T) {
 		err = startCmd.Execute()
 		require.Error(t, err)
 		require.Equal(t, "TLS_KEY_FILE value is empty", err.Error())
+	})
+}
+
+func TestGetUserSetVar(t *testing.T) {
+	startCmd := GetStartCmd(&mockServer{})
+
+	t.Run("missing mandatory value", func(t *testing.T) {
+		vals, err := getUserSetVars(startCmd, agentLogLevelFlagName, agentLogLevelEnvKey, false)
+		require.Error(t, err)
+		require.Equal(t,
+			" log-level not set. It must be set via either command line or environment variable",
+			err.Error())
+		require.Empty(t, vals)
+	})
+
+	t.Run("valid env value", func(t *testing.T) {
+		err := os.Setenv(agentLogLevelEnvKey, "sidetree@localhost:8080,uni@localhost:8900")
+		require.NoError(t, err)
+
+		vals, err := getUserSetVars(startCmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
+		require.NoError(t, err)
+		require.Equal(t, 2, len(vals))
 	})
 }
 

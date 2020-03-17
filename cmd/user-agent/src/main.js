@@ -21,7 +21,10 @@ async function loadAriesOnce() {
         .catch(err => console.log('error importing aries library : errMsg=' + err.message))
 
     if (!Vue.prototype.$aries) {
-        await new Aries.Framework(ariesStartupOpts()).then(resp => {
+        let startupOpts = await ariesStartupOpts()
+        console.log("aries startup options ", JSON.stringify(startupOpts))
+
+        await new Aries.Framework(startupOpts).then(resp => {
             Vue.prototype.$aries = resp
             console.log('aries started successfully')
         }).catch(err => {
@@ -32,17 +35,44 @@ async function loadAriesOnce() {
     return Vue.prototype.$aries
 }
 
-function ariesStartupOpts() {
-    // TODO start up option should be fetched from environment
+
+let defaultAriesStartupOpts = {
+    assetsPath: '/aries-framework-go/assets',
+    'outbound-transport': ['ws', 'http'],
+    'transport-return-route': 'all',
+    'http-resolver-url': [],
+    'agent-default-label': 'demo-user-agent',
+    'auto-accept': true,
+    'log-level': 'debug',
+    'db-namespace': 'agent'
+}
+
+async function ariesStartupOpts() {
+    let startupOpts = {}
+
+    if (process.env.NODE_ENV === "production") {
+        const axios = require('axios').default;
+
+        // call service to get the opts
+        await axios.get(window.location.origin + '/aries/jsopts')
+            .then(resp => {
+                startupOpts = resp.data
+                console.log("successfully fetched start up options: resp=" + JSON.stringify(startupOpts));
+            })
+            .catch(err => {
+                console.log("error fetching start up options - using default options : errMsg=", err);
+            })
+    }
+
     return {
-        assetsPath: "/aries-framework-go/assets",
-        "agent-default-label": "dem-js-agent",
-        "http-resolver-url": [],
-        "auto-accept": true,
-        "outbound-transport": ["ws", "http"],
-        "transport-return-route": "all",
-        "log-level": "debug",
-        "db-namespace": "agent"
+        assetsPath: defaultAriesStartupOpts['assetsPath'],
+        'outbound-transport': defaultAriesStartupOpts['outbound-transport'],
+        'transport-return-route': defaultAriesStartupOpts['transport-return-route'],
+        'http-resolver-url': ('http-resolver-url' in startupOpts) ? startupOpts['http-resolver-url'] : defaultAriesStartupOpts['http-resolver-url'],
+        'agent-default-label': ('agent-default-label' in startupOpts) ? startupOpts['agent-default-label'] : defaultAriesStartupOpts['agent-default-label'],
+        'auto-accept': ('auto-accept' in startupOpts) ? startupOpts['auto-accept'] : defaultAriesStartupOpts['auto-accept'],
+        'log-level': ('log-level' in startupOpts) ? startupOpts['log-level'] : defaultAriesStartupOpts['log-level'],
+        'db-namespace': ('db-namespace' in startupOpts) ? startupOpts['db-namespace'] : defaultAriesStartupOpts['db-namespace']
     }
 }
 
