@@ -9,7 +9,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@hyperledger/aries-framework-go": "0.1.3-snapshot-a4667b9",
+    "@hyperledger/aries-framework-go": "0.1.3-snapshot-ee383cb",
     "axios": "^0.19.0",
     "core-js": "^3.4.3",
     "credential-handler-polyfill": "^2.1.0",
