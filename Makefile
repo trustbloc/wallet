@@ -39,6 +39,11 @@ license:
 unit-test:
 	@scripts/check_unit.sh
 
+.PHONY: unit-test-wasm
+unit-test-wasm: export GOBIN=$(GOBIN_PATH)
+unit-test-wasm: depend
+	@scripts/check_unit_wasm.sh
+
 .PHONY: agent-wasm
 agent-wasm:
 	@scripts/build_agent_wasm.sh ${AGENT_NAME}
@@ -67,6 +72,7 @@ agent-wasm-docker: clean
 	--build-arg GITHUB_TOKEN=$(GITHUB_TOKEN) \
 	--build-arg NAME=${AGENT_NAME} .
 
+.PHONY: generate-test-keys
 generate-test-keys:
 	@mkdir -p -p test/bdd/fixtures/keys/tls
 	@docker run -i --rm \
@@ -75,8 +81,12 @@ generate-test-keys:
 		frapsoft/openssl
 
 .PHONY: user-agent-start
-user-agent-start: clean user-agent-wasm-docker generate-test-keys
+user-agent-start: clean user-agent-wasm-docker generate-test-config generate-test-keys
 	@scripts/user_agent_start.sh
+
+.PHONY: generate-test-config
+generate-test-config:
+	@scripts/generate_test_config.sh
 
 .PHONY: clean
 clean: clean-build
@@ -87,3 +97,4 @@ clean-build:
 	@rm -Rf ./test/bdd/fixtures/keys/tls
 	@rm -Rf ./cmd/user-agent/dist
 	@rm -Rf ./cmd/user-agent/web/node_modules
+	@rm -Rf ./test/bdd/fixtures/agent-wasm/config

@@ -1,0 +1,151 @@
+<!--
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+ -->
+
+<!--
+This is a test page for developers to test WASM integration.
+-->
+
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <script src="dist/web/useragent.js"></script>
+    <script>
+        var useragent
+
+        async function startUserAgent() {
+            if (useragent) {
+                console.error("user agent is already initialized")
+                document.querySelector("#output").value = "useragent is already initialized"
+                return
+            }
+
+            const request = document.querySelector("#opts").value
+
+            useragent = await new UserAgent.Framework(JSON.parse(request))
+
+            document.querySelector("#output").value = "user agent started"
+        }
+
+        async function destroyUserAgent() {
+            if (!useragent) {
+                console.error("user agent not initialized")
+                document.querySelector("#output").value = "user agent not initialized"
+                return
+            }
+
+            const response = await useragent.destroy()
+            useragent = null
+
+            document.querySelector("#output").value = JSON.stringify(response)
+        }
+
+        async function handleOperationInput() {
+            if (!useragent) {
+                console.error("user agent not initialized")
+                document.querySelector("#output").value = "useragent not initialized"
+                return
+            }
+
+            const request = document.querySelector("#input").value
+            const operation = document.querySelector("#operation").value
+            const method = document.querySelector("#method").value
+
+            const response = await useragent[operation][method](request)
+            document.querySelector("#output").value = JSON.stringify(response)
+        }
+    </script>
+</head>
+<body>
+<div>
+    <table>
+        <tr>
+            <td width="50%" valign="top">
+                <fieldset>
+                    <legend style="font-size: x-large;font-weight: bold">User Agent</legend>
+                    <table>
+                        <tr>
+                            <td colspan="2">
+                                <div>Start Options :</div>
+                                <textarea id="opts" rows="5" cols="100">{"assetsPath": "/dist/assets","blocDomain":"testnet.trustbloc.local:80"}
+                                </textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button id="start-button" onClick="startUserAgent()">StartAgent</button>
+                                <button id="stop-button" onClick="destroyUserAgent()">StopAgent</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <hr>
+                            </td>
+                        </tr>
+                    </table>
+                </fieldset>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <fieldset>
+                    <legend style="font-size: x-large;font-weight: bold">User Agent Command Controller</legend>
+                    <table cellspacing="10px">
+                        <tr>
+                            <td>
+                                <label for="operation">Operation: </label>
+                            </td>
+                            <td>
+                                <input type="text" id="operation" value="didclient" size="75"></input>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="method">Method: </label>
+                            </td>
+                            <td>
+                                <input type="text" id="method" value="createDID" size="50"></input>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label for="input">Request: </label>
+                            </td>
+                            <td>
+                                <textarea id="input" rows="15" cols="100">{}</textarea>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                            </td>
+                            <td>
+                                <button onClick="handleOperationInput()">Execute</button>
+                            </td>
+                        </tr>
+                    </table>
+
+                </fieldset>
+            </td>
+
+        </tr>
+
+    </table>
+</div>
+<hr/>
+<div style="height: 10%">
+    <label for="output" style="font-size: large;font-weight: bold">Response: </label>
+    <output id="output" style="color: green;"></output>
+</div>
+<hr/>
+<br>
+<div id="error-div" style="visibility: hidden;color:red;font-size: x-large;">
+    <label for="error">Error: </label>
+    <output id="error"></output>
+</div>
+</body>
+</html>
+
