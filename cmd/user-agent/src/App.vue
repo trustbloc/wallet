@@ -10,6 +10,7 @@ SPDX-License-Identifier: Apache-2.0
       <li><router-link to="/" exact>Homepage</router-link></li>
       <li><router-link to="/RegisterWallet">Register Wallet</router-link></li>
       <li><router-link to="/MyVC">My Credentials</router-link></li>
+      <li><router-link to="/CreateDID">Create DID</router-link></li>
     </ul>
     <router-view></router-view>
   </div>
