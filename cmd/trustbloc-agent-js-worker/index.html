@@ -11,41 +11,41 @@ This is a test page for developers to test WASM integration.
 <html>
 <head>
     <meta charset="utf-8"/>
-    <script src="dist/web/useragent.js"></script>
+    <script src="dist/web/trustblocagent.js"></script>
     <script>
-        var useragent
+        var trustblocagent
 
-        async function startUserAgent() {
-            if (useragent) {
-                console.error("user agent is already initialized")
-                document.querySelector("#output").value = "useragent is already initialized"
+        async function startTrustBlocAgent() {
+            if (trustblocagent) {
+                console.error("trustbloc agent is already initialized")
+                document.querySelector("#output").value = "trustblocagent is already initialized"
                 return
             }
 
             const request = document.querySelector("#opts").value
 
-            useragent = await new UserAgent.Framework(JSON.parse(request))
+            trustblocagent = await new TrustBlocAgent.Framework(JSON.parse(request))
 
-            document.querySelector("#output").value = "user agent started"
+            document.querySelector("#output").value = "trustbloc agent started"
         }
 
-        async function destroyUserAgent() {
-            if (!useragent) {
-                console.error("user agent not initialized")
-                document.querySelector("#output").value = "user agent not initialized"
+        async function destroyTrustBlocAgent() {
+            if (!trustblocagent) {
+                console.error("trustbloc agent not initialized")
+                document.querySelector("#output").value = "trustbloc agent not initialized"
                 return
             }
 
-            const response = await useragent.destroy()
-            useragent = null
+            const response = await trustblocagent.destroy()
+            trustblocagent = null
 
             document.querySelector("#output").value = JSON.stringify(response)
         }
 
         async function handleOperationInput() {
-            if (!useragent) {
-                console.error("user agent not initialized")
-                document.querySelector("#output").value = "useragent not initialized"
+            if (!trustblocagent) {
+                console.error("trustbloc agent not initialized")
+                document.querySelector("#output").value = "trustblocagent not initialized"
                 return
             }
 
@@ -53,7 +53,7 @@ This is a test page for developers to test WASM integration.
             const operation = document.querySelector("#operation").value
             const method = document.querySelector("#method").value
 
-            const response = await useragent[operation][method](request)
+            const response = await trustblocagent[operation][method](request)
             document.querySelector("#output").value = JSON.stringify(response)
         }
     </script>
@@ -64,7 +64,7 @@ This is a test page for developers to test WASM integration.
         <tr>
             <td width="50%" valign="top">
                 <fieldset>
-                    <legend style="font-size: x-large;font-weight: bold">User Agent</legend>
+                    <legend style="font-size: x-large;font-weight: bold">TrustBloc Agent</legend>
                     <table>
                         <tr>
                             <td colspan="2">
@@ -75,8 +75,8 @@ This is a test page for developers to test WASM integration.
                         </tr>
                         <tr>
                             <td>
-                                <button id="start-button" onClick="startUserAgent()">StartAgent</button>
-                                <button id="stop-button" onClick="destroyUserAgent()">StopAgent</button>
+                                <button id="start-button" onClick="startTrustBlocAgent()">StartAgent</button>
+                                <button id="stop-button" onClick="destroyTrustBlocAgent()">StopAgent</button>
                             </td>
                         </tr>
                         <tr>
@@ -91,7 +91,7 @@ This is a test page for developers to test WASM integration.
         <tr>
             <td>
                 <fieldset>
-                    <legend style="font-size: x-large;font-weight: bold">User Agent Command Controller</legend>
+                    <legend style="font-size: x-large;font-weight: bold">TrustBloc Agent Command Controller</legend>
                     <table cellspacing="10px">
                         <tr>
                             <td>

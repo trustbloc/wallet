@@ -27,11 +27,11 @@ import (
 var logger = logrus.New()
 
 const (
-	wasmStartupTopic    = "asset-ready"
-	handleResultFn      = "handleResult"
-	userAgentCommandPkg = "useragent"
-	userAgentStartFn    = "Start"
-	userAgentStopFn     = "Stop"
+	wasmStartupTopic         = "asset-ready"
+	handleResultFn           = "handleResult"
+	trustblocAgentCommandPkg = "trustblocagent"
+	trustblocAgentStartFn    = "Start"
+	trustblocAgentStopFn     = "Stop"
 )
 
 // TODO Signal JS when WASM is loaded and ready.
@@ -56,8 +56,8 @@ type result struct {
 	Topic   string                 `json:"topic"`
 }
 
-// userAgentStartOpts contains opts for starting user agent
-type userAgentStartOpts struct {
+// trustblocAgentStartOpts contains opts for starting trustbloc agent
+type trustblocAgentStartOpts struct {
 	BlocDomain string `json:"blocDomain"`
 }
 
@@ -86,7 +86,7 @@ func takeFrom(in chan *command) func(js.Value, []js.Value) interface{} {
 	return func(_ js.Value, args []js.Value) interface{} {
 		cmd := &command{}
 		if err := json.Unmarshal([]byte(args[0].String()), cmd); err != nil {
-			logger.Warnf("useragent wasm: unable to unmarshal input=%s. err=%s", args[0].String(), err)
+			logger.Warnf("trustblocagent wasm: unable to unmarshal input=%s. err=%s", args[0].String(), err)
 
 			return nil
 		}
@@ -99,11 +99,11 @@ func takeFrom(in chan *command) func(js.Value, []js.Value) interface{} {
 func pipe(input chan *command, output chan *result) {
 	handlers := testHandlers()
 
-	addUserAgentHandlers(handlers)
+	addTrustBlocAgentHandlers(handlers)
 
 	for c := range input {
 		if c.ID == "" {
-			logger.Warnf("useragent wasm: missing ID for input: %v", c)
+			logger.Warnf("trustblocagent wasm: missing ID for input: %v", c)
 		}
 
 		if pkg, found := handlers[c.Pkg]; found {
@@ -121,7 +121,7 @@ func sendTo(out chan *result) {
 	for r := range out {
 		out, err := json.Marshal(r)
 		if err != nil {
-			logger.Errorf("useragent wasm: failed to marshal response for id=%s err=%s ", r.ID, err)
+			logger.Errorf("trustblocagent wasm: failed to marshal response for id=%s err=%s ", r.ID, err)
 		}
 
 		js.Global().Call(handleResultFn, string(out))
@@ -169,9 +169,9 @@ func cmdExecToFn(exec cmdctrl.Exec) func(*command) *result {
 	}
 }
 
-func addUserAgentHandlers(pkgMap map[string]map[string]func(*command) *result) {
+func addTrustBlocAgentHandlers(pkgMap map[string]map[string]func(*command) *result) {
 	fnMap := make(map[string]func(*command) *result)
-	fnMap[userAgentStartFn] = func(c *command) *result {
+	fnMap[trustblocAgentStartFn] = func(c *command) *result {
 		cOpts, err := startOpts(c.Payload)
 		if err != nil {
 			return newErrResult(c.ID, err.Error())
@@ -186,16 +186,16 @@ func addUserAgentHandlers(pkgMap map[string]map[string]func(*command) *result) {
 		// add command handlers
 		addCommandHandlers(commands, pkgMap)
 
-		// add stop user agent handler
-		addStopUserAgentHandler(pkgMap)
+		// add stop trustbloc agent handler
+		addStopTrustBlocAgentHandler(pkgMap)
 
 		return &result{
 			ID:      c.ID,
-			Payload: map[string]interface{}{"message": "user agent started successfully"},
+			Payload: map[string]interface{}{"message": "trustbloc agent started successfully"},
 		}
 	}
 
-	pkgMap[userAgentCommandPkg] = fnMap
+	pkgMap[trustblocAgentCommandPkg] = fnMap
 }
 
 func addCommandHandlers(commands []cmdctrl.Handler, pkgMap map[string]map[string]func(*command) *result) {
@@ -236,48 +236,48 @@ func testHandlers() map[string]map[string]func(*command) *result {
 	}
 }
 
-func addStopUserAgentHandler(pkgMap map[string]map[string]func(*command) *result) {
+func addStopTrustBlocAgentHandler(pkgMap map[string]map[string]func(*command) *result) {
 	fnMap := make(map[string]func(*command) *result)
-	fnMap[userAgentStopFn] = func(c *command) *result {
+	fnMap[trustblocAgentStopFn] = func(c *command) *result {
 		// reset handlers when stopped
 		for k := range pkgMap {
 			delete(pkgMap, k)
 		}
 
 		// put back start command once stopped
-		addUserAgentHandlers(pkgMap)
+		addTrustBlocAgentHandlers(pkgMap)
 
 		return &result{
 			ID:      c.ID,
-			Payload: map[string]interface{}{"message": "user agent stopped"},
+			Payload: map[string]interface{}{"message": "trustbloc agent stopped"},
 		}
 	}
-	pkgMap[userAgentCommandPkg] = fnMap
+	pkgMap[trustblocAgentCommandPkg] = fnMap
 }
 
 func isStartCommand(c *command) bool {
-	return c.Pkg == userAgentCommandPkg && c.Fn == userAgentStartFn
+	return c.Pkg == trustblocAgentCommandPkg && c.Fn == trustblocAgentStartFn
 }
 
 func isStopCommand(c *command) bool {
-	return c.Pkg == userAgentCommandPkg && c.Fn == userAgentStopFn
+	return c.Pkg == trustblocAgentCommandPkg && c.Fn == trustblocAgentStopFn
 }
 
 func handlerNotFoundErr(c *command) *result {
 	if isStartCommand(c) {
-		return newErrResult(c.ID, "user agent already started")
+		return newErrResult(c.ID, "trustbloc agent already started")
 	} else if isStopCommand(c) {
-		return newErrResult(c.ID, "user agent not running")
+		return newErrResult(c.ID, "trustbloc agent not running")
 	}
 
-	return newErrResult(c.ID, fmt.Sprintf("invalid pkg/fn: %s/%s, make sure user agent is started", c.Pkg, c.Fn))
+	return newErrResult(c.ID, fmt.Sprintf("invalid pkg/fn: %s/%s, make sure trustbloc agent is started", c.Pkg, c.Fn))
 }
 
 func newErrResult(id, msg string) *result {
 	return &result{
 		ID:     id,
 		IsErr:  true,
-		ErrMsg: "useragent wasm: " + msg,
+		ErrMsg: "trustblocagent wasm: " + msg,
 	}
 }
 
@@ -298,8 +298,8 @@ func postInitMsg() {
 	js.Global().Call(handleResultFn, string(out))
 }
 
-func startOpts(payload map[string]interface{}) (*userAgentStartOpts, error) {
-	opts := &userAgentStartOpts{}
+func startOpts(payload map[string]interface{}) (*trustblocAgentStartOpts, error) {
+	opts := &trustblocAgentStartOpts{}
 
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		TagName: "json",

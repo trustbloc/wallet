@@ -5,11 +5,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-GOOS=js GOARCH=wasm go build -o src/user-agent-js-worker.wasm main.go
-gzip -f src/user-agent-js-worker.wasm
+GOOS=js GOARCH=wasm go build -o src/trustbloc-agent-js-worker.wasm main.go
+gzip -f src/trustbloc-agent-js-worker.wasm
 cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" src/
 
 rm -rf dist/assets
 mkdir -p dist/assets
-cp -p src/user-agent-js-worker.wasm.gz dist/assets
+cp -p src/trustbloc-agent-js-worker.wasm.gz dist/assets
 cp -p src/wasm_exec.js dist/assets

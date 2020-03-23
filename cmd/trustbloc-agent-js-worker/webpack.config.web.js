@@ -14,14 +14,14 @@ const { PATHS } = require("./webpack.config.common.js")
 const OUTPUT = path.join(PATHS.buildDir, "web/")
 
 module.exports = {
-    entry: path.join(PATHS.srcDir, "useragent.js"),
+    entry: path.join(PATHS.srcDir, "trustblocagent.js"),
     target: 'web',
     output: {
         path: OUTPUT,
         publicPath: "dist/web",
         libraryTarget: "umd",
-        filename: 'useragent.js',
-        library: 'UserAgent'
+        filename: 'trustblocagent.js',
+        library: 'TrustBlocAgent'
     },
     plugins: [
         new CleanWebpackPlugin(),

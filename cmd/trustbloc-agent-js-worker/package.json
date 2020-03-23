@@ -1,9 +1,8 @@
 {
-  "name": "@trustbloc/user-agent",
+  "name": "@trustbloc/trustbloc-agent",
   "version": "0.0.1",
-  "main": "dist/node/useragent.js",
-  "browser": "dist/web/useragent.js",
-  "description": "User Agent wasm api.",
+  "browser": "dist/web/trustblocagent.js",
+  "description": "TrustBloc Agent wasm api.",
   "scripts": {
     "build:web": "webpack --config ./webpack.config.web.js --mode=production",
     "build:assets": "bash scripts/build_assets.sh",
@@ -16,7 +15,6 @@
     "url": "git://github.com/trustbloc/edge-agent.git"
   },
   "keywords": [
-    "user",
     "agent",
     "trustbloc"
   ],

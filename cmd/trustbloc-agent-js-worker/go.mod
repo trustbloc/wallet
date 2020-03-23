@@ -1,4 +1,4 @@
-module github.com/trustbloc/edge-agent/cmd/user-agent-js-worker
+module github.com/trustbloc/edge-agent/cmd/trustbloc-agent-js-worker
 
 go 1.13
 

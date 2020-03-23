@@ -26,7 +26,7 @@ export function loadWorker(pending, notifications, paths) {
         cb(result)
     }
     worker.onerror = e => {
-        throw new Error("useragent: failed to load worker: " + e.message)
+        throw new Error("trustblocagent: failed to load worker: " + e.message)
     }
     return worker
 }
