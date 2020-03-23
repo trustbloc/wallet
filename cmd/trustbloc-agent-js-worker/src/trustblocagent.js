@@ -41,7 +41,7 @@ function newMsg(pkg, fn, payload) {
 }
 
 /**
- * UserAgent framework class provides UserAgent SSI-agent features.
+ * TrustBlocAgent framework class provides TrustBlocAgent SSI-agent features.
  *
  * `opts` is an object with the framework's initialization options:
  *
@@ -55,23 +55,23 @@ function newMsg(pkg, fn, payload) {
  */
 export const Framework = class {
     constructor(opts) {
-        return UserAgent(opts)
+        return TrustBlocAgent(opts)
     }
 };
 
 
 /**
- * UserAgent provides UserAgent SSI-agent functions.
+ * TrustBlocAgent provides TrustBlocAgent SSI-agent functions.
  * @param opts initialization options.
  * @constructor
  */
-const UserAgent = function (opts) {
+const TrustBlocAgent = function (opts) {
     if (!opts) {
-        throw new Error("useragent: missing options")
+        throw new Error("trustblocagent: missing options")
     }
 
     if (!opts.assetsPath) {
-        throw new Error("useragent: missing assets path")
+        throw new Error("trustblocagent: missing assets path")
     }
 
     // TODO synchronized access
@@ -97,14 +97,14 @@ const UserAgent = function (opts) {
                 return new Promise((resolve, reject) => {
                     invoke(aw, pending, "test", "echo", {"echo": text}, "_echo() timed out").then(
                         resp => resolve(resp.echo),
-                        err => reject(new Error("user agent: _echo() failed. error: " + err.message))
+                        err => reject(new Error("trustbloc agent: _echo() failed. error: " + err.message))
                     )
                 })
             }
 
         },
         destroy: async function () {
-            var response = await invoke(aw, pending, "useragent", "Stop", "{}", "timeout while stopping user agent")
+            var response = await invoke(aw, pending, "trustblocagent", "Stop", "{}", "timeout while stopping trustbloc agent")
             aw.terminate()
             aw = null
             return response
@@ -127,24 +127,24 @@ const UserAgent = function (opts) {
         },
     }
 
-    // start useragent worker
+    // start trustblocagent worker
     var aw = loadWorker(
         pending,
         notifications,
         {
             dir: opts.assetsPath,
-            wasm: opts.assetsPath + "/user-agent-js-worker.wasm",
+            wasm: opts.assetsPath + "/trustbloc-agent-js-worker.wasm",
             wasmJS: opts.assetsPath + "/wasm_exec.js"
         }
     )
 
 
-    // return promise which waits for worker to load and user agent to start.
+    // return promise which waits for worker to load and trustbloc agent to start.
     return new Promise((resolve, reject) => {
-        const timer = setTimeout(_ => reject(new Error("timout waiting for user agent to initialize")), 10000)
+        const timer = setTimeout(_ => reject(new Error("timout waiting for trustbloc agent to initialize")), 10000)
         notifications.set("asset-ready", async (result) => {
             clearTimeout(timer)
-            invoke(aw, pending, "useragent", "Start", opts, "timeout while starting user agent").then(
+            invoke(aw, pending, "trustblocagent", "Start", opts, "timeout while starting trustbloc agent").then(
                 resp => resolve(instance),
                 err => reject(new Error(err.message))
             )

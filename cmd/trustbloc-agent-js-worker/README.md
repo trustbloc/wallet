@@ -1,6 +1,6 @@
-# User Agent JS Worker
+# TrustBloc Agent JS Worker
 
-User Agent Framework Go via Javascript.
+TrustBloc Agent Framework Go via Javascript.
 
 ## Build it
 
@@ -19,24 +19,24 @@ Run `npm install` in this directory. The output bundles will be placed in `dist/
 
 ### Entrypoints
 
-`user-agent-js-worker` has several entrypoints tailored to the environment and needs:
+`trustbloc-agent-js-worker` has several entrypoints tailored to the environment and needs:
 
-* `dist/web/useragent.js`: for use in the browser
+* `dist/web/trustblocagent.js`: for use in the browser
 
 ### Browser
 
 Note: make sure the assets are [served correctly](#important---serving-the-assets).
 
-Source `useragent.js` in your `<script>` tag:
+Source `trustblocagent.js` in your `<script>` tag:
 
 ```html
-<script src="dist/web/useragent.js"></script>
+<script src="dist/web/trustblocagent.js"></script>
 ```
 
-Then initialize your user agent instance:
+Then initialize your trustbloc agent instance:
 
 ```js
-const useragent = await new UserAgent.Framework({
+const trustblocagent = await new TrustBlocAgent.Framework({
     assetsPath: "/path/serving/the/assets",
     blocDomain: "domain"
 })
@@ -46,15 +46,15 @@ const useragent = await new UserAgent.Framework({
 
 Note: this applies if you are running in the browser.
 
-`user-agent-js-worker` loads some assets at runtime: the web assembly binary and a couple of JS scripts. These assets are
+`trustbloc-agent-js-worker` loads some assets at runtime: the web assembly binary and a couple of JS scripts. These assets are
 located in the `dist/assets` directory
 
-Things that need to work if you are to use `user-agent-js-worker` on the client side:
+Things that need to work if you are to use `trustbloc-agent-js-worker` on the client side:
 
 #### Headers
 
-Make sure the content server adds the appropriate headers when serving the compressed `user-agent-js-worker.wasm` file.
-`user-agent-js-worker` uses the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) to fetch the wasm.
+Make sure the content server adds the appropriate headers when serving the compressed `trustbloc-agent-js-worker.wasm` file.
+`trustbloc-agent-js-worker` uses the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) to fetch the wasm.
 
 Examples:
 
@@ -85,7 +85,7 @@ Headers:
 
 #### Path
 
-The URL used to fetch the WASM file is **always** `<assetsPath>/user-agent-js-worker.wasm`.
+The URL used to fetch the WASM file is **always** `<assetsPath>/trustbloc-agent-js-worker.wasm`.
 This path needs to exist even if your content server is serving a compressed version.
 
 #### Configuring your content server
@@ -95,13 +95,13 @@ Here are some examples:
 **Nginx**
 
 [Sending compressed files](https://docs.nginx.com/nginx/admin-guide/web-server/compression/#sending-compressed-files):
-enabling `gzip_static` on a location will automatically serve requests to `http://example.com/assets/user-agent-js-worker.wasm`
-with `user-agent-js-worker.wasm.gz` if it exists.
+enabling `gzip_static` on a location will automatically serve requests to `http://example.com/assets/trustbloc-agent-js-worker.wasm`
+with `trustbloc-agent-js-worker.wasm.gz` if it exists.
 
 Example: Nginx serving your assets under `/public/assets` with gzipped wasm:
 
 ```
-location ~ user-agent-js-worker\.wasm$ {
+location ~ trustbloc-agent-js-worker\.wasm$ {
     gzip_static on;
     types {
         application/wasm  wasm;
@@ -113,12 +113,12 @@ Files in `/public/assets`:
 
 ```
 assets
-├── user-agent-js-worker.wasm.gz
+├── trustbloc-agent-js-worker.wasm.gz
 ├── wasm_exec.js
 └── worker-impl-web.js
 ```
 
-Requests for `http://example.com/public/assets/user-agent-js-worker.wasm` will be served with the `.gz` file.
+Requests for `http://example.com/public/assets/trustbloc-agent-js-worker.wasm` will be served with the `.gz` file.
 
 **goexec**
 
