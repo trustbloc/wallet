@@ -48,6 +48,10 @@ unit-test-wasm: depend
 agent-wasm:
 	@scripts/build_agent_wasm.sh ${AGENT_NAME}
 
+.PHONY: trustbloc-agent-wasm
+trustbloc-agent-wasm:
+	@scripts/build_trustbloc_agent_wasm.sh
+
 .PHONY: user-agent-wasm
 user-agent-wasm:
 	AGENT_NAME="user" make agent-wasm

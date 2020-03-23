@@ -10,16 +10,17 @@ import router from "./router";
 import * as polyfill from "credential-handler-polyfill";
 import * as webCredentialHandler from "web-credential-handler";
 import * as Aries from "@hyperledger/aries-framework-go"
+import * as trustblocAgent from "@trustbloc/trustbloc-agent"
+
 
 Vue.config.productionTip = false
 
 Vue.prototype.$polyfill = polyfill
 Vue.prototype.$webCredentialHandler = webCredentialHandler
+Vue.prototype.$trustblocAgent = trustblocAgent
+
 
 async function loadAriesOnce() {
-    import('@hyperledger/aries-framework-go/dist/web/aries.js')
-        .catch(err => console.log('error importing aries library : errMsg=' + err.message))
-
     if (!Vue.prototype.$aries) {
         let startupOpts = await ariesStartupOpts()
         console.log("aries startup options ", JSON.stringify(startupOpts))
@@ -34,6 +35,7 @@ async function loadAriesOnce() {
 
     return Vue.prototype.$aries
 }
+
 
 
 let defaultAriesStartupOpts = {
@@ -76,7 +78,37 @@ async function ariesStartupOpts() {
     }
 }
 
+let defaulTrustBlocStartupOpts = {
+    assetsPath: '/trustbloc-agent/assets',
+    'blocDomain': 'testnet.trustbloc.local:80'
+}
+
+async function trustblocStartupOpts() {
+    // TODO add /trustbloc/jsopts endpoint in http server
+    //let startupOpts = {}
+    //if (process.env.NODE_ENV === "production") {
+        // const axios = require('axios').default;
+
+        // call service to get the opts
+        // await axios.get(window.location.origin + '/trustbloc/jsopts')
+        //     .then(resp => {
+        //         startupOpts = resp.data
+        //         console.log("successfully fetched start up options: resp=" + JSON.stringify(startupOpts));
+        //     })
+        //     .catch(err => {
+        //         console.log("error fetching start up options - using default options : errMsg=", err);
+        //     })
+    //}
+
+    return  JSON.stringify({
+        assetsPath: defaulTrustBlocStartupOpts['assetsPath'],
+        'blocDomain': defaulTrustBlocStartupOpts['blocDomain']
+    })
+}
+
 Vue.prototype.$arieslib = loadAriesOnce()
+Vue.prototype.$trustblocStartupOpts = trustblocStartupOpts()
+
 
 new Vue({
     router,

@@ -50,3 +50,5 @@ test/bdd/fixtures/agent-wasm/config/
 test/bdd/fixtures/discovery-server/config
 test/bdd/fixtures/stakeholder-server/config
 cmd/user-agent/public/aries-framework-go/
+cmd/user-agent/public/trustbloc-agent/
+wasm_exec.js

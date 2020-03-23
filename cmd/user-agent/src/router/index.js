@@ -35,6 +35,11 @@ export default new Router({
             name: "registerWallet",
             path: "/RegisterWallet",
             component: () => import("@/views/RegisterWallet")
+        },
+        {
+            name: "createDID",
+            path: "/CreateDID",
+            component: () => import("@/views/CreateDID")
         }
     ]
 });

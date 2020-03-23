@@ -25,7 +25,7 @@ ARG GO_TAGS
 ARG NAME
 ARG GITHUB_TOKEN
 ENV GITHUB_TOKEN=${GITHUB_TOKEN}
-RUN GO_TAGS=${GO_TAGS} make ${NAME}-agent-wasm http-server
+RUN GO_TAGS=${GO_TAGS} make trustbloc-agent-wasm ${NAME}-agent-wasm http-server
 
 FROM alpine:${ALPINE_VER} as base
 ARG NAME
