@@ -7,9 +7,9 @@ HTTP_SERVER_PATH       = cmd/http-server
 GOBIN_PATH             = $(abspath .)/build/bin
 
 # GO version
-ALPINE_VER ?= 3.10
+ALPINE_VER ?= 3.11
 GO_TAGS    ?=
-GO_VER     ?= 1.13.1
+GO_VER     ?= 1.13.9
 
 # Namespace for the images
 DOCKER_OUTPUT_NS         ?= docker.pkg.github.com
@@ -100,5 +100,7 @@ clean-build:
 	@rm -Rf ./build
 	@rm -Rf ./test/bdd/fixtures/keys/tls
 	@rm -Rf ./cmd/user-agent/dist
-	@rm -Rf ./cmd/user-agent/web/node_modules
+	@rm -Rf ./cmd/user-agent/node_modules
+	@rm -Rf ./cmd/trustbloc-agent-js-worker/node_modules
+	@rm -Rf ./cmd/trustbloc-agent-js-worker/dist
 	@rm -Rf ./test/bdd/fixtures/agent-wasm/config

@@ -44,15 +44,17 @@ services:
     hostname: testnet.trustbloc.local
     image: halverneus/static-file-server:latest
     environment:
-      - PORT=80
+      - PORT=443
       - FOLDER=/web
       - CORS=true
       - DEBUG=true
+      - TLS_CERT=/etc/tls/ec-pubCert.pem
+      - TLS_KEY=/etc/tls/ec-key.pem
     ports:
-      - "80:80"
+      - "443:443"
     volumes:
       - ./config:/web/.well-known/did-trustbloc
-
+      - ../keys/tls:/etc/tls
 
   stakeholder.one:
     container_name: stakeholder.one
@@ -62,10 +64,13 @@ services:
       - PORT=8088
       - FOLDER=/web
       - CORS=true
+      - TLS_CERT=/etc/tls/ec-pubCert.pem
+      - TLS_KEY=/etc/tls/ec-key.pem
     ports:
       - "8088:8088"
     volumes:
       - ./config:/web/.well-known/did-trustbloc
+      - ../keys/tls:/etc/tls
 
 
   dns-proxy-server:
