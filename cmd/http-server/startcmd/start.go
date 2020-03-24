@@ -83,22 +83,30 @@ const (
 		" Alternatively, this can be set with the following environment variable (in CSV format): " +
 		agentHTTPResolverEnvKey
 
+	blocDomainFlagName      = "bloc-domain"
+	blocDomainFlagShorthand = "b"
+	blocDomainFlagUsage     = "Bloc domain"
+	blocDomainEnvKey        = "BLOC_DOMAIN"
+
 	// aries opts path
 	ariesStartupOptsPath = "/aries/jsopts"
 	indexHTLMPath        = "/index.html"
 	basePath             = "/"
+
+	// tustbloc agent opt path
+	trustblocStartupOptsPath = "/trustbloc-agent/jsopts"
 )
 
 type server interface {
-	ListenAndServe(host, certFile, keyFile, rootPath string, opts *ariesJSOpts) error
+	ListenAndServe(host, certFile, keyFile string, handler http.Handler) error
 }
 
 // HTTPServer represents an actual HTTP server implementation.
 type HTTPServer struct{}
 
 // ListenAndServe starts the server using the standard Go HTTP server implementation.
-func (s *HTTPServer) ListenAndServe(host, certFile, keyFile, rootPath string, opts *ariesJSOpts) error {
-	return http.ListenAndServeTLS(host, certFile, keyFile, VueHandler(rootPath, opts))
+func (s *HTTPServer) ListenAndServe(host, certFile, keyFile string, handler http.Handler) error {
+	return http.ListenAndServeTLS(host, certFile, keyFile, handler)
 }
 
 type ariesJSOpts struct {
@@ -109,8 +117,12 @@ type ariesJSOpts struct {
 	DBNamespace       string   `json:"db-namespace,omitempty"`
 }
 
+type trustblocAgentJSOpts struct {
+	BlocDomain string `json:"blocDomain,omitempty"`
+}
+
 // VueHandler return a http.Handler that supports Vue Router app with history mode
-func VueHandler(publicDir string, opts *ariesJSOpts) http.Handler {
+func VueHandler(publicDir string, opts *ariesJSOpts, trustblocAgentOpts *trustblocAgentJSOpts) http.Handler {
 	handler := gzipped.FileServer(http.Dir(publicDir))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -119,6 +131,14 @@ func VueHandler(publicDir string, opts *ariesJSOpts) http.Handler {
 		// aries js opts
 		if urlPath == ariesStartupOptsPath {
 			j, _ := json.Marshal(opts) // nolint errcheck
+
+			w.Write(j) // nolint errcheck
+			return
+		}
+
+		// trustbloc agent js opts
+		if urlPath == trustblocStartupOptsPath {
+			j, _ := json.Marshal(trustblocAgentOpts) // nolint errcheck
 
 			w.Write(j) // nolint errcheck
 			return
@@ -139,6 +159,7 @@ type httpServerParameters struct {
 	srv                                        server
 	hostURL, wasmPath, tlsCertFile, tlsKeyFile string
 	opts                                       *ariesJSOpts
+	trustblocAgentOpts                         *trustblocAgentJSOpts
 }
 
 // GetStartCmd returns the Cobra start command.
@@ -181,13 +202,19 @@ func createStartCmd(srv server) *cobra.Command {
 				return optErr
 			}
 
+			trustblocAgentOpts, err := fetchTrustBlocWASMAgentOpts(cmd)
+			if err != nil {
+				return err
+			}
+
 			parameters := &httpServerParameters{
-				srv:         srv,
-				wasmPath:    wasmPath,
-				hostURL:     hostURL,
-				tlsCertFile: tlsCertFile,
-				tlsKeyFile:  tlsKeyFile,
-				opts:        opt,
+				srv:                srv,
+				wasmPath:           wasmPath,
+				hostURL:            hostURL,
+				tlsCertFile:        tlsCertFile,
+				tlsKeyFile:         tlsKeyFile,
+				opts:               opt,
+				trustblocAgentOpts: trustblocAgentOpts,
 			}
 			return startHTTPServer(parameters)
 		},
@@ -215,6 +242,9 @@ func createFlags(startCmd *cobra.Command) {
 	// aries http resolver url flag
 	startCmd.Flags().StringSliceP(agentHTTPResolverFlagName, agentHTTPResolverFlagShorthand, []string{},
 		agentHTTPResolverFlagUsage)
+	// trustbloc agent bloc domain
+	startCmd.Flags().StringP(blocDomainFlagName, blocDomainFlagShorthand, "",
+		blocDomainFlagUsage)
 }
 
 func getUserSetVar(cmd *cobra.Command, flagName, envKey string, isOptional bool) (string, error) {
@@ -245,12 +275,12 @@ func getUserSetVar(cmd *cobra.Command, flagName, envKey string, isOptional bool)
 		" (environment variable) have been set.")
 }
 
-func getUserSetVars(cmd *cobra.Command, hostFlagName,
+func getUserSetVars(cmd *cobra.Command, flagName,
 	envKey string, isOptional bool) ([]string, error) {
-	if cmd.Flags().Changed(hostFlagName) {
-		value, err := cmd.Flags().GetStringSlice(hostFlagName)
+	if cmd.Flags().Changed(flagName) {
+		value, err := cmd.Flags().GetStringSlice(flagName)
 		if err != nil {
-			return nil, fmt.Errorf(hostFlagName+" flag not found: %s", err)
+			return nil, fmt.Errorf(flagName+" flag not found: %s", err)
 		}
 
 		return value, nil
@@ -269,7 +299,7 @@ func getUserSetVars(cmd *cobra.Command, hostFlagName,
 	}
 
 	return nil, fmt.Errorf(" %s not set. "+
-		"It must be set via either command line or environment variable", hostFlagName)
+		"It must be set via either command line or environment variable", flagName)
 }
 
 func fetchAriesWASMAgentOpts(cmd *cobra.Command) (*ariesJSOpts, error) {
@@ -307,6 +337,17 @@ func fetchAriesWASMAgentOpts(cmd *cobra.Command) (*ariesJSOpts, error) {
 	}, nil
 }
 
+func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, error) {
+	blocDomain, err := getUserSetVar(cmd, blocDomainFlagName, blocDomainEnvKey, false)
+	if err != nil {
+		return nil, err
+	}
+
+	return &trustblocAgentJSOpts{
+		BlocDomain: blocDomain,
+	}, nil
+}
+
 func getAutoAcceptValue(cmd *cobra.Command) (bool, error) {
 	v, err := getUserSetVar(cmd, agentAutoAcceptFlagName, agentAutoAcceptEnvKey, true)
 	if err != nil {
@@ -331,7 +372,8 @@ func startHTTPServer(parameters *httpServerParameters) error {
 	}
 
 	err := parameters.srv.ListenAndServe(
-		parameters.hostURL, parameters.tlsCertFile, parameters.tlsKeyFile, parameters.wasmPath, parameters.opts)
+		parameters.hostURL, parameters.tlsCertFile, parameters.tlsKeyFile,
+		VueHandler(parameters.wasmPath, parameters.opts, parameters.trustblocAgentOpts))
 	if err != nil {
 		return fmt.Errorf("http server closed unexpectedly: %s", err)
 	}

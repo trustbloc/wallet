@@ -16,6 +16,7 @@ services:
       - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
       - TLS_KEY_FILE=/etc/tls/ec-key.pem
       - ARIESD_DEFAULT_LABEL=user-agent
+      - BLOC_DOMAIN=testnet.trustbloc.local
     ports:
       - 8091:8091
     volumes:

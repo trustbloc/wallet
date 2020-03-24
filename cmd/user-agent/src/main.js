@@ -80,29 +80,28 @@ async function ariesStartupOpts() {
 
 let defaulTrustBlocStartupOpts = {
     assetsPath: '/trustbloc-agent/assets',
-    'blocDomain': 'testnet.trustbloc.local'
+    'blocDomain': ''
 }
 
 async function trustblocStartupOpts() {
-    // TODO add /trustbloc/jsopts endpoint in http server
-    //let startupOpts = {}
-    //if (process.env.NODE_ENV === "production") {
-        // const axios = require('axios').default;
+    let startupOpts = {}
+    if (process.env.NODE_ENV === "production") {
+        const axios = require('axios').default;
 
         // call service to get the opts
-        // await axios.get(window.location.origin + '/trustbloc/jsopts')
-        //     .then(resp => {
-        //         startupOpts = resp.data
-        //         console.log("successfully fetched start up options: resp=" + JSON.stringify(startupOpts));
-        //     })
-        //     .catch(err => {
-        //         console.log("error fetching start up options - using default options : errMsg=", err);
-        //     })
-    //}
+        await axios.get(window.location.origin + '/trustbloc-agent/jsopts')
+            .then(resp => {
+                startupOpts = resp.data
+                console.log("successfully fetched start up options: resp=" + JSON.stringify(startupOpts));
+            })
+            .catch(err => {
+                console.log("error fetching start up options - using default options : errMsg=", err);
+            })
+    }
 
     return  JSON.stringify({
         assetsPath: defaulTrustBlocStartupOpts['assetsPath'],
-        'blocDomain': defaulTrustBlocStartupOpts['blocDomain']
+        'blocDomain': ('blocDomain' in startupOpts) ? startupOpts['blocDomain'] : defaulTrustBlocStartupOpts['blocDomain']
     })
 }
 
