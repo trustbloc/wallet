@@ -21,7 +21,7 @@ type mockServer struct {
 	Err error
 }
 
-func (s *mockServer) ListenAndServe(host, certFile, keyFile, rootPath string, opts *ariesJSOpts) error {
+func (s *mockServer) ListenAndServe(host, certFile, keyFile string, handler http.Handler) error {
 	return s.Err
 }
 
@@ -40,7 +40,7 @@ func (m *mockHTTPResponseWriter) WriteHeader(statusCode int) {
 }
 
 func TestVueHandler(t *testing.T) {
-	h := VueHandler("", &ariesJSOpts{})
+	h := VueHandler("", &ariesJSOpts{}, &trustblocAgentJSOpts{})
 	require.NotNil(t, h)
 	h.ServeHTTP(&mockHTTPResponseWriter{}, &http.Request{URL: &url.URL{}})
 	h.ServeHTTP(&mockHTTPResponseWriter{}, &http.Request{URL: &url.URL{Path: "."}})
@@ -49,7 +49,8 @@ func TestVueHandler(t *testing.T) {
 
 func TestListenAndServe(t *testing.T) {
 	h := HTTPServer{}
-	err := h.ListenAndServe("localhost:8080", "test.key", "test.cert", "", &ariesJSOpts{})
+	err := h.ListenAndServe("localhost:8080", "test.key", "test.cert",
+		VueHandler("", &ariesJSOpts{}, &trustblocAgentJSOpts{}))
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "open test.key: no such file or directory")
 }
@@ -140,6 +141,20 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			err.Error())
 	})
 
+	t.Run("test missing bloc domain arg", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{"--" + hostURLFlagName, "localhost:8080",
+			"--" + tlsCertFileFlagName, "cert", "--" + tlsKeyFileFlagName, "key"}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t,
+			"Neither bloc-domain (command line flag) nor BLOC_DOMAIN (environment variable) have been set.",
+			err.Error())
+	})
+
 	t.Run("test invalid auto accept flag", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
@@ -163,6 +178,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
+			"--" + blocDomainFlagName, "domain",
 			"--" + agentAutoAcceptFlagName, "false",
 			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
 		}
@@ -180,6 +196,7 @@ func TestStartCmdValidArgs(t *testing.T) {
 	args := []string{
 		"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 		"--" + tlsKeyFileFlagName, "key",
+		"--" + blocDomainFlagName, "domain",
 		"--" + agentAutoAcceptFlagName, "false",
 		"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901"}
 	startCmd.SetArgs(args)
@@ -199,6 +216,9 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	require.NoError(t, err)
 
 	err = os.Setenv(tlsKeyFileEnvKey, "key")
+	require.NoError(t, err)
+
+	err = os.Setenv(blocDomainEnvKey, "domain")
 	require.NoError(t, err)
 
 	err = startCmd.Execute()
