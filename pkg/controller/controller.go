@@ -7,10 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package controller
 
 import (
-	"fmt"
-
-	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
-
 	"github.com/trustbloc/edge-agent/pkg/controller/command"
 	didclientcmd "github.com/trustbloc/edge-agent/pkg/controller/command/didclient"
 )
@@ -30,7 +26,7 @@ func WithBlocDomain(blocDomain string) Opt {
 }
 
 // GetCommandHandlers returns all command handlers provided by controller.
-func GetCommandHandlers(storeProvider ariesstorage.Provider, opts ...Opt) ([]command.Handler, error) {
+func GetCommandHandlers(opts ...Opt) ([]command.Handler, error) {
 	cmdOpts := &allOpts{}
 	// Apply options
 	for _, opt := range opts {
@@ -38,10 +34,7 @@ func GetCommandHandlers(storeProvider ariesstorage.Provider, opts ...Opt) ([]com
 	}
 
 	// did client command operation
-	didClientCmd, err := didclientcmd.New(storeProvider, cmdOpts.blocDomain)
-	if err != nil {
-		return nil, fmt.Errorf("failed initialized didclient command: %w", err)
-	}
+	didClientCmd := didclientcmd.New(cmdOpts.blocDomain)
 
 	var allHandlers []command.Handler
 	allHandlers = append(allHandlers, didClientCmd.GetHandlers()...)

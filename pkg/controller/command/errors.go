@@ -9,6 +9,8 @@ package command
 type Type int32
 
 const (
+	// ValidationError is error type for command validation errors.
+	ValidationError Type = iota
 	// ExecuteError is error type for command execution failure.
 	ExecuteError Type = iota
 )
@@ -38,6 +40,11 @@ type Error interface {
 // NewExecuteError returns new command execute error.
 func NewExecuteError(code Code, err error) Error {
 	return &commandError{err, code, ExecuteError}
+}
+
+// NewValidationError returns new command validation error.
+func NewValidationError(code Code, err error) Error {
+	return &commandError{err, code, ValidationError}
 }
 
 // commandError implements basic command Error.

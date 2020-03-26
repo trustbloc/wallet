@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/hyperledger/aries-framework-go/pkg/storage/jsindexeddb"
 	"github.com/mitchellh/mapstructure"
 	"github.com/sirupsen/logrus"
 
@@ -177,8 +176,7 @@ func addTrustBlocAgentHandlers(pkgMap map[string]map[string]func(*command) *resu
 			return newErrResult(c.ID, err.Error())
 		}
 
-		s, _ := jsindexeddb.NewProvider("")
-		commands, err := controller.GetCommandHandlers(s, controller.WithBlocDomain(cOpts.BlocDomain))
+		commands, err := controller.GetCommandHandlers(controller.WithBlocDomain(cOpts.BlocDomain))
 		if err != nil {
 			return newErrResult(c.ID, err.Error())
 		}

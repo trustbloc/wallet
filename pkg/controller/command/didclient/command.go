@@ -6,14 +6,11 @@ SPDX-License-Identifier: Apache-2.0
 package didclient
 
 import (
-	"fmt"
+	"encoding/json"
 	"io"
 
+	"github.com/btcsuite/btcutil/base58"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/did"
-	ariesapi "github.com/hyperledger/aries-framework-go/pkg/framework/aries/api"
-	"github.com/hyperledger/aries-framework-go/pkg/framework/context"
-	"github.com/hyperledger/aries-framework-go/pkg/kms/legacykms"
-	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
 	"github.com/sirupsen/logrus"
 	didclient "github.com/trustbloc/trustbloc-did-method/pkg/did"
 
@@ -34,45 +31,27 @@ const (
 )
 
 const (
-	// CreateDIDErrorCode is typically a code for validation errors
-	// for create did error
-	CreateDIDErrorCode = command.Code(iota + command.DIDClient)
+	// InvalidRequestErrorCode is typically a code for validation errors
+	InvalidRequestErrorCode = command.Code(iota + command.DIDClient)
+
+	// CreateDIDErrorCode is typically a code for create did errors
+	CreateDIDErrorCode
 )
 
 type didBlocClient interface {
-	CreateDID(domain string) (*did.Doc, error)
+	CreateDID(domain string, opts ...didclient.CreateDIDOption) (*did.Doc, error)
 }
 
 // New returns new DID Exchange controller command instance
-func New(storeProvider ariesstorage.Provider, domain string) (*Command, error) {
-	// Create KMS
-	kms, err := createKMS(storeProvider)
-	if err != nil {
-		return nil, err
-	}
-
-	client := didclient.New(kms)
+func New(domain string) *Command {
+	client := didclient.New()
 
 	cmd := &Command{
 		client: client,
 		domain: domain,
 	}
 
-	return cmd, nil
-}
-
-func createKMS(s ariesstorage.Provider) (ariesapi.CloseableKMS, error) {
-	kmsProvider, err := context.New(context.WithStorageProvider(s))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create new kms provider: %w", err)
-	}
-
-	kms, err := legacykms.New(kmsProvider)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create new kms: %w", err)
-	}
-
-	return kms, nil
+	return cmd
 }
 
 // Command is controller command for DID Exchange
@@ -90,7 +69,16 @@ func (c *Command) GetHandlers() []command.Handler {
 
 // CreateInvitation Creates a new connection invitation.
 func (c *Command) CreateDID(rw io.Writer, req io.Reader) command.Error {
-	didDoc, err := c.client.CreateDID(c.domain)
+	var request CreateDIDRequest
+
+	err := json.NewDecoder(req).Decode(&request)
+	if err != nil {
+		logutil.LogError(logger, commandName, createDIDCommandMethod, err.Error())
+		return command.NewValidationError(InvalidRequestErrorCode, err)
+	}
+
+	didDoc, err := c.client.CreateDID(c.domain, didclient.WithPublicKey(did.PublicKey{ID: request.PublicKey.ID, Type: request.PublicKey.Type,
+		Value: base58.Decode(request.PublicKey.Value)}))
 	if err != nil {
 		logutil.LogError(logger, commandName, createDIDCommandMethod, err.Error())
 		return command.NewExecuteError(CreateDIDErrorCode, err)
