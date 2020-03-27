@@ -3,8 +3,17 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
-
+<template>
+    <div class="content">
+    <md-card>
+        <md-card-header data-background-color="blue">
+            <h4 class="title">If you see registration pop-up, you have successfully registered</h4>
+        </md-card-header>
+    </md-card>
+    </div>
+</template>
 <script>
+    import Swal from 'sweetalert2'
     async function installHandler() {
         try {
             await window.$polyfill.loadOnce();
@@ -22,7 +31,15 @@ SPDX-License-Identifier: Apache-2.0
                 name: 'TestUser',
                 enabledTypes: ['VerifiablePresentation', 'VerifiableCredential', 'AlumniCredential']
             });
-        alert("Registration is Completed")
+        Swal.fire({
+            title: 'Registration is completed',
+            showClass: {
+                popup: 'animated fadeInDown faster'
+            },
+            hideClass: {
+                popup: 'animated fadeOutUp faster'
+            }
+        })
     }
     export default {
         beforeCreate:function(){
@@ -33,3 +50,8 @@ SPDX-License-Identifier: Apache-2.0
     }
 </script>
 
+<style lang="scss" scoped>
+    .md-toolbar + .md-toolbar {
+        margin-top: 16px;
+    }
+</style>

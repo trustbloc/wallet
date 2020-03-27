@@ -11,7 +11,7 @@ function filterExcludedFiles {
   CHECK=`echo "$CHECK" | grep -v .png$ | grep -v .rst$ | grep -v ^.git/ \
   | grep -v .pem$ | grep -v .block$ | grep -v .tx$ | grep -v ^LICENSE$ | grep -v _sk$ \
   | grep -v .key$ | grep -v .crt$ | grep -v \\.gen.go$ | grep -v \\.json$ | grep -v Gopkg.lock$ \
-  | grep -v .md$ | grep -v ^vendor/ | grep -v ^.*dist/ | grep -v ^build/ | grep -v .pb.go$ | grep -v ci.properties$ \
+  | grep -v .md$ | grep -v \\.scss$ | grep -v \\.jpg$ | grep -v ^vendor/ | grep -v ^.*dist/ | grep -v ^build/ | grep -v .pb.go$ | grep -v ci.properties$ \
   | grep -v go.sum$ |sort -u`
 }
 

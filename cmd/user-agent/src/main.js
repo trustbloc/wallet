@@ -4,13 +4,15 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import Vue from 'vue'
-import App from './App.vue'
-import router from "./router";
+import Vue from 'vue';
+import App from './App.vue';
+import VueRouter from "vue-router";
+import routes from "./router/index";
 import * as polyfill from "credential-handler-polyfill";
 import * as webCredentialHandler from "web-credential-handler";
 import * as Aries from "@hyperledger/aries-framework-go"
 import * as trustblocAgent from "@trustbloc/trustbloc-agent"
+import MaterialDashboard from "./material-dashboard";
 
 
 Vue.config.productionTip = false
@@ -109,8 +111,19 @@ Vue.prototype.$arieslib = loadAriesOnce()
 Vue.prototype.$trustblocStartupOpts = trustblocStartupOpts()
 
 
+// configure router
+const router = new VueRouter({
+    mode:'history',
+    routes, // short for routes: routes
+    linkExactActiveClass: "nav-item active"
+});
+
+Vue.use(VueRouter);
+Vue.use(MaterialDashboard);
+
 new Vue({
-    router,
+    el: "#app",
     render: h => h(App),
-}).$mount('#app')
+    router
+});
 

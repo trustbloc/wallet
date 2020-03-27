@@ -5,15 +5,32 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-    <div>
-        <select id="selectVC">
-            <option value="0">Select VC</option>
-        </select>
-        <br>
-        <button id='getVCBtn'>Send VC</button>
-    </div>
-</template>
+    <div class="content">
+        <div class="md-layout">
+            <div
+                    class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
+                <md-card class="md-card-plain">
+                    <md-card-header data-background-color="green">
+                        <h4 class="title">Choose your credential</h4>
+                    </md-card-header>
+                    <md-card-content style="background-color: white;">
+                        <md-field>
+                        </md-field>
+                        <select id="selectVC" style="color: grey; width: 200px; height: 35px;">
+                                <option value="0">Select VC</option>
+                            </select>
+                        <md-field style="margin-top: -15px">
+                        </md-field>
+                        <md-button class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
+                                   v-on="onmouseover"  id="getVCBtn">Send VC
+                        </md-button>
+                    </md-card-content>
+                </md-card>
 
+            </div>
+        </div>
+    </div>
+    </template>
 <script>
     async function handleWalletReceiveEvent() {
         const credentialEvent = await window.$webCredentialHandler.receiveCredentialEvent();
@@ -82,4 +99,3 @@ SPDX-License-Identifier: Apache-2.0
 
     }
 </script>
-
