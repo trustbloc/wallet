@@ -1,3 +1,20 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:636415b469fd4e4c6c55f39fb6f7c7572ea97cbb9db60f7b1145b047d366942a
-size 370
+// Opacity
+
+@mixin opacity($opacity) {
+  opacity: $opacity;
+  // IE8 filter
+  $opacity-ie: ($opacity * 100);
+  filter: #{alpha(opacity=$opacity-ie)};
+}
+
+@mixin black-filter($opacity){
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background-color: rgba(17,17,17,$opacity);
+    display: block;
+    content: "";
+    z-index: 1; 
+}
