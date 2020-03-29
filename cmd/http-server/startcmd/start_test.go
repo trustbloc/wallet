@@ -15,6 +15,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
+	cmdutils "github.com/trustbloc/edge-core/pkg/utils/cmd"
 )
 
 type mockServer struct {
@@ -111,33 +112,6 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		require.Error(t, err)
 		require.Equal(t,
 			"Neither host-url (command line flag) nor HTTP_SERVER_HOST_URL (environment variable) have been set.",
-			err.Error())
-	})
-	t.Run("test missing tls cert arg", func(t *testing.T) {
-		startCmd := GetStartCmd(&mockServer{})
-
-		args := []string{"--" + hostURLFlagName, "localhost:8080",
-			"--" + tlsKeyFileFlagName, "key"}
-		startCmd.SetArgs(args)
-
-		err := startCmd.Execute()
-		require.Error(t, err)
-		require.Equal(t,
-			"Neither tls-cert-file (command line flag) nor TLS_CERT_FILE (environment variable) have been set.",
-			err.Error())
-	})
-
-	t.Run("test missing tls key arg", func(t *testing.T) {
-		startCmd := GetStartCmd(&mockServer{})
-
-		args := []string{"--" + hostURLFlagName, "localhost:8080",
-			"--" + tlsCertFileFlagName, "cert"}
-		startCmd.SetArgs(args)
-
-		err := startCmd.Execute()
-		require.Error(t, err)
-		require.Equal(t,
-			"Neither tls-key-file (command line flag) nor TLS_KEY_FILE (environment variable) have been set.",
 			err.Error())
 	})
 
@@ -243,50 +217,16 @@ func TestStartCmdWithBlankEnvVar(t *testing.T) {
 		require.Error(t, err)
 		require.Equal(t, "HTTP_SERVER_HOST_URL value is empty", err.Error())
 	})
-
-	t.Run("test blank tls cert env var", func(t *testing.T) {
-		startCmd := GetStartCmd(&mockServer{})
-
-		err := os.Setenv(hostURLEnvKey, "localhost:8080")
-		require.NoError(t, err)
-
-		err = os.Setenv(tlsCertFileEnvKey, "")
-		require.NoError(t, err)
-
-		err = os.Setenv(tlsKeyFileEnvKey, "key")
-		require.NoError(t, err)
-
-		err = startCmd.Execute()
-		require.Error(t, err)
-		require.Equal(t, "TLS_CERT_FILE value is empty", err.Error())
-	})
-
-	t.Run("test blank tls key env var", func(t *testing.T) {
-		startCmd := GetStartCmd(&mockServer{})
-
-		err := os.Setenv(hostURLEnvKey, "localhost:8080")
-		require.NoError(t, err)
-
-		err = os.Setenv(tlsCertFileEnvKey, "cert")
-		require.NoError(t, err)
-
-		err = os.Setenv(tlsKeyFileEnvKey, "")
-		require.NoError(t, err)
-
-		err = startCmd.Execute()
-		require.Error(t, err)
-		require.Equal(t, "TLS_KEY_FILE value is empty", err.Error())
-	})
 }
 
 func TestGetUserSetVar(t *testing.T) {
 	startCmd := GetStartCmd(&mockServer{})
 
 	t.Run("missing mandatory value", func(t *testing.T) {
-		vals, err := getUserSetVars(startCmd, agentLogLevelFlagName, agentLogLevelEnvKey, false)
+		vals, err := cmdutils.GetUserSetVarFromArrayString(startCmd, agentLogLevelFlagName, agentLogLevelEnvKey, false)
 		require.Error(t, err)
 		require.Equal(t,
-			" log-level not set. It must be set via either command line or environment variable",
+			"Neither log-level (command line flag) nor ARIESD_LOG_LEVEL (environment variable) have been set.",
 			err.Error())
 		require.Empty(t, vals)
 	})
@@ -295,7 +235,7 @@ func TestGetUserSetVar(t *testing.T) {
 		err := os.Setenv(agentLogLevelEnvKey, "sidetree@localhost:8080,uni@localhost:8900")
 		require.NoError(t, err)
 
-		vals, err := getUserSetVars(startCmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
+		vals, err := cmdutils.GetUserSetVarFromArrayString(startCmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
 		require.NoError(t, err)
 		require.Equal(t, 2, len(vals))
 	})
