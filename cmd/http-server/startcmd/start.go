@@ -8,16 +8,15 @@ package startcmd
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"path"
 	"strconv"
 	"strings"
 
 	"github.com/lpar/gzipped"
 	"github.com/spf13/cobra"
+	cmdutils "github.com/trustbloc/edge-core/pkg/utils/cmd"
 )
 
 const (
@@ -106,7 +105,11 @@ type HTTPServer struct{}
 
 // ListenAndServe starts the server using the standard Go HTTP server implementation.
 func (s *HTTPServer) ListenAndServe(host, certFile, keyFile string, handler http.Handler) error {
-	return http.ListenAndServeTLS(host, certFile, keyFile, handler)
+	if certFile != "" && keyFile != "" {
+		return http.ListenAndServeTLS(host, certFile, keyFile, handler)
+	}
+
+	return http.ListenAndServe(host, handler)
 }
 
 type ariesJSOpts struct {
@@ -177,22 +180,22 @@ func createStartCmd(srv server) *cobra.Command {
 		Short: "Start http server",
 		Long:  "Start http server",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			hostURL, hostURLErr := getUserSetVar(cmd, hostURLFlagName, hostURLEnvKey, false)
+			hostURL, hostURLErr := cmdutils.GetUserSetVarFromString(cmd, hostURLFlagName, hostURLEnvKey, false)
 			if hostURLErr != nil {
 				return hostURLErr
 			}
 
-			wasmPath, err := getUserSetVar(cmd, wasmPathFlagName, wasmPathEnvKey, true)
+			wasmPath, err := cmdutils.GetUserSetVarFromString(cmd, wasmPathFlagName, wasmPathEnvKey, true)
 			if err != nil {
 				return err
 			}
 
-			tlsCertFile, tlsCertFileErr := getUserSetVar(cmd, tlsCertFileFlagName, tlsCertFileEnvKey, false)
+			tlsCertFile, tlsCertFileErr := cmdutils.GetUserSetVarFromString(cmd, tlsCertFileFlagName, tlsCertFileEnvKey, true)
 			if tlsCertFileErr != nil {
 				return tlsCertFileErr
 			}
 
-			tlsKeyFile, tlsKeyFileErr := getUserSetVar(cmd, tlsKeyFileFlagName, tlsKeyFileEnvKey, false)
+			tlsKeyFile, tlsKeyFileErr := cmdutils.GetUserSetVarFromString(cmd, tlsKeyFileFlagName, tlsKeyFileEnvKey, true)
 			if tlsKeyFileErr != nil {
 				return tlsKeyFileErr
 			}
@@ -240,80 +243,26 @@ func createFlags(startCmd *cobra.Command) {
 	// aries auto accept flag
 	startCmd.Flags().StringP(agentAutoAcceptFlagName, "", "", agentAutoAcceptFlagUsage)
 	// aries http resolver url flag
-	startCmd.Flags().StringSliceP(agentHTTPResolverFlagName, agentHTTPResolverFlagShorthand, []string{},
+	startCmd.Flags().StringArrayP(agentHTTPResolverFlagName, agentHTTPResolverFlagShorthand, []string{},
 		agentHTTPResolverFlagUsage)
 	// trustbloc agent bloc domain
 	startCmd.Flags().StringP(blocDomainFlagName, blocDomainFlagShorthand, "",
 		blocDomainFlagUsage)
 }
 
-func getUserSetVar(cmd *cobra.Command, flagName, envKey string, isOptional bool) (string, error) {
-	if cmd.Flags().Changed(flagName) {
-		value, err := cmd.Flags().GetString(flagName)
-		if err != nil {
-			return "", fmt.Errorf(flagName+" flag not found: %s", err)
-		}
-
-		if value == "" {
-			return "", fmt.Errorf("%s value is empty", flagName)
-		}
-
-		return value, nil
-	}
-
-	value, isSet := os.LookupEnv(envKey)
-
-	if isOptional || isSet {
-		if !isOptional && value == "" {
-			return "", fmt.Errorf("%s value is empty", envKey)
-		}
-
-		return value, nil
-	}
-
-	return "", errors.New("Neither " + flagName + " (command line flag) nor " + envKey +
-		" (environment variable) have been set.")
-}
-
-func getUserSetVars(cmd *cobra.Command, flagName,
-	envKey string, isOptional bool) ([]string, error) {
-	if cmd.Flags().Changed(flagName) {
-		value, err := cmd.Flags().GetStringSlice(flagName)
-		if err != nil {
-			return nil, fmt.Errorf(flagName+" flag not found: %s", err)
-		}
-
-		return value, nil
-	}
-
-	value, isSet := os.LookupEnv(envKey)
-
-	var values []string
-
-	if isSet {
-		values = strings.Split(value, ",")
-	}
-
-	if isOptional || isSet {
-		return values, nil
-	}
-
-	return nil, fmt.Errorf(" %s not set. "+
-		"It must be set via either command line or environment variable", flagName)
-}
-
 func fetchAriesWASMAgentOpts(cmd *cobra.Command) (*ariesJSOpts, error) {
-	defaultLabel, err := getUserSetVar(cmd, agentDefaultLabelFlagName, agentDefaultLabelEnvKey, true)
+	defaultLabel, err := cmdutils.GetUserSetVarFromString(
+		cmd, agentDefaultLabelFlagName, agentDefaultLabelEnvKey, true)
 	if err != nil {
 		return nil, err
 	}
 
-	dbNS, err := getUserSetVar(cmd, agentDBNSFlagName, agentDBNSEnvKey, true)
+	dbNS, err := cmdutils.GetUserSetVarFromString(cmd, agentDBNSFlagName, agentDBNSEnvKey, true)
 	if err != nil {
 		return nil, err
 	}
 
-	logLevel, err := getUserSetVar(cmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
+	logLevel, err := cmdutils.GetUserSetVarFromString(cmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
 	if err != nil {
 		return nil, err
 	}
@@ -323,7 +272,8 @@ func fetchAriesWASMAgentOpts(cmd *cobra.Command) (*ariesJSOpts, error) {
 		return nil, err
 	}
 
-	httpResolvers, err := getUserSetVars(cmd, agentHTTPResolverFlagName, agentHTTPResolverEnvKey, true)
+	httpResolvers, err := cmdutils.GetUserSetVarFromArrayString(
+		cmd, agentHTTPResolverFlagName, agentHTTPResolverEnvKey, true)
 	if err != nil {
 		return nil, err
 	}
@@ -338,7 +288,7 @@ func fetchAriesWASMAgentOpts(cmd *cobra.Command) (*ariesJSOpts, error) {
 }
 
 func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, error) {
-	blocDomain, err := getUserSetVar(cmd, blocDomainFlagName, blocDomainEnvKey, false)
+	blocDomain, err := cmdutils.GetUserSetVarFromString(cmd, blocDomainFlagName, blocDomainEnvKey, false)
 	if err != nil {
 		return nil, err
 	}
@@ -349,7 +299,7 @@ func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, err
 }
 
 func getAutoAcceptValue(cmd *cobra.Command) (bool, error) {
-	v, err := getUserSetVar(cmd, agentAutoAcceptFlagName, agentAutoAcceptEnvKey, true)
+	v, err := cmdutils.GetUserSetVarFromString(cmd, agentAutoAcceptFlagName, agentAutoAcceptEnvKey, true)
 	if err != nil {
 		return false, err
 	}
