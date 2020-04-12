@@ -65,6 +65,8 @@ jobs:
             docker logout
           }
           trap logout EXIT
+          git lfs install
+          git lfs pull
           source ci/version_var.sh
           echo $DOCKER_PASSWORD | docker login docker.pkg.github.com --username $DOCKER_USER --password-stdin
           make user-agent-wasm-docker
