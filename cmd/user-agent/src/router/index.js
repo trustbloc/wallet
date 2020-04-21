@@ -13,6 +13,7 @@ import RegisterWallet from "@/pages/RegisterWallet.vue";
 import StoreCredentials from "@/pages/StoreVC.vue";
 import GetCredentials from "@/pages/GetVC.vue";
 import CreateDID from "@/views/CreateDID.vue";
+import Interop from "@/pages/Interop.vue";
 const routes = [
     {
         path: "/",
@@ -54,6 +55,11 @@ const routes = [
                 path: "CreateDID",
                 name: "Create DID",
                 component: CreateDID
+            },
+            {
+                path: "Interop",
+                name: "Interop",
+                component: Interop
             }
         ]
     }
