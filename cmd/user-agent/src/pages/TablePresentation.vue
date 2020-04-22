@@ -18,16 +18,28 @@ SPDX-License-Identifier: Apache-2.0
           <md-card-content style="background-color: white;">
             <md-field>
             </md-field>
-              <select id="selectVC" style="color: grey; width: 200px; height: 35px;">
-                <option value="0">Select VC</option>
-              </select>
+            <label>
+              <md-icon>how_to_reg</md-icon>
+              Issuer</label><br>
+            <select v-model="selectedDID" id="selectDID" style="color: grey; width: 300px; height: 35px;">
+              <option v-for="did in savedDIDs" :key="did" :value="did.id">
+                {{did.name}}
+              </option>
+            </select><br><br>
+            <label>
+              <md-icon>fingerprint</md-icon>
+              Credential</label><br>
+            <select v-model="selectedVC" style="color: grey; width: 300px; height: 35px;">
+              <option v-for="vc in savedVCs" :key="vc" :value="vc.id">
+                {{vc.name}}
+              </option>
+            </select>
+
             <md-field style="margin-top: -15px">
             </md-field>
-            <md-button class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
-                       id="getVCBtn">Generate Presentation QR
+            <md-button v-on:click="generatePresentation" class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
+                       id="getVPBtn">Generate Presentation QR
             </md-button>
-            <md-field>
-            </md-field>
               <img src="" id="qr-result" style="width:25%" />
           </md-card-content>
         </md-card>
@@ -37,66 +49,87 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-  async function generateQRCode() {
-    document.getElementById('getVCBtn').addEventListener('click', async () => {
-      // Get the VC ID from UI selection
-      let e = document.getElementById("selectVC");
-      let vcID = e.options[e.selectedIndex].value;
-      if (vcID == 0) {
-        alert("please select vc")
-        return
-      }
-
-      // Get the VC data
-      let vcData
-      await window.$aries.verifiable.getCredential({
-        id: vcID
-      }).then(resp => {
-                vcData = JSON.stringify(JSON.parse(resp.verifiableCredential))
-              }
-      ).catch(err =>
-              console.log('generateQRCode - get vc failed : errMsg=' + err)
-      )
-
-      // Generate QR code
-      let QRCode = require('qrcode')
-      QRCode.toDataURL(vcData, function (err, url) {
-        let canvas = document.getElementById('qr-result')
-        canvas.src = url
-      })
-    });
-  }
 
   export default {
     beforeCreate: async function () {
+      this.aries = await this.$arieslib
       // Load the Credentials in the drop down
-      let aries = await this.$arieslib
-      await aries.verifiable.getCredentials()
+      await this.aries.verifiable.getCredentials()
               .then(resp => {
                         const data = resp.result
-                        if (data && data.length !== 0) {
-                          let dropdown = document.getElementById('selectVC');
-                          let option;
-                          for (let i = 0; i < data.length; i++) {
-                            option = document.createElement('option');
-                            option.text = data[i].name;
-                            option.value = data[i].id;
-                            dropdown.add(option);
-                          }
-                        } else {
-                          console.log('no credentials exists')
+                        console.log("data from rsp", data)
+                        if (data.length == 0) {
+                          console.log("unable to get saved VCs")
+                          return
                         }
+                        this.savedVCs.length = 0
+                        data.forEach((item) => {
+                          this.savedVCs.push({id:item.id, name:item.name})
+                        })
+
+                        this.selectedVC = this.savedVCs[0].id
                       }
               ).catch(err => {
-                        console.log('get credentials failed : errMsg=' + err)
+                console.log('get credentials failed : errMsg=' + err)
+              }
+      )
+      // Load the DIDs in the drop down
+      await this.aries.vdri.getDIDRecords()
+              .then(resp => {
+                        const data = resp.result
+                        console.log("data from did resp", JSON.stringify(resp))
+                        if (data.length == 0) {
+                          console.log("unable to get saved DIDs")
+                          return
+                        }
+
+                        this.savedDIDs.length = 0
+                        data.forEach((item) => {
+                          this.savedDIDs.push({id:item.id, name:item.name})
+                        })
+
+                        this.selectedDID = this.savedDIDs[0].id
+                        console.log("What are the stored dids", this.selectedDID)
+                      }
+              ).catch(err => {
+                        console.log('get DIDs failed : errMsg=' + err)
                       }
               )
-
       window.$webCredentialHandler = this.$webCredentialHandler
-      window.$aries = aries
-
-      generateQRCode()
+      window.$aries = this.aries
     },
+    data() {
+      return {
+        savedVCs: [{id: "", name: "Select VC"}],
+        selectedVC: "",
+        savedDIDs: [{id: "", name: "Select DID"}],
+        selectedDID: ""
+      };
+    },
+    methods: {
+      //TODO support multiple VCs + create presentation
+      generatePresentation: async function () {
+        this.errors.length = 0
+        // TODO generate presentation by did id and vcID
+        // Get the VC data
+        let vcData
+        await window.$aries.verifiable.getCredential({
+          id: this.selectedVC
+        }).then(resp => {
+                  vcData = JSON.stringify(JSON.parse(resp.verifiableCredential))
+                }
+        ).catch(err =>
+                console.log('generateQRCode - get vc failed : errMsg=' + err)
+        )
+
+        // Generate QR code
+        let QRCode = require('qrcode')
+        QRCode.toDataURL(vcData, function (err, url) {
+          let canvas = document.getElementById('qr-result')
+          canvas.src = url
+        })
+      }
+    }
   }
 
 

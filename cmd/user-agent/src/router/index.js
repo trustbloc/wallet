@@ -12,8 +12,8 @@ import TablePresentation from "@/pages/TablePresentation.vue";
 import RegisterWallet from "@/pages/RegisterWallet.vue";
 import StoreCredentials from "@/pages/StoreVC.vue";
 import GetCredentials from "@/pages/GetVC.vue";
-import CreateDID from "@/views/CreateDID.vue";
 import Interop from "@/pages/Interop.vue";
+import DIDManagement from "@/pages/DIDManagement.vue";
 const routes = [
     {
         path: "/",
@@ -52,14 +52,14 @@ const routes = [
                 component: GetCredentials
             },
             {
-                path: "CreateDID",
-                name: "Create DID",
-                component: CreateDID
-            },
-            {
                 path: "Interop",
                 name: "Interop",
                 component: Interop
+            },
+            {
+                path: "DIDManagement",
+                name: "DIDManagement",
+                component: DIDManagement
             }
         ]
     }

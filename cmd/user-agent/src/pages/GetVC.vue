@@ -16,15 +16,25 @@ SPDX-License-Identifier: Apache-2.0
                     <md-card-content style="background-color: white;">
                         <md-field>
                         </md-field>
-                        <select v-model="selectedVC" style="color: grey; width: 200px; height: 35px;">
+                        <label>
+                            <md-icon>how_to_reg</md-icon>
+                            Issuer</label><br>
+                        <select v-model="selectedDID" id="selectDID" style="color: grey; width: 300px; height: 35px;">
+                            <option v-for="did in savedDIDs" :key="did" :value="did.id">
+                                {{did.name}}
+                            </option>
+                        </select><br><br>
+                        <label>
+                            <md-icon>fingerprint</md-icon>
+                            Credential</label><br>
+                        <select v-model="selectedVC" style="color: grey; width: 300px; height: 35px;">
                             <option v-for="vc in savedVCs" :key="vc" :value="vc.id">
                                 {{vc.name}}
                             </option>
                         </select>
                         <md-field style="margin-top: -15px">
                         </md-field>
-                        <md-button  v-on:click="createPresentation" class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
-                                    id="getVCBtn">Send VC
+                        <md-button v-on:click="createPresentation" class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100">Send VC
                         </md-button>
                     </md-card-content>
                 </md-card>
@@ -35,11 +45,10 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 
-
     export default {
         beforeCreate: async function () {
-            // Load the Credentials in the drop down
             this.aries = await this.$arieslib
+            // Load the Credentials in the drop down
             this.aries.verifiable.getCredentials()
                 .then(resp => {
                         const data = resp.result
@@ -62,13 +71,37 @@ SPDX-License-Identifier: Apache-2.0
             )
 
             this.$polyfill.loadOnce()
-
             this.credentialEvent = await this.$webCredentialHandler.receiveCredentialEvent();
+
+            // Load the DIDs in the drop down
+           await this.aries.vdri.getDIDRecords()
+                .then(resp => {
+                        const data = resp.result
+                        console.log("data from did resp", JSON.stringify(resp))
+                        if (data.length == 0) {
+                            console.log("unable to get saved DIDs")
+                            return
+                        }
+
+                        this.savedDIDs.length = 0
+                        data.forEach((item) => {
+                            this.savedDIDs.push({id:item.id, name:item.name})
+                        })
+
+                        this.selectedDID = this.savedDIDs[0].id
+                        console.log("What are the stored dids", this.selectedDID)
+                    }
+                ).catch(err => {
+                    console.log('get DIDs failed : errMsg=' + err)
+                }
+            )
         },
         data() {
             return {
                 savedVCs: [{id: "", name: "Select VC"}],
-                selectedVC: ""
+                selectedVC: "",
+                savedDIDs: [{id: "", name: "Select DID"}],
+                selectedDID: ""
             };
         },
         methods: {
