@@ -15,9 +15,9 @@ and set it to GITHUB_TOKEN [environment variable](https://en.wikipedia.org/wiki/
 
 ## BDD Test Prerequisites
 
-- Run (`make generate-test-keys`) to generate tls keys and import ec-cacert.pem in cert chain
+Run (`make generate-test-keys`) to generate tls keys and import ec-cacert.pem in cert chain
 
-- You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following lines, to allow few of the bdd test containers to be connected to externally. 
+You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following lines, to allow few of the bdd test containers to be connected to externally. 
 
     127.0.0.1 testnet.trustbloc.local
     127.0.0.1 stakeholder.one
