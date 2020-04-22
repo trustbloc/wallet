@@ -89,7 +89,20 @@ func (c *Command) CreateDID(rw io.Writer, req io.Reader) command.Error {
 		return command.NewExecuteError(CreateDIDErrorCode, err)
 	}
 
-	command.WriteNillableResponse(rw, didDoc, logger)
+	bytes, err := didDoc.JSONBytes()
+	if err != nil {
+		logutil.LogError(logger, commandName, createDIDCommandMethod, err.Error())
+		return command.NewExecuteError(CreateDIDErrorCode, err)
+	}
+
+	m := make(map[string]interface{})
+
+	if err := json.Unmarshal(bytes, &m); err != nil {
+		logutil.LogError(logger, commandName, createDIDCommandMethod, err.Error())
+		return command.NewExecuteError(CreateDIDErrorCode, err)
+	}
+
+	command.WriteNillableResponse(rw, m, logger)
 
 	logutil.LogDebug(logger, commandName, createDIDCommandMethod, successString)
 
