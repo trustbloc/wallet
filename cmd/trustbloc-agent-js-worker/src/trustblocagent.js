@@ -11,7 +11,7 @@ const {loadWorker} = require("worker_loader")
 // registers messages in pending and posts them to the worker
 async function invoke(w, pending, pkg, fn, arg, msgTimeout) {
     return new Promise((resolve, reject) => {
-        const timer = setTimeout(_ => reject(new Error(msgTimeout)), 10000)
+        const timer = setTimeout(_ => reject(new Error(msgTimeout)), 20000)
         let payload = arg
         if (typeof arg === "string") {
             payload = JSON.parse(arg)
@@ -122,7 +122,7 @@ const TrustBlocAgent = function (opts) {
              * @returns {Promise<Object>}
              */
             createDID: async function (req) {
-                return invoke(aw, pending, this.pkgname, "CreateDID", req, "timeout while creating invitation")
+                return invoke(aw, pending, this.pkgname, "CreateDID", req, "timeout while creating did")
             },
         },
     }

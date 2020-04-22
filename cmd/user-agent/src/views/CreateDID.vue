@@ -22,15 +22,27 @@ SPDX-License-Identifier: Apache-2.0
         },
         methods: {
             createDID: async function () {
-                // TODO remove create DID page after this issue is done https://github.com/trustbloc/edge-agent/issues/59
                 const keyset= await window.$aries.kms.createKeySet()
+                const recoveryKeyset= await window.$aries.kms.createKeySet()
+
                 // create did request
                 const createDIDRequest = {
-                    "publicKey":{
-                        "id":"#key-1",
+                    "publicKeys":[{
+                        "id":"key-1",
                         "type":"Ed25519VerificationKey2018",
-                        "value":keyset.signaturePublicKey
-                    },
+                        "value":keyset.signaturePublicKey,
+                        "encoding":"Jwk",
+                        "keyType":"Ed25519",
+                        "usage":["ops","general"]
+                    }, {
+                        "id":"key-recovery",
+                        "type":"JwsVerificationKey2020",
+                        "value":recoveryKeyset.signaturePublicKey,
+                        "encoding":"Jwk",
+                        "keyType":"Ed25519",
+                        "recovery":true
+                    }
+                    ]
                 };
 
                 const t= await new window.$trustblocAgent.Framework(JSON.parse(window.$trustblocStartupOpts))

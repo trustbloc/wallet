@@ -10,13 +10,16 @@ package didclient
 // This is used for creating DID
 //
 type CreateDIDRequest struct {
-	// Optional public DID to be used in invitation
-	PublicKey PublicKey `json:"publicKey,omitempty"`
+	PublicKeys []PublicKey `json:"publicKeys,omitempty"`
 }
 
 // PublicKey public key
 type PublicKey struct {
-	ID    string `json:"id,omitempty"`
-	Type  string `json:"type,omitempty"`
-	Value string `json:"value,omitempty"`
+	ID       string   `json:"id,omitempty"`
+	Type     string   `json:"type,omitempty"`
+	Encoding string   `json:"encoding,omitempty"`
+	KeyType  string   `json:"keyType,omitempty"`
+	Usage    []string `json:"usage,omitempty"`
+	Recovery bool     `json:"recovery,omitempty"`
+	Value    string   `json:"value,omitempty"`
 }

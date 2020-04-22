@@ -98,7 +98,6 @@ clean: clean-build
 .PHONY: clean-build
 clean-build:
 	@rm -Rf ./build
-	@rm -Rf ./test/bdd/fixtures/keys/tls
 	@rm -Rf ./cmd/user-agent/dist
 	@rm -Rf ./cmd/user-agent/node_modules
 	@rm -Rf ./cmd/trustbloc-agent-js-worker/node_modules

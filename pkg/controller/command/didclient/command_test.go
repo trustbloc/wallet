@@ -49,7 +49,7 @@ func TestCommand_CreateDID(t *testing.T) {
 
 		var b bytes.Buffer
 
-		req, err := json.Marshal(PublicKey{ID: "key1", Type: "key1", Value: "value"})
+		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", Value: "value"}}})
 		require.NoError(t, err)
 
 		cmdErr := c.CreateDID(&b, bytes.NewBuffer(req))
@@ -66,7 +66,7 @@ func TestCommand_CreateDID(t *testing.T) {
 
 		var b bytes.Buffer
 
-		req, err := json.Marshal(PublicKey{ID: "key1", Type: "key1", Value: "value"})
+		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", Value: "value"}}})
 		require.NoError(t, err)
 
 		cmdErr := c.CreateDID(&b, bytes.NewBuffer(req))

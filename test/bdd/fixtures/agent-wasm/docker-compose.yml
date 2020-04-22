@@ -43,7 +43,7 @@ services:
   testnet.trustbloc.local:
     container_name: testnet.trustbloc.local
     hostname: testnet.trustbloc.local
-    image: halverneus/static-file-server:latest
+    image: halverneus/static-file-server:v1.7.2
     environment:
       - PORT=443
       - FOLDER=/web
@@ -60,7 +60,7 @@ services:
   stakeholder.one:
     container_name: stakeholder.one
     hostname: stakeholder.one
-    image: halverneus/static-file-server:latest
+    image: halverneus/static-file-server:v1.7.2
     environment:
       - PORT=8088
       - FOLDER=/web
