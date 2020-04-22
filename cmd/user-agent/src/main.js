@@ -82,7 +82,7 @@ async function ariesStartupOpts() {
 
 let defaulTrustBlocStartupOpts = {
     assetsPath: '/trustbloc-agent/assets',
-    'blocDomain': ''
+    'blocDomain': 'testnet.trustbloc.local'
 }
 
 async function trustblocStartupOpts() {
