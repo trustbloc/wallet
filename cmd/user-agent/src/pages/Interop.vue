@@ -31,6 +31,7 @@ SPDX-License-Identifier: Apache-2.0
                             <br>
                             <md-button v-on:click="sendVC" class="md-raised md-success">Store in Wallet</md-button>
                             <md-button v-on:click="getVC" class="md-raised md-success">Get from Wallet</md-button>
+                            <md-button v-on:click="didAuth" class="md-raised md-success">Authenticate</md-button>
                         </div>
                     </md-card-content>
                 </md-card>
@@ -73,7 +74,7 @@ SPDX-License-Identifier: Apache-2.0
 
     export default {
         beforeCreate: async function () {
-            window.$aries = await this.$arieslib
+            this.aries = await this.$arieslib
             this.$polyfill.loadOnce()
         },
         data() {
@@ -97,7 +98,7 @@ SPDX-License-Identifier: Apache-2.0
                 const credentialType = 'VerifiableCredential';
                 const webCredentialWrapper = new WebCredential(credentialType, this.vcdata);
                 const result = await navigator.credentials.store(webCredentialWrapper);
-                console.log('Result of receiving via store() request:', result);
+                console.log('Result received via store() request:', result);
                 this.responses.push("Successfully stored verifiable credential to wallet.")
             },
             getVC: async function () {
@@ -110,6 +111,24 @@ SPDX-License-Identifier: Apache-2.0
                 }
                 this.vcdata = result.data
                 this.responses.push("Successfully got verifiable presentation from wallet.")
+            },
+            didAuth: async function () {
+                this.clearResults()
+                const credentialQuery = JSON.parse('{"web": {"VerifiablePresentation": {"query":{"type":"DIDAuth"},' +
+                    '"challenge":"54f3da1a-d1af-4c25-b1a6-90315dda62fc","domain":"issuer.interop.example.com"}}}');
+                const result = await navigator.credentials.get(credentialQuery);
+                if (!result) {
+                    this.errors.push("Failed to get result")
+                    return
+                }
+
+                if ((typeof result.data) == "object") {
+                    this.vcdata = JSON.stringify(result.data)
+                } else {
+                    this.vcdata = result.data
+                }
+
+                this.responses.push("Successfully got DID authorization from wallet.")
             }
         }
     }

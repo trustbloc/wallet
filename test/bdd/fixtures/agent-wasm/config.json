@@ -1,0 +1,33 @@
+{
+  "drivers": [
+    {
+      "pattern": "^(did:v1:test:nym:.+)$",
+      "url": "https://ashburn.capybara.veres.one/dids/$1"
+    },
+    {
+      "pattern": "^(did:trustbloc:testnet.trustbloc.local:.+)$",
+      "url": "http://trustbloc.did.method.example.com:8060/resolveDID?did=$1"
+    },
+    {
+      "pattern": "^(did:elem:.+$)",
+      "url": "https://element-did.com/api/v1/sidetree/$1"
+    },
+    {
+      "pattern": "^(did:sov:(?:(?:\\w[-\\w]*(?::\\w[-\\w]*)*):)?(?:[1-9A-HJ-NP-Za-km-z]{21,22}))$",
+      "image": "universalresolver/driver-did-sov",
+      "imageProperties": "true",
+      "tag": "latest"
+    },
+    {
+      "pattern": "^(did:web:.+)$",
+      "image": "uport/uni-resolver-driver-did-uport",
+      "imagePort": "8081",
+      "tag": "latest"
+    },
+    {
+      "pattern": "^(did:key:.+)$",
+      "url": "https://did-key.web.app/api/dids/$1",
+      "testIdentifiers": [ "did:key:z6MksQ35B5bwZDQq4QKuhQW2Sv6dcqwg4PqcSFf67pdgrtjB" ]
+    }
+  ]
+}

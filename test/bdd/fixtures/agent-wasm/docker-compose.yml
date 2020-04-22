@@ -82,3 +82,29 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/resolv.conf:/etc/resolv.conf
+
+  uni-resolver-web:
+    image: universalresolver/uni-resolver-web:latest
+    ports:
+      - "9080:8080"
+    volumes:
+      - ./config.json:/opt/uni-resolver-java/uni-resolver-web/config.json
+      - ./run-uni-resolver-web.sh:/opt/uni-resolver-java/uni-resolver-web/docker/run-uni-resolver-web.sh
+
+
+  trustbloc.did.method.example.com:
+    container_name: trustbloc.did.method.example.com
+    image: ${BLOC_DID_METHOD_IMAGE}:${BLOC_DID_METHOD_IMAGE_TAG}
+    environment:
+      - DID_METHOD_HOST_URL=0.0.0.0:8060
+      - DID_METHOD_TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - DID_METHOD_DOMAIN=testnet.trustbloc.local
+      - DID_METHOD_DATABASE_TYPE=mem
+      - DID_METHOD_DATABASE_PREFIX=driver
+    ports:
+      - 8060:8060
+    entrypoint: ""
+    command:  /bin/sh -c "sleep 10;did-method start"
+    volumes:
+      - ../keys/tls:/etc/tls
+
