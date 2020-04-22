@@ -77,8 +77,13 @@ func (c *Command) CreateDID(rw io.Writer, req io.Reader) command.Error {
 		return command.NewValidationError(InvalidRequestErrorCode, err)
 	}
 
-	didDoc, err := c.client.CreateDID(c.domain, didclient.WithPublicKey(did.PublicKey{ID: request.PublicKey.ID, Type: request.PublicKey.Type,
-		Value: base58.Decode(request.PublicKey.Value)}))
+	var opts []didclient.CreateDIDOption
+	for _, v := range request.PublicKeys {
+		opts = append(opts, didclient.WithPublicKey(&didclient.PublicKey{ID: v.ID, Type: v.Type, Encoding: v.Encoding,
+			KeyType: v.KeyType, Usage: v.Usage, Recovery: v.Recovery, Value: base58.Decode(v.Value)}))
+	}
+
+	didDoc, err := c.client.CreateDID(c.domain, opts...)
 	if err != nil {
 		logutil.LogError(logger, commandName, createDIDCommandMethod, err.Error())
 		return command.NewExecuteError(CreateDIDErrorCode, err)
