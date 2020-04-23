@@ -19,17 +19,9 @@ SPDX-License-Identifier: Apache-2.0
         <md-icon>border_outer</md-icon>
         <p>Presentation</p>
       </sidebar-link>
-      <sidebar-link to="/StoreVC">
-        <md-icon>account_balance</md-icon>
-        <p>Store Credentials</p>
-      </sidebar-link>
-      <sidebar-link to="/GetVC">
-        <md-icon>description</md-icon>
-        <p>Get Credentials</p>
-      </sidebar-link>
-      <sidebar-link to="/CreateDID">
-        <md-icon>create</md-icon>
-        <p>Create DID</p>
+      <sidebar-link to="/DIDManagement">
+        <md-icon>border_outer</md-icon>
+        <p>DID Management</p>
       </sidebar-link>
     </side-bar>
 
