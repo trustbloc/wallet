@@ -8,8 +8,8 @@ go 1.13
 
 require (
 	github.com/btcsuite/btcutil v1.0.1
-	github.com/hyperledger/aries-framework-go v0.1.3-0.20200422110214-9cedd8253d8f
+	github.com/hyperledger/aries-framework-go v0.1.3-0.20200422184723-a297d2a1d3c3
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.5.1
-	github.com/trustbloc/trustbloc-did-method v0.0.0-20200423230917-544479e2c2ed
+	github.com/trustbloc/trustbloc-did-method v0.0.0-20200424180947-6f28d41ca353
 )
