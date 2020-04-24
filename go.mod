@@ -11,5 +11,5 @@ require (
 	github.com/hyperledger/aries-framework-go v0.1.3-0.20200422110214-9cedd8253d8f
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.5.1
-	github.com/trustbloc/trustbloc-did-method v0.0.0-20200421193632-76e5d41d8042
+	github.com/trustbloc/trustbloc-did-method v0.0.0-20200423230917-544479e2c2ed
 )

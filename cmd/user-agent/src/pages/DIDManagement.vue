@@ -81,7 +81,7 @@ SPDX-License-Identifier: Apache-2.0
                 const createDIDRequest = {
                     "publicKeys":[{
                         "id":"key-1",
-                        "type":"Ed25519VerificationKey2018",
+                        "type":"JwsVerificationKey2020",
                         "value":keyset.signaturePublicKey,
                         "encoding":"Jwk",
                         "keyType":this.selectType,
