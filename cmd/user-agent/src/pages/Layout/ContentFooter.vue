@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-template>
+<template>
   <footer class="footer"  style="background-color: white">
     <div class="container">
         <ul>
