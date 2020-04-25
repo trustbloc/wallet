@@ -23,3 +23,8 @@ type PublicKey struct {
 	Recovery bool     `json:"recovery,omitempty"`
 	Value    string   `json:"value,omitempty"`
 }
+
+type CreateDIDResponse struct {
+	DID map[string]interface{}
+	PrivateKey string
+}

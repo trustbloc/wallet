@@ -58,25 +58,64 @@ func TestCommand_CreateDID(t *testing.T) {
 		require.Equal(t, command.ExecuteError, cmdErr.Type())
 	})
 
-	t.Run("test success", func(t *testing.T) {
+	t.Run("test generate key pair error", func(t *testing.T) {
 		c := New("domain")
 		require.NotNil(t, c)
 
-		c.client = &mockDIDClient{createDIDValue: &did.Doc{ID: "1"}}
+		c.generateECKeyPair = func() ([]byte, []byte, error) {
+			return nil, nil, fmt.Errorf("generate ec key pair error")
+		}
 
 		var b bytes.Buffer
 
-		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", Value: "value"}}})
+		// EC key
+		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "EC", Value: "value"}}})
+		require.NoError(t, err)
+
+		cmdErr := c.CreateDID(&b, bytes.NewBuffer(req))
+		require.Error(t, cmdErr)
+		require.Equal(t, GenerateKeyPairErrorCode, cmdErr.Code())
+		require.Equal(t, command.ExecuteError, cmdErr.Type())
+		require.Contains(t, cmdErr.Error(), "generate ec key pair error")
+	})
+
+	c := New("domain")
+	require.NotNil(t, c)
+
+	c.client = &mockDIDClient{createDIDValue: &did.Doc{ID: "1"}}
+
+	var b bytes.Buffer
+
+	t.Run("test success create did with EC key", func(t *testing.T) {
+		// EC key
+		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "EC", Value: "value"}}})
 		require.NoError(t, err)
 
 		cmdErr := c.CreateDID(&b, bytes.NewBuffer(req))
 		require.NoError(t, cmdErr)
 
-		didDoc := &did.Doc{}
-		err = json.NewDecoder(&b).Decode(&didDoc)
+		v := &CreateDIDResponse{}
+		err = json.NewDecoder(&b).Decode(&v)
 		require.NoError(t, err)
 
-		require.Equal(t, "1", didDoc.ID)
+		require.Equal(t, "1", v.DID["id"])
+		require.NotNil(t, v.PrivateKey)
+
+	})
+	t.Run("test success create did with Ed25519 key", func(t *testing.T) {
+		// ED key
+		r, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "Ed25519", Value: "value"}}})
+		require.NoError(t, err)
+
+		cmdErr := c.CreateDID(&b, bytes.NewBuffer(r))
+		require.NoError(t, cmdErr)
+
+		resp := &CreateDIDResponse{}
+		err = json.NewDecoder(&b).Decode(&resp)
+		require.NoError(t, err)
+
+		require.Equal(t, "1", resp.DID["id"])
+		require.Equal(t, "", resp.PrivateKey)
 	})
 }
 
