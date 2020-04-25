@@ -20,7 +20,7 @@ SPDX-License-Identifier: Apache-2.0
         <p>Presentation</p>
       </sidebar-link>
       <sidebar-link to="/DIDManagement">
-        <md-icon>border_outer</md-icon>
+        <md-icon>flip_to_back</md-icon>
         <p>DID Management</p>
       </sidebar-link>
     </side-bar>

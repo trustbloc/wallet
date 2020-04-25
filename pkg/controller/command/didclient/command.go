@@ -6,6 +6,10 @@ SPDX-License-Identifier: Apache-2.0
 package didclient
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/x509"
 	"encoding/json"
 	"io"
 
@@ -28,6 +32,12 @@ const (
 	createDIDCommandMethod = "CreateDID"
 	// log constants
 	successString = "success"
+
+	// Ed25519KeyType ed25519 key type
+	Ed25519KeyType = "Ed25519"
+
+	// P256KeyType EC P-256 key type
+	P256KeyType = "EC"
 )
 
 const (
@@ -36,6 +46,9 @@ const (
 
 	// CreateDIDErrorCode is typically a code for create did errors
 	CreateDIDErrorCode
+
+	// GenerateKeyPairErrorCode is an error code for indicating key pair failure
+	GenerateKeyPairErrorCode
 )
 
 type didBlocClient interface {
@@ -51,13 +64,29 @@ func New(domain string) *Command {
 		domain: domain,
 	}
 
+	cmd.generateECKeyPair = func() ([]byte, []byte, error) {
+		privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+		if err != nil {
+			return nil, nil, err
+		}
+		encodedPublicKey, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
+		if err != nil {
+			return nil, nil, err
+		}
+		encodedPrivateKey, err := x509.MarshalECPrivateKey(privateKey)
+		if err != nil {
+			return nil, nil, err
+		}
+		return encodedPublicKey, encodedPrivateKey, nil
+	}
 	return cmd
 }
 
 // Command is controller command for DID Exchange
 type Command struct {
-	client didBlocClient
-	domain string
+	client            didBlocClient
+	domain            string
+	generateECKeyPair func() ([]byte, []byte, error) // needed for unit test
 }
 
 // GetHandlers returns list of all commands supported by this controller command
@@ -78,9 +107,23 @@ func (c *Command) CreateDID(rw io.Writer, req io.Reader) command.Error {
 	}
 
 	var opts []didclient.CreateDIDOption
+	var didPrivateKey string
+
 	for _, v := range request.PublicKeys {
-		opts = append(opts, didclient.WithPublicKey(&didclient.PublicKey{ID: v.ID, Type: v.Type, Encoding: v.Encoding,
-			KeyType: v.KeyType, Usage: v.Usage, Recovery: v.Recovery, Value: base58.Decode(v.Value)}))
+		switch v.KeyType {
+		case Ed25519KeyType:
+			opts = append(opts, didclient.WithPublicKey(&didclient.PublicKey{ID: v.ID, Type: v.Type, Encoding: v.Encoding,
+				KeyType: v.KeyType, Usage: v.Usage, Recovery: v.Recovery, Value: base58.Decode(v.Value)}))
+		case P256KeyType:
+			encodedPublicKey, encodedPrivateKey, err := c.generateECKeyPair()
+			if err != nil {
+				logutil.LogError(logger, commandName, createDIDCommandMethod, err.Error())
+				return command.NewExecuteError(GenerateKeyPairErrorCode, err)
+			}
+			didPrivateKey = base58.Encode(encodedPrivateKey)
+			opts = append(opts, didclient.WithPublicKey(&didclient.PublicKey{ID: v.ID, Type: v.Type, Encoding: v.Encoding,
+				KeyType: v.KeyType, Usage: v.Usage, Recovery: v.Recovery, Value: encodedPublicKey}))
+		}
 	}
 
 	didDoc, err := c.client.CreateDID(c.domain, opts...)
@@ -102,7 +145,10 @@ func (c *Command) CreateDID(rw io.Writer, req io.Reader) command.Error {
 		return command.NewExecuteError(CreateDIDErrorCode, err)
 	}
 
-	command.WriteNillableResponse(rw, m, logger)
+	command.WriteNillableResponse(rw, &CreateDIDResponse{
+		DID:        m,
+		PrivateKey: didPrivateKey,
+	}, logger)
 
 	logutil.LogDebug(logger, commandName, createDIDCommandMethod, successString)
 
