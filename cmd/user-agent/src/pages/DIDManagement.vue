@@ -70,19 +70,19 @@ SPDX-License-Identifier: Apache-2.0
                     this.errors.push("key type required")
                     return;
                 }
-
-                const keyset= await window.$aries.kms.createKeySet()
-                const recoveryKeyset= await window.$aries.kms.createKeySet()
-
+                let keyID="key-1"
                 let keyValue
                 let recoveryKeyValue
                 if (this.selectType == "Ed25519"){
-                    keyValue=keyset.signaturePublicKey
-                    recoveryKeyValue=recoveryKeyset.signaturePublicKey
+                    const keyset= await window.$aries.kms.createKeySet({keyType: "ED25519"})
+                    const recoveryKeyset= await window.$aries.kms.createKeySet({keyType: "ED25519"})
+                    keyValue=keyset.publicKey
+                    keyID=keyset.keyID
+                    recoveryKeyValue=recoveryKeyset.publicKey
                 }
                 const createDIDRequest = {
                     "publicKeys":[{
-                        "id":"key-1",
+                        "id":keyID,
                         "type":"JwsVerificationKey2020",
                         "value":keyValue,
                         "encoding":"Jwk",

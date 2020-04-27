@@ -7,6 +7,7 @@ package didclient
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -23,6 +24,11 @@ func TestNew(t *testing.T) {
 		c := New("domain")
 		require.NotNil(t, c)
 		require.NotNil(t, c.GetHandlers())
+
+		publicKey, privateKey, err := c.generateECKeyPair()
+		require.NoError(t, err)
+		require.NotNil(t, publicKey)
+		require.NotNil(t, privateKey)
 	})
 }
 
@@ -88,7 +94,7 @@ func TestCommand_CreateDID(t *testing.T) {
 
 	t.Run("test success create did with EC key", func(t *testing.T) {
 		// EC key
-		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "EC", Value: "value"}}})
+		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "P256", Value: "value"}}})
 		require.NoError(t, err)
 
 		cmdErr := c.CreateDID(&b, bytes.NewBuffer(req))
@@ -104,7 +110,8 @@ func TestCommand_CreateDID(t *testing.T) {
 	})
 	t.Run("test success create did with Ed25519 key", func(t *testing.T) {
 		// ED key
-		r, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "Ed25519", Value: "value"}}})
+		r, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "Ed25519",
+			Value: base64.RawURLEncoding.EncodeToString([]byte("value"))}}})
 		require.NoError(t, err)
 
 		cmdErr := c.CreateDID(&b, bytes.NewBuffer(r))
