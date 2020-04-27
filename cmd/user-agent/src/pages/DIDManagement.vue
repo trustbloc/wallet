@@ -21,7 +21,7 @@ SPDX-License-Identifier: Apache-2.0
                         <select id="selectVC" v-model="selectType" style="color: grey; width: 200px; height: 35px;">
                             <option value="" disabled="disabled">Select Key Type</option>
                             <option value="Ed25519">Ed25519</option>
-                            <option value="EC">P256</option>
+                            <option value="P256">P256</option>
                         </select>
                         <md-field style="margin-top: -15px">
                         </md-field>

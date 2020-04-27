@@ -69,7 +69,7 @@ func TestCommand_CreateDID(t *testing.T) {
 		var b bytes.Buffer
 
 		// EC key
-		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "EC", Value: "value"}}})
+		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "P256", Value: "value"}}})
 		require.NoError(t, err)
 
 		cmdErr := c.CreateDID(&b, bytes.NewBuffer(req))
