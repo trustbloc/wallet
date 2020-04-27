@@ -32,12 +32,6 @@ const (
 	createDIDCommandMethod = "CreateDID"
 	// log constants
 	successString = "success"
-
-	// Ed25519KeyType ed25519 key type
-	Ed25519KeyType = "Ed25519"
-
-	// P256KeyType EC P-256 key type
-	P256KeyType = "EC"
 )
 
 const (
@@ -69,15 +63,13 @@ func New(domain string) *Command {
 		if err != nil {
 			return nil, nil, err
 		}
-		encodedPublicKey, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
-		if err != nil {
-			return nil, nil, err
-		}
+		publicKeyBytes := elliptic.Marshal(privateKey.PublicKey.Curve, privateKey.PublicKey.X, privateKey.PublicKey.Y)
+		// TODO do we need to use MarshalECPrivateKey
 		encodedPrivateKey, err := x509.MarshalECPrivateKey(privateKey)
 		if err != nil {
 			return nil, nil, err
 		}
-		return encodedPublicKey, encodedPrivateKey, nil
+		return publicKeyBytes, encodedPrivateKey, nil
 	}
 	return cmd
 }
@@ -111,10 +103,10 @@ func (c *Command) CreateDID(rw io.Writer, req io.Reader) command.Error {
 
 	for _, v := range request.PublicKeys {
 		switch v.KeyType {
-		case Ed25519KeyType:
+		case didclient.Ed25519KeyType:
 			opts = append(opts, didclient.WithPublicKey(&didclient.PublicKey{ID: v.ID, Type: v.Type, Encoding: v.Encoding,
 				KeyType: v.KeyType, Usage: v.Usage, Recovery: v.Recovery, Value: base58.Decode(v.Value)}))
-		case P256KeyType:
+		case didclient.P256KeyType:
 			encodedPublicKey, encodedPrivateKey, err := c.generateECKeyPair()
 			if err != nil {
 				logutil.LogError(logger, commandName, createDIDCommandMethod, err.Error())
