@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   <div class="content">
     <div class="md-layout">
       <div
-        class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100"
+              class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100"
       >
         <md-card class="md-card-plain">
           <md-card-header data-background-color="green">
@@ -97,9 +97,9 @@ SPDX-License-Identifier: Apache-2.0
                         this.selectedVC = this.savedVCs[0].id
                       }
               ).catch(err => {
-                console.log('get credentials failed : errMsg=' + err)
-              }
-      )
+                        console.log('get credentials failed : errMsg=' + err)
+                      }
+              )
       window.$webCredentialHandler = this.$webCredentialHandler
       window.$aries = this.aries
     },

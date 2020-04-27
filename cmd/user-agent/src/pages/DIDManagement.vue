@@ -117,7 +117,6 @@ SPDX-License-Identifier: Apache-2.0
                             </md-card-content>
                         </md-card>
                     </md-tab>
-
                 </md-tabs>
                 </md-card-content>
                 </md-card>

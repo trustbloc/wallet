@@ -44,7 +44,7 @@ let defaultAriesStartupOpts = {
     assetsPath: '/aries-framework-go/assets',
     'outbound-transport': ['ws', 'http'],
     'transport-return-route': 'all',
-    'http-resolver-url': [],
+    'http-resolver-url': ["trustbloc@http://localhost:9080/1.0/identifiers"],
     'agent-default-label': 'demo-user-agent',
     'auto-accept': true,
     'log-level': 'debug',
