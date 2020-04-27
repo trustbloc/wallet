@@ -24,41 +24,26 @@ SPDX-License-Identifier: Apache-2.0
       <div class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-25">
         <stats-card data-background-color="orange">
           <template slot="header">
-            <md-icon>border_outer</md-icon>
+            <md-icon>flip_to_back</md-icon>
           </template>
 
           <template slot="content">
-            <sidebar-link to="/MyVC">
-              <h3 class="title">Generate Presentation</h3>
+            <sidebar-link to="/DIDManagement">
+              <h3 class="title">DID Management</h3>
             </sidebar-link>
 
-          </template>
-        </stats-card>
-      </div>
-      <div class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-25">
-        <stats-card data-background-color="blue">
-          <template slot="header">
-            <md-icon>account_balance</md-icon>
-          </template>
-
-          <template slot="content">
-            <label>For testing</label>
-            <sidebar-link to="/StoreVC">
-              <h3 class="title">Store Credentials</h3>
-            </sidebar-link>
           </template>
         </stats-card>
       </div>
       <div class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-25">
         <stats-card data-background-color="purple">
           <template slot="header">
-            <md-icon>description</md-icon>
+            <md-icon>border_outer</md-icon>
           </template>
 
           <template slot="content">
-            <label>For testing</label>
-            <sidebar-link to="/GetVC">
-              <h3 class="title">Get Credentials</h3>
+            <sidebar-link to="/MyVC">
+              <h3 class="title">Generate Presentation</h3>
             </sidebar-link>
           </template>
         </stats-card>

@@ -42,16 +42,6 @@ const routes = [
                 component: TablePresentation
             },
             {
-                path: "StoreVC",
-                name: "Store Credentials",
-                component: StoreCredentials
-            },
-            {
-                path: "GetVC",
-                name: "Get Credentials",
-                component: GetCredentials
-            },
-            {
                 path: "Interop",
                 name: "Interop",
                 component: Interop
@@ -62,6 +52,14 @@ const routes = [
                 component: DIDManagement
             }
         ]
+    },
+    {
+        path: "/StoreVC",
+        component: StoreCredentials
+    },
+    {
+        path: "/GetVC",
+        component: GetCredentials
     }
 
 ];
