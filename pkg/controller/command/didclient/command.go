@@ -10,6 +10,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
 	"io"
 
@@ -104,8 +105,14 @@ func (c *Command) CreateDID(rw io.Writer, req io.Reader) command.Error {
 	for _, v := range request.PublicKeys {
 		switch v.KeyType {
 		case didclient.Ed25519KeyType:
+			value, err := base64.RawURLEncoding.DecodeString(v.Value)
+			if err != nil {
+				logutil.LogError(logger, commandName, createDIDCommandMethod, err.Error())
+				return command.NewExecuteError(GenerateKeyPairErrorCode, err)
+			}
+
 			opts = append(opts, didclient.WithPublicKey(&didclient.PublicKey{ID: v.ID, Type: v.Type, Encoding: v.Encoding,
-				KeyType: v.KeyType, Usage: v.Usage, Recovery: v.Recovery, Value: base58.Decode(v.Value)}))
+				KeyType: v.KeyType, Usage: v.Usage, Recovery: v.Recovery, Value: value}))
 		case didclient.P256KeyType:
 			encodedPublicKey, encodedPrivateKey, err := c.generateECKeyPair()
 			if err != nil {
