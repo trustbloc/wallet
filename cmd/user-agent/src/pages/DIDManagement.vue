@@ -110,7 +110,7 @@ SPDX-License-Identifier: Apache-2.0
                         this.didDocTextArea = JSON.stringify(resp.DID,undefined, 2);
 
                         // create local index db store to store private keys only if key type is  EC
-                        if (selectType == "EC"){
+                        if (selectType == "P256"){
                             let storeName = "privateKeys"
                             let db
 
@@ -122,7 +122,8 @@ SPDX-License-Identifier: Apache-2.0
                                     key: friendlyName,
                                     privateKey: resp.PrivateKey,
                                     type: selectType,
-                                    timestamp: Date.now()};
+                                    timestamp: Date.now()
+                                  };
                                 db.transaction([storeName], "readwrite").objectStore("privateKeys").add(keys);
 
                             };
