@@ -24,14 +24,20 @@ SPDX-License-Identifier: Apache-2.0
                             </ul>
                         </div>
                         <div v-if="responses.length">
-                                <p v-for="response in responses" :key="response">{{ response }}</p>
+                            <p v-for="response in responses" :key="response">{{ response }}</p>
                         </div>
                         <div id="#ivc">
-                            <md-textarea v-model="vcdata" id="vcDataTextArea" cols="100" rows="20"/>
+                            <md-textarea v-model="interopData" id="vcDataTextArea" cols="150" rows="30"/>
                             <br>
-                            <md-button v-on:click="sendVC" class="md-raised md-success">Store in Wallet</md-button>
-                            <md-button v-on:click="getVC" class="md-raised md-success">Get from Wallet</md-button>
-                            <md-button v-on:click="didAuth" class="md-raised md-success">Authenticate</md-button>
+                            <md-button v-on:click="sendVC" class="md-raised md-success">Store VC in Wallet</md-button>
+                            &nbsp;
+                            <md-button v-on:click="sendVP" class="md-raised md-success">Store VP in Wallet</md-button>
+                            &nbsp;
+                            <md-button v-on:click="getVC" class="md-raised md-success">Get VC from Wallet</md-button>
+                            &nbsp;
+                            <md-button v-on:click="getVP" class="md-raised md-success">Get VP from Wallet</md-button>
+                            &nbsp;
+                            <md-button v-on:click="didAuth" class="md-raised md-success">Authenticate</md-button> &nbsp;
                         </div>
                     </md-card-content>
                 </md-card>
@@ -79,29 +85,50 @@ SPDX-License-Identifier: Apache-2.0
         },
         data() {
             return {
-                vcdata: JSON.stringify(sampleVC),
+                interopData: JSON.stringify(sampleVC, 0, 2),
                 errors: [],
                 responses: []
             };
         },
         methods: {
-            clearResults: async function() {
+            clearResults: async function () {
                 this.errors.length = 0
                 this.responses.length = 0
             },
             sendVC: async function () {
                 this.clearResults()
-                if (this.vcdata.length == 0) {
+                if (this.interopData.length == 0) {
                     this.errors.push("Invalid VC")
                     return
                 }
-                const credentialType = 'VerifiableCredential';
-                const webCredentialWrapper = new WebCredential(credentialType, this.vcdata);
+                const webCredentialWrapper = new WebCredential('VerifiableCredential', JSON.parse(this.interopData));
                 const result = await navigator.credentials.store(webCredentialWrapper);
                 console.log('Result received via store() request:', result);
                 this.responses.push("Successfully stored verifiable credential to wallet.")
             },
+            sendVP: async function () {
+                this.clearResults()
+                if (this.interopData.length == 0) {
+                    this.errors.push("Invalid VC")
+                    return
+                }
+                const webCredentialWrapper = new WebCredential('VerifiablePresentation', JSON.parse(this.interopData));
+                const result = await navigator.credentials.store(webCredentialWrapper);
+                console.log('Result received via store() request:', result);
+                this.responses.push("Successfully stored verifiable presentation to wallet.")
+            },
             getVC: async function () {
+                this.clearResults()
+                const credentialQuery = JSON.parse('{"web": {"VerifiableCredential": {}}}');
+                const result = await navigator.credentials.get(credentialQuery);
+                if (!result) {
+                    this.errors.push("Failed to get result")
+                    return
+                }
+                this.showResp(result.data)
+                this.responses.push("Successfully got verifiable credential from wallet.")
+            },
+            getVP: async function () {
                 this.clearResults()
                 const credentialQuery = JSON.parse('{"web": {"VerifiablePresentation": {}}}');
                 const result = await navigator.credentials.get(credentialQuery);
@@ -109,7 +136,7 @@ SPDX-License-Identifier: Apache-2.0
                     this.errors.push("Failed to get result")
                     return
                 }
-                this.vcdata = result.data
+                this.showResp(result.data)
                 this.responses.push("Successfully got verifiable presentation from wallet.")
             },
             didAuth: async function () {
@@ -122,13 +149,16 @@ SPDX-License-Identifier: Apache-2.0
                     return
                 }
 
-                if ((typeof result.data) == "object") {
-                    this.vcdata = JSON.stringify(result.data)
-                } else {
-                    this.vcdata = result.data
-                }
-
+                this.showResp(result.data)
                 this.responses.push("Successfully got DID authorization from wallet.")
+            },
+            showResp: async function (data) {
+                if ((typeof data) == "object") {
+                    this.interopData = JSON.stringify(data, null, 2)
+                } else {
+                    this.responses.push("Warning: received unexpcted string data type")
+                    this.interopData = data
+                }
             }
         }
     }
