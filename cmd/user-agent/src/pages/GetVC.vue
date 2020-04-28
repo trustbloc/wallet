@@ -286,6 +286,33 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
+            getDIDMetadata: function (id) {
+                return new Promise(function(resolve) {
+                    var openDB = indexedDB.open("did-metadata", 1);
+
+                    openDB.onupgradeneeded = function () {
+                        var db = {}
+                        db.result = openDB.result;
+                        db.store = db.result.createObjectStore("metadata", {keyPath: "id"});
+                    };
+
+                    openDB.onsuccess = function () {
+                        var db = {};
+                        db.result = openDB.result;
+                        db.tx = db.result.transaction("metadata", "readonly");
+                        db.store = db.tx.objectStore("metadata");
+                        let getData = db.store.get(id);
+                        getData.onsuccess = function () {
+                            resolve(getData.result.data);
+                        };
+
+                        db.tx.oncomplete = function () {
+                            db.result.close();
+                        };
+                        console.log("got did metadata from db")
+                    }
+                });
+            },
             searchOnTable() {
                 this.searched = searchByType(this.savedVCs, this.search)
             },
@@ -385,6 +412,8 @@ SPDX-License-Identifier: Apache-2.0
                 }))
             },
             authorize: async function () {
+                let didMetadata=await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
+
                 let data
                 await this.aries.verifiable.generatePresentation({
                     presentation: {
@@ -395,7 +424,9 @@ SPDX-License-Identifier: Apache-2.0
                     domain: this.domain,
                     challenge: this.challenge,
                     did: this.issuers[this.selectedIssuer].key,
-                    signatureType:"JsonWebSignature2020",
+                    signatureType:didMetadata.signatureType,
+                    privateKey: didMetadata.privateKey,
+                    keyType: didMetadata.privateKeyType
                 }).then(resp => {
                         if (!resp.verifiablePresentation) {
                             data = "failed to create did auth presentation"
@@ -431,6 +462,8 @@ SPDX-License-Identifier: Apache-2.0
 
                 let data
                 if (creds.vcs) {
+                    let didMetadata=await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
+
                     await this.aries.verifiable.generatePresentation({
                         verifiableCredential: creds.vcs,
                         did: this.issuers[this.selectedIssuer].key,
@@ -438,7 +471,9 @@ SPDX-License-Identifier: Apache-2.0
                         challenge: this.challenge,
                         // TODO can be an option in view
                         skipVerify: true,
-                        signatureType:"JsonWebSignature2020",
+                        signatureType:didMetadata.signatureType,
+                        privateKey: didMetadata.privateKey,
+                        keyType: didMetadata.privateKeyType
                     }).then(resp => {
                             data = resp.verifiablePresentation
                         }
