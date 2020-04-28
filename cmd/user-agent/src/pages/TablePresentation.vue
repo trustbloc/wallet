@@ -153,7 +153,7 @@ SPDX-License-Identifier: Apache-2.0
             privateKey: privateKey,
             keyType: keyType
           }).then(resp => {
-                   this.vpData = JSON.stringify(resp.verifiablePresentation)
+            this.vpData = JSON.parse(JSON.stringify(resp.verifiablePresentation))
                     QrData = JSON.stringify(resp.verifiablePresentation)
                   }
           ).catch(err =>
