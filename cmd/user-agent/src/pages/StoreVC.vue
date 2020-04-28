@@ -8,13 +8,12 @@ SPDX-License-Identifier: Apache-2.0
     <div class="content">
         <div class="md-layout" style="margin-top: -5%;">
             <div class="md-layout-item">
-                <md-textarea v-model="vcdata" id="vcDataTextArea" style="visibility:hidden"/>
                 <form>
                     <md-card>
                         <md-card-header style="background-color:#00bcd4">
                             <h3 class="title">
                                 <md-icon>fingerprint</md-icon>
-                                 Credential
+                                Credential
                             </h3>
                         </md-card-header>
 
@@ -77,45 +76,40 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
+    const toLower = text => {
+        return text.toString().toLowerCase()
+    }
+
+    const getCredentialType = (types) => {
+        const result = types.filter(type => toLower(type) != "verifiablecredential")
+        if (result.length > 0) {
+            return result[0]
+        }
+        return ""
+    }
+
     export default {
         beforeCreate: async function () {
             window.$webCredentialHandler = this.$webCredentialHandler
             this.$polyfill.loadOnce()
 
             const credentialEvent = await window.$webCredentialHandler.receiveCredentialEvent();
-            this.vcdata = credentialEvent.credential.data
-            this.credentialEvent = credentialEvent
+            console.log("Credential event received :", credentialEvent.credential)
 
-            window.console.log("Received VC:", this.vcdata);
-
-            const vc = JSON.parse(this.vcdata)
-
-            // set issuance date
-            if (!vc.issuanceDate) {
-                this.issuance = new Date(vc.issuanceDate);
+            if (credentialEvent.credential.dataType == 'VerifiableCredential') {
+                this.isVC = true
+            } else if (credentialEvent.credential.dataType == 'VerifiablePresentation') {
+                this.isVP = true
             } else {
-                this.issuance = new Date()
+                this.errors.push("unknown credential data type")
+                return
             }
 
-            // set issuer
-            if (vc.issuer && vc.issuer.id) {
-                this.issuer = vc.issuer.id
-            } else if (vc.issuer) {
-                this.issuer = vc.issuer
-            }
-
-            // set type as subject
-            if (vc.type && Array.isArray(vc.type)) {
-                vc.type.forEach((item) => {
-                    if (item != 'VerifiableCredential') {
-                        this.subject = item
-                    }
-                });
-            }
-
-
-            window.$aries = await this.$arieslib
-            // enable send vc button loaded
+            this.credData = credentialEvent.credential.data
+            this.credentialEvent = credentialEvent
+            this.isVC ? this.populateVCData() : this.populateVPData()
+            this.aries = await this.$arieslib
+            // enable send vc button once loaded
             this.sendButton = false
         },
         computed: {
@@ -130,30 +124,117 @@ SPDX-License-Identifier: Apache-2.0
                 issuer: "",
                 issuance: "",
                 friendlyName: "",
-                vcdata: "",
+                credData: {},
                 errors: [],
             };
         },
         methods: {
-            store: async function () {
-                this.errors.length = 0
-                if (this.friendlyName.length == 0) {
-                   this.errors.push("friendly name required.")
+            populateVCData: function () {
+                // set issuance date
+                if (!this.credData.issuanceDate) {
+                    this.issuance = new Date(this.credData.issuanceDate);
+                } else {
+                    this.issuance = new Date()
+                }
+
+                // set issuer
+                if (this.credData.issuer && this.credData.issuer.id) {
+                    this.issuer = this.credData.issuer.id
+                } else if (this.credData.issuer) {
+                    this.issuer = this.credData.issuer
+                }
+
+                // set type as subject
+                if (this.credData.type && Array.isArray(this.credData.type)) {
+                    this.subject = getCredentialType(this.credData.type)
+                }
+            },
+            populateVPData: function () {
+                this.issuance = new Date()
+                this.subject = ''
+                this.issuer = ''
+
+                if (!this.credData.verifiableCredential) {
                     return
                 }
 
-                // Save the VC
-                let status = 'success'
-                await window.$aries.verifiable.saveCredential({
-                    name: this.friendlyName,
-                    verifiableCredential: this.vcdata
-                }).then(() => {
-                        console.log('vc save success')
+                const allCreds = Array.isArray(this.credData.verifiableCredential) ? this.credData.verifiableCredential
+                    : [this.credData.verifiableCredential];
+
+
+                // set issuance date
+                if (allCreds[0].issuanceDate) {
+                    this.issuance = allCreds[0].issuanceDate
+                }
+
+
+                let tempIssuers = new Set()
+                let tempSubject = new Set()
+
+                allCreds.forEach((cred) => {
+                    if (cred.issuer && cred.issuer.id) {
+                        tempIssuers.add(cred.issuer.id)
+                    } else if (cred.issuer) {
+                        tempIssuers.add(cred.issuer)
                     }
-                ).catch(err => {
-                    status = err.toString()
-                    console.log('vc save failed : errMsg=' + err)
+
+                    if (cred.type && Array.isArray(cred.type)) {
+                        cred.type.forEach((item) => {
+                            if (item != 'VerifiableCredential') {
+                                tempSubject.add(item)
+                            }
+                        });
+                    }
                 })
+
+                let issuer = '', subject = ''
+                tempIssuers.forEach(function(value) {
+                    issuer = `${value}, ${issuer}`
+                })
+
+                tempSubject.forEach(function(value) {
+                    subject = `${value}, ${subject}`
+                })
+
+                this.issuer = issuer
+                this.subject = subject
+            },
+            store: async function () {
+                this.errors.length = 0
+                if (this.friendlyName.length == 0) {
+                    this.errors.push("friendly name required.")
+                    return
+                }
+
+                // Save the VC/VP
+                let status = 'success'
+                if (this.isVC) {
+                    await this.aries.verifiable.saveCredential({
+                        name: this.friendlyName,
+                        verifiableCredential: JSON.stringify(this.credData)
+                    }).then(() => {
+                            console.log('vc save success')
+                        }
+                    ).catch(err => {
+                        status = err.toString()
+                        console.log('vc save failed : errMsg=' + err)
+                    })
+                } else {
+                    let index = 0
+                    for (let credItem of this.credData.verifiableCredential) {
+                        await this.aries.verifiable.saveCredential({
+                            name: `${this.friendlyName}_${getCredentialType(credItem.type)}_${++index}`,
+                            verifiableCredential: JSON.stringify(credItem)
+                        }).then(() => {
+                                console.log('vc save success:')
+                            }
+                        ).catch(err => {
+                            status = err.toString()
+                            console.log('vc save failed : errMsg=' + err)
+                        })
+                    }
+                }
+
 
                 // Call Credential Handler callback
                 this.credentialEvent.respondWith(new Promise(function (resolve) {
