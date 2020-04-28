@@ -115,7 +115,7 @@ SPDX-License-Identifier: Apache-2.0
     },
     methods: {
       generatePresentation: async function () {
-        //  get private key for P-256
+        //  get private key
         let db
         let privateKey
         let keyType
@@ -149,11 +149,12 @@ SPDX-License-Identifier: Apache-2.0
             verifiableCredential: data.vc,
             did: this.issuers[this.selectedIssuer].key,
             skipVerify: true,
+            signatureType:"JsonWebSignature2020",
             privateKey: privateKey,
             keyType: keyType
           }).then(resp => {
-                   this.vpData = JSON.parse(resp.verifiablePresentation)
-                    QrData = JSON.stringify(JSON.parse(resp.verifiablePresentation))
+                   this.vpData = JSON.stringify(resp.verifiablePresentation)
+                    QrData = JSON.stringify(resp.verifiablePresentation)
                   }
           ).catch(err =>
                   this.errors.push("failed to create presentation : errMsg="+ err)

@@ -175,11 +175,12 @@ SPDX-License-Identifier: Apache-2.0
                     await this.aries.verifiable.generatePresentation({
                         verifiableCredential: data.vcs,
                         did: this.issuers[this.selectedIssuer].key,
+                        signatureType:"JsonWebSignature2020",
                         // TODO can be an option in view
                         skipVerify: true,
                         // TODO - domain & challenge
                     }).then(resp => {
-                            data = JSON.stringify(JSON.parse(resp.verifiablePresentation))
+                            data = JSON.stringify(resp.verifiablePresentation)
                         }
                     ).catch(err => {
                         data = err
@@ -255,11 +256,12 @@ SPDX-License-Identifier: Apache-2.0
                         "type": "VerifiablePresentation",
                         "holder": `${this.issuers[this.selectedIssuer].key}`,
                     },
+                    signatureType:"JsonWebSignature2020",
                     domain: this.domain,
                     challenge: this.challenge,
                     did: this.issuers[this.selectedIssuer].key
                 }).then(resp => {
-                        data = JSON.parse(resp.verifiablePresentation)
+                        data = JSON.stringify(resp.verifiablePresentation)
                         //TODO bug in aries to show '"verifiableCredential": null,' in empty presentations
                         if (data.hasOwnProperty('verifiableCredential')) {
                             delete data.verifiableCredential

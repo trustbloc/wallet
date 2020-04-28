@@ -24,11 +24,6 @@ func TestNew(t *testing.T) {
 		c := New("domain")
 		require.NotNil(t, c)
 		require.NotNil(t, c.GetHandlers())
-
-		publicKey, privateKey, err := c.generateECKeyPair()
-		require.NoError(t, err)
-		require.NotNil(t, publicKey)
-		require.NotNil(t, privateKey)
 	})
 }
 
@@ -55,34 +50,34 @@ func TestCommand_CreateDID(t *testing.T) {
 
 		var b bytes.Buffer
 
-		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", Value: "value"}}})
+		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1",
+			Value: base64.RawURLEncoding.EncodeToString([]byte("value"))}}})
 		require.NoError(t, err)
 
 		cmdErr := c.CreateDID(&b, bytes.NewBuffer(req))
 		require.Error(t, cmdErr)
 		require.Equal(t, CreateDIDErrorCode, cmdErr.Code())
 		require.Equal(t, command.ExecuteError, cmdErr.Type())
+		require.Contains(t, cmdErr.Error(), "error create did")
 	})
 
-	t.Run("test generate key pair error", func(t *testing.T) {
+	t.Run("test error from did base64 decode", func(t *testing.T) {
 		c := New("domain")
 		require.NotNil(t, c)
 
-		c.generateECKeyPair = func() ([]byte, []byte, error) {
-			return nil, nil, fmt.Errorf("generate ec key pair error")
-		}
+		c.client = &mockDIDClient{createDIDErr: fmt.Errorf("error create did")}
 
 		var b bytes.Buffer
 
-		// EC key
-		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "P256", Value: "value"}}})
+		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1",
+			Value: "value"}}})
 		require.NoError(t, err)
 
 		cmdErr := c.CreateDID(&b, bytes.NewBuffer(req))
 		require.Error(t, cmdErr)
-		require.Equal(t, GenerateKeyPairErrorCode, cmdErr.Code())
+		require.Equal(t, CreateDIDErrorCode, cmdErr.Code())
 		require.Equal(t, command.ExecuteError, cmdErr.Type())
-		require.Contains(t, cmdErr.Error(), "generate ec key pair error")
+		require.Contains(t, cmdErr.Error(), "illegal base64 data")
 	})
 
 	c := New("domain")
@@ -92,22 +87,6 @@ func TestCommand_CreateDID(t *testing.T) {
 
 	var b bytes.Buffer
 
-	t.Run("test success create did with EC key", func(t *testing.T) {
-		// EC key
-		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "P256", Value: "value"}}})
-		require.NoError(t, err)
-
-		cmdErr := c.CreateDID(&b, bytes.NewBuffer(req))
-		require.NoError(t, cmdErr)
-
-		v := &CreateDIDResponse{}
-		err = json.NewDecoder(&b).Decode(&v)
-		require.NoError(t, err)
-
-		require.Equal(t, "1", v.DID["id"])
-		require.NotNil(t, v.PrivateKey)
-
-	})
 	t.Run("test success create did with Ed25519 key", func(t *testing.T) {
 		// ED key
 		r, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "Ed25519",
@@ -122,7 +101,6 @@ func TestCommand_CreateDID(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Equal(t, "1", resp.DID["id"])
-		require.Equal(t, "", resp.PrivateKey)
 	})
 }
 

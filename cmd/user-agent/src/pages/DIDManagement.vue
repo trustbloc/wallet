@@ -70,37 +70,35 @@ SPDX-License-Identifier: Apache-2.0
                     this.errors.push("key type required")
                     return;
                 }
-                let keyID="key-1"
-                let keyValue
-                let recoveryKeyValue
+                let generateKeyType
                 if (this.selectType == "Ed25519"){
-                    const keyset= await window.$aries.kms.createKeySet({keyType: "ED25519"})
-                    const recoveryKeyset= await window.$aries.kms.createKeySet({keyType: "ED25519"})
-                    keyValue=keyset.publicKey
-                    keyID=keyset.keyID
-                    recoveryKeyValue=recoveryKeyset.publicKey
+                    generateKeyType="ED25519"
                 }
+                if (this.selectType == "P256"){
+                    generateKeyType="ECDSAP256IEEE1363"
+                }
+
+                const keyset= await window.$aries.kms.createKeySet({keyType: generateKeyType})
+                const recoveryKeyset= await window.$aries.kms.createKeySet({keyType: generateKeyType})
+
                 const createDIDRequest = {
                     "publicKeys":[{
-                        "id":keyID,
+                        "id":keyset.keyID,
                         "type":"JwsVerificationKey2020",
-                        "value":keyValue,
+                        "value":keyset.publicKey,
                         "encoding":"Jwk",
                         "keyType":this.selectType,
                         "usage":["ops","general"]
                     }, {
-                        "id":"key-recovery",
+                        "id":recoveryKeyset.keyID,
                         "type":"JwsVerificationKey2020",
-                        "value":recoveryKeyValue,
+                        "value":recoveryKeyset.publicKey,
                         "encoding":"Jwk",
                         "keyType":this.selectType,
                         "recovery":true
                     }
                     ]
                 };
-
-               let friendlyName = this.friendlyName
-                let selectType = this.selectType
 
                 const t= await new window.$trustblocAgent.Framework(JSON.parse(window.$trustblocStartupOpts))
                 await t.didclient.createDID(createDIDRequest).then(
@@ -109,30 +107,30 @@ SPDX-License-Identifier: Apache-2.0
                         // TODO pass public key to createDID
                         this.didDocTextArea = JSON.stringify(resp.DID,undefined, 2);
 
-                        // create local index db store to store private keys only if key type is  EC
-                        if (selectType == "P256"){
-                            let storeName = "privateKeys"
-                            let db
-
-                            let request = indexedDB.open('store-keys', 1);
-
-                            request.onsuccess = function(event) {
-                                db = event.target.result;
-                                let keys = {
-                                    key: friendlyName,
-                                    privateKey: resp.PrivateKey,
-                                    type: selectType,
-                                    timestamp: Date.now()
-                                  };
-                                db.transaction([storeName], "readwrite").objectStore("privateKeys").add(keys);
-
-                            };
-                            request.onupgradeneeded = function(event) {
-                                db = event.target.result;
-                                let store = db.createObjectStore(storeName, {keyPath: 'key'});
-                                console.log('[onsuccess]', store);
-                            };
-                        }
+                        // TODO create local index db store to store private keys only when user provided
+                        // if (selectType == "P256"){
+                        //     let storeName = "privateKeys"
+                        //     let db
+                        //
+                        //     let request = indexedDB.open('store-keys', 1);
+                        //
+                        //     request.onsuccess = function(event) {
+                        //         db = event.target.result;
+                        //         let keys = {
+                        //             key: friendlyName,
+                        //             privateKey: resp.PrivateKey,
+                        //             type: selectType,
+                        //             timestamp: Date.now()
+                        //           };
+                        //         db.transaction([storeName], "readwrite").objectStore("privateKeys").add(keys);
+                        //
+                        //     };
+                        //     request.onupgradeneeded = function(event) {
+                        //         db = event.target.result;
+                        //         let store = db.createObjectStore(storeName, {keyPath: 'key'});
+                        //         console.log('[onsuccess]', store);
+                        //     };
+                        // }
 
                     })
                     .catch(err => {

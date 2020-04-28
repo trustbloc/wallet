@@ -26,5 +26,4 @@ type PublicKey struct {
 
 type CreateDIDResponse struct {
 	DID map[string]interface{}
-	PrivateKey string
 }
