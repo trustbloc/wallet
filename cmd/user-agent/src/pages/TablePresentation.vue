@@ -114,31 +114,35 @@ SPDX-License-Identifier: Apache-2.0
       };
     },
     methods: {
-      generatePresentation: async function () {
-        //  get private key
-        let db
-        let privateKey
-        let keyType
-        let objectStoreName = "privateKeys"
-        let name = this.issuers[this.selectedIssuer].name
+      getDIDMetadata: function (id) {
+        return new Promise(function(resolve) {
+          var openDB = indexedDB.open("did-metadata", 1);
 
-        let request = indexedDB.open('store-keys', 1);
-
-        request.onsuccess = function (event) {
-          db = event.target.result;
-          console.log("opened DB")
-          // Start a new transaction
-          let transaction = db.transaction(objectStoreName, "readwrite");
-          let objectStore = transaction.objectStore(objectStoreName);
-          // Query the data
-          let keyData = objectStore.get(name);
-          keyData.onsuccess = function () {
-            console.log("data" + JSON.stringify(keyData.result));
-            privateKey =  keyData.result["privateKey"]
-            keyType = keyData.result["type"]
+          openDB.onupgradeneeded = function () {
+            var db = {}
+            db.result = openDB.result;
+            db.store = db.result.createObjectStore("metadata", {keyPath: "id"});
           };
-          db.close();
-        }
+
+          openDB.onsuccess = function () {
+            var db = {};
+            db.result = openDB.result;
+            db.tx = db.result.transaction("metadata", "readonly");
+            db.store = db.tx.objectStore("metadata");
+            let getData = db.store.get(id);
+            getData.onsuccess = function () {
+              resolve(getData.result.data);
+            };
+
+            db.tx.oncomplete = function () {
+              db.result.close();
+            };
+            console.log("got did metadata from db")
+          }
+        });
+      },
+      generatePresentation: async function () {
+        let didMetadata=await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
 
         // fetch the credential
         let data = await this.getSelectedCredentials()
@@ -149,9 +153,9 @@ SPDX-License-Identifier: Apache-2.0
             verifiableCredential: data.vc,
             did: this.issuers[this.selectedIssuer].key,
             skipVerify: true,
-            signatureType:"JsonWebSignature2020",
-            privateKey: privateKey,
-            keyType: keyType
+            signatureType:didMetadata.signatureType,
+            privateKey: didMetadata.privateKey,
+            keyType: didMetadata.privateKeyType
           }).then(resp => {
             this.vpData = JSON.parse(JSON.stringify(resp.verifiablePresentation))
                     QrData = JSON.stringify(resp.verifiablePresentation)

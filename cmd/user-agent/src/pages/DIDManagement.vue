@@ -80,10 +80,23 @@ SPDX-License-Identifier: Apache-2.0
                                     </md-field>
                                 </div>
                                 <div class="md-layout-item md-size-100">
-                                    <md-icon>memory</md-icon> <select id="selectSignKey" v-model="signType" style="color: grey; width: 300px; height: 35px;">
-                                    <option value="" disabled="disabled">Select Signature Type</option>
+                                    <md-field maxlength="5">
+                                        <label class="md-helper-text">Type DID friendly name here</label>
+                                        <md-input v-model="anyDIDFriendlyName" id="anyDIDFriendlyName" required></md-input>
+                                    </md-field>
+                                </div>
+                                <div class="md-layout-item md-size-100">
+                                    <md-icon>memory</md-icon> <select id="privateKeyType" v-model="privateKeyType" style="color: grey; width: 200px; height: 35px;">
+                                    <option value="">Select Key Type</option>
+                                    <option value="Ed25519">Ed25519</option>
+                                </select>
+                                    <md-field style="margin-top: -15px">
+                                    </md-field>
+                                </div>
+                                <div class="md-layout-item md-size-100">
+                                    <md-icon>memory</md-icon> <select id="selectSignKey" v-model="selectSignKey" style="color: grey; width: 300px; height: 35px;">
+                                    <option value="">Select Signature Type</option>
                                     <option value="Ed25519Signature2018">Ed25519Signature2018</option>
-                                    <option value="JsonWebSignature2020">JsonWebSignature2020</option>
                                     </select>
                                     <md-field style="margin-top: -15px">
                                     </md-field>
@@ -114,7 +127,6 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-    import axios from 'axios'
     export default {
         beforeCreate: async function () {
             window.$aries = await this.$arieslib
@@ -124,6 +136,8 @@ SPDX-License-Identifier: Apache-2.0
         },
         methods: {
             createDID: async function () {
+                var m = new Map([["Ed25519Signature2018","Ed25519VerificationKey2018"], ["JsonWebSignature2020" ,"JwsVerificationKey2020" ]]);
+
                 this.errors.length = 0
                 if (this.friendlyName.length == 0) {
                     this.errors.push("friendly name required.")
@@ -133,6 +147,11 @@ SPDX-License-Identifier: Apache-2.0
                     this.errors.push("key type required")
                     return;
                 }
+                if ((this.signType == "")) {
+                    this.errors.push("signature type required")
+                    return;
+                }
+
                 let generateKeyType
                 if (this.selectType == "Ed25519") {
                     generateKeyType = "ED25519"
@@ -141,20 +160,33 @@ SPDX-License-Identifier: Apache-2.0
                     generateKeyType = "ECDSAP256IEEE1363"
                 }
 
+                if (this.selectType == "P256") {
+                    generateKeyType = "ECDSAP256IEEE1363"
+                }
+
                 const keyset = await window.$aries.kms.createKeySet({keyType: generateKeyType})
                 const recoveryKeyset = await window.$aries.kms.createKeySet({keyType: generateKeyType})
+                const opsKeyset = await window.$aries.kms.createKeySet({keyType: generateKeyType})
+
 
                 const createDIDRequest = {
                     "publicKeys": [{
+                        "id": opsKeyset.keyID,
+                        "type": m.get("JsonWebSignature2020"),
+                        "value": opsKeyset.publicKey,
+                        "encoding": "Jwk",
+                        "keyType": this.selectType,
+                        "usage": ["ops"]
+                    },{
                         "id": keyset.keyID,
-                        "type": "JwsVerificationKey2020",
+                        "type": m.get(this.signType),
                         "value": keyset.publicKey,
                         "encoding": "Jwk",
                         "keyType": this.selectType,
-                        "usage": ["ops", "general"]
+                        "usage": ["general"]
                     }, {
                         "id": recoveryKeyset.keyID,
-                        "type": "JwsVerificationKey2020",
+                        "type": m.get(this.signType),
                         "value": recoveryKeyset.publicKey,
                         "encoding": "Jwk",
                         "keyType": this.selectType,
@@ -177,10 +209,11 @@ SPDX-License-Identifier: Apache-2.0
 
                 await t.destroy()
 
+                const did=JSON.parse(this.didDocTextArea)
                 // saving did in the did store
-                window.$aries.vdri.saveDID({
+                await window.$aries.vdri.saveDID({
                         name: this.friendlyName,
-                        did: JSON.parse(this.didDocTextArea)
+                        did: did
                     }
                 ).then(
                     console.log("successfully saved the did")
@@ -189,6 +222,9 @@ SPDX-License-Identifier: Apache-2.0
                         console.log('failed to save the did : errMsg=' + err)
                     }
                 )
+
+                this.storeDIDMetadata(did.id,"","",this.signType)
+
             },
             saveAnyDID: async function () {
                 this.errors.length = 0
@@ -200,50 +236,65 @@ SPDX-License-Identifier: Apache-2.0
                     this.errors.push("private key required.")
                     return
                 }
-                if ((this.selectType == "")) {
+                if (this.anyDIDFriendlyName.length == 0) {
+                    this.errors.push("friendly name required.")
+                    return
+                }
+                if ((this.privateKeyType == "")) {
                     this.errors.push("key type required")
                     return;
                 }
-                // todo logic will be revisited soon
-                for (let i = 0; i < 10; i++) {
-                    let success = false
-                    await axios.get(`${this.resolver}/` + this.didID).then((response) => {
-                        console.log(response.data)
-                        success = true
-                        this.anyDidDocTextArea = JSON.stringify(response.data, undefined, 2);
-                    }).catch(function (error) {
-                        console.log('will try to resolve again : attempt=', i + 1 + error);
-                    });
-                    if (success) {
-                        let objectStoreName = "didKeyStore"
-                        let db
-                        let did = this.didID
-                        let pk = this.privateKey
-                        let resolverLink = this.resolver
+                if ((this.selectSignKey == "")) {
+                    this.errors.push("signature type required")
+                    return;
+                }
 
-                        let request = indexedDB.open('store-keys', 1);
+                var resp
+                try {
+                    resp = await window.$aries.vdri.resolveDID({
+                        id: this.didID,
+                    })
+                } catch (err) {
+                    this.errors.push(err)
+                    return
+                }
 
-                        console.log('did', JSON.stringify(this.didID));
+                this.anyDidDocTextArea = JSON.stringify(resp.did, undefined, 2);
 
-                        request.onsuccess = function (event) {
-                            db = event.target.result;
-                            let keys = {
-                                key: did,
-                                privateKey: pk,
-                                resolverLink: resolverLink,
-                                timestamp: Date.now()
-                            };
-                            console.log('data', keys);
-                            db.transaction([objectStoreName], "readwrite").objectStore(objectStoreName).add(keys);
 
-                        };
-                        request.onupgradeneeded = function (event) {
-                            db = event.target.result;
-                            let store = db.createObjectStore(objectStoreName, { keyPath: 'key' });
-                            console.log('[onsuccess]', store);
-                        };
-                        break;
+                // saving did in the did store
+                await window.$aries.vdri.saveDID({
+                        name: this.anyDIDFriendlyName,
+                        did: resp.did
                     }
+                ).then(
+                    console.log("successfully saved the did")
+                ).catch(err => {
+                        this.didDocTextArea = 'failed to save the did : ' + err
+                        console.log('failed to save the did : errMsg=' + err)
+                    }
+                )
+
+                this.storeDIDMetadata(resp.did.id,this.privateKey,this.privateKeyType,this.selectSignKey)
+
+            },
+            storeDIDMetadata: function (did,privateKey,privateKeyType,signatureType) {
+                var openDB = indexedDB.open("did-metadata", 1);
+
+                openDB.onupgradeneeded = function() {
+                    var db = {}
+                    db.result = openDB.result;
+                    db.store = db.result.createObjectStore("metadata", {keyPath: "id"});
+                };
+
+
+                openDB.onsuccess = function() {
+                    var db = {};
+                    db.result = openDB.result;
+                    db.tx = db.result.transaction("metadata", "readwrite");
+                    db.store = db.tx.objectStore("metadata");
+                    db.store.put({id: did, data: {privateKey: privateKey,privateKeyType:privateKeyType, signatureType: signatureType}});
+                    console.log("stored did metadata to db")
                 }
 
             }
@@ -254,9 +305,12 @@ SPDX-License-Identifier: Apache-2.0
                 anyDidDocTextArea: "",
                 friendlyName: "",
                 selectType:"",
+                selectSignKey:"",
+                privateKeyType:"",
                 signType:"",
                 didID:"",
                 privateKey:"",
+                anyDIDFriendlyName:"",
                 errors: [],
             };
         }
