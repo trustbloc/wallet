@@ -49,7 +49,7 @@ SPDX-License-Identifier: Apache-2.0
                 </md-card-content>
 
                 <md-card-content v-else style="background-color: white;">
-                    <md-empty-state md-size=370
+                    <md-empty-state md-size=250
                                     class="md-accent"
                                     md-rounded
                                     md-icon="link_off"
@@ -63,7 +63,7 @@ SPDX-License-Identifier: Apache-2.0
         <!-- Generate Presentation View-->
         <div v-if="isVP && !authView " class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
             <h4> {{ requestOrigin }} has requested a credential from you </h4>
-            <h5> <b>Reason:</b> Please present an CertifiedMillTestReport for JaneDoe. </h5>
+            <h5 v-if="reason.length"><b>Reason:</b> {{ reason }} </h5>
             <md-card class="md-card-plain">
 
                 <div v-if="errors.length">
@@ -121,7 +121,7 @@ SPDX-License-Identifier: Apache-2.0
                 </md-card-content>
 
                 <md-card-content v-else style="background-color: white;">
-                    <md-empty-state md-size=370
+                    <md-empty-state md-size=250
                                     class="md-accent"
                                     md-rounded
                                     md-icon="link_off"
@@ -164,7 +164,7 @@ SPDX-License-Identifier: Apache-2.0
                 </md-card-content>
 
                 <md-card-content v-else style="background-color: white;">
-                    <md-empty-state md-size=370
+                    <md-empty-state md-size=250
                                     class="md-accent"
                                     md-rounded
                                     md-icon="link_off"
@@ -178,6 +178,9 @@ SPDX-License-Identifier: Apache-2.0
     </div>
 </template>
 <script>
+
+    const vcType = "VerifiableCredential"
+    const vpType = "VerifiablePresentation"
 
     const getDomainAndChallenge = (vp) => {
         let {challenge, domain, query} = vp;
@@ -198,6 +201,10 @@ SPDX-License-Identifier: Apache-2.0
         return text.toString().toLowerCase()
     }
 
+    const isKeyType = (type) => {
+        return toLower(type) == toLower(vcType) || toLower(type) == toLower(vpType)
+    }
+
     const searchByType = (items, term) => {
         if (term) {
             return items.filter(item => toLower(item.type).includes(toLower(term)))
@@ -207,12 +214,13 @@ SPDX-License-Identifier: Apache-2.0
     }
 
     const getCredentialType = (types) => {
-        const result = types.filter(type => toLower(type) != "verifiablecredential")
+        const result = types.filter(type => !isKeyType(type))
         if (result.length > 0) {
             return result[0]
         }
         return ""
     }
+
 
     export default {
         beforeCreate: async function () {
@@ -257,14 +265,24 @@ SPDX-License-Identifier: Apache-2.0
 
             this.loading = false
 
+            if (this.query.credentialQuery && this.query.credentialQuery.reason) {
+                this.reason = this.query.credentialQuery.reason
+            }
+
             if (this.query.credentialQuery && this.query.credentialQuery.example && this.query.credentialQuery.example.type) {
                 let t = this.query.credentialQuery.example.type
-                this.search = Array.isArray(t) ? t[0] : t
-                this.searched = []
-                this.searchOnTable()
-            } else {
-                this.searched = this.savedVCs
+                let key = Array.isArray(t) ? t[0] : t
+
+                if (!isKeyType) {
+                    this.search = key
+                    this.searched = []
+                    this.searchOnTable()
+                    return
+                }
             }
+
+            // default search
+            this.searched = this.savedVCs
         },
         data() {
             return {
@@ -282,12 +300,12 @@ SPDX-License-Identifier: Apache-2.0
                 credentialWarning: "",
                 search: "",
                 searched: [],
-                localCredStore: new Map()
+                reason: "",
             };
         },
         methods: {
             getDIDMetadata: function (id) {
-                return new Promise(function(resolve) {
+                return new Promise(function (resolve) {
                     var openDB = indexedDB.open("did-metadata", 1);
 
                     openDB.onupgradeneeded = function () {
@@ -412,7 +430,7 @@ SPDX-License-Identifier: Apache-2.0
                 }))
             },
             authorize: async function () {
-                let didMetadata=await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
+                let didMetadata = await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
 
                 let data
                 await this.aries.verifiable.generatePresentation({
@@ -424,7 +442,7 @@ SPDX-License-Identifier: Apache-2.0
                     domain: this.domain,
                     challenge: this.challenge,
                     did: this.issuers[this.selectedIssuer].key,
-                    signatureType:didMetadata.signatureType,
+                    signatureType: didMetadata.signatureType,
                     privateKey: didMetadata.privateKey,
                     keyType: didMetadata.privateKeyType
                 }).then(resp => {
@@ -448,7 +466,7 @@ SPDX-License-Identifier: Apache-2.0
                 // Call Credential Handler callback
                 this.credentialEvent.respondWith(new Promise(function (resolve) {
                     return resolve({
-                        dataType: "VerifiablePresentation",
+                        dataType: vpType,
                         data: data
                     });
                 }))
@@ -462,16 +480,16 @@ SPDX-License-Identifier: Apache-2.0
 
                 let data
                 if (creds.vcs) {
-                    let didMetadata=await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
+                    let didMetadata = await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
 
                     await this.aries.verifiable.generatePresentation({
                         verifiableCredential: creds.vcs,
                         did: this.issuers[this.selectedIssuer].key,
                         domain: this.domain,
                         challenge: this.challenge,
-                        // TODO can be an option in view
+                        // TODO skipVerify can be an option in view
                         skipVerify: true,
-                        signatureType:didMetadata.signatureType,
+                        signatureType: didMetadata.signatureType,
                         privateKey: didMetadata.privateKey,
                         keyType: didMetadata.privateKeyType
                     }).then(resp => {
@@ -483,12 +501,12 @@ SPDX-License-Identifier: Apache-2.0
                     })
                 }
 
-                console.log("Response presentation:", data)
+                console.log("Response presentation:", JSON.stringify(data))
 
                 // Call Credential Handler callback
                 this.credentialEvent.respondWith(new Promise(function (resolve) {
                     return resolve({
-                        dataType: "VerifiablePresentation",
+                        dataType: vpType,
                         data: data
                     });
                 }))
@@ -501,7 +519,7 @@ SPDX-License-Identifier: Apache-2.0
                 // Call Credential Handler callback
                 this.credentialEvent.respondWith(new Promise(function (resolve) {
                     return resolve({
-                        dataType: "VerifiableCredential",
+                        dataType: vcType,
                         data: cred
                     });
                 }))
@@ -529,6 +547,20 @@ SPDX-License-Identifier: Apache-2.0
 
     .md-table-head-label .md-sortable {
         padding-left: 10px !important;
+    }
+
+    .md-empty-state-icon {
+        width: 60px !important;
+        min-width: 60px !important;
+        height: 50px !important;
+        font-size: 50px !important;
+        margin: 0;
+    }
+
+    .md-empty-state-label {
+        font-size: 18px !important;
+        font-weight: 500 !important;
+        line-height: 20px !important;
     }
 
 </style>
