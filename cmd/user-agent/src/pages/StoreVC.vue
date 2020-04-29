@@ -188,11 +188,11 @@ SPDX-License-Identifier: Apache-2.0
                 })
 
                 let issuer = '', subject = ''
-                tempIssuers.forEach(function(value) {
+                tempIssuers.forEach(function (value) {
                     issuer = `${value}, ${issuer}`
                 })
 
-                tempSubject.forEach(function(value) {
+                tempSubject.forEach(function (value) {
                     subject = `${value}, ${subject}`
                 })
 
@@ -208,33 +208,27 @@ SPDX-License-Identifier: Apache-2.0
 
                 // Save the VC/VP
                 let status = 'success'
-                if (this.isVC) {
-                    await this.aries.verifiable.saveCredential({
-                        name: this.friendlyName,
-                        verifiableCredential: JSON.stringify(this.credData)
-                    }).then(() => {
-                            console.log('vc save success')
-                        }
-                    ).catch(err => {
-                        status = err.toString()
-                        console.log('vc save failed : errMsg=' + err)
-                    })
-                } else {
-                    let index = 0
-                    for (let credItem of this.credData.verifiableCredential) {
-                        await this.aries.verifiable.saveCredential({
-                            name: `${this.friendlyName}_${getCredentialType(credItem.type)}_${++index}`,
-                            verifiableCredential: JSON.stringify(credItem)
-                        }).then(() => {
-                                console.log('vc save success:')
+                try {
+                    if (this.isVC) {
+                        await this.saveCredential(this.friendlyName, this.credData)
+                    } else {
+                        if (Array.isArray(this.credData.verifiableCredential)) {
+                            const singleVC = (this.credData.verifiableCredential.length == 1)
+                            let index = 0
+                            for (let credItem of this.credData.verifiableCredential) {
+                                const frndlyName = singleVC ? this.friendlyName : `${this.friendlyName}_${getCredentialType(credItem.type)}_${++index}`
+                                await this.saveCredential(frndlyName, credItem)
                             }
-                        ).catch(err => {
-                            status = err.toString()
-                            console.log('vc save failed : errMsg=' + err)
-                        })
+                        } else {
+                            await this.saveCredential(this.friendlyName, this.credData.verifiableCredential)
+                        }
                     }
+                } catch (e) {
+                    status = "failed"
                 }
 
+
+                console.log(`sending status response with status ${status}`)
 
                 // Call Credential Handler callback
                 this.credentialEvent.respondWith(new Promise(function (resolve) {
@@ -243,6 +237,18 @@ SPDX-License-Identifier: Apache-2.0
                         data: status
                     });
                 }))
+            },
+            saveCredential: async function (name, vcData) {
+                await this.aries.verifiable.saveCredential({
+                    name: name,
+                    verifiableCredential: JSON.stringify(vcData)
+                }).then(() => {
+                        console.log('vc save success:', name)
+                    }
+                ).catch(err => {
+                    console.log(`vc save failed for ${name} : errMsg=${err}`)
+                    throw err
+                })
             },
             cancel: async function () {
                 this.credentialEvent.respondWith(new Promise(function (resolve) {
