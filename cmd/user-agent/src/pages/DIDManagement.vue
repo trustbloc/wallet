@@ -11,115 +11,137 @@ SPDX-License-Identifier: Apache-2.0
                     class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100"
             >
                 <md-card class="md-card-plain">
-                <md-card-content>
-                <md-tabs class="md-success" md-alignment="left">
-                    <md-tab id="tab-home" md-label="Create Trustbloc DID" md-icon="contact_mail">
-                        <md-card class="md-card-plain">
-                            <md-card-header data-background-color="blue">
-                                <h4 class="title">Create trustbloc DID</h4>
-                                <p class="category"> Create button will create and save the did in DID store</p>
-                            </md-card-header>
-                            <md-card-content>
-                                <md-field>
-                                </md-field>
-                                <select id="selectKey" v-model="selectType" style="color: grey; width: 200px; height: 35px;">
-                                    <option value="" disabled="disabled">Select Key Type</option>
-                                    <option value="Ed25519">Ed25519</option>
-                                    <option value="P256">P256</option>
-                                </select>
-                                <md-field style="margin-top: -15px">
-                                </md-field>
-                                <select id="signKey" v-model="signType" style="color: grey; width: 200px; height: 35px;">
-                                    <option value="" disabled="disabled">Select Signature Type</option>
-                                    <option value="Ed25519Signature2018">Ed25519Signature2018</option>
-                                    <option value="JsonWebSignature2020">JsonWebSignature2020</option>
-                                </select>
-                                <md-field style="margin-top: -15px">
-                                </md-field>
-                                <div class="md-layout-item md-size-100">
-                                    <md-field maxlength="5">
-                                        <label class="md-helper-text">Type DID friendly name here</label>
-                                        <md-input v-model="friendlyName" id="friendlyName" required></md-input>
-                                    </md-field>
-                                </div>
-                                <md-button class="md-button md-success md-square md-theme-default md-large-size-100 md-size-100"
-                                           id='createDIDBtn' v-on:click="createDID">Create and Save DID
-                                </md-button>
-                                <div v-if="errors.length">
-                                    <b>Please correct the following error(s):</b>
-                                    <ul>
-                                        <li v-for="error in errors" :key="error">{{ error }}</li>
-                                    </ul>
-                                </div>
-                                <md-field>
-                                    <md-textarea v-model="didDocTextArea" readonly style="min-height:360px;">
-                                    </md-textarea>
-                                </md-field>
-                            </md-card-content>
-                        </md-card>
-                    </md-tab>
-                    <md-tab id="tab-pages" md-label="Save Any DID" md-icon="contacts">
-                        <md-card class="md-card-plain">
-                            <md-card-header data-background-color="blue">
-                                <h4 class="title">Save Any DID</h4>
-                                <p class="category"> Create button will resolve and save the did in DID store</p>
-                            </md-card-header>
-                            <md-card-content>
-                                <md-field>
-                                </md-field>
-                                <div class="md-layout-item md-size-100">
-                                    <md-icon>line_style</md-icon><label class="md-helper-text">Enter DID</label>
-                                    <md-field maxlength="5">
-                                        <md-input v-model="didID" id="did" required></md-input>
-                                    </md-field>
-                                </div>
-                                <div class="md-layout-item md-size-100">
-                                    <md-icon>vpn_key</md-icon> <label class="md-helper-text">Enter Private Key</label>
-                                    <md-field maxlength="5">
-                                        <md-input v-model="privateKey" id="privateKey" required></md-input>
-                                    </md-field>
-                                </div>
-                                <div class="md-layout-item md-size-100">
-                                    <md-field maxlength="5">
-                                        <label class="md-helper-text">Type DID friendly name here</label>
-                                        <md-input v-model="anyDIDFriendlyName" id="anyDIDFriendlyName" required></md-input>
-                                    </md-field>
-                                </div>
-                                <div class="md-layout-item md-size-100">
-                                    <md-icon>memory</md-icon> <select id="privateKeyType" v-model="privateKeyType" style="color: grey; width: 200px; height: 35px;">
-                                    <option value="">Select Key Type</option>
-                                    <option value="Ed25519">Ed25519</option>
-                                </select>
-                                    <md-field style="margin-top: -15px">
-                                    </md-field>
-                                </div>
-                                <div class="md-layout-item md-size-100">
-                                    <md-icon>memory</md-icon> <select id="selectSignKey" v-model="selectSignKey" style="color: grey; width: 300px; height: 35px;">
-                                    <option value="">Select Signature Type</option>
-                                    <option value="Ed25519Signature2018">Ed25519Signature2018</option>
-                                    </select>
-                                    <md-field style="margin-top: -15px">
-                                    </md-field>
-                                </div>
-                                <md-button class="md-button md-success md-square md-theme-default md-large-size-100 md-size-100"
-                                           id='saveDIDBtn' v-on:click="saveAnyDID">Resolve and Save DID
-                                </md-button>
-                                <div v-if="errors.length">
-                                    <b>Please correct the following error(s):</b>
-                                    <ul>
-                                        <li v-for="error in errors" :key="error">{{ error }}</li>
-                                    </ul>
-                                </div>
-                                <md-field>
-                                    <md-textarea v-model="anyDidDocTextArea" readonly style="min-height:360px;">
-                                    </md-textarea>
-                                </md-field>
-                            </md-card-content>
-                        </md-card>
-                    </md-tab>
+                    <md-card-content>
+                        <md-tabs class="md-success" md-alignment="left">
+                            <md-tab id="tab-home" md-label="Create Trustbloc DID" md-icon="contact_mail">
+                                <md-card class="md-card-plain">
+                                    <md-card-header data-background-color="blue">
+                                        <h4 class="title">Create trustbloc DID</h4>
+                                        <p class="category"> Create button will create and save the did in DID store</p>
+                                    </md-card-header>
+                                    <md-card-content>
+                                        <md-field>
+                                        </md-field>
+                                        <select id="selectKey" v-model="selectType"
+                                                style="color: grey; width: 200px; height: 35px;">
+                                            <option value="" disabled="disabled">Select Key Type</option>
+                                            <option value="Ed25519">Ed25519</option>
+                                            <option value="P256">P256</option>
+                                        </select>
+                                        <md-field style="margin-top: -15px">
+                                        </md-field>
+                                        <select id="signKey" v-model="signType"
+                                                style="color: grey; width: 200px; height: 35px;">
+                                            <option value="" disabled="disabled">Select Signature Type</option>
+                                            <option value="Ed25519Signature2018">Ed25519Signature2018</option>
+                                            <option value="JsonWebSignature2020">JsonWebSignature2020</option>
+                                        </select>
+                                        <md-field style="margin-top: -15px">
+                                        </md-field>
+                                        <div class="md-layout-item md-size-100">
+                                            <md-field maxlength="5">
+                                                <label class="md-helper-text">Type DID friendly name here</label>
+                                                <md-input v-model="friendlyName" id="friendlyName" required></md-input>
+                                            </md-field>
+                                        </div>
+                                        <md-button
+                                                class="md-button md-success md-square md-theme-default md-large-size-100 md-size-100"
+                                                id='createDIDBtn' v-on:click="createDID">Create and Save DID
+                                        </md-button>
+                                        <div v-if="errors.length">
+                                            <b>Please correct the following error(s):</b>
+                                            <ul>
+                                                <li v-for="error in errors" :key="error">{{ error }}</li>
+                                            </ul>
+                                        </div>
+                                        <md-field>
+                                            <md-textarea v-model="didDocTextArea" readonly style="min-height:360px;">
+                                            </md-textarea>
+                                        </md-field>
+                                    </md-card-content>
+                                </md-card>
+                            </md-tab>
+                            <md-tab id="tab-pages" md-label="Save Any DID" md-icon="contacts">
+                                <md-card class="md-card-plain">
+                                    <md-card-header data-background-color="blue">
+                                        <h4 class="title">Save Any DID</h4>
+                                        <p class="category"> Create button will resolve and save the did in DID
+                                            store</p>
+                                    </md-card-header>
+                                    <md-card-content>
+                                        <md-field>
+                                        </md-field>
+                                        <div class="md-layout-item md-size-100">
+                                            <md-icon>line_style</md-icon>
+                                            <label class="md-helper-text">Enter DID</label>
+                                            <md-field maxlength="5">
+                                                <md-input v-model="didID" id="did" required></md-input>
+                                            </md-field>
+                                        </div>
+                                        <div class="md-layout-item md-size-100">
+                                            <md-icon>vpn_key</md-icon>
+                                            <label class="md-helper-text">Enter Private Key</label>
+                                            <md-field maxlength="5">
+                                                <md-input v-model="privateKey" id="privateKey" required></md-input>
+                                            </md-field>
+                                        </div>
+                                        <div class="md-layout-item md-size-100">
+                                            <md-icon>aspect_ratio
+                                                <md-tooltip md-direction="top">Enter key ID for above private key
+                                                </md-tooltip>
+                                            </md-icon>
+                                            <label class="md-helper-text">Enter matching Key ID</label>
+                                            <md-field maxlength="5">
+                                                <md-input v-model="keyID" id="keyID" required></md-input>
+                                            </md-field>
+                                        </div>
+                                        <div class="md-layout-item md-size-100">
+                                            <md-field maxlength="5">
+                                                <label class="md-helper-text">Type DID friendly name here</label>
+                                                <md-input v-model="anyDIDFriendlyName" id="anyDIDFriendlyName"
+                                                          required></md-input>
+                                            </md-field>
+                                        </div>
+                                        <div class="md-layout-item md-size-100">
+                                            <md-icon>memory</md-icon>
+                                            <select id="privateKeyType" v-model="privateKeyType"
+                                                    style="color: grey; width: 200px; height: 35px;">
+                                                <option value="">Select Key Type</option>
+                                                <option value="Ed25519">Ed25519</option>
+                                            </select>
+                                            <md-field style="margin-top: -15px">
+                                            </md-field>
+                                        </div>
+                                        <div class="md-layout-item md-size-100">
+                                            <md-icon>memory</md-icon>
+                                            <select id="selectSignKey" v-model="selectSignKey"
+                                                    style="color: grey; width: 300px; height: 35px;">
+                                                <option value="">Select Signature Type</option>
+                                                <option value="Ed25519Signature2018">Ed25519Signature2018</option>
+                                            </select>
+                                            <md-field style="margin-top: -15px">
+                                            </md-field>
+                                        </div>
+                                        <md-button
+                                                class="md-button md-success md-square md-theme-default md-large-size-100 md-size-100"
+                                                id='saveDIDBtn' v-on:click="saveAnyDID">Resolve and Save DID
+                                        </md-button>
+                                        <div v-if="errors.length">
+                                            <b>Please correct the following error(s):</b>
+                                            <ul>
+                                                <li v-for="error in errors" :key="error">{{ error }}</li>
+                                            </ul>
+                                        </div>
+                                        <md-field>
+                                            <md-textarea v-model="anyDidDocTextArea" readonly style="min-height:360px;">
+                                            </md-textarea>
+                                        </md-field>
+                                    </md-card-content>
+                                </md-card>
+                            </md-tab>
 
-                </md-tabs>
-                </md-card-content>
+                        </md-tabs>
+                    </md-card-content>
                 </md-card>
             </div>
         </div>
@@ -136,7 +158,7 @@ SPDX-License-Identifier: Apache-2.0
         },
         methods: {
             createDID: async function () {
-                var m = new Map([["Ed25519Signature2018","Ed25519VerificationKey2018"], ["JsonWebSignature2020" ,"JwsVerificationKey2020" ]]);
+                var m = new Map([["Ed25519Signature2018", "Ed25519VerificationKey2018"], ["JsonWebSignature2020", "JwsVerificationKey2020"]]);
 
                 this.errors.length = 0
                 if (this.friendlyName.length == 0) {
@@ -177,13 +199,13 @@ SPDX-License-Identifier: Apache-2.0
                         "encoding": "Jwk",
                         "keyType": this.selectType,
                         "usage": ["ops"]
-                    },{
+                    }, {
                         "id": keyset.keyID,
                         "type": m.get(this.signType),
                         "value": keyset.publicKey,
                         "encoding": "Jwk",
                         "keyType": this.selectType,
-                        "usage": ["general"]
+                        "usage": ["general", "auth"]
                     }, {
                         "id": recoveryKeyset.keyID,
                         "type": m.get(this.signType),
@@ -209,7 +231,7 @@ SPDX-License-Identifier: Apache-2.0
 
                 await t.destroy()
 
-                const did=JSON.parse(this.didDocTextArea)
+                const did = JSON.parse(this.didDocTextArea)
                 // saving did in the did store
                 await window.$aries.vdri.saveDID({
                         name: this.friendlyName,
@@ -223,7 +245,7 @@ SPDX-License-Identifier: Apache-2.0
                     }
                 )
 
-                this.storeDIDMetadata(did.id,"","",this.signType)
+                this.storeDIDMetadata(did.id, "", "", this.signType)
 
             },
             saveAnyDID: async function () {
@@ -234,6 +256,10 @@ SPDX-License-Identifier: Apache-2.0
                 }
                 if (this.privateKey.length == 0) {
                     this.errors.push("private key required.")
+                    return
+                }
+                if (this.keyID.length == 0) {
+                    this.errors.push("key ID (verification method) matching private key is required.")
                     return
                 }
                 if (this.anyDIDFriendlyName.length == 0) {
@@ -275,25 +301,28 @@ SPDX-License-Identifier: Apache-2.0
                     }
                 )
 
-                this.storeDIDMetadata(resp.did.id,this.privateKey,this.privateKeyType,this.selectSignKey)
+                this.storeDIDMetadata(resp.did.id, this.privateKey, this.privateKeyType, this.selectSignKey, this.keyID)
 
             },
-            storeDIDMetadata: function (did,privateKey,privateKeyType,signatureType) {
+            storeDIDMetadata: function (did, privateKey, privateKeyType, signatureType, keyID) {
                 var openDB = indexedDB.open("did-metadata", 1);
 
-                openDB.onupgradeneeded = function() {
+                openDB.onupgradeneeded = function () {
                     var db = {}
                     db.result = openDB.result;
                     db.store = db.result.createObjectStore("metadata", {keyPath: "id"});
                 };
 
 
-                openDB.onsuccess = function() {
+                openDB.onsuccess = function () {
                     var db = {};
                     db.result = openDB.result;
                     db.tx = db.result.transaction("metadata", "readwrite");
                     db.store = db.tx.objectStore("metadata");
-                    db.store.put({id: did, data: {privateKey: privateKey,privateKeyType:privateKeyType, signatureType: signatureType}});
+                    db.store.put({
+                        id: did,
+                        data: {privateKey: privateKey, privateKeyType: privateKeyType, signatureType: signatureType, keyID: keyID}
+                    });
                     console.log("stored did metadata to db")
                 }
 
@@ -304,13 +333,14 @@ SPDX-License-Identifier: Apache-2.0
                 didDocTextArea: "",
                 anyDidDocTextArea: "",
                 friendlyName: "",
-                selectType:"",
-                selectSignKey:"",
-                privateKeyType:"",
-                signType:"",
-                didID:"",
-                privateKey:"",
-                anyDIDFriendlyName:"",
+                selectType: "",
+                selectSignKey: "",
+                privateKeyType: "",
+                signType: "",
+                didID: "",
+                privateKey: "",
+                keyID: "",
+                anyDIDFriendlyName: "",
                 errors: [],
             };
         }
