@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   <div class="content">
     <div class="md-layout">
       <div
-        class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100"
+              class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100"
       >
         <md-card class="md-card-plain">
           <md-card-header data-background-color="green">
@@ -49,7 +49,7 @@ SPDX-License-Identifier: Apache-2.0
             </md-button>
             <md-field style="margin-top: 5px"></md-field>
 
-            <md-tabs class="md-info md-ripple" md-alignment="left" >
+            <md-tabs class="md-info md-ripple" md-alignment="left"  v-if="!isHidden">
               <md-tab id="tab-home" md-label="Source" md-icon="code">
                 <md-card-content v-model="vpData">
                   <vue-json-pretty
@@ -97,9 +97,9 @@ SPDX-License-Identifier: Apache-2.0
                         this.selectedVC = this.savedVCs[0].id
                       }
               ).catch(err => {
-                console.log('get credentials failed : errMsg=' + err)
-              }
-      )
+                        console.log('get credentials failed : errMsg=' + err)
+                      }
+              )
       window.$webCredentialHandler = this.$webCredentialHandler
       window.$aries = this.aries
     },
@@ -110,7 +110,8 @@ SPDX-License-Identifier: Apache-2.0
         issuers: [{id: 0, name: "Select Identity"}],
         selectedIssuer: "",
         errors: [],
-        vpData:"Waiting ..."
+        vpData:"",
+        isHidden: true
       };
     },
     methods: {
@@ -142,6 +143,7 @@ SPDX-License-Identifier: Apache-2.0
         });
       },
       generatePresentation: async function () {
+        this.isHidden = false
         let didMetadata=await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
 
         // fetch the credential
