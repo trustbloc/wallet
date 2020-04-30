@@ -113,10 +113,11 @@ SPDX-License-Identifier: Apache-2.0
       window.$webCredentialHandler = this.$webCredentialHandler
       window.$aries = aries
       await fetchCredentials()
+     this.verifiableCredential = vcData
     },
     data() {
       return {
-        verifiableCredential: vcData
+        verifiableCredential: []
       }
     }
   }

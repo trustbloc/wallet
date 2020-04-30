@@ -7,17 +7,48 @@ SPDX-License-Identifier: Apache-2.0
 <template>
     <div class="content">
         <div class="md-layout">
-            <div
-                    class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100"
-            >
+            <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
                 <md-card class="md-card-plain">
                 <md-card-content>
                 <md-tabs class="md-success" md-alignment="left">
-                    <md-tab id="tab-home" md-label="Create Trustbloc DID" md-icon="contact_mail">
-                        <md-card class="md-card-plain">
-                            <md-card-header data-background-color="blue">
-                                <h4 class="title">Create trustbloc DID</h4>
-                                <p class="category"> Create button will create and save the did in DID store</p>
+                    <md-tab id="tab-home" md-label="DID Dashboard" md-icon="contact_mail">
+                        <div class="md-layout-item md-layout md-gutter">
+                            <div class="md-layout-item md-medium-size-64 md-xsmall-size-65 md-size-73">
+                            <md-card-content>
+                                <md-table v-model="searched" class="md-scrollbar" md-sort-order="asc" md-card md-fixed-header>
+                                    <md-table-toolbar>
+                                        <div class="md-toolbar-section-start">
+                                            <h1 class="md-title"><b>DID Table</b></h1><md-icon>search</md-icon>
+                                        </div>
+
+                                        <md-field md-clearable class="md-toolbar-section-end">
+                                            <md-input placeholder="Search by name..." v-model="searchQuery"  />
+                                        </md-field>
+
+                                    </md-table-toolbar>
+                                    <md-table-row>
+                                        <md-table-head><b>ID</b></md-table-head>
+                                        <md-table-head><b>Name</b></md-table-head>
+                                        <md-table-head><b>DID</b></md-table-head>
+                                        <md-table-head><b>Signature Type</b></md-table-head>
+                                        <md-table-head><b>PrivateKey Type</b></md-table-head>
+                                    </md-table-row>
+                                    <md-table-row v-for="(data,id) in resultQuery" :key="data.id">
+                                        <md-table-cell>{{id}}</md-table-cell>
+                                        <md-table-cell>{{data.friendlyName}}</md-table-cell>
+                                        <md-table-cell>{{data.id}}</md-table-cell>
+                                        <md-table-cell>{{data.signatureType}}</md-table-cell>
+                                        <md-table-cell>{{data.privateKey}}</md-table-cell>
+                                    </md-table-row>
+                                </md-table>
+                            </md-card-content>
+                            <md-field>
+                            </md-field>
+                            </div>
+                            <div class="md-layout-item">
+                            <md-card>
+                            <md-card-header data-background-color="green">
+                                <h4 class="title"><b>Create New Trustbloc DID</b></h4>
                             </md-card-header>
                             <md-card-content>
                                 <md-field>
@@ -42,27 +73,35 @@ SPDX-License-Identifier: Apache-2.0
                                         <md-input v-model="friendlyName" id="friendlyName" required></md-input>
                                     </md-field>
                                 </div>
-                                <md-button class="md-button md-success md-square md-theme-default md-large-size-100 md-size-100"
-                                           id='createDIDBtn' v-on:click="createDID">Create and Save DID
+
+                                <md-button class="md-button md-info md-square  md-large-size-100 md-size-100"
+                                           id='createDIDBtn' v-on:click="createDID"><b>Create and Save DID</b>
                                 </md-button>
-                                <div v-if="errors.length">
+                                <div v-if="errors.length" >
                                     <b>Please correct the following error(s):</b>
                                     <ul>
                                         <li v-for="error in errors" :key="error">{{ error }}</li>
                                     </ul>
                                 </div>
+                                <div v-if="loading" style="margin-left: 40%;margin-top: 20%;height: 200px;">
+                                    <div class="md-layout">
+                                        <md-progress-spinner :md-diameter="100" class="md-primary" :md-stroke="10"
+                                                             md-mode="indeterminate"></md-progress-spinner>
+                                    </div>
+                                </div>
                                 <md-field>
-                                    <md-textarea v-model="didDocTextArea" readonly style="min-height:360px;">
+                                    <md-textarea v-model="didDocTextArea"  readonly style="min-height:300px;">
                                     </md-textarea>
                                 </md-field>
                             </md-card-content>
-                        </md-card>
+                          </md-card>
+                            </div>
+                        </div>
                     </md-tab>
                     <md-tab id="tab-pages" md-label="Save Any DID" md-icon="contacts">
                         <md-card class="md-card-plain">
-                            <md-card-header data-background-color="blue">
+                            <md-card-header data-background-color="green">
                                 <h4 class="title">Save Any DID</h4>
-                                <p class="category"> Create button will resolve and save the did in DID store</p>
                             </md-card-header>
                             <md-card-content>
                                 <md-field>
@@ -80,12 +119,6 @@ SPDX-License-Identifier: Apache-2.0
                                     </md-field>
                                 </div>
                                 <div class="md-layout-item md-size-100">
-                                    <md-field maxlength="5">
-                                        <label class="md-helper-text">Type DID friendly name here</label>
-                                        <md-input v-model="anyDIDFriendlyName" id="anyDIDFriendlyName" required></md-input>
-                                    </md-field>
-                                </div>
-                                <div class="md-layout-item md-size-100">
                                     <md-icon>memory</md-icon> <select id="privateKeyType" v-model="privateKeyType" style="color: grey; width: 200px; height: 35px;">
                                     <option value="">Select Key Type</option>
                                     <option value="Ed25519">Ed25519</option>
@@ -94,20 +127,26 @@ SPDX-License-Identifier: Apache-2.0
                                     </md-field>
                                 </div>
                                 <div class="md-layout-item md-size-100">
-                                    <md-icon>memory</md-icon> <select id="selectSignKey" v-model="selectSignKey" style="color: grey; width: 300px; height: 35px;">
+                                    <md-icon>ballot</md-icon> <select id="selectSignKey" v-model="selectSignKey" style="color: grey; width: 300px; height: 35px;">
                                     <option value="">Select Signature Type</option>
                                     <option value="Ed25519Signature2018">Ed25519Signature2018</option>
                                     </select>
                                     <md-field style="margin-top: -15px">
                                     </md-field>
                                 </div>
+                                <div class="md-layout-item md-size-100">
+                                    <md-field maxlength="5">
+                                        <label class="md-helper-text">Type DID friendly name here</label>
+                                        <md-input v-model="anyDIDFriendlyName" id="anyDIDFriendlyName" required></md-input>
+                                    </md-field>
+                                </div>
                                 <md-button class="md-button md-success md-square md-theme-default md-large-size-100 md-size-100"
                                            id='saveDIDBtn' v-on:click="saveAnyDID">Resolve and Save DID
                                 </md-button>
-                                <div v-if="errors.length">
+                                <div v-if="saveErrors.length">
                                     <b>Please correct the following error(s):</b>
                                     <ul>
-                                        <li v-for="error in errors" :key="error">{{ error }}</li>
+                                        <li v-for="error in saveErrors" :key="error">{{ error }}</li>
                                     </ul>
                                 </div>
                                 <md-field>
@@ -131,10 +170,12 @@ SPDX-License-Identifier: Apache-2.0
             window.$aries = await this.$arieslib
             window.$trustblocAgent = this.$trustblocAgent
             window.$trustblocStartupOpts = await this.$trustblocStartupOpts
-
+            this.searched = this.myData
+            await this.loadDIDMetadata()
         },
         methods: {
             createDID: async function () {
+                this.loading = true;
                 var m = new Map([["Ed25519Signature2018","Ed25519VerificationKey2018"], ["JsonWebSignature2020" ,"JwsVerificationKey2020" ]]);
 
                 this.errors.length = 0
@@ -222,29 +263,30 @@ SPDX-License-Identifier: Apache-2.0
                     }
                 )
 
-                this.storeDIDMetadata(did.id,"","",this.signType)
+                this.storeDIDMetadata(did.id,"","", this.signType,this.friendlyName)
+                this.loading = false;
 
             },
             saveAnyDID: async function () {
-                this.errors.length = 0
+                this.saveErrors.length = 0
                 if (this.didID.length == 0) {
-                    this.errors.push("did id required.")
+                    this.saveErrors.push("did id required.")
                     return
                 }
                 if (this.privateKey.length == 0) {
-                    this.errors.push("private key required.")
+                    this.saveErrors.push("private key required.")
                     return
                 }
                 if (this.anyDIDFriendlyName.length == 0) {
-                    this.errors.push("friendly name required.")
+                    this.saveErrors.push("friendly name required.")
                     return
                 }
                 if ((this.privateKeyType == "")) {
-                    this.errors.push("key type required")
+                    this.saveErrors.push("key type required")
                     return;
                 }
                 if ((this.selectSignKey == "")) {
-                    this.errors.push("signature type required")
+                    this.saveErrors.push("signature type required")
                     return;
                 }
 
@@ -254,7 +296,7 @@ SPDX-License-Identifier: Apache-2.0
                         id: this.didID,
                     })
                 } catch (err) {
-                    this.errors.push(err)
+                    this.saveErrors.push(err)
                     return
                 }
 
@@ -269,15 +311,15 @@ SPDX-License-Identifier: Apache-2.0
                 ).then(
                     console.log("successfully saved the did")
                 ).catch(err => {
-                        this.didDocTextArea = 'failed to save the did : ' + err
+                        this.anyDidDocTextArea = 'failed to save the did : ' + err
                         console.log('failed to save the did : errMsg=' + err)
                     }
                 )
 
-                this.storeDIDMetadata(resp.did.id,this.privateKey,this.privateKeyType,this.selectSignKey)
+                this.storeDIDMetadata(resp.did.id,this.privateKey,this.privateKeyType,this.selectSignKey, this.friendlyName)
 
             },
-            storeDIDMetadata: function (did,privateKey,privateKeyType,signatureType) {
+            storeDIDMetadata: function (did,privateKey,privateKeyType,signatureType,friendlyName) {
                 var openDB = indexedDB.open("did-metadata", 1);
 
                 openDB.onupgradeneeded = function() {
@@ -285,17 +327,51 @@ SPDX-License-Identifier: Apache-2.0
                     db.result = openDB.result;
                     db.store = db.result.createObjectStore("metadata", {keyPath: "id"});
                 };
-
-
                 openDB.onsuccess = function() {
                     var db = {};
                     db.result = openDB.result;
                     db.tx = db.result.transaction("metadata", "readwrite");
                     db.store = db.tx.objectStore("metadata");
-                    db.store.put({id: did, data: {privateKey: privateKey,privateKeyType:privateKeyType, signatureType: signatureType}});
+                    db.store.put({id: did,
+                                friendlyName: friendlyName,
+                                privateKey: privateKey,
+                                privateKeyType:privateKeyType,
+                                signatureType: signatureType});
                     console.log("stored did metadata to db")
                 }
 
+            },
+            loadDIDMetadata: async function () {
+               let openDB = indexedDB.open("did-metadata", 1);
+                openDB.onupgradeneeded = function() {
+                    var db = {}
+                    db.result = openDB.result;
+                };
+              const callback = (data) => this.myData = data
+                openDB.onsuccess = function() {
+                    console.log("inside")
+                    let db = {};
+                    db.result = openDB.result;
+                    db.tx = db.result.transaction("metadata", "readonly");
+                    db.store = db.tx.objectStore("metadata");
+                    let request = db.store.getAll();
+                    request.onsuccess = function() {
+                      callback(request.result)
+                    };
+
+                }
+            },
+
+        },
+        computed: {
+            resultQuery(){
+                if(this.searchQuery){
+                    return this.myData.filter((data)=>{
+                        return this.searchQuery.toLowerCase().split(' ').every(v => data.friendlyName.toLowerCase().includes(v))
+                    })
+                }else{
+                    return this.myData;
+                }
             }
         },
         data() {
@@ -311,8 +387,17 @@ SPDX-License-Identifier: Apache-2.0
                 privateKey:"",
                 anyDIDFriendlyName:"",
                 errors: [],
+                saveErrors: [],
+                myData:{},
+                search: null,
+                searchQuery:null,
+                searched: [],
+                loading: false,
             };
+        },
+        created(){
+            this.searched = this.myData
         }
+
     }
 </script>
-

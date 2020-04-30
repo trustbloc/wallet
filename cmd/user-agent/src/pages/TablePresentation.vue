@@ -49,7 +49,7 @@ SPDX-License-Identifier: Apache-2.0
             </md-button>
             <md-field style="margin-top: 5px"></md-field>
 
-            <md-tabs class="md-info md-ripple" md-alignment="left" >
+            <md-tabs class="md-info md-ripple" md-alignment="left"  v-if="!isHidden">
               <md-tab id="tab-home" md-label="Source" md-icon="code">
                 <md-card-content v-model="vpData">
                   <vue-json-pretty
@@ -110,7 +110,8 @@ SPDX-License-Identifier: Apache-2.0
         issuers: [{id: 0, name: "Select Identity"}],
         selectedIssuer: "",
         errors: [],
-        vpData:"Waiting ..."
+        vpData:"",
+        isHidden: true
       };
     },
     methods: {
@@ -142,6 +143,7 @@ SPDX-License-Identifier: Apache-2.0
         });
       },
       generatePresentation: async function () {
+        this.isHidden = false
         let didMetadata=await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
 
         // fetch the credential
