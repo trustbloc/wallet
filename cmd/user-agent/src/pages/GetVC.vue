@@ -444,7 +444,8 @@ SPDX-License-Identifier: Apache-2.0
                     did: this.issuers[this.selectedIssuer].key,
                     signatureType: didMetadata.signatureType,
                     privateKey: didMetadata.privateKey,
-                    keyType: didMetadata.privateKeyType
+                    keyType: didMetadata.privateKeyType,
+                    verificationMethod: didMetadata.keyID,
                 }).then(resp => {
                         if (!resp.verifiablePresentation) {
                             data = "failed to create did auth presentation"
@@ -491,7 +492,8 @@ SPDX-License-Identifier: Apache-2.0
                         skipVerify: true,
                         signatureType: didMetadata.signatureType,
                         privateKey: didMetadata.privateKey,
-                        keyType: didMetadata.privateKeyType
+                        keyType: didMetadata.privateKeyType,
+                        verificationMethod: didMetadata.keyID
                     }).then(resp => {
                             data = resp.verifiablePresentation
                         }
@@ -501,7 +503,7 @@ SPDX-License-Identifier: Apache-2.0
                     })
                 }
 
-                console.log("Response presentation:", JSON.stringify(data))
+                console.log("Response presentation:", data)
 
                 // Call Credential Handler callback
                 this.credentialEvent.respondWith(new Promise(function (resolve) {
