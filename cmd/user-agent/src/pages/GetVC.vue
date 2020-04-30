@@ -272,8 +272,7 @@ SPDX-License-Identifier: Apache-2.0
             if (this.query.credentialQuery && this.query.credentialQuery.example && this.query.credentialQuery.example.type) {
                 let t = this.query.credentialQuery.example.type
                 let key = Array.isArray(t) ? t[0] : t
-
-                if (!isKeyType) {
+                if (!isKeyType(key)) {
                     this.search = key
                     this.searched = []
                     this.searchOnTable()
