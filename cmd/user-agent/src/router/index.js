@@ -48,7 +48,7 @@ const routes = [
             },
             {
                 path: "DIDManagement",
-                name: "DIDManagement",
+                name: "DID Management",
                 component: DIDManagement
             }
         ]
