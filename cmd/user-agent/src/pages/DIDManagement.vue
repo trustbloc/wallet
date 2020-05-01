@@ -38,7 +38,7 @@ SPDX-License-Identifier: Apache-2.0
                                         <md-table-cell>{{data.friendlyName}}</md-table-cell>
                                         <md-table-cell>{{data.id}}</md-table-cell>
                                         <md-table-cell>{{data.signatureType}}</md-table-cell>
-                                        <md-table-cell>{{data.privateKey}}</md-table-cell>
+                                        <md-table-cell>{{data.privateKeyType}}</md-table-cell>
                                     </md-table-row>
                                 </md-table>
                             </md-card-content>
@@ -104,8 +104,6 @@ SPDX-License-Identifier: Apache-2.0
                                 <h4 class="title">Save Any DID</h4>
                             </md-card-header>
                             <md-card-content>
-                                <md-field>
-                                </md-field>
                                 <div class="md-layout-item md-size-100">
                                     <md-icon>line_style</md-icon><label class="md-helper-text">Enter DID</label>
                                     <md-field maxlength="5">
@@ -326,7 +324,7 @@ SPDX-License-Identifier: Apache-2.0
                     }
                 )
 
-                this.storeDIDMetadata(resp.did.id,this.privateKey,this.privateKeyType,this.selectSignKey, this.keyID, this.friendlyName)
+                this.storeDIDMetadata(resp.did.id,this.privateKey,this.privateKeyType,this.selectSignKey, this.keyID, this.anyDIDFriendlyName)
             },
             storeDIDMetadata: function (did,privateKey,privateKeyType,signatureType,keyID,friendlyName) {
                 var openDB = indexedDB.open("did-metadata", 1);
