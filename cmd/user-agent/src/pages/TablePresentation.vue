@@ -132,7 +132,7 @@ SPDX-License-Identifier: Apache-2.0
             db.store = db.tx.objectStore("metadata");
             let getData = db.store.get(id);
             getData.onsuccess = function () {
-              resolve(getData.result.data);
+              resolve(getData.result);
             };
 
             db.tx.oncomplete = function () {
@@ -157,7 +157,8 @@ SPDX-License-Identifier: Apache-2.0
             skipVerify: true,
             signatureType:didMetadata.signatureType,
             privateKey: didMetadata.privateKey,
-            keyType: didMetadata.privateKeyType
+            keyType: didMetadata.privateKeyType,
+            verificationMethod: didMetadata.keyID
           }).then(resp => {
             this.vpData = JSON.parse(JSON.stringify(resp.verifiablePresentation))
                     QrData = JSON.stringify(resp.verifiablePresentation)

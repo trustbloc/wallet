@@ -119,6 +119,16 @@ SPDX-License-Identifier: Apache-2.0
                                     </md-field>
                                 </div>
                                 <div class="md-layout-item md-size-100">
+                                    <md-icon>aspect_ratio
+                                        <md-tooltip md-direction="top">Enter key ID for above private key
+                                        </md-tooltip>
+                                    </md-icon>
+                                    <label class="md-helper-text">Enter matching Key ID</label>
+                                    <md-field maxlength="5">
+                                        <md-input v-model="keyID" id="keyID" required></md-input>
+                                    </md-field>
+                                </div>
+                                <div class="md-layout-item md-size-100">
                                     <md-icon>memory</md-icon> <select id="privateKeyType" v-model="privateKeyType" style="color: grey; width: 200px; height: 35px;">
                                     <option value="">Select Key Type</option>
                                     <option value="Ed25519">Ed25519</option>
@@ -197,11 +207,7 @@ SPDX-License-Identifier: Apache-2.0
                     generateKeyType = "ED25519"
                 }
                 if (this.selectType == "P256") {
-                    generateKeyType = "ECDSAP256IEEE1363"
-                }
-
-                if (this.selectType == "P256") {
-                    generateKeyType = "ECDSAP256IEEE1363"
+                    generateKeyType = "ECDSAP256IEEEP1363"
                 }
 
                 const keyset = await window.$aries.kms.createKeySet({keyType: generateKeyType})
@@ -352,6 +358,7 @@ SPDX-License-Identifier: Apache-2.0
                 openDB.onupgradeneeded = function() {
                     var db = {}
                     db.result = openDB.result;
+                    db.store = db.result.createObjectStore("metadata", {keyPath: "id"});
                 };
               const callback = (data) => this.myData = data
                 openDB.onsuccess = function() {
