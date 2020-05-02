@@ -13,14 +13,13 @@ SPDX-License-Identifier: Apache-2.0
           <badger-accordion-item>
             <template slot="header"><p><md-icon>keyboard_arrow_down</md-icon>{{name}}</p></template>
             <template slot="content">
-                <!-- Display the json of stored credential -->
-                <md-content>
-                  <vue-json-pretty
-                          :data="this.credential"
-                         >
-                  </vue-json-pretty>
-                  </md-content>
-                <!--Todo add preview of credential tab - document view of credentials -->
+              <!-- Display the json of stored credential -->
+              <md-content>
+                <vue-json-pretty
+                        :data="this.data"
+                >
+                </vue-json-pretty>
+              </md-content>
             </template>
           </badger-accordion-item>
         </badger-accordion>
@@ -40,14 +39,18 @@ SPDX-License-Identifier: Apache-2.0
     components: {
       BadgerAccordion,
       BadgerAccordionItem,
-        VueJsonPretty,
+      VueJsonPretty,
     },
     props: {
       name: {
         type: String,
       },
-      credential: {
+      data: {
         type: Object,
+      },
+      tableHeaderColor: {
+        type: String,
+        default: ""
       }
     },
     data() {
@@ -57,4 +60,6 @@ SPDX-License-Identifier: Apache-2.0
       }
     }
   }
+
 </script>
+

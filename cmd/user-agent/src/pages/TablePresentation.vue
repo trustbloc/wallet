@@ -40,18 +40,30 @@ SPDX-License-Identifier: Apache-2.0
               <option v-for="vc in savedVCs" :key="vc" :value="vc.id">
                 {{vc.name}}
               </option>
-            </select>
+            </select><br><br>
 
-            <md-field style="margin-top: -15px">
-            </md-field>
+            <div class="md-layout-item md-size-100">
+              <md-field maxlength="5">
+                <label class="md-helper-text">Type DID friendly name here</label>
+                <md-input v-model="friendlyName" id="friendlyName" required></md-input>
+              </md-field>
+            </div>
+
             <md-button v-on:click="generatePresentation" class="md-button md-success md-square md-theme-default md-large-size-100 md-size-100"
                        id="getVPBtn">Generate Presentation
             </md-button>
             <md-field style="margin-top: 5px"></md-field>
 
+            <div v-if="loading" style="margin-left: 40%;margin-top: 20%;height: 200px;">
+            <div class="md-layout">
+              <md-progress-spinner :md-diameter="100" class="md-primary" :md-stroke="10"
+                                   md-mode="indeterminate"></md-progress-spinner>
+            </div>
+          </div>
+
             <md-tabs class="md-info md-ripple" md-alignment="left"  v-if="!isHidden">
               <md-tab id="tab-home" md-label="Source" md-icon="code">
-                <md-card-content v-model="vpData">
+                <md-card-content v-model="vpData" style="overflow: hidden">
                   <vue-json-pretty
                           :data="this.vpData"
                   >
@@ -111,7 +123,9 @@ SPDX-License-Identifier: Apache-2.0
         selectedIssuer: "",
         errors: [],
         vpData:"",
-        isHidden: true
+        isHidden: true,
+        friendlyName:"",
+        loading:false
       };
     },
     methods: {
@@ -143,7 +157,12 @@ SPDX-License-Identifier: Apache-2.0
         });
       },
       generatePresentation: async function () {
+        if (this.friendlyName.length == 0) {
+                  this.errors.push("friendly name required.")
+                   return
+                 }
         this.isHidden = false
+        this.loading = true
         let didMetadata=await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
 
         // fetch the credential
@@ -160,12 +179,27 @@ SPDX-License-Identifier: Apache-2.0
             keyType: didMetadata.privateKeyType,
             verificationMethod: didMetadata.keyID
           }).then(resp => {
-            this.vpData = JSON.parse(JSON.stringify(resp.verifiablePresentation))
+              this.vpData = resp.verifiablePresentation
                     QrData = JSON.stringify(resp.verifiablePresentation)
                   }
           ).catch(err =>
                   this.errors.push("failed to create presentation : errMsg="+ err)
           )
+
+          console.log("Response presentation:", this.vpData)
+
+         // save presentation
+          this.aries.verifiable.savePresentation({
+                   verifiablePresentation: this.vpData,
+                   name: this.friendlyName
+           }).then(resp => {
+                console.log("Successfully saved presentation:", resp)
+             }).catch( err =>{
+                   this.vpData = err
+
+                   console.log('failed to save presentation, errMsg:', err)
+              }
+           )
 
           // Generate QR code
           let QRCode = require('qrcode')
@@ -174,6 +208,8 @@ SPDX-License-Identifier: Apache-2.0
             canvas.src = url
           })
         }
+
+        this.loading = false
       },
       getSelectedCredentials: async function () {
         if (this.selectedVC.length == 0) {

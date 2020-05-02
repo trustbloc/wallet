@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   <div class="content">
     <div class="md-layout">
 
-      <div class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-25">
+      <div class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-30">
         <stats-card data-background-color="green">
           <template slot="header">
             <md-icon>store</md-icon>
@@ -21,7 +21,7 @@ SPDX-License-Identifier: Apache-2.0
           </template>
         </stats-card>
       </div>
-      <div class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-25">
+      <div class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-30">
         <stats-card data-background-color="orange">
           <template slot="header">
             <md-icon>flip_to_back</md-icon>
@@ -35,7 +35,7 @@ SPDX-License-Identifier: Apache-2.0
           </template>
         </stats-card>
       </div>
-      <div class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-25">
+      <div class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-30">
         <stats-card data-background-color="purple">
           <template slot="header">
             <md-icon>border_outer</md-icon>
@@ -49,18 +49,32 @@ SPDX-License-Identifier: Apache-2.0
         </stats-card>
       </div>
     </div>
+    <!-- Stored credentials-->
     <div class="content">
       <div class="md-layout">
-        <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
+        <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-50">
           <md-card>
             <md-card-header data-background-color="green">
               <h4 class="title"> <md-icon>content_paste</md-icon> My Stored Credentials</h4>
-              <p class="category"> If you have successfully saved credentials, but not able to view table below. Wait 9 to 10 sec and switch to any other page and comeback</p>
             </md-card-header>
             <md-card-content>
               <simple-table v-for="vc in verifiableCredential" v-bind:key=vc.name
                             v-bind:name="vc.name"
-                            v-bind:credential="vc.credential">
+                            v-bind:data="vc.credential">
+              </simple-table>
+            </md-card-content>
+          </md-card>
+        </div>
+        <!-- Stored presentation -->
+        <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-50">
+          <md-card>
+            <md-card-header data-background-color="orange">
+              <h4 class="title"> <md-icon>content_paste</md-icon> My Stored Presentations</h4>
+            </md-card-header>
+            <md-card-content>
+              <simple-table v-for="vp in verifiablePresentation" v-bind:key=vp.name
+                            v-bind:name="vp.name"
+                            v-bind:data="vp.presentation">
               </simple-table>
             </md-card-content>
           </md-card>
@@ -74,19 +88,38 @@ SPDX-License-Identifier: Apache-2.0
 <script>
   import {StatsCard} from "@/components";
   import {SimpleTable} from "@/components";
+
   let vcData = [];
+  let vpData = [];
+
   async function fetchCredentials() {
-      // Get the VC data
+    // Get the VC data
     for (let i = 0; i < vcData.length; i++) {
       await window.$aries.verifiable.getCredential({
         id: vcData[i].id
       }).then(resp => {
+        console.log('get vc ' + vcData[i].id)
+
         vcData[i].credential= JSON.parse(resp.verifiableCredential)
-      }
+              }
       ).catch(err =>
               console.log('get vc failed : errMsg=' + err)
       )
     }
+  }
+
+  async function fetchPresentations() {
+    // Get the VP data
+    for (let i = 0; i < vpData.length; i++) {
+      await window.$aries.verifiable.getPresentation({
+       id: `${vpData[i].id}`
+     }).then(resp => {
+               vpData[i].presentation = resp.verifiablePresentation
+             }
+     ).catch(err =>
+      console.log('get vp failed : errMsg=' + err + " ID " +  vpData[i].id)
+     )
+   }
   }
 
   export default {
@@ -97,27 +130,49 @@ SPDX-License-Identifier: Apache-2.0
     beforeCreate: async function () {
       // Load the Credentials
       let aries = await this.$arieslib
-      await aries.verifiable.getCredentials()
-              .then(resp => {
-                        vcData = resp.result
-                        if (vcData && vcData.length == 0) {
-                          console.log('no credentials exists')
-                        }
-                        console.log('all data are :' + JSON.stringify(vcData))
-                      }
-              ).catch(err => {
-                        console.log('get credentials failed : errMsg=' + err)
-                      }
-              )
-
       window.$webCredentialHandler = this.$webCredentialHandler
       window.$aries = aries
-      await fetchCredentials()
-     this.verifiableCredential = vcData
+      await this.getCredentials(aries)
+      await this.getPresentations(aries)
+    },
+    methods: {
+      getCredentials: async function (aries) {
+        await aries.verifiable.getCredentials()
+                .then(resp => {
+                          vcData = resp.result
+                          if (vcData && vcData.length == 0) {
+                            console.log('no credentials exists')
+                          }
+                        }
+                ).catch(err => {
+                          console.log('get credentials failed : errMsg=' + err)
+                        }
+                )
+
+        await fetchCredentials()
+        this.verifiableCredential = vcData
+      },
+      getPresentations: async function(aries){
+        await aries.verifiable.getPresentations()
+                .then(resp => {
+                          vpData = resp.result
+                          if (vpData && vpData.length == 0) {
+                            console.log('no presentation exists')
+                          }
+                        }
+                ).catch(err => {
+                          console.log('get presentation failed : errMsg=' + err)
+                        }
+                )
+
+        await fetchPresentations()
+        this.verifiablePresentation = vpData
+      }
     },
     data() {
       return {
-        verifiableCredential: []
+        verifiableCredential: [],
+        verifiablePresentation: []
       }
     }
   }
@@ -127,5 +182,13 @@ SPDX-License-Identifier: Apache-2.0
   .title{
     text-transform: capitalize;
   }
+  .md-content {
+    overflow: auto;
+    padding: 1px;
+    font-size: 6px;
+    line-height: 16px;
+  }
+
 </style>
+
 
