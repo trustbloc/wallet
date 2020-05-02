@@ -10,7 +10,7 @@ SPDX-License-Identifier: Apache-2.0
         <ul>
         </ul>
         <a href="https://github.com/trustbloc/edge-sandbox" target="_blank"
-          >  &copy; {{ new Date().getFullYear() }} Reserved By SecureKey Technologies and Trustbloc</a
+          >  &copy; {{ new Date().getFullYear() }} Reserved By SecureKey Technologies and TrustBloc</a
         >
       </div>
   </footer>

@@ -15,7 +15,8 @@ SPDX-License-Identifier: Apache-2.0
                         <div class="md-layout-item md-layout md-gutter">
                             <div class="md-layout-item md-medium-size-64 md-xsmall-size-65 md-size-73">
                             <md-card-content>
-                                <md-table v-model="searched" class="md-scrollbar" md-sort-order="asc" md-card md-fixed-header>
+                                <md-table v-model="searched" class="md-scrollbar" md-sort-order="asc"
+                                          style="height: 500px;max-height: 500px;max-width: 1035px;width: 1035px;">
                                     <md-table-toolbar>
                                         <div class="md-toolbar-section-start">
                                             <h1 class="md-title"><b>DID Table</b></h1><md-icon>search</md-icon>
@@ -27,14 +28,12 @@ SPDX-License-Identifier: Apache-2.0
 
                                     </md-table-toolbar>
                                     <md-table-row>
-                                        <md-table-head><b>ID</b></md-table-head>
                                         <md-table-head><b>Name</b></md-table-head>
                                         <md-table-head><b>DID</b></md-table-head>
                                         <md-table-head><b>Signature Type</b></md-table-head>
                                         <md-table-head><b>PrivateKey Type</b></md-table-head>
                                     </md-table-row>
-                                    <md-table-row v-for="(data,id) in resultQuery" :key="data.id">
-                                        <md-table-cell>{{id}}</md-table-cell>
+                                    <md-table-row v-for="(data) in resultQuery" :key="data.id">
                                         <md-table-cell>{{data.friendlyName}}</md-table-cell>
                                         <md-table-cell>{{data.id}}</md-table-cell>
                                         <md-table-cell>{{data.signatureType}}</md-table-cell>
@@ -183,7 +182,6 @@ SPDX-License-Identifier: Apache-2.0
         },
         methods: {
             createDID: async function () {
-                this.loading = true;
                 var m = new Map([["Ed25519Signature2018","Ed25519VerificationKey2018"], ["JsonWebSignature2020" ,"JwsVerificationKey2020" ]]);
 
                 this.errors.length = 0
@@ -200,6 +198,7 @@ SPDX-License-Identifier: Apache-2.0
                     return;
                 }
 
+                this.loading = true
                 let generateKeyType
                 if (this.selectType == "Ed25519") {
                     generateKeyType = "ED25519"
@@ -248,6 +247,7 @@ SPDX-License-Identifier: Apache-2.0
 
                     })
                     .catch(err => {
+                        this.loading = false;
                         this.didDocTextArea = err
                     })
 
@@ -262,7 +262,8 @@ SPDX-License-Identifier: Apache-2.0
                 ).then(
                     console.log("successfully saved the did")
                 ).catch(err => {
-                        this.didDocTextArea = 'failed to save the did : ' + err
+                    this.loading = false;
+                    this.didDocTextArea = 'failed to save the did : ' + err
                         console.log('failed to save the did : errMsg=' + err)
                     }
                 )
@@ -360,7 +361,6 @@ SPDX-License-Identifier: Apache-2.0
                 };
               const callback = (data) => this.myData = data
                 openDB.onsuccess = function() {
-                    console.log("inside")
                     let db = {};
                     db.result = openDB.result;
                     db.tx = db.result.transaction("metadata", "readonly");
