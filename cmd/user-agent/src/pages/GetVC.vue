@@ -429,6 +429,7 @@ SPDX-License-Identifier: Apache-2.0
                 }))
             },
             authorize: async function () {
+                this.loading = true
                 let didMetadata = await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
 
                 let data
@@ -462,6 +463,8 @@ SPDX-License-Identifier: Apache-2.0
                     console.log('failed to create presentation, errMsg:', err)
                 })
 
+                this.loading = false
+                console.log("Response presentation:", data)
 
                 // Call Credential Handler callback
                 this.credentialEvent.respondWith(new Promise(function (resolve) {
@@ -477,6 +480,8 @@ SPDX-License-Identifier: Apache-2.0
                     this.errors.push(creds.retry)
                     return
                 }
+
+                this.loading = true
 
                 let data
                 if (creds.vcs) {
@@ -502,6 +507,7 @@ SPDX-License-Identifier: Apache-2.0
                     })
                 }
 
+                this.loading = false
                 console.log("Response presentation:", data)
 
                 // Call Credential Handler callback
@@ -513,9 +519,12 @@ SPDX-License-Identifier: Apache-2.0
                 }))
             },
             createCredential: async function () {
-                let cred = await this.getSelectedCredential()
+                this.loading = true
 
+                let cred = await this.getSelectedCredential()
                 console.log("Response credential:", cred)
+
+                this.loading = false
 
                 // Call Credential Handler callback
                 this.credentialEvent.respondWith(new Promise(function (resolve) {
