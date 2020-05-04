@@ -33,7 +33,8 @@ SPDX-License-Identifier: Apache-2.0
                             <md-icon>how_to_reg</md-icon>
                             Select a Subject DID: </label>
                         <md-select v-model="selectedIssuer">
-                            <md-option v-for="issuer in issuers" :key="issuer" :value="issuer.id">{{issuer.name}}
+                            <md-option v-for="{id, name} in issuers" :key="id" :value="id">
+                                {{name}}
                             </md-option>
                         </md-select>
                     </md-field>
@@ -86,9 +87,9 @@ SPDX-License-Identifier: Apache-2.0
                         <label>
                             <md-icon>how_to_reg</md-icon>
                             Select Identity: </label>
-                        <md-select v-model="selectedIssuer">
-                            <md-option v-for="issuer in issuers" :key="issuer" :value="issuer.id">
-                                {{issuer.name}}
+                        <md-select v-model="selectedIssuer" @md-selected="searchOnTable">
+                            <md-option v-for="{id, name} in issuers" :key="id" :value="id">
+                                {{name}}
                             </md-option>
                         </md-select>
                     </md-field>
@@ -205,7 +206,11 @@ SPDX-License-Identifier: Apache-2.0
         return toLower(type) == toLower(vcType) || toLower(type) == toLower(vpType)
     }
 
-    const searchByType = (items, term) => {
+    const searchByTypeAndHolder = (items, term, key) => {
+        if (key) {
+            items = items.filter(item => item.holder == key)
+        }
+
         if (term) {
             return items.filter(item => toLower(item.type).includes(toLower(term)))
         }
@@ -269,19 +274,18 @@ SPDX-License-Identifier: Apache-2.0
                 this.reason = this.query.credentialQuery.reason
             }
 
+            this.search = ""
             if (this.query.credentialQuery && this.query.credentialQuery.example && this.query.credentialQuery.example.type) {
                 let t = this.query.credentialQuery.example.type
                 let key = Array.isArray(t) ? t[0] : t
                 if (!isKeyType(key)) {
                     this.search = key
-                    this.searched = []
-                    this.searchOnTable()
-                    return
                 }
             }
 
-            // default search
-            this.searched = this.savedVCs
+            // perform search while loading
+            this.searched = []
+            this.searchOnTable()
         },
         data() {
             return {
@@ -331,7 +335,7 @@ SPDX-License-Identifier: Apache-2.0
                 });
             },
             searchOnTable() {
-                this.searched = searchByType(this.savedVCs, this.search)
+                this.searched = searchByTypeAndHolder(this.savedVCs, this.search, this.issuers[this.selectedIssuer].key)
             },
             setupDomainAndChallenge: function () {
                 const {domain, challenge} = getDomainAndChallenge(this.verifiable);
@@ -357,7 +361,8 @@ SPDX-License-Identifier: Apache-2.0
                                     id: id,
                                     name: item.name,
                                     key: item.id,
-                                    type: getCredentialType(item.type)
+                                    type: getCredentialType(item.type),
+                                    holder: item.subjectId,
                                 })
                             })
                         }
@@ -436,8 +441,7 @@ SPDX-License-Identifier: Apache-2.0
                 await this.aries.verifiable.generatePresentation({
                     presentation: {
                         "@context": "https://www.w3.org/2018/credentials/v1",
-                        "type": "VerifiablePresentation",
-                        "holder": `${this.issuers[this.selectedIssuer].key}`,
+                        "type": "VerifiablePresentation"
                     },
                     domain: this.domain,
                     challenge: this.challenge,
