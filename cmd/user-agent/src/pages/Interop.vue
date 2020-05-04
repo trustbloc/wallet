@@ -119,7 +119,24 @@ SPDX-License-Identifier: Apache-2.0
             },
             getVC: async function () {
                 this.clearResults()
-                const credentialQuery = JSON.parse('{"web": {"VerifiableCredential": {}}}');
+                const credentialQuery = {
+                    "web": {
+                        "VerifiableCredential": {
+                            query: [
+                                {
+                                    type: "QueryByExample",
+                                    credentialQuery: {
+                                        reason: "Please present a credential for JaneDoe.",
+                                        example: {
+                                            "@context": ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1"],
+                                            type: ["UniversityDegreeCredential"]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
                 const result = await navigator.credentials.get(credentialQuery);
                 if (!result) {
                     this.errors.push("Failed to get result")
@@ -130,7 +147,26 @@ SPDX-License-Identifier: Apache-2.0
             },
             getVP: async function () {
                 this.clearResults()
-                const credentialQuery = JSON.parse('{"web": {"VerifiablePresentation": {}}}');
+                const credentialQuery = {
+                    web: {
+                        VerifiablePresentation: {
+                            query: [
+                                {
+                                    type: "QueryByExample",
+                                    credentialQuery: {
+                                        reason: "Please present a credential for JaneDoe.",
+                                        example: {
+                                            "@context": ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1"],
+                                            type: ["UniversityDegreeCredential"]
+                                        }
+                                    }
+                                }
+                            ],
+                            challenge: "",
+                            domain: ""
+                        }
+                    }
+                }
                 const result = await navigator.credentials.get(credentialQuery);
                 if (!result) {
                     this.errors.push("Failed to get result")
