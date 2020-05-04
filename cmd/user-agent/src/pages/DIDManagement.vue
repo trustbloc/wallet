@@ -126,7 +126,8 @@ SPDX-License-Identifier: Apache-2.0
                                     </md-field>
                                 </div>
                                 <div class="md-layout-item md-size-100">
-                                    <md-icon>memory</md-icon> <select id="privateKeyType" v-model="privateKeyType" style="color: grey; width: 200px; height: 35px;">
+                                    <md-icon>memory</md-icon>
+                                    <select id="privateKeyType" v-model="privateKeyType" style="color: grey; width: 200px; height: 35px;">
                                     <option value="">Select Key Type</option>
                                     <option value="Ed25519">Ed25519</option>
                                 </select>
@@ -413,3 +414,10 @@ SPDX-License-Identifier: Apache-2.0
 
     }
 </script>
+<style>
+    select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+</style>
