@@ -95,31 +95,31 @@ SPDX-License-Identifier: Apache-2.0
   async function fetchCredentials() {
     // Get the VC data
     for (let i = 0; i < vcData.length; i++) {
-      await window.$aries.verifiable.getCredential({
-        id: vcData[i].id
-      }).then(resp => {
+      try {
+        let resp = await window.$aries.verifiable.getCredential({
+          id: vcData[i].id
+        })
         console.log('get vc ' + vcData[i].id)
 
-        vcData[i].credential= JSON.parse(resp.verifiableCredential)
-              }
-      ).catch(err =>
-              console.log('get vc failed : errMsg=' + err)
-      )
+        vcData[i].credential = JSON.parse(resp.verifiableCredential)
+      } catch (e) {
+        console.error('get vc failed : errMsg=' + e)
+      }
     }
   }
 
   async function fetchPresentations() {
     // Get the VP data
     for (let i = 0; i < vpData.length; i++) {
-      await window.$aries.verifiable.getPresentation({
-       id: `${vpData[i].id}`
-     }).then(resp => {
-               vpData[i].presentation = resp.verifiablePresentation
-             }
-     ).catch(err =>
-      console.log('get vp failed : errMsg=' + err + " ID " +  vpData[i].id)
-     )
-   }
+      try {
+        let resp = await window.$aries.verifiable.getPresentation({
+          id: `${vpData[i].id}`
+        })
+        vpData[i].presentation = resp.verifiablePresentation
+      } catch (e) {
+        console.error('get vp failed : errMsg=' + e + " ID " + vpData[i].id)
+      }
+    }
   }
 
   export default {
@@ -137,33 +137,40 @@ SPDX-License-Identifier: Apache-2.0
     },
     methods: {
       getCredentials: async function (aries) {
-        await aries.verifiable.getCredentials()
-                .then(resp => {
-                          vcData = resp.result
-                          if (vcData && vcData.length == 0) {
-                            console.log('no credentials exists')
-                          }
-                        }
-                ).catch(err => {
-                          console.log('get credentials failed : errMsg=' + err)
-                        }
-                )
+        try {
+          let resp = await aries.verifiable.getCredentials()
+          if (!resp.result) {
+            console.log('no credentials exists')
+            return
+          }
+
+          vcData = resp.result
+          if (resp.result.length === 0) {
+            console.log('no credentials exists')
+          }
+
+        } catch (e) {
+          console.error('get credentials failed : errMsg=' + e)
+        }
 
         await fetchCredentials()
         this.verifiableCredential = vcData
       },
-      getPresentations: async function(aries){
-        await aries.verifiable.getPresentations()
-                .then(resp => {
-                          vpData = resp.result
-                          if (vpData && vpData.length == 0) {
-                            console.log('no presentation exists')
-                          }
-                        }
-                ).catch(err => {
-                          console.log('get presentation failed : errMsg=' + err)
-                        }
-                )
+      getPresentations: async function (aries) {
+        try {
+          let resp = await aries.verifiable.getPresentations()
+          if (!resp.result) {
+            console.log('no presentation exists')
+            return
+          }
+
+          vpData = resp.result
+          if (resp.result.length === 0) {
+            console.log('no presentation exists')
+          }
+        } catch (e) {
+          console.error('get presentation failed : errMsg=' + e)
+        }
 
         await fetchPresentations()
         this.verifiablePresentation = vpData
