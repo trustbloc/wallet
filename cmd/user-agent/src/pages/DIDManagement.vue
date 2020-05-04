@@ -13,18 +13,18 @@ SPDX-License-Identifier: Apache-2.0
                 <md-tabs class="md-success" md-alignment="left">
                     <md-tab id="tab-home" md-label="DID Dashboard" md-icon="contact_mail">
                         <div class="md-layout-item md-layout md-gutter">
-                            <div class="md-layout-item md-medium-size-64 md-xsmall-size-65 md-size-73">
+                            <div class="md-layout-item md-medium-size-75 md-xsmall-size-75 md-size-75">
                             <md-card-content>
-                                <md-table v-model="searched" class="md-scrollbar" md-sort-order="asc"
-                                          style="height: 500px;max-height: 500px;max-width: 1035px;width: 1035px;">
+                                <md-table v-model="searched" class="md-scrollbar" md-sort-order="asc">
                                     <md-table-toolbar>
                                         <div class="md-toolbar-section-start">
-                                            <h1 class="md-title"><b>DID Table</b></h1><md-icon>search</md-icon>
+                                            <h1 class="md-title"><b>DID Table</b></h1>
+
+                                            <md-field md-clearable class="md-toolbar-section-end">
+                                                <md-input placeholder="Search by name..." v-model="searchQuery"  />
+                                            </md-field>
                                         </div>
 
-                                        <md-field md-clearable class="md-toolbar-section-end">
-                                            <md-input placeholder="Search by name..." v-model="searchQuery"  />
-                                        </md-field>
 
                                     </md-table-toolbar>
                                     <md-table-row>
