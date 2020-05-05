@@ -14,6 +14,7 @@ import StoreCredentials from "@/pages/StoreVC.vue";
 import GetCredentials from "@/pages/GetVC.vue";
 import Interop from "@/pages/Interop.vue";
 import DIDManagement from "@/pages/DIDManagement.vue";
+import Connections from "@/pages/Connections.vue";
 const routes = [
     {
         path: "/",
@@ -50,6 +51,11 @@ const routes = [
                 path: "DIDManagement",
                 name: "DID Management",
                 component: DIDManagement
+            },
+            {
+                path: "connections",
+                name: "Connections",
+                component: Connections
             }
         ]
     },

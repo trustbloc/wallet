@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-  <div class="content">
+  <div class="content table-presentation">
     <div class="md-layout">
       <div
               class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100"
@@ -28,7 +28,7 @@ SPDX-License-Identifier: Apache-2.0
               <md-icon>how_to_reg</md-icon>
               Issuer</label><br>
             <select v-model="selectedIssuer" id="selectDID" style="color: grey; width: 300px; height: 35px;">
-              <option v-for="issuer in issuers" :key="issuer" :value="issuer.id">
+              <option v-for="issuer in issuers" :key="issuer.id" :value="issuer.id">
                 {{issuer.name}}
               </option>
             </select><br><br>
@@ -37,7 +37,7 @@ SPDX-License-Identifier: Apache-2.0
               <md-icon>fingerprint</md-icon>
               Credential</label><br>
             <select v-model="selectedVC" style="color: grey; width: 300px; height: 35px;">
-              <option v-for="vc in savedVCs" :key="vc" :value="vc.id">
+              <option v-for="vc in savedVCs" :key="vc.id" :value="vc.id">
                 {{vc.name}}
               </option>
             </select><br><br>
@@ -157,13 +157,16 @@ SPDX-License-Identifier: Apache-2.0
         });
       },
       generatePresentation: async function () {
-        if (this.friendlyName.length == 0) {
-                  this.errors.push("friendly name required.")
-                   return
-                 }
+        const errorMsg = "friendly name required."
+        if (this.friendlyName.length === 0) {
+          if (!this.errors.includes(errorMsg)) {
+            this.errors.push(errorMsg)
+          }
+          return
+        }
         this.isHidden = false
         this.loading = true
-        let didMetadata=await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
+        let didMetadata = await this.getDIDMetadata(this.issuers[this.selectedIssuer].key)
 
         // fetch the credential
         let data = await this.getSelectedCredentials()
@@ -212,7 +215,7 @@ SPDX-License-Identifier: Apache-2.0
         this.loading = false
       },
       getSelectedCredentials: async function () {
-        if (this.selectedVC.length == 0) {
+        if (this.selectedVC.length === 0) {
           return {retry: "Please select at least one credential"}
         }
 
@@ -257,7 +260,7 @@ SPDX-License-Identifier: Apache-2.0
 
 </script>
 <style>
-  .md-ripple {
+  .table-presentation .md-ripple {
     margin-top: 10px;
   }
 </style>

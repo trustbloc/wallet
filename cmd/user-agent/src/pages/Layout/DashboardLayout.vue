@@ -23,6 +23,10 @@ SPDX-License-Identifier: Apache-2.0
         <md-icon>flip_to_back</md-icon>
         <p>DID Management</p>
       </sidebar-link>
+      <sidebar-link to="/connections">
+        <md-icon>compare_arrows</md-icon>
+        <p>Connections</p>
+      </sidebar-link>
     </side-bar>
 
     <div class="main-panel">
