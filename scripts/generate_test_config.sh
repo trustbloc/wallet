@@ -13,6 +13,7 @@ function convert_file_linux() {
   # then embed in a dummy jws and write to the config folder
   # $1: file name
   echo "{\"payload\":\"$(cat $1 | base64 -w 0 | sed 's/+/-/g; s/\//_/g; s/=//g')\",\"signatures\":[{\"header\":{\"kid\":\"\"},\"signature\":\"\"}]}" > ../config/$1
+  find ../config -depth -name '*.*' -execdir bash -c 'mv -- "$1" "${1/_/:}"' bash {} \;
 }
 
 function convert_file_osx() {
@@ -20,6 +21,7 @@ function convert_file_osx() {
   # then embed in a dummy jws and write to the config folder
   # $1: file name
   echo "{\"payload\":\"$(cat $1 | base64 | sed 's/+/-/g; s/\//_/g; s/=//g')\",\"signatures\":[{\"header\":{\"kid\":\"\"},\"signature\":\"\"}]}" > ../config/$1
+  find ../config -depth -name '*.*' -execdir bash -c 'mv -- "$1" "${1/_/:}"' bash {} \;
 }
 
 pwd=`pwd`
