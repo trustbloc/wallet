@@ -15,6 +15,7 @@ import GetCredentials from "@/pages/GetVC.vue";
 import Interop from "@/pages/Interop.vue";
 import DIDManagement from "@/pages/DIDManagement.vue";
 import Connections from "@/pages/Connections.vue";
+import NotFound from '@/pages/PageNotFound'
 const routes = [
     {
         path: "/",
@@ -58,6 +59,11 @@ const routes = [
                 component: Connections
             }
         ]
+    },
+    {
+        path: '*',
+        name: 'NotFound',
+        component: NotFound
     },
     {
         path: "/StoreVC",

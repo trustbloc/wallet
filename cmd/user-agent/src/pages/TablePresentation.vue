@@ -44,7 +44,7 @@ SPDX-License-Identifier: Apache-2.0
 
             <div class="md-layout-item md-size-100">
               <md-field maxlength="5">
-                <label class="md-helper-text">Type DID friendly name here</label>
+                <label class="md-helper-text">Type presentation friendly name here</label>
                 <md-input v-model="friendlyName" id="friendlyName" required></md-input>
               </md-field>
             </div>

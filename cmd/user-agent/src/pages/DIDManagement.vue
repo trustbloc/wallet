@@ -419,5 +419,8 @@ SPDX-License-Identifier: Apache-2.0
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
+        /* Some browsers will not display the caret when using calc, so we put the fallback first */
+        background: url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") white no-repeat 98.5% !important; /* !important used for overriding all other customisations */
+        background: url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png") white no-repeat calc(100% - 10px) !important; /* Better placement regardless of input width */
     }
 </style>
