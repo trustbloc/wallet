@@ -1,3 +1,8 @@
+/*
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
 <template>
     <div class="col-full">
         <h1>Not Found</h1>
@@ -17,10 +22,12 @@
     h1 {
         font-size: 100px;
     }
+
     p {
         font-size: 50px;
         font-weight: 100;
     }
+
     div {
         text-align: center;
     }
