@@ -37,7 +37,6 @@ SPDX-License-Identifier: Apache-2.0
                                         <md-table-cell>{{data.friendlyName}}</md-table-cell>
                                         <md-table-cell>{{data.id}}</md-table-cell>
                                         <md-table-cell>{{data.signatureType}}</md-table-cell>
-                                        <md-table-cell>{{data.privateKeyType}}</md-table-cell>
                                     </md-table-row>
                                 </md-table>
                             </md-card-content>
@@ -110,9 +109,9 @@ SPDX-License-Identifier: Apache-2.0
                                     </md-field>
                                 </div>
                                 <div class="md-layout-item md-size-100">
-                                    <md-icon>vpn_key</md-icon> <label class="md-helper-text">Enter Private Key</label>
+                                    <md-icon>vpn_key</md-icon> <label class="md-helper-text">Enter Private Key JWK</label>
                                     <md-field maxlength="5">
-                                        <md-input v-model="privateKey" id="privateKey" required></md-input>
+                                        <md-input v-model="privateKeyJwk" id="privateKeyJwk" required></md-input>
                                     </md-field>
                                 </div>
                                 <div class="md-layout-item md-size-100">
@@ -123,15 +122,6 @@ SPDX-License-Identifier: Apache-2.0
                                     <label class="md-helper-text">Enter matching Key ID</label>
                                     <md-field maxlength="5">
                                         <md-input v-model="keyID" id="keyID" required></md-input>
-                                    </md-field>
-                                </div>
-                                <div class="md-layout-item md-size-100">
-                                    <md-icon>memory</md-icon>
-                                    <select id="privateKeyType" v-model="privateKeyType" style="color: grey; width: 200px; height: 35px;">
-                                    <option value="">Select Key Type</option>
-                                    <option value="Ed25519">Ed25519</option>
-                                </select>
-                                    <md-field style="margin-top: -15px">
                                     </md-field>
                                 </div>
                                 <div class="md-layout-item md-size-100">
@@ -279,8 +269,8 @@ SPDX-License-Identifier: Apache-2.0
                     this.saveErrors.push("did id required.")
                     return
                 }
-                if (this.privateKey.length == 0) {
-                    this.saveErrors.push("private key required.")
+                if (this.privateKeyJwk.length == 0) {
+                    this.saveErrors.push("private key jwk required.")
                     return
                 }
                 if (this.keyID.length == 0) {
@@ -290,10 +280,6 @@ SPDX-License-Identifier: Apache-2.0
                 if (this.anyDIDFriendlyName.length == 0) {
                     this.saveErrors.push("friendly name required.")
                     return
-                }
-                if ((this.privateKeyType == "")) {
-                    this.saveErrors.push("key type required")
-                    return;
                 }
                 if ((this.selectSignKey == "")) {
                     this.saveErrors.push("signature type required")
@@ -310,7 +296,14 @@ SPDX-License-Identifier: Apache-2.0
                     return
                 }
 
-                this.anyDidDocTextArea = JSON.stringify(resp.did, undefined, 2);
+                var obj = JSON.parse(this.privateKeyJwk);
+
+                try {
+                await window.$aries.kms.importKey(obj)
+                } catch (err) {
+                    this.saveErrors.push(err)
+                    return
+                }
 
 
                 // saving did in the did store
@@ -326,9 +319,10 @@ SPDX-License-Identifier: Apache-2.0
                     }
                 )
 
-                this.storeDIDMetadata(resp.did.id,this.privateKey,this.privateKeyType,this.selectSignKey, this.keyID, this.anyDIDFriendlyName)
+                this.storeDIDMetadata(resp.did.id,this.selectSignKey, this.keyID, this.anyDIDFriendlyName)
+                this.anyDidDocTextArea = JSON.stringify(resp.did, undefined, 2);
             },
-            storeDIDMetadata: function (did,privateKey,privateKeyType,signatureType,keyID,friendlyName) {
+            storeDIDMetadata: function (did,signatureType,keyID,friendlyName) {
                 var openDB = indexedDB.open("did-metadata", 1);
 
                 openDB.onupgradeneeded = function () {
@@ -345,8 +339,6 @@ SPDX-License-Identifier: Apache-2.0
                     db.store.put({
                                 id: did,
                                 friendlyName: friendlyName,
-                                privateKey: privateKey,
-                                privateKeyType:privateKeyType,
                                 signatureType: signatureType,
                                 keyID: keyID});
                     console.log("stored did metadata to db")
@@ -393,10 +385,9 @@ SPDX-License-Identifier: Apache-2.0
                 friendlyName: "",
                 selectType: "",
                 selectSignKey: "",
-                privateKeyType: "",
                 signType: "",
                 didID: "",
-                privateKey: "",
+                privateKeyJwk: "",
                 keyID: "",
                 anyDIDFriendlyName: "",
                 errors: [],

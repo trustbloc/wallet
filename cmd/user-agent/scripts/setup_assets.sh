@@ -8,7 +8,7 @@
 rm -rf public/aries-framework-go/
 mkdir -p public/aries-framework-go/assets
 npm install
-cp -Rp node_modules/@hyperledger/aries-framework-go/dist/assets/* public/aries-framework-go/assets
+cp -Rp node_modules/@trustbloc-cicd/aries-framework-go/dist/assets/* public/aries-framework-go/assets
 cp public/aries-framework-go/assets/aries-js-worker.wasm.gz public/aries-framework-go/assets/aries-js-worker.wasm.gz.bak
 gunzip public/aries-framework-go/assets/aries-js-worker.wasm.gz
 mv public/aries-framework-go/assets/aries-js-worker.wasm.gz.bak public/aries-framework-go/assets/aries-js-worker.wasm.gz

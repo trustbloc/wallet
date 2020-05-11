@@ -10,7 +10,7 @@ import VueRouter from "vue-router";
 import routes from "./router/index";
 import * as polyfill from "credential-handler-polyfill";
 import * as webCredentialHandler from "web-credential-handler";
-import * as Aries from "@hyperledger/aries-framework-go"
+import * as Aries from "@trustbloc-cicd/aries-framework-go"
 import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import MaterialDashboard from "./material-dashboard";
 

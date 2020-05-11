@@ -178,8 +178,6 @@ SPDX-License-Identifier: Apache-2.0
             did: this.issuers[this.selectedIssuer].key,
             skipVerify: true,
             signatureType:didMetadata.signatureType,
-            privateKey: didMetadata.privateKey,
-            keyType: didMetadata.privateKeyType,
             verificationMethod: didMetadata.keyID
           }).then(resp => {
               this.vpData = resp.verifiablePresentation

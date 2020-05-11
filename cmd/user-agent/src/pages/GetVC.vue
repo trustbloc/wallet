@@ -447,8 +447,6 @@ SPDX-License-Identifier: Apache-2.0
                     challenge: this.challenge,
                     did: this.issuers[this.selectedIssuer].key,
                     signatureType: didMetadata.signatureType,
-                    privateKey: didMetadata.privateKey,
-                    keyType: didMetadata.privateKeyType,
                     verificationMethod: didMetadata.keyID,
                 }).then(resp => {
                         if (!resp.verifiablePresentation) {
@@ -499,8 +497,6 @@ SPDX-License-Identifier: Apache-2.0
                         // TODO skipVerify can be an option in view
                         skipVerify: true,
                         signatureType: didMetadata.signatureType,
-                        privateKey: didMetadata.privateKey,
-                        keyType: didMetadata.privateKeyType,
                         verificationMethod: didMetadata.keyID
                     }).then(resp => {
                             data = resp.verifiablePresentation
