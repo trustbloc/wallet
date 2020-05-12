@@ -145,6 +145,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
     import axios from "axios";
+
     export default {
         beforeCreate: async function () {
             window.$aries = await this.$arieslib
@@ -194,7 +195,6 @@ SPDX-License-Identifier: Apache-2.0
                 return this.routerConnID
             },
             routerRegister: async function () {
-                this.routerDisabledButton = true
                 this.routerRegisterError = ""
                 let routerURL = this.routerURL.trim().replace(/\/$/, "");
                 if (routerURL.length === 0) {
@@ -202,6 +202,7 @@ SPDX-License-Identifier: Apache-2.0
                     return
                 }
 
+                this.routerDisabledButton = true
 
                 try {
                     let invitation = await axios.post(routerURL + "/connections/create-invitation")

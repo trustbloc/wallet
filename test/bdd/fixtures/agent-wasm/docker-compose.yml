@@ -8,6 +8,23 @@ version: '2'
 
 services:
 
+  edge.router.agent.example.com:
+    container_name: edge.router.agent.example.com
+    image: ${AGENT_REST_IMAGE}:${AGENT_REST_IMAGE_TAG}
+    environment:
+      - ARIESD_API_HOST=${ROUTER_HOST}:${ROUTER_API_PORT}
+      - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${ROUTER_HOST}:${ROUTER_HTTP_INBOUND_PORT},${WS_SCHEME}@${ROUTER_HOST}:${ROUTER_WS_INBOUND_PORT}
+      - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@http://localhost:${ROUTER_HTTP_INBOUND_PORT},${WS_SCHEME}@ws://localhost:${ROUTER_WS_INBOUND_PORT}
+      - ARIESD_DB_PATH=${ROUTER_DB_PATH}
+      - ARIESD_DEFAULT_LABEL=edge-router-agent
+      - ARIESD_OUTBOUND_TRANSPORT=${HTTP_SCHEME},${WS_SCHEME}
+      - ARIESD_AUTO_ACCEPT=${ROUTER_AUTOACCEPT}
+    ports:
+      - ${ROUTER_HTTP_INBOUND_PORT}:${ROUTER_HTTP_INBOUND_PORT}
+      - ${ROUTER_WS_INBOUND_PORT}:${ROUTER_WS_INBOUND_PORT}
+      - ${ROUTER_API_PORT}:${ROUTER_API_PORT}
+    command: start
+
   user.agent.example.com:
     container_name: user.agent.example.com
     image: ${USER_WASM_IMAGE}:latest
