@@ -15,6 +15,7 @@ import GetCredentials from "@/pages/GetVC.vue";
 import Interop from "@/pages/Interop.vue";
 import DIDManagement from "@/pages/DIDManagement.vue";
 import Connections from "@/pages/Connections.vue";
+import IssueCredential from "@/pages/IssueCredential.vue";
 import NotFound from '@/pages/PageNotFound'
 const routes = [
     {
@@ -57,6 +58,10 @@ const routes = [
                 path: "connections",
                 name: "Connections",
                 component: Connections
+            }, {
+                path: "issue-credential",
+                name: "IssueCredential",
+                component: IssueCredential
             }
         ]
     },

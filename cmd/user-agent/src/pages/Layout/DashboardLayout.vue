@@ -27,6 +27,10 @@ SPDX-License-Identifier: Apache-2.0
         <md-icon>compare_arrows</md-icon>
         <p>Connections</p>
       </sidebar-link>
+      <sidebar-link to="/issue-credential">
+        <md-icon>security</md-icon>
+        <p>Issue Credential</p>
+      </sidebar-link>
     </side-bar>
 
     <div class="main-panel">

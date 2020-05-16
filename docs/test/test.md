@@ -55,3 +55,4 @@ cd test/bdd/fixtures/agent-wasm
 ## Agents
 
 - To access user agent wasm open [user home page](https://127.0.0.1:8091/dashboard).
+- To access second user agent wasm open [user home page](https://127.0.0.1:8071/dashboard).
