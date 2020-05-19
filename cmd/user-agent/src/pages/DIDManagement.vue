@@ -259,7 +259,7 @@ SPDX-License-Identifier: Apache-2.0
                     }
                 )
 
-                this.storeDIDMetadata(did.id,"","", this.signType, "", this.friendlyName)
+                this.storeDIDMetadata(did.id, this.signType, "", this.friendlyName)
                 this.loading = false;
 
             },
