@@ -9,7 +9,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@trustbloc-cicd/aries-framework-go": "0.1.4-snapshot-ede6ee9",
+    "@trustbloc-cicd/aries-framework-go": "0.1.4-snapshot-267b68f",
     "@trustbloc/trustbloc-agent": "file:../trustbloc-agent-js-worker",
     "axios": "^0.19.2",
     "core-js": "^3.4.3",

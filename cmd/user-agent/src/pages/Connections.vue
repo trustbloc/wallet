@@ -182,7 +182,7 @@ SPDX-License-Identifier: Apache-2.0
                 })
             },
             isRouterRegistered: async function () {
-                let res = await window.$aries.router.getConnection().catch(err => {
+                let res = await window.$aries.mediator.getConnection().catch(err => {
                     if (!err.message.includes("router not registered")) {
                         throw err
                     }
@@ -215,7 +215,7 @@ SPDX-License-Identifier: Apache-2.0
                     })
 
                     await this.waitFor(connection.connection_id, 'completed', function () {
-                        return window.$aries.router.register({"connectionID": connection.connection_id})
+                        return window.$aries.mediator.register({"connectionID": connection.connection_id})
                     })
                 } catch (e) {
                     this.routerRegisterError = e.message
@@ -227,7 +227,7 @@ SPDX-License-Identifier: Apache-2.0
                 }
             },
             routerUnregister: async function () {
-                await window.$aries.router.unregister({id: this.routerConnID})
+                await window.$aries.mediator.unregister({id: this.routerConnID})
                 this.routerConnID = ""
             },
             canAcceptInvitation: function (conn) {

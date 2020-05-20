@@ -16,6 +16,7 @@ import Interop from "@/pages/Interop.vue";
 import DIDManagement from "@/pages/DIDManagement.vue";
 import Connections from "@/pages/Connections.vue";
 import IssueCredential from "@/pages/IssueCredential.vue";
+import PresentProof from "@/pages/PresentProof.vue";
 import NotFound from '@/pages/PageNotFound'
 const routes = [
     {
@@ -60,8 +61,12 @@ const routes = [
                 component: Connections
             }, {
                 path: "issue-credential",
-                name: "IssueCredential",
+                name: "Issue Credential",
                 component: IssueCredential
+            }, {
+                path: "present-proof",
+                name: "Present Proof",
+                component: PresentProof
             }
         ]
     },
