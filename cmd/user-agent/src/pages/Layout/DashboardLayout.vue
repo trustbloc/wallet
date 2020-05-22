@@ -28,8 +28,12 @@ SPDX-License-Identifier: Apache-2.0
         <p>Connections</p>
       </sidebar-link>
       <sidebar-link to="/issue-credential">
-        <md-icon>security</md-icon>
+        <md-icon>note</md-icon>
         <p>Issue Credential</p>
+      </sidebar-link>
+      <sidebar-link to="/present-proof">
+        <md-icon>security</md-icon>
+        <p>Present Proof</p>
       </sidebar-link>
     </side-bar>
 
