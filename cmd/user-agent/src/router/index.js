@@ -10,9 +10,9 @@ import Dashboard from "@/pages/Dashboard.vue";
 import TableList from "@/pages/TableList.vue";
 import TablePresentation from "@/pages/TablePresentation.vue";
 import RegisterWallet from "@/pages/RegisterWallet.vue";
-import StoreCredentials from "@/pages/StoreVC.vue";
-import GetCredentials from "@/pages/GetVC.vue";
-import Interop from "@/pages/Interop.vue";
+import StoreInWallet from "@/pages/chapi/Store.vue";
+import GetFromWallet from "@/pages/chapi/Get.vue";
+import WebWallet from "@/pages/WebWallet.vue";
 import DIDManagement from "@/pages/DIDManagement.vue";
 import Connections from "@/pages/Connections.vue";
 import IssueCredential from "@/pages/IssueCredential.vue";
@@ -45,9 +45,9 @@ const routes = [
                 component: TablePresentation
             },
             {
-                path: "Interop",
-                name: "Interop",
-                component: Interop
+                path: "WebWallet",
+                name: "Web Wallet Demo",
+                component: WebWallet
             },
             {
                 path: "DIDManagement",
@@ -71,12 +71,12 @@ const routes = [
         component: NotFound
     },
     {
-        path: "/StoreVC",
-        component: StoreCredentials
+        path: "/StoreInWallet",
+        component: StoreInWallet
     },
     {
-        path: "/GetVC",
-        component: GetCredentials
+        path: "/GetFromWallet",
+        component: GetFromWallet
     }
 
 ];

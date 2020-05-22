@@ -28,11 +28,11 @@ SPDX-License-Identifier: Apache-2.0
         return WebCredentialHandler.activateHandler({
             async get(event) {
                 window.console.log('Received get() event:', event.event);
-                return {type: 'redirect', url: '/GetVC'};
+                return {type: 'redirect', url: '/GetFromWallet'};
             },
             async store(event) {
                 window.console.log('Received store() event:', event.event);
-                return {type: 'redirect', url: '/StoreVC'};
+                return {type: 'redirect', url: '/StoreInWallet'};
             }
         })
     }

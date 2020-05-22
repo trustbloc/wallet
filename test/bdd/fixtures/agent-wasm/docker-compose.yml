@@ -124,6 +124,10 @@ services:
       - ./config.json:/opt/uni-resolver-java/uni-resolver-web/config.json
       - ./run-uni-resolver-web.sh:/opt/uni-resolver-java/uni-resolver-web/docker/run-uni-resolver-web.sh
 
+  uni-resolver-did-v1-driver:
+    image: veresone/uni-resolver-did-v1-driver:latest
+    ports:
+      - "8084:8080"
 
   trustbloc.did.method.example.com:
     container_name: trustbloc.did.method.example.com
