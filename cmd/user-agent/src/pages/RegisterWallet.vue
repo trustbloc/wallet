@@ -27,10 +27,11 @@ SPDX-License-Identifier: Apache-2.0
             .installHandler({url: '/worker.html'})
 
         await registration.credentialManager.hints.set(
-            'test', {
-                name: 'TestUser',
-                enabledTypes: ['VerifiablePresentation', 'VerifiableCredential', 'AlumniCredential']
+            'edge', {
+                name: 'EdgeUser',
+                enabledTypes: ['VerifiablePresentation', 'VerifiableCredential']
             });
+
         Swal.fire({
             title: 'Registration is completed',
             showClass: {
@@ -41,6 +42,7 @@ SPDX-License-Identifier: Apache-2.0
             }
         })
     }
+
     export default {
         beforeCreate:function(){
             window.$polyfill=this.$polyfill,

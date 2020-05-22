@@ -33,8 +33,6 @@ SPDX-License-Identifier: Apache-2.0
                             &nbsp;
                             <md-button v-on:click="sendVP" class="md-raised md-success">Store VP in Wallet</md-button>
                             &nbsp;
-                            <md-button v-on:click="getVC" class="md-raised md-success">Get VC from Wallet</md-button>
-                            &nbsp;
                             <md-button v-on:click="getVP" class="md-raised md-success">Get VP from Wallet</md-button>
                             &nbsp;
                             <md-button v-on:click="didAuth" class="md-raised md-success">Authenticate</md-button> &nbsp;
