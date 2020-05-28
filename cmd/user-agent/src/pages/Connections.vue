@@ -119,9 +119,10 @@ SPDX-License-Identifier: Apache-2.0
                             <md-list class="md-triple-line">
                                 <md-list-item v-for="conn in connections" :key="conn.id">
                                     <div class="md-list-item-text">
-                                        <span>ConnectionID: {{conn.ConnectionID}}</span>
-                                        <span>State: {{conn.State}}</span>
-                                        <span>MyDID: {{conn.MyDID}}</span>
+                                        <span v-if="conn.ConnectionID">ConnectionID: {{conn.ConnectionID}}</span>
+                                        <span v-if="conn.State">State: {{conn.State}}</span>
+                                        <span v-if="conn.ThreadID">ThreadID: {{conn.ThreadID}}</span>
+                                        <span v-if="conn.MyDID">MyDID: {{conn.MyDID}}</span>
                                     </div>
                                     <md-button v-if="canAcceptInvitation(conn)"
                                                v-on:click="acceptInvitation(conn.ConnectionID)"
