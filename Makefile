@@ -92,6 +92,10 @@ user-agent-start: clean user-agent-wasm-docker generate-test-config generate-tes
 generate-test-config:
 	@scripts/generate_test_config.sh
 
+.PHONY: bdd-test-js
+bdd-test-js: clean trustbloc-agent-wasm user-agent-wasm
+	@scripts/check_js_intergation.sh
+
 .PHONY: clean
 clean: clean-build
 

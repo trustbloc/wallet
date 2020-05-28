@@ -49,10 +49,23 @@ jobs:
       - script: make unit-test-wasm
         displayName: Run unit test wasm
 
+  - job: BDDTestJS
+    pool:
+      vmImage: ubuntu-18.04
+    timeoutInMinutes: 30
+    steps:
+      - template: azp-dependencies.yml
+      - checkout: self
+      - script: make bdd-test-js
+        env:
+          GITHUB_TOKEN: $(DOCKER_PASSWORD)
+        displayName: Run bdd test JS
+
   - job: Publish
     dependsOn:
       - Checks
       - UnitTest
+      - BDDTestJS
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     pool:
       vmImage: ubuntu-18.04

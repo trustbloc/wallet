@@ -1,0 +1,41 @@
+{
+  "name": "user-agent-test",
+  "version": "1.0.0",
+  "description": "tests for user-agent vue components",
+  "dependencies": {
+    "@trustbloc/user-agent": "file:../../cmd/user-agent",
+    "@trustbloc-cicd/aries-framework-go": "0.1.4-snapshot-2d86a15",
+    "vue": "^2.6.11"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "@babel/register": "^7.9.0",
+    "@vue/test-utils": "^1.0.3",
+    "babel-loader": "^8.1.0",
+    "babel-preset-env": "^1.7.0",
+    "chai": "^4.2.0",
+    "credential-handler-polyfill": "^2.1.0",
+    "web-credential-handler": "^1.0.1",
+    "karma": "^5.0.9",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-mocha": "^2.0.1",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-spec-reporter": "0.0.32",
+    "karma-webpack": "^4.0.2",
+    "mocha": "^7.2.0",
+    "mochapack": "^2.0.0",
+    "vue-loader": "^15.9.2",
+    "vue-style-loader": "^4.1.2",
+    "vue-template-compiler": "^2.6.11",
+    "webpack": "^4.43.0"
+  },
+  "scripts": {
+    "test": "bash scripts/setup_assets.sh && karma start --single-run"
+  },
+  "author": "trustbloc/edge-agent",
+  "license": "Apache-2.0"
+}

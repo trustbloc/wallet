@@ -38,7 +38,7 @@ export class WalletStore {
                 await this.save(r.name, r.credential)
             }
         } catch (e) {
-            status = "failed"
+            status = e.toString()
         }
 
         console.log(`sending status response with status ${status}`)
