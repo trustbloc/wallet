@@ -8,4 +8,5 @@ export * from './common/util.js';
 export {DIDStore} from './common/didMetadata.js';
 export {WalletStore} from './store/saveCredential.js';
 export {WalletGet} from './get/getCredentials.js';
+export {WalletGetByQuery} from './get/getVP.js';
 export {DIDAuth} from './get/didAuth.js';
