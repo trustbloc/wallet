@@ -33,6 +33,8 @@ SPDX-License-Identifier: Apache-2.0
                             &nbsp;
                             <md-button v-on:click="sendVP" class="md-raised md-success">Store VP in Wallet</md-button>
                             &nbsp;
+                            <md-button v-on:click="getCredential" class="md-raised md-success">Get Credential from Wallet</md-button>
+
                             <md-button v-on:click="getVP" class="md-raised md-success">Get VP from Wallet</md-button>
                             &nbsp;
                             <md-button v-on:click="didAuth" class="md-raised md-success">Authenticate</md-button> &nbsp;
@@ -143,7 +145,7 @@ SPDX-License-Identifier: Apache-2.0
                 this.showResp(result.data)
                 this.responses.push("Successfully got verifiable credential from wallet.")
             },
-            getVP: async function () {
+            getCredential: async function () {
                 this.clearResults()
                 const credentialQuery = {
                     web: {
@@ -158,6 +160,50 @@ SPDX-License-Identifier: Apache-2.0
                                             type: ["UniversityDegreeCredential"]
                                         }
                                     }
+                                }
+                            ],
+                            challenge: "",
+                            domain: ""
+                        }
+                    }
+                }
+                const result = await navigator.credentials.get(credentialQuery);
+                if (!result) {
+                    this.errors.push("Failed to get result")
+                    return
+                }
+                this.showResp(result.data)
+                this.responses.push("Successfully got credential from wallet.")
+            },
+            getVP: async function () {
+                await this.clearResults()
+                const credentialQuery = {
+                    web: {
+                        VerifiablePresentation: {
+                            query: [
+                                {
+                                    type: "PresentationDefinitionQuery",
+                                    presentationDefinitionQuery: [
+                                        {
+                                            "submission_requirements": [
+                                                {
+                                                    "rule": {
+                                                        "type": "all",
+                                                        "from": ["scope1"]
+                                                    }
+                                                }
+                                            ],
+                                            "input_descriptors": [
+                                                {
+                                                    "id": "example_input_1",
+                                                    "group": ["scope1"],
+                                                    "schema": {
+                                                        "uri": "https://trustbloc.github.io/context/vc/examples-v1.jsonld"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
                                 }
                             ],
                             challenge: "",
