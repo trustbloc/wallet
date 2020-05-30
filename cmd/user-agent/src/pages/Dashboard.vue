@@ -11,13 +11,17 @@ SPDX-License-Identifier: Apache-2.0
       <div class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-30">
         <stats-card data-background-color="green">
           <template slot="header">
-            <md-icon>store</md-icon>
+            <md-icon>how_to_reg</md-icon>
           </template>
 
           <template slot="content">
-            <sidebar-link to="/RegisterWallet">
-              <h3 class="title">Register Wallet</h3>
-            </sidebar-link>
+            <div style="padding-top: 5px;float: left">
+                <h3 class="title">Login to register wallet</h3>
+            </div>
+
+            <div style="padding-top: 104px">
+              <component v-bind:is="component"></component>
+            </div>
           </template>
         </stats-card>
       </div>
@@ -34,20 +38,20 @@ SPDX-License-Identifier: Apache-2.0
 
           </template>
         </stats-card>
-      </div>
-      <div class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-30">
-        <stats-card data-background-color="purple">
-          <template slot="header">
-            <md-icon>border_outer</md-icon>
-          </template>
 
-          <template slot="content">
-            <sidebar-link to="/MyVC">
-              <h3 class="title">Generate Presentation</h3>
-            </sidebar-link>
-          </template>
-        </stats-card>
+          <stats-card data-background-color="purple">
+              <template slot="header">
+                  <md-icon>border_outer</md-icon>
+              </template>
+
+              <template slot="content">
+                  <sidebar-link to="/MyVC">
+                      <h3 class="title">Generate Presentation</h3>
+                  </sidebar-link>
+              </template>
+          </stats-card>
       </div>
+
     </div>
     <!-- Stored credentials-->
     <div class="content">
@@ -88,6 +92,7 @@ SPDX-License-Identifier: Apache-2.0
 <script>
   import {StatsCard} from "@/components";
   import {SimpleTable} from "@/components";
+  import LoginForm from "./chapi/Login.vue";
 
   let vcData = [];
   let vpData = [];
@@ -134,6 +139,7 @@ SPDX-License-Identifier: Apache-2.0
       window.$aries = aries
       await this.getCredentials(aries)
       await this.getPresentations(aries)
+      this.component = LoginForm
     },
     methods: {
       getCredentials: async function (aries) {
@@ -179,7 +185,8 @@ SPDX-License-Identifier: Apache-2.0
     data() {
       return {
         verifiableCredential: [],
-        verifiablePresentation: []
+        verifiablePresentation: [],
+        component: null,
       }
     }
   }
