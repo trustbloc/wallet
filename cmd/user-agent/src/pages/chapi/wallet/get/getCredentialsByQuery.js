@@ -117,7 +117,7 @@ export class WalletGetByQuery extends DIDAuth {
                 vcs.push(JSON.parse(resp.verifiableCredential))
             }
 
-            let didMetadata = await this.didStore.getDIDMetadata(did)
+            let didMetadata = await this.didManager.getDIDMetadata(did)
 
             let data
             await this.aries.verifiable.generatePresentation({

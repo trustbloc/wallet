@@ -77,7 +77,7 @@ export class WalletGet extends DIDAuth {
                 vcs.push(JSON.parse(resp.verifiableCredential))
             }
 
-            let didMetadata = await this.didStore.getDIDMetadata(did)
+            let didMetadata = await this.didManager.getDIDMetadata(did)
 
             let data
             await this.aries.verifiable.generatePresentation({
@@ -95,6 +95,7 @@ export class WalletGet extends DIDAuth {
 
             this.sendResponse(responseType, data)
         } catch (e) {
+            console.error(e)
             this.sendResponse("error", e)
         }
 

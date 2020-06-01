@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import {DIDStore} from '../common/didMetadata.js';
+import {DIDManager} from '../didmgmt/didManager.js';
 import {getDomainAndChallenge} from '../common/util.js';
 
 /**
@@ -16,7 +16,7 @@ export class DIDAuth {
     constructor(aries, credEvent) {
         this.aries = aries
         this.credEvent = credEvent
-        this.didStore = new DIDStore()
+        this.didManager = new DIDManager()
 
         const {domain, challenge} = getDomainAndChallenge(credEvent);
         this.domain = domain
@@ -42,7 +42,7 @@ export class DIDAuth {
     }
 
     async authorize(did) {
-        let didMetadata = await this.didStore.getDIDMetadata(did)
+        let didMetadata = await this.didManager.getDIDMetadata(did)
 
         let data
         await this.aries.verifiable.generatePresentation({
