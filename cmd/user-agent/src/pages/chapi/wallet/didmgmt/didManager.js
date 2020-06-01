@@ -105,7 +105,7 @@ export class DIDManager extends KeyValueStore {
         return this.get(did)
     }
 
-    storeDIDMetadata(did, metadata) {
+    async storeDIDMetadata(did, metadata) {
         return this.store(did, metadata)
     }
 

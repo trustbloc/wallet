@@ -32,17 +32,6 @@ SPDX-License-Identifier: Apache-2.0
 
                 <md-card-content id="getvc-content" v-if="!credentialWarning.length" style="background-color: white;">
 
-                    <md-field style="margin-bottom: -2%;">
-                        <label>
-                            <md-icon>how_to_reg</md-icon>
-                            Select Identity: </label>
-                        <md-select v-model="selectedIssuer">
-                            <md-option v-for="{id, name} in issuers" :key="id" :value="id">
-                                {{name}}
-                            </md-option>
-                        </md-select>
-                    </md-field>
-
                     <md-table v-model="searched" md-sort="name" md-card @md-selected="onSelect">
                         <md-table-empty-state
                                 md-label="No credentials found"
@@ -78,7 +67,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 
-    import {WalletGetByQuery} from "./wallet"
+    import {WalletGetByQuery, WalletManager} from "./wallet"
 
     export default {
         beforeCreate: async function () {
@@ -86,9 +75,12 @@ SPDX-License-Identifier: Apache-2.0
             this.wallet = new WalletGetByQuery(aries, this.$parent.credentialEvent)
             this.credentialEvent = this.$parent.credentialEvent
             this.requestOrigin = this.credentialEvent.credentialRequestOrigin
+            this.registeredWalletUser = await new WalletManager().getRegisteredUser()
+            if (!this.registeredWalletUser) {
+                //this can never happen, but still one extra layer of security
+                this.credentialWarning = 'Wallet is not registered'
+            }
 
-
-            await this.loadIssuers()
             await this.loadCredentials()
             this.loading = false
 
@@ -100,9 +92,6 @@ SPDX-License-Identifier: Apache-2.0
             return {
                 savedVCs: [{id: 0, name: "Select VC"}],
                 selectedVCs: [],
-                // TODO we will have one DID
-                issuers: [{id: 0, name: "Select Identity"}],
-                selectedIssuer: 0,
                 errors: [],
                 requestOrigin: "",
                 loading: true,
@@ -119,9 +108,7 @@ SPDX-License-Identifier: Apache-2.0
                 this.savedVCs.length = 0
 
                 try {
-                    // TODO change this.issuers[this.selectedIssuer].key
-                    // we will have one DID
-                    this.savedVCs = await this.wallet.getCredentialRecords(this.issuers[this.selectedIssuer].key)
+                    this.savedVCs = await this.wallet.getCredentialRecords(this.registeredWalletUser.did)
 
                     if (this.savedVCs.length == 0) {
                         this.credentialWarning = 'No Saved Credentials Found'
@@ -131,19 +118,6 @@ SPDX-License-Identifier: Apache-2.0
                 } catch (err) {
                     this.errors.push('Failed to get credentials')
                     console.log('get credentials failed, error:', err)
-                }
-            },
-            loadIssuers: async function () {
-                try {
-                    this.issuers = await this.wallet.getDIDRecords()
-
-                    if (this.issuers.length == 0) {
-                        this.credentialWarning = 'Issuers not found, please create an issuer'
-                        return
-                    }
-
-                } catch (err) {
-                    this.errors.push(err)
                 }
             },
             onSelect(items) {
@@ -156,9 +130,7 @@ SPDX-License-Identifier: Apache-2.0
                 }
 
                 this.loading = true
-                // TODO change this.issuers[this.selectedIssuer].key
-                // we will have one DID
-                await this.wallet.createAndSendPresentation(this.issuers[this.selectedIssuer].key, this.selectedVCs)
+                await this.wallet.createAndSendPresentation(this.registeredWalletUser, this.selectedVCs)
                 this.loading = false
             }
         }

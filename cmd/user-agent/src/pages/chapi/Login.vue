@@ -24,7 +24,7 @@ SPDX-License-Identifier: Apache-2.0
                     <md-input v-model="password" type="password"></md-input>
                 </md-field>
 
-                <md-button v-on:click="login" class="md-raised md-success" id="storeVCBtn">
+                <md-button v-on:click="login" class="md-raised md-success" id="loginBtn">
                     Login
                 </md-button>
             </div>
@@ -34,7 +34,12 @@ SPDX-License-Identifier: Apache-2.0
                 <div>
                     <md-icon class="md-size-5x" :style="statusStyle">{{ statusIcon}}</md-icon>
                 </div>
-                <h3 style="color: #0d47a1"> {{ statusMsg }}</h3>
+                <div>
+                    <label name="statusMsg" style="font-size: 20px"> {{ statusMsg }}</label>
+                </div>
+                    <md-button  v-if="registered" v-on:click="logout" class="md-raised md-cancel-text" id="logoutBtn">
+                        Logout
+                    </md-button>
             </div>
 
         </div>
@@ -45,13 +50,18 @@ SPDX-License-Identifier: Apache-2.0
 
     import {DIDManager, RegisterWallet} from "./wallet"
 
-
     export default {
         beforeCreate: async function () {
-            this.registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler)
             const aries = await this.$arieslib
             const opts = await this.$trustblocStartupOpts
-            this.didManager = new DIDManager(aries, this.$trustblocAgent, opts)
+            const didManager = new DIDManager(aries, this.$trustblocAgent, opts)
+            this.registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, didManager)
+
+            const wuser = await this.registrar.getRegisteredUser()
+            if (wuser) {
+                this.registered = true
+                this.statusMsg = `Wallet already registered for ${wuser.id}`
+            }
         },
         data() {
             return {
@@ -60,7 +70,8 @@ SPDX-License-Identifier: Apache-2.0
                 statusMsg: '',
                 loading: false,
                 statusIcon: 'devices_other',
-                statusStyle: 'color: #0E9A00;'
+                statusStyle: 'color: #0E9A00;',
+                registered: false,
             };
         },
         methods: {
@@ -68,41 +79,38 @@ SPDX-License-Identifier: Apache-2.0
                 this.loading = true
                 this.statusMsg = "wallet registered successfully !!"
 
+                // TODO OIDC login intergation, for now all logins will succeed
                 try {
-                    await this.createDID()
                     await this.registrar.register(this.username)
                 } catch (e) {
                     console.error(e)
-                    this.showFailure(e)
+                    this.handleFailure(e)
+                    return
                 }
-
+                this.handleSuccess()
+            },
+            logout: async function () {
+                this.loading = true
+                // TODO OIDC logout intergation
+                await this.registrar.unregister()
+                this.resetView()
+            },
+            handleFailure(e) {
+                this.statusMsg = e.toString()
+                this.statusIcon = 'error'
+                this.statusStyle = 'color: #cc2127;'
+                this.registered = false
                 this.loading = false
             },
-            createDID: async function () {
-                // create DID
-                let did = await this.didManager.createDID("Ed25519", "Ed25519Signature2018")
-
-                // save DID
-                await this.didManager.saveDID(this.username, did)
-
-                // save DID metadata
-                this.didManager.storeDIDMetadata(did.id, {
-                    signatureType: "Ed25519Signature2018",
-                    friendlyName: this.username
-                })
-
-                console.log(`created DID ${did.id} successfully for user ${this.username}`)
+            handleSuccess() {
+                this.registered = true
+                this.statusMsg = `wallet registered successfully for ${this.username}`
+                this.loading = false
             },
-            showFailure(e){
-                this.statusMsg = e.toString()
-                if(this.statusMsg.includes("did name already exists")) {
-                    this.statusIcon = 'warning'
-                    this.statusStyle = 'color: #E9DC51;'
-                    this.statusMsg = "Wallet already registered for this username"
-                } else {
-                    this.statusIcon = 'error'
-                    this.statusStyle = 'color: #cc2127;'
-                }
+            resetView() {
+                this.statusMsg = ''
+                this.registered = false
+                this.loading = false
             }
         }
     }

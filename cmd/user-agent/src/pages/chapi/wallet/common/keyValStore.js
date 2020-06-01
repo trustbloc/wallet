@@ -5,7 +5,6 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 
-
 /**
  * KeyValueStore is key value based store
  * @class
@@ -76,29 +75,60 @@ export class KeyValueStore {
         });
     }
 
-    store(id, value) {
-        var openDB = indexedDB.open(this.dbName, 1);
-
+    async store(id, value) {
+        const dbName = this.dbName
         const storeName = this.storeName
 
-        openDB.onupgradeneeded = function () {
-            var db = {}
-            db.result = openDB.result;
-            db.store = db.result.createObjectStore(storeName, {keyPath: "id"});
-        };
+        return new Promise(function (resolve){
+            var openDB = indexedDB.open(dbName, 1);
 
-        if (!value.id) {
-            value.id = id
-        }
+            openDB.onupgradeneeded = function () {
+                var db = {}
+                db.result = openDB.result;
+                db.store = db.result.createObjectStore(storeName, {keyPath: "id"});
+            };
 
-        openDB.onsuccess = function () {
-            var db = {};
-            db.result = openDB.result;
-            db.tx = db.result.transaction(storeName, "readwrite");
-            db.store = db.tx.objectStore(storeName);
-            db.store.put(value);
-        }
+            if (!value.id) {
+                value.id = id
+            }
 
+            openDB.onsuccess = function () {
+                console.log("save on success")
+                var db = {};
+                db.result = openDB.result;
+                db.tx = db.result.transaction(storeName, "readwrite");
+                db.store = db.tx.objectStore(storeName);
+                db.store.put(value);
+                resolve()
+            }
+        });
     }
+
+    async clear() {
+        const dbName = this.dbName
+        const storeName = this.storeName
+
+        return new Promise(function (resolve) {
+            let openDB = indexedDB.open(dbName, 1);
+
+            openDB.onupgradeneeded = function () {
+                var db = {}
+                db.result = openDB.result;
+                db.store = db.result.createObjectStore(storeName, {keyPath: "id"});
+            };
+
+            openDB.onsuccess = function () {
+                let db = {};
+                db.result = openDB.result;
+                db.tx = db.result.transaction(storeName, "readwrite");
+                db.store = db.tx.objectStore(storeName);
+                let request = db.store.clear();
+                request.onsuccess = function () {
+                    resolve()
+                };
+            }
+        });
+    }
+
 
 }

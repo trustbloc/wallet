@@ -33,29 +33,29 @@ export class WalletGetByQuery extends DIDAuth {
             throw 'query type not supported';
         }
 
-        let q=query.presentationDefinitionQuery[0]
+        let q = query.presentationDefinitionQuery[0]
 
         let scopes = [];
-        let context=[];
+        let context = [];
 
 
-        q.submission_requirements.forEach(function(entry){
-            if (!entry.rule.type=="all"){
+        q.submission_requirements.forEach(function (entry) {
+            if (!entry.rule.type == "all") {
                 throw 'rule type not supported';
             }
             entry.rule.from.forEach(element => scopes.push(element));
         })
 
 
-        q.input_descriptors.forEach(function(entry){
-            let addURI=false
-            if (scopes.length==0){
-                addURI=true
-            }else{
-                entry.group.forEach(function(group){
-                    scopes.forEach(function(scope) {
-                        if (scope==group){
-                            addURI=true
+        q.input_descriptors.forEach(function (entry) {
+            let addURI = false
+            if (scopes.length == 0) {
+                addURI = true
+            } else {
+                entry.group.forEach(function (group) {
+                    scopes.forEach(function (scope) {
+                        if (scope == group) {
+                            addURI = true
                         }
                     });
                 });
@@ -66,19 +66,18 @@ export class WalletGetByQuery extends DIDAuth {
             }
         })
 
-         this.requestedContext=context
+        this.requestedContext = context
 
     }
 
-    async getCredentialRecords(did) {
+    async getCredentialRecords() {
         let vcs = []
 
         await this.aries.verifiable.getCredentials().then(
             resp => {
                 if (resp.result) {
                     resp.result.forEach((item, id) => {
-                    if (item.subjectId == did) {
-                        this.requestedContext.forEach(function(value, index, object){
+                        this.requestedContext.forEach(function (value, index, object) {
                             if (item.context.includes(value)) {
                                 vcs.push({
                                     id: id,
@@ -90,10 +89,9 @@ export class WalletGetByQuery extends DIDAuth {
                                 object.splice(index, 1);
                             }
                         })
-                    }
                     })
 
-                    this.requestedContext.forEach(function(value){
+                    this.requestedContext.forEach(function (value) {
                         // TODO Create Consent Credential for all credentials that not found locally
                         console.log(value)
                     })
@@ -107,7 +105,7 @@ export class WalletGetByQuery extends DIDAuth {
     }
 
 
-    async createAndSendPresentation(did, selections) {
+    async createAndSendPresentation(walletUser, selections) {
         try {
             let vcs = []
             for (let selectedVC of selections) {
@@ -117,17 +115,14 @@ export class WalletGetByQuery extends DIDAuth {
                 vcs.push(JSON.parse(resp.verifiableCredential))
             }
 
-            let didMetadata = await this.didManager.getDIDMetadata(did)
-
             let data
             await this.aries.verifiable.generatePresentation({
                 verifiableCredential: vcs,
-                did: did,
+                did: walletUser.did,
                 domain: this.domain,
                 challenge: this.challenge,
                 skipVerify: true,
-                signatureType: didMetadata.signatureType,
-                verificationMethod: didMetadata.keyID
+                signatureType: walletUser.signatureType
             }).then(resp => {
                     data = resp.verifiablePresentation
                 }
