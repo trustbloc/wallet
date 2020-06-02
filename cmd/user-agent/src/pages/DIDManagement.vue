@@ -228,7 +228,7 @@ SPDX-License-Identifier: Apache-2.0
                 }
 
                 // saving did metadata
-                this.didManager.storeDIDMetadata(did.id, {
+                await this.didManager.storeDIDMetadata(did.id, {
                     signatureType: this.signType,
                     friendlyName: this.friendlyName
                 })
@@ -287,7 +287,7 @@ SPDX-License-Identifier: Apache-2.0
                     console.error("failed to save the did", e)
                 }
 
-                this.didManager.storeDIDMetadata(resp.did.id, {
+                await this.didManager.storeDIDMetadata(resp.did.id, {
                     signatureType: this.selectSignKey,
                     keyID: this.keyID,
                     friendlyName: this.anyDIDFriendlyName
