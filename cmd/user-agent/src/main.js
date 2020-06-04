@@ -82,7 +82,8 @@ async function ariesStartupOpts() {
 
 let defaulTrustBlocStartupOpts = {
     assetsPath: '/trustbloc-agent/assets',
-    'blocDomain': 'testnet.trustbloc.local'
+    blocDomain: 'testnet.trustbloc.local',
+    walletMediatorURL: ''
 }
 
 async function trustblocStartupOpts() {
@@ -101,10 +102,11 @@ async function trustblocStartupOpts() {
             })
     }
 
-    return  JSON.stringify({
+    return  {
         assetsPath: defaulTrustBlocStartupOpts['assetsPath'],
-        'blocDomain': ('blocDomain' in startupOpts) ? startupOpts['blocDomain'] : defaulTrustBlocStartupOpts['blocDomain']
-    })
+        blocDomain: ('blocDomain' in startupOpts) ? startupOpts['blocDomain'] : defaulTrustBlocStartupOpts['blocDomain'],
+        walletMediatorURL: ('walletMediatorURL' in startupOpts) ? startupOpts['walletMediatorURL'] : defaulTrustBlocStartupOpts['walletMediatorURL'],
+    }
 }
 
 Vue.prototype.$arieslib = loadAriesOnce()

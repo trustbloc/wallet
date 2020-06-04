@@ -171,6 +171,7 @@ func TestStartCmdValidArgs(t *testing.T) {
 		"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 		"--" + tlsKeyFileFlagName, "key",
 		"--" + blocDomainFlagName, "domain",
+		"--" + walletMediatorURLFlagName, "http://localhost:8999",
 		"--" + agentAutoAcceptFlagName, "false",
 		"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901"}
 	startCmd.SetArgs(args)

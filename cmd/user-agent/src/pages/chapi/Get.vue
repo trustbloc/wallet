@@ -12,8 +12,9 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import DIDAuthForm from "./DIDAuth.vue";
+    import DIDConnectForm from "./DIDConnect.vue";
     import GetCredentialsForm from "./GetCredentials.vue";
-    import PresentationDefQuery from "./PresentationDefQuery.vue";
+    import PresentationDefQueryForm from "./PresentationDefQuery.vue";
 
     export default {
         beforeCreate: async function () {
@@ -35,8 +36,10 @@ SPDX-License-Identifier: Apache-2.0
 
             if (this.query.type === 'DIDAuth') {
                 this.component = DIDAuthForm
+            } else if (this.query.type === 'DIDConnect') {
+                this.component = DIDConnectForm
             } else if (this.query.type === 'PresentationDefinitionQuery') {
-                this.component = PresentationDefQuery
+                this.component = PresentationDefQueryForm
             } else {
                 this.component = GetCredentialsForm
             }

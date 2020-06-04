@@ -48,14 +48,13 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 
-    import {DIDManager, RegisterWallet} from "./wallet"
+    import {RegisterWallet} from "./wallet"
 
     export default {
         beforeCreate: async function () {
             const aries = await this.$arieslib
             const opts = await this.$trustblocStartupOpts
-            const didManager = new DIDManager(aries, this.$trustblocAgent, opts)
-            this.registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, didManager)
+            this.registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, aries, this.$trustblocAgent, opts)
 
             const wuser = await this.registrar.getRegisteredUser()
             if (wuser) {

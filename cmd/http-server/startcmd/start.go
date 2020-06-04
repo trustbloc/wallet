@@ -87,6 +87,14 @@ const (
 	blocDomainFlagUsage     = "Bloc domain"
 	blocDomainEnvKey        = "BLOC_DOMAIN"
 
+	// wallet mediator url flag
+	walletMediatorURLFlagName      = "wallet-mediator-url"
+	walletMediatorURLEnvKey        = "WALLET_MEDIATOR_URL"
+	walletMediatorURLFlagShorthand = "m"
+	walletMediatorURLFlagUsage     = "Mediator URL for wallet for performing DID communication" +
+		" Alternatively, this can be set with the following environment variable: " +
+		agentHTTPResolverEnvKey
+
 	// aries opts path
 	ariesStartupOptsPath = "/aries/jsopts"
 	indexHTLMPath        = "/index.html"
@@ -121,7 +129,8 @@ type ariesJSOpts struct {
 }
 
 type trustblocAgentJSOpts struct {
-	BlocDomain string `json:"blocDomain,omitempty"`
+	BlocDomain        string `json:"blocDomain,omitempty"`
+	WalletMediatorURL string `json:"walletMediatorURL,omitempty"`
 }
 
 // VueHandler return a http.Handler that supports Vue Router app with history mode
@@ -248,6 +257,9 @@ func createFlags(startCmd *cobra.Command) {
 	// trustbloc agent bloc domain
 	startCmd.Flags().StringP(blocDomainFlagName, blocDomainFlagShorthand, "",
 		blocDomainFlagUsage)
+	// trustbloc agent wallet mediator URL
+	startCmd.Flags().StringP(walletMediatorURLFlagName, walletMediatorURLFlagShorthand, "",
+		walletMediatorURLFlagUsage)
 }
 
 func fetchAriesWASMAgentOpts(cmd *cobra.Command) (*ariesJSOpts, error) {
@@ -293,8 +305,15 @@ func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, err
 		return nil, err
 	}
 
+	walletMediatorURL, err := cmdutils.GetUserSetVarFromString(cmd,
+		walletMediatorURLFlagName, walletMediatorURLEnvKey, true)
+	if err != nil {
+		return nil, err
+	}
+
 	return &trustblocAgentJSOpts{
-		BlocDomain: blocDomain,
+		BlocDomain:        blocDomain,
+		WalletMediatorURL: walletMediatorURL,
 	}, nil
 }
 
