@@ -63,7 +63,7 @@ export class DIDManager extends KeyValueStore {
             ]
         };
 
-        const t = await new this.trustblocAgent.Framework(JSON.parse(this.trustblocStartupOpts))
+        const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
 
         let did
         await t.didclient.createDID(createDIDRequest).then(

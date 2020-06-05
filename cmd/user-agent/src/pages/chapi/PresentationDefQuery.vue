@@ -108,7 +108,7 @@ SPDX-License-Identifier: Apache-2.0
                 this.savedVCs.length = 0
 
                 try {
-                    this.savedVCs = await this.wallet.getCredentialRecords(this.registeredWalletUser.did)
+                    this.savedVCs = await this.wallet.getCredentialRecords(this.walletUser.did)
 
                     if (this.savedVCs.length == 0) {
                         this.credentialWarning = 'No Saved Credentials Found'
@@ -130,7 +130,7 @@ SPDX-License-Identifier: Apache-2.0
                 }
 
                 this.loading = true
-                await this.wallet.createAndSendPresentation(this.registeredWalletUser, this.selectedVCs)
+                await this.wallet.createAndSendPresentation(this.walletUser, this.selectedVCs)
                 this.loading = false
             }
         }

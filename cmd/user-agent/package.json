@@ -11,7 +11,6 @@
   "dependencies": {
     "@trustbloc-cicd/aries-framework-go": "0.1.4-snapshot-2d86a15",
     "@trustbloc/trustbloc-agent": "file:../trustbloc-agent-js-worker",
-    "axios": "^0.19.2",
     "core-js": "^3.4.3",
     "credential-handler-polyfill": "^2.1.0",
     "es6-promise": "^4.2.8",
@@ -31,6 +30,7 @@
     "@vue/cli-plugin-eslint": "^4.1.0",
     "@vue/cli-plugin-router": "4.2.3",
     "@vue/cli-service": "^4.1.0",
+    "axios": "^0.19.2",
     "babel-eslint": "^10.0.3",
     "eslint": "^5.16.0",
     "eslint-plugin-prettier": "3.1.2",

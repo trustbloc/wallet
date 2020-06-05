@@ -37,7 +37,9 @@ SPDX-License-Identifier: Apache-2.0
 
                             <md-button v-on:click="getVP" class="md-raised md-success">Get VP from Wallet</md-button>
                             &nbsp;
-                            <md-button v-on:click="didAuth" class="md-raised md-success">Authenticate</md-button> &nbsp;
+                            <md-button v-on:click="didAuth" class="md-raised md-success">Authenticate Wallet</md-button> &nbsp;
+
+                            <md-button v-on:click="didConnect" class="md-raised md-success">Connect to Wallet</md-button> &nbsp;
                         </div>
                     </md-card-content>
                 </md-card>
@@ -231,6 +233,40 @@ SPDX-License-Identifier: Apache-2.0
 
                 this.showResp(result.data)
                 this.responses.push("Successfully got DID authorization from wallet.")
+            },
+            didConnect: async function () {
+                this.clearResults()
+                if (this.interopData.length == 0) {
+                    this.errors.push("Invalid invitation")
+                    return
+                }
+
+
+                let invitation = JSON.parse(this.interopData)
+                if (invitation['@type'] != 'https://didcomm.org/didexchange/1.0/invitation') {
+                    this.errors.push("Invalid invitation, expecting did comm invitation")
+                    return
+                }
+
+
+                const connectionRequest = {
+                    web: {
+                        VerifiablePresentation: {
+                            query: {type: "DIDConnect"},
+                            invitation: JSON.parse(this.interopData),
+                            challenge:"54f3da1a-d1af-4c25-b1a6-90315dda62fc",
+                            domain:"issuer.interop.example.com"
+                        }
+                    }
+                };
+                const result = await navigator.credentials.get(connectionRequest);
+                if (!result) {
+                    this.errors.push("Failed to get result")
+                    return
+                }
+
+                this.showResp(result.data)
+                this.responses.push("Successfully got DID connection response from wallet.")
             },
             showResp: async function (data) {
                 if ((typeof data) == "object") {
