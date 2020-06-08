@@ -66,31 +66,55 @@ export class DIDConn {
 
 
     async _didConnResponse(connection) {
-        // TODO add proof to DIDConnection [Issue #194]
+
+        let credential = {
+            "@context": [
+                "https://www.w3.org/2018/credentials/v1",
+                "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
+            ],
+            issuer: this.walletUser.did,
+            type: ["VerifiableCredential", "DIDConnection"],
+            credentialSubject: {
+                id: connection.ConnectionID,
+                threadID: connection.ThreadID,
+                inviteeDID: connection.MyDID,
+                inviterDID: connection.TheirDID,
+                inviterLabel: connection.TheirLabel,
+                connectionState: connection.State,
+            }
+        }
+
+        // create did connection VC
+        let vc, failure
+        await this.aries.verifiable.signCredential({
+            credential: credential,
+            did: this.walletUser.did,
+            signatureType: this.walletUser.signatureType
+        }).then(resp => {
+                if (!resp.verifiableCredential) {
+                    failure = "failed to create did connection credential"
+                    return
+                }
+
+                vc = resp.verifiableCredential
+            }
+        ).catch(err => {
+            failure = err
+        })
+
+        if (failure) {
+            console.error("failed to create didconnection credential", failure)
+            return failure
+        }
+
+        // create did connection response VP
         let presentation = {
             "@context": [
                 "https://www.w3.org/2018/credentials/v1"
             ],
             type: "VerifiablePresentation",
             holder: this.walletUser.did,
-            verifiableCredential: {
-                "@context": [
-                    "https://www.w3.org/2018/credentials/v1",
-                    "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
-                ],
-                type: [
-                    "VerifiableCredential",
-                    "DIDConnection"
-                ],
-                credentialSubject: {
-                    id: connection.ConnectionID,
-                    threadID: connection.ThreadID,
-                    inviteeDID: connection.MyDID,
-                    inviterDID: connection.TheirDID,
-                    inviterLabel: connection.TheirLabel,
-                    connectionState: connection.State,
-                }
-            }
+            verifiableCredential: [vc]
         }
 
         let data
