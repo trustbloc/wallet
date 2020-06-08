@@ -4,7 +4,7 @@
   "description": "tests for user-agent vue components",
   "dependencies": {
     "@trustbloc/user-agent": "file:../../cmd/user-agent",
-    "@trustbloc-cicd/aries-framework-go": "0.1.4-snapshot-22e19d1",
+    "@trustbloc-cicd/aries-framework-go": "0.1.4-snapshot-a10d75a",
     "vue": "^2.6.11"
   },
   "devDependencies": {
