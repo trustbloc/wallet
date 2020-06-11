@@ -11,6 +11,7 @@
   "dependencies": {
     "@trustbloc-cicd/aries-framework-go": "0.1.4-snapshot-a10d75a",
     "@trustbloc/trustbloc-agent": "file:../trustbloc-agent-js-worker",
+    "ajv": "^6.12.2",
     "core-js": "^3.4.3",
     "credential-handler-polyfill": "^2.1.0",
     "es6-promise": "^4.2.8",
