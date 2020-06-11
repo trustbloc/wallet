@@ -27,19 +27,41 @@ SPDX-License-Identifier: Apache-2.0
                             <p v-for="response in responses" :key="response">{{ response }}</p>
                         </div>
                         <div id="#ivc">
+
                             <md-textarea v-model="interopData" id="vcDataTextArea" cols="150" rows="30"/>
+                            <br><br>
+                            <fieldset>
+                                <legend style="font-size: x-large;font-weight: bold">Wallet Operations</legend>
+
+                                <md-button v-on:click="sendVC" class="md-raised md-success">Store VC in Wallet
+                                </md-button>
+                                &nbsp;
+                                <md-button v-on:click="sendVP" class="md-raised md-success">Store VP in Wallet
+                                </md-button>
+                                &nbsp;
+                                <md-button v-on:click="getCredential" class="md-raised md-success">Get Credential from
+                                    Wallet
+                                </md-button>
+
+                                <md-button v-on:click="getVP" class="md-raised md-success">Get VP from Wallet
+                                </md-button>
+                                &nbsp;
+                                <md-button v-on:click="didAuth" class="md-raised md-success">Authenticate Wallet
+                                </md-button> &nbsp;
+
+                                <md-button v-on:click="didConnect" class="md-raised md-success">Connect to Wallet
+                                </md-button> &nbsp;
+                            </fieldset>
+
                             <br>
-                            <md-button v-on:click="sendVC" class="md-raised md-success">Store VC in Wallet</md-button>
-                            &nbsp;
-                            <md-button v-on:click="sendVP" class="md-raised md-success">Store VP in Wallet</md-button>
-                            &nbsp;
-                            <md-button v-on:click="getCredential" class="md-raised md-success">Get Credential from Wallet</md-button>
+                            <fieldset>
+                                <legend style="font-size: x-large;font-weight: bold">Other Miscellaneous Operations</legend>
+                                <md-button v-on:click="validateSchema" class="md-raised md-success">Validate
+                                    Presentation
+                                    Definition
+                                </md-button> &nbsp;
+                            </fieldset>
 
-                            <md-button v-on:click="getVP" class="md-raised md-success">Get VP from Wallet</md-button>
-                            &nbsp;
-                            <md-button v-on:click="didAuth" class="md-raised md-success">Authenticate Wallet</md-button> &nbsp;
-
-                            <md-button v-on:click="didConnect" class="md-raised md-success">Connect to Wallet</md-button> &nbsp;
                         </div>
                     </md-card-content>
                 </md-card>
@@ -51,6 +73,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
     import {WebCredential} from 'credential-handler-polyfill/WebCredential.js';
+    import {PresentationDefinition} from "./chapi/wallet"
 
     const sampleVC = {
         "@context": ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1"],
@@ -254,8 +277,8 @@ SPDX-License-Identifier: Apache-2.0
                         VerifiablePresentation: {
                             query: {type: "DIDConnect"},
                             invitation: JSON.parse(this.interopData),
-                            challenge:"54f3da1a-d1af-4c25-b1a6-90315dda62fc",
-                            domain:"issuer.interop.example.com"
+                            challenge: "54f3da1a-d1af-4c25-b1a6-90315dda62fc",
+                            domain: "issuer.interop.example.com"
                         }
                     }
                 };
@@ -275,7 +298,36 @@ SPDX-License-Identifier: Apache-2.0
                     this.responses.push("Warning: received unexpcted string data type")
                     this.interopData = data
                 }
-            }
+            },
+            validateSchema: async function () {
+                this.clearResults()
+                if (this.interopData.length == 0) {
+                    this.errors.push("Invalid presentation def")
+                    return
+                }
+
+
+                let presDef = JSON.parse(this.interopData)
+
+                try {
+                    let parser = new PresentationDefinition(presDef)
+                    console.log("successfully for parser", parser)
+                } catch (e) {
+                    if (Array.isArray(e)) {
+                        const err = this.errors
+                        e.forEach(function (p) {
+                            err.push(p)
+                        })
+
+                        return
+                    }
+                    this.errors.push(e.toString())
+                    return
+                }
+
+
+                this.responses.push("Successfully validated sample JSON")
+            },
         }
     }
 </script>
