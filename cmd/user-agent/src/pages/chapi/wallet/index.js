@@ -13,4 +13,4 @@ export {DIDAuth} from './get/didAuth.js';
 export {DIDConn} from './get/didConn.js';
 export {RegisterWallet} from './register/register.js';
 export {WalletManager} from './register/walletManager.js';
-export {PresentationDefinition} from './common/presentationDef'
+export {PresentationExchange} from './common/presentationExchange.js'

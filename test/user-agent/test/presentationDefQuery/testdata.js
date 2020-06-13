@@ -181,3 +181,122 @@ export const samplePresentationDefQuery = {
         }
     ]
 }
+
+export const prCardv1 = {
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://w3id.org/citizenship/v1"
+    ],
+    "id": "http://example.gov/credentials/ff98f978-588f-4eb0-b17b-60c18e1dac2c",
+    "type": [
+        "VerifiableCredential",
+        "PermanentResidentCard"
+    ],
+    "name": "Permanent Resident Card",
+    "description": "Permanent Resident Card",
+    "issuer": {
+        "id": "did:web:example.world",
+        "name": "Border Service, NY"
+    },
+    "issuanceDate": "2019-12-03T12:19:52Z",
+    "expirationDate": "2029-12-03T12:19:52Z",
+    "credentialSubject": {
+        "id": "did:example:b56ca6cd37bbf23",
+        "type": [
+            "PermanentResident",
+            "Person"
+        ],
+        "givenName": "JOHN",
+        "familyName": "SMITH",
+        "gender": "Male",
+        "image": "data:image/png;base64,iVBORw0KGgo...kJggg==",
+        "residentSince": "2015-01-01",
+        "lprCategory": "C09",
+        "lprNumber": "999-999-999",
+        "commuterClassification": "C1",
+        "birthCountry": "Bahamas",
+        "birthDate": "1958-07-17"
+    },
+    "proof": {
+        "type": "Ed25519Signature2018",
+        "created": "2019-12-11T03:50:55Z",
+        "verificationMethod": "did:web:example#z6MksHh7qHWvybLg5QTPPdG2DgEjjduBDArV9EF9mRiRzMBN",
+        "proofPurpose": "assertionMethod",
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..SeUoIpwN_1Zrwc9zcl5NuvI88eJh6mWcxUMROHLrRg9Ubrz1YBhprPjcIZVE9JikK2DOO75pwC06fEwmu4GUAw"
+    }
+}
+
+export const prCardv2 = {
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://w3id.org/citizenship/v2"
+    ],
+    "id": "http://example.gov/credentials/ff98f978-588f-4eb0-b17b-60c18e1dac2c",
+    "type": [
+        "VerifiableCredential",
+        "PermanentResidentCard"
+    ],
+    "name": "Permanent Resident Card",
+    "description": "Permanent Resident Card",
+    "issuer": "did:web:example.two",
+    "issuanceDate": "2019-12-03T12:19:52Z",
+    "expirationDate": "2029-12-03T12:19:52Z",
+    "credentialSubject": {
+        "id": "did:example:b34ca6cd37bbf23",
+        "type": [
+            "PermanentResident",
+            "Person"
+        ],
+        "givenName": "JOE",
+        "familyName": "SMITH",
+        "gender": "Male",
+        "image": "data:image/png;base64,iVBORw0KGgo...kJggg==",
+        "residentSince": "2015-01-01",
+        "lprCategory": "C09",
+        "lprNumber": "999-999-999",
+        "commuterClassification": "C1",
+        "birthCountry": "Bahamas",
+        "birthDate": "1967-07-20"
+    },
+    "proof": {
+        "type": "Ed25519Signature2018",
+        "created": "2019-12-11T03:50:55Z",
+        "verificationMethod": "did:web:example#z6MksHh7qHWvybLg5QTPPdG2DgEjjduBDArV9EF9mRiRzMBN",
+        "proofPurpose": "assertionMethod",
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..SeUoIpwN_1Zrwc9zcl5NuvI88eJh6mWcxUMROHLrRg9Ubrz1YBhprPjcIZVE9JikK2DOO75pwC06fEwmu4GUAw"
+    }
+}
+
+export const degreeCertificare = {
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://www.example.com/2020/udc-example/v1"
+    ],
+    "type": [
+        "VerifiableCredential",
+        "UniversityDegreeCredential"
+    ],
+    "id": "http://example.gov/credentials/ff98f978-588f-4eb0-b17b-60c18e1dac2c",
+    "issuanceDate": "2020-03-16T22:37:26.544Z",
+    "issuer": {
+        "id": "did:web:faber.university",
+        "name": "University"
+    },
+    "credentialSubject": {
+        "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+        "degree": {
+            "type": "BachelorDegree",
+            "degree": "MIT"
+        },
+        "name": "Jayden Doe",
+        "spouse": "did:example:c276e12ec21ebfeb1f712ebc6f1"
+    },
+    "proof": {
+        "type": "Ed25519Signature2018",
+        "created": "2019-12-11T03:50:55Z",
+        "verificationMethod": "did:web:example#z6MksHh7qHWvybLg5QTPPdG2DgEjjduBDArV9EF9mRiRzMBN",
+        "proofPurpose": "assertionMethod",
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..hckTjvJ8umMsgAdsgPfAYGKYh-4IqqvuGOX_kbNMwpkwyslFj_XKl06wgJDDMLkmnvHHEk74FDBUL_F_0mdeAA"
+    }
+}
+
