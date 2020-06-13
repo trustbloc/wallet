@@ -73,7 +73,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
     import {WebCredential} from 'credential-handler-polyfill/WebCredential.js';
-    import {PresentationDefinition} from "./chapi/wallet"
+    import {PresentationExchange} from "./chapi/wallet"
 
     const sampleVC = {
         "@context": ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1"],
@@ -310,8 +310,7 @@ SPDX-License-Identifier: Apache-2.0
                 let presDef = JSON.parse(this.interopData)
 
                 try {
-                    let parser = new PresentationDefinition(presDef)
-                    console.log("successfully for parser", parser)
+                     new PresentationExchange(presDef)
                 } catch (e) {
                     if (Array.isArray(e)) {
                         const err = this.errors
