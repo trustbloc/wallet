@@ -13,55 +13,82 @@ SPDX-License-Identifier: Apache-2.0
     </div>
     <div v-else class="md-layout">
         <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
-            <h4> {{ requestOrigin }} has requested a credential from you </h4>
-            <md-card class="md-card-plain">
+            <div v-if="errors.length">
+                <b>Failed with following error(s):</b>
+                <md-field style="margin-top: -15px">
+                    <ul>
+                        <li v-for="error in errors" :key="error">{{ error }}</li>
+                    </ul>
+                </md-field>
+            </div>
 
-                <div v-if="errors.length">
-                    <b>Failed with following error(s):</b>
-                    <md-field style="margin-top: -15px">
-                        <ul>
-                            <li v-for="error in errors" :key="error">{{ error }}</li>
-                        </ul>
-                    </md-field>
-                </div>
+            <div>
+                <h4 class="md-subheading">
+                    <md-icon style="color: #0E9A00; height: 40px;font-size: 30px !important;">verified_user</md-icon>
+                    <span style="margin-left: 7px; font-weight: 700">{{ requestOrigin }} </span> would like you to share
+                    below information,
+                </h4>
+            </div>
 
-                <md-card-header data-background-color="green">
-                    <h4 class="title">Share your credential</h4>
-                </md-card-header>
+            <md-card style="margin-top: -5px" v-for="requirement in requirements" :key="requirement.name"
+                     :value="requirement">
 
+                <md-card-expand>
+                    <div class="md-title" style="margin-left: 10px; margin-top: 10px">{{requirement.name}}</div>
+                    <md-card-actions md-alignment="space-between">
+                        <div class="md-subhead">{{requirement.purpose}}</div>
+                        <md-card-expand-trigger>
+                            <md-button class="md-icon-button">
+                                <md-icon>keyboard_arrow_down</md-icon>
+                            </md-button>
+                        </md-card-expand-trigger>
+                    </md-card-actions>
 
-                <md-card-content id="getvc-content" v-if="!credentialWarning.length" style="background-color: white;">
-
-                    <md-table v-model="searched" md-sort="name" md-card @md-selected="onSelect">
-                        <md-table-empty-state
-                                md-label="No credentials found"
-                                :md-description="`No credentials found for this  type. Try a different type search or add a new credential.`">
-                        </md-table-empty-state>
-
-                        <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="multiple" md-auto-select>
-                            <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
-                            <md-table-cell id="cred-type" md-label="Credential Type" md-sort-by="type">{{ item.type }}
-                            </md-table-cell>
-                        </md-table-row>
-
-                    </md-table>
-
-                    <md-button v-on:click="createPresentation"
-                               class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
-                               id="share-credentials">Share
-                    </md-button>
-                </md-card-content>
-
-                <md-card-content v-else style="background-color: white;">
-                    <md-empty-state md-size=250
-                                    class="md-accent"
-                                    md-rounded
-                                    md-icon="link_off"
-                                    :md-label="credentialWarning">
-                    </md-empty-state>
-                </md-card-content>
-
+                    <md-card-expand-content>
+                        <md-card-content>
+                            {{requirement.rule}}
+                            <ul>
+                                <li v-for="descriptor in requirement.descriptors" :key="descriptor.name">
+                                    <b>{{descriptor.name}} </b>{{descriptor.purpose}}
+                                    <ul>
+                                        <li v-for="constraint in descriptor.constraints" :key="constraint">
+                                            {{ constraint}}
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </md-card-content>
+                    </md-card-expand-content>
+                </md-card-expand>
             </md-card>
+
+
+            <div>
+                <h4 class="md-subheading">
+                    <md-icon style="color: #0E9A00; height: 40px;font-size: 20px !important;">done</md-icon>
+                    Found {{ vcsFound.length}} credentials matching above criteria,
+                </h4>
+            </div>
+
+            <md-list class="md-triple-line" style="margin-top: -10px">
+                <md-list-item v-for="(vc, key)  in vcsFound" :key="key">
+                    <md-icon style="font-size: 50px !important;">security</md-icon>
+
+                    <div class="md-list-item-text">
+                        <span>{{vc.name}}</span>
+                        <div class="md-subhead">{{vc.description}}</div>
+                    </div>
+                </md-list-item>
+
+            </md-list>
+
+
+            <md-button v-on:click="createPresentation"
+                       class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
+                       id="share-credentials">Share
+            </md-button>
+
+
         </div>
     </div>
 </template>
@@ -73,64 +100,41 @@ SPDX-License-Identifier: Apache-2.0
         beforeCreate: async function () {
             const aries = await this.$arieslib
             this.wallet = new WalletGetByQuery(aries, this.$parent.credentialEvent)
-            this.credentialEvent = this.$parent.credentialEvent
-            this.requestOrigin = this.credentialEvent.credentialRequestOrigin
+
+            this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
             this.registeredWalletUser = await new WalletManager().getRegisteredUser()
             if (!this.registeredWalletUser) {
                 //this can never happen, but still one extra layer of security
                 this.credentialWarning = 'Wallet is not registered'
             }
 
-            await this.loadCredentials()
-            this.loading = false
+            this.presentation = await this.wallet.getPresentationSubmission()
+            this.requirements = this.wallet.requirementDetails()
 
-            // perform search while loading
-            this.searched = []
-            this.searchOnTable()
+            let vcsFound = []
+            this.presentation.verifiableCredential.forEach(function (vc) {
+                vcsFound.push(vc)
+            })
+            this.vcsFound = vcsFound
+
+            this.loading = false
         },
         data() {
             return {
-                savedVCs: [{id: 0, name: "Select VC"}],
-                selectedVCs: [],
+                vcsFound: [],
                 errors: [],
                 requestOrigin: "",
                 loading: true,
                 credentialWarning: "",
                 searched: [],
                 reason: "",
+                requirements: [],
             };
         },
         methods: {
-            searchOnTable() {
-                this.searched = this.savedVCs
-            },
-            loadCredentials: async function () {
-                this.savedVCs.length = 0
-
-                try {
-                    this.savedVCs = await this.wallet.getCredentialRecords(this.walletUser.did)
-
-                    if (this.savedVCs.length == 0) {
-                        this.credentialWarning = 'No Saved Credentials Found'
-                        return
-                    }
-
-                } catch (err) {
-                    this.errors.push('Failed to get credentials')
-                    console.log('get credentials failed, error:', err)
-                }
-            },
-            onSelect(items) {
-                this.selectedVCs = items
-            },
             createPresentation: async function () {
-                if (this.selectedVCs.length == 0) {
-                    this.errors.push("Please select at least one credential")
-                    return
-                }
-
                 this.loading = true
-                await this.wallet.createAndSendPresentation(this.walletUser, this.selectedVCs)
+                await this.wallet.createAndSendPresentation(this.registeredWalletUser, this.presentation)
                 this.loading = false
             }
         }

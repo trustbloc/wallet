@@ -12,7 +12,7 @@ import {presentationDefSchema} from './presentationDefSchema';
 const presentationSubmissionTemplate = `{
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
-        "https://identity.foundation/presentation-exchange/submission/v1"
+        "https://trustbloc.github.io/context/vc/presentation-exchange-submission-v1.jsonld"
     ],
     "type": ["VerifiablePresentation", "PresentationSubmission"],
     "presentation_submission": {
@@ -40,9 +40,8 @@ export class PresentationExchange {
 
         this.requirementObjs = requirement["submission_requirements"]
         this.descriptors = requirement["input_descriptors"]
-        this.applyRules = () => this.requirementObjs && this.requirementObjs.length > 0
-
-        if (this.applyRules()) (
+        this.applyRules = this.requirementObjs && this.requirementObjs.length > 0
+        if (this.applyRules) (
             this._filterDescriptors()
         )
     }
@@ -70,13 +69,67 @@ export class PresentationExchange {
     createPresentationSubmission(credentials) {
         let results = []
 
-        if (this.applyRules()) {
+        if (this.applyRules) {
             results = evaluateByRules(credentials, this.descriptorsByGroup, this.requirementObjs)
         } else {
             results = evaluateAll(credentials, this.descriptors)
         }
 
         return prepareSubmission(results)
+    }
+
+    requirementDetails() {
+        let result = []
+
+        if (this.applyRules) {
+            let descrsByGroup = this.descriptorsByGroup
+            this.requirementObjs.forEach(function (obj) {
+                let r = {}
+                let {name, purpose, rule} = obj
+                if (name) {
+                    r.name = name
+                    r.purpose = purpose
+                }
+
+                r.rule = rule.type == "all" ? "all conditions should be met" : `at least ${rule.count} of each condition should be met`
+                r.descriptors = []
+
+                rule.from.forEach(function (grp) {
+                    descrsByGroup[grp].forEach(function (d) {
+                        r.descriptors.push(getNameAndPurpose(d))
+                    })
+                })
+
+                result.push(r)
+            })
+        } else {
+            let r = {
+                name: "Requested information",
+                purpose: "We need below information from your wallet",
+                rule: "all conditions should be met",
+                descriptors: []}
+
+            this.descriptors.forEach(function (descriptor) {
+                r.descriptors.push(getNameAndPurpose(descriptor))
+            })
+
+            result.push(r)
+        }
+
+        return result
+    }
+}
+
+
+function getNameAndPurpose(descriptor) {
+    let name = jp.query(descriptor, "$.schema.name")
+    let purpose = jp.query(descriptor, "$.schema.purpose")
+    let constraints = jp.query(descriptor, "$.constraints.fields[*].purpose")
+
+    return {
+        name: name.length > 0 ? name[0] : "",
+        purpose: purpose.length > 0 ? purpose[0] : "",
+        constraints
     }
 }
 
