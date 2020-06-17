@@ -43,7 +43,7 @@ SPDX-License-Identifier: Apache-2.0
                                     Wallet
                                 </md-button>
 
-                                <md-button v-on:click="getVP" class="md-raised md-success">Get VP from Wallet
+                                <md-button v-on:click="getVP" class="md-raised md-success">Query Credentials from Wallet
                                 </md-button>
                                 &nbsp;
                                 <md-button v-on:click="didAuth" class="md-raised md-success">Authenticate Wallet
@@ -55,7 +55,8 @@ SPDX-License-Identifier: Apache-2.0
 
                             <br>
                             <fieldset>
-                                <legend style="font-size: x-large;font-weight: bold">Other Miscellaneous Operations</legend>
+                                <legend style="font-size: x-large;font-weight: bold">Other Miscellaneous Operations
+                                </legend>
                                 <md-button v-on:click="validateSchema" class="md-raised md-success">Validate
                                     Presentation
                                     Definition
@@ -76,31 +77,79 @@ SPDX-License-Identifier: Apache-2.0
     import {PresentationExchange} from "./chapi/wallet"
 
     const sampleVC = {
-        "@context": ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1"],
-        "credentialStatus": {
-            "id": "http://issuer.vc.rest.example.com:8070/status/1",
-            "type": "CredentialStatusList2017"
-        },
-        "credentialSubject": {
-            "degree": {"degree": "MIT", "type": "BachelorDegree"},
-            "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
-            "name": "Jayden Doe",
-            "spouse": "did:example:c276e12ec21ebfeb1f712ebc6f1"
-        },
-        "id": "https://example.com/credentials/b33e4c8c-3cfc-4b7c-96d9-8d875b9a661a",
-        "issuanceDate": "2020-03-16T22:37:26.544Z",
-        "issuer": {
-            "id": "did:trustbloc:testnet.trustbloc.local:EiABBmUZ7Jjp-mlxWJInqp3Ak2v82QQtCdIUS5KSTNGq9Q==",
-            "name": "myprofile_ud1"
-        },
-        "proof": {
-            "created": "2020-04-17T04:17:48Z",
-            "proofPurpose": "assertionMethod",
-            "proofValue": "CAQJKqd0MELydkNdPh7TIwgKhcMt_ypQd8AUdTbFUU4VVQVpPhEZLjg1U-1lBJyluRejsNbHZCJDRptPkBuqAQ",
-            "type": "Ed25519Signature2018",
-            "verificationMethod": "did:trustbloc:testnet.trustbloc.local:EiABBmUZ7Jjp-mlxWJInqp3Ak2v82QQtCdIUS5KSTNGq9Q==#key-1"
-        },
-        "type": ["VerifiableCredential", "UniversityDegreeCredential"]
+        "@context": [
+            "https://www.w3.org/2018/credentials/v1"
+        ],
+        type: "VerifiablePresentation",
+        verifiableCredential: [
+            {
+                "@context": [
+                    "https://www.w3.org/2018/credentials/v1",
+                    "https://w3id.org/citizenship/v1"
+                ],
+                "id": "http://example.gov/credentials/ff98f978-588f-4eb0-b17b-60c18e1dac2c",
+                "type": [
+                    "VerifiableCredential",
+                    "PermanentResidentCard"
+                ],
+                "name": "Permanent Resident Card",
+                "description": "Permanent Resident Card of Mr.John Smith",
+                "issuer": {
+                    "id": "did:web:example.world",
+                    "name": "Border Service, NY"
+                },
+                "issuanceDate": "2019-12-03T12:19:52Z",
+                "expirationDate": "2029-12-03T12:19:52Z",
+                "credentialSubject": {
+                    "id": "did:example:b56ca6cd37bbf23",
+                    "type": [
+                        "PermanentResident",
+                        "Person"
+                    ],
+                    "givenName": "JOHN",
+                    "familyName": "SMITH",
+                    "gender": "Male",
+                    "image": "data:image/png;base64,iVBORw0KGgo...kJggg==",
+                    "residentSince": "2015-01-01",
+                    "lprCategory": "C09",
+                    "lprNumber": "999-999-999",
+                    "commuterClassification": "C1",
+                    "birthCountry": "Bahamas",
+                    "birthDate": "1958-07-17"
+                },
+                "proof": {
+                    "type": "Ed25519Signature2018",
+                    "created": "2019-12-11T03:50:55Z",
+                    "verificationMethod": "did:web:example#z6MksHh7qHWvybLg5QTPPdG2DgEjjduBDArV9EF9mRiRzMBN",
+                    "proofPurpose": "assertionMethod",
+                    "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..SeUoIpwN_1Zrwc9zcl5NuvI88eJh6mWcxUMROHLrRg9Ubrz1YBhprPjcIZVE9JikK2DOO75pwC06fEwmu4GUAw"
+                }
+            },
+            {
+                "@context": [
+                    "https://www.w3.org/2018/credentials/v1",
+                    "https://www.w3.org/2018/credentials/examples/v1",
+                    "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
+                ],
+                "id": "http://example.gov/credentials/3732",
+                "type": ["VerifiableCredential", "UniversityDegreeCredential"],
+                "name": "Bachelor Degree",
+                "description": "Bachelor of Science and Arts of Mr.John Smith",
+                "issuer": "did:key:z6MkjRagNiMu91DduvCvgEsqLZDVzrJzFrwahc4tXLt9DoHd",
+                "issuanceDate": "2020-03-16T22:37:26.544Z",
+                "credentialSubject": {
+                    "id": "did:key:z6MkjRagNiMu91DduvCvgEsqLZDVzrJzFrwahc4tXLt9DoHd",
+                    "degree": {"type": "BachelorDegree", "name": "Bachelor of Science and Arts"}
+                },
+                "proof": {
+                    "type": "Ed25519Signature2018",
+                    "created": "2020-03-16T22:37:26Z",
+                    "verificationMethod": "did:key:z6MkjRagNiMu91DduvCvgEsqLZDVzrJzFrwahc4tXLt9DoHd#z6MkjRagNiMu91DduvCvgEsqLZDVzrJzFrwahc4tXLt9DoHd",
+                    "proofPurpose": "assertionMethod",
+                    "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..7gJwYBvJuXYrFa_hpuWxknm3R5Czas_NDL-Bh7LnURA1PwjH0uBqMy4W4pgYeat3xYa12gZBkmIR0VmgY3qQCw"
+                }
+            }
+        ]
     }
 
     export default {
@@ -208,27 +257,107 @@ SPDX-License-Identifier: Apache-2.0
                             query: [
                                 {
                                     type: "PresentationDefinitionQuery",
-                                    presentationDefinitionQuery: [
+                                    presentationDefinitionQuery:
                                         {
                                             "submission_requirements": [
                                                 {
+                                                    "name": "Education Qualification",
+                                                    "purpose": "We need to know if you are qualified for this job",
+                                                    "rule": {
+                                                        "type": "pick",
+                                                        "count": 1,
+                                                        "from": ["E"]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "Citizenship Information",
+                                                    "purpose": "You must be legally allowed to work in United States",
                                                     "rule": {
                                                         "type": "all",
-                                                        "from": ["scope1"]
+                                                        "from": ["C"]
                                                     }
                                                 }
                                             ],
-                                            "input_descriptors": [
+
+                                            input_descriptors: [
                                                 {
-                                                    "id": "example_input_1",
-                                                    "group": ["scope1"],
+                                                    "id": "citizenship_input_1",
+                                                    "group": ["C"],
                                                     "schema": {
-                                                        "uri": "https://trustbloc.github.io/context/vc/examples-v1.jsonld"
+                                                        "uri": [
+                                                            "https://w3id.org/citizenship/v1",
+                                                            "https://w3id.org/citizenship/v2"
+                                                        ],
+                                                        "name": "US Permanent resident card"
+                                                    },
+                                                    "constraints": {
+                                                        "fields": [
+                                                            {
+                                                                "path": ["$.credentialSubject.lprCategory"],
+                                                                "filter": {
+                                                                    "type": "string",
+                                                                    "pattern": "C09|C52|C57"
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "id": "degree_input_1",
+                                                    "group": ["E"],
+                                                    "schema": {
+                                                        "uri": [
+                                                            "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
+                                                        ],
+                                                        "name": "University degree certificate",
+                                                        "purpose": "We need your education qualification details."
+                                                    },
+                                                    "constraints": {
+                                                        "fields": [
+                                                            {
+                                                                "path": ["$.credentialSubject.degree.type"],
+                                                                "purpose": "Should be masters or bachelors degree",
+                                                                "filter": {
+                                                                    "type": "string",
+                                                                    "pattern": "BachelorDegree|MastersDegree"
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "id": "degree_input_2",
+                                                    "group": ["E"],
+                                                    "schema": {
+                                                        "uri": [
+                                                            "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
+                                                        ],
+                                                        "name": "Diploma certificate",
+                                                        "purpose": "We need your education qualification details."
+                                                    },
+                                                    "constraints": {
+                                                        "fields": [
+                                                            {
+                                                                "path": ["$.credentialSubject.degree.type"],
+                                                                "purpose": "Should have valid diploma",
+                                                                "filter": {
+                                                                    "type": "string",
+                                                                    "pattern": "Diploma"
+                                                                }
+                                                            },
+                                                            {
+                                                                "path": ["$.credentialSubject.degree.coop"],
+                                                                "purpose": "Should have co-op experience",
+                                                                "filter": {
+                                                                    "type": "string",
+                                                                    "pattern": "Y"
+                                                                }
+                                                            }
+                                                        ]
                                                     }
                                                 }
                                             ]
                                         }
-                                    ]
                                 }
                             ],
                             challenge: "",
@@ -310,7 +439,7 @@ SPDX-License-Identifier: Apache-2.0
                 let presDef = JSON.parse(this.interopData)
 
                 try {
-                     new PresentationExchange(presDef)
+                    new PresentationExchange(presDef)
                 } catch (e) {
                     if (Array.isArray(e)) {
                         const err = this.errors

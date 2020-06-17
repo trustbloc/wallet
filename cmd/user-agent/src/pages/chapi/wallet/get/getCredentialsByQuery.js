@@ -4,120 +4,56 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import {DIDAuth} from "./didAuth";
-import {getCredentialType} from "..";
+import {WalletGet} from "./getCredentials";
+import jp from 'jsonpath';
+import {PresentationExchange} from '../common/presentationExchange'
 
 const responseType = "VerifiablePresentation"
+const queryType = "PresentationDefinitionQuery"
 
 /**
  * WalletGetByQuery provides CHAPI get vp features
  * @param aries instance & credential event
  * @class
  */
-export class WalletGetByQuery extends DIDAuth {
+export class WalletGetByQuery extends WalletGet {
     constructor(aries, credEvent) {
         super(aries, credEvent);
-        this.setRequestedContext()
-    }
 
-    setRequestedContext() {
-        const verifiable = this.credEvent.credentialRequestOptions.web.VerifiablePresentation
+        // validate query and init Presentation Exchange
+        let query = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[*]');
 
-        let query = {}
-        if (verifiable.query) {
-            // supporting only one query for now
-            query = Array.isArray(verifiable.query) ? verifiable.query[0] : verifiable.query;
+        if (query.length > 0 && query[0].type != queryType) {
+            throw "invalid request, incorrect query type"
         }
 
-        if (!query.presentationDefinitionQuery) {
-            throw 'query type not supported';
-        }
-
-        let q = query.presentationDefinitionQuery[0]
-
-        let scopes = [];
-        let context = [];
-
-
-        q.submission_requirements.forEach(function (entry) {
-            if (!entry.rule.type == "all") {
-                throw 'rule type not supported';
-            }
-            entry.rule.from.forEach(element => scopes.push(element));
-        })
-
-
-        q.input_descriptors.forEach(function (entry) {
-            let addURI = false
-            if (scopes.length == 0) {
-                addURI = true
-            } else {
-                entry.group.forEach(function (group) {
-                    scopes.forEach(function (scope) {
-                        if (scope == group) {
-                            addURI = true
-                        }
-                    });
-                });
-            }
-
-            if (addURI) {
-                context.push(entry.schema.uri)
-            }
-        })
-
-        this.requestedContext = context
-
+        this.exchange = new PresentationExchange(query[0].presentationDefinitionQuery)
     }
 
-    async getCredentialRecords() {
+    requirementDetails() {
+        return this.exchange.requirementDetails()
+    }
+
+    async getPresentationSubmission() {
+        let credentials = await super.getCredentialRecords()
+
         let vcs = []
-
-        await this.aries.verifiable.getCredentials().then(
-            resp => {
-                if (resp.result) {
-                    resp.result.forEach((item, id) => {
-                        this.requestedContext.forEach(function (value, index, object) {
-                            if (item.context.includes(value)) {
-                                vcs.push({
-                                    id: id,
-                                    name: item.name,
-                                    key: item.id,
-                                    type: getCredentialType(item.type),
-                                    holder: item.subjectId,
-                                })
-                                object.splice(index, 1);
-                            }
-                        })
-                    })
-
-                    this.requestedContext.forEach(function (value) {
-                        // TODO Create Consent Credential for all credentials that not found locally
-                        console.log(value)
-                    })
-                }
+        for (let credential of credentials) {
+            const resp = await this.aries.verifiable.getCredential({
+                id: credential.key
             })
-            .catch(err => {
-                throw err
-            })
+            vcs.push(JSON.parse(resp.verifiableCredential))
+        }
 
-        return vcs
+        return this.exchange.createPresentationSubmission(vcs)
     }
 
+    async createAndSendPresentation(walletUser, presentationSubmission) {
 
-    async createAndSendPresentation(walletUser, selections) {
         try {
-            let vcs = []
-            for (let selectedVC of selections) {
-                const resp = await this.aries.verifiable.getCredential({
-                    id: selectedVC.key
-                })
-                vcs.push(JSON.parse(resp.verifiableCredential))
-            }
-
             let data
             await this.aries.verifiable.generatePresentation({
-                verifiableCredential: vcs,
+                presentation: presentationSubmission,
                 did: walletUser.did,
                 domain: this.domain,
                 challenge: this.challenge,
