@@ -137,7 +137,7 @@ SPDX-License-Identifier: Apache-2.0
                 vcsFound.push(vc)
             })
             this.vcsFound = vcsFound
-            this.credentialWarning = vcsFound.length > 0 ? warning : ""
+            this.credentialWarning = vcsFound.length == 0 ? warning : ""
 
             this.loading = false
         },
