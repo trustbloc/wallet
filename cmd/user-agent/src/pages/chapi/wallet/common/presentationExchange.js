@@ -12,7 +12,7 @@ import {presentationDefSchema} from './presentationDefSchema';
 const presentationSubmissionTemplate = `{
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
-        "https://trustbloc.github.io/context/vc/presentation-exchange-submission-v1.jsonld"
+        "https://trustbloc.github.io/context/vp/presentation-exchange-submission-v1.jsonld"
     ],
     "type": ["VerifiablePresentation", "PresentationSubmission"],
     "presentation_submission": {
@@ -20,6 +20,10 @@ const presentationSubmissionTemplate = `{
     },
     "verifiableCredential": []
 }`
+
+const defSubmissionRuleName = "Requested information"
+const defSubmissionRulePurpose = "We need below information from your wallet"
+const defSubmissionRule = "all conditions should be met"
 
 /**
  * PresentationDefinition represents Presentation Definitions objects
@@ -83,14 +87,12 @@ export class PresentationExchange {
 
         if (this.applyRules) {
             let descrsByGroup = this.descriptorsByGroup
-            this.requirementObjs.forEach(function (obj) {
+            this.requirementObjs.forEach(function (obj, index) {
                 let r = {}
                 let {name, purpose, rule} = obj
-                if (name) {
-                    r.name = name
-                    r.purpose = purpose
-                }
 
+                r.name = name ? name : `${defSubmissionRuleName} #${index+1}`
+                r.purpose = purpose ? purpose : defSubmissionRulePurpose
                 r.rule = rule.type == "all" ? "all conditions should be met" : `at least ${rule.count} of each condition should be met`
                 r.descriptors = []
 
@@ -104,10 +106,11 @@ export class PresentationExchange {
             })
         } else {
             let r = {
-                name: "Requested information",
-                purpose: "We need below information from your wallet",
-                rule: "all conditions should be met",
-                descriptors: []}
+                name: defSubmissionRuleName,
+                purpose: defSubmissionRulePurpose,
+                rule: defSubmissionRule,
+                descriptors: []
+            }
 
             this.descriptors.forEach(function (descriptor) {
                 r.descriptors.push(getNameAndPurpose(descriptor))
@@ -127,7 +130,7 @@ function getNameAndPurpose(descriptor) {
     let constraints = jp.query(descriptor, "$.constraints.fields[*].purpose")
 
     return {
-        name: name.length > 0 ? name[0] : "",
+        name: name.length > 0 ? name[0] : "Condition details are not provided in request",
         purpose: purpose.length > 0 ? purpose[0] : "",
         constraints
     }

@@ -63,31 +63,50 @@ SPDX-License-Identifier: Apache-2.0
             </md-card>
 
 
-            <div>
-                <h4 class="md-subheading">
-                    <md-icon style="color: #0E9A00; height: 40px;font-size: 20px !important;">done</md-icon>
-                    Found {{ vcsFound.length}} credentials matching above criteria,
-                </h4>
+            <div v-if="!credentialWarning.length">
+                <div>
+                    <h4 class="md-subheading">
+                        <md-icon style="color: #0E9A00; height: 40px;font-size: 20px !important;">done</md-icon>
+                        Found {{ vcsFound.length}} credentials matching above criteria,
+                    </h4>
+                </div>
+
+                <md-list class="md-triple-line" style="margin-top: -10px">
+                    <md-list-item v-for="(vc, key) in vcsFound" :key="key">
+                        <md-icon style="font-size: 50px !important;">security</md-icon>
+
+                        <div class="md-list-item-text">
+                            <span>{{vc.name}}</span>
+                            <div class="md-subhead">{{vc.description}}</div>
+                        </div>
+
+                        <md-checkbox v-model="selectedVCs[key]"></md-checkbox>
+                    </md-list-item>
+
+                </md-list>
+
+
+                <div style="margin-left: 30%; margin-top: 5px">
+                    <md-button v-on:click="createPresentation"
+                               class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
+                               id="share-credentials" :disabled=isShareDisabled>Share
+                    </md-button>
+                    <md-button v-on:click="cancel" style="margin-left: 5px" class="md-cancel-text" id="cancelBtn">
+                        Decline
+                    </md-button>
+                </div>
             </div>
 
-            <md-list class="md-triple-line" style="margin-top: -10px">
-                <md-list-item v-for="(vc, key)  in vcsFound" :key="key">
-                    <md-icon style="font-size: 50px !important;">security</md-icon>
-
-                    <div class="md-list-item-text">
-                        <span>{{vc.name}}</span>
-                        <div class="md-subhead">{{vc.description}}</div>
-                    </div>
-                </md-list-item>
-
-            </md-list>
-
-
-            <md-button v-on:click="createPresentation"
-                       class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
-                       id="share-credentials">Share
-            </md-button>
-
+            <div v-else>
+                <div>
+                    <md-empty-state
+                            md-icon="devices_other"
+                            md-label="No credentials found"
+                            :md-description="credentialWarning">
+                        <md-button class="md-primary md-raised" v-on:click="noCredential" >Close</md-button>
+                    </md-empty-state>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -95,6 +114,8 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import {WalletGetByQuery, WalletManager} from "./wallet"
+
+    const warning = "No credentials found in your wallet for above information asked"
 
     export default {
         beforeCreate: async function () {
@@ -116,12 +137,14 @@ SPDX-License-Identifier: Apache-2.0
                 vcsFound.push(vc)
             })
             this.vcsFound = vcsFound
+            this.credentialWarning = vcsFound.length > 0 ? warning : ""
 
             this.loading = false
         },
         data() {
             return {
                 vcsFound: [],
+                selectedVCs: [],
                 errors: [],
                 requestOrigin: "",
                 loading: true,
@@ -134,9 +157,20 @@ SPDX-License-Identifier: Apache-2.0
         methods: {
             createPresentation: async function () {
                 this.loading = true
-                await this.wallet.createAndSendPresentation(this.registeredWalletUser, this.presentation)
+                await this.wallet.createAndSendPresentation(this.registeredWalletUser, this.presentation, this.selectedVCs)
                 this.loading = false
-            }
-        }
+            },
+            cancel: async function () {
+                this.wallet.cancel()
+            },
+            noCredential:async function () {
+                this.wallet.sendNoCredntials()
+            },
+        },
+        computed: {
+            isShareDisabled() {
+                return this.selectedVCs.length == 0
+            },
+        },
     }
 </script>
