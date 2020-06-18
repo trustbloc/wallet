@@ -48,7 +48,11 @@ export class WalletGetByQuery extends WalletGet {
         return this.exchange.createPresentationSubmission(vcs)
     }
 
-    async createAndSendPresentation(walletUser, presentationSubmission) {
+    async createAndSendPresentation(walletUser, presentationSubmission, selectedIndexes) {
+
+        if (selectedIndexes && selectedIndexes.length > 0) {
+            presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes)
+        }
 
         try {
             let data
@@ -70,4 +74,39 @@ export class WalletGetByQuery extends WalletGet {
         }
 
     }
+
+    cancel() {
+        this.sendResponse("error", "wallet declined credential share")
+    }
+
+    sendNoCredntials() {
+        this.sendResponse("error", "no credentials found for given presentation exchange request")
+    }
+}
+
+// retainOnlySelected retain only selected VCs and their respective descriptors
+function retainOnlySelected(presentationSubmission, selectedIndexes){
+    let descriptors = []
+    let vcs = []
+
+    let vcCount = 0
+    selectedIndexes.forEach(function (selected, index) {
+        presentationSubmission.verifiableCredential.forEach(function (vc, vcIndex) {
+            if (selected && index == vcIndex) {
+                vcs.push(vc)
+
+                let vcDescrs = jp.query(presentationSubmission, `$.presentation_submission.descriptor_map[?(@.path=="$.verifiableCredential.[${vcIndex}]")].id`)
+                vcDescrs.forEach(function (id) {
+                    descriptors.push({id, path:`$.verifiableCredential.[${vcCount}]`})
+                })
+
+                vcCount++
+            }
+        })
+    })
+
+    presentationSubmission.verifiableCredential = vcs
+    presentationSubmission.presentation_submission.descriptor_map = descriptors
+
+    return presentationSubmission
 }
