@@ -73,6 +73,7 @@ export class DIDConn {
                 "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
             ],
             issuer: this.walletUser.did,
+            issuanceDate: new Date(),
             type: ["VerifiableCredential", "DIDConnection"],
             credentialSubject: {
                 id: connection.ConnectionID,
