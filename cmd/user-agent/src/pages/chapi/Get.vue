@@ -52,7 +52,7 @@ SPDX-License-Identifier: Apache-2.0
     }
 </script>
 
-<style lang="scss">
+<style lang="css">
     .md-menu-content {
         width: auto;
         max-width: 100% !important;

@@ -65,7 +65,7 @@ SPDX-License-Identifier: Apache-2.0
 
             <div v-if="!credentialWarning.length">
                 <div>
-                    <h4 class="md-subheading">
+                    <h4 class="md-subheading" id="result-header">
                         <md-icon style="color: #0E9A00; height: 40px;font-size: 20px !important;">done</md-icon>
                         Found {{ vcsFound.length}} credentials matching above criteria,
                     </h4>
@@ -80,7 +80,7 @@ SPDX-License-Identifier: Apache-2.0
                             <div class="md-subhead">{{vc.description}}</div>
                         </div>
 
-                        <md-checkbox v-model="selectedVCs[key]"></md-checkbox>
+                        <md-checkbox v-model="selectedVCs[key]" v-bind:id="'select-vc-' + key"></md-checkbox>
                     </md-list-item>
 
                 </md-list>
@@ -151,7 +151,7 @@ SPDX-License-Identifier: Apache-2.0
                 credentialWarning: "",
                 searched: [],
                 reason: "",
-                requirements: [],
+                requirements: []
             };
         },
         methods: {
@@ -165,7 +165,7 @@ SPDX-License-Identifier: Apache-2.0
             },
             noCredential:async function () {
                 this.wallet.sendNoCredntials()
-            },
+            }
         },
         computed: {
             isShareDisabled() {

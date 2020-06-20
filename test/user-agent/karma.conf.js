@@ -11,6 +11,7 @@ module.exports = function(config) {
         frameworks: ['mocha'],
         files: [
             {pattern: "public/aries-framework-go/assets/*", included: false},
+            {pattern: "public/trustbloc-agent/assets/*", included: false},
             {pattern: "test/common.js", included: false},
             {pattern: "test/**/*.spec.js", type: "module"}
         ],
@@ -28,10 +29,13 @@ module.exports = function(config) {
             Chrome_without_security: {
                 base: 'Chrome',
                 flags: ['--disable-web-security', '--disable-site-isolation-trials', '--auto-open-devtools-for-tabs']
-            },
+            }
         },
         client: {
-            captureConsole: false
+            captureConsole: false,
+            mocha: {
+                timeout : 15000
+            }
         }
     })
 }

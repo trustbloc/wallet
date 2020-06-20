@@ -215,14 +215,16 @@ describe('presentation definition query schema validation', () => {
                 "name": "Employment History",
                 "purpose": "We need your bank and account information."
             },
-            "constraints": {"fields":[
+            "constraints": {
+                "fields": [
                     {
                         "filter": {
                             "type": "date",
                             "minimum": "1999-5-16"
                         }
                     }
-                ]}
+                ]
+            }
         }]
         try {
             defQ = new PresentationExchange(sample)
@@ -240,12 +242,14 @@ describe('presentation definition query schema validation', () => {
                 "name": "Employment History",
                 "purpose": "We need your bank and account information."
             },
-            "constraints": {"fields":[
+            "constraints": {
+                "fields": [
                     {
                         "path": ["$.jobs[*].active"],
                         "filter": "sample-filter"
                     }
-                ]}
+                ]
+            }
         }]
         try {
             defQ = new PresentationExchange(sample)
@@ -862,6 +866,262 @@ describe('generate presentation submission with submission requirements', () => 
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([secondDegree, secondDegree, prCardv2])
+    })
+})
+
+
+describe('generate requirement details with from presentation definition', () => {
+    it('get requirement details from well described definition', async () => {
+        let defQ = new PresentationExchange(samplePresentationDefQuery)
+        expect(defQ).to.not.be.null
+
+        let reqDetails = defQ.requirementDetails()
+        expect(reqDetails).to.have.lengthOf(3);
+
+        let bankingInfo = reqDetails[0]
+        let employmentInfo = reqDetails[1]
+        let citizenshipInfo = reqDetails[2]
+
+        expect(bankingInfo).to.deep.equal(
+            {
+                "name": "Banking Information",
+                "purpose": "We need to know if you have an established banking history.",
+                "rule": "at least 1 of each condition should be met",
+                "descriptors": [
+                    {
+                        "name": "Bank Account Information",
+                        "purpose": "We need your bank and account information.",
+                        "constraints": [
+                            "The credential must be from one of the specified issuers",
+                            "We need your bank account number for processing purposes",
+                            "You must have an account with a German, US, or Japanese bank account"
+                        ]
+                    },
+                    {
+                        "name": "Bank Account Information",
+                        "purpose": "We need your bank and account information.",
+                        "constraints": [
+                            "The credential must be from one of the specified issuers",
+                            "We need your bank account number for processing purposes",
+                            "You must have an account with a German, US, or Japanese bank account"
+                        ]
+                    }
+                ]
+            }
+        )
+
+        expect(employmentInfo).to.deep.equal(
+            {
+                "name": "Employment Information",
+                "purpose": "We need to know that you are currently employed.",
+                "rule": "all conditions should be met",
+                "descriptors": [
+                    {
+                        "name": "Employment History",
+                        "purpose": "We need your bank and account information.",
+                        "constraints": []
+                    }
+                ]
+            }
+        )
+
+
+        expect(citizenshipInfo).to.deep.equal(
+            {
+                "name": "Citizenship Information",
+                "purpose": "We need below information from your wallet",
+                "rule": "at least 1 of each condition should be met",
+                "descriptors": [
+                    {
+                        "name": "EU Driver's License",
+                        "purpose": "",
+                        "constraints": [
+                            "The credential must be from one of the specified issuers"
+                        ]
+                    },
+                    {
+                        "name": "US Passport",
+                        "purpose": "",
+                        "constraints": []
+                    }
+                ]
+            }
+        )
+    })
+
+    it('get requirement details from definition without submission requirements', async () => {
+        let query = JSON.parse(JSON.stringify(samplePresentationDefQuery))
+        delete query.submission_requirements
+
+        let defQ = new PresentationExchange(query)
+        expect(defQ).to.not.be.null
+
+        let reqDetails = defQ.requirementDetails()
+        expect(reqDetails).to.deep.equal([
+            {
+                "name": "Requested information",
+                "purpose": "We need below information from your wallet",
+                "rule": "all conditions should be met",
+                "descriptors": [
+                    {
+                        "name": "Bank Account Information",
+                        "purpose": "We need your bank and account information.",
+                        "constraints": [
+                            "The credential must be from one of the specified issuers",
+                            "We need your bank account number for processing purposes",
+                            "You must have an account with a German, US, or Japanese bank account"
+                        ]
+                    },
+                    {
+                        "name": "Bank Account Information",
+                        "purpose": "We need your bank and account information.",
+                        "constraints": [
+                            "The credential must be from one of the specified issuers",
+                            "We need your bank account number for processing purposes",
+                            "You must have an account with a German, US, or Japanese bank account"
+                        ]
+                    },
+                    {
+                        "name": "Employment History",
+                        "purpose": "We need your bank and account information.",
+                        "constraints": []
+                    },
+                    {
+                        "name": "EU Driver's License",
+                        "purpose": "",
+                        "constraints": [
+                            "The credential must be from one of the specified issuers"
+                        ]
+                    },
+                    {
+                        "name": "US Passport",
+                        "purpose": "",
+                        "constraints": []
+                    }
+                ]
+            }
+        ])
+    })
+
+    it('get requirement details from definition without name and purpose', async () => {
+        let query = JSON.parse(JSON.stringify(samplePresentationDefQuery))
+
+        query.submission_requirements = [
+            {
+                "rule": {
+                    "type": "all",
+                    "from": ["B"]
+                }
+            },
+            {
+                "rule": {
+                    "type": "pick",
+                    "count": 1,
+                    "from": ["C"]
+                }
+            }
+        ]
+
+        query.input_descriptors = [
+            {
+                "id": "employment_input",
+                "group": ["B"],
+                "schema": {
+                    "uri": "https://business-standards.org/schemas/employment-history.json"
+                },
+                "constraints": {
+                    "fields": [
+                        {
+                            "path": ["$.jobs[*].active"],
+                            "filter": {
+                                "type": "boolean",
+                                "pattern": "true"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "citizenship_input_1",
+                "group": ["C"],
+                "schema": {
+                    "uri": "https://eu.com/claims/DriversLicense.json"
+                },
+                "constraints": {
+                    "fields": [
+                        {
+                            "path": ["$.issuer", "$.vc.issuer", "$.iss"],
+                            "filter": {
+                                "type": "string",
+                                "pattern": "did:example:gov1|did:example:gov2"
+                            }
+                        },
+                        {
+                            "path": ["$.dob"],
+                            "filter": {
+                                "type": "date",
+                                "minimum": "1999-5-16"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "citizenship_input_2",
+                "group": ["C"],
+                "schema": {
+                    "uri": "hub://did:foo:123/Collections/schema.us.gov/passport.json"
+                },
+                "constraints": {
+                    "issuers": ["did:foo:gov3"],
+                    "fields": [
+                        {
+                            "path": ["$.birth_date"],
+                            "filter": {
+                                "type": "date",
+                                "minimum": "1999-5-16"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+
+        let defQ = new PresentationExchange(query)
+        expect(defQ).to.not.be.null
+
+        let reqDetails = defQ.requirementDetails()
+        expect(reqDetails).to.deep.equal([
+            {
+                "name": "Requested information #1",
+                "purpose": "We need below information from your wallet",
+                "rule": "all conditions should be met",
+                "descriptors": [
+                    {
+                        "name": "Condition details are not provided in request",
+                        "purpose": "",
+                        "constraints": []
+                    }
+                ]
+            },
+            {
+                "name": "Requested information #2",
+                "purpose": "We need below information from your wallet",
+                "rule": "at least 1 of each condition should be met",
+                "descriptors": [
+                    {
+                        "name": "Condition details are not provided in request",
+                        "purpose": "",
+                        "constraints": []
+                    },
+                    {
+                        "name": "Condition details are not provided in request",
+                        "purpose": "",
+                        "constraints": []
+                    }
+                ]
+            }
+        ])
     })
 })
 
