@@ -56,10 +56,19 @@ jobs:
     steps:
       - template: azp-dependencies.yml
       - checkout: self
-      - script: make bdd-test-js
+      - bash: |
+          function logout {
+            docker logout
+          }
+          trap logout EXIT
+          echo $DOCKER_PASSWORD | docker login docker.pkg.github.com --username $DOCKER_USER --password-stdin
+          make bdd-test-js
         env:
+          DOCKER_USER: $(DOCKER_USER)
+          DOCKER_PASSWORD: $(DOCKER_PASSWORD)
           GITHUB_TOKEN: $(DOCKER_PASSWORD)
-        displayName: Run bdd test JS
+        displayName: Run BDD tests in JS
+
 
   - job: Publish
     dependsOn:

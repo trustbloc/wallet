@@ -9,3 +9,7 @@ rm -rf public
 mkdir -p public/aries-framework-go/assets
 cp -Rp node_modules/@trustbloc-cicd/aries-framework-go/dist/assets/* public/aries-framework-go/assets
 gunzip public/aries-framework-go/assets/aries-js-worker.wasm.gz
+
+mkdir -p public/trustbloc-agent/assets
+cp -Rp node_modules/@trustbloc/trustbloc-agent/dist/assets/* public/trustbloc-agent/assets
+gunzip public/trustbloc-agent/assets/trustbloc-agent-js-worker.wasm.gz

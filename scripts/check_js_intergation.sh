@@ -10,16 +10,30 @@ echo "Running $0"
 
 ROOT=`pwd`
 
-#TODO container start/stop to be enabled once tests depending on containers will be added
-#echo "starting containers..."
-#cd $ROOT/test/bdd/fixtures/agent-wasm
-#(source .env && docker-compose down && docker-compose up --force-recreate -d)
+npm -v
+echo "starting containers..."
+cd $ROOT/test/bdd/fixtures/agent-wasm
+(source .env && docker-compose down && docker-compose up --force-recreate -d)
+
+echo "waiting for containers to start..."
+sleep 15s
+
+cd $ROOT/cmd/trustbloc-agent-js-worker
+npm install
+npm run build
+
+cd $ROOT/cmd/user-agent
+npm install
+npm run build
 
 cd $ROOT/test/user-agent
+rm -rf package-lock.json
+rm -rf node_modules
 npm install
+
 echo "running tests..."
 npm run test
 
-#echo "stopping containers..."
-#cd $ROOT/test/bdd/fixtures/agent-wasm
-#(source .env && docker-compose down --remove-orphans)
+echo "stopping containers..."
+cd $ROOT/test/bdd/fixtures/agent-wasm
+(source .env && docker-compose down --remove-orphans)

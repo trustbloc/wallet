@@ -40,25 +40,25 @@ export class RegisterWallet extends WalletManager {
 
         console.log(`created DID ${did.id} successfully for user ${this.username}`)
 
-        try {
-            await this.polyfill.loadOnce();
-        } catch (e) {
-            console.error('Error in loadOnce:', e);
-            throw "failed to register wallet, please try again later"
+        if (!this.skipPolyfill) {
+            try {
+                await this.polyfill.loadOnce();
+            } catch (e) {
+                console.error('Error in loadOnce:', e);
+                throw "failed to register wallet, please try again later"
+            }
+
+            const registration = await this.wcredHandler.installHandler({url: '/worker.html'})
+
+            await registration.credentialManager.hints.set(
+                'edge', {
+                    name: user,
+                    enabledTypes: allowedTypes
+                });
         }
-
-        const registration = await this.wcredHandler.installHandler({url: '/worker.html'})
-
-        await registration.credentialManager.hints.set(
-            'edge', {
-                name: user,
-                enabledTypes: allowedTypes
-            });
-
 
         // register mediator
         let invitation
-        console.log("this.mediatorEndpoint", this.mediatorEndpoint)
         if (this.mediatorEndpoint) {
             try {
                 let connected = await this.mediator.isAlreadyConnected()
