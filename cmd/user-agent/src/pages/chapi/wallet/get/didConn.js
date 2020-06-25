@@ -18,10 +18,11 @@ export class DIDConn {
         this.walletManager = new WalletManager()
         this.credEvent = credEvent
 
-        const {domain, challenge, invitation} = getRequestParams(credEvent);
+        const {domain, challenge, invitation, manifest} = getRequestParams(credEvent);
         this.domain = domain
         this.challenge = challenge
         this.invitation = invitation
+        this.manifest = manifest
     }
 
     async connect() {
@@ -58,6 +59,18 @@ export class DIDConn {
             this.walletUser.connections = [connection.result]
         }
         await this.walletManager.storeWalletMetadata(this.walletUser.id, this.walletUser)
+
+        // TODO verify proof and save
+        await this.aries.verifiable.saveCredential({
+            name: this.invitation["@id"],
+            verifiableCredential: JSON.stringify(this.manifest)
+        }).then(() => {
+                console.log('successfully saved manifest VC:', name)
+            }
+        ).catch(err => {
+            console.log(`failed to save ${name} : errMsg=${err}`)
+            throw err
+        })
 
 
         let responseData = await this._didConnResponse(connection.result)
@@ -197,7 +210,7 @@ function getRequestParams(credEvent) {
 
     const verifiable = credEvent.credentialRequestOptions.web.VerifiablePresentation
 
-    let {challenge, domain, query, invitation} = verifiable;
+    let {challenge, domain, query, invitation, manifest} = verifiable;
 
     if (query && query.challenge) {
         challenge = query.challenge;
@@ -211,5 +224,5 @@ function getRequestParams(credEvent) {
         domain = credEvent.credentialRequestOrigin.split('//').pop()
     }
 
-    return {domain, challenge, invitation}
+    return {domain, challenge, invitation, manifest}
 }

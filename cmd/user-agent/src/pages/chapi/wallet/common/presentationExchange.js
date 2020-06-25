@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 import Ajv from 'ajv';
 import jp from 'jsonpath';
 import {presentationDefSchema} from './presentationDefSchema';
+import {getCredentialType} from './util'
 
 
 const presentationSubmissionTemplate = `{
@@ -16,6 +17,9 @@ const presentationSubmissionTemplate = `{
     ],
     "type": ["VerifiablePresentation", "PresentationSubmission"],
     "presentation_submission": {
+        "descriptor_map": []
+    },
+    "presentation_location": {
         "descriptor_map": []
     },
     "verifiableCredential": []
@@ -91,7 +95,7 @@ export class PresentationExchange {
                 let r = {}
                 let {name, purpose, rule} = obj
 
-                r.name = name ? name : `${defSubmissionRuleName} #${index+1}`
+                r.name = name ? name : `${defSubmissionRuleName} #${index + 1}`
                 r.purpose = purpose ? purpose : defSubmissionRulePurpose
                 r.rule = rule.type == "all" ? "all conditions should be met" : `at least ${rule.count} of each condition should be met`
                 r.descriptors = []
@@ -149,6 +153,10 @@ function validateSchema(data) {
 
 // match matches given credential with descriptor
 function match(credential, descriptor) {
+    if (getCredentialType(credential.type) == 'IssuerManifestCredential') {
+        return false
+    }
+
     // match schema
     let schemas = Array.isArray(descriptor.schema.uri) ? descriptor.schema.uri : [descriptor.schema.uri]
     let contexts = Array.isArray(credential["@context"]) ? credential["@context"] : [credential["@context"]]
@@ -199,6 +207,17 @@ function match(credential, descriptor) {
     return filterMatched
 }
 
+// matchManifest matches if descriptor schema exists in manifest credential contexts list
+function matchManifest(credential, descriptor) {
+    if (getCredentialType(credential.type) != 'IssuerManifestCredential') {
+        return false
+    }
+
+    let schemas = Array.isArray(descriptor.schema.uri) ? descriptor.schema.uri : [descriptor.schema.uri]
+
+    return credential.credentialSubject.contexts.some(v => schemas.includes(v))
+}
+
 // prepareSubmission creates presentation submission for all matched credentials
 function prepareSubmission(results) {
     let presentationSubmission = JSON.parse(presentationSubmissionTemplate)
@@ -206,12 +225,23 @@ function prepareSubmission(results) {
     results.forEach(function (result, index) {
         //TODO add VC only once if it matches 2 conditions
         presentationSubmission.verifiableCredential.push(result.credential)
-        presentationSubmission.presentation_submission.descriptor_map.push(
-            {
-                id: result.id,
-                path: `$.verifiableCredential.[${index}]`
-            }
-        )
+
+        if (result.manifest){
+            presentationSubmission.presentation_location.descriptor_map.push(
+                {
+                    id: result.id,
+                    path: `$.verifiableCredential.[${index}]`
+                }
+            )
+        } else {
+            presentationSubmission.presentation_submission.descriptor_map.push(
+                {
+                    id: result.id,
+                    path: `$.verifiableCredential.[${index}]`
+                }
+            )
+        }
+
     })
 
     return presentationSubmission
@@ -219,43 +249,68 @@ function prepareSubmission(results) {
 
 // evaluateAll evaluates credentials based on all input descriptors
 function evaluateAll(credentials, descriptors) {
-    let results = []
+    let result = []
 
-    credentials.forEach(function (credential) {
-        descriptors.forEach(function (descriptor) {
+    descriptors.forEach(function (descriptor) {
+        let matched = false
+
+        credentials.forEach(function (credential) {
             if (match(credential, descriptor)) {
-                results.push({credential, id: descriptor.id})
+                matched = true
+                result.push({credential, id: descriptor.id})
             }
         })
+
+        // none of the credential matched, check for manifest credential matches
+        if (!matched) {
+            credentials.forEach(function (credential) {
+                if (matchManifest(credential, descriptor)) {
+                    result.push({credential, id: descriptor.id, manifest: true})
+                }
+            })
+        }
     })
 
-    return results
+    return result
 }
 
 // evaluateByRules evaluates credentials based on submission rules
 function evaluateByRules(credentials, descrsByGroup, submissions) {
-    let results = []
+    let result = []
 
     submissions.forEach(function (submission) {
 
         submission.rule.from.forEach(function (rule) {
             let descriptors = descrsByGroup[rule]
             let mustPass = submission.rule.type == "all" ? descriptors.length : submission.rule.count
+            let matched = false
 
             credentials.forEach(function (credential) {
                 let matches = descriptors.filter(d => match(credential, d))
                 if (matches.length >= mustPass) {
+                    matched = true
                     matches.forEach(function (match) {
-                        results.push({credential, id: match.id})
+                        result.push({credential, id: match.id})
                     })
                 }
             })
 
+            // none of the credential matched, check for manifest credential matches
+            if (!matched) {
+                credentials.forEach(function (credential) {
+                    let matches = descriptors.filter(d => matchManifest(credential, d))
+                    if (matches.length >= mustPass) {
+                        matches.forEach(function (match) {
+                            result.push({credential, id: match.id, manifest: true})
+                        })
+                    }
+                })
+            }
         })
 
     })
 
-    return results
+    return result
 }
 
 
