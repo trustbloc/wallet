@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import {expect} from 'chai'
 import {PresentationExchange} from '../../../../cmd/user-agent/src/pages/chapi/wallet'
-import {degreeCertificare,samplePresentationDefQuery, prCardv1, prCardv2} from './testdata.js'
+import {degreeCertificare, prCardv1, prCardv2, samplePresentationDefQuery, pdCardManifestVC} from './testdata.js'
 
 
 describe('presentation definition query schema validation', () => {
@@ -866,6 +866,149 @@ describe('generate presentation submission with submission requirements', () => 
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([secondDegree, secondDegree, prCardv2])
+    })
+
+    it('generate presentation submission using multiple submission requirements and manifest credentials', async () => {
+
+        var mastersDegree = JSON.parse(JSON.stringify(degreeCertificare))
+        degreeCertificare.issuer.id = "did:web:jake.university"
+        degreeCertificare.credentialSubject.degree.type = "MastersDegree"
+
+        var secondDegree = JSON.parse(JSON.stringify(degreeCertificare))
+        secondDegree.issuer.id = "did:web:faber.university"
+        secondDegree.credentialSubject.degree.type = "BachelorDegree"
+        secondDegree.credentialSubject.degree.coop = "Y"
+
+        var diploma = JSON.parse(JSON.stringify(degreeCertificare))
+        diploma.issuer.id = "did:web:trustbloc.university"
+        diploma.credentialSubject.degree.type = "PostGraduationDiploma"
+
+        let allCreds = [prCardv1, prCardv2, pdCardManifestVC, degreeCertificare, mastersDegree, secondDegree, diploma]
+
+        let presDef = {
+            submission_requirements: [
+                {
+                    "name": "Degree Information",
+                    "purpose": "We need to know if you are qualified for this job",
+                    "rule": {
+                        "type": "all",
+                        "from": ["D"]
+                    }
+                },
+                {
+                    "name": "Citizenship Information",
+                    "rule": {
+                        "type": "pick",
+                        "count": 1,
+                        "from": ["C"]
+                    }
+                }
+            ],
+            input_descriptors: [
+                {
+                    "id": "citizenship_input_1",
+                    "group": ["C"],
+                    "schema": {
+                        "uri": [
+                            "https://w3id.org/citizenship/v3",
+                            "https://w3id.org/citizenship/v4"
+                        ],
+                        "name": "US Permanent resident card"
+                    },
+                    "constraints": {
+                        "fields": [
+                            {
+                                "path": ["$.issuer.id", "$.vc.issuer.id", "$.issuer", "$.vc.issuer"],
+                                "purpose": "The credential must be from one of the specified issuers",
+                                "filter": {
+                                    "type": "string",
+                                    "pattern": "did:web:example.two|did:web:example.three"
+                                }
+                            },
+                            {
+                                "path": ["$.credentialSubject.commuterClassification"],
+                                "filter": {
+                                    "type": "string",
+                                    "pattern": "C1"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "degree_input_1",
+                    "group": ["D"],
+                    "schema": {
+                        "uri": [
+                            "https://www.example.com/2020/udc-example/v1"
+                        ],
+                        "name": "University degree certificate"
+                    },
+                    "constraints": {
+                        "fields": [
+                            {
+                                "path": ["$.issuer.id", "$.vc.issuer.id", "$.issuer", "$.vc.issuer"],
+                                "purpose": "The credential must be from one of the specified issuers",
+                                "filter": {
+                                    "type": "string",
+                                    "pattern": "did:web:faber.university|did:web:jake.university"
+                                }
+                            },
+                            {
+                                "path": ["$.credentialSubject.degree.type"],
+                                "purpose": "Should be masters or bachelors degree",
+                                "filter": {
+                                    "type": "string",
+                                    "pattern": "BachelorDegree|MastersDegree"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "degree_input_2",
+                    "group": ["D"],
+                    "schema": {
+                        "uri": [
+                            "https://www.example.com/2020/udc-example/v1"
+                        ],
+                        "name": "University degree certificate"
+                    },
+                    "constraints": {
+                        "fields": [
+                            {
+                                "path": ["$.credentialSubject.degree.coop"],
+                                "purpose": "Should include co-op",
+                                "filter": {
+                                    "type": "string",
+                                    "pattern": "Y"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+
+        let defQ = new PresentationExchange(presDef)
+        expect(defQ).to.not.be.null
+
+        let presSubmission = defQ.createPresentationSubmission(allCreds)
+        expect(presSubmission).to.not.be.null
+        expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
+        expect(presSubmission.presentation_submission).to.not.be.empty
+        expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
+            [
+                {"id": "degree_input_1", "path": "$.verifiableCredential.[0]"},
+                {"id": "degree_input_2", "path": "$.verifiableCredential.[1]"}
+            ]
+        )
+        expect(presSubmission.presentation_location.descriptor_map).to.deep.equal(
+            [
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[2]"}
+            ]
+        )
+        expect(presSubmission.verifiableCredential).to.deep.equal([secondDegree, secondDegree, pdCardManifestVC])
     })
 })
 

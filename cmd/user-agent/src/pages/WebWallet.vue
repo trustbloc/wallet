@@ -394,8 +394,8 @@ SPDX-License-Identifier: Apache-2.0
                 }
 
 
-                let invitation = JSON.parse(this.interopData)
-                if (invitation['@type'] != 'https://didcomm.org/didexchange/1.0/invitation') {
+                let request = JSON.parse(this.interopData)
+                if (!request.invitation) {
                     this.errors.push("Invalid invitation, expecting did comm invitation")
                     return
                 }
@@ -405,7 +405,8 @@ SPDX-License-Identifier: Apache-2.0
                     web: {
                         VerifiablePresentation: {
                             query: {type: "DIDConnect"},
-                            invitation: JSON.parse(this.interopData),
+                            invitation: request.invitation,
+                            manifest: request.manifest,
                             challenge: "54f3da1a-d1af-4c25-b1a6-90315dda62fc",
                             domain: "issuer.interop.example.com"
                         }

@@ -7,12 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 export const toLower = text => text.toString().toLowerCase()
 
 export const getCredentialType = (types) => {
-    const result = types.filter(type => !isCredentialType(type))
-    if (result.length > 0) {
-        return result[0]
-    }
-
-    return ""
+    let result = types.filter(type => !isCredentialType(type))
+    return result.length > 0 ? result[0] : ""
 }
 
 export const isCredentialType = (type) => isVCType(type) || isVPType(type)

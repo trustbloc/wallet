@@ -300,3 +300,25 @@ export const degreeCertificare = {
     }
 }
 
+export const pdCardManifestVC = {
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://trustbloc.github.io/context/vc/issuer-manifest-credential-v1.jsonld"
+    ],
+    "type": [
+        "VerifiableCredential",
+        "IssuerManifestCredential"
+    ],
+    "name": "Example Issuer Manifest Credential",
+    "description": "List of verifiable credentials provided by example issuer",
+    "id": "http://example.gov/credentials/ff98f978-588f-4eb0-b17b-60c18e1dac2c",
+    "issuanceDate": "2020-03-16T22:37:26.544Z",
+    "issuer": "did:factom:5d0dd58757119dd437c70d92b44fbf86627ee275f0f2146c3d99e441da342d9f",
+    "credentialSubject": {
+        "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+        "contexts" : [
+            "https://w3id.org/citizenship/v3",
+            "https://w3id.org/citizenship/v4"
+        ]
+    }
+}
