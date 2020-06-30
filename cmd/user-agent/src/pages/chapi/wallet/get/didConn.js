@@ -158,11 +158,16 @@ export class DIDConn {
     async waitFor(connectionID, states, callback, timeout) {
         return new Promise((resolve, reject) => {
             const stop = this.aries.startNotifier(notice => {
-                if (connectionID !== notice.payload.connection_id) {
+                const event = notice.payload
+                if (connectionID !== event.Properties.connectionID) {
                     return
                 }
 
-                if (states && !states.includes(notice.payload.state)) {
+                if (states && !states.includes(event.StateID)) {
+                    return
+                }
+
+                if (event.Type !== "post_state") {
                     return
                 }
 

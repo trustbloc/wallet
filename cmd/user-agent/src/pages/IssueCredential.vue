@@ -99,7 +99,7 @@ SPDX-License-Identifier: Apache-2.0
                             <md-list class="md-triple-line">
                                 <md-list-item v-for="action in actions" :key="action.id">
                                     <div class="md-list-item-text">
-                                        <span>PIID: {{action.piid}}</span>
+                                        <span>PIID: {{action.PIID}}</span>
                                     </div>
                                     <md-button v-if="isOfferCredential(action)" v-on:click="acceptOffer(action)"
                                                class="md-icon-button md-dense md-raised md-info right">
@@ -145,13 +145,13 @@ SPDX-License-Identifier: Apache-2.0
         },
         methods: {
             isOfferCredential: function (action) {
-                return action.msg['@type'].endsWith('/offer-credential')
+                return action.Msg['@type'].endsWith('/offer-credential')
             },
             isRequestCredential: function (action) {
-                return action.msg['@type'].endsWith('/request-credential')
+                return action.Msg['@type'].endsWith('/request-credential')
             },
             isIssueCredential: function (action) {
-                return action.msg['@type'].endsWith('/issue-credential')
+                return action.Msg['@type'].endsWith('/issue-credential')
             },
             acceptCredential: async function (action, form) {
                 if (!form) {
@@ -169,7 +169,7 @@ SPDX-License-Identifier: Apache-2.0
 
                 try {
                     await window.$aries.issuecredential.acceptCredential({
-                        piid: action.piid,
+                        piid: action.PIID,
                         names: this.issueCredentialNames.split(','),
                     })
                 } catch (e) {
@@ -183,7 +183,7 @@ SPDX-License-Identifier: Apache-2.0
             declineCredential: async function (action) {
                 try {
                     await window.$aries.issuecredential.declineCredential({
-                        piid: action.piid,
+                        piid: action.PIID,
                     })
                 } catch (e) {
                     this.showDialog("Decline Credential", e.message)
@@ -217,7 +217,7 @@ SPDX-License-Identifier: Apache-2.0
 
                 try {
                     await window.$aries.issuecredential.acceptRequest({
-                        piid: action.piid,
+                        piid: action.PIID,
                         issue_credential: credential,
                     })
                 } catch (e) {
@@ -231,7 +231,7 @@ SPDX-License-Identifier: Apache-2.0
             declineRequest: async function (action) {
                 try {
                     await window.$aries.issuecredential.declineRequest({
-                        piid: action.piid,
+                        piid: action.PIID,
                     })
                 } catch (e) {
                     this.showDialog("Decline Request", e.message)
@@ -248,7 +248,7 @@ SPDX-License-Identifier: Apache-2.0
             declineOffer: async function (action) {
                 try {
                     await window.$aries.issuecredential.declineOffer({
-                        piid: action.piid,
+                        piid: action.PIID,
                     })
                 } catch (e) {
                     this.showDialog("Decline Offer", e.message)
@@ -261,7 +261,7 @@ SPDX-License-Identifier: Apache-2.0
             acceptOffer: async function (action) {
                 try {
                     await window.$aries.issuecredential.acceptOffer({
-                        piid: action.piid,
+                        piid: action.PIID,
                     })
                 } catch (e) {
                     this.showDialog("Accept Offer", e.message)

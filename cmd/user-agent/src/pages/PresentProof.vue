@@ -97,7 +97,7 @@
                             <md-list class="md-triple-line">
                                 <md-list-item v-for="action in actions" :key="action.id">
                                     <div class="md-list-item-text">
-                                        <span>PIID: {{action.piid}}</span>
+                                        <span>PIID: {{action.PIID}}</span>
                                     </div>
                                     <md-button v-if="isRequestPresentation(action)"
                                                v-on:click="acceptRequestPresentation(action)"
@@ -142,13 +142,12 @@
             refreshActions: async function () {
                 let res = await window.$aries.presentproof.actions()
                 this.actions = res.actions
-                console.log(this.actions)
             },
             isRequestPresentation: function (action) {
-                return action.msg['@type'].endsWith('/request-presentation')
+                return action.Msg['@type'].endsWith('/request-presentation')
             },
             isPresentation: function (action) {
-                return action.msg['@type'].endsWith('/presentation')
+                return action.Msg['@type'].endsWith('/presentation')
             },
             acceptPresentation: async function (action, form) {
                 if (!form) {
@@ -165,7 +164,7 @@
 
                 try {
                     await window.$aries.presentproof.acceptPresentation({
-                        piid: action.piid,
+                        piid: action.PIID,
                         names: this.presentationNames.split(','),
                     })
                 } catch (e) {
@@ -199,7 +198,7 @@
 
                 try {
                     await window.$aries.presentproof.acceptRequestPresentation({
-                        piid: action.piid,
+                        piid: action.PIID,
                         presentation: presentation,
                     })
                 } catch (e) {
@@ -214,7 +213,7 @@
             declineRequestPresentation: async function (action) {
                 try {
                     await window.$aries.presentproof.declineRequestPresentation({
-                        piid: action.piid,
+                        piid: action.PIID,
                     })
                 } catch (e) {
                     this.showDialog("Decline Request Presentation", e.message)
@@ -227,7 +226,7 @@
             declinePresentation: async function (action) {
                 try {
                     await window.$aries.presentproof.declinePresentation({
-                        piid: action.piid,
+                        piid: action.PIID,
                     })
                 } catch (e) {
                     this.showDialog("Decline Presentation", e.message)
