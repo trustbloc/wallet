@@ -68,11 +68,16 @@ export class AgentMediator {
     async waitFor(connectionID, state, callback) {
         return new Promise((resolve, reject) => {
             const stop = this.aries.startNotifier(notice => {
-                if (connectionID !== notice.payload.connection_id) {
+                const event = notice.payload
+                if (connectionID !== event.Properties.connectionID) {
                     return
                 }
 
-                if (state && notice.payload.state !== state) {
+                if (state && event.StateID !== state) {
+                    return
+                }
+
+                if (event.Type !== "post_state") {
                     return
                 }
 

@@ -108,3 +108,47 @@ You can use this message for the test:
 3. Go to the opposite agent. Open the `Present Proof` page. You will see a action in the `Actions` section.
 Hit the `Accept` button and provide a name for the presentation.
 4. Go to the `Dashboard` page. In the `My Stored Presentations` section, you will see the presentation you received.
+
+## How to issue credentials through the Issue Credential protocol?
+
+1. Go to `Issue Credential` page and send an offer. You can use an empty JSON payload e.g `{}`.
+   Also, you need to select the connection (to whom the offer should be sent). Hit the SEND button.
+2. Go to the `Issue Credential` page on the opposite agent. In the `Actions` section you will see a new action.
+There will be an accept button. Hit that button.
+3. Go to the `Issue Credential` page on the opposite agent. In the `Actions` section hit the refresh button.
+You will see a new action. There will be an accept button. Hit that button. On the modal window provide your credential.
+You can use this payload to do that.
+    ```
+    {
+       "credentials~attach":[
+          {
+             "lastmod_time":"0001-01-01T00:00:00Z",
+             "data":{
+                "json":{
+                   "@context":[
+                      "https://www.w3.org/2018/credentials/v1",
+                      "https://www.w3.org/2018/credentials/examples/v1"
+                   ],
+                   "credentialSubject":{
+                      "ID":"SubjectID"
+                   },
+                   "id":"http://example.edu/credentials/1872",
+                   "issuanceDate":"2010-01-01T19:23:24Z",
+                   "issuer":{
+                      "id":"did:example:76e12ec712ebc6f1c221ebfeb1f",
+                      "name":"Example University"
+                   },
+                   "referenceNumber":83294847,
+                   "type":[
+                      "VerifiableCredential",
+                      "UniversityDegreeCredential"
+                   ]
+                }
+             }
+          }
+       ]
+    }
+    ```
+4. Go to the `Issue Credential` page on the opposite agent. In the `Actions` section hit the refresh button.
+You will see a new action. There will be an accept button. Hit that button. On the modal window provide your credential name.
+5. We are done! Go to the Presentation page to check that credentials are stored. There will be a select button with your credential.

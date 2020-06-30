@@ -157,11 +157,16 @@ SPDX-License-Identifier: Apache-2.0
             waitFor: function (connection, state, callback) {
                 return new Promise((resolve, reject) => {
                     const stop = window.$aries.startNotifier(notice => {
-                        if (connection !== notice.payload.connection_id) {
+                        const event = notice.payload
+                        if (connection !== event.Properties.connectionID) {
                             return
                         }
 
-                        if (notice.payload.state !== state) {
+                        if (event.StateID !== state) {
+                            return
+                        }
+
+                        if (event.Type !== "post_state") {
                             return
                         }
 
@@ -174,7 +179,7 @@ SPDX-License-Identifier: Apache-2.0
                         } catch (err) {
                             reject(err)
                         }
-                    }, ["all"])
+                    }, ["didexchange_states"])
 
                     setTimeout(() => {
                         stop()
