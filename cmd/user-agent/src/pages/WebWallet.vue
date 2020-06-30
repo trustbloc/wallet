@@ -286,7 +286,8 @@ SPDX-License-Identifier: Apache-2.0
                                                     "schema": {
                                                         "uri": [
                                                             "https://w3id.org/citizenship/v1",
-                                                            "https://w3id.org/citizenship/v2"
+                                                            "https://w3id.org/citizenship/v2",
+                                                            "https://w3id.org/citizenship/v3"
                                                         ],
                                                         "name": "US Permanent resident card"
                                                     },
@@ -359,6 +360,22 @@ SPDX-License-Identifier: Apache-2.0
                                             ]
                                         }
                                 }
+                                // ,
+                                // {
+                                //     type: "DIDConnect",
+                                //     invitation: {
+                                //         "@id": "0e1a0b29-5fc2-4772-ad1e-7f5c83395996",
+                                //         "@type": "https://didcomm.org/didexchange/1.0/invitation",
+                                //         "label": "user-agent",
+                                //         "recipientKeys": [
+                                //             "6GGvELpBaLKxvXvTsMTYifm8p6eUY6H21cP9PHC4BEpd"
+                                //         ],
+                                //         "routingKeys": [
+                                //             "7avHU9szBLHdCqTXkgef9sQospFrSFE4xFzhvtLe5e55"
+                                //         ],
+                                //         "serviceEndpoint": "http://localhost:10091"
+                                //     }
+                                // }
                             ],
                             challenge: "",
                             domain: ""

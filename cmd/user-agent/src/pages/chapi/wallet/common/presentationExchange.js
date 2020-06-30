@@ -74,13 +74,13 @@ export class PresentationExchange {
         this.descriptors = descriptors
     }
 
-    createPresentationSubmission(credentials) {
+    createPresentationSubmission(credentials, searchManifests) {
         let results = []
 
         if (this.applyRules) {
-            results = evaluateByRules(credentials, this.descriptorsByGroup, this.requirementObjs)
+            results = evaluateByRules(credentials, this.descriptorsByGroup, this.requirementObjs, searchManifests)
         } else {
-            results = evaluateAll(credentials, this.descriptors)
+            results = evaluateAll(credentials, this.descriptors, searchManifests)
         }
 
         return prepareSubmission(results)
@@ -248,7 +248,7 @@ function prepareSubmission(results) {
 }
 
 // evaluateAll evaluates credentials based on all input descriptors
-function evaluateAll(credentials, descriptors) {
+function evaluateAll(credentials, descriptors, searchManifests) {
     let result = []
 
     descriptors.forEach(function (descriptor) {
@@ -262,7 +262,7 @@ function evaluateAll(credentials, descriptors) {
         })
 
         // none of the credential matched, check for manifest credential matches
-        if (!matched) {
+        if (!matched && searchManifests) {
             credentials.forEach(function (credential) {
                 if (matchManifest(credential, descriptor)) {
                     result.push({credential, id: descriptor.id, manifest: true})
@@ -275,7 +275,7 @@ function evaluateAll(credentials, descriptors) {
 }
 
 // evaluateByRules evaluates credentials based on submission rules
-function evaluateByRules(credentials, descrsByGroup, submissions) {
+function evaluateByRules(credentials, descrsByGroup, submissions, searchManifests) {
     let result = []
 
     submissions.forEach(function (submission) {
@@ -296,7 +296,7 @@ function evaluateByRules(credentials, descrsByGroup, submissions) {
             })
 
             // none of the credential matched, check for manifest credential matches
-            if (!matched) {
+            if (!matched && searchManifests) {
                 credentials.forEach(function (credential) {
                     let matches = descriptors.filter(d => matchManifest(credential, d))
                     if (matches.length >= mustPass) {

@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 import {WalletGet} from "./getCredentials";
 import jp from 'jsonpath';
 import {PresentationExchange} from '../common/presentationExchange'
+import {DIDExchange} from '../common/didExchange'
 
 const responseType = "VerifiablePresentation"
-const queryType = "PresentationDefinitionQuery"
 
 /**
  * WalletGetByQuery provides CHAPI get vp features
@@ -21,13 +21,14 @@ export class WalletGetByQuery extends WalletGet {
         super(aries, credEvent);
 
         // validate query and init Presentation Exchange
-        let query = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[*]');
-
-        if (query.length > 0 && query[0].type != queryType) {
+        let query = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="PresentationDefinitionQuery")]');
+        if (query.length == 0) {
             throw "invalid request, incorrect query type"
         }
 
         this.exchange = new PresentationExchange(query[0].presentationDefinitionQuery)
+
+        this.invitation = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="DIDConnect")].invitation');
     }
 
     requirementDetails() {
@@ -45,7 +46,14 @@ export class WalletGetByQuery extends WalletGet {
             vcs.push(JSON.parse(resp.verifiableCredential))
         }
 
-        return this.exchange.createPresentationSubmission(vcs)
+        let submission =  this.exchange.createPresentationSubmission(vcs, this.invitation.length > 0)
+        if (Object.keys(submission.presentation_location.descriptor_map).length > 0) {
+            let exchange = new DIDExchange(this.aries)
+            let connection = await exchange.connect(this.invitation[0])
+            console.log(`got connection with ${connection.result.State} status`, connection)
+        }
+
+        return submission
     }
 
     async createAndSendPresentation(walletUser, presentationSubmission, selectedIndexes) {

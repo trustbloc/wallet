@@ -83,7 +83,7 @@ async function ariesStartupOpts() {
 let defaulTrustBlocStartupOpts = {
     assetsPath: '/trustbloc-agent/assets',
     blocDomain: 'testnet.trustbloc.local',
-    walletMediatorURL: ''
+    walletMediatorURL: 'http://localhost:10093'
 }
 
 async function trustblocStartupOpts() {

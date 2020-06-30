@@ -38,7 +38,7 @@ export function getCredentialMetadata(data, dataType) {
             res.issuance = issuance
         }
 
-        if (issuer && issuer.length > 0 ) {
+        if (issuer && issuer.length > 0) {
             res.issuer = res.issuer == "" ? issuer : `${res.issuer},${issuer}`
         }
 
@@ -94,5 +94,5 @@ function getVCMetadata(vc) {
     let issuer = (vc.issuer && vc.issuer.id) ? vc.issuer.id : vc.issuer
     let subject = (vc.type && Array.isArray(vc.type)) ? getCredentialType(vc.type) : ''
 
-    return  {issuance: issuance, issuer: issuer, subject: subject}
+    return {issuance: issuance, issuer: issuer, subject: subject}
 }

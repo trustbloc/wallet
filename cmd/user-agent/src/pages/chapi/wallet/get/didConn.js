@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import {WalletManager} from '../register/walletManager'
+import {DIDExchange} from '../common/didExchange'
 
 /**
  * DIDConn provides CHAPI did connection/exchange features
@@ -16,6 +17,7 @@ export class DIDConn {
         this.aries = aries
         this.walletUser = walletUser
         this.walletManager = new WalletManager()
+        this.exchange = new DIDExchange(aries)
         this.credEvent = credEvent
 
         const {domain, challenge, invitation, manifest} = getRequestParams(credEvent);
@@ -27,30 +29,7 @@ export class DIDConn {
 
     async connect() {
         // perform did exchange
-        let res = await this.aries.didexchange.receiveInvitation(this.invitation)
-
-        let aries = this.aries
-        await this.waitFor(res.connection_id, ['invited'], function () {
-            return aries.didexchange.acceptInvitation({
-                id: res.connection_id
-            })
-        })
-
-        // wait for status to be completed
-        let connectionID
-        try {
-            let completed = await this.waitFor(res.connection_id, ['completed'], null, 10000)
-            connectionID = completed.connection_id
-        } catch (e) {
-            // do not fail if connection is not yet completed, return current state in response
-            if (!e.toString().includes("time out while waiting for connection")) {
-                throw e
-            }
-            console.error("time out while waiting for connection to be completed")
-            connectionID = res.connection_id
-        }
-
-        let connection = await this.aries.didexchange.queryConnectionByID({id: connectionID})
+        let connection = await this.exchange.connect(this.invitation)
 
         // save wallet metadata
         if (this.walletUser.connections) {
@@ -60,17 +39,20 @@ export class DIDConn {
         }
         await this.walletManager.storeWalletMetadata(this.walletUser.id, this.walletUser)
 
-        // TODO verify proof and save
-        await this.aries.verifiable.saveCredential({
-            name: this.invitation["@id"],
-            verifiableCredential: JSON.stringify(this.manifest)
-        }).then(() => {
-                console.log('successfully saved manifest VC:', name)
-            }
-        ).catch(err => {
-            console.log(`failed to save ${name} : errMsg=${err}`)
-            throw err
-        })
+        // save manifest credentials
+        if (this.manifest) {
+            // TODO verify proof and save
+            await this.aries.verifiable.saveCredential({
+                name: this.invitation["@id"],
+                verifiableCredential: JSON.stringify(this.manifest)
+            }).then(() => {
+                    console.log('successfully saved manifest VC:', name)
+                }
+            ).catch(err => {
+                console.log(`failed to save ${name} : errMsg=${err}`)
+                throw err
+            })
+        }
 
 
         let responseData = await this._didConnResponse(connection.result)
@@ -154,41 +136,7 @@ export class DIDConn {
 
         return data
     }
-
-    async waitFor(connectionID, states, callback, timeout) {
-        return new Promise((resolve, reject) => {
-            const stop = this.aries.startNotifier(notice => {
-                if (connectionID !== notice.payload.connection_id) {
-                    return
-                }
-
-                if (states && !states.includes(notice.payload.state)) {
-                    return
-                }
-
-                stop()
-
-                if (callback) {
-                    try {
-                        callback().then(() => {
-                            resolve()
-                        })
-                    } catch (err) {
-                        reject(err)
-                    }
-                } else {
-                    resolve(notice.payload)
-                }
-
-            }, ["all"])
-
-            setTimeout(() => {
-                stop()
-                reject(new Error("time out while waiting for connection"))
-            }, timeout ? timeout : 5000)
-        })
-    }
-
+    
     cancel() {
         this.sendResponse("Response", "permission denied")
     }
