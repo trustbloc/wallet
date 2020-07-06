@@ -129,7 +129,14 @@ SPDX-License-Identifier: Apache-2.0
                 this.credentialWarning = 'Wallet is not registered'
             }
 
-            this.presentation = await this.wallet.getPresentationSubmission()
+            try {
+                this.presentation = await this.wallet.getPresentationSubmission()
+            } catch (e) {
+                this.credentialWarning = "Some unexpected error occurred, please try again later"
+                this.loading = false
+                return
+            }
+
             this.requirements = this.wallet.requirementDetails()
 
             let vcsFound = []

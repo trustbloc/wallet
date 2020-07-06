@@ -74,13 +74,13 @@ export class PresentationExchange {
         this.descriptors = descriptors
     }
 
-    createPresentationSubmission(credentials) {
+    createPresentationSubmission(credentials, manifests) {
         let results = []
 
         if (this.applyRules) {
-            results = evaluateByRules(credentials, this.descriptorsByGroup, this.requirementObjs)
+            results = evaluateByRules(credentials, manifests, this.descriptorsByGroup, this.requirementObjs)
         } else {
-            results = evaluateAll(credentials, this.descriptors)
+            results = evaluateAll(credentials, manifests, this.descriptors)
         }
 
         return prepareSubmission(results)
@@ -208,14 +208,12 @@ function match(credential, descriptor) {
 }
 
 // matchManifest matches if descriptor schema exists in manifest credential contexts list
-function matchManifest(credential, descriptor) {
-    if (getCredentialType(credential.type) != 'IssuerManifestCredential') {
-        return false
-    }
+// TODO: manifests to have credential previews so that complete constraint checks can be run
+function matchManifest(manifest, descriptor) {
 
     let schemas = Array.isArray(descriptor.schema.uri) ? descriptor.schema.uri : [descriptor.schema.uri]
 
-    return credential.credentialSubject.contexts.some(v => schemas.includes(v))
+    return manifest.credentialSubject.contexts.some(v => schemas.includes(v))
 }
 
 // prepareSubmission creates presentation submission for all matched credentials
@@ -248,7 +246,7 @@ function prepareSubmission(results) {
 }
 
 // evaluateAll evaluates credentials based on all input descriptors
-function evaluateAll(credentials, descriptors) {
+function evaluateAll(credentials, manifests, descriptors) {
     let result = []
 
     descriptors.forEach(function (descriptor) {
@@ -262,8 +260,8 @@ function evaluateAll(credentials, descriptors) {
         })
 
         // none of the credential matched, check for manifest credential matches
-        if (!matched) {
-            credentials.forEach(function (credential) {
+        if (!matched && manifests) {
+            manifests.forEach(function (credential) {
                 if (matchManifest(credential, descriptor)) {
                     result.push({credential, id: descriptor.id, manifest: true})
                 }
@@ -275,7 +273,7 @@ function evaluateAll(credentials, descriptors) {
 }
 
 // evaluateByRules evaluates credentials based on submission rules
-function evaluateByRules(credentials, descrsByGroup, submissions) {
+function evaluateByRules(credentials, manifests, descrsByGroup, submissions) {
     let result = []
 
     submissions.forEach(function (submission) {
@@ -296,8 +294,8 @@ function evaluateByRules(credentials, descrsByGroup, submissions) {
             })
 
             // none of the credential matched, check for manifest credential matches
-            if (!matched) {
-                credentials.forEach(function (credential) {
+            if (!matched && manifests) {
+                manifests.forEach(function (credential) {
                     let matches = descriptors.filter(d => matchManifest(credential, d))
                     if (matches.length >= mustPass) {
                         matches.forEach(function (match) {

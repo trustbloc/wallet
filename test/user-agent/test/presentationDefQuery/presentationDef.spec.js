@@ -883,7 +883,7 @@ describe('generate presentation submission with submission requirements', () => 
         diploma.issuer.id = "did:web:trustbloc.university"
         diploma.credentialSubject.degree.type = "PostGraduationDiploma"
 
-        let allCreds = [prCardv1, prCardv2, pdCardManifestVC, degreeCertificare, mastersDegree, secondDegree, diploma]
+        let allCreds = [prCardv1, prCardv2, degreeCertificare, mastersDegree, secondDegree, diploma]
 
         let presDef = {
             submission_requirements: [
@@ -993,7 +993,7 @@ describe('generate presentation submission with submission requirements', () => 
         let defQ = new PresentationExchange(presDef)
         expect(defQ).to.not.be.null
 
-        let presSubmission = defQ.createPresentationSubmission(allCreds)
+        let presSubmission = defQ.createPresentationSubmission(allCreds, [pdCardManifestVC])
         expect(presSubmission).to.not.be.null
         expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
         expect(presSubmission.presentation_submission).to.not.be.empty
