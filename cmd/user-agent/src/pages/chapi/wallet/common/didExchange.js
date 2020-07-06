@@ -16,7 +16,6 @@ export class DIDExchange {
     }
 
     async connect(invitation) {
-        console.log("performing did exchange for inviation", invitation)
         // perform did exchange
         let res = await this.aries.didexchange.receiveInvitation(invitation)
 
@@ -31,7 +30,7 @@ export class DIDExchange {
         let connectionID
         try {
             let completed = await this.waitFor(res.connection_id, ['completed'], null, 10000)
-            connectionID = completed.connection_id
+            connectionID = completed.Properties.connectionID
         } catch (e) {
             // do not fail if connection is not yet completed, return current state in response
             if (!e.toString().includes("time out while waiting for connection")) {

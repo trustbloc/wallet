@@ -96,3 +96,33 @@ function getVCMetadata(vc) {
 
     return {issuance: issuance, issuer: issuer, subject: subject}
 }
+
+export async function waitForNotification(aries, topics, eventType, callback, timeout) {
+    return new Promise((resolve, reject) => {
+        const stop = aries.startNotifier(notice => {
+            if (eventType && notice.payload.Type !== eventType) {
+                return
+            }
+
+            stop()
+
+            if (callback) {
+                try {
+                    callback().then(() => {
+                        resolve()
+                    })
+                } catch (err) {
+                    reject(err)
+                }
+            } else {
+                resolve(notice.payload)
+            }
+
+        }, topics)
+
+        setTimeout(() => {
+            stop()
+            reject(new Error("time out while waiting for notification"))
+        }, timeout ? timeout : 10000)
+    })
+}

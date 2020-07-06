@@ -7,9 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 import {WalletGet} from "./getCredentials";
 import jp from 'jsonpath';
 import {PresentationExchange} from '../common/presentationExchange'
-import {DIDExchange} from '../common/didExchange'
+import {WalletManager} from "../register/walletManager";
+import {getCredentialType, waitForNotification} from '../common/util'
 
 const responseType = "VerifiablePresentation"
+const consentCredentialType = 'ConsentCredential'
 
 /**
  * WalletGetByQuery provides CHAPI get vp features
@@ -29,6 +31,8 @@ export class WalletGetByQuery extends WalletGet {
         this.exchange = new PresentationExchange(query[0].presentationDefinitionQuery)
 
         this.invitation = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="DIDConnect")].invitation');
+
+        this.walletManager = new WalletManager()
     }
 
     requirementDetails() {
@@ -43,26 +47,28 @@ export class WalletGetByQuery extends WalletGet {
             const resp = await this.aries.verifiable.getCredential({
                 id: credential.key
             })
+
             vcs.push(JSON.parse(resp.verifiableCredential))
         }
 
-        let submission =  this.exchange.createPresentationSubmission(vcs, this.invitation.length > 0)
-        if (Object.keys(submission.presentation_location.descriptor_map).length > 0) {
-            let exchange = new DIDExchange(this.aries)
-            let connection = await exchange.connect(this.invitation[0])
-            console.log(`got connection with ${connection.result.State} status`, connection)
-        }
+        let manifests = await this.walletManager.getAllManifests()
+        let submission = this.exchange.createPresentationSubmission(vcs, manifests)
 
         return submission
     }
 
     async createAndSendPresentation(walletUser, presentationSubmission, selectedIndexes) {
-
-        if (selectedIndexes && selectedIndexes.length > 0) {
-            presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes)
-        }
-
         try {
+            if (selectedIndexes && selectedIndexes.length > 0) {
+                presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes)
+
+                if (this.invitation.length > 0) {
+                // collect consent credentials for presentation_locations
+                presentationSubmission = await getConsentCredentials(this.aries, presentationSubmission, this.walletManager)
+                }
+            }
+
+
             let data
             await this.aries.verifiable.generatePresentation({
                 presentation: presentationSubmission,
@@ -93,7 +99,7 @@ export class WalletGetByQuery extends WalletGet {
 }
 
 // retainOnlySelected retain only selected VCs and their respective descriptors
-function retainOnlySelected(presentationSubmission, selectedIndexes){
+function retainOnlySelected(presentationSubmission, selectedIndexes) {
     let descriptors = []
     let vcs = []
 
@@ -105,7 +111,7 @@ function retainOnlySelected(presentationSubmission, selectedIndexes){
 
                 let vcDescrs = jp.query(presentationSubmission, `$.presentation_submission.descriptor_map[?(@.path=="$.verifiableCredential.[${vcIndex}]")].id`)
                 vcDescrs.forEach(function (id) {
-                    descriptors.push({id, path:`$.verifiableCredential.[${vcCount}]`})
+                    descriptors.push({id, path: `$.verifiableCredential.[${vcCount}]`})
                 })
 
                 vcCount++
@@ -117,4 +123,89 @@ function retainOnlySelected(presentationSubmission, selectedIndexes){
     presentationSubmission.presentation_submission.descriptor_map = descriptors
 
     return presentationSubmission
+}
+
+async function getConsentCredentials(aries, presentationSubmission, walletManager) {
+    let vcs = []
+    // TODO DID exchange with verifier not needed for now
+    // let exchange = new DIDExchange(aries)
+    // let connection = await exchange.connect(invitation)
+    // console.log(`got connection with ${connection.result.State} status`, connection)
+
+    //TODO to improve performance all request should be sent to all issuers in paralle and need to establish
+    // cooreltation between incoming actions
+    for (let vc of presentationSubmission.verifiableCredential) {
+        if (getCredentialType(vc.type) != 'IssuerManifestCredential') {
+            vcs.push(vc)
+            return
+        }
+
+        let connection = await walletManager.getConnectionByID(vc.connection)
+
+        //TODO pass user DID & RP DID as ~attachments
+        aries.issuecredential.sendRequest({
+            my_did: connection.MyDID,
+            their_did: connection.TheirDID,
+            request_credential: {},
+        })
+
+        let event = await waitForNotification(aries, ["issue-credential_states"], "post_state")
+        if (event.StateID != 'request-sent') {
+            throw 'failed to send credential request to issuer'
+        }
+
+        console.log("sent credential request state notification", event.Message['@id'])
+
+        let piid = event.Message['@id']
+        let action = await getAction(aries, piid)
+        aries.issuecredential.acceptCredential({
+            piid: action.PIID,
+            names: [consentCredentialType],
+        })
+
+        let credential = await getCredential(aries, consentCredentialType)
+        vcs.push(credential)
+    }
+
+    presentationSubmission.verifiableCredential = vcs
+    return presentationSubmission
+}
+
+const retries = 15;
+
+async function getAction(agent, piid) {
+    for (let i = 0; i < retries; i++) {
+        let resp = await agent.issuecredential.actions()
+        if (resp.actions.length > 0) {
+            for (let action of resp.actions) {
+                if (action.PIID == piid) {
+                    return action
+                }
+            }
+        }
+
+        await sleep(1000);
+    }
+
+    throw new Error("no action found")
+}
+
+async function getCredential(agent, name) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await agent.verifiable.getCredentialByName({
+                name: name
+            })
+        } catch (e) {
+            console.log(`credential '${name}' not found, retrying`)
+        }
+
+        await sleep(1000);
+    }
+
+    throw new Error("no credential found")
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }

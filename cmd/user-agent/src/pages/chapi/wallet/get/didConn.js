@@ -32,28 +32,19 @@ export class DIDConn {
         let connection = await this.exchange.connect(this.invitation)
 
         // save wallet metadata
-        if (this.walletUser.connections) {
-            this.walletUser.connections.push(connection.result)
-        } else {
-            this.walletUser.connections = [connection.result]
+        if (!this.walletUser.connections) {
+            this.walletUser.connections = []
         }
+        this.walletUser.connections.push(connection.result.ConnectionID)
         await this.walletManager.storeWalletMetadata(this.walletUser.id, this.walletUser)
 
-        // save manifest credentials
-        if (this.manifest) {
-            // TODO verify proof and save
-            await this.aries.verifiable.saveCredential({
-                name: this.invitation["@id"],
-                verifiableCredential: JSON.stringify(this.manifest)
-            }).then(() => {
-                    console.log('successfully saved manifest VC:', name)
-                }
-            ).catch(err => {
-                console.log(`failed to save ${name} : errMsg=${err}`)
-                throw err
-            })
-        }
+        // save connection
+        await this.walletManager.storeConnection(connection.result.ConnectionID, connection.result)
 
+        // save manifest credential
+        if (this.manifest) {
+            await this.walletManager.storeManifest(connection.result.ConnectionID, this.manifest)
+        }
 
         let responseData = await this._didConnResponse(connection.result)
         this.sendResponse("VerifiablePresentation", responseData)
@@ -136,7 +127,7 @@ export class DIDConn {
 
         return data
     }
-    
+
     cancel() {
         this.sendResponse("Response", "permission denied")
     }
