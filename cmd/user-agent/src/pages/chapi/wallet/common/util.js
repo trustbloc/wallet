@@ -38,7 +38,7 @@ export function getCredentialMetadata(data, dataType) {
             res.issuance = issuance
         }
 
-        if (issuer && issuer.length > 0 ) {
+        if (issuer && issuer.length > 0) {
             res.issuer = res.issuer == "" ? issuer : `${res.issuer},${issuer}`
         }
 
@@ -94,5 +94,35 @@ function getVCMetadata(vc) {
     let issuer = (vc.issuer && vc.issuer.id) ? vc.issuer.id : vc.issuer
     let subject = (vc.type && Array.isArray(vc.type)) ? getCredentialType(vc.type) : ''
 
-    return  {issuance: issuance, issuer: issuer, subject: subject}
+    return {issuance: issuance, issuer: issuer, subject: subject}
+}
+
+export async function waitForNotification(aries, topics, eventType, callback, timeout) {
+    return new Promise((resolve, reject) => {
+        const stop = aries.startNotifier(notice => {
+            if (eventType && notice.payload.Type !== eventType) {
+                return
+            }
+
+            stop()
+
+            if (callback) {
+                try {
+                    callback().then(() => {
+                        resolve()
+                    })
+                } catch (err) {
+                    reject(err)
+                }
+            } else {
+                resolve(notice.payload)
+            }
+
+        }, topics)
+
+        setTimeout(() => {
+            stop()
+            reject(new Error("time out while waiting for notification"))
+        }, timeout ? timeout : 10000)
+    })
 }

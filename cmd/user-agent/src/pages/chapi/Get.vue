@@ -15,6 +15,32 @@ SPDX-License-Identifier: Apache-2.0
     import DIDConnectForm from "./DIDConnect.vue";
     import GetCredentialsForm from "./GetCredentials.vue";
     import PresentationDefQueryForm from "./PresentationDefQuery.vue";
+    import jp from 'jsonpath';
+
+    const types = [
+        {id:'PresentationDefinitionQuery', component:PresentationDefQueryForm},
+        {id:'DIDAuth', component:DIDAuthForm},
+        {id:'DIDConnect', component:DIDConnectForm}
+    ]
+
+    function getComponent(credEvent){
+        for (let i in types) {
+            let type = types[i]
+
+            let found = jp.query(credEvent, `$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="${type.id}")]`);
+            if (found.length  > 0){
+                return type.component
+            }
+
+            found = jp.query(credEvent, `$..credentialRequestOptions.web.VerifiablePresentation.query`);
+            if (found.length  > 0 && found[0].type == type.id){
+                return type.component
+            }
+        }
+
+        // default form
+        return GetCredentialsForm
+    }
 
     export default {
         beforeCreate: async function () {
@@ -26,23 +52,7 @@ SPDX-License-Identifier: Apache-2.0
             }
 
             console.log("incoming web credential event", this.credentialEvent)
-
-            this.verifiable = this.credentialEvent.credentialRequestOptions.web.VerifiablePresentation
-            this.query = {}
-            if (this.verifiable.query) {
-                // supporting only one query for now
-                this.query = Array.isArray(this.verifiable.query) ? this.verifiable.query[0] : this.verifiable.query;
-            }
-
-            if (this.query.type === 'DIDAuth') {
-                this.component = DIDAuthForm
-            } else if (this.query.type === 'DIDConnect') {
-                this.component = DIDConnectForm
-            } else if (this.query.type === 'PresentationDefinitionQuery') {
-                this.component = PresentationDefQueryForm
-            } else {
-                this.component = GetCredentialsForm
-            }
+            this.component = getComponent(this.credentialEvent)
         },
         data() {
             return {
