@@ -17,13 +17,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
-	"github.com/sirupsen/logrus"
+	"github.com/trustbloc/edge-core/pkg/log"
 
 	"github.com/trustbloc/edge-agent/pkg/controller"
 	cmdctrl "github.com/trustbloc/edge-agent/pkg/controller/command"
 )
 
-var logger = logrus.New()
+var logger = log.New("trustbloc-agent-js-worker")
 
 const (
 	wasmStartupTopic         = "asset-ready"

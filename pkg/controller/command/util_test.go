@@ -8,11 +8,11 @@ package command
 import (
 	"testing"
 
-	"github.com/sirupsen/logrus"
+	"github.com/trustbloc/edge-core/pkg/log"
 )
 
 func Test_WriteNillableResponse(t *testing.T) {
-	WriteNillableResponse(&mockWriter{}, nil, logrus.New())
+	WriteNillableResponse(&mockWriter{}, nil, log.New("util-test"))
 }
 
 type mockWriter struct {
