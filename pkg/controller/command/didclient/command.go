@@ -87,7 +87,7 @@ func (c *Command) CreateDID(rw io.Writer, req io.Reader) command.Error {
 		}
 
 		opts = append(opts, didclient.WithPublicKey(&didclient.PublicKey{ID: v.ID, Type: v.Type, Encoding: v.Encoding,
-			KeyType: v.KeyType, Usage: v.Usage, Recovery: v.Recovery, Value: value}))
+			KeyType: v.KeyType, Purpose: v.Purpose, Recovery: v.Recovery, Update: v.Update, Value: value}))
 	}
 
 	didDoc, err := c.client.CreateDID(c.domain, opts...)
