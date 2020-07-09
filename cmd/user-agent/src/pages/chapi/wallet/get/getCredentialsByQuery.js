@@ -14,7 +14,8 @@ import {AgentMediator} from '../didcomm/connections'
 
 var uuid = require('uuid/v4')
 
-const responseType = "VerifiablePresentation"
+const responseType = 'VerifiablePresentation'
+const manifestType = 'IssuerManifestCredential'
 
 /**
  * WalletGetByQuery provides CHAPI get vp features
@@ -94,6 +95,7 @@ export class WalletGetByQuery extends WalletGet {
 
             this.sendResponse(responseType, data)
         } catch (e) {
+            console.error('sending response error', e)
             this.sendResponse("error", e)
         }
 
@@ -140,12 +142,9 @@ async function getConsentCredentials(aries, presentationSubmission, invitation, 
     let rpConn = await exchange.connect(invitation)
     let rpDIDDoc = await aries.vdri.resolveDID({id: rpConn.result.TheirDID})
 
-    let vcs = []
-    //TODO to improve performance all request should be sent to all issuers in paralle and need to establish
-    // correlation between incoming actions
-    for (let vc of presentationSubmission.verifiableCredential) {
-        if (getCredentialType(vc.type) != 'IssuerManifestCredential') {
-            vcs.push(vc)
+    let acceptCredPool = new Map()
+    await Promise.all(presentationSubmission.verifiableCredential.map(async (vc, index) => {
+        if (getCredentialType(vc.type) != manifestType) {
             return
         }
 
@@ -163,46 +162,65 @@ async function getConsentCredentials(aries, presentationSubmission, invitation, 
         if (event.StateID != 'request-sent') {
             throw 'failed to send credential request to issuer'
         }
-        console.log("sent credential request state notification", event.Message['@id'])
 
-        let piid = event.Message['@id']
-        let action = await getAction(aries, piid)
-        let credID = uuid()
-        aries.issuecredential.acceptCredential({
-            piid: action.PIID,
-            names: [credID],
-        })
+        console.log('sent request credential message', event.Message['@id'])
 
-        let metadata = await getCredentialMetadata(aries, credID)
-        let credential = await aries.verifiable.getCredential(metadata)
-        vcs.push(JSON.parse(credential.verifiableCredential))
-    }
+        acceptCredPool.set(event.Message['@id'], {index})
+    }))
 
-    presentationSubmission.verifiableCredential = vcs
+    console.log(`${acceptCredPool.size} issue credential requests sent`)
+
+    await waitForCredentials(aries, acceptCredPool)
+
+    acceptCredPool.forEach(function (value) {
+        presentationSubmission.verifiableCredential[value.index] = value.credential
+    })
+
+    // presentationSubmission.verifiableCredential = vcs
     return presentationSubmission
 }
 
-// TODO all retry logics below to be replaced by Promise based retry
-const retries = 20;
+async function waitForCredentials(aries, pool) {
+    let processed = 0
+    return new Promise(async (resolve, reject) => {
+        setTimeout(() => reject(new Error("timout waiting for incoming credentials")), 20000)
 
-async function getAction(agent, piid) {
-    for (let i = 0; i < retries; i++) {
-        let resp = await agent.issuecredential.actions()
-        if (resp.actions.length > 0) {
+        for (; ;) {
+            let resp = await aries.issuecredential.actions()
             for (let action of resp.actions) {
-                if (action.PIID == piid) {
-                    return action
+                if (pool.has(action.PIID)) {
+                    let credID = uuid()
+                    aries.issuecredential.acceptCredential({
+                        piid: action.PIID,
+                        names: [credID],
+                    })
+
+                    let metadata = await getCredentialMetadata(aries, credID)
+                    let credential = await aries.verifiable.getCredential(metadata)
+
+                    pool.get(action.PIID).credential = JSON.parse(credential.verifiableCredential)
+
+                    processed++
                 }
             }
+
+            if (processed < pool.size) {
+                console.log(`received ${processed} out of ${pool.size} credentials, retrying`)
+                await sleep(1000);
+                continue
+            }
+
+            break
         }
 
-        await sleep(1000);
-    }
-
-    throw new Error("no action found")
+        console.log(`received all ${processed} credentials`)
+        resolve()
+    })
 }
 
+
 async function getCredentialMetadata(agent, name) {
+    const retries = 10;
     for (let i = 0; i < retries; i++) {
         try {
             return await agent.verifiable.getCredentialByName({
@@ -212,7 +230,7 @@ async function getCredentialMetadata(agent, name) {
             console.log(`credential '${name}' not found, retrying`)
         }
 
-        await sleep(1000);
+        await sleep(500);
     }
 
     throw new Error("no credential found")
