@@ -9,8 +9,10 @@ import jp from 'jsonpath';
 import {PresentationExchange} from '../common/presentationExchange'
 import {WalletManager} from "../register/walletManager";
 import {getCredentialType, waitForNotification} from '../common/util'
+import {AgentMediator} from '../didcomm/connections'
 
 const responseType = "VerifiablePresentation"
+// TODO shouldn't hardcode expected credential type (https://github.com/hyperledger/aries-framework-go/issues/2003)
 const consentCredentialType = 'ConsentCredential'
 
 /**
@@ -33,10 +35,17 @@ export class WalletGetByQuery extends WalletGet {
         this.invitation = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="DIDConnect")].invitation');
 
         this.walletManager = new WalletManager()
+
+        this.mediator = new AgentMediator(aries)
     }
 
     requirementDetails() {
         return this.exchange.requirementDetails()
+    }
+
+    async connect() {
+        // make sure mediator is connected
+        await this.mediator.reconnect()
     }
 
     async getPresentationSubmission() {
@@ -59,12 +68,12 @@ export class WalletGetByQuery extends WalletGet {
 
     async createAndSendPresentation(walletUser, presentationSubmission, selectedIndexes) {
         try {
+            // remove unselected VCs from final presentation submission and get consent credentials for matched manifests.
             if (selectedIndexes && selectedIndexes.length > 0) {
                 presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes)
 
                 if (this.invitation.length > 0) {
-                // collect consent credentials for presentation_locations
-                presentationSubmission = await getConsentCredentials(this.aries, presentationSubmission, this.walletManager)
+                    presentationSubmission = await getConsentCredentials(this.aries, presentationSubmission, this.walletManager)
                 }
             }
 
@@ -153,7 +162,6 @@ async function getConsentCredentials(aries, presentationSubmission, walletManage
         if (event.StateID != 'request-sent') {
             throw 'failed to send credential request to issuer'
         }
-
         console.log("sent credential request state notification", event.Message['@id'])
 
         let piid = event.Message['@id']
@@ -163,15 +171,18 @@ async function getConsentCredentials(aries, presentationSubmission, walletManage
             names: [consentCredentialType],
         })
 
-        let credential = await getCredential(aries, consentCredentialType)
-        vcs.push(credential)
+        // TODO shouldn't be 2 call to get credentials (https://github.com/hyperledger/aries-framework-go/issues/2003)
+        let metadata = await getCredentialMetadata(aries, consentCredentialType)
+        let credential = await aries.verifiable.getCredential(metadata)
+        vcs.push(JSON.parse(credential))
     }
 
     presentationSubmission.verifiableCredential = vcs
     return presentationSubmission
 }
 
-const retries = 15;
+// TODO all retry logics below to be replaced by Promise based retry
+const retries = 10;
 
 async function getAction(agent, piid) {
     for (let i = 0; i < retries; i++) {
@@ -190,7 +201,7 @@ async function getAction(agent, piid) {
     throw new Error("no action found")
 }
 
-async function getCredential(agent, name) {
+async function getCredentialMetadata(agent, name) {
     for (let i = 0; i < retries; i++) {
         try {
             return await agent.verifiable.getCredentialByName({

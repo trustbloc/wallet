@@ -121,6 +121,7 @@ SPDX-License-Identifier: Apache-2.0
         beforeCreate: async function () {
             const aries = await this.$arieslib
             this.wallet = new WalletGetByQuery(aries, this.$parent.credentialEvent)
+            await this.wallet.connect()
 
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
             this.registeredWalletUser = await new WalletManager().getRegisteredUser()
