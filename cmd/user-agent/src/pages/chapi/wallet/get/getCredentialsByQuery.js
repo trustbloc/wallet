@@ -9,11 +9,12 @@ import jp from 'jsonpath';
 import {PresentationExchange} from '../common/presentationExchange'
 import {WalletManager} from "../register/walletManager";
 import {getCredentialType, waitForNotification} from '../common/util'
+import {DIDExchange} from '../common/didExchange'
 import {AgentMediator} from '../didcomm/connections'
 
+var uuid = require('uuid/v4')
+
 const responseType = "VerifiablePresentation"
-// TODO shouldn't hardcode expected credential type (https://github.com/hyperledger/aries-framework-go/issues/2003)
-const consentCredentialType = 'ConsentCredential'
 
 /**
  * WalletGetByQuery provides CHAPI get vp features
@@ -73,7 +74,7 @@ export class WalletGetByQuery extends WalletGet {
                 presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes)
 
                 if (this.invitation.length > 0) {
-                    presentationSubmission = await getConsentCredentials(this.aries, presentationSubmission, this.walletManager)
+                    presentationSubmission = await getConsentCredentials(this.aries, presentationSubmission, this.invitation[0], this.walletManager)
                 }
             }
 
@@ -134,15 +135,14 @@ function retainOnlySelected(presentationSubmission, selectedIndexes) {
     return presentationSubmission
 }
 
-async function getConsentCredentials(aries, presentationSubmission, walletManager) {
-    let vcs = []
-    // TODO DID exchange with verifier not needed for now
-    // let exchange = new DIDExchange(aries)
-    // let connection = await exchange.connect(invitation)
-    // console.log(`got connection with ${connection.result.State} status`, connection)
+async function getConsentCredentials(aries, presentationSubmission, invitation, walletManager) {
+    let exchange = new DIDExchange(aries)
+    let rpConn = await exchange.connect(invitation)
+    let rpDIDDoc = await aries.vdri.resolveDID({id: rpConn.result.TheirDID})
 
+    let vcs = []
     //TODO to improve performance all request should be sent to all issuers in paralle and need to establish
-    // cooreltation between incoming actions
+    // correlation between incoming actions
     for (let vc of presentationSubmission.verifiableCredential) {
         if (getCredentialType(vc.type) != 'IssuerManifestCredential') {
             vcs.push(vc)
@@ -150,12 +150,13 @@ async function getConsentCredentials(aries, presentationSubmission, walletManage
         }
 
         let connection = await walletManager.getConnectionByID(vc.connection)
-
-        //TODO pass user DID & RP DID as ~attachments
         aries.issuecredential.sendRequest({
             my_did: connection.MyDID,
             their_did: connection.TheirDID,
-            request_credential: {},
+            request_credential: {
+                userDID: rpConn.result.MyDID,
+                rpDIDDoc: rpDIDDoc,
+            },
         })
 
         let event = await waitForNotification(aries, ["issue-credential_states"], "post_state")
@@ -166,15 +167,15 @@ async function getConsentCredentials(aries, presentationSubmission, walletManage
 
         let piid = event.Message['@id']
         let action = await getAction(aries, piid)
+        let credID = uuid()
         aries.issuecredential.acceptCredential({
             piid: action.PIID,
-            names: [consentCredentialType],
+            names: [credID],
         })
 
-        // TODO shouldn't be 2 call to get credentials (https://github.com/hyperledger/aries-framework-go/issues/2003)
-        let metadata = await getCredentialMetadata(aries, consentCredentialType)
+        let metadata = await getCredentialMetadata(aries, credID)
         let credential = await aries.verifiable.getCredential(metadata)
-        vcs.push(JSON.parse(credential))
+        vcs.push(JSON.parse(credential.verifiableCredential))
     }
 
     presentationSubmission.verifiableCredential = vcs
@@ -182,7 +183,7 @@ async function getConsentCredentials(aries, presentationSubmission, walletManage
 }
 
 // TODO all retry logics below to be replaced by Promise based retry
-const retries = 10;
+const retries = 20;
 
 async function getAction(agent, piid) {
     for (let i = 0; i < retries; i++) {
