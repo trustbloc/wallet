@@ -35,23 +35,16 @@ export class DIDManager extends KeyValueStore {
 
         const keySet = await this.aries.kms.createKeySet({keyType: generateKeyType})
         const recoveryKeySet = await this.aries.kms.createKeySet({keyType: generateKeyType})
-        const opsKeySet = await this.aries.kms.createKeySet({keyType: generateKeyType})
+        const updateKeySet = await this.aries.kms.createKeySet({keyType: generateKeyType})
 
         const createDIDRequest = {
             "publicKeys": [{
-                "id": opsKeySet.keyID,
-                "type": sigTypeIndex.get("JsonWebSignature2020"),
-                "value": opsKeySet.publicKey,
-                "encoding": "Jwk",
-                "keyType": keyType,
-                "usage": ["ops"]
-            }, {
                 "id": keySet.keyID,
                 "type": sigTypeIndex.get(signType),
                 "value": keySet.publicKey,
                 "encoding": "Jwk",
                 "keyType": keyType,
-                "usage": ["general", "auth"]
+                "purpose": ["general", "auth"]
             }, {
                 "id": recoveryKeySet.keyID,
                 "type": sigTypeIndex.get(signType),
@@ -59,6 +52,13 @@ export class DIDManager extends KeyValueStore {
                 "encoding": "Jwk",
                 "keyType": keyType,
                 "recovery": true
+            }, {
+                "id": updateKeySet.keyID,
+                "type": sigTypeIndex.get(signType),
+                "value": updateKeySet.publicKey,
+                "encoding": "Jwk",
+                "keyType": keyType,
+                "update": true
             }
             ]
         };
