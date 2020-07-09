@@ -45,12 +45,21 @@ export class AgentMediator {
         return () => aries.mediator.unregister()
     }
 
+    async reconnect() {
+        try {
+            let res = await this.aries.mediator.getConnection()
+            await this.aries.mediator.reconnect({connectionID: res.connectionID})
+        } catch (e) {
+            console.error('unable to reconnect to router', e)
+        }
+    }
+
     async isAlreadyConnected() {
         let res
         try {
             res = await this.aries.mediator.getConnection()
         } catch (e) {
-            if (e.toString().includes("router not registered")){
+            if (e.toString().includes("router not registered")) {
                 return false
             }
 
