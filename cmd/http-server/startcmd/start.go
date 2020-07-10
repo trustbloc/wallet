@@ -55,9 +55,9 @@ const (
 	// log level
 	agentLogLevelFlagName  = "log-level"
 	agentLogLevelEnvKey    = "ARIESD_LOG_LEVEL"
-	agentLogLevelFlagUsage = "Log Level." +
+	agentLogLevelFlagUsage = "Log level." +
 		" Possible values [INFO] [DEBUG] [ERROR] [WARNING] [CRITICAL] . Defaults to INFO if not set." +
-		" Alternatively, this can be set with the following environment variable (in CSV format): " + agentLogLevelEnvKey
+		" Alternatively, this can be set with the following environment variable: " + agentLogLevelEnvKey
 
 	// default label flag
 	agentDefaultLabelFlagName      = "agent-default-label"
@@ -131,6 +131,7 @@ type ariesJSOpts struct {
 type trustblocAgentJSOpts struct {
 	BlocDomain        string `json:"blocDomain,omitempty"`
 	WalletMediatorURL string `json:"walletMediatorURL,omitempty"`
+	LogLevel          string `json:"log-level,omitempty"`
 }
 
 // VueHandler return a http.Handler that supports Vue Router app with history mode
@@ -311,9 +312,15 @@ func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, err
 		return nil, err
 	}
 
+	logLevel, err := cmdutils.GetUserSetVarFromString(cmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
+	if err != nil {
+		return nil, err
+	}
+
 	return &trustblocAgentJSOpts{
 		BlocDomain:        blocDomain,
 		WalletMediatorURL: walletMediatorURL,
+		LogLevel:          logLevel,
 	}, nil
 }
 

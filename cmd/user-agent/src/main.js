@@ -80,10 +80,11 @@ async function ariesStartupOpts() {
     }
 }
 
-let defaulTrustBlocStartupOpts = {
+let defaultTrustBlocStartupOpts = {
     assetsPath: '/trustbloc-agent/assets',
     blocDomain: 'testnet.trustbloc.local',
-    walletMediatorURL: ''
+    walletMediatorURL: '',
+    'log-level': 'debug'
 }
 
 async function trustblocStartupOpts() {
@@ -103,9 +104,10 @@ async function trustblocStartupOpts() {
     }
 
     return  {
-        assetsPath: defaulTrustBlocStartupOpts['assetsPath'],
-        blocDomain: ('blocDomain' in startupOpts) ? startupOpts['blocDomain'] : defaulTrustBlocStartupOpts['blocDomain'],
-        walletMediatorURL: ('walletMediatorURL' in startupOpts) ? startupOpts['walletMediatorURL'] : defaulTrustBlocStartupOpts['walletMediatorURL'],
+        assetsPath: defaultTrustBlocStartupOpts['assetsPath'],
+        blocDomain: ('blocDomain' in startupOpts) ? startupOpts['blocDomain'] : defaultTrustBlocStartupOpts['blocDomain'],
+        walletMediatorURL: ('walletMediatorURL' in startupOpts) ? startupOpts['walletMediatorURL'] : defaultTrustBlocStartupOpts['walletMediatorURL'],
+        'log-level': ('log-level' in startupOpts) ? startupOpts['log-level'] : defaultTrustBlocStartupOpts['log-level']
     }
 }
 
