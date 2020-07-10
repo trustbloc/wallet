@@ -11,7 +11,7 @@ import (
 	"io"
 
 	"github.com/hyperledger/aries-framework-go/pkg/doc/did"
-	"github.com/sirupsen/logrus"
+	"github.com/trustbloc/edge-core/pkg/log"
 	didclient "github.com/trustbloc/trustbloc-did-method/pkg/did"
 
 	"github.com/trustbloc/edge-agent/pkg/controller/command"
@@ -19,7 +19,7 @@ import (
 	"github.com/trustbloc/edge-agent/pkg/controller/command/internal/logutil"
 )
 
-var logger = logrus.New()
+var logger = log.New("edge-agent-didclient")
 
 const (
 	// command name

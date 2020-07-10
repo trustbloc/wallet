@@ -9,13 +9,13 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/sirupsen/logrus"
+	"github.com/trustbloc/edge-core/pkg/log"
 )
 
 // WriteNillableResponse is a utility function that writes v to w.
 // If v is nil then an empty object is written.
 // TODO this capability should be injected into the command implementations
-func WriteNillableResponse(w io.Writer, v interface{}, l *logrus.Logger) {
+func WriteNillableResponse(w io.Writer, v interface{}, l log.Logger) {
 	obj := v
 	if v == nil {
 		obj = map[string]interface{}{}
