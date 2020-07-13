@@ -58,6 +58,7 @@ type result struct {
 // trustblocAgentStartOpts contains opts for starting trustbloc agent
 type trustblocAgentStartOpts struct {
 	BlocDomain string `json:"blocDomain"`
+	LogLevel   string `json:"log-level"`
 }
 
 // main registers the 'handleMsg' function in the JS context's global scope to receive commands.
@@ -172,6 +173,11 @@ func addTrustBlocAgentHandlers(pkgMap map[string]map[string]func(*command) *resu
 	fnMap := make(map[string]func(*command) *result)
 	fnMap[trustblocAgentStartFn] = func(c *command) *result {
 		cOpts, err := startOpts(c.Payload)
+		if err != nil {
+			return newErrResult(c.ID, err.Error())
+		}
+
+		err = setLogLevel(cOpts.LogLevel)
 		if err != nil {
 			return newErrResult(c.ID, err.Error())
 		}
@@ -313,4 +319,18 @@ func startOpts(payload map[string]interface{}) (*trustblocAgentStartOpts, error)
 	}
 
 	return opts, nil
+}
+
+func setLogLevel(logLevel string) error {
+	if logLevel != "" {
+		level, err := log.ParseLevel(logLevel)
+		if err != nil {
+			return err
+		}
+
+		log.SetLevel("", level)
+		logger.Infof("log level set to `%s`", logLevel)
+	}
+
+	return nil
 }
