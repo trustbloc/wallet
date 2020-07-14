@@ -8,7 +8,7 @@ import {WalletGet} from "./getCredentials";
 import jp from 'jsonpath';
 import {PresentationExchange} from '../common/presentationExchange'
 import {WalletManager} from "../register/walletManager";
-import {getCredentialType, waitForNotification} from '../common/util'
+import {getCredentialType} from '../common/util'
 import {DIDExchange} from '../common/didExchange'
 import {AgentMediator} from '../didcomm/connections'
 
@@ -149,7 +149,7 @@ async function getConsentCredentials(aries, presentationSubmission, invitation, 
         }
 
         let connection = await walletManager.getConnectionByID(vc.connection)
-        aries.issuecredential.sendRequest({
+        let resp = await aries.issuecredential.sendRequest({
             my_did: connection.MyDID,
             their_did: connection.TheirDID,
             request_credential: {
@@ -158,14 +158,9 @@ async function getConsentCredentials(aries, presentationSubmission, invitation, 
             },
         })
 
-        let event = await waitForNotification(aries, ["issue-credential_states"], "post_state")
-        if (event.StateID != 'request-sent') {
-            throw 'failed to send credential request to issuer'
-        }
+        console.log('sent request credential message', resp.piid)
 
-        console.log('sent request credential message', event.Message['@id'])
-
-        acceptCredPool.set(event.Message['@id'], {index})
+        acceptCredPool.set(resp.piid, {index})
     }))
 
     console.log(`${acceptCredPool.size} issue credential requests sent`)
