@@ -153,9 +153,18 @@ async function getConsentCredentials(aries, presentationSubmission, invitation, 
             my_did: connection.MyDID,
             their_did: connection.TheirDID,
             request_credential: {
-                userDID: rpConn.result.MyDID,
-                rpDIDDoc: rpDIDDoc,
-            },
+                "requests~attach": [
+                    {
+                        "lastmod_time": new Date(),
+                        data: {
+                            json: {
+                                userDID: rpConn.result.MyDID,
+                                rpDIDDoc: rpDIDDoc,
+                            }
+                        }
+                    }
+                ]
+            }
         })
 
         console.log('sent request credential message', resp.piid)
