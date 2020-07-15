@@ -149,13 +149,6 @@ const didConnect = {
     invitation
 }
 
-
-const didConnectWithManifest = {
-    type: "DIDConnect",
-    invitation,
-    manifest
-}
-
 const presentationExchangeQuery = {
     "type": "PresentationDefinitionQuery",
     "presentationDefinitionQuery": {
@@ -339,7 +332,8 @@ const didAuth = {
 const didConnQuery = {
     web: {
         VerifiablePresentation: {
-            query: didConnect,
+            query: { type: "DIDConnect"},
+            invitation,
             challenge: uuid(),
             domain: "example.com"
         }
@@ -349,7 +343,9 @@ const didConnQuery = {
 const didConnQueryWithManifest = {
     web: {
         VerifiablePresentation: {
-            query: didConnectWithManifest,
+            query: { type: "DIDConnect"},
+            invitation,
+            manifest,
             challenge: uuid(),
             domain: "example.com"
         }
