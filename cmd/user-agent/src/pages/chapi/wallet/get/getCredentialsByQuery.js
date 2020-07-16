@@ -159,7 +159,10 @@ async function getConsentCredentials(aries, presentationSubmission, invitation, 
                         data: {
                             json: {
                                 userDID: rpConn.result.MyDID,
-                                rpDIDDoc: rpDIDDoc,
+                                rpDIDDoc: {
+                                    id : rpDIDDoc.did.id,
+                                    doc : rpDIDDoc.did
+                                },
                             }
                         }
                     }
