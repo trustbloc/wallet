@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 var webpackConfig = require('./webpack.config.js')
 
-module.exports = function(config) {
+module.exports = function (config) {
     config.set({
         frameworks: ['mocha'],
         files: [
@@ -24,7 +24,8 @@ module.exports = function(config) {
         customLaunchers: {
             ChromeHeadless_cors: {
                 base: "ChromeHeadless",
-                flags: ["--disable-web-security"]
+                flags: ["--disable-web-security", "--allow-running-insecure-content", "--ignore-certificate-errors",
+                    "--ignore-certificate-errors-spki-list", "--ignore-urlfetcher-cert-requests"]
             },
             Chrome_without_security: {
                 base: 'Chrome',
@@ -34,7 +35,7 @@ module.exports = function(config) {
         client: {
             captureConsole: false,
             mocha: {
-                timeout : 15000
+                timeout: 15000
             }
         }
     })

@@ -37,7 +37,7 @@ SPDX-License-Identifier: Apache-2.0
 
                     <md-button v-on:click="connect" style="margin-right: 5px; margin-left: 25%"
                                class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
-                               id="authenticate">Allow
+                               id="didconnect">Allow
                     </md-button>
 
                     <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn" style="margin-left: 5px">
@@ -71,7 +71,6 @@ SPDX-License-Identifier: Apache-2.0
                 //this can never happen, but still one extra layer of security
                 this.credentialWarning = 'Wallet is not registered'
             }
-
             const aries = await this.$arieslib
             this.wallet = new DIDConn(aries, this.$parent.credentialEvent, this.walletUser)
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin

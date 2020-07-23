@@ -216,7 +216,7 @@ export const prcAndUdcVP = {
     ]
 }
 
-export const presentationDefQuery1 =  {
+export const presentationDefQuery1 = {
     submission_requirements: [
         {
             "name": "Education Qualification",
@@ -315,4 +315,99 @@ export const presentationDefQuery1 =  {
             }
         }
     ]
+}
+
+export const presentationDefQuery2 = {
+    "submission_requirements": [
+        {
+            "name": "Citizenship Information",
+            "purpose": "You must be legally allowed to work in United States",
+            "rule": {
+                "type": "all",
+                "from": [
+                    "C"
+                ]
+            }
+        }
+    ],
+    "input_descriptors": [
+        {
+            "id": "citizenship_input_1",
+            "group": [
+                "C"
+            ],
+            "schema": {
+                "uri": [
+                    "https://w3id.org/citizenship/v3",
+                    "https://w3id.org/citizenship/v4"
+                ],
+                "name": "US Permanent resident card"
+            },
+            "constraints": {
+                "fields": [
+                    {
+                        "path": [
+                            "$.credentialSubject.lprCategory"
+                        ],
+                        "filter": {
+                            "type": "string",
+                            "pattern": "C09|C52|C57"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+
+
+export const manifest = {
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://trustbloc.github.io/context/vc/issuer-manifest-credential-v1.jsonld"
+    ],
+    "type": [
+        "VerifiableCredential",
+        "IssuerManifestCredential"
+    ],
+    "name": "Example Issuer Manifest Credential",
+    "description": "List of verifiable credentials provided by example issuer",
+    "id": "http://example.gov/credentials/ff98f978-588f-4eb0-b17b-60c18e1dac2c",
+    "issuanceDate": "2020-03-16T22:37:26.544Z",
+    "issuer": "did:factom:5d0dd58757119dd437c70d92b44fbf86627ee275f0f2146c3d99e441da342d9f",
+    "credentialSubject": {
+        "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+        "contexts": [
+            "https://w3id.org/citizenship/v3"
+        ]
+    }
+}
+
+export const issue_credential = {
+    "credentials~attach": [
+        {
+            "lastmod_time": "0001-01-01T00:00:00Z",
+            "data": {
+                "json": {
+                    "@context": [
+                        "https://www.w3.org/2018/credentials/v1",
+                        "https://www.w3.org/2018/credentials/examples/v1"
+                        ],
+                    "credentialSubject": {
+                        "id": "SubjectID"
+                    },
+                    "issuanceDate": "2010-01-01T19:23:24Z",
+                    "issuer": {
+                        "id": "did:example:76e12ec712ebc6f1c221ebfeb1f",
+                        "name": "Example University"
+                    },
+                    "referenceNumber": 83294847,
+                    "type": [
+                        "VerifiableCredential",
+                        "UniversityDegreeCredential"
+                        ]
+                }
+            }
+        }
+        ]
 }
