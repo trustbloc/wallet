@@ -62,6 +62,10 @@ jobs:
           }
           trap logout EXIT
           echo $DOCKER_PASSWORD | docker login docker.pkg.github.com --username $DOCKER_USER --password-stdin
+          cat /etc/hosts
+          echo "adding host file entries"
+          echo '127.0.0.1  testnet.trustbloc.local' | sudo tee -a /etc/hosts
+          cat /etc/hosts
           make bdd-test-js
         env:
           DOCKER_USER: $(DOCKER_USER)

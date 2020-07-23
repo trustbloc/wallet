@@ -13,7 +13,7 @@ module.exports = function(config) {
             {pattern: "public/aries-framework-go/assets/*", included: false},
             {pattern: "public/trustbloc-agent/assets/*", included: false},
             {pattern: "test/common.js", included: false},
-            {pattern: "test/**/*.spec.js", type: "module"}
+            {pattern: "test/wallet/*.spec.js", type: "module"}
         ],
         preprocessors: {
             '**/*.spec.js': ['webpack', 'sourcemap']
@@ -32,7 +32,7 @@ module.exports = function(config) {
             }
         },
         client: {
-            captureConsole: false,
+            captureConsole: true,
             mocha: {
                 timeout : 15000
             }
