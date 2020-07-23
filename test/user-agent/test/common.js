@@ -5,7 +5,9 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import * as Aries from "@trustbloc-cicd/aries-framework-go"
+import axios from 'axios';
 
+const createInvitationPath = `/connections/create-invitation`
 
 export class wcredHandler {
     constructor(wcredHandler) {
@@ -23,7 +25,7 @@ export class wcredHandler {
 
         // handle for event response
         return new Promise((resolve, reject) => {
-            const timer = setTimeout(_ => reject(new Error("timout waiting for credential event response")), 15000)
+            const timer = setTimeout(_ => reject(new Error("timout waiting for credential event response")), 20000)
             respond = async (result) => {
                 clearTimeout(timer)
                 resolve(await result)
@@ -64,11 +66,16 @@ export const trustBlocStartupOpts = {
     walletMediatorURL: 'http://localhost:10093'
 }
 
+export async function loadAries(name) {
+    let opts = ariesStartupOpts
+    if(name) {
+        opts = JSON.parse(JSON.stringify(ariesStartupOpts))
+        opts["db-namespace"] = `${name}db`
+        opts["agent-default-label"] = `${name}-user-agent`
+    }
 
-export async function loadAries() {
-    return  new Aries.Framework(ariesStartupOpts)
+    return  new Aries.Framework(opts)
 }
-
 
 export function promiseWhen(fn, timeout, interval) {
     function loop(resolve) {
@@ -82,5 +89,32 @@ export function promiseWhen(fn, timeout, interval) {
         setTimeout(_ => reject(new Error("timout waiting for condition")), timeout ? timeout : 10000)
         loop(resolve)
     });
+}
+
+
+export async function waitFor(agent, state, topic, timeout) {
+    return new Promise((resolve, reject) => {
+        const stop = agent.startNotifier(notice => {
+            if (state && notice.payload.StateID !== state) {
+                return
+            }
+
+            if (notice.payload.Type && notice.payload.Type != "post_state") {
+                return
+            }
+
+            if (topic && topic != notice.topic){
+                return
+            }
+
+            stop()
+            resolve(notice.payload)
+        }, ["all"])
+
+        setTimeout(() => {
+            stop()
+            reject(new Error("time out while waiting for connection"))
+        }, timeout ? timeout : 15000)
+    })
 }
 

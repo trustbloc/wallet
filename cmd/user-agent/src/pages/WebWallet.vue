@@ -32,7 +32,7 @@ SPDX-License-Identifier: Apache-2.0
                                 </md-chip>
                                 <md-chip md-clickable v-on:click="prefillRequest('pexq-didcomm', 'get')">Presentation
                                     Exchange
-                                    Query With Manifest
+                                    Query With DIDComm
                                 </md-chip>
                                 <md-chip md-clickable v-on:click="prefillRequest('didauth', 'get')">DID Auth</md-chip>
                                 <md-chip md-clickable v-on:click="prefillRequest('didconn', 'get')">DID Connect
