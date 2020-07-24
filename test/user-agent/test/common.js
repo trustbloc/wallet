@@ -25,7 +25,7 @@ export class wcredHandler {
 
         // handle for event response
         return new Promise((resolve, reject) => {
-            const timer = setTimeout(_ => reject(new Error("timout waiting for credential event response")), 20000)
+            const timer = setTimeout(_ => reject(new Error("timout waiting for credential event response")), 30000)
             respond = async (result) => {
                 clearTimeout(timer)
                 resolve(await result)
@@ -46,6 +46,7 @@ export class wcredHandler {
     }
 
 }
+
 
 // TODO endpoints should be read from configurations
 const ariesStartupOpts = {
