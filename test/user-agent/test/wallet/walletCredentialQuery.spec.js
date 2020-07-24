@@ -318,8 +318,7 @@ describe('verifier queries credentials - DIDComm Flow', () => {
         expect(btn.attributes('disabled')).to.be.equal('true')
     })
 
-    // TODO this test to be enabled once aries concurrent jsindexdb access issue is resolved
-    xit('user consents sharing credential using DIDComm', async () => {
+    it('user consents sharing credential using DIDComm', async () => {
         let presDef = wrapper.findComponent(PresentationDefQuery)
 
         presDef.vm.selectedVCs = [true]
@@ -339,16 +338,18 @@ describe('verifier queries credentials - DIDComm Flow', () => {
         // issue credential from issuer
         await waitFor(issuer, null, 'issue-credential_actions').then(
             async (e) => {
-                console.log('sending credenital for event e', JSON.stringify(e, null, 2))
-                return await issuer.issuecredential.acceptRequest({
+                issuer.issuecredential.acceptRequest({
                     piid: e.Properties.piid,
                     issue_credential
                 })
+
+                // wait for send request post event
+                await waitFor(issuer, null, 'issue-credential_states')
             }
         )
 
-        const resp = await credResponse
 
+        const resp= await credResponse
         if (resp.dataType == 'VerifiablePresentation') {
             expect(resp.dataType).to.be.equal('VerifiablePresentation')
             expect(resp.data.type).to.deep.equal([
