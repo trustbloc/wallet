@@ -56,7 +56,7 @@ export class PresentationExchange {
 
     _filterDescriptors() {
         // validate groups defined in 'submission_requirements'
-        var requiredRules = jp.query(this.requirementObjs, '$..rule.from[*]');
+        var requiredRules = jp.query(this.requirementObjs, '$..from[*]');
         var availableRules = jp.query(this.descriptors, '$..group[*]');
         if (!requiredRules.every(v => availableRules.includes(v))) {
             throw [{message: "Couldn't find matching group in descriptors for 'submission_requirements'"}]
@@ -93,14 +93,14 @@ export class PresentationExchange {
             let descrsByGroup = this.descriptorsByGroup
             this.requirementObjs.forEach(function (obj, index) {
                 let r = {}
-                let {name, purpose, rule} = obj
+                let {name, purpose, rule, count, from} = obj
 
                 r.name = name ? name : `${defSubmissionRuleName} #${index + 1}`
                 r.purpose = purpose ? purpose : defSubmissionRulePurpose
-                r.rule = rule.type == "all" ? "all conditions should be met" : `at least ${rule.count} of each condition should be met`
+                r.rule = rule == "all" ? "all conditions should be met" : `at least ${count} of each condition should be met`
                 r.descriptors = []
 
-                rule.from.forEach(function (grp) {
+                from.forEach(function (grp) {
                     descrsByGroup[grp].forEach(function (d) {
                         r.descriptors.push(getNameAndPurpose(d))
                     })
@@ -141,7 +141,7 @@ function getNameAndPurpose(descriptor) {
 }
 
 // Schema validator
-var ajv = new Ajv();
+var ajv = new Ajv({$data: true});
 var validate = ajv.compile(presentationDefSchema);
 
 function validateSchema(data) {
@@ -278,9 +278,9 @@ function evaluateByRules(credentials, manifests, descrsByGroup, submissions) {
 
     submissions.forEach(function (submission) {
 
-        submission.rule.from.forEach(function (rule) {
+        submission.from.forEach(function (rule) {
             let descriptors = descrsByGroup[rule]
-            let mustPass = submission.rule.type == "all" ? descriptors.length : submission.rule.count
+            let mustPass = submission.rule == "all" ? descriptors.length : submission.count
             let matched = false
 
             credentials.forEach(function (credential) {

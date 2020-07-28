@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import {expect} from 'chai'
 import {PresentationExchange} from '../../../../cmd/user-agent/src/pages/chapi/wallet'
-import {degreeCertificare, prCardv1, prCardv2, samplePresentationDefQuery, pdCardManifestVC} from './testdata.js'
+import {degreeCertificare, pdCardManifestVC, prCardv1, prCardv2, samplePresentationDefQuery} from './testdata.js'
 
 
 describe('presentation definition query schema validation', () => {
@@ -15,36 +15,47 @@ describe('presentation definition query schema validation', () => {
         expect(defQ).to.not.be.null
     })
 
-    it('submission_requirements[*] schema validation ', async () => {
+    it('submission_requirements[*] schema validations ', async () => {
+        // pick rule
         let sample = Object.assign({}, samplePresentationDefQuery)
         sample["submission_requirements"] = [{
-            "rule": {
-                "type": "pick",
-                "count": 1,
-                "from": ["A"]
-            }
+            "rule": "pick",
+            "count": 1,
+            "from": ["A"]
         }]
         let defQ = new PresentationExchange(sample)
         expect(defQ).to.not.be.null
 
+        // all rule
         sample["submission_requirements"] = [{
             "name": "Banking Information",
             "purpose": "We need to know if you have an established banking history.",
-            "rule": {
-                "type": "all",
-                "from": ["A"]
-            }
+            "rule": "all",
+            "from": ["A"]
         }]
         defQ = new PresentationExchange(sample)
         expect(defQ).to.not.be.null
 
+        // pick rule count should be greater than zero
+        sample["submission_requirements"] = [{
+            "rule": "pick",
+            "count": 0,
+            "from": ["A"]
+        }]
+        try {
+            defQ = null
+            defQ = new PresentationExchange(sample)
+        } catch (e) {
+            expect(e[0].message).to.have.string("should be >= 1")
+        }
+        expect(defQ).to.be.null
+
+        // count is required for pick rule
         sample["submission_requirements"] = [{
             "name": "Banking Information",
             "purpose": "We need to know if you have an established banking history.",
-            "rule": {
-                "type": "pick",
-                "from": ["A"]
-            }
+            "rule": "pick",
+            "from": ["A"]
         }]
         try {
             defQ = null
@@ -54,13 +65,12 @@ describe('presentation definition query schema validation', () => {
         }
         expect(defQ).to.be.null
 
+        // submission rule should be either 'all' or 'pick'
         sample["submission_requirements"] = [{
             "name": "Banking Information",
             "purpose": "We need to know if you have an established banking history.",
-            "rule": {
-                "type": "test",
-                "from": ["A"]
-            }
+            "rule": "test",
+            "from": ["A"]
         }]
         try {
             defQ = null
@@ -70,6 +80,7 @@ describe('presentation definition query schema validation', () => {
         }
         expect(defQ).to.be.null
 
+        // submission rule is required
         sample["submission_requirements"] = [{
             "name": "Banking Information",
             "purpose": "We need to know if you have an established banking history.",
@@ -81,17 +92,156 @@ describe('presentation definition query schema validation', () => {
         }
         expect(defQ).to.be.null
 
+        // submission rule 'from or from_nested' is required
         sample["submission_requirements"] = [{
             "name": "Banking Information",
             "purpose": "We need to know if you have an established banking history.",
-            "rule": "sample-rule"
+            "rule": "all"
         }]
         try {
             defQ = new PresentationExchange(sample)
         } catch (e) {
-            expect(e[0].message).to.have.string("should be object")
+            expect(e[0].message).to.have.string("should have required property '.from'")
         }
         expect(defQ).to.be.null
+
+        sample["submission_requirements"] = [{
+            "name": "Banking Information",
+            "purpose": "We need to know if you have an established banking history.",
+            "rule": "all",
+            "from_nested": [
+                {
+                    "name": "Banking Information",
+                    "purpose": "We need to know if you have an established banking history.",
+                    "rule": "all",
+                    "from": ["A"]
+                }
+            ]
+        }]
+        defQ = new PresentationExchange(sample)
+        expect(defQ).to.not.be.null
+
+        // submission rule 'from and from_nested' both shouldn't be present
+        sample["submission_requirements"] = [{
+            "name": "Banking Information",
+            "purpose": "We need to know if you have an established banking history.",
+            "rule": "all",
+            "from": ["A"],
+            "from_nested": [
+                {
+                    "name": "Banking Information",
+                    "purpose": "We need to know if you have an established banking history.",
+                    "rule": "all",
+                    "from": ["A"]
+                }
+            ]
+        }]
+        try {
+            defQ = null
+            defQ = new PresentationExchange(sample)
+        } catch (e) {
+            expect(e[0].message).to.have.string("should match exactly one schema in oneOf")
+        }
+        expect(defQ).to.be.null
+
+        // submission rule 'from_nested' should be 'submission rule' type
+        sample["submission_requirements"] = [{
+            "name": "Banking Information",
+            "purpose": "We need to know if you have an established banking history.",
+            "rule": "all",
+            "from": ["A"],
+            "from_nested": [
+                {
+                    "name": "Banking Information",
+                    "purpose": "We need to know if you have an established banking history.",
+                }
+            ]
+        }]
+        try {
+            defQ = null
+            defQ = new PresentationExchange(sample)
+        } catch (e) {
+            expect(e[0].message).to.have.string("should have required property 'rule'")
+        }
+        expect(defQ).to.be.null
+
+
+        // one of 'count, min, max' is required when rule is 'pick'
+        sample["submission_requirements"] = [{
+            "rule": "pick",
+            "min": 0,
+            "from": ["A"]
+        }]
+        defQ = new PresentationExchange(sample)
+        expect(defQ).to.not.be.null
+
+        sample["submission_requirements"] = [{
+            "rule": "pick",
+            "max": 1,
+            "from": ["A"]
+        }]
+        defQ = new PresentationExchange(sample)
+        expect(defQ).to.not.be.null
+
+        sample["submission_requirements"] = [{
+            "rule": "pick",
+            "count": 3,
+            "from": ["A"]
+        }]
+        defQ = new PresentationExchange(sample)
+        expect(defQ).to.not.be.null
+
+        // one of 'min >= 0' when rule is 'pick'
+        sample["submission_requirements"] = [{
+            "rule": "pick",
+            "min": -1,
+            "from": ["A"]
+        }]
+        try {
+            defQ = null
+            defQ = new PresentationExchange(sample)
+        } catch (e) {
+            expect(e[0].message).to.have.string("should be >= 0")
+        }
+        expect(defQ).to.be.null
+
+        // one of 'max > 0' when rule is 'pick'
+        sample["submission_requirements"] = [{
+            "rule": "pick",
+            "max": 0,
+            "from": ["A"]
+        }]
+        try {
+            defQ = null
+            defQ = new PresentationExchange(sample)
+        } catch (e) {
+            expect(e[0].message).to.have.string("should be >= 1")
+        }
+        expect(defQ).to.be.null
+
+        // one of 'max > min' when rule is 'pick' and 'min' is present
+        sample["submission_requirements"] = [{
+            "rule": "pick",
+            "min": 3,
+            "max": 3,
+            "from": ["A"]
+        }]
+        try {
+            defQ = null
+            defQ = new PresentationExchange(sample)
+        } catch (e) {
+            expect(e[0].message).to.have.string("should be > 1")
+        }
+        expect(defQ).to.be.null
+
+        sample["submission_requirements"] = [{
+            "rule": "pick",
+            "min": 3,
+            "max": 7,
+            "from": ["A"]
+        }]
+        defQ = new PresentationExchange(sample)
+        expect(defQ).to.not.be.null
     })
 
     it('input_descriptors[*] schema validation ', async () => {
@@ -264,22 +414,18 @@ describe('presentation definition submission requirements', () => {
     it('all submission requirements should be available in input descriptors', async () => {
         let sample = Object.assign({}, samplePresentationDefQuery)
         sample["submission_requirements"] = [{
-            "rule": {
-                "type": "pick",
-                "count": 1,
-                "from": ["A", "B", "C"]
-            }
+            "rule": "pick",
+            "count": 1,
+            "from": ["A", "B", "C"]
         }]
 
         let defQ = new PresentationExchange(sample)
         expect(defQ).to.not.be.null
 
         sample["submission_requirements"] = [{
-            "rule": {
-                "type": "pick",
-                "count": 1,
-                "from": ["A", "B", "C", "X"]
-            }
+            "rule": "pick",
+            "count": 1,
+            "from": ["A", "B", "C", "X"]
         }]
 
         try {
@@ -576,8 +722,6 @@ describe('generate presentation submission  with no submission requirements', ()
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([prCardv2, degreeCertificare, mastersDegree])
     })
-
-
 })
 
 
@@ -603,18 +747,14 @@ describe('generate presentation submission with submission requirements', () => 
                 {
                     "name": "Degree Information",
                     "purpose": "We need to know if you are qualified for this job",
-                    "rule": {
-                        "type": "pick",
-                        "count": 1,
-                        "from": ["D"]
-                    }
+                    "rule": "pick",
+                    "count": 1,
+                    "from": ["D"]
                 },
                 {
                     "name": "Citizenship Information",
-                    "rule": {
-                        "type": "all",
-                        "from": ["C"]
-                    }
+                    "rule": "all",
+                    "from": ["C"]
                 }
             ],
             input_descriptors: [
@@ -751,18 +891,14 @@ describe('generate presentation submission with submission requirements', () => 
                 {
                     "name": "Degree Information",
                     "purpose": "We need to know if you are qualified for this job",
-                    "rule": {
-                        "type": "all",
-                        "from": ["D"]
-                    }
+                    "rule": "all",
+                    "from": ["D"]
                 },
                 {
                     "name": "Citizenship Information",
-                    "rule": {
-                        "type": "pick",
-                        "count": 1,
-                        "from": ["C"]
-                    }
+                    "rule": "pick",
+                    "count": 1,
+                    "from": ["C"]
                 }
             ],
             input_descriptors: [
@@ -890,18 +1026,14 @@ describe('generate presentation submission with submission requirements', () => 
                 {
                     "name": "Degree Information",
                     "purpose": "We need to know if you are qualified for this job",
-                    "rule": {
-                        "type": "all",
-                        "from": ["D"]
-                    }
+                    "rule": "all",
+                    "from": ["D"]
                 },
                 {
                     "name": "Citizenship Information",
-                    "rule": {
-                        "type": "pick",
-                        "count": 1,
-                        "from": ["C"]
-                    }
+                    "rule": "pick",
+                    "count": 1,
+                    "from": ["C"]
                 }
             ],
             input_descriptors: [
@@ -1013,7 +1145,7 @@ describe('generate presentation submission with submission requirements', () => 
 })
 
 
-describe('generate requirement details with from presentation definition', () => {
+describe('generate requirement details from presentation definition', () => {
     it('get requirement details from well described definition', async () => {
         let defQ = new PresentationExchange(samplePresentationDefQuery)
         expect(defQ).to.not.be.null
@@ -1151,17 +1283,13 @@ describe('generate requirement details with from presentation definition', () =>
 
         query.submission_requirements = [
             {
-                "rule": {
-                    "type": "all",
+                    "rule": "all",
                     "from": ["B"]
-                }
             },
             {
-                "rule": {
-                    "type": "pick",
+                    "rule": "pick",
                     "count": 1,
                     "from": ["C"]
-                }
             }
         ]
 
