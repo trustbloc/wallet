@@ -93,11 +93,11 @@ export class PresentationExchange {
             let descrsByGroup = this.descriptorsByGroup
             this.requirementObjs.forEach(function (obj, index) {
                 let r = {}
-                let {name, purpose, rule, count, from} = obj
+                let {name, purpose, from} = obj
 
                 r.name = name ? name : `${defSubmissionRuleName} #${index + 1}`
                 r.purpose = purpose ? purpose : defSubmissionRulePurpose
-                r.rule = rule == "all" ? "all conditions should be met" : `at least ${count} of each condition should be met`
+                r.rule = countDetails(obj)
                 r.descriptors = []
 
                 from.forEach(function (grp) {
@@ -224,7 +224,7 @@ function prepareSubmission(results) {
         //TODO add VC only once if it matches 2 conditions
         presentationSubmission.verifiableCredential.push(result.credential)
 
-        if (result.manifest){
+        if (result.manifest) {
             presentationSubmission.presentation_location.descriptor_map.push(
                 {
                     id: result.id,
@@ -280,12 +280,12 @@ function evaluateByRules(credentials, manifests, descrsByGroup, submissions) {
 
         submission.from.forEach(function (rule) {
             let descriptors = descrsByGroup[rule]
-            let mustPass = submission.rule == "all" ? descriptors.length : submission.count
+            let pick = countMatcher(submission, descriptors.length)
             let matched = false
 
             credentials.forEach(function (credential) {
                 let matches = descriptors.filter(d => match(credential, d))
-                if (matches.length >= mustPass) {
+                if (pick(matches.length)) {
                     matched = true
                     matches.forEach(function (match) {
                         result.push({credential, id: match.id})
@@ -297,7 +297,7 @@ function evaluateByRules(credentials, manifests, descrsByGroup, submissions) {
             if (!matched && manifests) {
                 manifests.forEach(function (credential) {
                     let matches = descriptors.filter(d => matchManifest(credential, d))
-                    if (matches.length >= mustPass) {
+                    if (pick(matches.length)) {
                         matches.forEach(function (match) {
                             result.push({credential, id: match.id, manifest: true})
                         })
@@ -309,6 +309,40 @@ function evaluateByRules(credentials, manifests, descrsByGroup, submissions) {
     })
 
     return result
+}
+
+function countMatcher(submission, descrLen) {
+    return function (matchedCount) {
+        if (submission.rule == 'all' && matchedCount == descrLen) {
+            return true
+        } else if (submission.count && matchedCount >= submission.count) {
+            return true
+        } else if (submission.max && submission.min && matchedCount <= submission.max && matchedCount >= submission.min) {
+            return true
+        } else if (submission.max && matchedCount <= submission.max) {
+            return true
+        } else if (submission.min && matchedCount >= submission.min) {
+            return true
+        } else {
+            return false
+        }
+    }
+}
+
+function countDetails(submission) {
+    if (submission.rule == 'all') {
+        return 'all conditions should be met'
+    } else if (submission.count) {
+        return `at least ${submission.count} condition(s) should be met`
+    } else if (submission.max && submission.min) {
+        return `${submission.min} to ${submission.max} conditions should be met`
+    } else if (submission.max) {
+        return `at most ${submission.max} conditions should be met`
+    } else if (submission.min) {
+        return `at least $submission.{count} condition(s) should be met`
+    } else {
+        return ''
+    }
 }
 
 

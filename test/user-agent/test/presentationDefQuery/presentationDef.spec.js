@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import {expect} from 'chai'
 import {PresentationExchange} from '../../../../cmd/user-agent/src/pages/chapi/wallet'
-import {degreeCertificare, pdCardManifestVC, prCardv1, prCardv2, samplePresentationDefQuery} from './testdata.js'
+import {degreeCertificare, prCardv1, prCardv2, pdCardManifestVC, samplePresentationDefQuery, samplePresentationDefQuery1} from './testdata.js'
 
 
 describe('presentation definition query schema validation', () => {
@@ -632,8 +632,8 @@ describe('generate presentation submission  with no submission requirements', ()
     it('generate presentation submission using multiple descriptors with constraints', async () => {
 
         var mastersDegree = JSON.parse(JSON.stringify(degreeCertificare))
-        degreeCertificare.issuer.id = "did:web:jake.university"
-        degreeCertificare.credentialSubject.degree.type = "MastersDegree"
+        mastersDegree.issuer.id = "did:web:jake.university"
+        mastersDegree.credentialSubject.degree.type = "MastersDegree"
 
         var secondDegree = JSON.parse(JSON.stringify(degreeCertificare))
         secondDegree.issuer.id = "did:web:fake.university"
@@ -729,8 +729,8 @@ describe('generate presentation submission with submission requirements', () => 
     it('generate presentation submission using multiple submission requirements - scenario 1', async () => {
 
         var mastersDegree = JSON.parse(JSON.stringify(degreeCertificare))
-        degreeCertificare.issuer.id = "did:web:jake.university"
-        degreeCertificare.credentialSubject.degree.type = "MastersDegree"
+        mastersDegree.issuer.id = "did:web:jake.university"
+        mastersDegree.credentialSubject.degree.type = "MastersDegree"
 
         var secondDegree = JSON.parse(JSON.stringify(degreeCertificare))
         secondDegree.issuer.id = "did:web:fake.university"
@@ -872,8 +872,8 @@ describe('generate presentation submission with submission requirements', () => 
     it('generate presentation submission using multiple submission requirements - scenario 2', async () => {
 
         var mastersDegree = JSON.parse(JSON.stringify(degreeCertificare))
-        degreeCertificare.issuer.id = "did:web:jake.university"
-        degreeCertificare.credentialSubject.degree.type = "MastersDegree"
+        mastersDegree.issuer.id = "did:web:jake.university"
+        mastersDegree.credentialSubject.degree.type = "MastersDegree"
 
         var secondDegree = JSON.parse(JSON.stringify(degreeCertificare))
         secondDegree.issuer.id = "did:web:faber.university"
@@ -1006,16 +1006,16 @@ describe('generate presentation submission with submission requirements', () => 
 
     it('generate presentation submission using multiple submission requirements and manifest credentials', async () => {
 
-        var mastersDegree = JSON.parse(JSON.stringify(degreeCertificare))
-        degreeCertificare.issuer.id = "did:web:jake.university"
-        degreeCertificare.credentialSubject.degree.type = "MastersDegree"
+        let mastersDegree = JSON.parse(JSON.stringify(degreeCertificare))
+        mastersDegree.issuer.id = "did:web:jake.university"
+        mastersDegree.credentialSubject.degree.type = "MastersDegree"
 
-        var secondDegree = JSON.parse(JSON.stringify(degreeCertificare))
+        let secondDegree = JSON.parse(JSON.stringify(degreeCertificare))
         secondDegree.issuer.id = "did:web:faber.university"
         secondDegree.credentialSubject.degree.type = "BachelorDegree"
         secondDegree.credentialSubject.degree.coop = "Y"
 
-        var diploma = JSON.parse(JSON.stringify(degreeCertificare))
+        let diploma = JSON.parse(JSON.stringify(degreeCertificare))
         diploma.issuer.id = "did:web:trustbloc.university"
         diploma.credentialSubject.degree.type = "PostGraduationDiploma"
 
@@ -1142,6 +1142,336 @@ describe('generate presentation submission with submission requirements', () => 
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([secondDegree, secondDegree, pdCardManifestVC])
     })
+
+    it('generate presentation submission using multiple submission requirements - all "pick" rule scenarios', async () => {
+
+        let mastersDegree = JSON.parse(JSON.stringify(degreeCertificare))
+        mastersDegree.id = "sampleID"
+        mastersDegree.issuer.id = "did:web:jake.university"
+        mastersDegree.credentialSubject.degree.type = "MastersDegree"
+
+        let collegeDiploma = JSON.parse(JSON.stringify(degreeCertificare))
+        collegeDiploma.issuer.id = "did:web:fake.university"
+        collegeDiploma.credentialSubject.degree.type = "CollegeDiploma"
+
+        let postGradDiploma = JSON.parse(JSON.stringify(degreeCertificare))
+        postGradDiploma.issuer.id = "did:web:trustbloc.university"
+        postGradDiploma.credentialSubject.degree.type = "PostGraduationDiploma"
+
+        let allCreds = [prCardv1, prCardv2, degreeCertificare, mastersDegree, collegeDiploma, postGradDiploma]
+        let presDef = JSON.parse(JSON.stringify(samplePresentationDefQuery1))
+
+        let defQ = new PresentationExchange(presDef)
+        expect(defQ).to.not.be.null
+
+        let presSubmission = defQ.createPresentationSubmission(allCreds)
+        expect(presSubmission).to.not.be.null
+        expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
+        expect(presSubmission.presentation_submission).to.not.be.empty
+        expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
+            [
+                {"id": "degree_input_3", "path": "$.verifiableCredential.[0]"},
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[1]"}
+            ]
+        )
+        expect(presSubmission.verifiableCredential).to.deep.equal([mastersDegree, prCardv2])
+
+        // set count to 2
+        presDef["submission_requirements"] = [
+            {
+                "name": "Degree Information",
+                "purpose": "We need to know if you are qualified for this job",
+                "rule": "pick",
+                "count": 2,
+                "from": ["D"]
+            },
+            {
+                "name": "Citizenship Information",
+                "rule": "all",
+                "from": ["C"]
+            }
+        ]
+
+        defQ = new PresentationExchange(presDef)
+        expect(defQ).to.not.be.null
+
+        presSubmission = defQ.createPresentationSubmission(allCreds)
+        expect(presSubmission).to.not.be.null
+        expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
+        expect(presSubmission.presentation_submission).to.not.be.empty
+        expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
+            [
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[0]"}
+            ]
+        )
+        expect(presSubmission.verifiableCredential).to.deep.equal([prCardv2])
+
+        // set min to 1
+        presDef["submission_requirements"] = [
+            {
+                "name": "Degree Information",
+                "purpose": "We need to know if you are qualified for this job",
+                "rule": "pick",
+                "min": 1,
+                "from": ["D"]
+            },
+            {
+                "name": "Citizenship Information",
+                "rule": "all",
+                "from": ["C"]
+            }
+        ]
+
+        defQ = new PresentationExchange(presDef)
+        expect(defQ).to.not.be.null
+
+        presSubmission = defQ.createPresentationSubmission(allCreds)
+        expect(presSubmission).to.not.be.null
+        expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
+        expect(presSubmission.presentation_submission).to.not.be.empty
+        expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
+            [
+                {"id": "degree_input_3", "path": "$.verifiableCredential.[0]"},
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[1]"}
+            ]
+        )
+        expect(presSubmission.verifiableCredential).to.deep.equal([mastersDegree, prCardv2])
+
+
+        // set min to 2
+        presDef["submission_requirements"] = [
+            {
+                "name": "Degree Information",
+                "purpose": "We need to know if you are qualified for this job",
+                "rule": "pick",
+                "min": 2,
+                "from": ["D"]
+            },
+            {
+                "name": "Citizenship Information",
+                "rule": "all",
+                "from": ["C"]
+            }
+        ]
+
+        defQ = new PresentationExchange(presDef)
+        expect(defQ).to.not.be.null
+
+        presSubmission = defQ.createPresentationSubmission(allCreds)
+        expect(presSubmission).to.not.be.null
+        expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
+        expect(presSubmission.presentation_submission).to.not.be.empty
+        expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
+            [
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[0]"}
+            ]
+        )
+        expect(presSubmission.verifiableCredential).to.deep.equal([prCardv2])
+
+        // set max to 1
+        presDef["submission_requirements"] = [
+            {
+                "name": "Degree Information",
+                "purpose": "We need to know if you are qualified for this job",
+                "rule": "pick",
+                "max": 1,
+                "from": ["D"]
+            },
+            {
+                "name": "Citizenship Information",
+                "rule": "all",
+                "from": ["C"]
+            }
+        ]
+
+        defQ = new PresentationExchange(presDef)
+        expect(defQ).to.not.be.null
+
+        presSubmission = defQ.createPresentationSubmission(allCreds)
+        expect(presSubmission).to.not.be.null
+        expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
+        expect(presSubmission.presentation_submission).to.not.be.empty
+        expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
+            [
+                {"id": "degree_input_3", "path": "$.verifiableCredential.[0]"},
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[1]"}
+            ]
+        )
+        expect(presSubmission.verifiableCredential).to.deep.equal([mastersDegree, prCardv2])
+
+        // set max to 2
+        presDef["submission_requirements"] = [
+            {
+                "name": "Degree Information",
+                "purpose": "We need to know if you are qualified for this job",
+                "rule": "pick",
+                "max": 1,
+                "from": ["D"]
+            },
+            {
+                "name": "Citizenship Information",
+                "rule": "all",
+                "from": ["C"]
+            }
+        ]
+
+        defQ = new PresentationExchange(presDef)
+        expect(defQ).to.not.be.null
+
+        presSubmission = defQ.createPresentationSubmission(allCreds)
+        expect(presSubmission).to.not.be.null
+        expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
+        expect(presSubmission.presentation_submission).to.not.be.empty
+        expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
+            [
+                {"id": "degree_input_3", "path": "$.verifiableCredential.[0]"},
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[1]"}
+            ]
+        )
+        expect(presSubmission.verifiableCredential).to.deep.equal([mastersDegree, prCardv2])
+
+        // set max to 1, but there are more than 1 match
+        presDef["submission_requirements"] = [
+            {
+                "name": "Degree Information",
+                "purpose": "We need to know if you are qualified for this job",
+                "rule": "pick",
+                "max": 1,
+                "from": ["D"]
+            },
+            {
+                "name": "Citizenship Information",
+                "rule": "all",
+                "from": ["C"]
+            }
+        ]
+
+        presDef['input_descriptors'].push({
+            "id": "degree_input_4",
+            "group": ["D"],
+            "schema": {
+                "uri": [
+                    "https://www.example.com/2020/udc-example/v1"
+                ],
+                "name": "University degree certificate"
+            },
+            "constraints": {
+                "fields": [
+                    {
+                        "path": ["$.issuer.id", "$.vc.issuer.id", "$.issuer", "$.vc.issuer"],
+                        "purpose": "The credential must be from one of the specified issuers",
+                        "filter": {
+                            "type": "string",
+                            "pattern": "did:web:faber.university|did:web:jake.university"
+                        }
+                    },
+                    {
+                        "path": ["$.credentialSubject.degree.degree"],
+                        "purpose": "Any degree from MIT",
+                        "filter": {
+                            "type": "string",
+                            "pattern": "MIT"
+                        }
+                    }
+                ]
+            }
+        })
+        presDef['input_descriptors'].push({
+            "id": "degree_input_5",
+            "group": ["D"],
+            "schema": {
+                "uri": [
+                    "https://www.example.com/2020/udc-example/v1"
+                ],
+                "name": "University degree certificate"
+            },
+            "constraints": {
+                "fields": [
+                    {
+                        "path": ["$.issuer.id", "$.vc.issuer.id", "$.issuer", "$.vc.issuer"],
+                        "purpose": "The credential must be from one of the specified issuers",
+                        "filter": {
+                            "type": "string",
+                            "pattern": "did:web:faber.university|did:web:jake.university"
+                        }
+                    },
+                    {
+                        "path": ["$.credentialSubject.degree.type"],
+                        "purpose": "Any degree from MIT",
+                        "filter": {
+                            "type": "string",
+                            "pattern": "BachelorDegree"
+                        }
+                    }
+                ]
+            }
+        })
+
+        defQ = new PresentationExchange(presDef)
+        expect(defQ).to.not.be.null
+
+        presSubmission = defQ.createPresentationSubmission(allCreds)
+        expect(presSubmission).to.not.be.null
+        expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
+        expect(presSubmission.presentation_submission).to.not.be.empty
+        expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
+            [
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[0]"}
+            ]
+        )
+        expect(presSubmission.verifiableCredential).to.deep.equal([prCardv2])
+
+
+        // set max to 2 & min to 1
+        presDef["submission_requirements"] = [
+            {
+                "name": "Degree Information",
+                "purpose": "We need to know if you are qualified for this job",
+                "rule": "pick",
+                "min": 1,
+                "max": 2,
+                "from": ["D"]
+            },
+            {
+                "name": "Citizenship Information",
+                "rule": "all",
+                "from": ["C"]
+            }
+        ]
+
+        defQ = new PresentationExchange(presDef)
+        expect(defQ).to.not.be.null
+
+        presSubmission = defQ.createPresentationSubmission(allCreds)
+        expect(presSubmission).to.not.be.null
+        expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
+        expect(presSubmission.presentation_submission).to.not.be.empty
+        expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
+            [
+                {
+                    "id": "degree_input_4",
+                    "path": "$.verifiableCredential.[0]"
+                },
+                {
+                    "id": "degree_input_5",
+                    "path": "$.verifiableCredential.[1]"
+                },
+                {
+                    "id": "degree_input_3",
+                    "path": "$.verifiableCredential.[2]"
+                },
+                {
+                    "id": "degree_input_4",
+                    "path": "$.verifiableCredential.[3]"
+                },
+                {
+                    "id": "citizenship_input_1",
+                    "path": "$.verifiableCredential.[4]"
+                }
+            ]
+        )
+        expect(presSubmission.verifiableCredential).to.deep.equal([degreeCertificare, degreeCertificare, mastersDegree, mastersDegree, prCardv2])
+    })
 })
 
 
@@ -1156,12 +1486,11 @@ describe('generate requirement details from presentation definition', () => {
         let bankingInfo = reqDetails[0]
         let employmentInfo = reqDetails[1]
         let citizenshipInfo = reqDetails[2]
-
         expect(bankingInfo).to.deep.equal(
             {
                 "name": "Banking Information",
                 "purpose": "We need to know if you have an established banking history.",
-                "rule": "at least 1 of each condition should be met",
+                "rule": "at least 1 condition(s) should be met",
                 "descriptors": [
                     {
                         "name": "Bank Account Information",
@@ -1200,12 +1529,11 @@ describe('generate requirement details from presentation definition', () => {
             }
         )
 
-
         expect(citizenshipInfo).to.deep.equal(
             {
                 "name": "Citizenship Information",
                 "purpose": "We need below information from your wallet",
-                "rule": "at least 1 of each condition should be met",
+                "rule": "at least 1 condition(s) should be met",
                 "descriptors": [
                     {
                         "name": "EU Driver's License",
@@ -1378,7 +1706,7 @@ describe('generate requirement details from presentation definition', () => {
             {
                 "name": "Requested information #2",
                 "purpose": "We need below information from your wallet",
-                "rule": "at least 1 of each condition should be met",
+                "rule": "at least 1 condition(s) should be met",
                 "descriptors": [
                     {
                         "name": "Condition details are not provided in request",
