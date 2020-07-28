@@ -317,169 +317,137 @@ export const pdCardManifestVC = {
     }
 }
 
-
-const x = {
-    "submission_requirements": [
+export const samplePresentationDefQuery1 = {
+    submission_requirements: [
         {
-            "name": "Banking Information",
-            "purpose": "We need to know if you have an established banking history.",
+            "name": "Degree Information",
+            "purpose": "We need to know if you are qualified for this job",
             "rule": "pick",
             "count": 1,
-            "from": ["A"],
-            "from_nested": [
-                {
-                    "name": "Banking Information",
-                    "purpose": "We need to know if you have an established banking history.",
-                    "rule": "all",
-                    "count": 1,
-                    "from": ["A"]
-                }
-            ]
+            "from": ["D"]
+        },
+        {
+            "name": "Citizenship Information",
+            "rule": "all",
+            "from": ["C"]
         }
-
     ],
-    "input_descriptors": [
-        {
-            "id": "banking_input_1",
-            "group": ["A"],
-            "schema": {
-                "uri": "https://bank-standards.com/customer.json",
-                "name": "Bank Account Information",
-                "purpose": "We need your bank and account information."
-            },
-            "constraints": {
-                "fields": [
-                    {
-                        "path": ["$.issuer", "$.vc.issuer", "$.iss"],
-                        "purpose": "The credential must be from one of the specified issuers",
-                        "filter": {
-                            "type": "string",
-                            "pattern": "did:example:123|did:example:456"
-                        }
-                    },
-                    {
-                        "path": ["$.credentialSubject.account[*].account_number", "$.vc.credentialSubject.account[*].account_number"],
-                        "purpose": "We need your bank account number for processing purposes",
-                        "filter": {
-                            "type": "string",
-                            "minLength": 10,
-                            "maxLength": 12
-                        }
-                    },
-                    {
-                        "path": ["$.credentialSubject.account[*].routing_number", "$.vc.credentialSubject.account[*].routing_number"],
-                        "purpose": "You must have an account with a German, US, or Japanese bank account",
-                        "filter": {
-                            "type": "string",
-                            "pattern": "^DE|^US|^JP"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "id": "banking_input_2",
-            "group": ["A"],
-            "schema": {
-                "uri": [
-                    "https://bank-schemas.org/1.0.0/accounts.json",
-                    "https://bank-schemas.org/2.0.0/accounts.json"
-                ],
-                "name": "Bank Account Information",
-                "purpose": "We need your bank and account information."
-            },
-            "constraints": {
-                "fields": [
-                    {
-                        "path": ["$.issuer", "$.vc.issuer", "$.iss"],
-                        "purpose": "The credential must be from one of the specified issuers",
-                        "filter": {
-                            "type": "string",
-                            "pattern": "did:example:123|did:example:456"
-                        }
-                    },
-                    {
-                        "path": ["$.credentialSubject.account[*].id", "$.vc.credentialSubject.account[*].id"],
-                        "purpose": "We need your bank account number for processing purposes",
-                        "filter": {
-                            "type": "string",
-                            "minLength": 10,
-                            "maxLength": 12
-                        }
-                    },
-                    {
-                        "path": ["$.credentialSubject.account[*].route", "$.vc.credentialSubject.account[*].route"],
-                        "purpose": "You must have an account with a German, US, or Japanese bank account",
-                        "filter": {
-                            "type": "string",
-                            "pattern": "^DE|^US|^JP"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "id": "employment_input",
-            "group": ["B"],
-            "schema": {
-                "uri": "https://business-standards.org/schemas/employment-history.json",
-                "name": "Employment History",
-                "purpose": "We need your bank and account information."
-            },
-            "constraints": {
-                "fields": [
-                    {
-                        "path": ["$.jobs[*].active"],
-                        "filter": {
-                            "type": "boolean",
-                            "pattern": "true"
-                        }
-                    }
-                ]
-            }
-        },
+    input_descriptors: [
         {
             "id": "citizenship_input_1",
             "group": ["C"],
             "schema": {
-                "uri": "https://eu.com/claims/DriversLicense.json",
-                "name": "EU Driver's License"
+                "uri": [
+                    "https://w3id.org/citizenship/v1",
+                    "https://w3id.org/citizenship/v2"
+                ],
+                "name": "US Permanent resident card"
             },
             "constraints": {
                 "fields": [
                     {
-                        "path": ["$.issuer", "$.vc.issuer", "$.iss"],
+                        "path": ["$.issuer.id", "$.vc.issuer.id", "$.issuer", "$.vc.issuer"],
                         "purpose": "The credential must be from one of the specified issuers",
                         "filter": {
                             "type": "string",
-                            "pattern": "did:example:gov1|did:example:gov2"
+                            "pattern": "did:web:example.two|did:web:example.three"
                         }
                     },
                     {
-                        "path": ["$.dob"],
+                        "path": ["$.credentialSubject.commuterClassification"],
                         "filter": {
-                            "type": "date",
-                            "minimum": "1999-5-16"
+                            "type": "string",
+                            "pattern": "C1"
                         }
                     }
                 ]
             }
         },
         {
-            "id": "citizenship_input_2",
-            "group": ["C"],
+            "id": "degree_input_1",
+            "group": ["D"],
             "schema": {
-                "uri": "hub://did:foo:123/Collections/schema.us.gov/passport.json",
-                "name": "US Passport"
+                "uri": [
+                    "https://www.example.com/2020/udc-example/v1"
+                ],
+                "name": "University degree certificate"
             },
             "constraints": {
-                "issuers": ["did:foo:gov3"],
                 "fields": [
                     {
-                        "path": ["$.birth_date"],
+                        "path": ["$.issuer.id", "$.vc.issuer.id", "$.issuer", "$.vc.issuer"],
+                        "purpose": "The credential must be from one of the specified issuers",
                         "filter": {
-                            "type": "date",
-                            "minimum": "1999-5-16"
+                            "type": "string",
+                            "pattern": "did:web:faber.university|did:web:jake.university"
+                        }
+                    },
+                    {
+                        "path": ["$.credentialSubject.degree.type"],
+                        "purpose": "Should be masters of engineering",
+                        "filter": {
+                            "type": "string",
+                            "pattern": "MastersOfEngineering"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "degree_input_2",
+            "group": ["D"],
+            "schema": {
+                "uri": [
+                    "https://www.example.com/2020/udc-example/v1"
+                ],
+                "name": "University degree certificate"
+            },
+            "constraints": {
+                "fields": [
+                    {
+                        "path": ["$.issuer.id", "$.vc.issuer.id", "$.issuer", "$.vc.issuer"],
+                        "purpose": "The credential must be from one of the specified issuers",
+                        "filter": {
+                            "type": "string",
+                            "pattern": "did:web:trustbloc.university|did:web:edge.university"
+                        }
+                    },
+                    {
+                        "path": ["$.credentialSubject.degree.type"],
+                        "purpose": "Should be masters of science",
+                        "filter": {
+                            "type": "string",
+                            "pattern": "MastersOfScience"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": "degree_input_3",
+            "group": ["D"],
+            "schema": {
+                "uri": [
+                    "https://www.example.com/2020/udc-example/v1"
+                ],
+                "name": "University degree certificate"
+            },
+            "constraints": {
+                "fields": [
+                    {
+                        "path": ["$.issuer.id", "$.vc.issuer.id", "$.issuer", "$.vc.issuer"],
+                        "purpose": "The credential must be from one of the specified issuers",
+                        "filter": {
+                            "type": "string",
+                            "pattern": "did:web:faber.university|did:web:jake.university"
+                        }
+                    },
+                    {
+                        "path": ["$.credentialSubject.degree.type"],
+                        "purpose": "Should be masters Degree",
+                        "filter": {
+                            "type": "string",
+                            "pattern": "MastersDegree"
                         }
                     }
                 ]
