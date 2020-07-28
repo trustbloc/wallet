@@ -221,19 +221,15 @@ export const presentationDefQuery1 = {
         {
             "name": "Education Qualification",
             "purpose": "We need to know if you are qualified for this job",
-            "rule": {
-                "type": "pick",
-                "count": 1,
-                "from": ["E"]
-            }
+            "rule": "pick",
+            "count": 1,
+            "from": ["E"]
         },
         {
             "name": "Citizenship Information",
             "purpose": "You must be legally allowed to work in United States",
-            "rule": {
-                "type": "all",
-                "from": ["C"]
-            }
+            "rule": "all",
+            "from": ["C"]
         }
     ],
 
@@ -322,12 +318,10 @@ export const presentationDefQuery2 = {
         {
             "name": "Citizenship Information",
             "purpose": "You must be legally allowed to work in United States",
-            "rule": {
-                "type": "all",
-                "from": [
-                    "C"
-                ]
-            }
+            "rule": "all",
+            "from": [
+                "C"
+            ]
         }
     ],
     "input_descriptors": [
@@ -392,7 +386,7 @@ export const issue_credential = {
                     "@context": [
                         "https://www.w3.org/2018/credentials/v1",
                         "https://www.w3.org/2018/credentials/examples/v1"
-                        ],
+                    ],
                     "credentialSubject": {
                         "id": "SubjectID"
                     },
@@ -405,9 +399,9 @@ export const issue_credential = {
                     "type": [
                         "VerifiableCredential",
                         "UniversityDegreeCredential"
-                        ]
+                    ]
                 }
             }
         }
-        ]
+    ]
 }
