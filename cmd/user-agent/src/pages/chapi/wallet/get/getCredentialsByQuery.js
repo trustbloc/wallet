@@ -183,7 +183,6 @@ async function getConsentCredentials(aries, presentationSubmission, invitation, 
         presentationSubmission.verifiableCredential[value.index] = value.credential
     })
 
-    // presentationSubmission.verifiableCredential = vcs
     return presentationSubmission
 }
 
