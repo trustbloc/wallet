@@ -356,7 +356,7 @@ describe('verifier queries credentials - DIDComm Flow', () => {
                 "VerifiablePresentation",
                 "PresentationSubmission"
             ])
-            expect(resp.data.presentation_location.descriptor_map).to.deep.equal([
+            expect(resp.data.presentation_submission.descriptor_map).to.deep.equal([
                 {
                     "id": "citizenship_input_1",
                     "path": "$.verifiableCredential.[0]"

@@ -30,7 +30,6 @@ export function getSample(v) {
 }
 
 
-
 const prc = {
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
@@ -156,23 +155,19 @@ const presentationExchangeQuery = {
             {
                 "name": "Education Qualification",
                 "purpose": "We need to know if you are qualified for this job",
-                "rule": {
-                    "type": "pick",
-                    "count": 1,
-                    "from": [
-                        "E"
-                    ]
-                }
+                "rule": "pick",
+                "count": 1,
+                "from": [
+                    "E"
+                ]
             },
             {
                 "name": "Citizenship Information",
                 "purpose": "You must be legally allowed to work in United States",
-                "rule": {
-                    "type": "all",
-                    "from": [
-                        "C"
-                    ]
-                }
+                "rule": "all",
+                "from": [
+                    "C"
+                ]
             }
         ],
         "input_descriptors": [
@@ -332,7 +327,7 @@ const didAuth = {
 const didConnQuery = {
     web: {
         VerifiablePresentation: {
-            query: { type: "DIDConnect"},
+            query: {type: "DIDConnect"},
             invitation,
             challenge: uuid(),
             domain: "example.com"
@@ -343,7 +338,7 @@ const didConnQuery = {
 const didConnQueryWithManifest = {
     web: {
         VerifiablePresentation: {
-            query: { type: "DIDConnect"},
+            query: {type: "DIDConnect"},
             invitation,
             manifest,
             challenge: uuid(),

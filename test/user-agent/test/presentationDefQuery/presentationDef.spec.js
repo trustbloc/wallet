@@ -1132,11 +1132,7 @@ describe('generate presentation submission with submission requirements', () => 
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
             [
                 {"id": "degree_input_1", "path": "$.verifiableCredential.[0]"},
-                {"id": "degree_input_2", "path": "$.verifiableCredential.[1]"}
-            ]
-        )
-        expect(presSubmission.presentation_location.descriptor_map).to.deep.equal(
-            [
+                {"id": "degree_input_2", "path": "$.verifiableCredential.[1]"},
                 {"id": "citizenship_input_1", "path": "$.verifiableCredential.[2]"}
             ]
         )

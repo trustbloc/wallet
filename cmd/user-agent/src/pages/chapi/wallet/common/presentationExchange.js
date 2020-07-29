@@ -19,9 +19,6 @@ const presentationSubmissionTemplate = `{
     "presentation_submission": {
         "descriptor_map": []
     },
-    "presentation_location": {
-        "descriptor_map": []
-    },
     "verifiableCredential": []
 }`
 
@@ -223,22 +220,12 @@ function prepareSubmission(results) {
     results.forEach(function (result, index) {
         //TODO add VC only once if it matches 2 conditions
         presentationSubmission.verifiableCredential.push(result.credential)
-
-        if (result.manifest) {
-            presentationSubmission.presentation_location.descriptor_map.push(
-                {
-                    id: result.id,
-                    path: `$.verifiableCredential.[${index}]`
-                }
-            )
-        } else {
-            presentationSubmission.presentation_submission.descriptor_map.push(
-                {
-                    id: result.id,
-                    path: `$.verifiableCredential.[${index}]`
-                }
-            )
-        }
+        presentationSubmission.presentation_submission.descriptor_map.push(
+            {
+                id: result.id,
+                path: `$.verifiableCredential.[${index}]`
+            }
+        )
 
     })
 
