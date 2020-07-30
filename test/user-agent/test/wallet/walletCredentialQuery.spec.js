@@ -318,7 +318,7 @@ describe('verifier queries credentials - DIDComm Flow', () => {
         expect(btn.attributes('disabled')).to.be.equal('true')
     })
 
-    it('user consents sharing credential using DIDComm', async () => {
+    it('user authorizes sharing credential using DIDComm', async () => {
         let presDef = wrapper.findComponent(PresentationDefQuery)
 
         presDef.vm.selectedVCs = [true]
