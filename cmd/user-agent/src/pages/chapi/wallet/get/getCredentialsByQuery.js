@@ -70,12 +70,12 @@ export class WalletGetByQuery extends WalletGet {
 
     async createAndSendPresentation(walletUser, presentationSubmission, selectedIndexes) {
         try {
-            // remove unselected VCs from final presentation submission and get consent credentials for matched manifests.
+            // remove unselected VCs from final presentation submission and get authorization credentials for matched manifests.
             if (selectedIndexes && selectedIndexes.length > 0) {
                 presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes)
 
                 if (this.invitation.length > 0) {
-                    presentationSubmission = await getConsentCredentials(this.aries, presentationSubmission, this.invitation[0], this.walletManager)
+                    presentationSubmission = await getAuthorizationCredentials(this.aries, presentationSubmission, this.invitation[0], this.walletManager)
                 }
             }
 
@@ -137,7 +137,7 @@ function retainOnlySelected(presentationSubmission, selectedIndexes) {
     return presentationSubmission
 }
 
-async function getConsentCredentials(aries, presentationSubmission, invitation, walletManager) {
+async function getAuthorizationCredentials(aries, presentationSubmission, invitation, walletManager) {
     let exchange = new DIDExchange(aries)
     let rpConn = await exchange.connect(invitation)
     let rpDIDDoc = await aries.vdri.resolveDID({id: rpConn.result.TheirDID})
@@ -158,8 +158,8 @@ async function getConsentCredentials(aries, presentationSubmission, invitation, 
                         "lastmod_time": new Date(),
                         data: {
                             json: {
-                                userDID: rpConn.result.MyDID,
-                                rpDIDDoc: {
+                                subjectDID: rpConn.result.MyDID,
+                                requestingPartyDIDDoc: {
                                     id : rpDIDDoc.did.id,
                                     doc : rpDIDDoc.did
                                 },
