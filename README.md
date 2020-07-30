@@ -14,6 +14,7 @@ Edge Agent is agent involved in sending (creating) and receiving (processing) an
 # Components
 
 - [User Agent WASM](docs/components/user_agent_wasm.md)
+- [Web Wallet](docs/components/web_wallet.md)
 
 # Test
 
