@@ -23,6 +23,13 @@ You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following 
     127.0.0.1 stakeholder.one
     127.0.0.1 sidetree-mock
 
+## Running BDD tests
+
+Run below command to run JS bdd tests in headless browser.
+
+    make bdd-test-js
+
+
 ## Targets
 ```
 # run checks and unit tests
@@ -44,12 +51,10 @@ make user-agent-wasm-docker
 make generate-test-keys
 ```
 
-## Steps
+## Steps to start user agents
 
 ```bash
-make clean user-agent-wasm-docker generate-test-keys
-cd test/bdd/fixtures/agent-wasm
-(source .env && docker-compose down && docker-compose up --force-recreate)
+make user-agent-start
 ```
 
 ## Agents
@@ -130,7 +135,7 @@ You can use this payload to do that.
                       "https://www.w3.org/2018/credentials/examples/v1"
                    ],
                    "credentialSubject":{
-                      "ID":"SubjectID"
+                      "id":"sample-credential-subject-id"
                    },
                    "id":"http://example.edu/credentials/1872",
                    "issuanceDate":"2010-01-01T19:23:24Z",
