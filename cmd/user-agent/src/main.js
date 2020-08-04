@@ -127,6 +127,14 @@ Vue.use(MaterialDashboard);
 
 new Vue({
     el: "#app",
+    data: () => ({
+        devMode: false,
+    }),
+    mounted: function () {
+        this.$root.$on('dev_mode', function (val) {
+            this.devMode= val
+        })
+    },
     render: h => h(App),
     router
 });

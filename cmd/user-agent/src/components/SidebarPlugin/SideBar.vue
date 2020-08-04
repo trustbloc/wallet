@@ -39,6 +39,12 @@ SPDX-License-Identifier: Apache-2.0
           </sidebar-link>
         </slot>
       </md-list>
+      <div class="dev-mode">
+        <div>
+          <md-checkbox v-model="devMode">Developer Mode
+          </md-checkbox>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -84,6 +90,18 @@ export default {
       autoClose: this.autoClose
     };
   },
+  data: () => ({
+    devMode: false,
+  }),
+  mounted() {
+    this.devMode = localStorage.devMode === "true";
+  },
+  watch: {
+    devMode(val) {
+      localStorage.devMode = val;
+      this.$root.$emit('dev_mode', val);
+    },
+  },
   computed: {
     sidebarStyle() {
       return {
@@ -98,5 +116,17 @@ export default {
   .nav-mobile-menu {
     display: none;
   }
+}
+</style>
+
+<style scoped>
+.dev-mode {
+  position: absolute;
+  bottom: 0;
+  width: 100%
+}
+
+.dev-mode > div {
+  text-align: center;
 }
 </style>
