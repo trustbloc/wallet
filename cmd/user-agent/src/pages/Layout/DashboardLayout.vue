@@ -23,15 +23,15 @@ SPDX-License-Identifier: Apache-2.0
         <md-icon>flip_to_back</md-icon>
         <p>DID Management</p>
       </sidebar-link>
-      <sidebar-link to="/connections">
+      <sidebar-link v-if="$root.devMode" to="/connections">
         <md-icon>compare_arrows</md-icon>
         <p>Connections</p>
       </sidebar-link>
-      <sidebar-link to="/issue-credential">
+      <sidebar-link v-if="$root.devMode" to="/issue-credential">
         <md-icon>note</md-icon>
         <p>Issue Credential</p>
       </sidebar-link>
-      <sidebar-link to="/present-proof">
+      <sidebar-link v-if="$root.devMode" to="/present-proof">
         <md-icon>security</md-icon>
         <p>Present Proof</p>
       </sidebar-link>
