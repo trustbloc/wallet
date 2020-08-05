@@ -15,6 +15,7 @@ import GetFromWallet from "@/pages/chapi/Get.vue";
 import WebWallet from "@/pages/WebWallet.vue";
 import DIDManagement from "@/pages/DIDManagement.vue";
 import Connections from "@/pages/Connections.vue";
+import Relationships from "@/pages/Relationships.vue";
 import IssueCredential from "@/pages/IssueCredential.vue";
 import PresentProof from "@/pages/PresentProof.vue";
 import NotFound from '@/pages/PageNotFound'
@@ -59,6 +60,11 @@ const routes = [
                 path: "connections",
                 name: "Connections",
                 component: Connections
+            },
+            {
+                path: "relationships",
+                name: "Relationships",
+                component: Relationships
             }, {
                 path: "issue-credential",
                 name: "Issue Credential",
@@ -83,6 +89,5 @@ const routes = [
         path: "/GetFromWallet",
         component: GetFromWallet
     }
-
 ];
 export default routes;

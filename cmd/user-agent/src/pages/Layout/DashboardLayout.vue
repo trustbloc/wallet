@@ -8,8 +8,8 @@ SPDX-License-Identifier: Apache-2.0
   <div class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
 
     <side-bar
-      :sidebar-item-color="sidebarBackground"
-      :sidebar-background-image="sidebarBackgroundImage">
+        :sidebar-item-color="sidebarBackground"
+        :sidebar-background-image="sidebarBackgroundImage">
       <mobile-menu slot="content"></mobile-menu>
       <sidebar-link to="/dashboard">
         <md-icon>dashboard</md-icon>
@@ -27,6 +27,12 @@ SPDX-License-Identifier: Apache-2.0
         <md-icon>compare_arrows</md-icon>
         <p>Connections</p>
       </sidebar-link>
+      <sidebar-link v-if="!$root.devMode" to="/relationships">
+        <md-icon>compare_arrows</md-icon>
+        <p>Relationships</p>
+        <md-badge v-if="$root.relationshipsNotifications" class="md-primary md-square" style="margin: 5px"
+                  :md-content="$root.relationshipsNotifications"/>
+      </sidebar-link>
       <sidebar-link v-if="$root.devMode" to="/issue-credential">
         <md-icon>note</md-icon>
         <p>Issue Credential</p>
@@ -40,7 +46,7 @@ SPDX-License-Identifier: Apache-2.0
     <div class="main-panel">
       <top-navbar></top-navbar>
 
-      <dashboard-content> </dashboard-content>
+      <dashboard-content></dashboard-content>
 
       <content-footer v-if="!$route.meta.hideFooter"></content-footer>
     </div>
