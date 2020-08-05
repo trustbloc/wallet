@@ -13,7 +13,8 @@ import (
 
 func TestGetCommandHandlers(t *testing.T) {
 	t.Run("test success", func(t *testing.T) {
-		controller, err := GetCommandHandlers(WithBlocDomain("domain"))
+		controller, err := GetCommandHandlers(WithBlocDomain("domain"),
+			WithSDSServerURL("SomeURL"), WithAgentUsername("agent1"))
 		require.NoError(t, err)
 		require.NotNil(t, controller)
 	})

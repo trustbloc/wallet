@@ -27,7 +27,7 @@ export class DIDManager extends KeyValueStore {
 
     async createDID(keyType, signType) {
         if (!this.aries || !this.trustblocAgent) {
-            console.error("aries and trustbloc agents are required to created DIDs")
+            console.error("aries and trustbloc agents are required to create DIDs")
             throw "operation not supported"
         }
 
@@ -84,17 +84,27 @@ export class DIDManager extends KeyValueStore {
         return did
     }
 
-    async saveDID(name, did){
-        if (!this.aries) {
-            console.error("aries agent required for saving DIDs")
+    async saveDID(name, signType, did){
+        if (!this.aries || !this.trustblocAgent) {
+            console.error("aries and trustbloc agents are required for saving DIDs")
             throw "operation not supported"
         }
 
+        // Save DID to local browser storage
         await this.aries.vdri.saveDID({
                 name: name,
                 did: did
             }
         )
+
+        const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
+
+        // Save DID to persistent storage
+        await t.didclient.saveDID({
+            name: name,
+            signType: signType,
+            did: did
+        })
     }
 
     async getAllDIDMetadata() {
@@ -108,5 +118,4 @@ export class DIDManager extends KeyValueStore {
     async storeDIDMetadata(did, metadata) {
         return this.store(did, metadata)
     }
-
 }

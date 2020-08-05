@@ -8,6 +8,7 @@ package didclient
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"github.com/hyperledger/aries-framework-go/pkg/doc/did"
@@ -17,6 +18,7 @@ import (
 	"github.com/trustbloc/edge-agent/pkg/controller/command"
 	"github.com/trustbloc/edge-agent/pkg/controller/command/internal/cmdutil"
 	"github.com/trustbloc/edge-agent/pkg/controller/command/internal/logutil"
+	"github.com/trustbloc/edge-agent/pkg/controller/command/sdscomm"
 )
 
 var logger = log.New("edge-agent-didclient")
@@ -26,6 +28,7 @@ const (
 	commandName = "didclient"
 	// command methods
 	createDIDCommandMethod = "CreateDID"
+	saveDIDCommandMethod   = "SaveDID"
 	// log constants
 	successString = "success"
 )
@@ -36,6 +39,10 @@ const (
 
 	// CreateDIDErrorCode is typically a code for create did errors
 	CreateDIDErrorCode
+
+	failDecodeDIDDocDataErrMsg = "failed to decode DID data"
+	failCreateDIDVaultErrMsg   = "failed to create DID vault"
+	failStoreDIDDocErrMsg      = "failed to store DID document"
 )
 
 type didBlocClient interface {
@@ -43,27 +50,30 @@ type didBlocClient interface {
 }
 
 // New returns new DID Exchange controller command instance
-func New(domain string) *Command {
+func New(domain, sdsServerURL, agentUsername string) *Command {
 	client := didclient.New()
 
-	cmd := &Command{
-		client: client,
-		domain: domain,
+	return &Command{
+		didClient:     client,
+		domain:        domain,
+		agentUsername: agentUsername,
+		sdsServerURL:  sdsServerURL,
 	}
-
-	return cmd
 }
 
 // Command is controller command for DID Exchange
 type Command struct {
-	client didBlocClient
-	domain string
+	didClient     didBlocClient
+	domain        string
+	agentUsername string
+	sdsServerURL  string
 }
 
 // GetHandlers returns list of all commands supported by this controller command
 func (c *Command) GetHandlers() []command.Handler {
 	return []command.Handler{
 		cmdutil.NewCommandHandler(commandName, createDIDCommandMethod, c.CreateDID),
+		cmdutil.NewCommandHandler(commandName, saveDIDCommandMethod, c.SaveDID),
 	}
 }
 
@@ -90,7 +100,7 @@ func (c *Command) CreateDID(rw io.Writer, req io.Reader) command.Error {
 			KeyType: v.KeyType, Purpose: v.Purpose, Recovery: v.Recovery, Update: v.Update, Value: value}))
 	}
 
-	didDoc, err := c.client.CreateDID(c.domain, opts...)
+	didDoc, err := c.didClient.CreateDID(c.domain, opts...)
 	if err != nil {
 		logutil.LogError(logger, commandName, createDIDCommandMethod, err.Error())
 		return command.NewExecuteError(CreateDIDErrorCode, err)
@@ -114,6 +124,50 @@ func (c *Command) CreateDID(rw io.Writer, req io.Reader) command.Error {
 	}, logger)
 
 	logutil.LogDebug(logger, commandName, createDIDCommandMethod, successString)
+
+	return nil
+}
+
+func (c *Command) SaveDID(_ io.Writer, req io.Reader) command.Error {
+	didDataToStore := sdscomm.DIDDocData{}
+
+	err := json.NewDecoder(req).Decode(&didDataToStore)
+	if err != nil {
+		logutil.LogInfo(logger, commandName, saveDIDCommandMethod,
+			fmt.Sprintf("%s: %s", failDecodeDIDDocDataErrMsg, err.Error()))
+
+		return command.NewValidationError(InvalidRequestErrorCode,
+			fmt.Errorf("%s: %w", failDecodeDIDDocDataErrMsg, err))
+	}
+
+	saveDIDErr := c.saveDID(&didDataToStore)
+	if saveDIDErr != nil {
+		return saveDIDErr
+	}
+
+	return nil
+}
+
+func (c *Command) saveDID(didDataToStore *sdscomm.DIDDocData) command.Error {
+	sdsComm := sdscomm.New(c.sdsServerURL, c.agentUsername)
+
+	err := sdsComm.CreateDIDVault()
+	if err != nil {
+		logutil.LogInfo(logger, commandName, saveDIDCommandMethod,
+			fmt.Sprintf("%s: %s", failCreateDIDVaultErrMsg, err.Error()))
+
+		return command.NewValidationError(InvalidRequestErrorCode,
+			fmt.Errorf("%s: %w", failCreateDIDVaultErrMsg, err))
+	}
+
+	err = sdsComm.StoreDIDDocument(didDataToStore)
+	if err != nil {
+		logutil.LogInfo(logger, commandName, saveDIDCommandMethod,
+			fmt.Sprintf("%s: %s", failStoreDIDDocErrMsg, err.Error()))
+
+		return command.NewValidationError(InvalidRequestErrorCode,
+			fmt.Errorf("%s: %w", failStoreDIDDocErrMsg, err))
+	}
 
 	return nil
 }

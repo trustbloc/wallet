@@ -89,7 +89,9 @@ async function trustblocStartupOpts() {
         assetsPath: defaultTrustBlocStartupOpts['assetsPath'],
         blocDomain: ('blocDomain' in startupOpts) ? startupOpts['blocDomain'] : defaultTrustBlocStartupOpts['blocDomain'],
         walletMediatorURL: ('walletMediatorURL' in startupOpts) ? startupOpts['walletMediatorURL'] : defaultTrustBlocStartupOpts['walletMediatorURL'],
-        'log-level': ('log-level' in startupOpts) ? startupOpts['log-level'] : defaultTrustBlocStartupOpts['log-level']
+        'log-level': ('log-level' in startupOpts) ? startupOpts['log-level'] : defaultTrustBlocStartupOpts['log-level'],
+        agentUsername: startupOpts['agentUsername'],
+        sdsServerUrl: startupOpts['sdsServerURL']
     }
 }
 

@@ -64,7 +64,10 @@ const ariesStartupOpts = {
 export const trustBlocStartupOpts = {
     assetsPath: '/base/public/trustbloc-agent/assets',
     blocDomain: 'testnet.trustbloc.local',
-    walletMediatorURL: 'http://localhost:10093'
+    walletMediatorURL: 'http://localhost:10093',
+    'log-level': 'debug',
+    sdsServerURL: 'https://localhost:8072/encrypted-data-vaults',
+    agentUsername: `user-agent`
 }
 
 export async function loadAries(name) {

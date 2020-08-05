@@ -36,7 +36,7 @@ export class RegisterWallet extends WalletManager {
         let did = await this.didManager.createDID(keyType, signType)
 
         // save DID
-        await this.didManager.saveDID(`${user}_${uuid()}`, did)
+        await this.didManager.saveDID(`${user}_${uuid()}`, signType, did)
 
         console.log(`created DID ${did.id} successfully for user ${this.username}`)
 

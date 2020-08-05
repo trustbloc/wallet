@@ -52,11 +52,14 @@ services:
       - ARIESD_DEFAULT_LABEL=user-agent
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
+      - HTTP_SERVER_SDS_URL=${HTTP_SERVER_SDS_URL}
     ports:
       - 8091:8091
     volumes:
       - ../keys/tls:/etc/tls
     command: start
+    depends_on:
+      - sds.example.com
 
   second.user.agent.example.com:
     container_name: second.user.agent.example.com
@@ -69,11 +72,39 @@ services:
       - ARIESD_DEFAULT_LABEL=second-user-agent
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
+      - HTTP_SERVER_SDS_URL=${HTTP_SERVER_SDS_URL}
     ports:
       - 8071:8071
     volumes:
       - ../keys/tls:/etc/tls
     command: start
+    depends_on:
+      - sds.example.com
+
+  couchdb.example.com:
+    container_name: couchdb.example.com
+    image: ${COUCHDB_IMAGE}:${COUCHDB_IMAGE_TAG}
+    ports:
+      - ${COUCHDB_PORT}:${COUCHDB_PORT}
+
+  sds.example.com:
+    container_name: sds.example.com
+    image: ${SDS_REST_IMAGE}:${SDS_REST_IMAGE_TAG}
+    environment:
+      - EDV_HOST_URL=${SDS_HOST}:${SDS_PORT}
+      - EDV_DATABASE_TYPE=${SDS_DATABASE_TYPE}
+      - EDV_DATABASE_URL=${SDS_DATABASE_URL}
+      - EDV_DATABASE_PREFIX=${SDS_DATABASE_PREFIX}
+      - EDV_LOG_LEVEL=debug
+      - EDV_TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
+      - EDV_TLS_KEY_FILE=/etc/tls/ec-key.pem
+    ports:
+      - ${SDS_PORT}:${SDS_PORT}
+    volumes:
+      - ../keys/tls:/etc/tls
+    command: start
+    depends_on:
+      - couchdb.example.com
 
   sidetree:
     container_name: sidetree-mock
