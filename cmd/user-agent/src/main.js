@@ -39,7 +39,6 @@ async function loadAriesOnce() {
 }
 
 
-
 let defaultAriesStartupOpts = {
     assetsPath: '/aries-framework-go/assets',
     'outbound-transport': ['ws', 'http'],
@@ -103,7 +102,7 @@ async function trustblocStartupOpts() {
             })
     }
 
-    return  {
+    return {
         assetsPath: defaultTrustBlocStartupOpts['assetsPath'],
         blocDomain: ('blocDomain' in startupOpts) ? startupOpts['blocDomain'] : defaultTrustBlocStartupOpts['blocDomain'],
         walletMediatorURL: ('walletMediatorURL' in startupOpts) ? startupOpts['walletMediatorURL'] : defaultTrustBlocStartupOpts['walletMediatorURL'],
@@ -117,7 +116,7 @@ Vue.prototype.$trustblocStartupOpts = trustblocStartupOpts()
 
 // configure router
 const router = new VueRouter({
-    mode:'history',
+    mode: 'history',
     routes, // short for routes: routes
     linkExactActiveClass: "nav-item active"
 });
@@ -129,11 +128,44 @@ new Vue({
     el: "#app",
     data: () => ({
         devMode: false,
+        relationshipsNotifications: 0,
     }),
-    mounted: function () {
-        this.$root.$on('dev_mode', function (val) {
-            this.devMode= val
-        })
+    methods: {
+        onDevMode() {
+            this.$root.$on('dev_mode', function (val) {
+                this.devMode = val
+            })
+        },
+        async relationshipsUpdate(notice) {
+            console.log(notice.payload)
+            if (notice.payload.StateID === "completed") {
+                this.$root.$emit('update_relationships');
+                return
+            }
+
+            if (notice.payload.StateID !== "requested" && notice.payload.StateID !== "responded") {
+                return
+            }
+
+            if (notice.payload.Type !== "post_state") {
+                return
+            }
+
+            let res = await window.$aries.didexchange.queryConnections()
+            if (res.results) {
+                this.relationshipsNotifications = res.results.filter(conn =>
+                    conn.State === 'requested' && conn.Namespace === 'their'
+                ).length
+                this.$root.$emit('update_relationships');
+            }
+        }
+    },
+    mounted: async function () {
+        this.onDevMode()
+
+        // sets aries instance globally
+        window.$aries = await this.$arieslib
+        window.$aries.startNotifier(this.relationshipsUpdate, ["didexchange_states"])
     },
     render: h => h(App),
     router
