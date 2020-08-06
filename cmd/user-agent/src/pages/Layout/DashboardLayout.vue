@@ -23,21 +23,21 @@ SPDX-License-Identifier: Apache-2.0
         <md-icon>flip_to_back</md-icon>
         <p>DID Management</p>
       </sidebar-link>
-      <sidebar-link v-if="$root.devMode" to="/connections">
+      <sidebar-link v-if="isDevMode" to="/connections">
         <md-icon>compare_arrows</md-icon>
         <p>Connections</p>
       </sidebar-link>
-      <sidebar-link v-if="!$root.devMode" to="/relationships">
+      <sidebar-link v-if="!isDevMode" to="/relationships">
         <md-icon>compare_arrows</md-icon>
         <p>Relationships</p>
-        <md-badge v-if="$root.relationshipsNotifications" class="md-primary md-square" style="margin: 5px"
-                  :md-content="$root.relationshipsNotifications"/>
+        <md-badge v-if="pendingConnectionsCount" class="md-primary md-square" style="margin: 5px"
+                  :md-content="pendingConnectionsCount"/>
       </sidebar-link>
-      <sidebar-link v-if="$root.devMode" to="/issue-credential">
+      <sidebar-link v-if="isDevMode" to="/issue-credential">
         <md-icon>note</md-icon>
         <p>Issue Credential</p>
       </sidebar-link>
-      <sidebar-link v-if="$root.devMode" to="/present-proof">
+      <sidebar-link v-if="isDevMode" to="/present-proof">
         <md-icon>security</md-icon>
         <p>Present Proof</p>
       </sidebar-link>
@@ -58,6 +58,7 @@ import TopNavbar from "./TopNavbar.vue";
 import ContentFooter from "./ContentFooter.vue";
 import DashboardContent from "./Content.vue";
 import MobileMenu from "@/pages/Layout/MobileMenu.vue";
+import {mapGetters} from "vuex";
 
 export default {
   components: {
@@ -71,6 +72,7 @@ export default {
       sidebarBackground: "green",
       sidebarBackgroundImage: require("@/assets/img/sidebar-2.jpg")
     };
-  }
+  },
+  computed: mapGetters(['pendingConnectionsCount', "isDevMode"]),
 };
 </script>
