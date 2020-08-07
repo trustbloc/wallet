@@ -6,57 +6,25 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div class="content">
-    <div class="md-layout">
+    <mediator v-if="!isMediatorRegistered" title="Please, set up a mediator to proceed with this page!"></mediator>
+    <div class="md-layout" v-if="isMediatorRegistered">
       <div class="md-layout-item">
         <div class="md-layout-item">
-          <md-card class="md-card-plain">
-            <md-card-header data-background-color="green">
-              <h4 class="title">Make New Friends By Sharing This Invitation!</h4>
-              <md-button v-on:click="copyInvitationToClipboard"
-                         class="md-icon-button md-dense md-raised md-info right refresh-connections">
-                <md-icon>content_copy</md-icon>
-              </md-button>
-            </md-card-header>
-            <md-card-content style="background-color: white;">
-              <div style="display: flow-root;text-align: center;">
-                <div style="line-break: anywhere;">{{ generatedInvitation }}</div>
-              </div>
-              <input type="hidden" id="created-invitation" :value="generatedInvitation">
-            </md-card-content>
-          </md-card>
+          <public-invitation></public-invitation>
         </div>
         <div class="md-layout-item">
-          <md-card class="md-card-plain">
-            <md-card-header data-background-color="green">
-              <h4 class="title">Have an invitation? Put it below and hit the Connect button.</h4>
-            </md-card-header>
-            <md-card-content style="background-color: white;">
-              <md-field>
-                <label>Invitation</label>
-                <md-textarea v-model="inboundInvitation"
-                             required></md-textarea>
-              </md-field>
-              <div style="display: flow-root">
-                <span class="error" v-if="inboundInvitationError">{{ inboundInvitationError }}</span>
-                <span class="success" v-if="inboundInvitationSuccess">{{ inboundInvitationSuccess }}</span>
-                <md-button class="md-button md-info md-square right"
-                           id='receiveInvitation'
-                           v-on:click="receiveInvitation">
-                  <b>Connect</b>
-                </md-button>
-              </div>
-            </md-card-content>
-          </md-card>
+          <receive-invitation title="Have an invitation? Put it below and hit the Connect button."
+                              type="base64"></receive-invitation>
         </div>
       </div>
       <div class="md-layout-item">
-        <div class="md-layout-item" v-if="pendingRequests().length!==0">
+        <div class="md-layout-item" v-if="pendingConnectionsCount">
           <md-card class="md-card-plain">
             <md-card-header data-background-color="green">
               <h4 class="title">Pending requests</h4>
-              <div style="display: -webkit-inline-box;position: absolute">
+              <div style="display: -webkit-inline-box; position: absolute">
                 <md-badge class="md-primary md-square" style="float: left;position: relative;margin-top: 5px;"
-                          :md-content="pendingRequests().length"/>
+                          :md-content="pendingConnectionsCount"/>
               </div>
               <md-button v-on:click="queryConnections"
                          class="md-icon-button md-dense md-raised md-info right refresh-connections">
@@ -66,7 +34,7 @@ SPDX-License-Identifier: Apache-2.0
             <md-card-content style="background-color: white;">
               <md-content class="md-content-connections md-scrollbar">
                 <md-list class="md-triple-line">
-                  <md-list-item v-for="conn in pendingRequests()" :key="conn.id">
+                  <md-list-item v-for="conn in pendingConnections" :key="conn.id">
                     <div class="md-list-item-text">
                       <span v-if="conn.TheirDID">{{ conn.TheirDID }}</span>
                     </div>
@@ -80,7 +48,7 @@ SPDX-License-Identifier: Apache-2.0
             </md-card-content>
           </md-card>
         </div>
-        <div class="md-layout-item" v-if="completedConnections().length!==0">
+        <div class="md-layout-item" v-if="completedConnectionsCount">
           <md-card class="md-card-plain">
             <md-card-header data-background-color="green">
               <h4 class="title">List of agents you have a connection with</h4>
@@ -92,7 +60,7 @@ SPDX-License-Identifier: Apache-2.0
             <md-card-content style="background-color: white;">
               <md-content class="md-content-connections md-scrollbar">
                 <md-list class="md-triple-line">
-                  <md-list-item v-for="conn in completedConnections()" :key="conn.id">
+                  <md-list-item v-for="conn in completedConnections" :key="conn.id">
                     <div class="md-list-item-text">
                       <span v-if="conn.TheirLabel">{{ conn.TheirLabel }}</span>
                     </div>
@@ -108,103 +76,20 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
+import {mapGetters, mapActions} from 'vuex'
+import {Mediator, PublicInvitation, ReceiveInvitation} from "@/components";
+
 export default {
-  methods: {
-    pendingRequests: function () {
-      return this.connections.filter(conn => conn.State === 'requested' && conn.Namespace === 'their')
-    },
-    completedConnections: function () {
-      return this.connections.filter(conn => conn.State === 'completed')
-    },
-    acceptExchangeRequest: async function (id) {
-      await window.$aries.didexchange.acceptExchangeRequest({
-        id: id
-      }).then(this.queryConnections)
-    },
-    createInvitation: async function () {
-      // creates invitation through the out-of-band protocol
-      let res = await window.$aries.outofband.createInvitation({label: "User"})
-      // encodes invitation to base64 string
-      return window.btoa(JSON.stringify(res.invitation));
-    },
-    copyInvitationToClipboard: function () {
-      let inv = document.querySelector('#created-invitation')
-      inv.setAttribute('type', 'text')
-      inv.select()
-
-      document.execCommand('copy');
-
-      inv.setAttribute('type', 'hidden')
-      window.getSelection().removeAllRanges()
-    },
-    receiveInvitation: async function () {
-      let inv = this.inboundInvitation;
-      // clears user-friendly messages
-      this.inboundInvitationError = ""
-      this.inboundInvitationSuccess = ""
-
-      // checks whether the invitation was provided by the user
-      if (inv.trim().length === 0) {
-        this.inboundInvitationError = "Please fill in the field!"
-        return
-      }
-
-      let invitation;
-      try {
-        // parses invitation that user has provided
-        invitation = JSON.parse(window.atob(inv.trim()))
-      } catch (_) {
-        this.inboundInvitationError = "Please make sure you are providing a JSON invitation"
-        return
-      }
-
-      try {
-        // accepts invitation thought out-of-band protocol
-        let res = await window.$aries.outofband.acceptInvitation({
-          my_label: "agent",
-          invitation: invitation,
-        })
-        // shows connection id that has been received
-        this.inboundInvitationSuccess = `Your connection ID is ${res['connection_id']}`
-        // refreshes connections
-        await this.queryConnections()
-        // clears provided invitation
-        this.inboundInvitation = ""
-      } catch (e) {
-        this.inboundInvitationError = e.message
-      }
-    },
-    queryConnections: async function () {
-      // retrieves all agent connections
-      let res = await window.$aries.didexchange.queryConnections()
-      if (res.results) {
-        // sets connections
-        this.connections = res.results
-      }
-    },
-  },
-  data() {
-    return {
-      generatedInvitation: "",
-      inboundInvitation: "",
-      connections: [],
-      inboundInvitationError: "",
-      inboundInvitationSuccess: "",
-    };
-  },
-  async mounted() {
-    // sets aries instance globally
-    window.$aries = await this.$arieslib
-    // generates new invitation, it would be nice to use public invitation here
-    this.generatedInvitation = await this.createInvitation()
-    // load connections when component is mounted
-    await this.queryConnections()
-
-    let _this = this;
-    // update connections when on update_relationships event
-    this.$root.$on('update_relationships', async function () {
-      await _this.queryConnections()
-    })
+  components: {Mediator, PublicInvitation, ReceiveInvitation},
+  methods: mapActions(['queryConnections', 'acceptExchangeRequest']),
+  computed: mapGetters([
+    'pendingConnections', 'completedConnections',
+    'pendingConnectionsCount', 'completedConnectionsCount',
+    'isMediatorRegistered'
+  ]),
+  mounted() {
+    // refreshes connections when component is mounted
+    this.queryConnections()
   }
 }
 </script>
@@ -222,14 +107,6 @@ export default {
 
 .right {
   float: right;
-}
-
-.error {
-  color: red;
-}
-
-.success {
-  color: green;
 }
 
 .md-content-connections {

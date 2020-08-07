@@ -41,7 +41,7 @@ SPDX-License-Identifier: Apache-2.0
       </md-list>
       <div class="dev-mode">
         <div>
-          <md-checkbox v-model="devMode">Developer Mode
+          <md-checkbox :value="!isDevMode" @change="updateDevMode(!isDevMode)">Developer Mode
           </md-checkbox>
         </div>
       </div>
@@ -50,11 +50,13 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 import SidebarLink from "./SidebarLink.vue";
+import {mapGetters, mapMutations} from 'vuex'
 
 export default {
   components: {
     SidebarLink
   },
+  methods: mapMutations(['updateDevMode']),
   props: {
     title: {
       type: String,
@@ -90,19 +92,8 @@ export default {
       autoClose: this.autoClose
     };
   },
-  data: () => ({
-    devMode: false,
-  }),
-  mounted() {
-    this.devMode = localStorage.devMode === "true";
-  },
-  watch: {
-    devMode(val) {
-      localStorage.devMode = val;
-      this.$root.$emit('dev_mode', val);
-    },
-  },
   computed: {
+    ...mapGetters(['isDevMode']),
     sidebarStyle() {
       return {
         backgroundImage: `url(${this.sidebarBackgroundImage})`

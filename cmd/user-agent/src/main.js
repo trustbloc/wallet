@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import Vue from 'vue';
+import store from './store'
 import App from './App.vue';
 import VueRouter from "vue-router";
 import routes from "./router/index";
@@ -13,31 +14,13 @@ import * as webCredentialHandler from "web-credential-handler";
 import * as Aries from "@trustbloc-cicd/aries-framework-go"
 import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import MaterialDashboard from "./material-dashboard";
-
+import {mapActions} from "vuex";
 
 Vue.config.productionTip = false
 
 Vue.prototype.$polyfill = polyfill
 Vue.prototype.$webCredentialHandler = webCredentialHandler
 Vue.prototype.$trustblocAgent = trustblocAgent
-
-
-async function loadAriesOnce() {
-    if (!Vue.prototype.$aries) {
-        let startupOpts = await ariesStartupOpts()
-        console.log("aries startup options ", JSON.stringify(startupOpts))
-
-        await new Aries.Framework(startupOpts).then(resp => {
-            Vue.prototype.$aries = resp
-            console.log('aries started successfully')
-        }).catch(err => {
-            console.error('error starting aries framework : errMsg=', err)
-        })
-    }
-
-    return Vue.prototype.$aries
-}
-
 
 let defaultAriesStartupOpts = {
     assetsPath: '/aries-framework-go/assets',
@@ -110,10 +93,6 @@ async function trustblocStartupOpts() {
     }
 }
 
-Vue.prototype.$arieslib = loadAriesOnce()
-Vue.prototype.$trustblocStartupOpts = trustblocStartupOpts()
-
-
 // configure router
 const router = new VueRouter({
     mode: 'history',
@@ -125,47 +104,29 @@ Vue.use(VueRouter);
 Vue.use(MaterialDashboard);
 
 new Vue({
+    store,
     el: "#app",
     data: () => ({
-        devMode: false,
-        relationshipsNotifications: 0,
+        loaded: false,
     }),
-    methods: {
-        onDevMode() {
-            this.$root.$on('dev_mode', function (val) {
-                this.devMode = val
-            })
-        },
-        async relationshipsUpdate(notice) {
-            console.log(notice.payload)
-            if (notice.payload.StateID === "completed") {
-                this.$root.$emit('update_relationships');
-                return
-            }
-
-            if (notice.payload.StateID !== "requested" && notice.payload.StateID !== "responded") {
-                return
-            }
-
-            if (notice.payload.Type !== "post_state") {
-                return
-            }
-
-            let res = await window.$aries.didexchange.queryConnections()
-            if (res.results) {
-                this.relationshipsNotifications = res.results.filter(conn =>
-                    conn.State === 'requested' && conn.Namespace === 'their'
-                ).length
-                this.$root.$emit('update_relationships');
-            }
-        }
-    },
+    methods: mapActions(['initStore', 'onDidExchangeState']),
     mounted: async function () {
-        this.onDevMode()
-
+        // gets aries options 
+        let ariesOpts = await ariesStartupOpts()
         // sets aries instance globally
-        window.$aries = await this.$arieslib
-        window.$aries.startNotifier(this.relationshipsUpdate, ["didexchange_states"])
+        window.$aries = await new Aries.Framework(ariesOpts)
+        Vue.prototype.$arieslib = window.$aries
+
+        // gets trustbloc options
+        let trustblocOpts = await trustblocStartupOpts()
+        Vue.prototype.$trustblocStartupOpts = trustblocOpts
+
+        // registers listener which will update connections
+        window.$aries.startNotifier(this.onDidExchangeState, ["didexchange_states"])
+        // inits storage
+        await this.initStore({aries: ariesOpts, trustbloc: trustblocOpts})
+        // removes spinner
+        this.loaded = true
     },
     render: h => h(App),
     router
