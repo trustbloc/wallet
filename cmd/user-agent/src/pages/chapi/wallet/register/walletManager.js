@@ -21,7 +21,7 @@ export class WalletManager extends KeyValueStore {
     constructor() {
         super(`${dbName}-${metadataStore}`, metadataStore)
 
-        // TODO EDV will be used in future for these stores
+        // TODO SDS will be used in future for these stores #268
         this.manifestStore = new KeyValueStore(`${dbName}-${manifestStore}`, manifestStore)
         this.connectionStore = new KeyValueStore(`${dbName}-${connectionsStore}`, connectionsStore)
     }

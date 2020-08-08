@@ -57,8 +57,10 @@ type result struct {
 
 // trustblocAgentStartOpts contains opts for starting trustbloc agent
 type trustblocAgentStartOpts struct {
-	BlocDomain string `json:"blocDomain"`
-	LogLevel   string `json:"log-level"`
+	BlocDomain    string `json:"blocDomain"`
+	LogLevel      string `json:"log-level"`
+	AgentUsername string `json:"agentUsername"`
+	SDSServerURL  string `json:"sdsServerURL"`
 }
 
 // main registers the 'handleMsg' function in the JS context's global scope to receive commands.
@@ -182,7 +184,8 @@ func addTrustBlocAgentHandlers(pkgMap map[string]map[string]func(*command) *resu
 			return newErrResult(c.ID, err.Error())
 		}
 
-		commands, err := controller.GetCommandHandlers(controller.WithBlocDomain(cOpts.BlocDomain))
+		commands, err := controller.GetCommandHandlers(controller.WithBlocDomain(cOpts.BlocDomain),
+			controller.WithSDSServerURL(cOpts.SDSServerURL), controller.WithAgentUsername(cOpts.AgentUsername))
 		if err != nil {
 			return newErrResult(c.ID, err.Error())
 		}

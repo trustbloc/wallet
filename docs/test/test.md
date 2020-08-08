@@ -62,6 +62,10 @@ make user-agent-start
 - To access user agent wasm open [user home page](https://127.0.0.1:8091/dashboard).
 - To access second user agent wasm open [user home page](https://127.0.0.1:8071/dashboard).
 
+## Data Storage
+
+- The `make user-agent-start` command also starts up an [SDS instance](https://github.com/trustbloc/edv) with a CouchDB backend that's used for persistent data storage. If you want to examine the database for yourself while the agents are running, open the [CouchDB Fauxton Interface](http://127.0.0.1:5984/_utils). Note that the CouchDb instance started up by the `make user-agent-start` command will lose its data when the image is stopped.
+
 ## How to establish a did-connection between agents?
 
 1. Go to `Connections` page and register the router for both agents. Use `http://localhost:10093` as a router URL.

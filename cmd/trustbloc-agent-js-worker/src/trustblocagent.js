@@ -124,6 +124,9 @@ const TrustBlocAgent = function (opts) {
             createDID: async function (req) {
                 return invoke(aw, pending, this.pkgname, "CreateDID", req, "timeout while creating did")
             },
+            saveDID: async function (req) {
+                return invoke(aw, pending, this.pkgname, "SaveDID", req, "timeout while saving did")
+            },
         },
     }
 

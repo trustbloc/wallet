@@ -155,6 +155,8 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + blocDomainFlagName, "domain",
 			"--" + agentAutoAcceptFlagName, "false",
 			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
+			"--" + agentDefaultLabelFlagName, "agent1",
+			"--" + sdsURLFlagName, "someURL",
 		}
 		startCmd.SetArgs(args)
 
@@ -173,7 +175,9 @@ func TestStartCmdValidArgs(t *testing.T) {
 		"--" + blocDomainFlagName, "domain",
 		"--" + walletMediatorURLFlagName, "http://localhost:8999",
 		"--" + agentAutoAcceptFlagName, "false",
-		"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901"}
+		"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
+		"--" + agentDefaultLabelFlagName, "agent1",
+		"--" + sdsURLFlagName, "someURL"}
 	startCmd.SetArgs(args)
 
 	err := startCmd.Execute()
@@ -194,6 +198,12 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	require.NoError(t, err)
 
 	err = os.Setenv(blocDomainEnvKey, "domain")
+	require.NoError(t, err)
+
+	err = os.Setenv(agentDefaultLabelEnvKey, "agent1")
+	require.NoError(t, err)
+
+	err = os.Setenv(sdsURLEnvKey, "someURL")
 	require.NoError(t, err)
 
 	err = startCmd.Execute()

@@ -95,6 +95,12 @@ const (
 		" Alternatively, this can be set with the following environment variable: " +
 		agentHTTPResolverEnvKey
 
+	// TODO Derive the SDS URL from the hub-auth bootstrap data #271
+	sdsURLFlagName      = "sds-url"
+	sdsURLFlagShorthand = "s"
+	sdsURLFlagUsage     = "URL SDS instance is running on."
+	sdsURLEnvKey        = "HTTP_SERVER_SDS_URL"
+
 	// aries opts path
 	ariesStartupOptsPath = "/aries/jsopts"
 	indexHTLMPath        = "/index.html"
@@ -132,6 +138,9 @@ type trustblocAgentJSOpts struct {
 	BlocDomain        string `json:"blocDomain,omitempty"`
 	WalletMediatorURL string `json:"walletMediatorURL,omitempty"`
 	LogLevel          string `json:"log-level,omitempty"`
+	// TODO get username from the actual registration process instead of a cmd line arg #266
+	AgentUsername string `json:"agentUsername,omitempty"`
+	SDSServerURL  string `json:"sdsServerURL,omitempty"`
 }
 
 // VueHandler return a http.Handler that supports Vue Router app with history mode
@@ -261,6 +270,7 @@ func createFlags(startCmd *cobra.Command) {
 	// trustbloc agent wallet mediator URL
 	startCmd.Flags().StringP(walletMediatorURLFlagName, walletMediatorURLFlagShorthand, "",
 		walletMediatorURLFlagUsage)
+	startCmd.Flags().StringP(sdsURLFlagName, sdsURLFlagShorthand, "", sdsURLFlagUsage)
 }
 
 func fetchAriesWASMAgentOpts(cmd *cobra.Command) (*ariesJSOpts, error) {
@@ -317,10 +327,25 @@ func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, err
 		return nil, err
 	}
 
+	// This is used for storage of docs in SDS.
+	// TODO get username from the actual registration process instead of a cmd line arg #266
+	agentUsername, err := cmdutils.GetUserSetVarFromString(
+		cmd, agentDefaultLabelFlagName, agentDefaultLabelEnvKey, false)
+	if err != nil {
+		return nil, err
+	}
+
+	sdsServerURL, err := cmdutils.GetUserSetVarFromString(cmd, sdsURLFlagName, sdsURLEnvKey, false)
+	if err != nil {
+		return nil, err
+	}
+
 	return &trustblocAgentJSOpts{
 		BlocDomain:        blocDomain,
 		WalletMediatorURL: walletMediatorURL,
 		LogLevel:          logLevel,
+		AgentUsername:     agentUsername,
+		SDSServerURL:      sdsServerURL,
 	}, nil
 }
 

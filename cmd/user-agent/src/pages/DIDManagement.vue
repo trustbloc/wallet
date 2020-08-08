@@ -213,18 +213,20 @@ SPDX-License-Identifier: Apache-2.0
                     did = await this.didManager.createDID(this.selectType, this.signType)
                 } catch (e) {
                     this.loading = false;
-                    this.didDocTextArea = `failed to create did : ${e.toString()}`
+                    this.didDocTextArea = `failed to create did: ${e.toString()}`
+                    return;
                 }
 
                 this.didDocTextArea = JSON.stringify(did, undefined, 2);
 
                 // saving did
                 try {
-                     await this.didManager.saveDID(this.friendlyName, did)
+                     await this.didManager.saveDID(this.friendlyName, this.signType, did)
                 } catch (e) {
                     this.loading = false;
-                    this.didDocTextArea = `failed to save did : ${e.toString()}`
+                    this.didDocTextArea = `failed to save did: ${e.toString()}`
                     console.error("failed to save did", e)
+                    return;
                 }
 
                 // saving did metadata
@@ -281,7 +283,7 @@ SPDX-License-Identifier: Apache-2.0
 
                 // saving did
                 try {
-                    await this.didManager.saveDID(this.anyDIDFriendlyName, resp.did)
+                    await this.didManager.saveDID(this.anyDIDFriendlyName, this.selectSignKey, resp.did)
                 } catch (e) {
                     this.anyDidDocTextArea = `failed to save did : ${e.toString()}`
                     console.error("failed to save the did", e)
