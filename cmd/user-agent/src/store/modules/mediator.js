@@ -47,7 +47,7 @@ export default {
 
             let connID = conn['connection_id']
 
-            await waitForEvent({
+            await waitForEvent(window.$aries, {
                 type: POST_STATE,
                 stateID: stateCompleted,
                 connectionID: connID,

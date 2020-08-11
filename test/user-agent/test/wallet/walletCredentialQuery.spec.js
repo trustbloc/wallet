@@ -12,10 +12,11 @@ import Get from '../../../../cmd/user-agent/src/pages/chapi/Get.vue'
 import PresentationDefQuery from '../../../../cmd/user-agent/src/pages/chapi/PresentationDefQuery.vue'
 import DIDConnect from '../../../../cmd/user-agent/src/pages/chapi/DIDConnect.vue'
 import {AgentMediator, RegisterWallet} from '../../../../cmd/user-agent/src/pages/chapi/wallet'
-import {loadAries, promiseWhen, trustBlocStartupOpts, waitFor, wcredHandler} from '../common.js'
+import {loadAries, promiseWhen, trustBlocStartupOpts, wcredHandler} from '../common.js'
 import * as polyfill from 'credential-handler-polyfill'
 import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import {issue_credential, manifest, prcAndUdcVP, presentationDefQuery1, presentationDefQuery2} from './testdata.js'
+import {waitForEvent} from "../../../../cmd/user-agent/src/events";
 
 const walletUser = "sample-user"
 const challenge = `705aa4da-b240-4c14-8652-8ed35a886ed5-${Math.random()}`
@@ -235,14 +236,9 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
         btn.trigger('click')
         await Vue.nextTick()
 
+        let res = await waitForEvent(issuer, {topic: 'didexchange_actions'})
         // approve did connection request from issuer
-        await waitFor(issuer, 'requested').then(
-            (e) => {
-                return issuer.didexchange.acceptExchangeRequest({
-                    id: e.Properties.connectionID
-                })
-            }
-        )
+        await issuer.didexchange.acceptExchangeRequest({id: res.Properties.connectionID})
 
         const resp = await credResponse
         if (resp.dataType == 'VerifiablePresentation') {
@@ -327,30 +323,18 @@ describe('verifier queries credentials - DIDComm Flow', () => {
         await Vue.nextTick()
 
         // approve did connection request from verifier
-        await waitFor(verifier, 'requested').then(
-            (e) => {
-                return verifier.didexchange.acceptExchangeRequest({
-                    id: e.Properties.connectionID
-                })
-            }
-        )
+        let res = await waitForEvent(verifier, {topic: 'didexchange_actions'})
+        await verifier.didexchange.acceptExchangeRequest({id: res.Properties.connectionID})
 
         // issue credential from issuer
-        await waitFor(issuer, null, 'issue-credential_actions').then(
-            async (e) => {
-                issuer.issuecredential.acceptRequest({
-                    piid: e.Properties.piid,
-                    issue_credential
-                })
+        res = await waitForEvent(issuer, {topic: 'issue-credential_actions'})
+        await issuer.issuecredential.acceptRequest({
+            piid: res.Properties.piid,
+            issue_credential
+        })
 
-                // wait for send request post event
-                await waitFor(issuer, null, 'issue-credential_states')
-            }
-        )
-
-
-        const resp= await credResponse
-        if (resp.dataType == 'VerifiablePresentation') {
+        const resp = await credResponse
+        if (resp.dataType === 'VerifiablePresentation') {
             expect(resp.dataType).to.be.equal('VerifiablePresentation')
             expect(resp.data.type).to.deep.equal([
                 "VerifiablePresentation",

@@ -5,8 +5,11 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import axios from 'axios';
+import {POST_STATE, waitForEvent} from "../../../../events";
 
-const routerCreateInvitationPath = `/connections/create-invitation`
+const routerCreateInvitationPath = `/outofband/create-invitation`
+const stateCompleted = 'completed'
+const topicDidExchangeStates = 'didexchange_states'
 
 /**
  * AgentMediator provides aries mediator features
@@ -20,20 +23,24 @@ export class AgentMediator {
 
     async connect(endpoint) {
         let invitation = await createInvitationFromRouter(endpoint)
-        let aries = this.aries
-        let conn = await aries.didexchange.receiveInvitation(invitation)
 
-        await this.waitFor(conn.connection_id, 'invited', function () {
-            return aries.didexchange.acceptInvitation({
-                id: conn.connection_id
-            })
+        let conn = await this.aries.outofband.acceptInvitation({
+            my_label: 'agent-default-label',
+            invitation: invitation,
         })
 
-        await this.waitFor(conn.connection_id, 'completed', function () {
-            return aries.mediator.register({connectionID: conn.connection_id})
+        let connID = conn['connection_id']
+
+        await waitForEvent(this.aries, {
+            type: POST_STATE,
+            stateID: stateCompleted,
+            connectionID: connID,
+            topic: topicDidExchangeStates,
         })
 
-        let res = await aries.mediator.getConnection().catch(err => {
+        await this.aries.mediator.register({connectionID: connID})
+
+        let res = await this.aries.mediator.getConnection().catch(err => {
             if (!err.message.includes("router not registered")) {
                 throw err
             }
@@ -42,7 +49,7 @@ export class AgentMediator {
         console.log("router registered successfully..!!", res.connectionID)
 
         // return handle for disconnect
-        return () => aries.mediator.unregister()
+        return () => this.aries.mediator.unregister()
     }
 
     async reconnect() {
@@ -70,51 +77,14 @@ export class AgentMediator {
     }
 
     async createInvitation() {
-        let response = await this.aries.didexchange.createInvitation()
+        // creates invitation through the out-of-band protocol
+        let response = await this.aries.outofband.createInvitation({label: 'agent-label'})
+
         return response.invitation
-    }
-
-    async waitFor(connectionID, state, callback) {
-        return new Promise((resolve, reject) => {
-            const stop = this.aries.startNotifier(notice => {
-                const event = notice.payload
-                if (connectionID !== event.Properties.connectionID) {
-                    return
-                }
-
-                if (state && event.StateID !== state) {
-                    return
-                }
-
-                if (event.Type !== "post_state") {
-                    return
-                }
-
-                stop()
-
-                if (callback) {
-                    try {
-                        callback().then(() => {
-                            resolve()
-                        })
-                    } catch (err) {
-                        reject(err)
-                    }
-                } else {
-                    resolve()
-                }
-
-            }, ["all"])
-
-            setTimeout(() => {
-                stop()
-                reject(new Error("time out while waiting for connection"))
-            }, 5000)
-        })
     }
 }
 
 const createInvitationFromRouter = async (endpoint) => {
-    const response = await axios.post(`${endpoint}${routerCreateInvitationPath}`)
+    const response = await axios.post(`${endpoint}${routerCreateInvitationPath}`, {label: 'mediator-label'})
     return response.data.invitation
 }
