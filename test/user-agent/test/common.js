@@ -94,31 +94,3 @@ export function promiseWhen(fn, timeout, interval) {
         loop(resolve)
     });
 }
-
-
-export async function waitFor(agent, state, topic, timeout) {
-    return new Promise((resolve, reject) => {
-        const stop = agent.startNotifier(notice => {
-            if (state && notice.payload.StateID !== state) {
-                return
-            }
-
-            if (notice.payload.Type && notice.payload.Type != "post_state") {
-                return
-            }
-
-            if (topic && topic != notice.topic){
-                return
-            }
-
-            stop()
-            resolve(notice.payload)
-        }, ["all"])
-
-        setTimeout(() => {
-            stop()
-            reject(new Error("time out while waiting for connection"))
-        }, timeout ? timeout : 15000)
-    })
-}
-

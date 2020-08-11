@@ -5,6 +5,11 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 
+import {POST_STATE, waitForEvent} from "../../../../events";
+
+const stateCompleted = 'completed'
+const topicDidExchangeStates = 'didexchange_states'
+
 /**
  * DIDExchange provides exchange features
  * @param aries instance
@@ -16,71 +21,20 @@ export class DIDExchange {
     }
 
     async connect(invitation) {
-        // perform did exchange
-        let res = await this.aries.didexchange.receiveInvitation(invitation)
-
-        let aries = this.aries
-        await this.waitFor(res.connection_id, ['invited'], function () {
-            return aries.didexchange.acceptInvitation({
-                id: res.connection_id
-            })
+        let conn = await this.aries.outofband.acceptInvitation({
+            my_label: 'agent-default-label',
+            invitation: invitation,
         })
 
-        // wait for status to be completed
-        let connectionID
-        try {
-            let completed = await this.waitFor(res.connection_id, ['completed'], null, 10000)
-            connectionID = completed.Properties.connectionID
-        } catch (e) {
-            // do not fail if connection is not yet completed, return current state in response
-            if (!e.toString().includes("time out while waiting for connection")) {
-                throw e
-            }
-            console.error("time out while waiting for connection to be completed")
-            connectionID = res.connection_id
-        }
-
-        let connection = await this.aries.didexchange.queryConnectionByID({id: connectionID})
-        return connection
-    }
-
-    async waitFor(connectionID, states, callback, timeout) {
-        return new Promise((resolve, reject) => {
-            const stop = this.aries.startNotifier(notice => {
-                const event = notice.payload
-                if (connectionID !== event.Properties.connectionID) {
-                    return
-                }
-
-                if (states && !states.includes(event.StateID)) {
-                    return
-                }
-
-                if (event.Type !== "post_state") {
-                    return
-                }
-
-                stop()
-
-                if (callback) {
-                    try {
-                        callback().then(() => {
-                            resolve()
-                        })
-                    } catch (err) {
-                        reject(err)
-                    }
-                } else {
-                    resolve(notice.payload)
-                }
-
-            }, ["all"])
-
-            setTimeout(() => {
-                stop()
-                reject(new Error("time out while waiting for connection"))
-            }, timeout ? timeout : 5000)
+        let connID = conn['connection_id']
+        await waitForEvent(this.aries, {
+            type: POST_STATE,
+            stateID: stateCompleted,
+            connectionID: connID,
+            topic: topicDidExchangeStates,
         })
+
+        return await this.aries.didexchange.queryConnectionByID({id: connID})
     }
 
     cancel() {

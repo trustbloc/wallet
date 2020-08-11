@@ -11,7 +11,7 @@ const defaultTimeout = 10000
 const defaultTimeoutError = "time out while waiting for event"
 const defaultTopic = 'all'
 
-export function waitForEvent(options = {}) {
+export function waitForEvent(aries, options = {}) {
     if (!options.timeout) {
         options.timeout = defaultTimeout
     }
@@ -26,7 +26,7 @@ export function waitForEvent(options = {}) {
 
     return new Promise((resolve, reject) => {
         setTimeout(() => reject(new Error(options.timeoutError)), options.timeout)
-        const stop = window.$aries.startNotifier(event => {
+        const stop = aries.startNotifier(event => {
             try {
                 let payload = event.payload;
 

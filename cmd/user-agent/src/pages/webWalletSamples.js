@@ -110,15 +110,24 @@ const samplePresentation = {
 
 const invitation = {
     "@id": "f39d825f-c647-434d-893f-8c76dd6906a9",
-    "@type": "https://didcomm.org/didexchange/1.0/invitation",
+    "@type": "https://didcomm.org/oob-invitation/1.0/invitation",
     "label": "user-agent",
-    "recipientKeys": [
-        "Fy1CAy7D7AxynyBRFMyZB8S2RNoVPPBqgSDERRYJPyM8"
+    "protocols": [
+        "https://didcomm.org/didexchange/1.0"
     ],
-    "routingKeys": [
-        "Goobf693U36p7VZkoRCWdtkEJZVTPCzZwbjm77VKiALC"
-    ],
-    "serviceEndpoint": "http://localhost:10091"
+    "service": [
+        {
+            "ID": "75889a3a-ad89-4f35-8755-6df164e469b9",
+            "RecipientKeys": [
+                "Fy1CAy7D7AxynyBRFMyZB8S2RNoVPPBqgSDERRYJPyM8"
+            ],
+            "RoutingKeys": [
+                "Goobf693U36p7VZkoRCWdtkEJZVTPCzZwbjm77VKiALC"
+            ],
+            "ServiceEndpoint": "http://localhost:10091",
+            "Type": "did-communication"
+        }
+    ]
 }
 
 const manifest = {
