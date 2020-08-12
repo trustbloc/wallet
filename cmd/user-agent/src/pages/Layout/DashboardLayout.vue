@@ -26,6 +26,8 @@ SPDX-License-Identifier: Apache-2.0
       <sidebar-link v-if="isDevMode" to="/connections">
         <md-icon>compare_arrows</md-icon>
         <p>Connections</p>
+        <md-badge v-if="pendingConnectionsCount" class="md-primary md-square" style="margin: 5px"
+                  :md-content="pendingConnectionsCount"/>
       </sidebar-link>
       <sidebar-link v-if="!isDevMode" to="/relationships">
         <md-icon>compare_arrows</md-icon>
