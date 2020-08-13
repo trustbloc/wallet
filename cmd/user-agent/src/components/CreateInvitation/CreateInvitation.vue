@@ -1,3 +1,9 @@
+/*
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
+
 <template>
   <md-card class="md-card-plain">
     <md-dialog :md-active.sync="dialog">
@@ -10,7 +16,7 @@
         </div>
       </div>
       <md-dialog-actions>
-        <md-button class="md-button md-info md-square" @click="dialog = false">Close</md-button>
+        <copy-button @click.native="dialog = false" :content="dialogContent"/>
       </md-dialog-actions>
     </md-dialog>
 
@@ -36,6 +42,7 @@
 
 <script>
 import {mapGetters, mapActions} from 'vuex'
+import CopyButton from "../CopyButton/CopyButton";
 
 export default {
   name: "create-invitation",
@@ -45,6 +52,7 @@ export default {
       default: 'Create Invitation'
     },
   },
+  components: {CopyButton},
   methods: {
     ...mapActions(['createInvitation']),
     async submit() {

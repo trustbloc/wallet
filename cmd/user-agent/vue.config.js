@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 module.exports = {
     chainWebpack: config => config.resolve.symlinks(false),
+    runtimeCompiler: true,
     devServer: {
         https: true
     }

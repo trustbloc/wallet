@@ -1,3 +1,9 @@
+/*
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
+
 <template>
   <md-card class="md-card-plain">
     <md-card-header data-background-color="green">

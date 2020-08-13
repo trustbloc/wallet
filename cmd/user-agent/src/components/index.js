@@ -20,6 +20,12 @@ import CreateInvitation from "./CreateInvitation/CreateInvitation.vue";
 // ReceiveInvitation
 import ReceiveInvitation from "./ReceiveInvitation/ReceiveInvitation.vue";
 
+// CopyButton
+import CopyButton from "./CopyButton/CopyButton";
+
+// Connections
+import Connections from "./Connections/Connections";
+
 export {
     StatsCard,
     SimpleTable,
@@ -27,4 +33,6 @@ export {
     PublicInvitation,
     CreateInvitation,
     ReceiveInvitation,
+    CopyButton,
+    Connections,
 };
