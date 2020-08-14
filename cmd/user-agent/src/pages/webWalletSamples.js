@@ -124,7 +124,7 @@ const invitation = {
             "RoutingKeys": [
                 "Goobf693U36p7VZkoRCWdtkEJZVTPCzZwbjm77VKiALC"
             ],
-            "ServiceEndpoint": "http://localhost:10091",
+            "ServiceEndpoint": "https://localhost:10091",
             "Type": "did-communication"
         }
     ]

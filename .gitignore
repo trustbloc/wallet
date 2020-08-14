@@ -46,6 +46,7 @@ yarn-error.log*
 
 cmd/user-agent/web/dist
 cmd/user-agent/dist
+test/bdd/fixtures/db
 test/bdd/fixtures/keys/tls
 test/bdd/fixtures/agent-wasm/config/
 test/bdd/fixtures/discovery-server/config
