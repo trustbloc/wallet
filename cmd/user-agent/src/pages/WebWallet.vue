@@ -80,7 +80,8 @@ SPDX-License-Identifier: Apache-2.0
     export default {
         beforeCreate: async function () {
             this.aries = await this.$arieslib
-            this.$polyfill.loadOnce()
+            let opts = await this.$trustblocStartupOpts
+            await this.$polyfill.loadOnce(opts.credentialMediatorURL)
         },
         data() {
             return {

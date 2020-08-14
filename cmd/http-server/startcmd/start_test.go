@@ -174,6 +174,7 @@ func TestStartCmdValidArgs(t *testing.T) {
 		"--" + tlsKeyFileFlagName, "key",
 		"--" + blocDomainFlagName, "domain",
 		"--" + walletMediatorURLFlagName, "http://localhost:8999",
+		"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
 		"--" + agentAutoAcceptFlagName, "false",
 		"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
 		"--" + agentDefaultLabelFlagName, "agent1",

@@ -94,9 +94,11 @@ jobs:
           git lfs pull
           source ci/version_var.sh
           echo $DOCKER_PASSWORD | docker login docker.pkg.github.com --username $DOCKER_USER --password-stdin
-          make user-agent-wasm-docker
+          make user-agent-wasm-docker credential-mediator-docker
           docker tag docker.pkg.github.com/trustbloc/edge-agent/user-agent-wasm:latest ${USER_WASM_PKG}:${EDGE_AGENT_TAG}
+          docker tag docker.pkg.github.com/trustbloc/edge-agent/credential-mediator:latest ${CRED_MEDIATOR_PKG}:${EDGE_AGENT_TAG}
           docker push ${USER_WASM_PKG}:${EDGE_AGENT_TAG}
+          docker push ${CRED_MEDIATOR_PKG}:${EDGE_AGENT_TAG}
         env:
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)

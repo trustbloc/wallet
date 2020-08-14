@@ -29,6 +29,7 @@ export class RegisterWallet extends WalletManager {
         this.didManager = new DIDManager(aries, trustblocAgent, opts)
         this.mediator = new AgentMediator(aries)
         this.mediatorEndpoint = opts.walletMediatorURL
+        this.credentialMediator = opts.credentialMediatorURL
     }
 
     async register(user) {
@@ -42,13 +43,13 @@ export class RegisterWallet extends WalletManager {
 
         if (!this.skipPolyfill) {
             try {
-                await this.polyfill.loadOnce();
+                await this.polyfill.loadOnce(this.credentialMediator);
             } catch (e) {
                 console.error('Error in loadOnce:', e);
                 throw "failed to register wallet, please try again later"
             }
 
-            const registration = await this.wcredHandler.installHandler({url: '/worker.html'})
+            const registration = await this.wcredHandler.installHandler({url: `/worker`})
 
             await registration.credentialManager.hints.set(
                 'edge', {
@@ -94,7 +95,7 @@ export class RegisterWallet extends WalletManager {
         }
 
         try {
-            await this.polyfill.loadOnce();
+            await this.polyfill.loadOnce(this.credentialMediator);
         } catch (e) {
             console.error('Error in loadOnce:', e);
             return
