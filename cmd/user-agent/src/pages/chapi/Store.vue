@@ -81,7 +81,6 @@ SPDX-License-Identifier: Apache-2.0
     export default {
         beforeCreate: async function () {
 
-            this.$polyfill.loadOnce()
             const credentialEvent = await this.$webCredentialHandler.receiveCredentialEvent();
             console.log("Credential event received :", credentialEvent.credential)
 

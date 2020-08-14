@@ -26,7 +26,8 @@ let defaultAriesStartupOpts = {
     assetsPath: '/aries-framework-go/assets',
     'outbound-transport': ['ws', 'http'],
     'transport-return-route': 'all',
-    'http-resolver-url': [],
+    'http-resolver-url': ["trustbloc:testnet.trustbloc.local@http://localhost:8080/1.0/identifiers", "web@http://localhost:8080/1.0/identifiers"],
+
     'agent-default-label': 'demo-user-agent',
     'auto-accept': true,
     'log-level': 'debug',
@@ -65,8 +66,9 @@ async function ariesStartupOpts() {
 let defaultTrustBlocStartupOpts = {
     assetsPath: '/trustbloc-agent/assets',
     blocDomain: 'testnet.trustbloc.local',
+    'log-level': 'debug',
     walletMediatorURL: '',
-    'log-level': 'debug'
+    credentialMediatorURL: '',
 }
 
 async function trustblocStartupOpts() {
@@ -89,11 +91,14 @@ async function trustblocStartupOpts() {
         assetsPath: defaultTrustBlocStartupOpts['assetsPath'],
         blocDomain: ('blocDomain' in startupOpts) ? startupOpts['blocDomain'] : defaultTrustBlocStartupOpts['blocDomain'],
         walletMediatorURL: ('walletMediatorURL' in startupOpts) ? startupOpts['walletMediatorURL'] : defaultTrustBlocStartupOpts['walletMediatorURL'],
+        credentialMediatorURL: credentialMediator(('credentialMediatorURL' in startupOpts) ? startupOpts['credentialMediatorURL'] : defaultTrustBlocStartupOpts['credentialMediatorURL']),
         'log-level': ('log-level' in startupOpts) ? startupOpts['log-level'] : defaultTrustBlocStartupOpts['log-level'],
         agentUsername: startupOpts['agentUsername'],
         sdsServerUrl: startupOpts['sdsServerURL']
     }
 }
+
+var credentialMediator = url => url ? `${url}?origin=${encodeURIComponent(window.location.origin)}` : undefined
 
 // configure router
 const router = new VueRouter({
@@ -113,7 +118,7 @@ new Vue({
     }),
     methods: mapActions(['initStore', 'onDidExchangeState']),
     mounted: async function () {
-        // gets aries options 
+        // gets aries options
         let ariesOpts = await ariesStartupOpts()
         // sets aries instance globally
         window.$aries = await new Aries.Framework(ariesOpts)

@@ -93,7 +93,15 @@ const (
 	walletMediatorURLFlagShorthand = "m"
 	walletMediatorURLFlagUsage     = "Mediator URL for wallet for performing DID communication" +
 		" Alternatively, this can be set with the following environment variable: " +
-		agentHTTPResolverEnvKey
+		walletMediatorURLEnvKey
+
+	// credential mediator url flag
+	credentialMediatorURLFlagName      = "credential-mediator-url"
+	credentialMediatorURLEnvKey        = "CREDENTIAL_MEDIATOR_URL"
+	credentialMediatorURLFlagShorthand = "a"
+	credentialMediatorURLFlagUsage     = "credential mediator URL which provides Credential Mediator polyfill " +
+		"for the W3C CCG Credential Handler API specification" +
+		credentialMediatorURLEnvKey
 
 	// TODO Derive the SDS URL from the hub-auth bootstrap data #271
 	sdsURLFlagName      = "sds-url"
@@ -135,9 +143,10 @@ type ariesJSOpts struct {
 }
 
 type trustblocAgentJSOpts struct {
-	BlocDomain        string `json:"blocDomain,omitempty"`
-	WalletMediatorURL string `json:"walletMediatorURL,omitempty"`
-	LogLevel          string `json:"log-level,omitempty"`
+	BlocDomain            string `json:"blocDomain,omitempty"`
+	WalletMediatorURL     string `json:"walletMediatorURL,omitempty"`
+	CredentialMediatorURL string `json:"credentialMediatorURL,omitempty"`
+	LogLevel              string `json:"log-level,omitempty"`
 	// TODO get username from the actual registration process instead of a cmd line arg #266
 	AgentUsername string `json:"agentUsername,omitempty"`
 	SDSServerURL  string `json:"sdsServerURL,omitempty"`
@@ -270,6 +279,9 @@ func createFlags(startCmd *cobra.Command) {
 	// trustbloc agent wallet mediator URL
 	startCmd.Flags().StringP(walletMediatorURLFlagName, walletMediatorURLFlagShorthand, "",
 		walletMediatorURLFlagUsage)
+	// trustbloc agent credential mediator URL
+	startCmd.Flags().StringP(credentialMediatorURLFlagName, credentialMediatorURLFlagShorthand, "",
+		credentialMediatorURLFlagUsage)
 	startCmd.Flags().StringP(sdsURLFlagName, sdsURLFlagShorthand, "", sdsURLFlagUsage)
 }
 
@@ -322,6 +334,12 @@ func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, err
 		return nil, err
 	}
 
+	credentialMediatorURL, err := cmdutils.GetUserSetVarFromString(cmd,
+		credentialMediatorURLFlagName, credentialMediatorURLEnvKey, true)
+	if err != nil {
+		return nil, err
+	}
+
 	logLevel, err := cmdutils.GetUserSetVarFromString(cmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
 	if err != nil {
 		return nil, err
@@ -341,11 +359,12 @@ func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, err
 	}
 
 	return &trustblocAgentJSOpts{
-		BlocDomain:        blocDomain,
-		WalletMediatorURL: walletMediatorURL,
-		LogLevel:          logLevel,
-		AgentUsername:     agentUsername,
-		SDSServerURL:      sdsServerURL,
+		BlocDomain:            blocDomain,
+		WalletMediatorURL:     walletMediatorURL,
+		CredentialMediatorURL: credentialMediatorURL,
+		LogLevel:              logLevel,
+		AgentUsername:         agentUsername,
+		SDSServerURL:          sdsServerURL,
 	}, nil
 }
 

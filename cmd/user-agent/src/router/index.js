@@ -9,9 +9,9 @@ import DashboardLayout from "@/pages/Layout/DashboardLayout.vue";
 import Dashboard from "@/pages/Dashboard.vue";
 import TableList from "@/pages/TableList.vue";
 import TablePresentation from "@/pages/TablePresentation.vue";
-import RegisterWallet from "@/pages/RegisterWallet.vue";
 import StoreInWallet from "@/pages/chapi/Store.vue";
 import GetFromWallet from "@/pages/chapi/Get.vue";
+import WalletWorker from "@/pages/chapi/Worker.vue";
 import WebWallet from "@/pages/WebWallet.vue";
 import DIDManagement from "@/pages/DIDManagement.vue";
 import Connections from "@/pages/Connections.vue";
@@ -35,11 +35,6 @@ const routes = [
                 path: "ViewVC",
                 name: "View Wallet",
                 component: TableList
-            },
-            {
-                path: "RegisterWallet",
-                name: "Register Wallet",
-                component: RegisterWallet
             },
             {
                 path: "MyVC",
@@ -88,6 +83,10 @@ const routes = [
     {
         path: "/GetFromWallet",
         component: GetFromWallet
+    },
+    {
+        path: "/worker",
+        component: WalletWorker
     }
 ];
 export default routes;

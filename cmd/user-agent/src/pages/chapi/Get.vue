@@ -44,7 +44,6 @@ SPDX-License-Identifier: Apache-2.0
 
     export default {
         beforeCreate: async function () {
-            this.$polyfill.loadOnce()
             this.credentialEvent = await this.$webCredentialHandler.receiveCredentialEvent();
             if (!this.credentialEvent.credentialRequestOptions.web.VerifiablePresentation) {
                 console.log("invalid web credential type, expected 'VerifiablePresentation'")
