@@ -60,8 +60,8 @@ make user-agent-start
 
 ## Agents
 
-- To access user agent wasm open [user home page](https://127.0.0.1:8091/dashboard).
-- To access second user agent wasm open [user home page](https://127.0.0.1:8071/dashboard).
+- To access user agent wasm open [user home page](https://localhost:8091/dashboard).
+- To access second user agent wasm open [user home page](https://localhost:8071/dashboard).
 
 ## Data Storage
 
@@ -69,7 +69,7 @@ make user-agent-start
 
 ## How to establish a did-connection between agents?
 
-1. Go to `Connections` page and register the router for both agents. Use `http://localhost:10093` as a router URL.
+1. Go to `Connections` page and register the router for both agents. Use `https://localhost:10093` as a router URL.
 Once the router was registered do not reload the page. It will lose the WebSocket connection.
 2. On the `Connections` page go to `Create Invitation` section. Fill up a form to create an invitation.
 Copy that invitation to the buffer. Make sure you copied only the invitation payload. e.g
@@ -84,7 +84,7 @@ Copy that invitation to the buffer. Make sure you copied only the invitation pay
         "routingKeys": [
           "GGezjrL4TTeev9VeBWgaqoAUWBK7JCuzuvRpNME1u4J1"
         ],
-        "serviceEndpoint": "http://localhost:10091"
+        "serviceEndpoint": "https://localhost:10091"
     }
     ```
 3. Go to `Connections` page on the opposite agent (e.g if the invitation was created on the first agent

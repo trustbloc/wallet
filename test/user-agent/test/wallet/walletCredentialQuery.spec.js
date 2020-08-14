@@ -202,7 +202,7 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
     // start issuer, register router and create invitation
     loadAries('issuer').then(async a => {
         let mediator = new AgentMediator(a)
-        await mediator.connect('http://localhost:10063').then(ur => {
+        await mediator.connect('https://localhost:10063').then(ur => {
             console.log("issuer mediator registered successfully")
         }).catch(err => {
             console.error('failed to register mediator for issuer agent : errMsg=', err)
@@ -278,7 +278,7 @@ describe('verifier queries credentials - DIDComm Flow', () => {
     let verifier
     loadAries('verifier').then(async a => {
         let mediator = new AgentMediator(a)
-        await mediator.connect('http://localhost:10063').then(ur => {
+        await mediator.connect('https://localhost:10063').then(ur => {
             console.log("verifier mediator registered successfully")
         }).catch(err => {
             console.error('failed to register mediator for verifier agent : errMsg=', err)

@@ -64,7 +64,7 @@ const ariesStartupOpts = {
 export const trustBlocStartupOpts = {
     assetsPath: '/base/public/trustbloc-agent/assets',
     blocDomain: 'testnet.trustbloc.local',
-    walletMediatorURL: 'http://localhost:10093',
+    walletMediatorURL: 'https://localhost:10093',
     'log-level': 'debug',
     sdsServerURL: 'https://localhost:8072/encrypted-data-vaults',
     agentUsername: `user-agent`
@@ -72,13 +72,13 @@ export const trustBlocStartupOpts = {
 
 export async function loadAries(name) {
     let opts = ariesStartupOpts
-    if(name) {
+    if (name) {
         opts = JSON.parse(JSON.stringify(ariesStartupOpts))
         opts["db-namespace"] = `${name}db`
         opts["agent-default-label"] = `${name}-user-agent`
     }
 
-    return  new Aries.Framework(opts)
+    return new Aries.Framework(opts)
 }
 
 export function promiseWhen(fn, timeout, interval) {
