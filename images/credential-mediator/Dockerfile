@@ -18,6 +18,7 @@ ENV GITHUB_TOKEN=${GITHUB_TOKEN}
 RUN git clone -b master https://${GITHUB_TOKEN}:x-oauth-basic@github.com/digitalbazaar/authorization.io.git
 
 WORKDIR /opt/workspace/authorization.io
+ADD ./cmd/credential-mediator/configs/dev.js configs
 RUN npm install --unsafe-perm
 
 EXPOSE 33443 33080

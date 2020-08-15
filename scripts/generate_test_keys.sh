@@ -22,7 +22,8 @@ subjectAltName = @alt_names
 DNS.1 = localhost
 DNS.2 = testnet.trustbloc.local
 DNS.3 = stakeholder.one
-DNS.4 = sidetree-mock" >> "$tmp"
+DNS.4 = sidetree-mock
+DNS.5 = authorization.localhost" >> "$tmp"
 
 CERT_CA="test/bdd/fixtures/keys/tls/ec-cacert.pem"
 if [ ! -f "$CERT_CA" ]; then

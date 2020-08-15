@@ -209,7 +209,12 @@ services:
   authorization.localhost:
     container_name: ${CREDENTIAL_MEDIATOR_HOST}
     image: ${CREDENTIAL_MEDIATOR_IMAGE}:latest
+    environment:
+      - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
+      - TLS_KEY_FILE=/etc/tls/ec-key.pem
     ports:
       - ${CREDENTIAL_MEDIATOR_HTTPS_PORT}:${CREDENTIAL_MEDIATOR_HTTPS_PORT}
       - ${CREDENTIAL_MEDIATOR_HTTP_PORT}:${CREDENTIAL_MEDIATOR_HTTP_PORT}
+    volumes:
+      - ../keys/tls:/etc/tls
 
