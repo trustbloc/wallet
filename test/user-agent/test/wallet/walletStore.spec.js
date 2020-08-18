@@ -8,18 +8,21 @@ import Vue from 'vue'
 import {expect} from 'chai'
 import {shallowMount} from '@vue/test-utils'
 import Store from '../../../../cmd/user-agent/src/pages/chapi/Store.vue'
-import {loadAries, wcredHandler} from '../common.js'
+import {loadFrameworks, wcredHandler} from '../common.js'
 import * as polyfill from 'credential-handler-polyfill'
+import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import {studentCardAndDegreeToStore, studentCardToStore} from './testdata.js'
 
 function mountStore(wch, done) {
-    return function (aries) {
-        toBeDestroyed.push(aries)
+    return function (frameworks) {
+        toBeDestroyed.push(frameworks.aries)
         done(shallowMount(Store, {
             mocks: {
                 $polyfill: polyfill,
                 $webCredentialHandler: wch,
-                $arieslib: aries
+                $arieslib: frameworks.aries,
+                $trustblocAgent: trustblocAgent,
+                $trustblocStartupOpts: frameworks.trustblocStartupOpts
             }
         }))
     }
@@ -43,7 +46,7 @@ describe('store a credential in wallet', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadAries().then(mountStore(wch, wr => wrapper = wr)
+        return loadFrameworks(undefined, true).then(mountStore(wch, wr => wrapper = wr)
         ).catch(err => {
             console.error('error starting aries framework : errMsg=', err)
         })
@@ -90,7 +93,7 @@ describe('store a credential in wallet with existing friendly name', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadAries().then(mountStore(wch, (wr) => {
+        return loadFrameworks(undefined, true).then(mountStore(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
             console.error('error starting aries framework : errMsg=', err)
@@ -130,7 +133,7 @@ describe('store multiple credentials in wallet', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadAries().then(mountStore(wch, wr => wrapper = wr)
+        return loadFrameworks(undefined, true).then(mountStore(wch, wr => wrapper = wr)
         ).catch(err => {
             console.error('error starting aries framework : errMsg=', err)
         })

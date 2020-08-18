@@ -10,8 +10,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/trustbloc/edv/pkg/restapi/messages"
-
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
 	"github.com/trustbloc/edv/pkg/edvprovider/memedvprovider"
@@ -36,35 +34,15 @@ func TestNew(t *testing.T) {
 	})
 }
 
-func TestSDSComm_CreateDIDVault(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
-		sdsSrv := newTestEDVServer(t)
-		defer sdsSrv.Close()
-
-		sdsComm, err := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "James")
-		require.NoError(t, err)
-
-		err = sdsComm.CreateDIDVault()
-		require.NoError(t, err)
-	})
-	t.Run("SDS server unreachable (unsupported protocol scheme provided)", func(t *testing.T) {
-		sdsComm, err := New("BadURL", "James")
-		require.NoError(t, err)
-
-		err = sdsComm.CreateDIDVault()
-		require.Contains(t, err.Error(), "unsupported protocol scheme")
-	})
-}
-
 func TestSDSComm_StoreDIDDocument(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		sdsSrv := newTestEDVServer(t)
 		defer sdsSrv.Close()
 
-		sdsComm, err := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "James")
+		sdsComm, err := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "AgentUsername")
 		require.NoError(t, err)
 
-		err = sdsComm.CreateDIDVault()
+		err = sdsComm.ensureVaultExists(sdsComm.getDIDVaultID())
 		require.NoError(t, err)
 
 		sampleDIDDocData := DIDDocData{}
@@ -72,18 +50,39 @@ func TestSDSComm_StoreDIDDocument(t *testing.T) {
 		err = sdsComm.StoreDIDDocument(&sampleDIDDocData)
 		require.NoError(t, err)
 	})
-	t.Run("Fail to store - vault not found", func(t *testing.T) {
+	t.Run("SDS server unreachable (bad SDS server URL)", func(t *testing.T) {
+		sdsComm, err := New("BadURL", "AgentUsername")
+		require.NoError(t, err)
+
+		err = sdsComm.StoreDIDDocument(nil)
+		require.Contains(t, err.Error(), `unexpected error during the "create vault" call to SDS: `+
+			`failed to send POST request:`)
+	})
+}
+
+func TestSDSComm_StoreCredential(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		sdsSrv := newTestEDVServer(t)
 		defer sdsSrv.Close()
 
-		sdsComm, err := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "James")
+		sdsComm, err := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "AgentUsername")
 		require.NoError(t, err)
 
-		sampleDIDDocData := DIDDocData{}
+		err = sdsComm.ensureVaultExists(sdsComm.getCredentialVaultID())
+		require.NoError(t, err)
 
-		err = sdsComm.StoreDIDDocument(&sampleDIDDocData)
-		require.NotNil(t, err)
-		require.Contains(t, err.Error(), messages.ErrVaultNotFound.Error())
+		sampleCredentialData := CredentialData{}
+
+		err = sdsComm.StoreCredential(&sampleCredentialData)
+		require.NoError(t, err)
+	})
+	t.Run("SDS server unreachable (bad SDS server URL)", func(t *testing.T) {
+		sdsComm, err := New("BadURL", "AgentUsername")
+		require.NoError(t, err)
+
+		err = sdsComm.StoreCredential(nil)
+		require.Contains(t, err.Error(), `unexpected error during the "create vault" call to SDS: `+
+			`failed to send POST request:`)
 	})
 }
 

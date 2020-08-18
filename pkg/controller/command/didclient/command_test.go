@@ -119,7 +119,7 @@ func TestCommand_SaveDID(t *testing.T) {
 		didDocDataBytes, err := json.Marshal(sampleDIDDocData)
 		require.NoError(t, err)
 
-		cmd := New("", fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "James")
+		cmd := New("", fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "AgentUsername")
 		cmdErr := cmd.SaveDID(nil, bytes.NewBuffer(didDocDataBytes))
 		require.NoError(t, cmdErr)
 	})
@@ -128,8 +128,8 @@ func TestCommand_SaveDID(t *testing.T) {
 		cmdErr := cmd.SaveDID(nil, bytes.NewBuffer([]byte("")))
 		require.Contains(t, cmdErr.Error(), failDecodeDIDDocDataErrMsg)
 	})
-	t.Run("Fail to save DID - SDS server unreachable", func(t *testing.T) {
-		cmd := New("", "BadURL", "agentUsername")
+	t.Run("Fail to save DID document - bad SDS server URL", func(t *testing.T) {
+		cmd := New("", "BadURL", "AgentUsername")
 
 		sampleDIDDocData := sdscomm.DIDDocData{}
 
@@ -137,7 +137,9 @@ func TestCommand_SaveDID(t *testing.T) {
 		require.NoError(t, err)
 
 		cmdErr := cmd.SaveDID(nil, bytes.NewBuffer(didDocDataBytes))
-		require.Contains(t, cmdErr.Error(), failCreateDIDVaultErrMsg)
+		require.Contains(t, cmdErr.Error(), `failure while storing DID document in SDS: failure while `+
+			`ensuring that the user's DID vault exists: unexpected error during the "create vault" call `+
+			`to SDS: failed to send POST request:`)
 	})
 	t.Run("Fail to save DID - failed to initialize sdscomm", func(t *testing.T) {
 		cmd := New("", "", "")

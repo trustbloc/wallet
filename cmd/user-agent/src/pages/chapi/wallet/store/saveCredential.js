@@ -12,8 +12,10 @@ import {getCredentialType} from '../common/util.js';
  * @class
  */
 export class WalletStore {
-    constructor(aries, credEvent) {
+    constructor(aries, trustblocAgent, opts, credEvent) {
         this.aries = aries
+        this.trustblocAgent = trustblocAgent
+        this.trustblocStartupOpts = opts
         this.credEvent = credEvent
     }
 
@@ -63,6 +65,15 @@ export class WalletStore {
             console.log(`vc save failed for ${name} : errMsg=${err}`)
             throw err
         })
+
+        const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
+
+        // Save credential to persistent storage
+        await t.credentialclient.saveCredential({
+            name: name,
+            credential: vcData
+        })
+
     }
 
     cancel() {

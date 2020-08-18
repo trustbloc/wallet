@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import * as Aries from "@trustbloc-cicd/aries-framework-go"
+import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import axios from 'axios';
 
 const createInvitationPath = `/connections/create-invitation`
@@ -70,15 +71,21 @@ export const trustBlocStartupOpts = {
     agentUsername: `user-agent`
 }
 
-export async function loadAries(name) {
-    let opts = ariesStartupOpts
+export async function loadFrameworks(name, loadTrustblocOpts) {
+    let ariesOpts = ariesStartupOpts
     if (name) {
-        opts = JSON.parse(JSON.stringify(ariesStartupOpts))
-        opts["db-namespace"] = `${name}db`
-        opts["agent-default-label"] = `${name}-user-agent`
+        ariesOpts = JSON.parse(JSON.stringify(ariesStartupOpts))
+        ariesOpts["db-namespace"] = `${name}db`
+        ariesOpts["agent-default-label"] = `${name}-user-agent`
     }
 
-    return new Aries.Framework(opts)
+    if (loadTrustblocOpts) {
+        let trustblocOpts = trustBlocStartupOpts
+        let ariesFramework = await new Aries.Framework(ariesOpts)
+        return {aries: ariesFramework, trustblocStartupOpts: trustblocOpts}
+    } else {
+        return new Aries.Framework(ariesOpts)
+    }
 }
 
 export function promiseWhen(fn, timeout, interval) {
