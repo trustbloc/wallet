@@ -1,3 +1,11 @@
+/*
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+
+Modifications: extension of mediator view component from https://github.com/digitalbazaar/authorization.io/blob/master/components/Mediator.vue
+*/
+
 <template>
     <div>
         <div v-if="display === 'permissionRequest'">
@@ -145,6 +153,14 @@
                                         register again.
                                     </p>
                                 </div>
+
+                                <div v-if="registrationURL">
+                                    <p>
+                                        If you are a <strong>Trustbloc wallet user</strong> then please visit
+                                        <a v-bind:href="registrationURL" target="_blank" >here</a> to register your wallet
+                                    </p>
+                                </div>
+
                                 <div
                                         class="wrm-button-bar"
                                         style="margin-top: 10px">
@@ -218,6 +234,13 @@
     let deferredCredentialOperation;
     let resolvePermissionRequest;
 
+    /* This is modified mediator vue component built on top of original
+     * mediator view component https://github.com/digitalbazaar/authorization.io/blob/master/components/Mediator.vue
+     * Major modifications:
+     *     - Showing registration URL on empty state wizard page.
+     *     - Showing both greeting and hint selection page in single screen to avoid too many navigations in wizard.
+     *     - remembering hint choice by default
+     */
     export default {
         name: 'Mediator',
         components: {AntiTrackingWizard, MediatorGreeting},
@@ -239,7 +262,8 @@
                 selectedHint: null,
                 showHintChooser: false,
                 showGreeting: false,
-                showPermissionDialog: false
+                showPermissionDialog: false,
+                registrationURL: null,
             };
         },
         computed: {
@@ -268,6 +292,8 @@
             // attempt to load web app manifest icon
             const manifest = await getWebAppManifest(this.relyingDomain);
             this.relyingOriginManifest = manifest;
+
+            this.registrationURL = this.$config.data.registrationURL
         },
         methods: {
             async allow() {
@@ -442,7 +468,6 @@
             },
             async startFlow() {
                 this.loading = true;
-
                 // load hints early if possible to avoid showing UI
                 this.hasStorageAccess = await hasStorageAccess();
                 if(this.hasStorageAccess) {

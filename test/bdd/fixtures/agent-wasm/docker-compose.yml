@@ -177,6 +177,7 @@ services:
     environment:
       - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
       - TLS_KEY_FILE=/etc/tls/ec-key.pem
+      - REGISTRATION_URL=https://localhost:8091/dashboard
     ports:
       - ${CREDENTIAL_MEDIATOR_HTTPS_PORT}:${CREDENTIAL_MEDIATOR_HTTPS_PORT}
       - ${CREDENTIAL_MEDIATOR_HTTP_PORT}:${CREDENTIAL_MEDIATOR_HTTP_PORT}
