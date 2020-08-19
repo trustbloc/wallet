@@ -317,6 +317,55 @@ export const pdCardManifestVC = {
     }
 }
 
+export const driversLicenseVC = {
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://trustbloc.github.io/context/vc/examples/mdl-v1.jsonld"
+    ],
+    "type": [
+        "VerifiableCredential",
+        "mDL"
+    ],
+    "id": "http://example.gov/credentials/ff98f978-588f-4eb0-b17b-60c18e1dac2c",
+    "issuanceDate": "2020-03-16T22:37:26.544Z",
+    "issuer": {
+        "id": "did:gov:transport_ministry"
+    },
+    "credentialSubject": {
+        "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+        "document_number": "123-456-789",
+        "given_name": "Jayden",
+        "family_name": "Doe"
+    },
+    "proof": {
+        "type": "Ed25519Signature2018",
+        "created": "2019-12-11T03:50:55Z",
+        "verificationMethod": "did:gov:transport_ministry#z6MksHh7qHWvybLg5QTPPdG2DgEjjduBDArV9EF9mRiRzMBN",
+        "proofPurpose": "assertionMethod",
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..hckTjvJ8umMsgAdsgPfAYGKYh-4IqqvuGOX_kbNMwpkwyslFj_XKl06wgJDDMLkmnvHHEk74FDBUL_F_0mdeAA"
+    }
+}
+
+export const driversLicenseEvidenceManifestVC = {
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://trustbloc.github.io/context/vc/issuer-manifest-credential-v1.jsonld"
+    ],
+    "type": [
+        "VerifiableCredential",
+        "IssuerManifestCredential"
+    ],
+    "name": "Example Issuer Manifest Credential",
+    "description": "List of verifiable credentials provided by example issuer",
+    "id": "http://example.gov/credentials/ff98f978-588f-4eb0-b17b-60c18e1dac2c",
+    "issuanceDate": "2020-03-16T22:37:26.544Z",
+    "issuer": "did:factom:5d0dd58757119dd437c70d92b44fbf86627ee275f0f2146c3d99e441da342d9f",
+    "credentialSubject": {
+        "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+        "contexts": ["https://trustbloc.github.io/context/vc/examples/driver-license-evidence-v1.jsonld"]
+    }
+}
+
 export const samplePresentationDefQuery1 = {
     submission_requirements: [
         {

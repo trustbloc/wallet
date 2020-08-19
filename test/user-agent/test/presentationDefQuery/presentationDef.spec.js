@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import {expect} from 'chai'
 import {PresentationExchange} from '../../../../cmd/user-agent/src/pages/chapi/wallet'
-import {degreeCertificare, prCardv1, prCardv2, pdCardManifestVC, samplePresentationDefQuery, samplePresentationDefQuery1} from './testdata.js'
+import {driversLicenseVC, driversLicenseEvidenceManifestVC, degreeCertificare, prCardv1, prCardv2, pdCardManifestVC, samplePresentationDefQuery, samplePresentationDefQuery1} from './testdata.js'
 
 
 describe('presentation definition query schema validation', () => {
@@ -1137,6 +1137,49 @@ describe('generate presentation submission with submission requirements', () => 
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([secondDegree, secondDegree, pdCardManifestVC])
+    })
+
+    it('generate presentation submission from no submission requirements, using manifest credentials, and the schema uri is referenced from a field constraint', async () => {
+
+        let allCreds = [driversLicenseVC]
+
+        let presDef = {
+            input_descriptors: [
+                {
+                    "id": "driver_license_1",
+                    "schema": {
+                        "uri": ["https://trustbloc.github.io/context/vc/examples/mdl-v1.jsonld"],
+                        "name": "Your driver's license."
+                    }
+                },
+                {
+                    "id": "driver_license_evidence_1",
+                    "schema": {
+                        "uri": ["https://trustbloc.github.io/context/vc/authorization-credential-v1.jsonld"],
+                        "name": "Supporting evidence of your driver's license."
+                    },
+                    "constraints": {
+                        "fields": [
+                            {
+                                "path": ["$.credentialSubject.scope[*].schema.uri"],
+                                "filter": {
+                                    "const": "https://trustbloc.github.io/context/vc/examples/driver-license-evidence-v1.jsonld"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+
+        let defQ = new PresentationExchange(presDef)
+        expect(defQ).to.not.be.null
+
+        let presSubmission = defQ.createPresentationSubmission(allCreds, [driversLicenseEvidenceManifestVC])
+        expect(presSubmission).to.not.be.null
+        expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
+        expect(presSubmission.presentation_submission).to.not.be.empty
+        expect(presSubmission.verifiableCredential).to.deep.equal([driversLicenseVC, driversLicenseEvidenceManifestVC])
     })
 
     it('generate presentation submission using multiple submission requirements - all "pick" rule scenarios', async () => {
