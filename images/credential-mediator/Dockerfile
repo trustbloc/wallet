@@ -19,6 +19,7 @@ RUN git clone -b master https://${GITHUB_TOKEN}:x-oauth-basic@github.com/digital
 
 WORKDIR /opt/workspace/authorization.io
 ADD ./cmd/credential-mediator/configs/dev.js configs
+ADD ./cmd/credential-mediator/components/* components
 RUN npm install --unsafe-perm
 
 EXPOSE 33443 33080
