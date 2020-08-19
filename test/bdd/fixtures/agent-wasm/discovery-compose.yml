@@ -1,0 +1,41 @@
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+services:
+  testnet.trustbloc.local:
+    container_name: testnet.trustbloc.local
+    hostname: testnet.trustbloc.local
+    image: halverneus/static-file-server:v1.7.2
+    environment:
+      - PORT=443
+      - FOLDER=/web
+      - CORS=true
+      - DEBUG=true
+      - TLS_CERT=/etc/tls/ec-pubCert.pem
+      - TLS_KEY=/etc/tls/ec-key.pem
+    ports:
+      - "443:443"
+    volumes:
+      - ./config/did-trustbloc:/web/.well-known/did-trustbloc
+      - ../keys/tls:/etc/tls
+
+  stakeholder.one:
+    container_name: stakeholder.one
+    hostname: stakeholder.one
+    image: halverneus/static-file-server:v1.7.2
+    environment:
+      - PORT=8088
+      - FOLDER=/web
+      - CORS=true
+      - TLS_CERT=/etc/tls/ec-pubCert.pem
+      - TLS_KEY=/etc/tls/ec-key.pem
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./config/did-trustbloc:/web/.well-known/did-trustbloc
+      - ./config/stakeholder.one/did-configuration.json:/web/.well-known/did-configuration.json
+      - ../keys/tls:/etc/tls
