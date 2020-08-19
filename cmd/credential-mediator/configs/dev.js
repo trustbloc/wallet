@@ -25,3 +25,9 @@ if (process.env.TLS_CERT_FILE) {
 if (process.env.TLS_KEY_FILE) {
     config.server.key = process.env.TLS_KEY_FILE;
 }
+
+if (process.env.REGISTRATION_URL) {
+    config.views.vars.registrationURL = process.env.REGISTRATION_URL
+}
+
+
