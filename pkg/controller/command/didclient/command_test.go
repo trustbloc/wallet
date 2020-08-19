@@ -129,7 +129,7 @@ func TestCommand_SaveDID(t *testing.T) {
 		require.Contains(t, cmdErr.Error(), failDecodeDIDDocDataErrMsg)
 	})
 	t.Run("Fail to save DID - SDS server unreachable", func(t *testing.T) {
-		cmd := New("", "BadURL", "")
+		cmd := New("", "BadURL", "agentUsername")
 
 		sampleDIDDocData := sdscomm.DIDDocData{}
 
@@ -138,6 +138,17 @@ func TestCommand_SaveDID(t *testing.T) {
 
 		cmdErr := cmd.SaveDID(nil, bytes.NewBuffer(didDocDataBytes))
 		require.Contains(t, cmdErr.Error(), failCreateDIDVaultErrMsg)
+	})
+	t.Run("Fail to save DID - failed to initialize sdscomm", func(t *testing.T) {
+		cmd := New("", "", "")
+
+		sampleDIDDocData := sdscomm.DIDDocData{}
+
+		didDocDataBytes, err := json.Marshal(sampleDIDDocData)
+		require.NoError(t, err)
+
+		cmdErr := cmd.SaveDID(nil, bytes.NewBuffer(didDocDataBytes))
+		require.Contains(t, cmdErr.Error(), failCreateSDSCommErrMsg)
 	})
 }
 
