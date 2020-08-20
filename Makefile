@@ -94,15 +94,15 @@ generate-test-keys:
 		frapsoft/openssl
 
 .PHONY: user-agent-start
-user-agent-start: clean user-agent-wasm-docker credential-mediator-docker did-method-cli generate-test-keys
+user-agent-start: clean user-agent-wasm-docker credential-mediator-docker generate-test-config generate-test-keys
 	@scripts/user_agent_start.sh
 
-.PHONY: did-method-cli
-did-method-cli:
-	@scripts/build-did-method-cli.sh
+.PHONY: generate-test-config
+generate-test-config:
+	@/bin/bash scripts/generate_test_config.sh
 
 .PHONY: bdd-test-js
-bdd-test-js: clean user-agent-wasm-docker credential-mediator-docker did-method-cli generate-test-keys
+bdd-test-js: clean user-agent-wasm-docker credential-mediator-docker generate-test-config generate-test-keys
 	@scripts/check_js_intergation.sh
 
 .PHONY: clean
