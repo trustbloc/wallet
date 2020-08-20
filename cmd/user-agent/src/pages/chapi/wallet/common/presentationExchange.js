@@ -210,6 +210,12 @@ function matchManifest(manifest, descriptor) {
 
     let schemas = Array.isArray(descriptor.schema.uri) ? descriptor.schema.uri : [descriptor.schema.uri]
 
+    if (descriptor.constraints && descriptor.constraints.fields) {
+        descriptor.constraints.fields.filter(f => f.filter).filter(f => f.filter.const).forEach(f => {
+            schemas.push(f.filter.const)
+        })
+    }
+
     return manifest.credentialSubject.contexts.some(v => schemas.includes(v))
 }
 
