@@ -62,7 +62,6 @@ services:
       - ARIESD_DEFAULT_LABEL=user-agent
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
-      - CREDENTIAL_MEDIATOR_URL=https://${CREDENTIAL_MEDIATOR_HOST}:${CREDENTIAL_MEDIATOR_HTTPS_PORT}/mediator
       - HTTP_SERVER_SDS_URL=${HTTP_SERVER_SDS_URL}
     ports:
       - 8091:8091
@@ -83,7 +82,6 @@ services:
       - ARIESD_DEFAULT_LABEL=second-user-agent
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
-      - CREDENTIAL_MEDIATOR_URL=https://${CREDENTIAL_MEDIATOR_HOST}:${CREDENTIAL_MEDIATOR_HTTPS_PORT}/mediator
       - HTTP_SERVER_SDS_URL=${HTTP_SERVER_SDS_URL}
     ports:
       - 8071:8071
@@ -203,19 +201,6 @@ services:
       - 8060:8060
     entrypoint: ""
     command:  /bin/sh -c "sleep 10;did-method start"
-    volumes:
-      - ../keys/tls:/etc/tls
-
-  authorization.localhost:
-    container_name: ${CREDENTIAL_MEDIATOR_HOST}
-    image: ${CREDENTIAL_MEDIATOR_IMAGE}:latest
-    environment:
-      - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
-      - TLS_KEY_FILE=/etc/tls/ec-key.pem
-      - REGISTRATION_URL=https://localhost:8091/dashboard
-    ports:
-      - ${CREDENTIAL_MEDIATOR_HTTPS_PORT}:${CREDENTIAL_MEDIATOR_HTTPS_PORT}
-      - ${CREDENTIAL_MEDIATOR_HTTP_PORT}:${CREDENTIAL_MEDIATOR_HTTP_PORT}
     volumes:
       - ../keys/tls:/etc/tls
 

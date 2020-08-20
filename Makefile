@@ -10,7 +10,6 @@ GOBIN_PATH             = $(abspath .)/build/bin
 ALPINE_VER ?= 3.11
 GO_TAGS    ?=
 GO_VER     ?= 1.13.9
-NODE_VER     ?= 14.8.0
 
 # Namespace for the images
 DOCKER_OUTPUT_NS         ?= docker.pkg.github.com
@@ -77,14 +76,6 @@ agent-wasm-docker: clean
 	--build-arg GITHUB_TOKEN=$(GITHUB_TOKEN) \
 	--build-arg NAME=${AGENT_NAME} .
 
-.PHONY: credential-mediator-docker
-credential-mediator-docker: clean
-	@echo "Building credential mediator docker image"
-	@docker build -f ./images/credential-mediator/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(REPO_IMAGE_NAME)/credential-mediator:latest \
-	--build-arg NODE_VER=$(NODE_VER) \
-	--build-arg ALPINE_VER=$(ALPINE_VER) \
-	--build-arg GITHUB_TOKEN=$(GITHUB_TOKEN) .
-
 .PHONY: generate-test-keys
 generate-test-keys:
 	@mkdir -p -p test/bdd/fixtures/keys/tls
@@ -94,7 +85,7 @@ generate-test-keys:
 		frapsoft/openssl
 
 .PHONY: user-agent-start
-user-agent-start: clean user-agent-wasm-docker credential-mediator-docker generate-test-config generate-test-keys
+user-agent-start: clean user-agent-wasm-docker generate-test-config generate-test-keys
 	@scripts/user_agent_start.sh
 
 .PHONY: generate-test-config
@@ -102,7 +93,7 @@ generate-test-config:
 	@/bin/bash scripts/generate_test_config.sh
 
 .PHONY: bdd-test-js
-bdd-test-js: clean user-agent-wasm-docker credential-mediator-docker generate-test-config generate-test-keys
+bdd-test-js: clean user-agent-wasm-docker generate-test-config generate-test-keys
 	@scripts/check_js_intergation.sh
 
 .PHONY: clean
