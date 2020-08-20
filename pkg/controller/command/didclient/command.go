@@ -43,6 +43,7 @@ const (
 	failDecodeDIDDocDataErrMsg = "failed to decode DID data"
 	failCreateDIDVaultErrMsg   = "failed to create DID vault"
 	failStoreDIDDocErrMsg      = "failed to store DID document"
+	failCreateSDSCommErrMsg    = "failure while preparing SDS communication"
 )
 
 type didBlocClient interface {
@@ -149,9 +150,13 @@ func (c *Command) SaveDID(_ io.Writer, req io.Reader) command.Error {
 }
 
 func (c *Command) saveDID(didDataToStore *sdscomm.DIDDocData) command.Error {
-	sdsComm := sdscomm.New(c.sdsServerURL, c.agentUsername)
+	sdsComm, err := sdscomm.New(c.sdsServerURL, c.agentUsername)
+	if err != nil {
+		return command.NewValidationError(InvalidRequestErrorCode,
+			fmt.Errorf("%s: %w", failCreateSDSCommErrMsg, err))
+	}
 
-	err := sdsComm.CreateDIDVault()
+	err = sdsComm.CreateDIDVault()
 	if err != nil {
 		logutil.LogInfo(logger, commandName, saveDIDCommandMethod,
 			fmt.Sprintf("%s: %s", failCreateDIDVaultErrMsg, err.Error()))

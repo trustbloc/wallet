@@ -18,20 +18,40 @@ import (
 	"github.com/trustbloc/edv/pkg/restapi"
 )
 
+func TestNew(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		sdsComm, err := New("SDSUrl", "AgentUsername")
+		require.NoError(t, err)
+		require.NotNil(t, sdsComm)
+	})
+	t.Run("Failure: blank SDS URL", func(t *testing.T) {
+		sdsComm, err := New("", "AgentUsername")
+		require.EqualError(t, err, errBlankSDSURL.Error())
+		require.Nil(t, sdsComm)
+	})
+	t.Run("Failure: blank agent username URL", func(t *testing.T) {
+		sdsComm, err := New("SDSUrl", "")
+		require.EqualError(t, err, errBlankAgentUsername.Error())
+		require.Nil(t, sdsComm)
+	})
+}
+
 func TestSDSComm_CreateDIDVault(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		sdsSrv := newTestEDVServer(t)
 		defer sdsSrv.Close()
 
-		sdsComm := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "James")
+		sdsComm, err := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "James")
+		require.NoError(t, err)
 
-		err := sdsComm.CreateDIDVault()
+		err = sdsComm.CreateDIDVault()
 		require.NoError(t, err)
 	})
 	t.Run("SDS server unreachable (unsupported protocol scheme provided)", func(t *testing.T) {
-		sdsComm := New("BadURL", "James")
+		sdsComm, err := New("BadURL", "James")
+		require.NoError(t, err)
 
-		err := sdsComm.CreateDIDVault()
+		err = sdsComm.CreateDIDVault()
 		require.Contains(t, err.Error(), "unsupported protocol scheme")
 	})
 }
@@ -41,9 +61,10 @@ func TestSDSComm_StoreDIDDocument(t *testing.T) {
 		sdsSrv := newTestEDVServer(t)
 		defer sdsSrv.Close()
 
-		sdsComm := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "James")
+		sdsComm, err := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "James")
+		require.NoError(t, err)
 
-		err := sdsComm.CreateDIDVault()
+		err = sdsComm.CreateDIDVault()
 		require.NoError(t, err)
 
 		sampleDIDDocData := DIDDocData{}
@@ -55,11 +76,12 @@ func TestSDSComm_StoreDIDDocument(t *testing.T) {
 		sdsSrv := newTestEDVServer(t)
 		defer sdsSrv.Close()
 
-		sdsComm := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "James")
+		sdsComm, err := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "James")
+		require.NoError(t, err)
 
 		sampleDIDDocData := DIDDocData{}
 
-		err := sdsComm.StoreDIDDocument(&sampleDIDDocData)
+		err = sdsComm.StoreDIDDocument(&sampleDIDDocData)
 		require.NotNil(t, err)
 		require.Contains(t, err.Error(), messages.ErrVaultNotFound.Error())
 	})

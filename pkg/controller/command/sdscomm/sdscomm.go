@@ -8,6 +8,7 @@ package sdscomm
 import (
 	"crypto/rand"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -22,6 +23,9 @@ const sdsVaultIDLen = 16
 
 var logger = log.New("edge-agent-sdscomm")
 
+var errBlankSDSURL = errors.New("SDS server URL cannot be blank")
+var errBlankAgentUsername = errors.New("agent username cannot be blank")
+
 type SDSComm struct {
 	sdsServerURL  string
 	agentUsername string
@@ -34,12 +38,20 @@ type DIDDocData struct {
 	Name     string          `json:"name,omitempty"`
 }
 
-func New(sdsServerURL, agentUsername string) *SDSComm {
+func New(sdsServerURL, agentUsername string) (*SDSComm, error) {
+	if sdsServerURL == "" {
+		return nil, errBlankSDSURL
+	}
+
+	if agentUsername == "" {
+		return nil, errBlankAgentUsername
+	}
+
 	return &SDSComm{
 		sdsServerURL:  sdsServerURL,
 		agentUsername: agentUsername,
 		sdsClient:     sdsclient.New(sdsServerURL),
-	}
+	}, nil
 }
 
 // CreateDIDVault creates the user's DID vault if it doesn't exist.
