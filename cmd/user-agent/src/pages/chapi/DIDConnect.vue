@@ -17,6 +17,7 @@ SPDX-License-Identifier: Apache-2.0
         <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
 
 
+            <!-- TODO : show credentials beings sent along with didconnect request -->
             <md-card class="md-card-plain">
                 <md-card-header data-background-color="green">
                     <h4 class="title">Wallet Connection</h4>
@@ -71,8 +72,9 @@ SPDX-License-Identifier: Apache-2.0
                 //this can never happen, but still one extra layer of security
                 this.credentialWarning = 'Wallet is not registered'
             }
-            const aries = await this.$arieslib
-            this.wallet = new DIDConn(aries, this.$parent.credentialEvent, this.walletUser)
+
+            this.wallet = new DIDConn(await this.$arieslib,  await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts),
+                this.$parent.credentialEvent, this.walletUser)
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
             this.loading = false
         },

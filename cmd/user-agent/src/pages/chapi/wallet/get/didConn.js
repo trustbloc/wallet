@@ -5,7 +5,13 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import {WalletManager} from '../register/walletManager'
+import {WalletStore} from '../store/saveCredential'
 import {DIDExchange} from '../common/didExchange'
+import {getCredentialType} from "..";
+
+const manifestCredType = "IssuerManifestCredential"
+
+var uuid = require('uuid/v4')
 
 /**
  * DIDConn provides CHAPI did connection/exchange features
@@ -13,18 +19,19 @@ import {DIDExchange} from '../common/didExchange'
  * @class
  */
 export class DIDConn {
-    constructor(aries, credEvent, walletUser) {
+    constructor(aries, trustblocAgent, credEvent, walletUser) {
         this.aries = aries
         this.walletUser = walletUser
         this.walletManager = new WalletManager()
+        this.walletStore = new WalletStore(aries, trustblocAgent, credEvent)
         this.exchange = new DIDExchange(aries)
         this.credEvent = credEvent
 
-        const {domain, challenge, invitation, manifest} = getRequestParams(credEvent);
+        const {domain, challenge, invitation, credentials} = getRequestParams(credEvent);
         this.domain = domain
         this.challenge = challenge
         this.invitation = invitation
-        this.manifest = manifest
+        this.credentials = credentials
     }
 
     async connect() {
@@ -41,9 +48,15 @@ export class DIDConn {
         // save connection
         await this.walletManager.storeConnection(connection.result.ConnectionID, connection.result)
 
-        // save manifest credential
-        if (this.manifest) {
-            await this.walletManager.storeManifest(connection.result.ConnectionID, this.manifest)
+        // save credentials
+        if (this.credentials) {
+            for (let credential of this.credentials) {
+                if (getCredentialType(credential.type) == manifestCredType) {
+                    await this.walletManager.storeManifest(connection.result.ConnectionID, credential)
+                } else {
+                    await this.walletStore.save(uuid(), credential)
+                }
+            }
         }
 
         let responseData = await this._didConnResponse(connection.result)
@@ -149,7 +162,7 @@ function getRequestParams(credEvent) {
 
     const verifiable = credEvent.credentialRequestOptions.web.VerifiablePresentation
 
-    let {challenge, domain, query, invitation, manifest} = verifiable;
+    let {challenge, domain, query, invitation, credentials} = verifiable;
 
     if (query && query.challenge) {
         challenge = query.challenge;
@@ -163,5 +176,5 @@ function getRequestParams(credEvent) {
         domain = credEvent.credentialRequestOrigin.split('//').pop()
     }
 
-    return {domain, challenge, invitation, manifest}
+    return {domain, challenge, invitation, credentials}
 }
