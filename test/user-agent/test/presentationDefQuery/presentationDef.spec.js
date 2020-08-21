@@ -466,7 +466,7 @@ describe('generate presentation submission  with no submission requirements', ()
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal([{
             id: 'citizenship_input_1',
-            path: '$.verifiableCredential.[0]'
+            path: '$.verifiableCredential[0]'
         }])
         expect(presSubmission.verifiableCredential).to.deep.equal([prCardv1])
 
@@ -496,8 +496,8 @@ describe('generate presentation submission  with no submission requirements', ()
         expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal([
-            {id: 'citizenship_input_1', path: '$.verifiableCredential.[0]'},
-            {id: 'citizenship_input_1', path: '$.verifiableCredential.[1]'}
+            {id: 'citizenship_input_1', path: '$.verifiableCredential[0]'},
+            {id: 'citizenship_input_1', path: '$.verifiableCredential[1]'}
         ])
         expect(presSubmission.verifiableCredential).to.deep.equal([prCardv1, prCardv2])
 
@@ -536,9 +536,9 @@ describe('generate presentation submission  with no submission requirements', ()
         expect(presSubmission.type).to.deep.equal(["VerifiablePresentation", "PresentationSubmission"])
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal([
-            {id: 'citizenship_input_1', path: '$.verifiableCredential.[0]'},
-            {id: 'citizenship_input_1', path: '$.verifiableCredential.[1]'},
-            {id: 'university_degree_input_1', path: '$.verifiableCredential.[2]'}
+            {id: 'citizenship_input_1', path: '$.verifiableCredential[0]'},
+            {id: 'citizenship_input_1', path: '$.verifiableCredential[1]'},
+            {id: 'university_degree_input_1', path: '$.verifiableCredential[2]'}
         ])
         expect(presSubmission.verifiableCredential).to.deep.equal([prCardv1, prCardv2, degreeCertificare])
 
@@ -624,7 +624,7 @@ describe('generate presentation submission  with no submission requirements', ()
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal([{
             id: 'citizenship_input_1',
-            path: '$.verifiableCredential.[0]'
+            path: '$.verifiableCredential[0]'
         }])
         expect(presSubmission.verifiableCredential).to.deep.equal([prCardv2])
     })
@@ -715,9 +715,9 @@ describe('generate presentation submission  with no submission requirements', ()
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
             [
-                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[0]"},
-                {"id": "degree_input_1", "path": "$.verifiableCredential.[1]"},
-                {"id": "degree_input_1", "path": "$.verifiableCredential.[2]"}
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential[0]"},
+                {"id": "degree_input_1", "path": "$.verifiableCredential[1]"},
+                {"id": "degree_input_1", "path": "$.verifiableCredential[2]"}
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([prCardv2, degreeCertificare, mastersDegree])
@@ -860,10 +860,10 @@ describe('generate presentation submission with submission requirements', () => 
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
             [
-                {"id": "degree_input_1", "path": "$.verifiableCredential.[0]"},
-                {"id": "degree_input_1", "path": "$.verifiableCredential.[1]"},
-                {"id": "degree_input_2", "path": "$.verifiableCredential.[2]"},
-                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[3]"}
+                {"id": "degree_input_1", "path": "$.verifiableCredential[0]"},
+                {"id": "degree_input_1", "path": "$.verifiableCredential[1]"},
+                {"id": "degree_input_2", "path": "$.verifiableCredential[2]"},
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential[3]"}
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([degreeCertificare, mastersDegree, diploma, prCardv2])
@@ -996,9 +996,9 @@ describe('generate presentation submission with submission requirements', () => 
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
             [
-                {"id": "degree_input_1", "path": "$.verifiableCredential.[0]"},
-                {"id": "degree_input_2", "path": "$.verifiableCredential.[1]"},
-                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[2]"}
+                {"id": "degree_input_1", "path": "$.verifiableCredential[0]"},
+                {"id": "degree_input_2", "path": "$.verifiableCredential[1]"},
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential[2]"}
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([secondDegree, secondDegree, prCardv2])
@@ -1131,9 +1131,9 @@ describe('generate presentation submission with submission requirements', () => 
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
             [
-                {"id": "degree_input_1", "path": "$.verifiableCredential.[0]"},
-                {"id": "degree_input_2", "path": "$.verifiableCredential.[1]"},
-                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[2]"}
+                {"id": "degree_input_1", "path": "$.verifiableCredential[0]"},
+                {"id": "degree_input_2", "path": "$.verifiableCredential[1]"},
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential[2]"}
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([secondDegree, secondDegree, pdCardManifestVC])
@@ -1209,8 +1209,8 @@ describe('generate presentation submission with submission requirements', () => 
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
             [
-                {"id": "degree_input_3", "path": "$.verifiableCredential.[0]"},
-                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[1]"}
+                {"id": "degree_input_3", "path": "$.verifiableCredential[0]"},
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential[1]"}
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([mastersDegree, prCardv2])
@@ -1240,7 +1240,7 @@ describe('generate presentation submission with submission requirements', () => 
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
             [
-                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[0]"}
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential[0]"}
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([prCardv2])
@@ -1270,8 +1270,8 @@ describe('generate presentation submission with submission requirements', () => 
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
             [
-                {"id": "degree_input_3", "path": "$.verifiableCredential.[0]"},
-                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[1]"}
+                {"id": "degree_input_3", "path": "$.verifiableCredential[0]"},
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential[1]"}
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([mastersDegree, prCardv2])
@@ -1302,7 +1302,7 @@ describe('generate presentation submission with submission requirements', () => 
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
             [
-                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[0]"}
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential[0]"}
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([prCardv2])
@@ -1332,8 +1332,8 @@ describe('generate presentation submission with submission requirements', () => 
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
             [
-                {"id": "degree_input_3", "path": "$.verifiableCredential.[0]"},
-                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[1]"}
+                {"id": "degree_input_3", "path": "$.verifiableCredential[0]"},
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential[1]"}
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([mastersDegree, prCardv2])
@@ -1363,8 +1363,8 @@ describe('generate presentation submission with submission requirements', () => 
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
             [
-                {"id": "degree_input_3", "path": "$.verifiableCredential.[0]"},
-                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[1]"}
+                {"id": "degree_input_3", "path": "$.verifiableCredential[0]"},
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential[1]"}
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([mastersDegree, prCardv2])
@@ -1455,7 +1455,7 @@ describe('generate presentation submission with submission requirements', () => 
         expect(presSubmission.presentation_submission).to.not.be.empty
         expect(presSubmission.presentation_submission.descriptor_map).to.deep.equal(
             [
-                {"id": "citizenship_input_1", "path": "$.verifiableCredential.[0]"}
+                {"id": "citizenship_input_1", "path": "$.verifiableCredential[0]"}
             ]
         )
         expect(presSubmission.verifiableCredential).to.deep.equal([prCardv2])
@@ -1489,23 +1489,23 @@ describe('generate presentation submission with submission requirements', () => 
             [
                 {
                     "id": "degree_input_4",
-                    "path": "$.verifiableCredential.[0]"
+                    "path": "$.verifiableCredential[0]"
                 },
                 {
                     "id": "degree_input_5",
-                    "path": "$.verifiableCredential.[1]"
+                    "path": "$.verifiableCredential[1]"
                 },
                 {
                     "id": "degree_input_3",
-                    "path": "$.verifiableCredential.[2]"
+                    "path": "$.verifiableCredential[2]"
                 },
                 {
                     "id": "degree_input_4",
-                    "path": "$.verifiableCredential.[3]"
+                    "path": "$.verifiableCredential[3]"
                 },
                 {
                     "id": "citizenship_input_1",
-                    "path": "$.verifiableCredential.[4]"
+                    "path": "$.verifiableCredential[4]"
                 }
             ]
         )

@@ -161,11 +161,11 @@ describe('get credentials by presentation definition query', () => {
                 "descriptor_map": [
                     {
                         "id": "degree_input_1",
-                        "path": "$.verifiableCredential.[0]"
+                        "path": "$.verifiableCredential[0]"
                     },
                     {
                         "id": "citizenship_input_1",
-                        "path": "$.verifiableCredential.[1]"
+                        "path": "$.verifiableCredential[1]"
                     }
                 ]
             })
@@ -343,7 +343,7 @@ describe('verifier queries credentials - DIDComm Flow', () => {
             expect(resp.data.presentation_submission.descriptor_map).to.deep.equal([
                 {
                     "id": "citizenship_input_1",
-                    "path": "$.verifiableCredential.[0]"
+                    "path": "$.verifiableCredential[0]"
                 }
             ])
             expect(resp.data.verifiableCredential[0].referenceNumber).to.equal(83294847)

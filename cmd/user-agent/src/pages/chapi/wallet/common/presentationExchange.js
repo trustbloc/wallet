@@ -229,7 +229,7 @@ function prepareSubmission(results) {
         presentationSubmission.presentation_submission.descriptor_map.push(
             {
                 id: result.id,
-                path: `$.verifiableCredential.[${index}]`
+                path: `$.verifiableCredential[${index}]`
             }
         )
 

@@ -121,9 +121,9 @@ function retainOnlySelected(presentationSubmission, selectedIndexes) {
             if (selected && index == vcIndex) {
                 vcs.push(vc)
 
-                let vcDescrs = jp.query(presentationSubmission, `$.presentation_submission.descriptor_map[?(@.path=="$.verifiableCredential.[${vcIndex}]")].id`)
+                let vcDescrs = jp.query(presentationSubmission, `$.presentation_submission.descriptor_map[?(@.path=="$.verifiableCredential[${vcIndex}]")].id`)
                 vcDescrs.forEach(function (id) {
-                    descriptors.push({id, path: `$.verifiableCredential.[${vcCount}]`})
+                    descriptors.push({id, path: `$.verifiableCredential[${vcCount}]`})
                 })
 
                 vcCount++
