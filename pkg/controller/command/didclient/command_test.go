@@ -26,15 +26,23 @@ import (
 
 func TestNew(t *testing.T) {
 	t.Run("test success", func(t *testing.T) {
-		c := New("domain", "", "")
+		c, err := New("domain", "SDSURL", "AgentUsername")
+		require.NoError(t, err)
 		require.NotNil(t, c)
 		require.NotNil(t, c.GetHandlers())
+	})
+	t.Run("Fail to instantiate sdscomm", func(t *testing.T) {
+		c, err := New("domain", "", "AgentUsername")
+		require.EqualError(t, err, "failure while preparing SDS communication: "+
+			"SDS server URL cannot be blank")
+		require.Nil(t, c)
 	})
 }
 
 func TestCommand_CreateDID(t *testing.T) {
 	t.Run("test error from request", func(t *testing.T) {
-		c := New("domain", "", "")
+		c, err := New("domain", "SDSURL", "AgentUsername")
+		require.NoError(t, err)
 		require.NotNil(t, c)
 
 		c.didClient = &mockDIDClient{createDIDErr: fmt.Errorf("error create did")}
@@ -48,7 +56,8 @@ func TestCommand_CreateDID(t *testing.T) {
 	})
 
 	t.Run("test error from create did", func(t *testing.T) {
-		c := New("domain", "", "")
+		c, err := New("domain", "SDSURL", "AgentUsername")
+		require.NoError(t, err)
 		require.NotNil(t, c)
 
 		c.didClient = &mockDIDClient{createDIDErr: fmt.Errorf("error create did")}
@@ -67,7 +76,8 @@ func TestCommand_CreateDID(t *testing.T) {
 	})
 
 	t.Run("test error from did base64 decode", func(t *testing.T) {
-		c := New("domain", "", "")
+		c, err := New("domain", "SDSURL", "AgentUsername")
+		require.NoError(t, err)
 		require.NotNil(t, c)
 
 		c.didClient = &mockDIDClient{createDIDErr: fmt.Errorf("error create did")}
@@ -85,7 +95,8 @@ func TestCommand_CreateDID(t *testing.T) {
 		require.Contains(t, cmdErr.Error(), "illegal base64 data")
 	})
 
-	c := New("domain", "", "")
+	c, err := New("domain", "SDSURL", "AgentUsername")
+	require.NoError(t, err)
 	require.NotNil(t, c)
 
 	c.didClient = &mockDIDClient{createDIDValue: &did.Doc{ID: "1"}}
@@ -119,17 +130,20 @@ func TestCommand_SaveDID(t *testing.T) {
 		didDocDataBytes, err := json.Marshal(sampleDIDDocData)
 		require.NoError(t, err)
 
-		cmd := New("", fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "AgentUsername")
+		cmd, err := New("", fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "AgentUsername")
+		require.NoError(t, err)
 		cmdErr := cmd.SaveDID(nil, bytes.NewBuffer(didDocDataBytes))
 		require.NoError(t, cmdErr)
 	})
 	t.Run("Fail to unmarshal - invalid DIDDocData", func(t *testing.T) {
-		cmd := New("", "", "")
+		cmd, err := New("", "SDSURL", "AgentUsername")
+		require.NoError(t, err)
 		cmdErr := cmd.SaveDID(nil, bytes.NewBuffer([]byte("")))
 		require.Contains(t, cmdErr.Error(), failDecodeDIDDocDataErrMsg)
 	})
 	t.Run("Fail to save DID document - bad SDS server URL", func(t *testing.T) {
-		cmd := New("", "BadURL", "AgentUsername")
+		cmd, err := New("", "BadURL", "AgentUsername")
+		require.NoError(t, err)
 
 		sampleDIDDocData := sdscomm.DIDDocData{}
 
@@ -140,17 +154,6 @@ func TestCommand_SaveDID(t *testing.T) {
 		require.Contains(t, cmdErr.Error(), `failure while storing DID document in SDS: failure while `+
 			`ensuring that the user's DID vault exists: unexpected error during the "create vault" call `+
 			`to SDS: failed to send POST request:`)
-	})
-	t.Run("Fail to save DID - failed to initialize sdscomm", func(t *testing.T) {
-		cmd := New("", "", "")
-
-		sampleDIDDocData := sdscomm.DIDDocData{}
-
-		didDocDataBytes, err := json.Marshal(sampleDIDDocData)
-		require.NoError(t, err)
-
-		cmdErr := cmd.SaveDID(nil, bytes.NewBuffer(didDocDataBytes))
-		require.Contains(t, cmdErr.Error(), failCreateSDSCommErrMsg)
 	})
 }
 

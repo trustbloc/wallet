@@ -42,7 +42,7 @@ const (
 
 	failDecodeDIDDocDataErrMsg = "failure while decoding DID data"
 	failStoreDIDDocErrMsg      = "failure while storing DID document in SDS"
-	failCreateSDSCommErrMsg    = "failure while preparing SDS communication"
+	failCreateSDSCommErrMsg    = "failure while preparing SDS communication: %w"
 )
 
 type didBlocClient interface {
@@ -50,23 +50,26 @@ type didBlocClient interface {
 }
 
 // New returns new DID Exchange controller command instance
-func New(domain, sdsServerURL, agentUsername string) *Command {
+func New(domain, sdsServerURL, agentUsername string) (*Command, error) {
 	client := didclient.New()
 
-	return &Command{
-		didClient:     client,
-		domain:        domain,
-		agentUsername: agentUsername,
-		sdsServerURL:  sdsServerURL,
+	sdsComm, err := sdscomm.New(sdsServerURL, agentUsername)
+	if err != nil {
+		return nil, fmt.Errorf(failCreateSDSCommErrMsg, err)
 	}
+
+	return &Command{
+		didClient: client,
+		domain:    domain,
+		sdsComm:   sdsComm,
+	}, nil
 }
 
 // Command is controller command for DID Exchange
 type Command struct {
-	didClient     didBlocClient
-	domain        string
-	agentUsername string
-	sdsServerURL  string
+	didClient didBlocClient
+	domain    string
+	sdsComm   *sdscomm.SDSComm
 }
 
 // GetHandlers returns list of all commands supported by this controller command
@@ -149,13 +152,7 @@ func (c *Command) SaveDID(_ io.Writer, req io.Reader) command.Error {
 }
 
 func (c *Command) saveDID(didDataToStore *sdscomm.DIDDocData) command.Error {
-	sdsComm, err := sdscomm.New(c.sdsServerURL, c.agentUsername)
-	if err != nil {
-		return command.NewValidationError(InvalidRequestErrorCode,
-			fmt.Errorf("%s: %w", failCreateSDSCommErrMsg, err))
-	}
-
-	err = sdsComm.StoreDIDDocument(didDataToStore)
+	err := c.sdsComm.StoreDIDDocument(didDataToStore)
 	if err != nil {
 		logutil.LogInfo(logger, commandName, saveDIDCommandMethod,
 			fmt.Sprintf("%s: %s", failStoreDIDDocErrMsg, err.Error()))

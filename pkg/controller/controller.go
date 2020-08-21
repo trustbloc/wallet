@@ -16,7 +16,10 @@ import (
 	didclientcmd "github.com/trustbloc/edge-agent/pkg/controller/command/didclient"
 )
 
-const failCreateCredentialClientErrMsg = "failure while creating new credential client: %w"
+const (
+	failCreateDIDClientErrMsg        = "failure while creating new DID client: %w"
+	failCreateCredentialClientErrMsg = "failure while creating new credential client: %w"
+)
 
 var logger = log.New("edge-agent-didclient-controller")
 
@@ -60,7 +63,10 @@ func GetCommandHandlers(opts ...Opt) ([]command.Handler, error) {
 	}
 
 	// did client command operation
-	didClientCmd := didclientcmd.New(cmdOpts.blocDomain, cmdOpts.sdsServerURL, cmdOpts.agentUsername)
+	didClientCmd, err := didclientcmd.New(cmdOpts.blocDomain, cmdOpts.sdsServerURL, cmdOpts.agentUsername)
+	if err != nil {
+		return nil, fmt.Errorf(failCreateDIDClientErrMsg, err)
+	}
 
 	// credential client command operation
 	credentialClientCmd, err := credentialclientcmd.New(cmdOpts.sdsServerURL, cmdOpts.agentUsername)
