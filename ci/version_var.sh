@@ -12,7 +12,6 @@ IS_RELEASE=false
 
 SOURCE_REPO=edge-agent
 BASE_USER_WASM_PKG_NAME=user-agent-wasm
-BASE_CRED_MEDIATOR_PKG_NAME=credential-mediator
 RELEASE_REPO=docker.pkg.github.com/trustbloc/${SOURCE_REPO}
 SNAPSHOT_REPO=docker.pkg.github.com/trustbloc-cicd/snapshot
 
@@ -28,4 +27,3 @@ fi
 
 export EDGE_AGENT_TAG=$PROJECT_VERSION
 export USER_WASM_PKG=${PROJECT_PKG_REPO}/${BASE_USER_WASM_PKG_NAME}
-export CRED_MEDIATOR_PKG=${PROJECT_PKG_REPO}/${BASE_CRED_MEDIATOR_PKG_NAME}
