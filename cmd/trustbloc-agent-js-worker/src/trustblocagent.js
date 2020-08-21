@@ -138,6 +138,16 @@ const TrustBlocAgent = function (opts) {
                 return invoke(aw, pending, this.pkgname, "SaveCredential", req, "timeout while saving credential")
             },
         },
+        /**
+         * PresentationClient methods
+         */
+        presentationclient: {
+            pkgname: "presentationclient",
+
+            savePresentation: async function (req) {
+                return invoke(aw, pending, this.pkgname, "SavePresentation", req, "timeout while saving presentation")
+            },
+        },
     }
 
     // start trustblocagent worker

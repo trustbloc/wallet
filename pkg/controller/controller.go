@@ -14,11 +14,12 @@ import (
 	"github.com/trustbloc/edge-agent/pkg/controller/command"
 	credentialclientcmd "github.com/trustbloc/edge-agent/pkg/controller/command/credentialclient"
 	didclientcmd "github.com/trustbloc/edge-agent/pkg/controller/command/didclient"
+	presentationclientcmd "github.com/trustbloc/edge-agent/pkg/controller/command/presentationclient"
+	"github.com/trustbloc/edge-agent/pkg/controller/command/sdscomm"
 )
 
 const (
-	failCreateDIDClientErrMsg        = "failure while creating new DID client: %w"
-	failCreateCredentialClientErrMsg = "failure while creating new credential client: %w"
+	failCreateSDSCommErrMsg = "failure while preparing SDS communication: %w"
 )
 
 var logger = log.New("edge-agent-didclient-controller")
@@ -62,21 +63,24 @@ func GetCommandHandlers(opts ...Opt) ([]command.Handler, error) {
 		opt(cmdOpts)
 	}
 
-	// did client command operation
-	didClientCmd, err := didclientcmd.New(cmdOpts.blocDomain, cmdOpts.sdsServerURL, cmdOpts.agentUsername)
+	sdsComm, err := sdscomm.New(cmdOpts.sdsServerURL, cmdOpts.agentUsername)
 	if err != nil {
-		return nil, fmt.Errorf(failCreateDIDClientErrMsg, err)
+		return nil, fmt.Errorf(failCreateSDSCommErrMsg, err)
 	}
 
+	// did client command operation
+	didClientCmd := didclientcmd.New(cmdOpts.blocDomain, sdsComm)
+
 	// credential client command operation
-	credentialClientCmd, err := credentialclientcmd.New(cmdOpts.sdsServerURL, cmdOpts.agentUsername)
-	if err != nil {
-		return nil, fmt.Errorf(failCreateCredentialClientErrMsg, err)
-	}
+	credentialClientCmd := credentialclientcmd.New(sdsComm)
+
+	// presentation client command operation
+	presentationClientCmd := presentationclientcmd.New(sdsComm)
 
 	var allHandlers []command.Handler
 	allHandlers = append(allHandlers, didClientCmd.GetHandlers()...)
 	allHandlers = append(allHandlers, credentialClientCmd.GetHandlers()...)
+	allHandlers = append(allHandlers, presentationClientCmd.GetHandlers()...)
 
 	return allHandlers, nil
 }

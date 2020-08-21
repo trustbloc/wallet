@@ -91,6 +91,28 @@ func (e *SDSComm) StoreCredential(credentialData *CredentialData) error {
 	return nil
 }
 
+func (e *SDSComm) StorePresentation(presentationData *PresentationData) error {
+	err := e.ensureVaultExists(e.getPresentationVaultID())
+	if err != nil {
+		return fmt.Errorf(failureEnsuringPresVaultExistsErrMsg, err)
+	}
+
+	structuredDoc := models.StructuredDocument{
+		ID: presentationData.Name,
+	}
+
+	structuredDoc.Content = make(map[string]interface{})
+
+	structuredDoc.Content["presentation"] = presentationData.Presentation
+
+	err = e.storeDocument(e.getPresentationVaultID(), presentationData.Name, &structuredDoc)
+	if err != nil {
+		return fmt.Errorf(failureStoringPresErrMsg, err)
+	}
+
+	return nil
+}
+
 func (e *SDSComm) ensureVaultExists(vaultID string) error {
 	_, err := e.sdsClient.CreateDataVault(&models.DataVaultConfiguration{ReferenceID: vaultID})
 	if err != nil {
@@ -114,6 +136,11 @@ func (e *SDSComm) getDIDVaultID() string {
 // TODO don't leak username to SDS: #265
 func (e *SDSComm) getCredentialVaultID() string {
 	return e.agentUsername + "_credentials"
+}
+
+// TODO don't leak username to SDS: #265
+func (e *SDSComm) getPresentationVaultID() string {
+	return e.agentUsername + "_presentations"
 }
 
 func (e *SDSComm) storeDocument(vaultID, friendlyName string, structuredDoc *models.StructuredDocument) error {
