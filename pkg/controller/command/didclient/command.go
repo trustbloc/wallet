@@ -40,9 +40,8 @@ const (
 	// CreateDIDErrorCode is typically a code for create did errors
 	CreateDIDErrorCode
 
-	failDecodeDIDDocDataErrMsg = "failed to decode DID data"
-	failCreateDIDVaultErrMsg   = "failed to create DID vault"
-	failStoreDIDDocErrMsg      = "failed to store DID document"
+	failDecodeDIDDocDataErrMsg = "failure while decoding DID data"
+	failStoreDIDDocErrMsg      = "failure while storing DID document in SDS"
 	failCreateSDSCommErrMsg    = "failure while preparing SDS communication"
 )
 
@@ -141,9 +140,9 @@ func (c *Command) SaveDID(_ io.Writer, req io.Reader) command.Error {
 			fmt.Errorf("%s: %w", failDecodeDIDDocDataErrMsg, err))
 	}
 
-	saveDIDErr := c.saveDID(&didDataToStore)
-	if saveDIDErr != nil {
-		return saveDIDErr
+	errSaveDID := c.saveDID(&didDataToStore)
+	if errSaveDID != nil {
+		return errSaveDID
 	}
 
 	return nil
@@ -154,15 +153,6 @@ func (c *Command) saveDID(didDataToStore *sdscomm.DIDDocData) command.Error {
 	if err != nil {
 		return command.NewValidationError(InvalidRequestErrorCode,
 			fmt.Errorf("%s: %w", failCreateSDSCommErrMsg, err))
-	}
-
-	err = sdsComm.CreateDIDVault()
-	if err != nil {
-		logutil.LogInfo(logger, commandName, saveDIDCommandMethod,
-			fmt.Sprintf("%s: %s", failCreateDIDVaultErrMsg, err.Error()))
-
-		return command.NewValidationError(InvalidRequestErrorCode,
-			fmt.Errorf("%s: %w", failCreateDIDVaultErrMsg, err))
 	}
 
 	err = sdsComm.StoreDIDDocument(didDataToStore)

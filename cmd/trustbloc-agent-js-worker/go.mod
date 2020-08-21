@@ -11,7 +11,7 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/stretchr/testify v1.5.1
 	github.com/trustbloc/edge-agent v0.0.0
-	github.com/trustbloc/edge-core v0.1.4-0.20200709143857-e104bb29f6c6
+	github.com/trustbloc/edge-core v0.1.4-0.20200814194611-5f3b95f18b63
 )
 
 replace github.com/trustbloc/edge-agent => ../../

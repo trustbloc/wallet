@@ -128,6 +128,16 @@ const TrustBlocAgent = function (opts) {
                 return invoke(aw, pending, this.pkgname, "SaveDID", req, "timeout while saving did")
             },
         },
+        /**
+         * CredentialClient methods
+         */
+        credentialclient: {
+            pkgname: "credentialclient",
+
+            saveCredential: async function (req) {
+                return invoke(aw, pending, this.pkgname, "SaveCredential", req, "timeout while saving credential")
+            },
+        },
     }
 
     // start trustblocagent worker

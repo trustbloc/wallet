@@ -6,20 +6,18 @@ SPDX-License-Identifier: Apache-2.0
 package sdscomm
 
 import (
-	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/btcsuite/btcutil/base58"
+	"github.com/trustbloc/edv/pkg/edvutils"
+
 	"github.com/trustbloc/edge-core/pkg/log"
 	sdsclient "github.com/trustbloc/edv/pkg/client"
 	"github.com/trustbloc/edv/pkg/restapi/messages"
 	"github.com/trustbloc/edv/pkg/restapi/models"
 )
-
-const sdsVaultIDLen = 16
 
 var logger = log.New("edge-agent-sdscomm")
 
@@ -30,12 +28,6 @@ type SDSComm struct {
 	sdsServerURL  string
 	agentUsername string
 	sdsClient     *sdsclient.Client
-}
-
-type DIDDocData struct {
-	DID      json.RawMessage `json:"did,omitempty"`
-	SignType string          `json:"signType,omitempty"`
-	Name     string          `json:"name,omitempty"`
 }
 
 func New(sdsServerURL, agentUsername string) (*SDSComm, error) {
@@ -54,23 +46,12 @@ func New(sdsServerURL, agentUsername string) (*SDSComm, error) {
 	}, nil
 }
 
-// CreateDIDVault creates the user's DID vault if it doesn't exist.
-func (e *SDSComm) CreateDIDVault() error {
-	didVaultID := e.GetDIDVaultID()
-
-	_, err := e.sdsClient.CreateDataVault(&models.DataVaultConfiguration{ReferenceID: didVaultID})
+func (e *SDSComm) StoreDIDDocument(didData *DIDDocData) error {
+	err := e.ensureVaultExists(e.getDIDVaultID())
 	if err != nil {
-		if !strings.Contains(err.Error(), messages.ErrDuplicateVault.Error()) {
-			return err
-		}
-
-		logger.Debugf("%s vault already exists. Skipping vault creation.", didVaultID)
+		return fmt.Errorf(failureEnsuringDIDVaultExistsErrMsg, err)
 	}
 
-	return nil
-}
-
-func (e *SDSComm) StoreDIDDocument(didData *DIDDocData) error {
 	structuredDoc := models.StructuredDocument{
 		ID: didData.Name,
 	}
@@ -80,14 +61,70 @@ func (e *SDSComm) StoreDIDDocument(didData *DIDDocData) error {
 	structuredDoc.Content["didDoc"] = didData.DID
 	structuredDoc.Content["signType"] = didData.SignType
 
-	encryptedDocID, err := generateSDSCompatibleID()
+	err = e.storeDocument(e.getDIDVaultID(), didData.Name, &structuredDoc)
 	if err != nil {
-		return fmt.Errorf("failed to generate encrypted doc ID: %w", err)
+		return fmt.Errorf(failureStoringDIDDocErrMsg, err)
+	}
+
+	return nil
+}
+
+func (e *SDSComm) StoreCredential(credentialData *CredentialData) error {
+	err := e.ensureVaultExists(e.getCredentialVaultID())
+	if err != nil {
+		return fmt.Errorf(failureEnsuringCredVaultExistsErrMsg, err)
+	}
+
+	structuredDoc := models.StructuredDocument{
+		ID: credentialData.Name,
+	}
+
+	structuredDoc.Content = make(map[string]interface{})
+
+	structuredDoc.Content["credential"] = credentialData.Credential
+
+	err = e.storeDocument(e.getCredentialVaultID(), credentialData.Name, &structuredDoc)
+	if err != nil {
+		return fmt.Errorf(failureStoringCredErrMsg, err)
+	}
+
+	return nil
+}
+
+func (e *SDSComm) ensureVaultExists(vaultID string) error {
+	_, err := e.sdsClient.CreateDataVault(&models.DataVaultConfiguration{ReferenceID: vaultID})
+	if err != nil {
+		if !strings.Contains(err.Error(), messages.ErrDuplicateVault.Error()) {
+			return fmt.Errorf(unexpectedErrorOnCreateVaultCall, err)
+		}
+
+		logger.Debugf(vaultAlreadyExistsLogMsg, vaultID)
+	} else {
+		logger.Debugf(newVaultCreatedLogMsg, vaultID)
+	}
+
+	return nil
+}
+
+// TODO don't leak username to SDS: #265
+func (e *SDSComm) getDIDVaultID() string {
+	return e.agentUsername + "_dids"
+}
+
+// TODO don't leak username to SDS: #265
+func (e *SDSComm) getCredentialVaultID() string {
+	return e.agentUsername + "_credentials"
+}
+
+func (e *SDSComm) storeDocument(vaultID, friendlyName string, structuredDoc *models.StructuredDocument) error {
+	encryptedDocID, err := edvutils.GenerateEDVCompatibleID()
+	if err != nil {
+		return fmt.Errorf(failureGeneratingEncryptedDocIDErrMsg, err)
 	}
 
 	indexedAttribute := models.IndexedAttribute{
 		Name:   "FriendlyName",
-		Value:  didData.Name, //TODO Don't leak friendly name to SDS #265
+		Value:  friendlyName, //TODO Don't leak friendly name to SDS #265
 		Unique: true,
 	}
 
@@ -98,6 +135,9 @@ func (e *SDSComm) StoreDIDDocument(didData *DIDDocData) error {
 	indexedAttributeCollections := []models.IndexedAttributeCollection{indexedAttributeCollection}
 
 	structuredDocBytes, err := json.Marshal(structuredDoc)
+	if err != nil {
+		return fmt.Errorf(failureMarshallingStructuredDocErrMsg, err)
+	}
 
 	// TODO encrypt data before storing in SDS #267
 	encryptedDoc := models.EncryptedDocument{
@@ -107,28 +147,10 @@ func (e *SDSComm) StoreDIDDocument(didData *DIDDocData) error {
 		JWE:                         structuredDocBytes,
 	}
 
-	_, err = e.sdsClient.CreateDocument(e.GetDIDVaultID(), &encryptedDoc)
+	_, err = e.sdsClient.CreateDocument(vaultID, &encryptedDoc)
 	if err != nil {
-		return fmt.Errorf("failed to store DID document: %w", err)
+		return fmt.Errorf(failureStoringDocErrMsg, err)
 	}
 
 	return nil
-}
-
-// TODO don't leak username to SDS: #265
-func (e *SDSComm) GetDIDVaultID() string {
-	return e.agentUsername + "_dids"
-}
-
-func generateSDSCompatibleID() (string, error) {
-	randomBytes := make([]byte, sdsVaultIDLen)
-
-	_, err := rand.Read(randomBytes)
-	if err != nil {
-		return "", err
-	}
-
-	base58EncodedUUID := base58.Encode(randomBytes)
-
-	return base58EncodedUUID, nil
 }
