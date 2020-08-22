@@ -87,12 +87,15 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
   import VueJsonPretty from 'vue-json-pretty';
+  import {WalletStore} from "@/pages/chapi/wallet";
   export default {
     components: {
       VueJsonPretty
     },
     beforeCreate: async function () {
       this.aries = await this.$arieslib
+      const opts = await this.$trustblocStartupOpts
+      this.wallet = new WalletStore(this.aries, this.$trustblocAgent, opts, null)
       await this.loadIssuers()
       // Load the Credentials in the drop down
       await this.aries.verifiable.getCredentials()
@@ -201,6 +204,8 @@ SPDX-License-Identifier: Apache-2.0
                    console.log('failed to save presentation, errMsg:', err)
               }
            )
+
+          await this.wallet.savePresentation(this.friendlyName, this.vpData)
 
           // Generate QR code
           let QRCode = require('qrcode')

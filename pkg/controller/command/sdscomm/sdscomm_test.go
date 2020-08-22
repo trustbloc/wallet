@@ -86,6 +86,33 @@ func TestSDSComm_StoreCredential(t *testing.T) {
 	})
 }
 
+func TestSDSComm_StorePresentation(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		sdsSrv := newTestEDVServer(t)
+		defer sdsSrv.Close()
+
+		sdsComm, err := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "AgentUsername")
+		require.NoError(t, err)
+
+		err = sdsComm.ensureVaultExists(sdsComm.getPresentationVaultID())
+		require.NoError(t, err)
+
+		samplePresentationData := PresentationData{}
+
+		err = sdsComm.StorePresentation(&samplePresentationData)
+		require.NoError(t, err)
+	})
+	t.Run("SDS server unreachable (bad SDS server URL)", func(t *testing.T) {
+		sdsComm, err := New("BadURL", "AgentUsername")
+		require.NoError(t, err)
+
+		err = sdsComm.StorePresentation(nil)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), `unexpected error during the "create vault" call to SDS: `+
+			`failed to send POST request:`)
+	})
+}
+
 func newTestEDVServer(t *testing.T) *httptest.Server {
 	edvService, err := restapi.New(memedvprovider.NewProvider())
 	require.NoError(t, err)

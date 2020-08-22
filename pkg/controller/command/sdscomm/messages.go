@@ -10,9 +10,11 @@ package sdscomm
 const (
 	failureEnsuringDIDVaultExistsErrMsg   = "failure while ensuring that the user's DID vault exists: %w"
 	failureEnsuringCredVaultExistsErrMsg  = "failure while ensuring that the user's credential vault exists: %w"
+	failureEnsuringPresVaultExistsErrMsg  = "failure while ensuring that the user's presentation vault exists: %w"
 	unexpectedErrorOnCreateVaultCall      = `unexpected error during the "create vault" call to SDS: %w`
 	failureStoringDIDDocErrMsg            = "failure while storing DID document: %w"
 	failureStoringCredErrMsg              = "failure while storing credential: %w"
+	failureStoringPresErrMsg              = "failure while storing presentation: %w"
 	failureGeneratingEncryptedDocIDErrMsg = "failure while generating encrypted document ID: %w"
 	failureMarshallingStructuredDocErrMsg = "failure while marshalling structured document: %w"
 	failureStoringDocErrMsg               = "failed to store document: %w"

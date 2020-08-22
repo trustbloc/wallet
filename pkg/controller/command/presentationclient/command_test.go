@@ -3,7 +3,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package credentialclient
+package presentationclient
 
 import (
 	"bytes"
@@ -28,14 +28,14 @@ func TestNew(t *testing.T) {
 	})
 }
 
-func TestCommand_SaveCredential(t *testing.T) {
+func TestCommand_SavePresentation(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		sdsSrv := newTestEDVServer(t)
 		defer sdsSrv.Close()
 
-		sampleCredentialData := sdscomm.CredentialData{}
+		samplePresentationData := sdscomm.PresentationData{}
 
-		credentialDataBytes, err := json.Marshal(sampleCredentialData)
+		presentationDataBytes, err := json.Marshal(samplePresentationData)
 		require.NoError(t, err)
 
 		sdsComm, err := sdscomm.New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL),
@@ -43,27 +43,27 @@ func TestCommand_SaveCredential(t *testing.T) {
 		require.NoError(t, err)
 
 		cmd := New(sdsComm)
-		cmdErr := cmd.SaveCredential(nil, bytes.NewBuffer(credentialDataBytes))
+		cmdErr := cmd.SavePresentation(nil, bytes.NewBuffer(presentationDataBytes))
 		require.NoError(t, cmdErr)
 	})
 	t.Run("Fail to unmarshal - invalid DIDDocData", func(t *testing.T) {
 		cmd := New(&sdscomm.SDSComm{})
-		cmdErr := cmd.SaveCredential(nil, bytes.NewBuffer([]byte("")))
-		require.Contains(t, cmdErr.Error(), failDecodeCredentialDocDataErrMsg)
+		cmdErr := cmd.SavePresentation(nil, bytes.NewBuffer([]byte("")))
+		require.Contains(t, cmdErr.Error(), failDecodePresentationDocDataErrMsg)
 	})
-	t.Run("Fail to save credential - bad SDS server URL", func(t *testing.T) {
+	t.Run("Fail to save presentation - bad SDS server URL", func(t *testing.T) {
 		sdsComm, err := sdscomm.New("BadURL", "AgentUsername")
 		require.NoError(t, err)
 		cmd := New(sdsComm)
 
-		sampleCredentialData := sdscomm.CredentialData{}
+		samplePresentationData := sdscomm.PresentationData{}
 
-		credentialDataBytes, err := json.Marshal(sampleCredentialData)
+		presentationDataBytes, err := json.Marshal(samplePresentationData)
 		require.NoError(t, err)
 
-		cmdErr := cmd.SaveCredential(nil, bytes.NewBuffer(credentialDataBytes))
-		require.Contains(t, cmdErr.Error(), `failure while storing credential in SDS: `+
-			`failure while ensuring that the user's credential vault exists: unexpected error during `+
+		cmdErr := cmd.SavePresentation(nil, bytes.NewBuffer(presentationDataBytes))
+		require.Contains(t, cmdErr.Error(), `failure while storing presentation in SDS: `+
+			`failure while ensuring that the user's presentation vault exists: unexpected error during `+
 			`the "create vault" call to SDS: failed to send POST request:`)
 	})
 }

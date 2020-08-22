@@ -76,6 +76,16 @@ export class WalletStore {
 
     }
 
+    async savePresentation(name, presentation) {
+        const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
+
+        // Save presentation to persistent storage
+        await t.presentationclient.savePresentation({
+            name: name,
+            credential: presentation
+        })
+    }
+
     cancel() {
         this.credEvent.respondWith(new Promise(function (resolve) {
             return resolve({

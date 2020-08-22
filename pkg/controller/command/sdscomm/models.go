@@ -18,3 +18,8 @@ type CredentialData struct {
 	Name       string          `json:"name,omitempty"`
 	Credential json.RawMessage `json:"credential,omitempty"`
 }
+
+type PresentationData struct {
+	Name         string          `json:"name,omitempty"`
+	Presentation json.RawMessage `json:"presentation,omitempty"`
+}
