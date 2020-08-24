@@ -82,7 +82,7 @@ export class WalletStore {
         // Save presentation to persistent storage
         await t.presentationclient.savePresentation({
             name: name,
-            credential: presentation
+            presentation: presentation
         })
     }
 
