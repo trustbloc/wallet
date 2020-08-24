@@ -67,7 +67,7 @@ let defaultTrustBlocStartupOpts = {
     assetsPath: '/trustbloc-agent/assets',
     blocDomain: 'testnet.trustbloc.local',
     'log-level': 'debug',
-    walletMediatorURL: '',
+    walletMediatorURL: 'https://localhost:10063',
     credentialMediatorURL: '',
     agentUsername: 'user-agent',
     sdsServerURL: 'https://localhost:8072/encrypted-data-vaults'

@@ -349,7 +349,7 @@ const didConnQueryWithManifest = {
         VerifiablePresentation: {
             query: {type: "DIDConnect"},
             invitation,
-            manifest,
+            credentials: [manifest, prc, udc],
             challenge: uuid(),
             domain: "example.com"
         }
