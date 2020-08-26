@@ -96,4 +96,12 @@ SPDX-License-Identifier: Apache-2.0
         line-height: 20px !important;
     }
 
+    .viewport {
+        font-size: 16px !important;
+    }
+
+    .center-span {
+        text-align: center !important;
+    }
+
 </style>
