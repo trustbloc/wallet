@@ -64,11 +64,12 @@ describe('store a credential in wallet', () => {
         expect(wrapper.vm.subject).to.equal("StudentCard")
         expect(wrapper.vm.issuer).to.equal("did:trustbloc:testnet.trustbloc.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw")
         expect(wrapper.vm.issuance).to.deep.equal(new Date("2020-05-27T20:36:05.301Z"))
-        expect(wrapper.vm.friendlyName).to.equal("")
+        expect(wrapper.vm.friendlyName).to.equal(wrapper.vm.subject.concat(' ', wrapper.vm.issuance))
         expect(wrapper.vm.credData).to.equal(studentCardToStore)
     })
 
     it('friendly name is mandatory while storing credential', async () => {
+        wrapper.setData({friendlyName: ""})
         wrapper.find("#storeVCBtn").trigger('click')
         await Vue.nextTick()
 
@@ -116,7 +117,7 @@ describe('store a credential in wallet with existing friendly name', () => {
         expect(wrapper.vm.subject).to.equal("StudentCard")
         expect(wrapper.vm.issuer).to.equal("did:trustbloc:testnet.trustbloc.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw")
         expect(wrapper.vm.issuance).to.deep.equal(new Date("2020-05-27T20:36:05.301Z"))
-        expect(wrapper.vm.friendlyName).to.equal("")
+        expect(wrapper.vm.friendlyName).to.equal(wrapper.vm.subject.concat(' ', wrapper.vm.issuance))
         expect(wrapper.vm.credData).to.equal(studentCardToStore)
     })
 
@@ -159,11 +160,12 @@ describe('store multiple credentials in wallet', () => {
         expect(wrapper.vm.subject).to.equal("StudentCard,UniversityDegreeCredential")
         expect(wrapper.vm.issuer).to.equal("did:trustbloc:testnet.trustbloc.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw,did:trustbloc:testnet.trustbloc.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw")
         expect(wrapper.vm.issuance).to.deep.equal(new Date("2020-05-28T21:16:57.780923246Z"))
-        expect(wrapper.vm.friendlyName).to.equal("")
+        expect(wrapper.vm.friendlyName).to.equal(wrapper.vm.subject.concat(' ', wrapper.vm.issuance))
         expect(wrapper.vm.credData).to.equal(studentCardAndDegreeToStore)
     })
 
     it('friendly name is mandatory while storing credential', async () => {
+        wrapper.setData({friendlyName: ""})
         wrapper.find("#storeVCBtn").trigger('click')
         await Vue.nextTick()
 
