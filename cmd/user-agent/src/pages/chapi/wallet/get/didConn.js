@@ -10,6 +10,8 @@ import {DIDExchange} from '../common/didExchange'
 import {getCredentialType} from "..";
 
 const manifestCredType = "IssuerManifestCredential"
+//TODO actual credential type to be updated here
+const governanceCredType = "GovernanceCredential"
 
 var uuid = require('uuid/v4')
 
@@ -32,6 +34,11 @@ export class DIDConn {
         this.challenge = challenge
         this.invitation = invitation
         this.credentials = credentials
+    }
+
+    getUserCredentials() {
+        return this.credentials ?
+            this.credentials.filter(c => ![manifestCredType, governanceCredType].includes(getCredentialType(c.type))) : []
     }
 
     async connect() {

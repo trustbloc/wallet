@@ -16,14 +16,12 @@ SPDX-License-Identifier: Apache-2.0
     <div v-else class="md-layout">
         <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
 
-
-            <!-- TODO : show credentials beings sent along with didconnect request -->
             <md-card class="md-card-plain">
-                <md-card-header data-background-color="green">
-                    <h4 class="title">Wallet Connection</h4>
+                <md-card-header>
+                    <h4 class="title">Connect your wallet</h4>
                 </md-card-header>
 
-                <md-card-content v-if="!credentialWarning.length" style="background-color: white;">
+                <md-card-content v-if="!credentialWarning.length" style="background-color: white; ">
                     <div v-if="errors.length">
                         <b>Failed with following error(s):</b>
                         <ul>
@@ -31,19 +29,40 @@ SPDX-License-Identifier: Apache-2.0
                         </ul>
                     </div>
 
-                    <h3 style="font-size: 20px"> Hi {{ this.walletUser.id }},</h3>
-                    <h3 style="font-size: 20px"><span style="color: #0E9A00">{{ requestOrigin }}</span> would like to
-                        connect to your wallet
-                    </h3>
+                    <md-card-content class="viewport">
+                        <p class="viewport"> Hello {{ this.walletUser.id }},</p>
+                            <span style="color: #0E9A00">{{ requestOrigin }}</span> would like to
+                        connect to your wallet for secured communication.
+                    </md-card-content>
 
-                    <md-button v-on:click="connect" style="margin-right: 5px; margin-left: 25%"
-                               class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
-                               id="didconnect">Allow
-                    </md-button>
+                    <md-card-content v-if="userCredentials.length" class="viewport">
+                        Here are the credentials being sent to your wallet,
 
-                    <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn" style="margin-left: 5px">
-                        Deny
-                    </md-button>
+                        <md-list class="md-double-line">
+                            <md-list-item v-for="credential in userCredentials" :key="credential">
+                                <md-icon class="md-primary md-size-2x" >perm_identity</md-icon>
+
+                                <div class="md-list-item-text">
+                                    <span>{{credential.name ? credential.name : 'Credential name not provided'}}</span>
+                                    <span>{{credential.description}}</span>
+                                </div>
+
+
+                            </md-list-item>
+                        </md-list>
+                    </md-card-content>
+
+                    <md-divider></md-divider>
+
+                    <md-card-content class="center-span">
+                        <md-button v-on:click="connect"
+                                   class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
+                                   id="didconnect">{{buttonLabel}}
+                        </md-button>
+                        <md-button v-on:click="cancel" style="margin-left: 5%" class="md-cancel-text" id="cancelBtn">
+                            Cancel
+                        </md-button>
+                    </md-card-content>
 
                 </md-card-content>
 
@@ -73,9 +92,12 @@ SPDX-License-Identifier: Apache-2.0
                 this.credentialWarning = 'Wallet is not registered'
             }
 
-            this.wallet = new DIDConn(await this.$arieslib,  await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts),
+            this.wallet = new DIDConn(await this.$arieslib, await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts),
                 this.$parent.credentialEvent, this.walletUser)
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
+            this.userCredentials = this.wallet.getUserCredentials()
+            this.buttonLabel =  this.userCredentials.length > 0 ? 'Store & Connect' : 'Connect'
+
             this.loading = false
         },
         data() {
@@ -84,6 +106,8 @@ SPDX-License-Identifier: Apache-2.0
                 requestOrigin: "",
                 loading: true,
                 credentialWarning: "",
+                userCredentials: [],
+                buttonLabel : "Connect",
             };
         },
         methods: {
