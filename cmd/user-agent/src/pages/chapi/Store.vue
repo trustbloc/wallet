@@ -57,13 +57,18 @@ SPDX-License-Identifier: Apache-2.0
                                         <li v-for="error in errors" :key="error">{{ error }}</li>
                                     </ul>
                                 </div>
-
-                                <div class="md-layout-item md-size-100 text-center">
-                                    <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn">Cancel
-                                    </md-button>
-                                    <md-button v-on:click="store" class="md-raised md-success" id="storeVCBtn"
-                                               :disabled=isDisabled>Confirm
-                                    </md-button>
+                                <div class="md-layout md-gutter">
+                                <div class="md-layout-item md-layout md-gutter">
+                                    <div class="md-layout-item md-size-80">
+                                        <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn">Cancel
+                                        </md-button>
+                                    </div>
+                                    <div class="md-layout-item md-size-20">
+                                        <md-button v-on:click="store" class="md-raised md-success" id="storeVCBtn"
+                                                                           :disabled=isDisabled>Confirm
+                                         </md-button>
+                                    </div>
+                                  </div>
                                 </div>
                             </div>
                         </md-card-content>
@@ -124,6 +129,7 @@ SPDX-License-Identifier: Apache-2.0
                 this.issuance = issuance
                 this.issuer = issuer
                 this.subject = subject
+                this.friendlyName = subject.concat(' ', issuance)
             },
             store: async function () {
                 this.errors.length = 0
