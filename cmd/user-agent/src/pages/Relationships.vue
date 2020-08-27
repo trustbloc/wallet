@@ -5,10 +5,13 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-  <div class="content">
+  <div class="content relationships">
     <mediator v-if="!isMediatorRegistered" title="Please, set up a mediator to proceed with this page!"/>
     <div class="md-layout" v-if="isMediatorRegistered">
       <div class="md-layout-item">
+        <div class="md-layout-item" v-if="allCredentialsCount">
+          <associated-credentials title="Associated credentials" :credentials="allCredentials"/>
+        </div>
         <div class="md-layout-item">
           <public-invitation/>
         </div>
@@ -30,15 +33,15 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import {mapGetters, mapActions} from 'vuex'
-import {Mediator, PublicInvitation, ReceiveInvitation, Connections} from "@/components";
+import {Mediator, PublicInvitation, ReceiveInvitation, Connections, AssociatedCredentials} from "@/components";
 
 export default {
-  components: {Mediator, PublicInvitation, ReceiveInvitation, Connections},
+  components: {Mediator, PublicInvitation, ReceiveInvitation, Connections, AssociatedCredentials},
   methods: mapActions(['queryConnections']),
   computed: mapGetters([
     'pendingConnections', 'completedConnections',
     'pendingConnectionsCount', 'completedConnectionsCount',
-    'isMediatorRegistered'
+    'isMediatorRegistered', 'allCredentials', 'allCredentialsCount'
   ]),
   mounted() {
     // refreshes connections when component is mounted
@@ -46,3 +49,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.relationships .md-list.md-triple-line .md-list-item-content {
+  min-height: 30px !important;
+}
+</style>

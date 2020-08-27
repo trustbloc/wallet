@@ -26,6 +26,9 @@ import CopyButton from "./CopyButton/CopyButton";
 // Connections
 import Connections from "./Connections/Connections";
 
+// AssociatedCredentials
+import AssociatedCredentials from "./AssociatedCredentials/AssociatedCredentials";
+
 export {
     StatsCard,
     SimpleTable,
@@ -35,4 +38,5 @@ export {
     ReceiveInvitation,
     CopyButton,
     Connections,
+    AssociatedCredentials,
 };

@@ -13,6 +13,7 @@ export default {
             await dispatch('loadMode')
             await dispatch('loadMediatorState')
             await dispatch('queryConnections')
+            await dispatch('getCredentials')
 
             let mediatorURL = opts.trustbloc['walletMediatorURL']
             if (mediatorURL && !getters.isDevMode) {

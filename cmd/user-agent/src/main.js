@@ -118,7 +118,7 @@ new Vue({
     data: () => ({
         loaded: false,
     }),
-    methods: mapActions(['initStore', 'onDidExchangeState']),
+    methods: mapActions(['initStore', 'onDidExchangeState', 'onIssueCredentialState']),
     mounted: async function () {
         // gets aries options
         let ariesOpts = await ariesStartupOpts()
@@ -132,6 +132,8 @@ new Vue({
 
         // registers listener which will update connections
         window.$aries.startNotifier(this.onDidExchangeState, ["didexchange_states"])
+        // registers listener which will update credentials
+        window.$aries.startNotifier(this.onIssueCredentialState, ["issue-credential_states"])
         // inits storage
         await this.initStore({aries: ariesOpts, trustbloc: trustblocOpts})
         // removes spinner
