@@ -35,7 +35,7 @@ export default {
             })
 
             // sets connections
-            commit('updateCredentials', res.result.filter(conn => conn.label !== ""))
+            commit('updateCredentials', res.result.filter(v => v.label))
 
             return res.result
         },
