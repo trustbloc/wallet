@@ -21,11 +21,11 @@ var uuid = require('uuid/v4')
  * @class
  */
 export class DIDConn {
-    constructor(aries, trustblocAgent, credEvent, walletUser) {
+    constructor(aries, trustblocAgent, trustblocStartupOpts, credEvent, walletUser) {
         this.aries = aries
         this.walletUser = walletUser
         this.walletManager = new WalletManager()
-        this.walletStore = new WalletStore(aries, trustblocAgent, credEvent)
+        this.walletStore = new WalletStore(aries, trustblocAgent, trustblocStartupOpts, credEvent)
         this.exchange = new DIDExchange(aries)
         this.credEvent = credEvent
 

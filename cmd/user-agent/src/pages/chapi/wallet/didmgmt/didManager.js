@@ -97,14 +97,18 @@ export class DIDManager extends KeyValueStore {
             }
         )
 
-        const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
+        if (this.trustblocStartupOpts.sdsServerURL) {
+            const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
 
-        // Save DID to persistent storage
-        await t.didclient.saveDID({
-            name: name,
-            signType: signType,
-            did: did
-        })
+            // Save DID to persistent storage
+            await t.didclient.saveDID({
+                name: name,
+                signType: signType,
+                did: did
+            })
+        } else {
+            console.log("Skipping DID storage to SDS since no SDS server URL was configured.")
+        }
     }
 
     async getAllDIDMetadata() {

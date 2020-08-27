@@ -92,7 +92,8 @@ SPDX-License-Identifier: Apache-2.0
                 this.credentialWarning = 'Wallet is not registered'
             }
 
-            this.wallet = new DIDConn(await this.$arieslib, await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts),
+            this.wallet = new DIDConn(await this.$arieslib,
+                await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts), this.$trustblocStartupOpts,
                 this.$parent.credentialEvent, this.walletUser)
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
             this.userCredentials = this.wallet.getUserCredentials()

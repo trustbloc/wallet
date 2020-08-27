@@ -7,8 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package controller
 
 import (
-	"fmt"
-
 	"github.com/trustbloc/edge-core/pkg/log"
 
 	"github.com/trustbloc/edge-agent/pkg/controller/command"
@@ -16,10 +14,6 @@ import (
 	didclientcmd "github.com/trustbloc/edge-agent/pkg/controller/command/didclient"
 	presentationclientcmd "github.com/trustbloc/edge-agent/pkg/controller/command/presentationclient"
 	"github.com/trustbloc/edge-agent/pkg/controller/command/sdscomm"
-)
-
-const (
-	failCreateSDSCommErrMsg = "failure while preparing SDS communication: %w"
 )
 
 var logger = log.New("edge-agent-didclient-controller")
@@ -63,10 +57,7 @@ func GetCommandHandlers(opts ...Opt) ([]command.Handler, error) {
 		opt(cmdOpts)
 	}
 
-	sdsComm, err := sdscomm.New(cmdOpts.sdsServerURL, cmdOpts.agentUsername)
-	if err != nil {
-		return nil, fmt.Errorf(failCreateSDSCommErrMsg, err)
-	}
+	sdsComm := sdscomm.New(cmdOpts.sdsServerURL, cmdOpts.agentUsername)
 
 	// did client command operation
 	didClientCmd := didclientcmd.New(cmdOpts.blocDomain, sdsComm)
