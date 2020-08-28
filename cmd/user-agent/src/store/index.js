@@ -11,9 +11,10 @@ import mode from './modules/mode'
 import init from './modules/init'
 import mediator from './modules/mediator'
 import credentials from './modules/credentials'
+import presentation from './modules/presentation'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-    modules: {init, connections, mode, mediator, credentials}
+    modules: {init, connections, mode, mediator, credentials, presentation}
 })
