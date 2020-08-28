@@ -126,3 +126,6 @@ export async function waitForNotification(aries, topics, eventType, callback, ti
         }, timeout ? timeout : 10000)
     })
 }
+
+export const filterCredentialsByType = (creds, types, include) =>
+    creds.filter(c => include ? types.includes(getCredentialType(c.type)) : !types.includes(getCredentialType(c.type)))

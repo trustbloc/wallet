@@ -64,26 +64,54 @@ SPDX-License-Identifier: Apache-2.0
 
 
             <div v-if="!credentialWarning.length">
-                <div>
-                    <h4 class="md-subheading" id="result-header">
+                <div v-if="credsFound">
+                    <p id="result-header-1">
                         <md-icon style="color: #0E9A00; height: 40px;font-size: 20px !important;">done</md-icon>
-                        Found {{ vcsFound.length}} credentials matching above criteria,
-                    </h4>
+                        Found {{ credsFound}} stored credential{{credsFound > 1 ? 's' : ''}} matching
+                        above criteria in your wallet,
+                    </p>
+
+                    <md-list class="md-triple-line" style="margin-top: -10px">
+                        <div v-for="(vc, key) in vcsFound" :key="key">
+                            <md-list-item v-if="!isManifest(vc)">
+                                <md-icon class="md-primary md-size-2x">perm_identity</md-icon>
+
+                                <div class="md-list-item-text">
+                                    <span>{{vc.name}}</span>
+                                    <div class="md-subhead">{{vc.description}}</div>
+                                </div>
+
+                                <md-checkbox v-model="selectedVCs[key]" v-bind:id="'select-vc-' + key"></md-checkbox>
+                            </md-list-item>
+                        </div>
+                    </md-list>
                 </div>
 
-                <md-list class="md-triple-line" style="margin-top: -10px">
-                    <md-list-item v-for="(vc, key) in vcsFound" :key="key">
-                        <md-icon style="font-size: 50px !important;">security</md-icon>
 
-                        <div class="md-list-item-text">
-                            <span>{{vc.name}}</span>
-                            <div class="md-subhead">{{vc.description}}</div>
+                <div v-if="credsFound && issuersFound" style="margin: 30px"></div>
+
+                <div v-if="issuersFound">
+                    <p id="result-header-2">
+                        <md-icon style="color: #0E9A00; height: 40px;font-size: 20px !important;">done</md-icon>
+                        Found {{ issuersFound}} issuer{{issuersFound > 1 ? 's' : ''}} who can issue
+                        credentials matching above criteria in your wallet,
+                    </p>
+
+                    <md-list class="md-triple-line" style="margin-top: -10px">
+                        <div v-for="(vc, key) in vcsFound" :key="key">
+                            <md-list-item v-if="isManifest(vc)">
+                                <md-icon class="md-primary md-size-2x">security</md-icon>
+
+                                <div class="md-list-item-text">
+                                    <span>{{vc.name}}</span>
+                                    <div class="md-subhead">{{vc.description}}</div>
+                                </div>
+
+                                <md-checkbox v-model="selectedVCs[key]" v-bind:id="'select-vc-' + key"></md-checkbox>
+                            </md-list-item>
                         </div>
-
-                        <md-checkbox v-model="selectedVCs[key]" v-bind:id="'select-vc-' + key"></md-checkbox>
-                    </md-list-item>
-
-                </md-list>
+                    </md-list>
+                </div>
 
 
                 <div style="margin-left: 30%; margin-top: 5px">
@@ -103,7 +131,7 @@ SPDX-License-Identifier: Apache-2.0
                             md-icon="devices_other"
                             md-label="No credentials found"
                             :md-description="credentialWarning">
-                        <md-button class="md-primary md-raised" v-on:click="noCredential" >Close</md-button>
+                        <md-button class="md-primary md-raised" v-on:click="noCredential">Close</md-button>
                     </md-empty-state>
                 </div>
             </div>
@@ -113,9 +141,10 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 
-    import {WalletGetByQuery, WalletManager} from "./wallet"
+    import {filterCredentialsByType, getCredentialType, WalletGetByQuery, WalletManager} from "./wallet"
 
     const warning = "No credentials found in your wallet for above information asked"
+    const manifestCredType = 'IssuerManifestCredential'
 
     export default {
         beforeCreate: async function () {
@@ -144,10 +173,17 @@ SPDX-License-Identifier: Apache-2.0
             this.presentation.verifiableCredential.forEach(function (vc) {
                 vcsFound.push(vc)
             })
-            this.vcsFound = vcsFound
-            this.credentialWarning = vcsFound.length == 0 ? warning : ""
 
             this.loading = false
+
+            if (vcsFound.length == 0) {
+                this.credentialWarning = warning
+                return
+            }
+
+            this.vcsFound = vcsFound
+            this.credsFound = filterCredentialsByType(vcsFound, [manifestCredType]).length
+            this.issuersFound = filterCredentialsByType(vcsFound, [manifestCredType], true).length
         },
         data() {
             return {
@@ -171,8 +207,11 @@ SPDX-License-Identifier: Apache-2.0
             cancel: async function () {
                 this.wallet.cancel()
             },
-            noCredential:async function () {
+            noCredential: async function () {
                 this.wallet.sendNoCredntials()
+            },
+            isManifest(vc) {
+                return getCredentialType(vc.type) == manifestCredType
             }
         },
         computed: {

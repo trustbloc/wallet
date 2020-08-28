@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 import {WalletManager} from '../register/walletManager'
 import {WalletStore} from '../store/saveCredential'
 import {DIDExchange} from '../common/didExchange'
-import {getCredentialType} from "..";
+import {getCredentialType, filterCredentialsByType} from "..";
 
 const manifestCredType = "IssuerManifestCredential"
 //TODO actual credential type to be updated here
@@ -37,8 +37,7 @@ export class DIDConn {
     }
 
     getUserCredentials() {
-        return this.credentials ?
-            this.credentials.filter(c => ![manifestCredType, governanceCredType].includes(getCredentialType(c.type))) : []
+        return this.credentials ? filterCredentialsByType(this.credentials, [manifestCredType, governanceCredType]) : []
     }
 
     async connect() {
