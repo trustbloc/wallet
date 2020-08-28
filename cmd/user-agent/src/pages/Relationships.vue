@@ -9,8 +9,11 @@ SPDX-License-Identifier: Apache-2.0
     <mediator v-if="!isMediatorRegistered" title="Please, set up a mediator to proceed with this page!"/>
     <div class="md-layout" v-if="isMediatorRegistered">
       <div class="md-layout-item">
-        <div class="md-layout-item" v-if="allCredentialsCount">
-          <associated-credentials title="Associated credentials" :credentials="allCredentials"/>
+        <div class="md-layout-item" v-if="associatedCredentialsCount">
+          <associated-credentials title="Associated credentials" :credentials="associatedCredentials"/>
+        </div>
+        <div class="md-layout-item" v-if="associatedPresentationsCount">
+          <associated-presentation title="Associated presentations" :presentations="associatedPresentations"/>
         </div>
         <div class="md-layout-item">
           <public-invitation/>
@@ -33,15 +36,30 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import {mapGetters, mapActions} from 'vuex'
-import {Mediator, PublicInvitation, ReceiveInvitation, Connections, AssociatedCredentials} from "@/components";
+import {
+  Mediator,
+  PublicInvitation,
+  ReceiveInvitation,
+  Connections,
+  AssociatedCredentials,
+  AssociatedPresentation
+} from "@/components";
 
 export default {
-  components: {Mediator, PublicInvitation, ReceiveInvitation, Connections, AssociatedCredentials},
+  components: {
+    Mediator,
+    PublicInvitation,
+    ReceiveInvitation,
+    Connections,
+    AssociatedCredentials,
+    AssociatedPresentation
+  },
   methods: mapActions(['queryConnections']),
   computed: mapGetters([
     'pendingConnections', 'completedConnections',
     'pendingConnectionsCount', 'completedConnectionsCount',
-    'isMediatorRegistered', 'allCredentials', 'allCredentialsCount'
+    'isMediatorRegistered', 'associatedCredentials', 'associatedCredentialsCount',
+    'associatedPresentations', 'associatedPresentationsCount'
   ]),
   mounted() {
     // refreshes connections when component is mounted

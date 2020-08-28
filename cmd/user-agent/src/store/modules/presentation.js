@@ -7,16 +7,16 @@ SPDX-License-Identifier: Apache-2.0
 
 export default {
     actions: {
-        onIssueCredentialState({dispatch}, notice) {
+        onPresentProofState({dispatch}, notice) {
             if (notice.payload.Type !== "post_state") {
                 return
             }
 
-            dispatch('getCredentials')
+            dispatch('getPresentations')
         },
-        async getCredentials({commit, getters}) {
+        async getPresentations({commit, getters}) {
             // retrieves all agent credentials
-            let res = await window.$aries.verifiable.getCredentials()
+            let res = await window.$aries.verifiable.getPresentations()
             if (!res.hasOwnProperty('result')) {
                 return
             }
@@ -35,28 +35,28 @@ export default {
             })
 
             // sets connections
-            commit('updateCredentials', res.result)
+            commit('updatePresentations', res.result)
 
             return res.result
         },
     },
     mutations: {
-        updateCredentials(state, credentials) {
-            state.credentials = credentials
+        updatePresentations(state, presentations) {
+            state.presentations = presentations
         },
     },
     state: {
-        credentials: [],
+        presentations: [],
     },
     getters: {
-        allCredentials(state) {
-            return state.credentials
+        allPresentations(state) {
+            return state.presentations
         },
-        associatedCredentials(state, {allCredentials}) {
-            return allCredentials.filter(v => v.label)
+        associatedPresentations(state, {allPresentations}) {
+            return allPresentations.filter(v => v.label)
         },
-        associatedCredentialsCount(state, {associatedCredentials}) {
-            return associatedCredentials.length
+        associatedPresentationsCount(state, {associatedPresentations}) {
+            return associatedPresentations.length
         },
     },
 }
