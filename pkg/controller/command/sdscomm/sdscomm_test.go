@@ -18,19 +18,8 @@ import (
 
 func TestNew(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		sdsComm, err := New("SDSUrl", "AgentUsername")
-		require.NoError(t, err)
+		sdsComm := New("SDSUrl", "AgentUsername")
 		require.NotNil(t, sdsComm)
-	})
-	t.Run("Failure: blank SDS URL", func(t *testing.T) {
-		sdsComm, err := New("", "AgentUsername")
-		require.EqualError(t, err, errBlankSDSURL.Error())
-		require.Nil(t, sdsComm)
-	})
-	t.Run("Failure: blank agent username URL", func(t *testing.T) {
-		sdsComm, err := New("SDSUrl", "")
-		require.EqualError(t, err, errBlankAgentUsername.Error())
-		require.Nil(t, sdsComm)
 	})
 }
 
@@ -39,10 +28,9 @@ func TestSDSComm_StoreDIDDocument(t *testing.T) {
 		sdsSrv := newTestEDVServer(t)
 		defer sdsSrv.Close()
 
-		sdsComm, err := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "AgentUsername")
-		require.NoError(t, err)
+		sdsComm := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "AgentUsername")
 
-		err = sdsComm.ensureVaultExists(sdsComm.getDIDVaultID())
+		err := sdsComm.ensureVaultExists(sdsComm.getDIDVaultID())
 		require.NoError(t, err)
 
 		sampleDIDDocData := DIDDocData{}
@@ -51,12 +39,20 @@ func TestSDSComm_StoreDIDDocument(t *testing.T) {
 		require.NoError(t, err)
 	})
 	t.Run("SDS server unreachable (bad SDS server URL)", func(t *testing.T) {
-		sdsComm, err := New("BadURL", "AgentUsername")
-		require.NoError(t, err)
+		sdsComm := New("BadURL", "AgentUsername")
 
-		err = sdsComm.StoreDIDDocument(nil)
+		err := sdsComm.StoreDIDDocument(nil)
+		require.Error(t, err)
 		require.Contains(t, err.Error(), `unexpected error during the "create vault" call to SDS: `+
 			`failed to send POST request:`)
+	})
+	t.Run("Error while ensuring vault exists - SDS server URL cannot be blank", func(t *testing.T) {
+		sdsComm := New("", "AgentUsername")
+
+		err := sdsComm.StoreDIDDocument(nil)
+		require.Error(t, err)
+		require.EqualError(t, err,
+			fmt.Errorf(failureEnsuringDIDVaultExistsErrMsg, errSDSServerURLBlank).Error())
 	})
 }
 
@@ -65,10 +61,9 @@ func TestSDSComm_StoreCredential(t *testing.T) {
 		sdsSrv := newTestEDVServer(t)
 		defer sdsSrv.Close()
 
-		sdsComm, err := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "AgentUsername")
-		require.NoError(t, err)
+		sdsComm := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "AgentUsername")
 
-		err = sdsComm.ensureVaultExists(sdsComm.getCredentialVaultID())
+		err := sdsComm.ensureVaultExists(sdsComm.getCredentialVaultID())
 		require.NoError(t, err)
 
 		sampleCredentialData := CredentialData{}
@@ -77,10 +72,10 @@ func TestSDSComm_StoreCredential(t *testing.T) {
 		require.NoError(t, err)
 	})
 	t.Run("SDS server unreachable (bad SDS server URL)", func(t *testing.T) {
-		sdsComm, err := New("BadURL", "AgentUsername")
-		require.NoError(t, err)
+		sdsComm := New("BadURL", "AgentUsername")
 
-		err = sdsComm.StoreCredential(nil)
+		err := sdsComm.StoreCredential(nil)
+		require.Error(t, err)
 		require.Contains(t, err.Error(), `unexpected error during the "create vault" call to SDS: `+
 			`failed to send POST request:`)
 	})
@@ -91,11 +86,9 @@ func TestSDSComm_StorePresentation(t *testing.T) {
 		sdsSrv := newTestEDVServer(t)
 		defer sdsSrv.Close()
 
-		sdsComm, err := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "AgentUsername")
-		require.NoError(t, err)
+		sdsComm := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL), "AgentUsername")
 
-		err = sdsComm.ensureVaultExists(sdsComm.getPresentationVaultID())
-		require.NoError(t, err)
+		err := sdsComm.ensureVaultExists(sdsComm.getPresentationVaultID())
 
 		samplePresentationData := PresentationData{}
 
@@ -103,10 +96,9 @@ func TestSDSComm_StorePresentation(t *testing.T) {
 		require.NoError(t, err)
 	})
 	t.Run("SDS server unreachable (bad SDS server URL)", func(t *testing.T) {
-		sdsComm, err := New("BadURL", "AgentUsername")
-		require.NoError(t, err)
+		sdsComm := New("BadURL", "AgentUsername")
 
-		err = sdsComm.StorePresentation(nil)
+		err := sdsComm.StorePresentation(nil)
 		require.Error(t, err)
 		require.Contains(t, err.Error(), `unexpected error during the "create vault" call to SDS: `+
 			`failed to send POST request:`)

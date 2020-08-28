@@ -69,8 +69,8 @@ let defaultTrustBlocStartupOpts = {
     'log-level': 'debug',
     walletMediatorURL: 'https://localhost:10063',
     credentialMediatorURL: '',
-    agentUsername: 'user-agent',
-    sdsServerURL: 'https://localhost:8072/encrypted-data-vaults'
+    agentUsername: '',
+    sdsServerURL: ''
 }
 
 async function trustblocStartupOpts() {

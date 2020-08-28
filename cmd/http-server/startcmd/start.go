@@ -348,12 +348,12 @@ func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, err
 	// This is used for storage of docs in SDS.
 	// TODO get username from the actual registration process instead of a cmd line arg #266
 	agentUsername, err := cmdutils.GetUserSetVarFromString(
-		cmd, agentDefaultLabelFlagName, agentDefaultLabelEnvKey, false)
+		cmd, agentDefaultLabelFlagName, agentDefaultLabelEnvKey, true)
 	if err != nil {
 		return nil, err
 	}
 
-	sdsServerURL, err := cmdutils.GetUserSetVarFromString(cmd, sdsURLFlagName, sdsURLEnvKey, false)
+	sdsServerURL, err := cmdutils.GetUserSetVarFromString(cmd, sdsURLFlagName, sdsURLEnvKey, true)
 	if err != nil {
 		return nil, err
 	}

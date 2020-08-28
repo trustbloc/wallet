@@ -38,22 +38,20 @@ func TestCommand_SavePresentation(t *testing.T) {
 		presentationDataBytes, err := json.Marshal(samplePresentationData)
 		require.NoError(t, err)
 
-		sdsComm, err := sdscomm.New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL),
+		sdsComm := sdscomm.New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL),
 			"AgentUsername")
-		require.NoError(t, err)
 
 		cmd := New(sdsComm)
 		cmdErr := cmd.SavePresentation(nil, bytes.NewBuffer(presentationDataBytes))
 		require.NoError(t, cmdErr)
 	})
 	t.Run("Fail to unmarshal - invalid DIDDocData", func(t *testing.T) {
-		cmd := New(&sdscomm.SDSComm{})
+		cmd := New(sdscomm.New("SomeURL", ""))
 		cmdErr := cmd.SavePresentation(nil, bytes.NewBuffer([]byte("")))
 		require.Contains(t, cmdErr.Error(), failDecodePresentationDocDataErrMsg)
 	})
 	t.Run("Fail to save presentation - bad SDS server URL", func(t *testing.T) {
-		sdsComm, err := sdscomm.New("BadURL", "AgentUsername")
-		require.NoError(t, err)
+		sdsComm := sdscomm.New("BadURL", "AgentUsername")
 		cmd := New(sdsComm)
 
 		samplePresentationData := sdscomm.PresentationData{}

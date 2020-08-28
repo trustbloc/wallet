@@ -12,9 +12,10 @@ import {getCredentialType} from '../common/util.js';
  * @class
  */
 export class WalletStore {
-    constructor(aries, trustblocAgent, credEvent) {
+    constructor(aries, trustblocAgent, trustblocStartupOpts, credEvent) {
         this.aries = aries
         this.trustblocAgent = trustblocAgent
+        this.trustblocStartupOpts = trustblocStartupOpts
         this.credEvent = credEvent
     }
 
@@ -65,22 +66,29 @@ export class WalletStore {
             throw err
         })
 
-        // Save credential to persistent storage
-        await this.trustblocAgent.credentialclient.saveCredential({
-            name: name,
-            credential: vcData
-        })
-
+        if (this.trustblocStartupOpts.sdsServerURL) {
+           // Save credential to persistent storage
+           await this.trustblocAgent.credentialclient.saveCredential({
+                name: name,
+                credential: vcData
+            })
+        } else {
+            console.log("Skipping credential storage to SDS since no SDS server URL was configured.")
+        }
     }
 
     async savePresentation(name, presentation) {
-        const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
+       if (this.trustblocStartupOpts.sdsServerURL) {
+            const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
 
-        // Save presentation to persistent storage
-        await t.presentationclient.savePresentation({
-            name: name,
-            presentation: presentation
-        })
+            // Save presentation to persistent storage
+            await t.presentationclient.savePresentation({
+                name: name,
+                presentation: presentation
+            })
+        } else {
+            console.log("Skipping presentation storage to SDS since no SDS server URL was configured.")
+        }
     }
 
     cancel() {

@@ -6,6 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 package sdscomm
 
+import "errors"
+
 // Error messages
 const (
 	failureEnsuringDIDVaultExistsErrMsg   = "failure while ensuring that the user's DID vault exists: %w"
@@ -25,3 +27,5 @@ const (
 	vaultAlreadyExistsLogMsg = "%s vault already exists. Skipping vault creation."
 	newVaultCreatedLogMsg    = "%s vault created."
 )
+
+var errSDSServerURLBlank = errors.New("SDS server URL is blank")

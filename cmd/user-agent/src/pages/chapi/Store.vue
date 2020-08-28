@@ -99,7 +99,8 @@ SPDX-License-Identifier: Apache-2.0
             this.dataType = credentialEvent.credential.dataType
 
             this.wallet = new WalletStore(await this.$arieslib,
-                await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts), credentialEvent)
+                await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts), this.$trustblocStartupOpts,
+                credentialEvent)
 
             // prefill form
             this.prefillForm()

@@ -7,7 +7,6 @@ package sdscomm
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -21,29 +20,18 @@ import (
 
 var logger = log.New("edge-agent-sdscomm")
 
-var errBlankSDSURL = errors.New("SDS server URL cannot be blank")
-var errBlankAgentUsername = errors.New("agent username cannot be blank")
-
 type SDSComm struct {
-	sdsServerURL  string
+	SDSServerURL  string
 	agentUsername string
 	sdsClient     *sdsclient.Client
 }
 
-func New(sdsServerURL, agentUsername string) (*SDSComm, error) {
-	if sdsServerURL == "" {
-		return nil, errBlankSDSURL
-	}
-
-	if agentUsername == "" {
-		return nil, errBlankAgentUsername
-	}
-
+func New(sdsServerURL, agentUsername string) *SDSComm {
 	return &SDSComm{
-		sdsServerURL:  sdsServerURL,
+		SDSServerURL:  sdsServerURL,
 		agentUsername: agentUsername,
 		sdsClient:     sdsclient.New(sdsServerURL),
-	}, nil
+	}
 }
 
 func (e *SDSComm) StoreDIDDocument(didData *DIDDocData) error {
@@ -114,6 +102,10 @@ func (e *SDSComm) StorePresentation(presentationData *PresentationData) error {
 }
 
 func (e *SDSComm) ensureVaultExists(vaultID string) error {
+	if e.SDSServerURL == "" {
+		return errSDSServerURLBlank
+	}
+
 	_, err := e.sdsClient.CreateDataVault(&models.DataVaultConfiguration{ReferenceID: vaultID})
 	if err != nil {
 		if !strings.Contains(err.Error(), messages.ErrDuplicateVault.Error()) {
