@@ -24,13 +24,16 @@ SPDX-License-Identifier: Apache-2.0
 
             <div>
                 <h4 class="md-subheading">
-                    <md-icon style="color: #0E9A00; height: 40px;font-size: 30px !important;">verified_user</md-icon>
-                    <span style="margin-left: 7px; font-weight: 700">{{ requestOrigin }} </span> would like you to share
-                    below information,
+                    This verifier would like you to share below information,
                 </h4>
             </div>
 
-            <md-card style="margin-top: -5px" v-for="requirement in requirements" :key="requirement.name"
+            <div style="padding-bottom: 10px">
+                <governance :govn-v-c="govnVC" :request-origin="requestOrigin" :issuer="false"/>
+            </div>
+
+
+            <md-card style="margin-top: 0px" v-for="requirement in requirements" :key="requirement.name"
                      :value="requirement">
 
                 <md-card-expand>
@@ -142,11 +145,13 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import {filterCredentialsByType, getCredentialType, WalletGetByQuery, WalletManager} from "./wallet"
+    import Governance from "./Governance.vue";
 
     const warning = "No credentials found in your wallet for above information asked"
     const manifestCredType = 'IssuerManifestCredential'
 
     export default {
+        components: {Governance},
         beforeCreate: async function () {
             const aries = await this.$arieslib
             this.wallet = new WalletGetByQuery(aries, this.$parent.credentialEvent)
@@ -173,6 +178,9 @@ SPDX-License-Identifier: Apache-2.0
             this.presentation.verifiableCredential.forEach(function (vc) {
                 vcsFound.push(vc)
             })
+
+            // TODO handling multiple governance VCs
+            this.govnVC = this.wallet.govnVC.length > 0 ? this.wallet.govnVC[0] : undefined
 
             this.loading = false
 

@@ -36,6 +36,15 @@ export class WalletGetByQuery extends WalletGet {
 
         this.invitation = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="DIDConnect")].invitation');
 
+        /*
+          TODO:
+           * current assumption - expecting only one governance VC in request, may be support for multiple
+           * correlate governance VC with requesting party so that consent for trust gets shown only once
+           * verify governance VC proof
+           * verify requesting party in governance framework to make sure this party of behaving properly
+         */
+        this.govnVC = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="DIDConnect")].credentials[?(@.type[0]=="GovernanceCredential" || @.type[1]=="GovernanceCredential")]');
+
         this.walletManager = new WalletManager()
 
         this.mediator = new AgentMediator(aries)
@@ -160,8 +169,8 @@ async function getAuthorizationCredentials(aries, presentationSubmission, invita
                             json: {
                                 subjectDID: rpConn.result.MyDID,
                                 requestingPartyDIDDoc: {
-                                    id : rpDIDDoc.did.id,
-                                    doc : rpDIDDoc.did
+                                    id: rpDIDDoc.did.id,
+                                    doc: rpDIDDoc.did
                                 },
                             }
                         }

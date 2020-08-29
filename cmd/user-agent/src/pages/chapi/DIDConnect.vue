@@ -30,9 +30,9 @@ SPDX-License-Identifier: Apache-2.0
                     </div>
 
                     <md-card-content class="viewport">
-                        <p class="viewport"> Hello {{ this.walletUser.id }},</p>
-                            <span style="color: #0E9A00">{{ requestOrigin }}</span> would like to
+                        Below issuer would like to
                         connect to your wallet for secured communication.
+                       <governance :govn-v-c="govnVC" :request-origin="requestOrigin"/>
                     </md-card-content>
 
                     <md-card-content v-if="userCredentials.length" class="viewport">
@@ -40,7 +40,7 @@ SPDX-License-Identifier: Apache-2.0
 
                         <md-list class="md-double-line">
                             <md-list-item v-for="credential in userCredentials" :key="credential">
-                                <md-icon class="md-primary md-size-2x" >perm_identity</md-icon>
+                                <md-icon class="md-primary md-size-2x">perm_identity</md-icon>
 
                                 <div class="md-list-item-text">
                                     <span>{{credential.name ? credential.name : 'Credential name not provided'}}</span>
@@ -83,8 +83,10 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import {DIDConn, WalletManager} from "./wallet"
+    import Governance from "./Governance.vue";
 
     export default {
+        components: {Governance},
         beforeCreate: async function () {
             this.walletUser = await new WalletManager().getRegisteredUser()
             if (!this.walletUser) {
@@ -97,7 +99,8 @@ SPDX-License-Identifier: Apache-2.0
                 this.$parent.credentialEvent, this.walletUser)
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
             this.userCredentials = this.wallet.getUserCredentials()
-            this.buttonLabel =  this.userCredentials.length > 0 ? 'Store & Connect' : 'Connect'
+            this.govnVC = this.wallet.getGovernanceCredential()
+            this.buttonLabel = this.userCredentials.length > 0 ? 'Store & Connect' : 'Connect'
 
             this.loading = false
         },
@@ -108,7 +111,8 @@ SPDX-License-Identifier: Apache-2.0
                 loading: true,
                 credentialWarning: "",
                 userCredentials: [],
-                buttonLabel : "Connect",
+                buttonLabel: "Connect",
+                govnVC: null,
             };
         },
         methods: {
@@ -120,6 +124,7 @@ SPDX-License-Identifier: Apache-2.0
                 await this.wallet.connect()
                 this.loading = false
             }
-        }
+        },
     }
 </script>
+

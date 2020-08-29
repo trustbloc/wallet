@@ -10,7 +10,6 @@ import {DIDExchange} from '../common/didExchange'
 import {getCredentialType, filterCredentialsByType} from "..";
 
 const manifestCredType = "IssuerManifestCredential"
-//TODO actual credential type to be updated here
 const governanceCredType = "GovernanceCredential"
 
 var uuid = require('uuid/v4')
@@ -38,6 +37,19 @@ export class DIDConn {
 
     getUserCredentials() {
         return this.credentials ? filterCredentialsByType(this.credentials, [manifestCredType, governanceCredType]) : []
+    }
+
+    getGovernanceCredential() {
+        let govnVCs = this.credentials ? filterCredentialsByType(this.credentials, [governanceCredType], true) : []
+
+        /*
+           TODO:
+            * current assumption - expecting only one governance VC in request, may be support for multiple
+            * correlate governance VC with requesting party so that consent for trust gets shown only once
+            * verify governance VC proof
+            * verify requesting party in governance framework to make sure this party of behaving properly
+          */
+        return govnVCs.length > 0 ? govnVCs[0] : undefined
     }
 
     async connect() {

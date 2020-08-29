@@ -18,12 +18,18 @@ export function getSample(v) {
             return presExchange
         case "pexq-didcomm":
             return presExchangeDIDComm
+        case "pexq-didcomm-govnvc":
+            return presExchangeDIDCommGovnVC
         case "didauth":
             return didAuth
         case "didconn":
             return didConnQuery
         case "didconn-manifest":
             return didConnQueryWithManifest
+        case "didconn-manifest-usrc":
+            return didConnQueryWithManifestAndUcred
+        case "didconn-manifest-usrc-govvc":
+            return didConnQueryWithManifestGovnAndUcred
         default:
             alert('unknown sample type');
     }
@@ -99,6 +105,41 @@ const udc = {
     }
 }
 
+const govnVC = {
+    "@context": ["https://www.w3.org/2018/credentials/v1", "https://trustbloc.github.io/context/governance/context.jsonld", "https://trustbloc.github.io/context/vc/examples-v1.jsonld"],
+    "credentialStatus": {
+        "id": "http://governance.vcs.example.com:8066/governance/status/1",
+        "type": "CredentialStatusList2017"
+    },
+    "credentialSubject": {
+        "data_uri": "https://example.com/data.json",
+        "define": [{
+            "id": "did:trustbloc:testnet.trustbloc.local:EiDniKF0RDQVRuCSwi7N87O-x7axF7bUZ9tA12uq4qiWLQ",
+            "name": "DID"
+        }],
+        "description": "Governs accredited financial institutions, colleges and universities.",
+        "docs_uri": "https://example.com/docs",
+        "duties": [{"name": "safe-accredit", "uri": "https://example.com/responsible-accredit"}],
+        "geos": ["Canadian"],
+        "jurisdictions": ["ca"],
+        "logo": "https://example.com/logo",
+        "name": "Trustbloc Govn",
+        "privileges": [{"name": "accredit", "uri": "https://example.com/accredit"}],
+        "roles": ["accreditor"],
+        "topics": ["banking"],
+        "version": "1.0"
+    },
+    "issuer": "did:trustbloc:testnet.trustbloc.local:EiDdRGN4x2S4D0xYTPaJEHcD50Sq5fgv0sUfbdgY7x6lkQ",
+    "proof": {
+        "created": "2020-08-28T15:57:53.7002191Z",
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..oRWsB66_fgroRx2YQN1peaz7k636QOahd4etp8wyLCTR0WgEW1KzObgYxvz2AV0zJZHu0mvQi-9Uc5aXsWvBBA",
+        "proofPurpose": "assertionMethod",
+        "type": "Ed25519Signature2018",
+        "verificationMethod": "did:trustbloc:testnet.trustbloc.local:EiDdRGN4x2S4D0xYTPaJEHcD50Sq5fgv0sUfbdgY7x6lkQ#G0E1sRYZv4EQg5EkcNRo"
+    },
+    "type": ["VerifiableCredential", "GovernanceCredential"]
+}
+
 
 const samplePresentation = {
     "@context": [
@@ -150,11 +191,6 @@ const manifest = {
             "https://w3id.org/citizenship/v3"
         ]
     }
-}
-
-const didConnect = {
-    type: "DIDConnect",
-    invitation
 }
 
 const presentationExchangeQuery = {
@@ -280,7 +316,27 @@ const presExchangeDIDComm = {
         VerifiablePresentation: {
             query: [
                 presentationExchangeQuery,
-                didConnect
+                {
+                    type: "DIDConnect",
+                    invitation
+                }
+            ],
+            challenge: uuid(),
+            domain: "example.com"
+        }
+    }
+}
+
+const presExchangeDIDCommGovnVC = {
+    web: {
+        VerifiablePresentation: {
+            query: [
+                presentationExchangeQuery,
+                {
+                    type: "DIDConnect",
+                    invitation,
+                    credentials: [govnVC]
+                }
             ],
             challenge: uuid(),
             domain: "example.com"
@@ -349,9 +405,35 @@ const didConnQueryWithManifest = {
         VerifiablePresentation: {
             query: {type: "DIDConnect"},
             invitation,
+            credentials: [manifest],
+            challenge: uuid(),
+            domain: "example.com"
+        }
+    }
+}
+
+const didConnQueryWithManifestAndUcred = {
+    web: {
+        VerifiablePresentation: {
+            query: {type: "DIDConnect"},
+            invitation,
             credentials: [manifest, prc, udc],
             challenge: uuid(),
             domain: "example.com"
         }
     }
 }
+
+const didConnQueryWithManifestGovnAndUcred = {
+    web: {
+        VerifiablePresentation: {
+            query: {type: "DIDConnect"},
+            invitation,
+            credentials: [manifest, govnVC, prc, udc],
+            challenge: uuid(),
+            domain: "example.com"
+        }
+    }
+}
+
+
