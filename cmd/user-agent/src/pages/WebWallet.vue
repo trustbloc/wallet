@@ -23,23 +23,30 @@ SPDX-License-Identifier: Apache-2.0
                             <br>
                             <div>
                                 <b>Sample requests:</b>
-                                <md-chip md-clickable v-on:click="prefillRequest('vp', 'store')">Store Presentation
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('vp', 'store')">Store Presentation
                                 </md-chip>
-                                <md-chip md-clickable v-on:click="prefillRequest('getvp', 'get')">Request Presentation
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('getvp', 'get')">Request Presentation
                                 </md-chip>
-                                <md-chip md-clickable v-on:click="prefillRequest('pexq', 'get')">Presentation Exchange
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('pexq', 'get')">Presentation Exchange
                                     Query
                                 </md-chip>
-                                <md-chip md-clickable v-on:click="prefillRequest('pexq-didcomm', 'get')">Presentation
-                                    Exchange
-                                    Query With DIDComm
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('pexq-didcomm', 'get')">Presentation
+                                    Exchange Query With DIDComm
                                 </md-chip>
-                                <md-chip md-clickable v-on:click="prefillRequest('didauth', 'get')">DID Auth</md-chip>
-                                <md-chip md-clickable v-on:click="prefillRequest('didconn', 'get')">DID Connect
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('pexq-didcomm-govnvc', 'get')">Presentation
+                                    Exchange Query With DIDComm & Governance VC
                                 </md-chip>
-                                <md-chip md-clickable v-on:click="prefillRequest('didconn-manifest', 'get')">DID Connect
-                                    with
-                                    manifest
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('didauth', 'get')">DID Auth</md-chip>
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('didconn', 'get')">DID Connect
+                                </md-chip>
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('didconn-manifest', 'get')">DID Connect
+                                    with manifest
+                                </md-chip>
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('didconn-manifest-usrc', 'get')">DID Connect
+                                    with manifest and user credential
+                                </md-chip>
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('didconn-manifest-usrc-govvc', 'get')">DID Connect
+                                    with manifest, user credential and governance VC
                                 </md-chip>
                             </div>
 
@@ -85,7 +92,6 @@ SPDX-License-Identifier: Apache-2.0
         },
         data() {
             return {
-                // interopData: JSON.stringify(sampleVC, 0, 2),
                 interopData: "",
                 mode: "",
                 errors: [],
@@ -146,4 +152,9 @@ SPDX-License-Identifier: Apache-2.0
         }
     }
 </script>
+<style lang="css">
+    .request-sample {
+        margin: 2px;
+    }
 
+</style>
