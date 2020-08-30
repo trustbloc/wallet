@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
     <div v-if="govnVC">
-        <div style="margin: 20px 20%">
+        <div style="margin-top: 20px" class="center-header">
 
             <md-button class="md-icon-button green-icon-button" v-if="trusted" @click="displayTrustConsent">
                 <md-icon class="black-icon">verified
@@ -74,7 +74,7 @@ SPDX-License-Identifier: Apache-2.0
     </div>
 
     <div v-else>
-        <div style="margin: 20px 20%">
+        <div style="margin-top: 20px" class="center-header">
 
             <md-button class="md-icon-button green-icon-button" v-if="trusted" @click="displayTrustConsent">
                 <md-icon class="black-icon">verified</md-icon>
@@ -135,7 +135,7 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     let govnDefaultLogo
-    
+
     try {
         govnDefaultLogo = require("@/assets/img/govn.png")
     } catch (e) {
@@ -189,6 +189,7 @@ SPDX-License-Identifier: Apache-2.0
 
 
 <style lang="css" scoped>
+
     .green-icon-button {
         background-color: #00cc66 !important;
         margin: 0px
@@ -209,6 +210,10 @@ SPDX-License-Identifier: Apache-2.0
         font-weight: 400;
         font-style: italic;
         font-family: monospace;
+    }
+
+    .center-header {
+        text-align: center !important;
     }
 
 </style>

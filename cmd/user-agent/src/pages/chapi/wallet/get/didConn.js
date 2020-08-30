@@ -44,10 +44,11 @@ export class DIDConn {
 
         /*
            TODO:
-            * current assumption - expecting only one governance VC in request, may be support for multiple
-            * correlate governance VC with requesting party so that consent for trust gets shown only once
-            * verify governance VC proof
-            * verify requesting party in governance framework to make sure this party of behaving properly
+            * current assumption - expecting only one governance VC in request, may be support for multiple.
+            * correlate governance VC with requesting party so that consent for trust gets shown only once.
+            * verify governance VC proof.
+            * verify requesting party in governance framework to make sure this party of behaving properly.
+            * request party to get challenged to produce a VP that the governance credential agency has accredited them.
           */
         return govnVCs.length > 0 ? govnVCs[0] : undefined
     }

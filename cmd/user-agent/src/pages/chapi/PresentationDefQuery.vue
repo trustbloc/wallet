@@ -33,7 +33,7 @@ SPDX-License-Identifier: Apache-2.0
             </div>
 
 
-            <md-card style="margin-top: 0px" v-for="requirement in requirements" :key="requirement.name"
+            <md-card v-for="requirement in requirements" :key="requirement.name"
                      :value="requirement">
 
                 <md-card-expand>

@@ -30,7 +30,7 @@ SPDX-License-Identifier: Apache-2.0
                     </div>
 
                     <md-card-content class="viewport">
-                        Below issuer would like to
+                        This issuer would like to
                         connect to your wallet for secured communication.
                        <governance :govn-v-c="govnVC" :request-origin="requestOrigin"/>
                     </md-card-content>
