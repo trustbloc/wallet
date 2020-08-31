@@ -8,7 +8,7 @@
 
 # Release Parameters
 BASE_VERSION=0.1.4
-IS_RELEASE=false
+IS_RELEASE=true
 
 SOURCE_REPO=edge-agent
 BASE_USER_WASM_PKG_NAME=user-agent-wasm
