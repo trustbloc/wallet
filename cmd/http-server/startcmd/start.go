@@ -147,9 +147,7 @@ type trustblocAgentJSOpts struct {
 	WalletMediatorURL     string `json:"walletMediatorURL,omitempty"`
 	CredentialMediatorURL string `json:"credentialMediatorURL,omitempty"`
 	LogLevel              string `json:"log-level,omitempty"`
-	// TODO get username from the actual registration process instead of a cmd line arg #266
-	AgentUsername string `json:"agentUsername,omitempty"`
-	SDSServerURL  string `json:"sdsServerURL,omitempty"`
+	SDSServerURL          string `json:"sdsServerURL,omitempty"`
 }
 
 // VueHandler return a http.Handler that supports Vue Router app with history mode
@@ -345,14 +343,6 @@ func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, err
 		return nil, err
 	}
 
-	// This is used for storage of docs in SDS.
-	// TODO get username from the actual registration process instead of a cmd line arg #266
-	agentUsername, err := cmdutils.GetUserSetVarFromString(
-		cmd, agentDefaultLabelFlagName, agentDefaultLabelEnvKey, true)
-	if err != nil {
-		return nil, err
-	}
-
 	sdsServerURL, err := cmdutils.GetUserSetVarFromString(cmd, sdsURLFlagName, sdsURLEnvKey, true)
 	if err != nil {
 		return nil, err
@@ -363,7 +353,6 @@ func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, err
 		WalletMediatorURL:     walletMediatorURL,
 		CredentialMediatorURL: credentialMediatorURL,
 		LogLevel:              logLevel,
-		AgentUsername:         agentUsername,
 		SDSServerURL:          sdsServerURL,
 	}, nil
 }

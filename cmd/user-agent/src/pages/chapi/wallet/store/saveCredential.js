@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import {getCredentialType} from '../common/util.js';
+import {WalletManager} from "..";
 
 /**
  * WalletStore provides CHAPI store features
@@ -67,10 +68,20 @@ export class WalletStore {
         })
 
         if (this.trustblocStartupOpts.sdsServerURL) {
+            const registeredUser = await new WalletManager().getRegisteredUser()
+
+            if (!registeredUser) {
+                const notLoggedInErrorMsg = "Unable to save credential to SDS since the user is not logged in."
+                console.error(notLoggedInErrorMsg)
+                throw notLoggedInErrorMsg
+            }
+
            // Save credential to persistent storage
+           // TODO: Deal with SDS sync failures better #328
            await this.trustblocAgent.credentialclient.saveCredential({
                 name: name,
-                credential: vcData
+                credential: vcData,
+                userID: registeredUser.id
             })
         } else {
             console.log("Skipping credential storage to SDS since no SDS server URL was configured.")
@@ -79,12 +90,22 @@ export class WalletStore {
 
     async savePresentation(name, presentation) {
        if (this.trustblocStartupOpts.sdsServerURL) {
+           const registeredUser = await new WalletManager().getRegisteredUser()
+
+           if (!registeredUser) {
+               const notLoggedInErrorMsg = "Unable to save presentation to SDS since the user is not logged in."
+               console.error(notLoggedInErrorMsg)
+               throw notLoggedInErrorMsg
+           }
+
             const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
 
             // Save presentation to persistent storage
+            // TODO: Deal with SDS sync failures better #328
             await t.presentationclient.savePresentation({
                 name: name,
-                presentation: presentation
+                presentation: presentation,
+                userID: registeredUser.id
             })
         } else {
             console.log("Skipping presentation storage to SDS since no SDS server URL was configured.")

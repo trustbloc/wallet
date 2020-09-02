@@ -114,29 +114,28 @@ func TestCommand_SaveDID(t *testing.T) {
 		sdsSrv := newTestEDVServer(t)
 		defer sdsSrv.Close()
 
-		sampleDIDDocData := sdscomm.DIDDocData{}
+		sampleDIDDocData := sdscomm.SaveDIDDocToSDSRequest{}
 
 		didDocDataBytes, err := json.Marshal(sampleDIDDocData)
 		require.NoError(t, err)
 
-		sdsComm := sdscomm.New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL),
-			"AgentUsername")
+		sdsComm := sdscomm.New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL))
 
 		cmd := New("", sdsComm)
 		cmdErr := cmd.SaveDID(nil, bytes.NewBuffer(didDocDataBytes))
 		require.NoError(t, cmdErr)
 	})
-	t.Run("Fail to unmarshal - invalid DIDDocData", func(t *testing.T) {
-		cmd := New("", sdscomm.New("SomeURL", ""))
+	t.Run("Fail to unmarshal - invalid SaveDIDDocToSDSRequest", func(t *testing.T) {
+		cmd := New("", sdscomm.New("SomeURL"))
 		cmdErr := cmd.SaveDID(nil, bytes.NewBuffer([]byte("")))
 		require.Contains(t, cmdErr.Error(), failDecodeDIDDocDataErrMsg)
 	})
 	t.Run("Fail to save DID document - bad SDS server URL", func(t *testing.T) {
-		sdsComm := sdscomm.New("BadURL", "AgentUsername")
+		sdsComm := sdscomm.New("BadURL")
 
 		cmd := New("", sdsComm)
 
-		sampleDIDDocData := sdscomm.DIDDocData{}
+		sampleDIDDocData := sdscomm.SaveDIDDocToSDSRequest{}
 
 		didDocDataBytes, err := json.Marshal(sampleDIDDocData)
 		require.NoError(t, err)

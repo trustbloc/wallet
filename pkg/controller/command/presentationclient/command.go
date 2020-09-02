@@ -52,7 +52,7 @@ func (c *Command) GetHandlers() []command.Handler {
 }
 
 func (c *Command) SavePresentation(_ io.Writer, req io.Reader) command.Error {
-	presentationDataToStore := sdscomm.PresentationData{}
+	presentationDataToStore := sdscomm.SavePresentationToSDSRequest{}
 
 	err := json.NewDecoder(req).Decode(&presentationDataToStore)
 	if err != nil {
@@ -66,7 +66,7 @@ func (c *Command) SavePresentation(_ io.Writer, req io.Reader) command.Error {
 	return c.savePresentation(&presentationDataToStore)
 }
 
-func (c *Command) savePresentation(presentationDataToStore *sdscomm.PresentationData) command.Error {
+func (c *Command) savePresentation(presentationDataToStore *sdscomm.SavePresentationToSDSRequest) command.Error {
 	err := c.sdsComm.StorePresentation(presentationDataToStore)
 	if err != nil {
 		logutil.LogError(logger, commandName, savePresentationCommandMethod,

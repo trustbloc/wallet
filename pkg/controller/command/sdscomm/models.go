@@ -8,18 +8,21 @@ package sdscomm
 
 import "encoding/json"
 
-type DIDDocData struct {
+type SaveDIDDocToSDSRequest struct {
 	Name     string          `json:"name,omitempty"`
 	SignType string          `json:"signType,omitempty"`
 	DID      json.RawMessage `json:"did,omitempty"`
+	UserID   string          `json:"userID,omitempty"`
 }
 
-type CredentialData struct {
+type SaveCredentialToSDSRequest struct {
 	Name       string          `json:"name,omitempty"`
 	Credential json.RawMessage `json:"credential,omitempty"`
+	UserID     string          `json:"userID,omitempty"`
 }
 
-type PresentationData struct {
+type SavePresentationToSDSRequest struct {
 	Name         string          `json:"name,omitempty"`
 	Presentation json.RawMessage `json:"presentation,omitempty"`
+	UserID       string          `json:"userID,omitempty"`
 }

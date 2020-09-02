@@ -126,7 +126,7 @@ func (c *Command) CreateDID(rw io.Writer, req io.Reader) command.Error {
 }
 
 func (c *Command) SaveDID(_ io.Writer, req io.Reader) command.Error {
-	didDataToStore := sdscomm.DIDDocData{}
+	didDataToStore := sdscomm.SaveDIDDocToSDSRequest{}
 
 	err := json.NewDecoder(req).Decode(&didDataToStore)
 	if err != nil {
@@ -140,7 +140,7 @@ func (c *Command) SaveDID(_ io.Writer, req io.Reader) command.Error {
 	return c.saveDID(&didDataToStore)
 }
 
-func (c *Command) saveDID(didDataToStore *sdscomm.DIDDocData) command.Error {
+func (c *Command) saveDID(didDataToStore *sdscomm.SaveDIDDocToSDSRequest) command.Error {
 	err := c.sdsComm.StoreDIDDocument(didDataToStore)
 	if err != nil {
 		logutil.LogError(logger, commandName, saveDIDCommandMethod,

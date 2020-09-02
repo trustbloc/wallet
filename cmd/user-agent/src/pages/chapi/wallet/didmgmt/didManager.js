@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import {KeyValueStore} from '../common/keyValStore.js'
+import {WalletManager} from "..";
 
 const dbName = "did-metadata"
 const storeName = "metadata"
@@ -98,13 +99,23 @@ export class DIDManager extends KeyValueStore {
         )
 
         if (this.trustblocStartupOpts.sdsServerURL) {
+            const registeredUser = await new WalletManager().getRegisteredUser()
+
+            if (!registeredUser) {
+                const notLoggedInErrorMsg = "Unable to save DID to SDS since the user is not logged in."
+                console.error(notLoggedInErrorMsg)
+                throw notLoggedInErrorMsg
+            }
+
             const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
 
             // Save DID to persistent storage
+            // TODO: Deal with SDS sync failures better #328
             await t.didclient.saveDID({
                 name: name,
                 signType: signType,
-                did: did
+                did: did,
+                userID: registeredUser.id
             })
         } else {
             console.log("Skipping DID storage to SDS since no SDS server URL was configured.")
