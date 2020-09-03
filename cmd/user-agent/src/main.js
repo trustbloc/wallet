@@ -109,6 +109,22 @@ const router = new VueRouter({
     linkExactActiveClass: "nav-item active"
 });
 
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (store.getters.getUser) {
+            next();
+        } else if (store.dispatch('initUserStore') && store.getters.getUser) {
+            next()
+        } else {
+            next({
+                path: "login"
+            });
+        }
+    } else {
+        next();
+    }
+})
+
 Vue.use(VueRouter);
 Vue.use(MaterialDashboard);
 
@@ -118,7 +134,7 @@ new Vue({
     data: () => ({
         loaded: false,
     }),
-    methods: mapActions(['initStore', 'onDidExchangeState', 'onIssueCredentialState', 'onPresentProofState']),
+    methods: mapActions(['initStore', 'onDidExchangeState', 'onIssueCredentialState', 'onPresentProofState', 'initUserStore']),
     mounted: async function () {
         // gets aries options
         let ariesOpts = await ariesStartupOpts()
@@ -138,6 +154,8 @@ new Vue({
         window.$aries.startNotifier(this.onPresentProofState, ["present-proof_states"])
         // inits storage
         await this.initStore({aries: ariesOpts, trustbloc: trustblocOpts})
+        // inits user storage
+        await this.initUserStore()
         // removes spinner
         this.loaded = true
     },

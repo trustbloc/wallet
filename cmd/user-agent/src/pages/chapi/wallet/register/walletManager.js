@@ -17,6 +17,7 @@ const connectionsStore = "connections"
  * WalletManager manages create/store/query features for wallet metadata
  * @class
  */
+// TODO multiuser support, no need to clear wallet metadata data after logout
 export class WalletManager extends KeyValueStore {
     constructor() {
         super(`${dbName}-${metadataStore}`, metadataStore)
