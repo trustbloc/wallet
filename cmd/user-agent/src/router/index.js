@@ -7,6 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 import DashboardLayout from "@/pages/Layout/DashboardLayout.vue";
 
 import Dashboard from "@/pages/Dashboard.vue";
+import Login from "@/pages/chapi/Login.vue";
+import Logout from "@/pages/chapi/Logout.vue";
 import TableList from "@/pages/TableList.vue";
 import TablePresentation from "@/pages/TablePresentation.vue";
 import StoreInWallet from "@/pages/chapi/Store.vue";
@@ -28,8 +30,16 @@ const routes = [
         children: [
             {
                 path: "dashboard",
-                name: "Welcome to User Agent",
-                component: Dashboard
+                component: Dashboard,
+                meta: { requiresAuth: true }
+            },
+            {
+                path: "login",
+                component: Login
+            },
+            {
+                path: "logout",
+                component: Logout
             },
             {
                 path: "ViewVC",
@@ -89,4 +99,7 @@ const routes = [
         component: WalletWorker
     }
 ];
+
+
+
 export default routes;
