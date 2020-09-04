@@ -36,6 +36,11 @@ export class RegisterWallet extends WalletManager {
         // create DID
         let did = await this.didManager.createDID(keyType, signType)
 
+        // Make sure at least the username is stored so that the DID can be saved to SDS
+        // This will be overridden by another call at the end of the function that contains the full wallet metadata
+        // TODO: Refactor to avoid calling this twice in the same function. #332
+        await this.storeWalletMetadata(user, {})
+
         // save DID
         await this.didManager.saveDID(`${user}_${uuid()}`, signType, did)
 

@@ -33,28 +33,27 @@ func TestCommand_SaveCredential(t *testing.T) {
 		sdsSrv := newTestEDVServer(t)
 		defer sdsSrv.Close()
 
-		sampleCredentialData := sdscomm.CredentialData{}
+		sampleCredentialData := sdscomm.SaveCredentialToSDSRequest{}
 
 		credentialDataBytes, err := json.Marshal(sampleCredentialData)
 		require.NoError(t, err)
 
-		sdsComm := sdscomm.New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL),
-			"AgentUsername")
+		sdsComm := sdscomm.New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL))
 
 		cmd := New(sdsComm)
 		cmdErr := cmd.SaveCredential(nil, bytes.NewBuffer(credentialDataBytes))
 		require.NoError(t, cmdErr)
 	})
-	t.Run("Fail to unmarshal - invalid DIDDocData", func(t *testing.T) {
-		cmd := New(sdscomm.New("SomeURL", ""))
+	t.Run("Fail to unmarshal - invalid SaveDIDDocToSDSRequest", func(t *testing.T) {
+		cmd := New(sdscomm.New("SomeURL"))
 		cmdErr := cmd.SaveCredential(nil, bytes.NewBuffer([]byte("")))
 		require.Contains(t, cmdErr.Error(), failDecodeCredentialDocDataErrMsg)
 	})
 	t.Run("Fail to save credential - bad SDS server URL", func(t *testing.T) {
-		sdsComm := sdscomm.New("BadURL", "AgentUsername")
+		sdsComm := sdscomm.New("BadURL")
 		cmd := New(sdsComm)
 
-		sampleCredentialData := sdscomm.CredentialData{}
+		sampleCredentialData := sdscomm.SaveCredentialToSDSRequest{}
 
 		credentialDataBytes, err := json.Marshal(sampleCredentialData)
 		require.NoError(t, err)

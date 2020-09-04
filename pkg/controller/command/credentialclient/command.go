@@ -52,7 +52,7 @@ func (c *Command) GetHandlers() []command.Handler {
 }
 
 func (c *Command) SaveCredential(_ io.Writer, req io.Reader) command.Error {
-	credentialDataToStore := sdscomm.CredentialData{}
+	credentialDataToStore := sdscomm.SaveCredentialToSDSRequest{}
 
 	err := json.NewDecoder(req).Decode(&credentialDataToStore)
 	if err != nil {
@@ -66,7 +66,7 @@ func (c *Command) SaveCredential(_ io.Writer, req io.Reader) command.Error {
 	return c.saveCredential(&credentialDataToStore)
 }
 
-func (c *Command) saveCredential(credentialDataToStore *sdscomm.CredentialData) command.Error {
+func (c *Command) saveCredential(credentialDataToStore *sdscomm.SaveCredentialToSDSRequest) command.Error {
 	err := c.sdsComm.StoreCredential(credentialDataToStore)
 	if err != nil {
 		logutil.LogError(logger, commandName, saveCredentialCommandMethod,

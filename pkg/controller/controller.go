@@ -19,9 +19,8 @@ import (
 var logger = log.New("edge-agent-didclient-controller")
 
 type allOpts struct {
-	blocDomain    string
-	agentUsername string // TODO get username from the actual registration process instead of a cmd line arg #266
-	sdsServerURL  string
+	blocDomain   string
+	sdsServerURL string
 }
 
 // Opt represents a controller option.
@@ -31,14 +30,6 @@ type Opt func(opts *allOpts)
 func WithBlocDomain(blocDomain string) Opt {
 	return func(opts *allOpts) {
 		opts.blocDomain = blocDomain
-	}
-}
-
-// TODO get username from the actual registration process instead of a cmd line arg #266
-// WithAgentUsername is an option allowing for a username to be set.
-func WithAgentUsername(agentUsername string) Opt {
-	return func(opts *allOpts) {
-		opts.agentUsername = agentUsername
 	}
 }
 
@@ -57,7 +48,7 @@ func GetCommandHandlers(opts ...Opt) ([]command.Handler, error) {
 		opt(cmdOpts)
 	}
 
-	sdsComm := sdscomm.New(cmdOpts.sdsServerURL, cmdOpts.agentUsername)
+	sdsComm := sdscomm.New(cmdOpts.sdsServerURL)
 
 	// did client command operation
 	didClientCmd := didclientcmd.New(cmdOpts.blocDomain, sdsComm)

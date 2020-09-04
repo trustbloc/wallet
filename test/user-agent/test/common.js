@@ -65,8 +65,7 @@ export const trustBlocStartupOpts = {
     blocDomain: 'testnet.trustbloc.local',
     walletMediatorURL: 'https://localhost:10093',
     'log-level': 'debug',
-    sdsServerURL: 'https://localhost:8072/encrypted-data-vaults',
-    agentUsername: `user-agent`
+    sdsServerURL: 'https://localhost:8072/encrypted-data-vaults'
 }
 
 export async function loadFrameworks({name = '', loadAries = true, loadTrustbloc = false}) {

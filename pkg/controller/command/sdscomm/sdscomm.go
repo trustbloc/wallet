@@ -21,35 +21,34 @@ import (
 var logger = log.New("edge-agent-sdscomm")
 
 type SDSComm struct {
-	SDSServerURL  string
-	agentUsername string
-	sdsClient     *sdsclient.Client
+	SDSServerURL string
+	userID       string
+	sdsClient    *sdsclient.Client
 }
 
-func New(sdsServerURL, agentUsername string) *SDSComm {
+func New(sdsServerURL string) *SDSComm {
 	return &SDSComm{
-		SDSServerURL:  sdsServerURL,
-		agentUsername: agentUsername,
-		sdsClient:     sdsclient.New(sdsServerURL),
+		SDSServerURL: sdsServerURL,
+		sdsClient:    sdsclient.New(sdsServerURL),
 	}
 }
 
-func (e *SDSComm) StoreDIDDocument(didData *DIDDocData) error {
-	err := e.ensureVaultExists(e.getDIDVaultID())
+func (e *SDSComm) StoreDIDDocument(saveDIDDocToSDSRequest *SaveDIDDocToSDSRequest) error {
+	err := e.ensureVaultExists(e.getDIDVaultID(saveDIDDocToSDSRequest.UserID))
 	if err != nil {
 		return fmt.Errorf(failureEnsuringDIDVaultExistsErrMsg, err)
 	}
 
 	structuredDoc := models.StructuredDocument{
-		ID: didData.Name,
+		ID: saveDIDDocToSDSRequest.Name,
 	}
 
 	structuredDoc.Content = make(map[string]interface{})
 
-	structuredDoc.Content["didDoc"] = didData.DID
-	structuredDoc.Content["signType"] = didData.SignType
+	structuredDoc.Content["didDoc"] = saveDIDDocToSDSRequest.DID
+	structuredDoc.Content["signType"] = saveDIDDocToSDSRequest.SignType
 
-	err = e.storeDocument(e.getDIDVaultID(), didData.Name, &structuredDoc)
+	err = e.storeDocument(e.getDIDVaultID(saveDIDDocToSDSRequest.UserID), saveDIDDocToSDSRequest.Name, &structuredDoc)
 	if err != nil {
 		return fmt.Errorf(failureStoringDIDDocErrMsg, err)
 	}
@@ -57,21 +56,21 @@ func (e *SDSComm) StoreDIDDocument(didData *DIDDocData) error {
 	return nil
 }
 
-func (e *SDSComm) StoreCredential(credentialData *CredentialData) error {
-	err := e.ensureVaultExists(e.getCredentialVaultID())
+func (e *SDSComm) StoreCredential(saveCredentialToSDSRequest *SaveCredentialToSDSRequest) error {
+	err := e.ensureVaultExists(e.getCredentialVaultID(saveCredentialToSDSRequest.UserID))
 	if err != nil {
 		return fmt.Errorf(failureEnsuringCredVaultExistsErrMsg, err)
 	}
 
 	structuredDoc := models.StructuredDocument{
-		ID: credentialData.Name,
+		ID: saveCredentialToSDSRequest.Name,
 	}
 
 	structuredDoc.Content = make(map[string]interface{})
 
-	structuredDoc.Content["credential"] = credentialData.Credential
+	structuredDoc.Content["credential"] = saveCredentialToSDSRequest.Credential
 
-	err = e.storeDocument(e.getCredentialVaultID(), credentialData.Name, &structuredDoc)
+	err = e.storeDocument(e.getCredentialVaultID(saveCredentialToSDSRequest.UserID), saveCredentialToSDSRequest.Name, &structuredDoc)
 	if err != nil {
 		return fmt.Errorf(failureStoringCredErrMsg, err)
 	}
@@ -79,21 +78,22 @@ func (e *SDSComm) StoreCredential(credentialData *CredentialData) error {
 	return nil
 }
 
-func (e *SDSComm) StorePresentation(presentationData *PresentationData) error {
-	err := e.ensureVaultExists(e.getPresentationVaultID())
+func (e *SDSComm) StorePresentation(savePresentationToSDSRequest *SavePresentationToSDSRequest) error {
+	err := e.ensureVaultExists(e.getPresentationVaultID(savePresentationToSDSRequest.UserID))
 	if err != nil {
 		return fmt.Errorf(failureEnsuringPresVaultExistsErrMsg, err)
 	}
 
 	structuredDoc := models.StructuredDocument{
-		ID: presentationData.Name,
+		ID: savePresentationToSDSRequest.Name,
 	}
 
 	structuredDoc.Content = make(map[string]interface{})
 
-	structuredDoc.Content["presentation"] = presentationData.Presentation
+	structuredDoc.Content["presentation"] = savePresentationToSDSRequest.Presentation
 
-	err = e.storeDocument(e.getPresentationVaultID(), presentationData.Name, &structuredDoc)
+	err = e.storeDocument(e.getPresentationVaultID(savePresentationToSDSRequest.UserID),
+		savePresentationToSDSRequest.Name, &structuredDoc)
 	if err != nil {
 		return fmt.Errorf(failureStoringPresErrMsg, err)
 	}
@@ -121,18 +121,18 @@ func (e *SDSComm) ensureVaultExists(vaultID string) error {
 }
 
 // TODO don't leak username to SDS: #265
-func (e *SDSComm) getDIDVaultID() string {
-	return e.agentUsername + "_dids"
+func (e *SDSComm) getDIDVaultID(userID string) string {
+	return strings.ToLower(userID) + "_dids"
 }
 
 // TODO don't leak username to SDS: #265
-func (e *SDSComm) getCredentialVaultID() string {
-	return e.agentUsername + "_credentials"
+func (e *SDSComm) getCredentialVaultID(userID string) string {
+	return strings.ToLower(userID) + "_credentials"
 }
 
 // TODO don't leak username to SDS: #265
-func (e *SDSComm) getPresentationVaultID() string {
-	return e.agentUsername + "_presentations"
+func (e *SDSComm) getPresentationVaultID(userID string) string {
+	return strings.ToLower(userID) + "_presentations"
 }
 
 func (e *SDSComm) storeDocument(vaultID, friendlyName string, structuredDoc *models.StructuredDocument) error {
