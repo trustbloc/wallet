@@ -38,7 +38,20 @@ export class AgentMediator {
             topic: topicDidExchangeStates,
         })
 
-        await this.aries.mediator.register({connectionID: connID})
+
+        const retries = 10;
+        for (let i = 1; i <= retries; i++) {
+            try {
+                await this.aries.mediator.register({connectionID: connID})
+            } catch (e) {
+                if (!e.message.includes("timeout waiting for grant from the router") || i==retries) {
+                    throw e
+                }
+                await sleep(500);
+                continue
+            }
+           break
+        }
 
         let res = await this.aries.mediator.getConnection().catch(err => {
             if (!err.message.includes("router not registered")) {
@@ -87,4 +100,8 @@ export class AgentMediator {
 const createInvitationFromRouter = async (endpoint) => {
     const response = await axios.post(`${endpoint}${routerCreateInvitationPath}`, {label: 'mediator-label'})
     return response.data.invitation
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
