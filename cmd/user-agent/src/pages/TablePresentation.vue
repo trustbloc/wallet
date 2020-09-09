@@ -95,7 +95,7 @@ SPDX-License-Identifier: Apache-2.0
     beforeCreate: async function () {
       this.aries = await this.$arieslib
       const opts = await this.$trustblocStartupOpts
-      this.wallet = new WalletStore(this.aries, this.$trustblocAgent, opts, null)
+      this.wallet = new WalletStore(this.$store.getters.getCurrentUser.username, this.aries, this.$trustblocAgent, opts, null)
       await this.loadIssuers()
       // Load the Credentials in the drop down
       await this.aries.verifiable.getCredentials()

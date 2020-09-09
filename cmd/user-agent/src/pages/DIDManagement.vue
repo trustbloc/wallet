@@ -188,6 +188,10 @@ SPDX-License-Identifier: Apache-2.0
             const opts = await this.$trustblocStartupOpts
             this.didManager = new DIDManager(this.aries, this.$trustblocAgent, opts)
             this.searched = this.myData
+
+            // TODO to be replaced by actual user
+            this.username = this.$store.getters.getCurrentUser.username? this.$store.getters.getCurrentUser.username : 'demo-user'
+
             await this.loadDIDMetadata()
         },
         methods: {
@@ -221,7 +225,7 @@ SPDX-License-Identifier: Apache-2.0
 
                 // saving did
                 try {
-                     await this.didManager.saveDID(this.friendlyName, this.signType, did)
+                     await this.didManager.saveDID(this.username, this.friendlyName, this.signType, did)
                 } catch (e) {
                     this.loading = false;
                     this.didDocTextArea = `failed to save did: ${e.toString()}`
@@ -283,7 +287,7 @@ SPDX-License-Identifier: Apache-2.0
 
                 // saving did
                 try {
-                    await this.didManager.saveDID(this.anyDIDFriendlyName, this.selectSignKey, resp.did)
+                    await this.didManager.saveDID(this.username, this.anyDIDFriendlyName, this.selectSignKey, resp.did)
                 } catch (e) {
                     this.anyDidDocTextArea = `failed to save did : ${e.toString()}`
                     console.error("failed to save the did", e)

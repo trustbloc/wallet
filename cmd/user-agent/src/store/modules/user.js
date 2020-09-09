@@ -4,38 +4,55 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-//TODO integrate with wallet manager in addition to local storage
+import {WalletManager} from "../../pages/chapi/wallet";
+
 export default {
-    actions: {
-        setUser({commit}, username) {
-            commit('setUsername', username)
-        },
-        resetUser({commit}) {
-            commit('removeUsername')
-        },
-        initUserStore({commit}) {
-            commit('initiateUserStore')
-        },
-    },
-    mutations: {
-        setUsername(state, val) {
-            state.username = val
-            localStorage.setItem('username', val)
-        },
-        removeUsername(state) {
-            state.username = null
-            localStorage.removeItem('username')
-        },
-        initiateUserStore(state) {
-            state.username = localStorage.getItem('username');
-        }
-    },
     state: {
         username: null,
+        metadata: null,
+    },
+    mutations: {
+        setUser(state, val) {
+            state.username = val
+            localStorage.setItem('user', val)
+        },
+        setUserMetadata(state, val) {
+            state.metadata = val
+            localStorage.setItem('metadata', val)
+        },
+        clearUser(state) {
+            state.username = null
+            state.metadata = null
+
+            localStorage.removeItem('user')
+            localStorage.removeItem('metadata')
+        },
+        loadUser(state) {
+            state.username = localStorage.getItem('user');
+            state.metadata = localStorage.getItem('metadata');
+        }
+    },
+    actions: {
+        async login({commit}, username) {
+            commit('setUser', username)
+
+            await new WalletManager().getWalletMetadata(username).then(
+                resp => {
+                    commit('setUserMetadata', JSON.stringify(resp))
+                }
+            )
+
+        },
+        logout({commit}) {
+            commit('clearUser')
+        },
+        loadUser({commit}) {
+            commit('loadUser')
+        }
     },
     getters: {
-        getUser(state) {
-            return state.username
-        },
+        getCurrentUser(state) {
+            return state.username ? {username: state.username, metadata: state.metadata} : undefined
+        }
     },
 }

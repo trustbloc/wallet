@@ -109,9 +109,9 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
-        if (store.getters.getUser) {
+        if (store.getters.getCurrentUser) {
             next();
-        } else if (store.dispatch('initUserStore') && store.getters.getUser) {
+        } else if (store.dispatch('loadUser') && store.getters.getCurrentUser) {
             next()
         } else {
             next({
@@ -132,7 +132,7 @@ new Vue({
     data: () => ({
         loaded: false,
     }),
-    methods: mapActions(['initStore', 'onDidExchangeState', 'onIssueCredentialState', 'onPresentProofState', 'initUserStore']),
+    methods: mapActions(['initStore', 'onDidExchangeState', 'onIssueCredentialState', 'onPresentProofState', 'loadUser']),
     mounted: async function () {
         // gets aries options
         let ariesOpts = await ariesStartupOpts()
@@ -152,8 +152,8 @@ new Vue({
         window.$aries.startNotifier(this.onPresentProofState, ["present-proof_states"])
         // inits storage
         await this.initStore({aries: ariesOpts, trustbloc: trustblocOpts})
-        // inits user storage
-        await this.initUserStore()
+        // inits user storage and load user
+        await this.loadUser()
         // removes spinner
         this.loaded = true
     },

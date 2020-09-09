@@ -8,10 +8,11 @@ import Vue from 'vue'
 import {expect} from 'chai'
 import {shallowMount} from '@vue/test-utils'
 import Store from '../../../../cmd/user-agent/src/pages/chapi/Store.vue'
-import {loadFrameworks, wcredHandler, promiseWhen} from '../common.js'
+import {loadFrameworks, wcredHandler, promiseWhen, store, localVue} from '../common.js'
 import * as polyfill from 'credential-handler-polyfill'
 import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import {studentCardAndDegreeToStore, studentCardToStore} from './testdata.js'
+
 var uuid = require('uuid/v4')
 
 const storeCredentialFriendlyName = `StudentCard_Mr.Foo_${uuid()}`
@@ -20,6 +21,8 @@ function mountStore(wch, done) {
     return function (frameworks) {
         toBeDestroyed.push(frameworks.aries)
         done(shallowMount(Store, {
+            localVue,
+            store,
             mocks: {
                 $polyfill: polyfill,
                 $webCredentialHandler: wch,

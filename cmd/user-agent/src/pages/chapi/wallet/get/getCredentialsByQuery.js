@@ -89,15 +89,16 @@ export class WalletGetByQuery extends WalletGet {
                 }
             }
 
+            let walletMetadata = await this.walletManager.getWalletMetadata(walletUser)
 
             let data
             await this.aries.verifiable.generatePresentation({
                 presentation: presentationSubmission,
-                did: walletUser.did,
+                did: walletMetadata.did,
                 domain: this.domain,
                 challenge: this.challenge,
                 skipVerify: true,
-                signatureType: walletUser.signatureType
+                signatureType: walletMetadata.signatureType
             }).then(resp => {
                     data = resp.verifiablePresentation
                 }

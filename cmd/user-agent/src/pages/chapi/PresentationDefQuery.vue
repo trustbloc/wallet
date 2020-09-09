@@ -144,8 +144,9 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 
-    import {filterCredentialsByType, getCredentialType, WalletGetByQuery, WalletManager} from "./wallet"
+    import {filterCredentialsByType, getCredentialType, WalletGetByQuery} from "./wallet"
     import Governance from "./Governance.vue";
+    import {mapGetters} from 'vuex'
 
     const warning = "No credentials found in your wallet for above information asked"
     const manifestCredType = 'IssuerManifestCredential'
@@ -158,8 +159,7 @@ SPDX-License-Identifier: Apache-2.0
             await this.wallet.connect()
 
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
-            this.registeredWalletUser = await new WalletManager().getRegisteredUser()
-            if (!this.registeredWalletUser) {
+            if (!this.$store.getters.getCurrentUser) {
                 //this can never happen, but still one extra layer of security
                 this.credentialWarning = 'Wallet is not registered'
             }
@@ -207,9 +207,10 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
+            ...mapGetters(['getCurrentUser']),
             createPresentation: async function () {
                 this.loading = true
-                await this.wallet.createAndSendPresentation(this.registeredWalletUser, this.presentation, this.selectedVCs)
+                await this.wallet.createAndSendPresentation(this.getCurrentUser().username, this.presentation, this.selectedVCs)
                 this.loading = false
             },
             cancel: async function () {
