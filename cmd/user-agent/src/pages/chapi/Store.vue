@@ -82,6 +82,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
     import {isCredentialType, isVCType, getCredentialMetadata, WalletStore} from "./wallet"
+    import {mapGetters} from 'vuex'
 
     export default {
         beforeCreate: async function () {
@@ -100,7 +101,7 @@ SPDX-License-Identifier: Apache-2.0
 
             this.wallet = new WalletStore(await this.$arieslib,
                 await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts), this.$trustblocStartupOpts,
-                credentialEvent)
+                credentialEvent, this.$store.getters.getCurrentUser.username)
 
             // prefill form
             this.prefillForm()
@@ -125,6 +126,7 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
+            ...mapGetters(['getCurrentUser']),
             prefillForm: function() {
                 const {issuance, issuer, subject} = getCredentialMetadata(this.credData, this.dataType)
                 this.issuance = issuance

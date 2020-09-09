@@ -61,15 +61,6 @@ export class WalletManager extends KeyValueStore {
         return this.connectionStore.get(id)
     }
 
-    async getRegisteredUser() {
-        let result = await this.getAllWalletMetadata()
-        if (!result || result.length == 0) {
-            return
-        }
-
-        return result[0]
-    }
-
     async clear() {
         await super.clear()
         await this.connectionStore.clear()

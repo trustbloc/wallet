@@ -46,11 +46,12 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
     import {RegisterWallet} from "./wallet"
+    import {mapActions, mapGetters} from 'vuex'
 
     export default {
         beforeCreate: async function () {
-            this.$store.dispatch('initUserStore')
-            if (this.$store.getters.getUser) {
+            this.$store.dispatch('loadUser')
+            if (this.$store.getters.getCurrentUser) {
                 this.$router.push("/dashboard");
                 return
             }
@@ -67,23 +68,38 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
+            ...mapActions({loginUser: 'login'}),
+            ...mapGetters(['getCurrentUser']),
+            // this function to be called after successful OIDC login
             login: async function () {
                 this.loading = true
-                // TODO OIDC login intergation, for now all logins will succeed
+
+                await this.loginUser(this.username)
+                let user = this.getCurrentUser()
+
+                console.log(`current user ${user.username}, logged in user ${this.username}`)
                 try {
-                    await this.registrar.register(this.username)
+                    if (!user || !user.metadata) {
+                        // first time login, register this user
+                        await this.registrar.register(this.username)
+                    }
+
+                    await this.registrar.installHandlers(this.username)
                 } catch (e) {
-                    console.error(e)
-                    this.statusMsg = e.toString()
+                    this.handleFailure(e)
                     this.loading = false
                     return
                 }
+
                 this.handleSuccess()
                 this.loading = false
             },
             handleSuccess() {
-                this.$store.dispatch('setUser', this.username)
                 this.$router.push("/dashboard");
+            },
+            handleFailure(e) {
+                console.error(e)
+                this.statusMsg = e.toString()
             }
         }
     }

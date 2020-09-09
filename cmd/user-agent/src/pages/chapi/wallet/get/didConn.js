@@ -24,7 +24,7 @@ export class DIDConn {
         this.aries = aries
         this.walletUser = walletUser
         this.walletManager = new WalletManager()
-        this.walletStore = new WalletStore(aries, trustblocAgent, trustblocStartupOpts, credEvent)
+        this.walletStore = new WalletStore(aries, trustblocAgent, trustblocStartupOpts, credEvent, walletUser)
         this.exchange = new DIDExchange(aries)
         this.credEvent = credEvent
 
@@ -58,11 +58,12 @@ export class DIDConn {
         let connection = await this.exchange.connect(this.invitation)
 
         // save wallet metadata
-        if (!this.walletUser.connections) {
-            this.walletUser.connections = []
+        let walletMetadata = await this.walletManager.getWalletMetadata(this.walletUser)
+        if (!walletMetadata.connections) {
+            walletMetadata.connections = []
         }
-        this.walletUser.connections.push(connection.result.ConnectionID)
-        await this.walletManager.storeWalletMetadata(this.walletUser.id, this.walletUser)
+        walletMetadata.connections.push(connection.result.ConnectionID)
+        await this.walletManager.storeWalletMetadata(walletMetadata, walletMetadata)
 
         // save connection
         await this.walletManager.storeConnection(connection.result.ConnectionID, connection.result)
@@ -78,19 +79,19 @@ export class DIDConn {
             }
         }
 
-        let responseData = await this._didConnResponse(connection.result)
+        let responseData = await this._didConnResponse(walletMetadata, connection.result)
         this.sendResponse("VerifiablePresentation", responseData)
     }
 
 
-    async _didConnResponse(connection) {
+    async _didConnResponse(walletMetadata, connection) {
 
         let credential = {
             "@context": [
                 "https://www.w3.org/2018/credentials/v1",
                 "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
             ],
-            issuer: this.walletUser.did,
+            issuer: walletMetadata.did,
             issuanceDate: new Date(),
             type: ["VerifiableCredential", "DIDConnection"],
             credentialSubject: {
@@ -107,8 +108,8 @@ export class DIDConn {
         let vc, failure
         await this.aries.verifiable.signCredential({
             credential: credential,
-            did: this.walletUser.did,
-            signatureType: this.walletUser.signatureType
+            did: walletMetadata.did,
+            signatureType: walletMetadata.signatureType
         }).then(resp => {
                 if (!resp.verifiableCredential) {
                     failure = "failed to create did connection credential"
@@ -132,7 +133,7 @@ export class DIDConn {
                 "https://www.w3.org/2018/credentials/v1"
             ],
             type: "VerifiablePresentation",
-            holder: this.walletUser.did,
+            holder: walletMetadata.did,
             verifiableCredential: [vc]
         }
 
@@ -141,8 +142,8 @@ export class DIDConn {
             presentation: presentation,
             domain: this.domain,
             challenge: this.challenge,
-            did: this.walletUser.did,
-            signatureType: this.walletUser.signatureType,
+            did: walletMetadata.did,
+            signatureType: walletMetadata.signatureType,
             skipVerify: true,
         }).then(resp => {
                 if (!resp.verifiablePresentation) {

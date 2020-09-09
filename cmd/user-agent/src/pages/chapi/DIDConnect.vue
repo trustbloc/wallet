@@ -82,21 +82,22 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 
-    import {DIDConn, WalletManager} from "./wallet"
+    import {DIDConn} from "./wallet"
     import Governance from "./Governance.vue";
 
     export default {
         components: {Governance},
         beforeCreate: async function () {
-            this.walletUser = await new WalletManager().getRegisteredUser()
-            if (!this.walletUser) {
+            // TODO move below validation to router and show agent login
+            let userState = this.$store.getters.getCurrentUser
+            if (!userState) {
                 //this can never happen, but still one extra layer of security
                 this.credentialWarning = 'Wallet is not registered'
             }
 
             this.wallet = new DIDConn(await this.$arieslib,
                 await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts), this.$trustblocStartupOpts,
-                this.$parent.credentialEvent, this.walletUser)
+                this.$parent.credentialEvent, userState.username)
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
             this.userCredentials = this.wallet.getUserCredentials()
             this.govnVC = this.wallet.getGovernanceCredential()

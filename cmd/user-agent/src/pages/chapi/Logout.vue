@@ -17,6 +17,7 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import {RegisterWallet} from "./wallet"
+    import {mapActions} from 'vuex'
 
     export default {
         beforeCreate: async function () {
@@ -24,9 +25,10 @@ SPDX-License-Identifier: Apache-2.0
                 this.$trustblocAgent, await this.$trustblocStartupOpts)
         },
         methods: {
+            ...mapActions({logoutUser: 'logout'}),
             logout: async function () {
-                await this.registrar.unregister()
-                this.$store.dispatch('resetUser')
+                await this.registrar.uninstallHandlers()
+                this.logoutUser()
                 this.$router.push("/login");
             }
         }

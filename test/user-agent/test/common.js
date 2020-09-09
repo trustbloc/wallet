@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import * as Aries from "@trustbloc-cicd/aries-framework-go"
+import {createLocalVue} from "@vue/test-utils";
+import Vuex from "vuex";
 
 const createInvitationPath = `/connections/create-invitation`
 
@@ -102,3 +104,14 @@ export function promiseWhen(fn, timeout, interval) {
         loop(resolve)
     });
 }
+
+export const localVue = createLocalVue()
+localVue.use(Vuex)
+
+export const store = new Vuex.Store({
+    getters: {
+        getCurrentUser(state) {
+            return {username: 'sampleWalletUser'}
+        }
+    },
+})

@@ -62,13 +62,12 @@ SPDX-License-Identifier: Apache-2.0
             SimpleTable,
         },
         beforeCreate: async function () {
-            console.log('here is the user', this.username)
             // Load the Credentials
             let aries = await this.$arieslib
             window.$webCredentialHandler = this.$webCredentialHandler
             window.$aries = aries
             await this.getCredentials(aries)
-            this.username = this.$store.getters.getUser
+            this.username = this.$store.getters.getCurrentUser.username
         },
         methods: {
             getCredentials: async function (aries) {

@@ -12,20 +12,21 @@ import Get from '../../../../cmd/user-agent/src/pages/chapi/Get.vue'
 import PresentationDefQuery from '../../../../cmd/user-agent/src/pages/chapi/PresentationDefQuery.vue'
 import DIDConnect from '../../../../cmd/user-agent/src/pages/chapi/DIDConnect.vue'
 import {AgentMediator, RegisterWallet} from '../../../../cmd/user-agent/src/pages/chapi/wallet'
-import {loadFrameworks, promiseWhen, trustBlocStartupOpts, wcredHandler} from '../common.js'
+import {loadFrameworks, promiseWhen, trustBlocStartupOpts, wcredHandler,  localVue, store} from '../common.js'
 import * as polyfill from 'credential-handler-polyfill'
 import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import {issue_credential, manifest, prcAndUdcVP, presentationDefQuery1, presentationDefQuery2} from './testdata.js'
 import {waitForEvent} from "../../../../cmd/user-agent/src/events";
 var uuid = require('uuid/v4')
 
-const walletUser = "sample-user"
+const walletUser = "sampleWalletUser"
 const challenge = `705aa4da-b240-4c14-8652-8ed35a886ed5-${Math.random()}`
 
 function mountStore(wch, done) {
     return function (frameworks) {
         toBeDestroyed.push(frameworks.aries)
         done(shallowMount(Store, {
+            localVue, store,
             mocks: {
                 $polyfill: polyfill,
                 $webCredentialHandler: wch,
@@ -41,6 +42,7 @@ function mountGet(wch, done) {
     return function (frameworks) {
         toBeDestroyed.push(frameworks.aries)
         done(mount(Get, {
+            localVue, store,
             mocks: {
                 $polyfill: polyfill,
                 $webCredentialHandler: wch,
