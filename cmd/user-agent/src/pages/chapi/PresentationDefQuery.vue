@@ -159,10 +159,6 @@ SPDX-License-Identifier: Apache-2.0
             await this.wallet.connect()
 
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
-            if (!this.$store.getters.getCurrentUser) {
-                //this can never happen, but still one extra layer of security
-                this.credentialWarning = 'Wallet is not registered'
-            }
 
             try {
                 this.presentation = await this.wallet.getPresentationSubmission()

@@ -21,85 +21,100 @@ import Relationships from "@/pages/Relationships.vue";
 import IssueCredential from "@/pages/IssueCredential.vue";
 import PresentProof from "@/pages/PresentProof.vue";
 import NotFound from '@/pages/PageNotFound'
+import BlockNoAuth from "@/pages/chapi/BlockNoAuth.vue";
+
 const routes = [
     {
         path: "/",
         component: DashboardLayout,
-        name: "dashboard",
+        // name: "dashboard",
         redirect: "dashboard",
         children: [
             {
                 path: "dashboard",
+                name: "dashboard",
                 component: Dashboard,
-                meta: { requiresAuth: true }
+                meta: {requiresAuth: true}
             },
             {
                 path: "login",
+                name: "login",
                 component: Login
             },
             {
                 path: "logout",
+                name: "logout",
                 component: Logout
             },
             {
                 path: "ViewVC",
-                name: "View Wallet",
+                name: "view-credential",
                 component: TableList
             },
             {
                 path: "MyVC",
-                name: "Generate Presentation",
+                name: "my-credential",
                 component: TablePresentation
             },
             {
                 path: "WebWallet",
-                name: "Web Wallet Demo",
+                name: "web-wallet",
                 component: WebWallet
             },
             {
                 path: "DIDManagement",
-                name: "DID Management",
+                name: "did-management",
                 component: DIDManagement
             },
             {
                 path: "connections",
-                name: "Connections",
+                name: "connections",
                 component: Connections
             },
             {
                 path: "relationships",
-                name: "Relationships",
+                name: "relationships",
                 component: Relationships
-            }, {
+            },
+            {
                 path: "issue-credential",
-                name: "Issue Credential",
+                name: "issue-credential",
                 component: IssueCredential
-            }, {
+            },
+            {
                 path: "present-proof",
-                name: "Present Proof",
+                name: "present-proof",
                 component: PresentProof
             }
         ]
     },
     {
         path: '*',
-        name: 'NotFound',
         component: NotFound
     },
     {
         path: "/StoreInWallet",
-        component: StoreInWallet
+        name: "chapi-store",
+        component: StoreInWallet,
+        meta: {blockNoAuth: true}
     },
     {
         path: "/GetFromWallet",
-        component: GetFromWallet
+        name: "chapi-get",
+        component: GetFromWallet,
+        meta: {blockNoAuth: true}
     },
     {
         path: "/worker",
+        name: "chapi-worker",
         component: WalletWorker
-    }
+    },
+    {
+        path: '/needauth',
+        name: "block-no-auth",
+        component: BlockNoAuth
+    },
 ];
-
 
 
 export default routes;
