@@ -7,11 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <md-toolbar md-elevation="0" class="md-transparent">
     <div class="md-toolbar-row">
-      <div class="md-toolbar-section-start">
-        <h3>
-          <span class="tim-note"></span>{{ $route.name }}
-        </h3>
-      </div>
       <div class="md-toolbar-section-end">
         <md-button
           class="md-just-icon md-simple md-toolbar-toggle"

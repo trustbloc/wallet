@@ -88,16 +88,9 @@ SPDX-License-Identifier: Apache-2.0
     export default {
         components: {Governance},
         beforeCreate: async function () {
-            // TODO move below validation to router and show agent login
-            let userState = this.$store.getters.getCurrentUser
-            if (!userState) {
-                //this can never happen, but still one extra layer of security
-                this.credentialWarning = 'Wallet is not registered'
-            }
-
             this.wallet = new DIDConn(await this.$arieslib,
                 await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts), this.$trustblocStartupOpts,
-                this.$parent.credentialEvent, userState.username)
+                this.$parent.credentialEvent, this.$store.getters.getCurrentUser.username)
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
             this.userCredentials = this.wallet.getUserCredentials()
             this.govnVC = this.wallet.getGovernanceCredential()

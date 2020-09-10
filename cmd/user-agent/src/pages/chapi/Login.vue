@@ -50,9 +50,12 @@ SPDX-License-Identifier: Apache-2.0
 
     export default {
         beforeCreate: async function () {
+            let redirect = this.$route.params['redirect']
+            this.redirect = redirect ? {name: redirect} : '/'
+
             this.$store.dispatch('loadUser')
             if (this.$store.getters.getCurrentUser) {
-                this.$router.push("/dashboard");
+                this.$router.push(this.redirect);
                 return
             }
 
@@ -77,7 +80,6 @@ SPDX-License-Identifier: Apache-2.0
                 await this.loginUser(this.username)
                 let user = this.getCurrentUser()
 
-                console.log(`current user ${user.username}, logged in user ${this.username}`)
                 try {
                     if (!user || !user.metadata) {
                         // first time login, register this user
@@ -95,7 +97,7 @@ SPDX-License-Identifier: Apache-2.0
                 this.loading = false
             },
             handleSuccess() {
-                this.$router.push("/dashboard");
+                this.$router.push(this.redirect);
             },
             handleFailure(e) {
                 console.error(e)

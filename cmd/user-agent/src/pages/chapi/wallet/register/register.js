@@ -101,6 +101,6 @@ export class RegisterWallet extends WalletManager {
             return
         }
 
-        await this.wcredHandler.uninstallHandler({url: '/worker.html'})
+        await this.wcredHandler.uninstallHandler({url: '/worker'})
     }
 }

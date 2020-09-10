@@ -115,7 +115,17 @@ router.beforeEach((to, from, next) => {
             next()
         } else {
             next({
-                path: "login"
+                name: "login",
+                params: {redirect: to.name},
+            });
+        }
+    } else if (to.matched.some(record => record.meta.blockNoAuth)) {
+        if (store.dispatch('loadUser') && store.getters.getCurrentUser) {
+            next()
+        } else {
+            next({
+                name: "block-no-auth",
+                params: {login: "/login"},
             });
         }
     } else {
