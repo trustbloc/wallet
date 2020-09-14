@@ -8,7 +8,7 @@ import Vue from 'vue'
 import {expect} from 'chai'
 import {shallowMount} from '@vue/test-utils'
 import Store from '../../../../cmd/user-agent/src/pages/chapi/Store.vue'
-import {loadFrameworks, wcredHandler, promiseWhen, store, localVue} from '../common.js'
+import {loadFrameworks, localVue, mockStore, promiseWhen, wcredHandler} from '../common.js'
 import * as polyfill from 'credential-handler-polyfill'
 import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import {studentCardAndDegreeToStore, studentCardToStore} from './testdata.js'
@@ -22,11 +22,10 @@ function mountStore(wch, done) {
         toBeDestroyed.push(frameworks.aries)
         done(shallowMount(Store, {
             localVue,
-            store,
+            store: mockStore(frameworks.aries),
             mocks: {
                 $polyfill: polyfill,
                 $webCredentialHandler: wch,
-                $arieslib: frameworks.aries,
                 $trustblocAgent: trustblocAgent,
                 $trustblocStartupOpts: frameworks.trustblocStartupOpts
             }
@@ -59,15 +58,15 @@ describe('store a credential in wallet', () => {
 
     });
 
-    it('store credential wizard is loaded in wallet',  async () => {
+    it('store credential wizard is loaded in wallet', async () => {
         await promiseWhen(() => !wrapper.vm.sendButton)
     })
 
-    it('all credential store metadata are pre-populated in wallet',  async () => {
+    it('all credential store metadata are pre-populated in wallet', async () => {
         expect(wrapper.vm.subject).to.equal("StudentCard")
         expect(wrapper.vm.issuer).to.equal("did:trustbloc:testnet.trustbloc.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw")
         expect(wrapper.vm.issuance).to.deep.equal(new Date("2020-05-27T20:36:05.301Z"))
-        expect(wrapper.vm.friendlyName).to.equal(wrapper.vm.subject.concat(' ', wrapper.vm.issuance))
+        expect(wrapper.vm.friendlyName).to.include(wrapper.vm.subject)
         expect(wrapper.vm.credData).to.equal(studentCardToStore)
     })
 
@@ -112,7 +111,7 @@ describe('store a credential in wallet with existing friendly name', () => {
         })
     });
 
-    it('store credential wizard is loaded in wallet',  async () => {
+    it('store credential wizard is loaded in wallet', async () => {
         await promiseWhen(() => !wrapper.vm.sendButton)
     })
 
@@ -120,7 +119,7 @@ describe('store a credential in wallet with existing friendly name', () => {
         expect(wrapper.vm.subject).to.equal("StudentCard")
         expect(wrapper.vm.issuer).to.equal("did:trustbloc:testnet.trustbloc.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw")
         expect(wrapper.vm.issuance).to.deep.equal(new Date("2020-05-27T20:36:05.301Z"))
-        expect(wrapper.vm.friendlyName).to.equal(wrapper.vm.subject.concat(' ', wrapper.vm.issuance))
+        expect(wrapper.vm.friendlyName).to.include(wrapper.vm.subject)
         expect(wrapper.vm.credData).to.equal(studentCardToStore)
     })
 
@@ -155,7 +154,7 @@ describe('store multiple credentials in wallet', () => {
         })
     });
 
-    it('store credential wizard is loaded in wallet',  async () => {
+    it('store credential wizard is loaded in wallet', async () => {
         await promiseWhen(() => !wrapper.vm.sendButton)
     })
 
@@ -163,7 +162,7 @@ describe('store multiple credentials in wallet', () => {
         expect(wrapper.vm.subject).to.equal("StudentCard,UniversityDegreeCredential")
         expect(wrapper.vm.issuer).to.equal("did:trustbloc:testnet.trustbloc.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw,did:trustbloc:testnet.trustbloc.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw")
         expect(wrapper.vm.issuance).to.deep.equal(new Date("2020-05-28T21:16:57.780923246Z"))
-        expect(wrapper.vm.friendlyName).to.equal(wrapper.vm.subject.concat(' ', wrapper.vm.issuance))
+        expect(wrapper.vm.friendlyName).to.include(wrapper.vm.subject)
         expect(wrapper.vm.credData).to.equal(studentCardAndDegreeToStore)
     })
 

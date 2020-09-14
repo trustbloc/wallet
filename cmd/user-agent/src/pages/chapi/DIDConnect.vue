@@ -84,13 +84,16 @@ SPDX-License-Identifier: Apache-2.0
 
     import {DIDConn} from "./wallet"
     import Governance from "./Governance.vue";
+    import {mapGetters, mapActions} from 'vuex'
 
     export default {
         components: {Governance},
-        beforeCreate: async function () {
-            this.wallet = new DIDConn(await this.$arieslib,
+        created: async function () {
+            await this.initAries()
+            this.wallet = new DIDConn(this.getAriesInstance(),
                 await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts), this.$trustblocStartupOpts,
                 this.$parent.credentialEvent, this.$store.getters.getCurrentUser.username)
+
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
             this.userCredentials = this.wallet.getUserCredentials()
             this.govnVC = this.wallet.getGovernanceCredential()
@@ -110,6 +113,8 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
+            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapActions('aries', {initAries: 'init'}),
             cancel: async function () {
                 this.wallet.cancel()
             },

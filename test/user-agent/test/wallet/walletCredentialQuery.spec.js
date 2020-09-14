@@ -12,11 +12,12 @@ import Get from '../../../../cmd/user-agent/src/pages/chapi/Get.vue'
 import PresentationDefQuery from '../../../../cmd/user-agent/src/pages/chapi/PresentationDefQuery.vue'
 import DIDConnect from '../../../../cmd/user-agent/src/pages/chapi/DIDConnect.vue'
 import {AgentMediator, RegisterWallet} from '../../../../cmd/user-agent/src/pages/chapi/wallet'
-import {loadFrameworks, promiseWhen, trustBlocStartupOpts, wcredHandler,  localVue, store} from '../common.js'
+import {loadFrameworks, localVue, mockStore, promiseWhen, wcredHandler} from '../common.js'
 import * as polyfill from 'credential-handler-polyfill'
 import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import {issue_credential, manifest, prcAndUdcVP, presentationDefQuery1, presentationDefQuery2} from './testdata.js'
 import {waitForEvent} from "../../../../cmd/user-agent/src/events";
+
 var uuid = require('uuid/v4')
 
 const walletUser = "sampleWalletUser"
@@ -26,11 +27,11 @@ function mountStore(wch, done) {
     return function (frameworks) {
         toBeDestroyed.push(frameworks.aries)
         done(shallowMount(Store, {
-            localVue, store,
+            localVue,
+            store: mockStore(frameworks.aries),
             mocks: {
                 $polyfill: polyfill,
                 $webCredentialHandler: wch,
-                $arieslib: frameworks.aries,
                 $trustblocAgent: trustblocAgent,
                 $trustblocStartupOpts: frameworks.trustblocStartupOpts,
             }
@@ -42,11 +43,11 @@ function mountGet(wch, done) {
     return function (frameworks) {
         toBeDestroyed.push(frameworks.aries)
         done(mount(Get, {
-            localVue, store,
+            localVue,
+            store: mockStore(frameworks.aries),
             mocks: {
                 $polyfill: polyfill,
                 $webCredentialHandler: wch,
-                $arieslib: frameworks.aries,
                 $trustblocAgent: trustblocAgent,
                 $trustblocStartupOpts: frameworks.trustblocStartupOpts,
             }
@@ -64,7 +65,7 @@ describe('register wallet', () => {
     let wch = new wcredHandler()
 
     it('logged in to wallet', async () => {
-        let opts = await loadFrameworks({loadTrustbloc:true})
+        let opts = await loadFrameworks({loadTrustbloc: true})
         let register = new RegisterWallet(polyfill, wch, opts.aries, trustblocAgent, opts.trustblocStartupOpts)
         try {
             register.skipPolyfill = true
@@ -95,7 +96,7 @@ describe('store credentials', () => {
         })
     });
 
-    it('store credential wizard is loaded in wallet',  async () => {
+    it('store credential wizard is loaded in wallet', async () => {
         await promiseWhen(() => !wrapper.vm.sendButton)
     })
 
@@ -137,7 +138,7 @@ describe('get credentials by presentation definition query', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadFrameworks({loadTrustbloc:true}).then(mountGet(wch, (wr) => {
+        return loadFrameworks({loadTrustbloc: true}).then(mountGet(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
             console.error('error starting aries framework : errMsg=', err)
@@ -211,7 +212,7 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
     }
 
     // start issuer, register router and create invitation
-    loadFrameworks({name:'issuer'}).then(async opts => {
+    loadFrameworks({name: 'issuer'}).then(async opts => {
         let mediator = new AgentMediator(opts.aries)
         await mediator.connect('https://localhost:10063').then(ur => {
             console.log("issuer mediator registered successfully")
@@ -231,7 +232,7 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadFrameworks({loadTrustbloc:true}).then(mountGet(wch, (wr) => {
+        return loadFrameworks({loadTrustbloc: true}).then(mountGet(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
             console.error('error starting aries framework : errMsg=', err)
@@ -287,7 +288,7 @@ describe('verifier queries credentials - DIDComm Flow', () => {
 
     // start verifier, register router and create invitation
     let verifier
-    loadFrameworks({name:'verifier'}).then(async opts => {
+    loadFrameworks({name: 'verifier'}).then(async opts => {
         let mediator = new AgentMediator(opts.aries)
         await mediator.connect('https://localhost:10063').then(ur => {
             console.log("verifier mediator registered successfully")
@@ -307,7 +308,7 @@ describe('verifier queries credentials - DIDComm Flow', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadFrameworks({loadTrustbloc:true}).then(mountGet(wch, (wr) => {
+        return loadFrameworks({loadTrustbloc: true}).then(mountGet(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
             console.error('error starting aries framework : errMsg=', err)

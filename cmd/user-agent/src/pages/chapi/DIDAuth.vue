@@ -70,11 +70,13 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import {DIDAuth} from "./wallet"
+    import {mapGetters, mapActions} from 'vuex'
 
     export default {
-        beforeCreate: async function () {
-            const aries = await this.$arieslib
-            this.wallet = new DIDAuth(aries, this.$parent.credentialEvent)
+        created: async function () {
+            await this.initAries()
+
+            this.wallet = new DIDAuth(this.getAriesInstance(), this.$parent.credentialEvent)
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
 
             await this.loadIssuers()
@@ -91,6 +93,8 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
+            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapActions('aries', {initAries: 'init'}),
             loadIssuers: async function () {
                 try {
                     this.issuers = await this.wallet.getDIDRecords()

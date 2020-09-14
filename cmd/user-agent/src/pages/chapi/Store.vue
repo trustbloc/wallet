@@ -82,11 +82,13 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
     import {isCredentialType, isVCType, getCredentialMetadata, WalletStore} from "./wallet"
-    import {mapGetters} from 'vuex'
+    import {mapGetters, mapActions} from 'vuex'
 
     export default {
-        beforeCreate: async function () {
+        created: async function () {
+            await this.initAries()
 
+            // Load the Credentials
             const credentialEvent = await this.$webCredentialHandler.receiveCredentialEvent();
             console.log("Credential event received :", credentialEvent.credential)
 
@@ -99,7 +101,7 @@ SPDX-License-Identifier: Apache-2.0
             this.credData = credentialEvent.credential.data
             this.dataType = credentialEvent.credential.dataType
 
-            this.wallet = new WalletStore(await this.$arieslib,
+            this.wallet = new WalletStore(this.getAriesInstance(),
                 await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts), this.$trustblocStartupOpts,
                 credentialEvent, this.$store.getters.getCurrentUser.username)
 
@@ -127,12 +129,14 @@ SPDX-License-Identifier: Apache-2.0
         },
         methods: {
             ...mapGetters(['getCurrentUser']),
+            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapActions('aries', {initAries: 'init'}),
             prefillForm: function() {
                 const {issuance, issuer, subject} = getCredentialMetadata(this.credData, this.dataType)
                 this.issuance = issuance
                 this.issuer = issuer
                 this.subject = subject
-                this.friendlyName = subject.concat(' ', issuance)
+                this.friendlyName = subject.concat('_', new Date().valueOf())
             },
             store: async function () {
                 this.errors.length = 0
