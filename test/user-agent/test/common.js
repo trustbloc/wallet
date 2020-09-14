@@ -108,10 +108,28 @@ export function promiseWhen(fn, timeout, interval) {
 export const localVue = createLocalVue()
 localVue.use(Vuex)
 
-export const store = new Vuex.Store({
-    getters: {
-        getCurrentUser(state) {
-            return {username: 'sampleWalletUser'}
+export function mockStore(aries) {
+    return new Vuex.Store({
+        getters: {
+            getCurrentUser(state) {
+                return {username: 'sampleWalletUser'}
+            }
+        },
+        modules: {
+            aries: {
+                namespaced: true,
+                actions: {
+                    async init({commit, rootState, state}) {
+                    },
+                    async destroy({commit, state}) {
+                    },
+                },
+                getters: {
+                    getInstance(state) {
+                        return aries
+                    }
+                }
+            }
         }
-    },
-})
+    })
+}

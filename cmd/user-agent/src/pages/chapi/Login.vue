@@ -49,18 +49,17 @@ SPDX-License-Identifier: Apache-2.0
     import {mapActions, mapGetters} from 'vuex'
 
     export default {
-        beforeCreate: async function () {
+        created: async function () {
             let redirect = this.$route.params['redirect']
             this.redirect = redirect ? {name: redirect} : '/'
 
-            this.$store.dispatch('loadUser')
-            if (this.$store.getters.getCurrentUser) {
-                this.$router.push(this.redirect);
+            this.loadUser()
+            if (this.getCurrentUser()) {
+                this.handleSuccess()
                 return
             }
 
-            this.registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, await this.$arieslib,
-                this.$trustblocAgent, await this.$trustblocStartupOpts)
+
         },
         data() {
             return {
@@ -71,8 +70,9 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
-            ...mapActions({loginUser: 'login'}),
+            ...mapActions({loginUser: 'login', loadUser: 'loadUser'}),
             ...mapGetters(['getCurrentUser']),
+            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
             // this function to be called after successful OIDC login
             login: async function () {
                 this.loading = true
@@ -80,13 +80,16 @@ SPDX-License-Identifier: Apache-2.0
                 await this.loginUser(this.username)
                 let user = this.getCurrentUser()
 
+                let registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, this.getAriesInstance(),
+                    this.$trustblocAgent, await this.$trustblocStartupOpts)
+
                 try {
                     if (!user || !user.metadata) {
                         // first time login, register this user
-                        await this.registrar.register(this.username)
+                        await registrar.register(this.username)
                     }
 
-                    await this.registrar.installHandlers(this.username)
+                    await registrar.installHandlers(this.username)
                 } catch (e) {
                     this.handleFailure(e)
                     this.loading = false

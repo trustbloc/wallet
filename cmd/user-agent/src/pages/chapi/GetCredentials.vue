@@ -87,11 +87,13 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import {searchByTypeAndHolder, WalletGet} from "./wallet"
+    import {mapGetters, mapActions} from 'vuex'
 
     export default {
-        beforeCreate: async function () {
-            const aries = await this.$arieslib
-            this.wallet = new WalletGet(aries, this.$parent.credentialEvent)
+        created: async function () {
+            await this.initAries()
+
+            this.wallet = new WalletGet(this.getAriesInstance(), this.$parent.credentialEvent)
             this.search = this.wallet.search
             this.reason = this.wallet.reason
             this.credentialEvent = this.$parent.credentialEvent
@@ -122,6 +124,8 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
+            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapActions('aries', {initAries: 'init'}),
             searchOnTable() {
                 this.searched = searchByTypeAndHolder(this.savedVCs, this.search, this.issuers[this.selectedIssuer].key)
             },

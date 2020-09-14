@@ -142,7 +142,7 @@ new Vue({
     data: () => ({
         loaded: false,
     }),
-    methods: mapActions(['initStore', 'onDidExchangeState', 'onIssueCredentialState', 'onPresentProofState', 'loadUser']),
+    methods: mapActions(['initStore', 'onDidExchangeState', 'onIssueCredentialState', 'onPresentProofState', 'loadUser', 'aries/setOpts']),
     mounted: async function () {
         // gets aries options
         let ariesOpts = await ariesStartupOpts()
@@ -154,6 +154,8 @@ new Vue({
         let trustblocOpts = await trustblocStartupOpts()
         Vue.prototype.$trustblocStartupOpts = trustblocOpts
 
+        this['aries/setOpts'](ariesOpts)
+
         // registers listener which will update connections
         window.$aries.startNotifier(this.onDidExchangeState, ["didexchange_states"])
         // registers listener which will update credentials
@@ -163,7 +165,8 @@ new Vue({
         // inits storage
         await this.initStore({aries: ariesOpts, trustbloc: trustblocOpts})
         // inits user storage and load user
-        await this.loadUser()
+        this.loadUser()
+
         // removes spinner
         this.loaded = true
     },

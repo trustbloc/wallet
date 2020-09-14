@@ -181,10 +181,13 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import {DIDManager} from "./chapi/wallet";
+    import {mapGetters, mapActions} from 'vuex'
 
     export default {
-        beforeCreate: async function () {
-            this.aries = await this.$arieslib
+        created: async function () {
+            await this.initAries()
+            this.aries = this.getAriesInstance()
+
             const opts = await this.$trustblocStartupOpts
             this.didManager = new DIDManager(this.aries, this.$trustblocAgent, opts)
             this.searched = this.myData
@@ -193,8 +196,11 @@ SPDX-License-Identifier: Apache-2.0
             this.username = this.$store.getters.getCurrentUser.username? this.$store.getters.getCurrentUser.username : 'demo-user'
 
             await this.loadDIDMetadata()
+            this.searched = this.myData
         },
         methods: {
+            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapActions('aries', {initAries: 'init'}),
             createDID: async function () {
                 this.errors.length = 0
                 if (this.friendlyName.length == 0) {
@@ -340,9 +346,6 @@ SPDX-License-Identifier: Apache-2.0
                 searched: [],
                 loading: false,
             };
-        },
-        created() {
-            this.searched = this.myData
         }
 
     }

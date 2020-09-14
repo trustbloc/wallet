@@ -40,13 +40,14 @@ SPDX-License-Identifier: Apache-2.0
     import {SimpleTable} from "@/components";
     import {getCredentialType} from "@/pages/chapi/wallet";
     import Logout from "@/pages/chapi/Logout.vue";
+    import {mapGetters, mapActions} from 'vuex'
 
     let vcData = [];
-    async function fetchCredentials() {
+    async function fetchCredentials(aries) {
         // Get the VC data
         for (let i = 0; i < vcData.length; i++) {
             try {
-                let resp = await window.$aries.verifiable.getCredential({
+                let resp = await aries.verifiable.getCredential({
                     id: vcData[i].id
                 })
                 vcData[i].credential = JSON.parse(resp.verifiableCredential)
@@ -61,18 +62,22 @@ SPDX-License-Identifier: Apache-2.0
             Logout,
             SimpleTable,
         },
-        beforeCreate: async function () {
+        created: async function () {
+            await this.initAries()
             // Load the Credentials
-            let aries = await this.$arieslib
+            this.aries = this.getAriesInstance()
+            await this.getCredentials()
+
             window.$webCredentialHandler = this.$webCredentialHandler
-            window.$aries = aries
-            await this.getCredentials(aries)
-            this.username = this.$store.getters.getCurrentUser.username
+            this.username = this.getCurrentUser().username
         },
         methods: {
-            getCredentials: async function (aries) {
+            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapGetters(['getCurrentUser']),
+            ...mapActions('aries', {initAries: 'init'}),
+            getCredentials: async function () {
                 try {
-                    let resp = await aries.verifiable.getCredentials()
+                    let resp = await this.aries.verifiable.getCredentials()
                     if (!resp.result) {
                         console.log('no credentials exists')
                         return
@@ -87,7 +92,7 @@ SPDX-License-Identifier: Apache-2.0
                     console.error('get credentials failed : errMsg=' + e)
                 }
 
-                await fetchCredentials()
+                await fetchCredentials(this.aries)
                 this.verifiableCredential = vcData
             },
             credDisplayName: function (types) {
@@ -98,6 +103,7 @@ SPDX-License-Identifier: Apache-2.0
             return {
                 verifiableCredential: [],
                 username: '',
+                aries: null,
             }
         }
     }

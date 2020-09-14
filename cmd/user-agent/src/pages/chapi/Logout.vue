@@ -28,7 +28,7 @@ SPDX-License-Identifier: Apache-2.0
             ...mapActions({logoutUser: 'logout'}),
             logout: async function () {
                 await this.registrar.uninstallHandlers()
-                this.logoutUser()
+                await this.logoutUser()
                 this.$router.push("/login");
             }
         }
