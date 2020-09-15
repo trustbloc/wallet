@@ -15,23 +15,23 @@ SPDX-License-Identifier: Apache-2.0
         <md-icon>dashboard</md-icon>
         <p>Dashboard</p>
       </sidebar-link>
-      <sidebar-link to="/MyVC">
-        <md-icon>border_outer</md-icon>
-        <p>Presentation</p>
-      </sidebar-link>
       <sidebar-link to="/DIDManagement">
         <md-icon>flip_to_back</md-icon>
         <p>DID Management</p>
       </sidebar-link>
-      <sidebar-link v-if="isDevMode" to="/connections">
+      <sidebar-link to="/relationships">
         <md-icon>compare_arrows</md-icon>
-        <p>Connections</p>
+        <p>Relationships</p>
         <md-badge v-if="pendingConnectionsCount" class="md-primary md-square" style="margin: 5px"
                   :md-content="pendingConnectionsCount"/>
       </sidebar-link>
-      <sidebar-link v-if="!isDevMode" to="/relationships">
+      <sidebar-link v-if="isDevMode" to="/MyVC">
+        <md-icon>border_outer</md-icon>
+        <p>Presentation</p>
+      </sidebar-link>
+      <sidebar-link v-if="isDevMode" to="/connections">
         <md-icon>compare_arrows</md-icon>
-        <p>Relationships</p>
+        <p>Connections</p>
         <md-badge v-if="pendingConnectionsCount" class="md-primary md-square" style="margin: 5px"
                   :md-content="pendingConnectionsCount"/>
       </sidebar-link>

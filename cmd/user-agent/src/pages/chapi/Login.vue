@@ -5,8 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-    <div style="margin: 0 40%">
-        <md-card md-with-hover>
+    <div>
+        <md-card style="width: 20%; margin: 15% 0% 0% 40%" md-with-hover>
             <md-card-header data-background-color="green">
                 <div class="md-title">Login to your wallet</div>
             </md-card-header>

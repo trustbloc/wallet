@@ -88,17 +88,20 @@ SPDX-License-Identifier: Apache-2.0
 <script>
   import VueJsonPretty from 'vue-json-pretty';
   import {WalletStore} from "@/pages/chapi/wallet";
+  import {mapGetters, mapActions} from 'vuex'
+
   export default {
     components: {
       VueJsonPretty
     },
-    beforeCreate: async function () {
-      this.aries = await this.$arieslib
+    created: async function () {
+      await this.initAries()
+
       const opts = await this.$trustblocStartupOpts
-      this.wallet = new WalletStore(this.$store.getters.getCurrentUser.username, this.aries, this.$trustblocAgent, opts, null)
+      this.wallet = new WalletStore(this.$store.getters.getCurrentUser.username, this.getAriesInstance(), this.$trustblocAgent, opts, null)
       await this.loadIssuers()
       // Load the Credentials in the drop down
-      await this.aries.verifiable.getCredentials()
+      await this.getAriesInstance().verifiable.getCredentials()
               .then(resp => {
                         const data = resp.result
                         if (data.length == 0) {
@@ -115,8 +118,6 @@ SPDX-License-Identifier: Apache-2.0
                         console.log('get credentials failed : errMsg=' + err)
                       }
               )
-      window.$webCredentialHandler = this.$webCredentialHandler
-      window.$aries = this.aries
     },
     data() {
       return {
@@ -132,6 +133,8 @@ SPDX-License-Identifier: Apache-2.0
       };
     },
     methods: {
+      ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+      ...mapActions('aries', {initAries: 'init'}),
       getDIDMetadata: function (id) {
         return new Promise(function(resolve) {
           var openDB = indexedDB.open("did-metadata", 1);
@@ -176,7 +179,7 @@ SPDX-License-Identifier: Apache-2.0
         let QrData
         // generate presentation
         if (data.vc) {
-          await window.$aries.verifiable.generatePresentation({
+          await this.getAriesInstance().verifiable.generatePresentation({
             verifiableCredential: data.vc,
             did: this.issuers[this.selectedIssuer].key,
             skipVerify: true,
@@ -193,7 +196,7 @@ SPDX-License-Identifier: Apache-2.0
           console.log("Response presentation:", this.vpData)
 
          // save presentation
-          this.aries.verifiable.savePresentation({
+          this.getAriesInstance().verifiable.savePresentation({
                    verifiablePresentation: this.vpData,
                    name: this.friendlyName
            }).then(resp => {
@@ -224,7 +227,7 @@ SPDX-License-Identifier: Apache-2.0
 
         try {
           let vc = []
-          await window.$aries.verifiable.getCredential({
+          await this.getAriesInstance().verifiable.getCredential({
             id: this.selectedVC
           }).then(resp => {
                     vc.push(JSON.parse(resp.verifiableCredential))
@@ -238,7 +241,7 @@ SPDX-License-Identifier: Apache-2.0
         }
       },
       loadIssuers: async function () {
-        await this.aries.vdri.getDIDRecords().then(
+        await this.getAriesInstance().vdri.getDIDRecords().then(
                 resp => {
                   const data = resp.result
                   if (!data || data.length == 0) {
