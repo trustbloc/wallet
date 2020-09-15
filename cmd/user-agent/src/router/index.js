@@ -37,11 +37,6 @@ const routes = [
                 meta: {requiresAuth: true}
             },
             {
-                path: "login",
-                name: "login",
-                component: Login
-            },
-            {
                 path: "logout",
                 name: "logout",
                 component: Logout
@@ -64,7 +59,8 @@ const routes = [
             {
                 path: "DIDManagement",
                 name: "did-management",
-                component: DIDManagement
+                component: DIDManagement,
+                meta: {requiresAuth: true}
             },
             {
                 path: "connections",
@@ -74,7 +70,8 @@ const routes = [
             {
                 path: "relationships",
                 name: "relationships",
-                component: Relationships
+                component: Relationships,
+                meta: {requiresAuth: true}
             },
             {
                 path: "issue-credential",
@@ -87,6 +84,11 @@ const routes = [
                 component: PresentProof
             }
         ]
+    },
+    {
+        path: "/login",
+        name: "login",
+        component: Login
     },
     {
         path: '*',
