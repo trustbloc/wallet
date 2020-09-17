@@ -137,13 +137,20 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
+    import {mapGetters, mapActions} from 'vuex'
+
     export default {
-        beforeCreate: async function () {
-            window.$aries = await this.$arieslib
+        created: async function () {
+            this.addAriesNotifiers({callback:this.onIssueCredentialState, topics:["issue-credential_states"]})
+            this.aries = this.getAriesInstance()
+
             await this.queryConnections()
             await this.refreshActions()
         },
         methods: {
+            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapActions('aries', {addAriesNotifiers: 'addNotifier'}),
+            ...mapActions(['onIssueCredentialState']),
             isOfferCredential: function (action) {
                 return action.Msg['@type'].endsWith('/offer-credential')
             },
@@ -168,7 +175,7 @@ SPDX-License-Identifier: Apache-2.0
                 }
 
                 try {
-                    await window.$aries.issuecredential.acceptCredential({
+                    await this.aries.issuecredential.acceptCredential({
                         piid: action.PIID,
                         names: this.issueCredentialNames.split(','),
                     })
@@ -182,7 +189,7 @@ SPDX-License-Identifier: Apache-2.0
             },
             declineCredential: async function (action) {
                 try {
-                    await window.$aries.issuecredential.declineCredential({
+                    await this.aries.issuecredential.declineCredential({
                         piid: action.PIID,
                     })
                 } catch (e) {
@@ -216,7 +223,7 @@ SPDX-License-Identifier: Apache-2.0
                 }
 
                 try {
-                    await window.$aries.issuecredential.acceptRequest({
+                    await this.aries.issuecredential.acceptRequest({
                         piid: action.PIID,
                         issue_credential: credential,
                     })
@@ -230,7 +237,7 @@ SPDX-License-Identifier: Apache-2.0
             },
             declineRequest: async function (action) {
                 try {
-                    await window.$aries.issuecredential.declineRequest({
+                    await this.aries.issuecredential.declineRequest({
                         piid: action.PIID,
                     })
                 } catch (e) {
@@ -242,12 +249,12 @@ SPDX-License-Identifier: Apache-2.0
                 await this.refreshActions()
             },
             refreshActions: async function () {
-                let res = await window.$aries.issuecredential.actions()
+                let res = await this.aries.issuecredential.actions()
                 this.actions = res.actions
             },
             declineOffer: async function (action) {
                 try {
-                    await window.$aries.issuecredential.declineOffer({
+                    await this.aries.issuecredential.declineOffer({
                         piid: action.PIID,
                     })
                 } catch (e) {
@@ -260,7 +267,7 @@ SPDX-License-Identifier: Apache-2.0
             },
             acceptOffer: async function (action) {
                 try {
-                    await window.$aries.issuecredential.acceptOffer({
+                    await this.aries.issuecredential.acceptOffer({
                         piid: action.PIID,
                     })
                 } catch (e) {
@@ -297,7 +304,7 @@ SPDX-License-Identifier: Apache-2.0
                 }
 
                 try {
-                    await window.$aries.issuecredential.sendOffer({
+                    await this.aries.issuecredential.sendOffer({
                         my_did: conn.MyDID,
                         their_did: conn.TheirDID,
                         offer_credential: offerCredential,
@@ -309,7 +316,7 @@ SPDX-License-Identifier: Apache-2.0
             },
             queryConnections: async function () {
                 try {
-                    let res = await window.$aries.didexchange.queryConnections()
+                    let res = await this.aries.didexchange.queryConnections()
                     if (res.results) {
                         this.connections = res.results.filter(function (conn) {
                             return conn.State === "completed";

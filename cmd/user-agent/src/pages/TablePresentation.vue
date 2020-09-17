@@ -88,15 +88,13 @@ SPDX-License-Identifier: Apache-2.0
 <script>
   import VueJsonPretty from 'vue-json-pretty';
   import {WalletStore} from "@/pages/chapi/wallet";
-  import {mapGetters, mapActions} from 'vuex'
+  import {mapGetters} from 'vuex'
 
   export default {
     components: {
       VueJsonPretty
     },
     created: async function () {
-      await this.initAries()
-
       const opts = await this.$trustblocStartupOpts
       this.wallet = new WalletStore(this.$store.getters.getCurrentUser.username, this.getAriesInstance(), this.$trustblocAgent, opts, null)
       await this.loadIssuers()
@@ -134,7 +132,6 @@ SPDX-License-Identifier: Apache-2.0
     },
     methods: {
       ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
-      ...mapActions('aries', {initAries: 'init'}),
       getDIDMetadata: function (id) {
         return new Promise(function(resolve) {
           var openDB = indexedDB.open("did-metadata", 1);

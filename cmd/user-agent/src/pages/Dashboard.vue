@@ -40,7 +40,7 @@ SPDX-License-Identifier: Apache-2.0
     import {SimpleTable} from "@/components";
     import {getCredentialType} from "@/pages/chapi/wallet";
     import Logout from "@/pages/chapi/Logout.vue";
-    import {mapGetters, mapActions} from 'vuex'
+    import {mapGetters} from 'vuex'
 
     let vcData = [];
     async function fetchCredentials(aries) {
@@ -63,7 +63,6 @@ SPDX-License-Identifier: Apache-2.0
             SimpleTable,
         },
         created: async function () {
-            await this.initAries()
             // Load the Credentials
             this.aries = this.getAriesInstance()
             await this.getCredentials()
@@ -74,7 +73,6 @@ SPDX-License-Identifier: Apache-2.0
         methods: {
             ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
             ...mapGetters(['getCurrentUser']),
-            ...mapActions('aries', {initAries: 'init'}),
             getCredentials: async function () {
                 try {
                     let resp = await this.aries.verifiable.getCredentials()

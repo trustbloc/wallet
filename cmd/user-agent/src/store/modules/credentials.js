@@ -15,8 +15,9 @@ export default {
             dispatch('getCredentials')
         },
         async getCredentials({commit, getters}) {
+            let aries = getters['aries/getInstance']
             // retrieves all agent credentials
-            let res = await window.$aries.verifiable.getCredentials()
+            let res = await aries.verifiable.getCredentials()
             if (!res.hasOwnProperty('result')) {
                 return
             }

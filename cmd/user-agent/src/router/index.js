@@ -65,7 +65,8 @@ const routes = [
             {
                 path: "connections",
                 name: "connections",
-                component: Connections
+                component: Connections,
+                meta: {requiresAuth: true}
             },
             {
                 path: "relationships",
@@ -76,12 +77,14 @@ const routes = [
             {
                 path: "issue-credential",
                 name: "issue-credential",
-                component: IssueCredential
+                component: IssueCredential,
+                meta: {requiresAuth: true}
             },
             {
                 path: "present-proof",
                 name: "present-proof",
-                component: PresentProof
+                component: PresentProof,
+                meta: {requiresAuth: true}
             }
         ]
     },

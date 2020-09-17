@@ -132,15 +132,21 @@
 </template>
 
 <script>
+    import {mapGetters, mapActions} from 'vuex'
+
     export default {
-        beforeCreate: async function () {
-            window.$aries = await this.$arieslib
+        created: async function () {
+            this.addAriesNotifiers({callback:this.onPresentProofState, topics:["present-proof_states"]})
+            this.aries = this.getAriesInstance()
             await this.queryConnections()
             await this.refreshActions()
         },
         methods: {
+            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapActions('aries', {addAriesNotifiers: 'addNotifier'}),
+            ...mapActions(['onPresentProofState']),
             refreshActions: async function () {
-                let res = await window.$aries.presentproof.actions()
+                let res = await this.aries.presentproof.actions()
                 this.actions = res.actions
             },
             isRequestPresentation: function (action) {
@@ -163,7 +169,7 @@
                 }
 
                 try {
-                    await window.$aries.presentproof.acceptPresentation({
+                    await this.aries.presentproof.acceptPresentation({
                         piid: action.PIID,
                         names: this.presentationNames.split(','),
                     })
@@ -197,7 +203,7 @@
                 }
 
                 try {
-                    await window.$aries.presentproof.acceptRequestPresentation({
+                    await this.aries.presentproof.acceptRequestPresentation({
                         piid: action.PIID,
                         presentation: presentation,
                     })
@@ -212,7 +218,7 @@
             },
             declineRequestPresentation: async function (action) {
                 try {
-                    await window.$aries.presentproof.declineRequestPresentation({
+                    await this.aries.presentproof.declineRequestPresentation({
                         piid: action.PIID,
                     })
                 } catch (e) {
@@ -225,7 +231,7 @@
             },
             declinePresentation: async function (action) {
                 try {
-                    await window.$aries.presentproof.declinePresentation({
+                    await this.aries.presentproof.declinePresentation({
                         piid: action.PIID,
                     })
                 } catch (e) {
@@ -262,7 +268,7 @@
                 }
 
                 try {
-                    await window.$aries.presentproof.sendRequestPresentation({
+                    await this.aries.presentproof.sendRequestPresentation({
                         my_did: conn.MyDID,
                         their_did: conn.TheirDID,
                         request_presentation: requestPresentation,
@@ -274,7 +280,7 @@
             },
             queryConnections: async function () {
                 try {
-                    let res = await window.$aries.didexchange.queryConnections()
+                    let res = await this.aries.didexchange.queryConnections()
                     if (res.results) {
                         this.connections = res.results.filter(function (conn) {
                             return conn.State === "completed";
