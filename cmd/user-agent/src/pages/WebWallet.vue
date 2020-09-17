@@ -85,8 +85,13 @@ SPDX-License-Identifier: Apache-2.0
 
 
     export default {
-        beforeCreate: async function () {
-            let opts = await this.$trustblocStartupOpts
+        created: async function () {
+            let opts = this.$store.getters.getTrustblocOpts
+            if (!opts) {
+                this.errors.push("Please login to your webwallet before running this demo")
+                return
+            }
+
             await this.$polyfill.loadOnce(opts.credentialMediatorURL)
         },
         data() {

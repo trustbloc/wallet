@@ -54,7 +54,7 @@ export default {
     AssociatedCredentials,
     AssociatedPresentation
   },
-  methods: mapActions(['queryConnections']),
+  methods: mapActions(['queryConnections', 'loadMediatorState']),
   computed: mapGetters([
     'pendingConnections', 'completedConnections',
     'pendingConnectionsCount', 'completedConnectionsCount',
@@ -62,6 +62,8 @@ export default {
     'associatedPresentations', 'associatedPresentationsCount'
   ]),
   mounted() {
+    // load mediator registration details if already registered
+    this.loadMediatorState()
     // refreshes connections when component is mounted
     this.queryConnections()
   }

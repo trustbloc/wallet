@@ -113,6 +113,12 @@ export function mockStore(aries) {
         getters: {
             getCurrentUser(state) {
                 return {username: 'sampleWalletUser'}
+            },
+            getTrustblocOpts(state) {
+                return trustBlocStartupOpts
+            },
+            getAriesOpts(state) {
+                return ariesStartupOpts
             }
         },
         modules: {

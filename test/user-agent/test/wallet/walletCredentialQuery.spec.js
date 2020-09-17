@@ -32,8 +32,7 @@ function mountStore(wch, done) {
             mocks: {
                 $polyfill: polyfill,
                 $webCredentialHandler: wch,
-                $trustblocAgent: trustblocAgent,
-                $trustblocStartupOpts: frameworks.trustblocStartupOpts,
+                $trustblocAgent: trustblocAgent
             }
         }))
     }
@@ -48,8 +47,7 @@ function mountGet(wch, done) {
             mocks: {
                 $polyfill: polyfill,
                 $webCredentialHandler: wch,
-                $trustblocAgent: trustblocAgent,
-                $trustblocStartupOpts: frameworks.trustblocStartupOpts,
+                $trustblocAgent: trustblocAgent
             }
         }))
     }
