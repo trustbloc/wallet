@@ -82,12 +82,10 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
     import {isCredentialType, isVCType, getCredentialMetadata, WalletStore} from "./wallet"
-    import {mapGetters, mapActions} from 'vuex'
+    import {mapGetters} from 'vuex'
 
     export default {
         created: async function () {
-            await this.initAries()
-
             // Load the Credentials
             const credentialEvent = await this.$webCredentialHandler.receiveCredentialEvent();
             console.log("Credential event received :", credentialEvent.credential)
@@ -130,7 +128,6 @@ SPDX-License-Identifier: Apache-2.0
         methods: {
             ...mapGetters(['getCurrentUser']),
             ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
-            ...mapActions('aries', {initAries: 'init'}),
             prefillForm: function() {
                 const {issuance, issuer, subject} = getCredentialMetadata(this.credData, this.dataType)
                 this.issuance = issuance

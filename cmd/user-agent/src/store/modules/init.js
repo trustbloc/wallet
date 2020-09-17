@@ -4,6 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
+// deprecated, TODO to be removed
 export default {
     actions: {
         async initStore({dispatch, commit, getters}, opts) {

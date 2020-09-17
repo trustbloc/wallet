@@ -17,15 +17,16 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import {RegisterWallet} from "./wallet"
-    import {mapActions} from 'vuex'
+    import {mapActions, mapGetters} from 'vuex'
 
     export default {
-        beforeCreate: async function () {
-            this.registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, await this.$arieslib,
+        created: async function () {
+            this.registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, this.getAriesInstance(),
                 this.$trustblocAgent, await this.$trustblocStartupOpts)
         },
         methods: {
             ...mapActions({logoutUser: 'logout'}),
+            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
             logout: async function () {
                 await this.registrar.uninstallHandlers()
                 await this.logoutUser()

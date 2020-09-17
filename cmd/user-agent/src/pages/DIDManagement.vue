@@ -181,11 +181,10 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import {DIDManager} from "./chapi/wallet";
-    import {mapGetters, mapActions} from 'vuex'
+    import {mapGetters} from 'vuex'
 
     export default {
         created: async function () {
-            await this.initAries()
             this.aries = this.getAriesInstance()
 
             const opts = await this.$trustblocStartupOpts
@@ -200,7 +199,6 @@ SPDX-License-Identifier: Apache-2.0
         },
         methods: {
             ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
-            ...mapActions('aries', {initAries: 'init'}),
             createDID: async function () {
                 this.errors.length = 0
                 if (this.friendlyName.length == 0) {

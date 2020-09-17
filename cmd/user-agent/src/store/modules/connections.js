@@ -14,9 +14,10 @@ export default {
 
             dispatch('queryConnections')
         },
-        async queryConnections({commit}) {
+        async queryConnections({commit, getters}) {
+            let aries = getters['aries/getInstance']
             // retrieves all agent connections
-            let res = await window.$aries.didexchange.queryConnections()
+            let res = await aries.didexchange.queryConnections()
             if (res.hasOwnProperty('results')) {
                 // sets connections
                 commit('updateConnections', res.results)
@@ -25,17 +26,20 @@ export default {
             return res.results
         },
         async createInvitation(ctx, label) {
+            let aries = ctx.getters['aries/getInstance']
             // creates invitation through the out-of-band protocol
-            let res = await window.$aries.outofband.createInvitation({label: label})
+            let res = await aries.outofband.createInvitation({label: label})
 
             return res.invitation
         },
-        acceptExchangeRequest({dispatch}, id) {
-            window.$aries.didexchange.acceptExchangeRequest({id: id}).then(() => dispatch('queryConnections'))
+        acceptExchangeRequest({dispatch, getters}, id) {
+            let aries = getters['aries/getInstance']
+            aries.didexchange.acceptExchangeRequest({id: id}).then(() => dispatch('queryConnections'))
         },
-        async acceptInvitation({dispatch}, payload) {
+        async acceptInvitation({dispatch, getters}, payload) {
+            let aries = getters['aries/getInstance']
             // accepts invitation thought out-of-band protocol
-            let res = await window.$aries.outofband.acceptInvitation(payload)
+            let res = await aries.outofband.acceptInvitation(payload)
 
             dispatch('queryConnections')
 

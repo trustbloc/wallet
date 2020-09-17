@@ -11,10 +11,9 @@ import VueRouter from "vue-router";
 import routes from "./router/index";
 import * as polyfill from "credential-handler-polyfill";
 import * as webCredentialHandler from "web-credential-handler";
-import * as Aries from "@trustbloc-cicd/aries-framework-go"
 import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import MaterialDashboard from "./material-dashboard";
-import {mapActions} from "vuex";
+import {mapActions, mapGetters} from "vuex";
 
 Vue.config.productionTip = false
 
@@ -142,30 +141,27 @@ new Vue({
     data: () => ({
         loaded: false,
     }),
-    methods: mapActions(['initStore', 'onDidExchangeState', 'onIssueCredentialState', 'onPresentProofState', 'loadUser', 'aries/setOpts']),
+    methods: {
+        ...mapActions(['initStore', 'onPresentProofState', 'loadUser' ]),
+        ...mapActions('aries', {initAries: 'init', setAriesOpts: 'setOpts', addAriesNotifiers:'addNotifier'}),
+        ...mapGetters('aries', {isAriesInitialized: 'isInitialized'}),
+    },
     mounted: async function () {
         // gets aries options
+        // TODO to be moved to vuex state
         let ariesOpts = await ariesStartupOpts()
-        // sets aries instance globally
-        window.$aries = await new Aries.Framework(ariesOpts)
-        Vue.prototype.$arieslib = window.$aries
-
         // gets trustbloc options
+        // TODO to be moved to vuex state
         let trustblocOpts = await trustblocStartupOpts()
+
+        // TODO remove global opts and use vuex store
         Vue.prototype.$trustblocStartupOpts = trustblocOpts
 
-        this['aries/setOpts'](ariesOpts)
-
-        // registers listener which will update connections
-        window.$aries.startNotifier(this.onDidExchangeState, ["didexchange_states"])
-        // registers listener which will update credentials
-        window.$aries.startNotifier(this.onIssueCredentialState, ["issue-credential_states"])
-        // registers listener which will update presentation
-        window.$aries.startNotifier(this.onPresentProofState, ["present-proof_states"])
-        // inits storage
-        await this.initStore({aries: ariesOpts, trustbloc: trustblocOpts})
-        // inits user storage and load user
         this.loadUser()
+        this.setAriesOpts(ariesOpts)
+        if (store.getters.getCurrentUser && !this.isAriesInitialized()) {
+            await this.initAries()
+        }
 
         // removes spinner
         this.loaded = true
