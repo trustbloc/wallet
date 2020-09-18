@@ -63,7 +63,6 @@ export default {
             namespaced: true,
             state: {
                 instance: null,
-                opts: null,
                 notifiers: null,
                 agentName: null,
             },
@@ -71,9 +70,6 @@ export default {
                 setInstance(state, {instance, user}) {
                     state.instance = instance
                     state.agentName = user
-                },
-                setOpts(state, opts) {
-                    state.opts = opts
                 },
                 addNotifier(state, notifier) {
                     if (state.notifiers) {
@@ -95,14 +91,9 @@ export default {
                 }
             },
             actions: {
-                async init({commit, rootState, state}) {
+                async init({commit, rootState, state, rootGetters}) {
                     if (state.instance && state.agentName == rootState.user.username) {
                         return
-                    }
-
-                    if (!state.opts) {
-                        console.error('aries opts should be set before initializing aries')
-                        throw 'invalid aries opts'
                     }
 
                     if (!rootState.user.username) {
@@ -111,7 +102,7 @@ export default {
                     }
 
                     let opts = {}
-                    Object.assign(opts, state.opts, {
+                    Object.assign(opts, rootGetters.getAriesOpts, {
                         'agent-default-label': rootState.user.username,
                         'db-namespace': rootState.user.username
                     })
@@ -126,9 +117,6 @@ export default {
                         await state.instance.destroy()
                     }
                     commit('setInstance', {})
-                },
-                setOpts({commit}, opts) {
-                    commit('setOpts', opts)
                 },
                 addNotifier({commit, state}, notifier) {
                     commit('addNotifier', notifier)

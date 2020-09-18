@@ -71,7 +71,7 @@ SPDX-License-Identifier: Apache-2.0
         },
         methods: {
             ...mapActions({loginUser: 'login', loadUser: 'loadUser'}),
-            ...mapGetters(['getCurrentUser']),
+            ...mapGetters(['getCurrentUser', 'getTrustblocOpts']),
             ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
             // this function to be called after successful OIDC login
             login: async function () {
@@ -81,7 +81,7 @@ SPDX-License-Identifier: Apache-2.0
                 let user = this.getCurrentUser()
 
                 let registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, this.getAriesInstance(),
-                    this.$trustblocAgent, await this.$trustblocStartupOpts)
+                    this.$trustblocAgent, this.getTrustblocOpts())
 
                 try {
                     if (!user || !user.metadata) {

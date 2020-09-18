@@ -90,8 +90,8 @@ SPDX-License-Identifier: Apache-2.0
         components: {Governance},
         created: async function () {
             this.wallet = new DIDConn(this.getAriesInstance(),
-                await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts), this.$trustblocStartupOpts,
-                this.$parent.credentialEvent, this.$store.getters.getCurrentUser.username)
+                await new this.$trustblocAgent.Framework(this.getTrustblocOpts()), this.getTrustblocOpts(),
+                this.$parent.credentialEvent, this.getCurrentUser().username)
 
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
             this.userCredentials = this.wallet.getUserCredentials()
@@ -113,6 +113,7 @@ SPDX-License-Identifier: Apache-2.0
         },
         methods: {
             ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapGetters(['getCurrentUser', 'getTrustblocOpts']),
             cancel: async function () {
                 this.wallet.cancel()
             },

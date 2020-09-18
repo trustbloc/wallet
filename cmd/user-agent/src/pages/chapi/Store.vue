@@ -100,8 +100,8 @@ SPDX-License-Identifier: Apache-2.0
             this.dataType = credentialEvent.credential.dataType
 
             this.wallet = new WalletStore(this.getAriesInstance(),
-                await new this.$trustblocAgent.Framework(await this.$trustblocStartupOpts), this.$trustblocStartupOpts,
-                credentialEvent, this.$store.getters.getCurrentUser.username)
+                await new this.$trustblocAgent.Framework(this.getTrustblocOpts()), this.getTrustblocOpts(),
+                credentialEvent, this.getCurrentUser().username)
 
             // prefill form
             this.prefillForm()
@@ -126,7 +126,7 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
-            ...mapGetters(['getCurrentUser']),
+            ...mapGetters(['getCurrentUser', 'getTrustblocOpts']),
             ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
             prefillForm: function() {
                 const {issuance, issuer, subject} = getCredentialMetadata(this.credData, this.dataType)

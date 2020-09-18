@@ -187,18 +187,16 @@ SPDX-License-Identifier: Apache-2.0
         created: async function () {
             this.aries = this.getAriesInstance()
 
-            const opts = await this.$trustblocStartupOpts
-            this.didManager = new DIDManager(this.aries, this.$trustblocAgent, opts)
+            this.didManager = new DIDManager(this.aries, this.$trustblocAgent, this.getTrustblocOpts())
             this.searched = this.myData
-
-            // TODO to be replaced by actual user
-            this.username = this.$store.getters.getCurrentUser.username? this.$store.getters.getCurrentUser.username : 'demo-user'
+            this.username = this.getCurrentUser().username
 
             await this.loadDIDMetadata()
             this.searched = this.myData
         },
         methods: {
             ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapGetters(['getCurrentUser', 'getTrustblocOpts']),
             createDID: async function () {
                 this.errors.length = 0
                 if (this.friendlyName.length == 0) {

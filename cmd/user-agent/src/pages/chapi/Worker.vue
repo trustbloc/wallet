@@ -13,9 +13,9 @@ SPDX-License-Identifier: Apache-2.0
 <script>
     export default {
         beforeCreate: async function () {
-            let opts = await this.$trustblocStartupOpts
+            let opts = this.$store.getters.getTrustblocOpts
             try {
-                await this.$polyfill.loadOnce(opts.credentialMediatorURL);
+                await this.$polyfill.loadOnce(opts ? opts.credentialMediatorURL : undefined);
             } catch (e) {
                 console.error('Error in loadOnce:', e);
             }

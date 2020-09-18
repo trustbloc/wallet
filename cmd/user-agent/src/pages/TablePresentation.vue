@@ -95,8 +95,7 @@ SPDX-License-Identifier: Apache-2.0
       VueJsonPretty
     },
     created: async function () {
-      const opts = await this.$trustblocStartupOpts
-      this.wallet = new WalletStore(this.$store.getters.getCurrentUser.username, this.getAriesInstance(), this.$trustblocAgent, opts, null)
+      this.wallet = new WalletStore(this.getCurrentUser().username, this.getAriesInstance(), this.$trustblocAgent, this.getTrustblocOpts(), null)
       await this.loadIssuers()
       // Load the Credentials in the drop down
       await this.getAriesInstance().verifiable.getCredentials()
@@ -132,6 +131,7 @@ SPDX-License-Identifier: Apache-2.0
     },
     methods: {
       ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+      ...mapGetters(['getTrustblocOpts', 'getCurrentUser']),
       getDIDMetadata: function (id) {
         return new Promise(function(resolve) {
           var openDB = indexedDB.open("did-metadata", 1);
