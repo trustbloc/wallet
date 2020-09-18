@@ -69,6 +69,7 @@ linters:
   disable:
     - maligned
     - prealloc
+    - goerr113 # not good: https://github.com/Djarvur/go-err113/issues/10
 
 issues:
   exclude-use-default: false

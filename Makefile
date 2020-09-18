@@ -7,9 +7,9 @@ HTTP_SERVER_PATH       = cmd/http-server
 GOBIN_PATH             = $(abspath .)/build/bin
 
 # GO version
-ALPINE_VER ?= 3.11
+ALPINE_VER ?= 3.12
 GO_TAGS    ?=
-GO_VER     ?= 1.13.9
+GO_VER     ?= 1.15.2
 
 # Namespace for the images
 DOCKER_OUTPUT_NS         ?= docker.pkg.github.com
