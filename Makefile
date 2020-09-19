@@ -53,7 +53,7 @@ trustbloc-agent-wasm:
 	@scripts/build_trustbloc_agent_wasm.sh
 
 .PHONY: user-agent-wasm
-user-agent-wasm:
+user-agent-wasm: trustbloc-agent-wasm
 	AGENT_NAME="user" make agent-wasm
 
 .PHONY: http-server
@@ -63,17 +63,16 @@ http-server:
 	@cd ${HTTP_SERVER_PATH} && go build -o ../../build/bin/http-server main.go
 
 .PHONY: user-agent-wasm-docker
-user-agent-wasm-docker:
+user-agent-wasm-docker: clean user-agent-wasm
 	AGENT_NAME="user" make agent-wasm-docker
 
 .PHONY: agent-wasm-docker
-agent-wasm-docker: clean
+agent-wasm-docker:
 	@echo "Building agent wasm docker image"
 	@docker build -f ./images/agent-wasm/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(REPO_IMAGE_NAME)/${AGENT_NAME}-agent-wasm:latest \
 	--build-arg GO_VER=$(GO_VER) \
 	--build-arg ALPINE_VER=$(ALPINE_VER) \
 	--build-arg GO_TAGS=$(GO_TAGS) \
-	--build-arg GITHUB_TOKEN=$(GITHUB_TOKEN) \
 	--build-arg NAME=${AGENT_NAME} .
 
 .PHONY: generate-test-keys
@@ -94,7 +93,7 @@ generate-test-config:
 
 .PHONY: bdd-test-js
 bdd-test-js: clean user-agent-wasm-docker generate-test-config generate-test-keys
-	@scripts/check_js_intergation.sh
+	@scripts/check_js_integration.sh
 
 .PHONY: clean
 clean: clean-build
