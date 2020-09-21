@@ -20,7 +20,7 @@ SPDX-License-Identifier: Apache-2.0
 
       <a
         href="https://github.com/trustbloc/edge-agent"
-        class="simple-text"
+        class="simple-text" style="font-size: 16px"
       >
         {{ title }}
       </a>

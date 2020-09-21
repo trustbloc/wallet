@@ -9,7 +9,6 @@ import DashboardLayout from "@/pages/Layout/DashboardLayout.vue";
 import Dashboard from "@/pages/Dashboard.vue";
 import Login from "@/pages/chapi/Login.vue";
 import Logout from "@/pages/chapi/Logout.vue";
-import TableList from "@/pages/TableList.vue";
 import TablePresentation from "@/pages/TablePresentation.vue";
 import StoreInWallet from "@/pages/chapi/Store.vue";
 import GetFromWallet from "@/pages/chapi/Get.vue";
@@ -40,11 +39,6 @@ const routes = [
                 path: "logout",
                 name: "logout",
                 component: Logout
-            },
-            {
-                path: "ViewVC",
-                name: "view-credential",
-                component: TableList
             },
             {
                 path: "MyVC",

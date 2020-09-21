@@ -9,12 +9,11 @@ SPDX-License-Identifier: Apache-2.0
         <div class="content">
             <div class="md-layout">
                 <div>
-                    <md-toolbar class="md-accent" md-elevation="1">
-                        <i class="md-title" style="flex: 1; font-size: 20px">Welcome &nbsp;{{ username}}</i>
-                        <logout/>
-                    </md-toolbar>
-
-                    <md-card md-with-hover>
+                    <md-label v-if="showOfflineWarning" style="color: #1B5E20; font-size: 16px; margin: 10px">
+                        <md-icon>warning</md-icon>
+                        <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured communication.
+                    </md-label>
+                    <md-card md-with-hover v-if="verifiableCredentials.length">
                         <md-card-header data-background-color="green">
                             <h4 class="title">
                                 <md-icon>content_paste</md-icon>
@@ -22,14 +21,22 @@ SPDX-License-Identifier: Apache-2.0
                             </h4>
                         </md-card-header>
                         <md-card-content>
-                            <simple-table v-for="vc in verifiableCredential"
-                                          :key=vc.name
-                                          :name=credDisplayName(vc.type)
-                                          :data=vc.credential>
+                            <simple-table v-for="vc in verifiableCredentials"
+                                          :key=vc.id
+                                          :name=credDisplayName(vc)
+                                          :description=vc.description
+                                          :data=vc
+                                          :headerIcon=icon>
                             </simple-table>
                         </md-card-content>
                     </md-card>
+                    <md-empty-state v-else
+                                    md-icon="devices_other"
+                                    md-label="No stored credentials"
+                                    md-description="Your wallet is empty, there are no stored credentials to show.">
+                    </md-empty-state>
                 </div>
+
             </div>
         </div>
     </div>
@@ -38,70 +45,64 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
     import {SimpleTable} from "@/components";
-    import {getCredentialType} from "@/pages/chapi/wallet";
-    import Logout from "@/pages/chapi/Logout.vue";
-    import {mapGetters} from 'vuex'
+    import {filterCredentialsByType, getCredentialType} from "@/pages/chapi/wallet";
+    import {mapActions, mapGetters} from 'vuex'
 
-    let vcData = [];
-    async function fetchCredentials(aries) {
-        // Get the VC data
-        for (let i = 0; i < vcData.length; i++) {
-            try {
-                let resp = await aries.verifiable.getCredential({
-                    id: vcData[i].id
-                })
-                vcData[i].credential = JSON.parse(resp.verifiableCredential)
-            } catch (e) {
-                console.error('get vc failed : errMsg=' + e)
-            }
-        }
-    }
+    const manifestCredType = "IssuerManifestCredential"
+    const governanceCredType = "GovernanceCredential"
 
     export default {
         components: {
-            Logout,
             SimpleTable,
         },
         created: async function () {
             // Load the Credentials
-            this.aries = this.getAriesInstance()
             await this.getCredentials()
+            await this.fetchAllCredentials()
+            await this.refreshUserMetadata()
 
-            window.$webCredentialHandler = this.$webCredentialHandler
+            console.log('this.getCurrentUser()', this.getCurrentUser())
+
             this.username = this.getCurrentUser().username
         },
         methods: {
             ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
-            ...mapGetters(['getCurrentUser']),
-            getCredentials: async function () {
+            ...mapGetters(['getCurrentUser', 'allCredentials', 'getTrustblocOpts']),
+            ...mapActions(['getCredentials', 'refreshUserMetadata']),
+            fetchAllCredentials: async function () {
+                this.verifiableCredentials = []
                 try {
-                    let resp = await this.aries.verifiable.getCredentials()
-                    if (!resp.result) {
-                        console.log('no credentials exists')
-                        return
+                    for (let c of filterCredentialsByType(this.allCredentials(), [manifestCredType, governanceCredType])) {
+                        let resp = await this.getAriesInstance().verifiable.getCredential({
+                            id: c.id
+                        })
+                        this.verifiableCredentials.push(JSON.parse(resp.verifiableCredential))
                     }
-
-                    vcData = resp.result
-                    if (resp.result.length === 0) {
-                        console.log('no credentials exists')
-                    }
-
                 } catch (e) {
-                    console.error('get credentials failed : errMsg=' + e)
+                    console.error('failed to get all stored credentials', e)
+                    // TODO add error handling msg display here
                 }
 
-                await fetchCredentials(this.aries)
-                this.verifiableCredential = vcData
             },
-            credDisplayName: function (types) {
-                return getCredentialType(types)
+            credDisplayName: function (vc) {
+                return vc.name ? vc.name : getCredentialType(vc.type)
+            }
+        },
+        computed: {
+            showOfflineWarning() {
+                if (this.getTrustblocOpts().walletMediatorURL) {
+                    return !(this.getCurrentUser().metadata && JSON.parse(this.getCurrentUser().metadata).invitation)
+                }
+
+                return false
             }
         },
         data() {
             return {
-                verifiableCredential: [],
+                verifiableCredentials: [],
                 username: '',
                 aries: null,
+                icon: 'perm_identity'
             }
         }
     }
