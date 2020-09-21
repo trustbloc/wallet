@@ -12,21 +12,30 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// OIDCProvider is the OIDC identity provider.
 type OIDCProvider interface {
 	Endpoint() oauth2.Endpoint
-	Verifier(*oidc.Config) verifier
+	Verifier(*oidc.Config) Verifier
 }
 
-type verifier interface {
+// Verifier verifies id_tokens.
+type Verifier interface {
 	Verify(context.Context, string) (idToken, error)
 }
 
-type oidcProviderImpl struct {
-	op *oidc.Provider
+// OIDCProviderImpl adapts an *oidc.Provider into an OIDCProvider.
+type OIDCProviderImpl struct {
+	OP *oidc.Provider
 }
 
-func (o *oidcProviderImpl) Verifier(config *oidc.Config) verifier {
-	return &verifierImpl{v: o.op.Verifier(config)}
+// Verifier returns a Verifier.
+func (o *OIDCProviderImpl) Verifier(config *oidc.Config) Verifier {
+	return &verifierImpl{v: o.OP.Verifier(config)}
+}
+
+// Endpoint returns the OIDC provider's endpoints.
+func (o *OIDCProviderImpl) Endpoint() oauth2.Endpoint {
+	return o.OP.Endpoint()
 }
 
 type verifierImpl struct {
@@ -35,10 +44,6 @@ type verifierImpl struct {
 
 func (v *verifierImpl) Verify(ctx context.Context, token string) (idToken, error) {
 	return v.v.Verify(ctx, token)
-}
-
-func (o *oidcProviderImpl) Endpoint() oauth2.Endpoint {
-	return o.op.Endpoint()
 }
 
 type idToken interface {

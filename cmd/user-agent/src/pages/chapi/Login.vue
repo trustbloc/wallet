@@ -51,7 +51,7 @@ SPDX-License-Identifier: Apache-2.0
     export default {
         created: async function () {
             let redirect = this.$route.params['redirect']
-            this.redirect = redirect ? {name: redirect} : '/'
+            this.redirect = redirect ? {name: redirect} : `${__webpack_public_path__}`
 
             this.loadUser()
             if (this.getCurrentUser()) {
