@@ -45,6 +45,17 @@ export default {
             )
 
         },
+        async refreshUserMetadata({commit, state}) {
+            if (!state.username){
+                throw 'invalid operation, user not logged in'
+            }
+
+            await new WalletManager().getWalletMetadata(state.username).then(
+                async resp => {
+                    commit('setUserMetadata', JSON.stringify(resp))
+                }
+            )
+        },
         async logout({commit, dispatch}) {
             commit('clearUser')
             await dispatch('aries/destroy')
