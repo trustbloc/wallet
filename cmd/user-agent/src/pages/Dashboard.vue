@@ -32,8 +32,8 @@ SPDX-License-Identifier: Apache-2.0
                     </md-card>
                     <md-empty-state v-else
                                     md-icon="devices_other"
-                                    md-label="No stored credentials"
-                                    md-description="Your wallet is empty, there are no stored credentials to show.">
+                                    :md-label=error
+                                    :md-description=errorDescription>
                     </md-empty-state>
                 </div>
 
@@ -61,9 +61,8 @@ SPDX-License-Identifier: Apache-2.0
             await this.fetchAllCredentials()
             await this.refreshUserMetadata()
 
-            console.log('this.getCurrentUser()', this.getCurrentUser())
-
             this.username = this.getCurrentUser().username
+            this.showOfflineWarning = this.getTrustblocOpts().walletMediatorURL && !JSON.parse(this.getCurrentUser().metadata).invitation
         },
         methods: {
             ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
@@ -80,7 +79,8 @@ SPDX-License-Identifier: Apache-2.0
                     }
                 } catch (e) {
                     console.error('failed to get all stored credentials', e)
-                    // TODO add error handling msg display here
+                    this.error = 'Failed to get your stored credetntials'
+                    this.errorDescription = 'Unable to get stored credentials from your wallet, please try again later.'
                 }
 
             },
@@ -88,21 +88,15 @@ SPDX-License-Identifier: Apache-2.0
                 return vc.name ? vc.name : getCredentialType(vc.type)
             }
         },
-        computed: {
-            showOfflineWarning() {
-                if (this.getTrustblocOpts().walletMediatorURL) {
-                    return !(this.getCurrentUser().metadata && JSON.parse(this.getCurrentUser().metadata).invitation)
-                }
-
-                return false
-            }
-        },
         data() {
             return {
                 verifiableCredentials: [],
                 username: '',
                 aries: null,
-                icon: 'perm_identity'
+                icon: 'perm_identity',
+                showOfflineWarning: false,
+                error: 'No stored credentials',
+                errorDescription: 'Your wallet is empty, there aren\'t any stored credentials to show.',
             }
         }
     }

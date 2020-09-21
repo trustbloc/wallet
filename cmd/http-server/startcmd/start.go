@@ -16,6 +16,7 @@ import (
 
 	"github.com/lpar/gzipped"
 	"github.com/spf13/cobra"
+
 	cmdutils "github.com/trustbloc/edge-core/pkg/utils/cmd"
 )
 
@@ -103,6 +104,13 @@ const (
 		"for the W3C CCG Credential Handler API specification" +
 		credentialMediatorURLEnvKey
 
+	// credential mediator url flag
+	blindedRoutingFlagName     = "blinded-routing"
+	blindedRoutingEnvKey       = "BLINDED_ROUTING"
+	blindedRoutingURLFlagUsage = "Flag to enable blinded routing to maintain identity privacy of the issuers " +
+		"and verifiers involved. Possible values [true] [false]. Defaults to false if not set." +
+		"Alternatively, this can be set with the following environment variable: " + blindedRoutingEnvKey
+
 	// TODO Derive the SDS URL from the hub-auth bootstrap data #271
 	sdsURLFlagName      = "sds-url"
 	sdsURLFlagShorthand = "s"
@@ -146,6 +154,7 @@ type trustblocAgentJSOpts struct {
 	BlocDomain            string `json:"blocDomain,omitempty"`
 	WalletMediatorURL     string `json:"walletMediatorURL,omitempty"`
 	CredentialMediatorURL string `json:"credentialMediatorURL,omitempty"`
+	BlindedRouting        bool   `json:"blindedRouting,omitempty"`
 	LogLevel              string `json:"log-level,omitempty"`
 	SDSServerURL          string `json:"sdsServerURL,omitempty"`
 }
@@ -280,6 +289,9 @@ func createFlags(startCmd *cobra.Command) {
 	// trustbloc agent credential mediator URL
 	startCmd.Flags().StringP(credentialMediatorURLFlagName, credentialMediatorURLFlagShorthand, "",
 		credentialMediatorURLFlagUsage)
+	// blinded routing for wallet
+	startCmd.Flags().StringP(blindedRoutingFlagName, "", "",
+		blindedRoutingURLFlagUsage)
 	startCmd.Flags().StringP(sdsURLFlagName, sdsURLFlagShorthand, "", sdsURLFlagUsage)
 }
 
@@ -300,7 +312,12 @@ func fetchAriesWASMAgentOpts(cmd *cobra.Command) (*ariesJSOpts, error) {
 		return nil, err
 	}
 
-	autoAccept, err := getAutoAcceptValue(cmd)
+	autoAcceptStr, err := cmdutils.GetUserSetVarFromString(cmd, agentAutoAcceptFlagName, agentAutoAcceptEnvKey, true)
+	if err != nil {
+		return nil, err
+	}
+
+	autoAccept, err := parseBoolFlagValue(autoAcceptStr)
 	if err != nil {
 		return nil, err
 	}
@@ -338,6 +355,17 @@ func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, err
 		return nil, err
 	}
 
+	blindedRoutingStr, err := cmdutils.GetUserSetVarFromString(cmd,
+		blindedRoutingFlagName, blindedRoutingEnvKey, true)
+	if err != nil {
+		return nil, err
+	}
+
+	blindedRouting, err := parseBoolFlagValue(blindedRoutingStr)
+	if err != nil {
+		return nil, err
+	}
+
 	logLevel, err := cmdutils.GetUserSetVarFromString(cmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
 	if err != nil {
 		return nil, err
@@ -352,17 +380,13 @@ func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, err
 		BlocDomain:            blocDomain,
 		WalletMediatorURL:     walletMediatorURL,
 		CredentialMediatorURL: credentialMediatorURL,
+		BlindedRouting:        blindedRouting,
 		LogLevel:              logLevel,
 		SDSServerURL:          sdsServerURL,
 	}, nil
 }
 
-func getAutoAcceptValue(cmd *cobra.Command) (bool, error) {
-	v, err := cmdutils.GetUserSetVarFromString(cmd, agentAutoAcceptFlagName, agentAutoAcceptEnvKey, true)
-	if err != nil {
-		return false, err
-	}
-
+func parseBoolFlagValue(v string) (bool, error) {
 	if v == "" {
 		return false, nil
 	}

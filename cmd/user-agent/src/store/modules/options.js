@@ -17,6 +17,7 @@ const defaultTrustBlocStartupOpts = {
     blocDomain: 'testnet.trustbloc.local',
     'log-level': 'debug',
     walletMediatorURL: 'https://localhost:10063',
+    blindedRouting: false,
     credentialMediatorURL: '',
     sdsServerURL: ''
 }
@@ -70,6 +71,7 @@ export default {
                 blocDomain: ('blocDomain' in tbOpts) ? tbOpts['blocDomain'] : defaultTrustBlocStartupOpts['blocDomain'],
                 walletMediatorURL: ('walletMediatorURL' in tbOpts) ? tbOpts['walletMediatorURL'] : defaultTrustBlocStartupOpts['walletMediatorURL'],
                 credentialMediatorURL: credentialMediator(('credentialMediatorURL' in tbOpts) ? tbOpts['credentialMediatorURL'] : defaultTrustBlocStartupOpts['credentialMediatorURL']),
+                blindedRouting: ('blindedRouting' in tbOpts) ? tbOpts['blindedRouting'] : defaultTrustBlocStartupOpts['blindedRouting'],
                 'log-level': ('log-level' in tbOpts) ? tbOpts['log-level'] : defaultTrustBlocStartupOpts['log-level'],
                 sdsServerURL: ('sdsServerURL' in tbOpts) ? tbOpts['sdsServerURL'] : defaultTrustBlocStartupOpts['sdsServerURL']
             })
