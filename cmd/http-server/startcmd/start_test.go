@@ -163,6 +163,24 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "error starting the server")
 	})
+
+	t.Run("test invalid blinded routing flag", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{Err: errors.New("error starting the server")})
+
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + blocDomainFlagName, "domain",
+			"--" + blindedRoutingFlagName, "invalid",
+			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
+			"--" + sdsURLFlagName, "someURL",
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "invalid option - set true or false as the value")
+	})
 }
 
 func TestStartCmdValidArgs(t *testing.T) {
@@ -174,6 +192,7 @@ func TestStartCmdValidArgs(t *testing.T) {
 		"--" + blocDomainFlagName, "domain",
 		"--" + walletMediatorURLFlagName, "http://localhost:8999",
 		"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
+		"--" + blindedRoutingFlagName, "true",
 		"--" + agentAutoAcceptFlagName, "false",
 		"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
 		"--" + sdsURLFlagName, "someURL"}
