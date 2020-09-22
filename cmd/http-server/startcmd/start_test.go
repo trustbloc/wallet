@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package startcmd
+package startcmd // nolint:testpackage // using private types in tests
 
 import (
 	"errors"
@@ -36,9 +36,7 @@ func (m *mockHTTPResponseWriter) Write([]byte) (int, error) {
 	return 0, nil
 }
 
-func (m *mockHTTPResponseWriter) WriteHeader(statusCode int) {
-
-}
+func (m *mockHTTPResponseWriter) WriteHeader(_ int) {}
 
 func TestVueHandler(t *testing.T) {
 	h := VueHandler("", &ariesJSOpts{}, &trustblocAgentJSOpts{})
@@ -70,8 +68,11 @@ func TestStartCmdWithBlankArg(t *testing.T) {
 	t.Run("test blank host arg", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{"--" + hostURLFlagName, "", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key"}
+		args := []string{
+			"--" + hostURLFlagName, "",
+			"--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+		}
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -82,8 +83,11 @@ func TestStartCmdWithBlankArg(t *testing.T) {
 	t.Run("test blank tls cert arg", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "",
-			"--" + tlsKeyFileFlagName, "key"}
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080",
+			"--" + tlsCertFileFlagName, "",
+			"--" + tlsKeyFileFlagName, "key",
+		}
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -94,8 +98,11 @@ func TestStartCmdWithBlankArg(t *testing.T) {
 	t.Run("test blank tls cert arg", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, ""}
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080",
+			"--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "",
+		}
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -118,8 +125,11 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("test missing bloc domain arg", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{"--" + hostURLFlagName, "localhost:8080",
-			"--" + tlsCertFileFlagName, "cert", "--" + tlsKeyFileFlagName, "key"}
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080",
+			"--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+		}
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -133,7 +143,8 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
 		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + hostURLFlagName, "localhost:8080",
+			"--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
 			"--" + agentAutoAcceptFlagName, "invalid",
 		}
@@ -195,7 +206,8 @@ func TestStartCmdValidArgs(t *testing.T) {
 		"--" + blindedRoutingFlagName, "true",
 		"--" + agentAutoAcceptFlagName, "false",
 		"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-		"--" + sdsURLFlagName, "someURL"}
+		"--" + sdsURLFlagName, "someURL",
+	}
 	startCmd.SetArgs(args)
 
 	err := startCmd.Execute()

@@ -4,7 +4,7 @@
 
 module github.com/trustbloc/edge-agent/cmd/trustbloc-agent-js-worker
 
-go 1.13
+go 1.15
 
 require (
 	github.com/google/uuid v1.1.1

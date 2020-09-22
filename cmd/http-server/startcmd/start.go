@@ -16,7 +16,6 @@ import (
 
 	"github.com/lpar/gzipped"
 	"github.com/spf13/cobra"
-
 	cmdutils "github.com/trustbloc/edge-core/pkg/utils/cmd"
 )
 
@@ -46,35 +45,35 @@ const (
 		" Alternatively, this can be set with the following environment variable: " + tlsKeyFileEnvKey
 	tlsKeyFileEnvKey = "TLS_KEY_FILE"
 
-	// auto accept flag
+	// auto accept flag.
 	agentAutoAcceptFlagName  = "auto-accept"
 	agentAutoAcceptEnvKey    = "ARIESD_AUTO_ACCEPT"
 	agentAutoAcceptFlagUsage = "Auto accept requests." +
 		" Possible values [true] [false]. Defaults to false if not set." +
 		" Alternatively, this can be set with the following environment variable: " + agentAutoAcceptEnvKey
 
-	// log level
+	// log level.
 	agentLogLevelFlagName  = "log-level"
 	agentLogLevelEnvKey    = "ARIESD_LOG_LEVEL"
 	agentLogLevelFlagUsage = "Log level." +
 		" Possible values [INFO] [DEBUG] [ERROR] [WARNING] [CRITICAL] . Defaults to INFO if not set." +
 		" Alternatively, this can be set with the following environment variable: " + agentLogLevelEnvKey
 
-	// default label flag
+	// default label flag.
 	agentDefaultLabelFlagName      = "agent-default-label"
 	agentDefaultLabelEnvKey        = "ARIESD_DEFAULT_LABEL"
 	agentDefaultLabelFlagShorthand = "l"
 	agentDefaultLabelFlagUsage     = "Default Label for this agent. Defaults to blank if not set." +
 		" Alternatively, this can be set with the following environment variable: " + agentDefaultLabelEnvKey
 
-	// db namespace flag
+	// db namespace flag.
 	agentDBNSFlagName      = "db-namespace"
 	agentDBNSEnvKey        = "ARIESD_DB_NAMESPACE"
 	agentDBNSFlagShorthand = "d"
 	agentDBNSFlagUsage     = "database namespace." +
 		" Alternatively, this can be set with the following environment variable: " + agentDBNSEnvKey
 
-	// http resolver url flag
+	// http resolver url flag.
 	agentHTTPResolverFlagName      = "http-resolver-url"
 	agentHTTPResolverEnvKey        = "ARIESD_HTTP_RESOLVER"
 	agentHTTPResolverFlagShorthand = "r"
@@ -88,7 +87,7 @@ const (
 	blocDomainFlagUsage     = "Bloc domain"
 	blocDomainEnvKey        = "BLOC_DOMAIN"
 
-	// wallet mediator url flag
+	// wallet mediator url flag.
 	walletMediatorURLFlagName      = "wallet-mediator-url"
 	walletMediatorURLEnvKey        = "WALLET_MEDIATOR_URL"
 	walletMediatorURLFlagShorthand = "m"
@@ -96,7 +95,7 @@ const (
 		" Alternatively, this can be set with the following environment variable: " +
 		walletMediatorURLEnvKey
 
-	// credential mediator url flag
+	// credential mediator url flag.
 	credentialMediatorURLFlagName      = "credential-mediator-url"
 	credentialMediatorURLEnvKey        = "CREDENTIAL_MEDIATOR_URL"
 	credentialMediatorURLFlagShorthand = "a"
@@ -104,25 +103,25 @@ const (
 		"for the W3C CCG Credential Handler API specification" +
 		credentialMediatorURLEnvKey
 
-	// credential mediator url flag
+	// blinded routing flag.
 	blindedRoutingFlagName     = "blinded-routing"
 	blindedRoutingEnvKey       = "BLINDED_ROUTING"
 	blindedRoutingURLFlagUsage = "Flag to enable blinded routing to maintain identity privacy of the issuers " +
 		"and verifiers involved. Possible values [true] [false]. Defaults to false if not set." +
 		"Alternatively, this can be set with the following environment variable: " + blindedRoutingEnvKey
 
-	// TODO Derive the SDS URL from the hub-auth bootstrap data #271
+	// TODO Derive the SDS URL from the hub-auth bootstrap data #271.
 	sdsURLFlagName      = "sds-url"
 	sdsURLFlagShorthand = "s"
 	sdsURLFlagUsage     = "URL SDS instance is running on."
 	sdsURLEnvKey        = "HTTP_SERVER_SDS_URL"
 
-	// aries opts path
+	// aries opts path.
 	ariesStartupOptsPath = "/aries/jsopts"
 	indexHTLMPath        = "/index.html"
 	basePath             = "/"
 
-	// tustbloc agent opt path
+	// tustbloc agent opt path.
 	trustblocStartupOptsPath = "/trustbloc-agent/jsopts"
 )
 
@@ -159,7 +158,7 @@ type trustblocAgentJSOpts struct {
 	SDSServerURL          string `json:"sdsServerURL,omitempty"`
 }
 
-// VueHandler return a http.Handler that supports Vue Router app with history mode
+// VueHandler return a http.Handler that supports Vue Router app with history mode.
 func VueHandler(publicDir string, opts *ariesJSOpts, trustblocAgentOpts *trustblocAgentJSOpts) http.Handler {
 	handler := gzipped.FileServer(http.Dir(publicDir))
 
@@ -168,23 +167,26 @@ func VueHandler(publicDir string, opts *ariesJSOpts, trustblocAgentOpts *trustbl
 
 		// aries js opts
 		if urlPath == ariesStartupOptsPath {
-			j, _ := json.Marshal(opts) // nolint errcheck
+			j, _ := json.Marshal(opts) // nolint:errcheck // don't know why err is ignored
 
-			w.Write(j) // nolint errcheck
+			w.Write(j) // nolint:errcheck,gosec // don't know why err is ignored
+
 			return
 		}
 
 		// trustbloc agent js opts
 		if urlPath == trustblocStartupOptsPath {
-			j, _ := json.Marshal(trustblocAgentOpts) // nolint errcheck
+			j, _ := json.Marshal(trustblocAgentOpts) // nolint:errcheck // don't know why err is ignored
 
-			w.Write(j) // nolint errcheck
+			w.Write(j) // nolint:errcheck,gosec // don't know why err is ignored
+
 			return
 		}
 
 		// static files
 		if urlPath == basePath || strings.Contains(urlPath, ".") {
 			handler.ServeHTTP(w, req)
+
 			return
 		}
 
@@ -254,6 +256,7 @@ func createStartCmd(srv server) *cobra.Command {
 				opts:               opt,
 				trustblocAgentOpts: trustblocAgentOpts,
 			}
+
 			return startHTTPServer(parameters)
 		},
 	}
