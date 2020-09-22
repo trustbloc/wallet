@@ -20,9 +20,13 @@ jobs:
     steps:
       - template: azp-dependencies.yml
       - checkout: self
-      - script: make checks
+      - bash: |
+          echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
+          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          make checks
         env:
-          GITHUB_TOKEN: $(DOCKER_PASSWORD)
+          DOCKER_PASSWORD: $(DOCKER_PASSWORD)
         displayName: Run checks
 
   - job: UnitTest
@@ -65,11 +69,13 @@ jobs:
           echo '127.0.0.1 testnet.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 stakeholder.one' | sudo tee -a /etc/hosts
           echo '127.0.0.1 sidetree-mock' | sudo tee -a /etc/hosts
+          echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
+          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make bdd-test-js
         env:
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)
-          GITHUB_TOKEN: $(DOCKER_PASSWORD)
         displayName: Run BDD tests in JS
 
 
@@ -100,4 +106,3 @@ jobs:
         env:
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)
-          GITHUB_TOKEN: $(DOCKER_PASSWORD)
