@@ -12,5 +12,5 @@ require (
 	github.com/lpar/gzipped v1.1.0
 	github.com/spf13/cobra v0.0.6
 	github.com/stretchr/testify v1.4.0
-	github.com/trustbloc/edge-core v0.1.4
+	github.com/trustbloc/edge-core v0.1.5-0.20200916124536-c32454a16108
 )
