@@ -103,6 +103,8 @@ clean-build:
 	@rm -Rf ./build
 	@rm -Rf ./cmd/user-agent/dist
 	@rm -Rf ./cmd/user-agent/node_modules
+	@rm -Rf ./cmd/agent-js-worker/node_modules
+	@rm -Rf ./cmd/agent-js-worker/dist
 	@rm -Rf ./cmd/trustbloc-agent-js-worker/node_modules
 	@rm -Rf ./cmd/trustbloc-agent-js-worker/dist
 	@rm -Rf ./test/bdd/fixtures/agent-wasm/config
