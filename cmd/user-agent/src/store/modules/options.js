@@ -8,7 +8,7 @@ const axios = require('axios').default;
 
 const trustblocOptsLocation = l => `${l}/trustbloc-agent/jsopts`
 
-const ariesOptsLocation = l => `${l}/aries/jsopts`
+const ariesOptsLocation = l => `${l}/agent-js-worker/jsopts`
 
 const credentialMediator = url => url ? `${url}?origin=${encodeURIComponent(window.location.origin)}` : undefined
 
@@ -23,7 +23,7 @@ const defaultTrustBlocStartupOpts = {
 }
 
 let defaultAriesStartupOpts = {
-    assetsPath: '/aries-framework-go/assets',
+    assetsPath: '/agent-js-worker/assets',
     'outbound-transport': ['ws', 'http'],
     'transport-return-route': 'all',
     'http-resolver-url': ["trustbloc:testnet.trustbloc.local@http://localhost:8080/1.0/identifiers", "web@http://localhost:8080/1.0/identifiers"],

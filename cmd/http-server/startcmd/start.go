@@ -117,7 +117,7 @@ const (
 	sdsURLEnvKey        = "HTTP_SERVER_SDS_URL"
 
 	// aries opts path.
-	ariesStartupOptsPath = "/aries/jsopts"
+	ariesStartupOptsPath = "/agent-js-worker/jsopts"
 	indexHTLMPath        = "/index.html"
 	basePath             = "/"
 

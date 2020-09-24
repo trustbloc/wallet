@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import * as Aries from "@trustbloc-cicd/aries-framework-go"
+import * as Aries from "@trustbloc/agent-js-worker"
 import {createLocalVue} from "@vue/test-utils";
 import Vuex from "vuex";
 
@@ -51,7 +51,7 @@ export class wcredHandler {
 
 // TODO endpoints should be read from configurations
 const ariesStartupOpts = {
-    assetsPath: "/base/public/aries-framework-go/assets",
+    assetsPath: "/base/public/agent-js-worker/assets",
     'outbound-transport': ['ws', 'http'],
     'transport-return-route': 'all',
     "http-resolver-url": ["trustbloc@http://localhost:9080/1.0/identifiers", "v1@http://localhost:9080/1.0/identifiers"],

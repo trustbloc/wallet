@@ -10,7 +10,7 @@ module.exports = function (config) {
     config.set({
         frameworks: ['mocha'],
         files: [
-            {pattern: "public/aries-framework-go/assets/*", included: false},
+            {pattern: "public/agent-js-worker/assets/*", included: false},
             {pattern: "public/trustbloc-agent/assets/*", included: false},
             {pattern: "test/common.js", included: false},
             {pattern: "test/**/*.spec.js", type: "module"}

@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import {WalletManager} from "../../pages/chapi/wallet";
-import * as Aries from "@trustbloc-cicd/aries-framework-go";
+import * as Aries from "@trustbloc/agent-js-worker";
 
 export default {
     state: {

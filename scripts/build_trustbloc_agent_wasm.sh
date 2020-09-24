@@ -12,3 +12,7 @@ echo "Building trustbloc agent wasm"
 cd cmd/trustbloc-agent-js-worker
 npm install
 npm run build
+
+cd ../agent-js-worker
+npm install
+npm run build

@@ -1,0 +1,15 @@
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+dist/
+node_modules/
+*.wasm
+*.gz
+*.tgz
+
+# ignore copy of license file from project's root directory that is copied
+# here during 'npm run build'
+LICENSE

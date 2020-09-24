@@ -5,13 +5,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-rm -rf public/aries-framework-go/
-mkdir -p public/aries-framework-go/assets
+rm -rf public/agent-js-worker/
+mkdir -p public/agent-js-worker/assets
 npm install
-cp -Rp node_modules/@trustbloc-cicd/aries-framework-go/dist/assets/* public/aries-framework-go/assets
-cp public/aries-framework-go/assets/aries-js-worker.wasm.gz public/aries-framework-go/assets/aries-js-worker.wasm.gz.bak
-gunzip public/aries-framework-go/assets/aries-js-worker.wasm.gz
-mv public/aries-framework-go/assets/aries-js-worker.wasm.gz.bak public/aries-framework-go/assets/aries-js-worker.wasm.gz
+cp -Rp node_modules/@trustbloc/agent-js-worker/dist/assets/* public/agent-js-worker/assets
+cp public/agent-js-worker/assets/agent-js-worker.wasm.gz public/agent-js-worker/assets/agent-js-worker.wasm.gz.bak
+gunzip public/agent-js-worker/assets/agent-js-worker.wasm.gz
+mv public/agent-js-worker/assets/agent-js-worker.wasm.gz.bak public/agent-js-worker/assets/agent-js-worker.wasm.gz
 
 rm -rf public/trustbloc-agent/
 mkdir -p public/trustbloc-agent/assets

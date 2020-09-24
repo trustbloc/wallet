@@ -43,7 +43,7 @@ func TestVueHandler(t *testing.T) {
 	require.NotNil(t, h)
 	h.ServeHTTP(&mockHTTPResponseWriter{}, &http.Request{URL: &url.URL{}})
 	h.ServeHTTP(&mockHTTPResponseWriter{}, &http.Request{URL: &url.URL{Path: "."}})
-	h.ServeHTTP(&mockHTTPResponseWriter{}, &http.Request{URL: &url.URL{Path: "/aries/jsopts"}})
+	h.ServeHTTP(&mockHTTPResponseWriter{}, &http.Request{URL: &url.URL{Path: "/agent-js-worker/jsopts"}})
 }
 
 func TestListenAndServe(t *testing.T) {
