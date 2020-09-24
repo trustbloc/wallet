@@ -24,10 +24,10 @@ import BlockNoAuth from "@/pages/chapi/BlockNoAuth.vue";
 
 const routes = [
     {
-        path: "/",
+        path: `${__webpack_public_path__}`,
         component: DashboardLayout,
         // name: "dashboard",
-        redirect: "dashboard",
+        redirect: {name: "dashboard"},
         children: [
             {
                 path: "dashboard",
@@ -79,7 +79,25 @@ const routes = [
                 name: "present-proof",
                 component: PresentProof,
                 meta: {requiresAuth: true}
-            }
+            },
+            {
+                path: "worker",
+                name: "chapi-worker",
+                component: WalletWorker,
+                meta: {showNav: false, hideFooter: true}
+            },
+            {
+                path: "StoreInWallet",
+                name: "chapi-store",
+                component: StoreInWallet,
+                meta: {blockNoAuth: true, showNav: false, hideFooter: true}
+            },
+            {
+                path: "GetFromWallet",
+                name: "chapi-get",
+                component: GetFromWallet,
+                meta: {blockNoAuth: true, showNav: false, hideFooter: true}
+            },
         ]
     },
     {
@@ -90,23 +108,6 @@ const routes = [
     {
         path: '*',
         component: NotFound
-    },
-    {
-        path: "/StoreInWallet",
-        name: "chapi-store",
-        component: StoreInWallet,
-        meta: {blockNoAuth: true}
-    },
-    {
-        path: "/GetFromWallet",
-        name: "chapi-get",
-        component: GetFromWallet,
-        meta: {blockNoAuth: true}
-    },
-    {
-        path: "/worker",
-        name: "chapi-worker",
-        component: WalletWorker
     },
     {
         path: '/needauth',

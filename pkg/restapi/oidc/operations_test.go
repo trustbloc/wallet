@@ -107,7 +107,7 @@ func config(t *testing.T) *Config {
 
 	return &Config{
 		OIDC: &OIDCConfig{
-			Provider:     &oidcProviderImpl{op: oidcProvider},
+			Provider:     &OIDCProviderImpl{OP: oidcProvider},
 			ClientID:     uuid.New().String(),
 			ClientSecret: uuid.New().String(),
 			Scopes:       []string{oidc.ScopeOpenID, "test"},

@@ -59,8 +59,8 @@ make user-agent-start
 
 ## Agents
 
-- To access user agent wasm open [user home page](https://localhost:8091/dashboard).
-- To access second user agent wasm open [user home page](https://localhost:8071/dashboard).
+- To access user agent wasm open [user home page](https://localhost:8091/wallet/dashboard).
+- To access second user agent wasm open [user home page](https://localhost:8071/wallet/dashboard).
 
 ## Data Storage
 

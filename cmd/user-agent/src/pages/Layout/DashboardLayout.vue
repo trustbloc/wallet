@@ -5,41 +5,50 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-  <div class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
+  <div v-if="$route.meta.showNav === false" class="main-panel">
+    <dashboard-content></dashboard-content>
+    <content-footer v-if="!$route.meta.hideFooter"></content-footer>
+  </div>
+
+  <div v-else class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
+
+    <!--
+     TODO - base path for sidebar links should be configurable: https://github.com/trustbloc/edge-agent/issues/374
+    -->
 
     <side-bar
         :sidebar-item-color="sidebarBackground"
         :sidebar-background-image="sidebarBackgroundImage">
       <mobile-menu slot="content"></mobile-menu>
-      <sidebar-link to="/dashboard">
+      <sidebar-link to="/wallet/dashboard">
         <md-icon>dashboard</md-icon>
         <p>Dashboard</p>
       </sidebar-link>
-      <sidebar-link to="/DIDManagement">
+      <sidebar-link to="/wallet/DIDManagement">
         <md-icon>flip_to_back</md-icon>
         <p>DID Management</p>
       </sidebar-link>
-      <sidebar-link to="/relationships">
+      <sidebar-link to="/wallet/relationships">
         <md-icon>compare_arrows</md-icon>
         <p>Relationships</p>
         <md-badge v-if="pendingConnectionsCount" class="md-primary md-square" style="margin: 5px"
                   :md-content="pendingConnectionsCount"/>
       </sidebar-link>
-      <sidebar-link v-if="isDevMode" to="/MyVC">
+      <sidebar-link v-if="isDevMode" to="/wallet/MyVC">
         <md-icon>border_outer</md-icon>
         <p>Presentation</p>
       </sidebar-link>
-      <sidebar-link v-if="isDevMode" to="/connections">
+      <sidebar-link v-if="isDevMode" to="/wallet/connections">
         <md-icon>compare_arrows</md-icon>
         <p>Connections</p>
         <md-badge v-if="pendingConnectionsCount" class="md-primary md-square" style="margin: 5px"
                   :md-content="pendingConnectionsCount"/>
       </sidebar-link>
-      <sidebar-link v-if="isDevMode" to="/issue-credential">
+      <sidebar-link v-if="isDevMode" to="/wallet/issue-credential">
         <md-icon>note</md-icon>
         <p>Issue Credential</p>
       </sidebar-link>
-      <sidebar-link v-if="isDevMode" to="/present-proof">
+      <sidebar-link v-if="isDevMode" to="/wallet/present-proof">
         <md-icon>security</md-icon>
         <p>Present Proof</p>
       </sidebar-link>

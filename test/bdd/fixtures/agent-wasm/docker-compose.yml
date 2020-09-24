@@ -59,10 +59,15 @@ services:
       - ARIESD_HTTP_RESOLVER=${HTTP_RESOLVER}
       - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
       - TLS_KEY_FILE=/etc/tls/ec-key.pem
+      - TLS_CACERTS=/etc/tls/ec-cacert.pem
       - ARIESD_DEFAULT_LABEL=user-agent
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - HTTP_SERVER_SDS_URL=${HTTP_SERVER_SDS_URL}
+      - HTTP_SERVER_OIDC_OPURL=http://mock.oidc.provider
+      - HTTP_SERVER_OIDC_CLIENTID=TODO
+      - HTTP_SERVER_OIDC_CLIENTSECRET=TODO
+      - HTTP_SERVER_OIDC_CALLBACK=http://TODO.com/callback
     ports:
       - 8091:8091
     volumes:
@@ -70,6 +75,7 @@ services:
     command: start
     depends_on:
       - sds.example.com
+      - mock.oidc.provider
 
   second.user.agent.example.com:
     container_name: second.user.agent.example.com
@@ -83,6 +89,10 @@ services:
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - HTTP_SERVER_SDS_URL=${HTTP_SERVER_SDS_URL}
+      - HTTP_SERVER_OIDC_OPURL=http://mock.oidc.provider
+      - HTTP_SERVER_OIDC_CLIENTID=TODO
+      - HTTP_SERVER_OIDC_CLIENTSECRET=TODO
+      - HTTP_SERVER_OIDC_CALLBACK=http://TODO.com/callback
     ports:
       - 8071:8071
     volumes:
@@ -90,6 +100,7 @@ services:
     command: start
     depends_on:
       - sds.example.com
+      - mock.oidc.provider
 
   couchdb.example.com:
     container_name: couchdb.example.com
@@ -205,3 +216,40 @@ services:
     volumes:
       - ../keys/tls:/etc/tls
 
+  mock.oidc.provider:
+    container_name: mock.oidc.provider
+    image: soluto/oidc-server-mock:0.2.2
+    ports:
+      - 8040:80
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      SERVER_OPTIONS_INLINE: |
+        {
+          "AccessTokenJwtType": "JWT",
+          "Discovery": {
+            "ShowKeySet": true
+          }
+        }
+      API_SCOPES_INLINE: |
+        [
+          "some-app-scope-1",
+          "some-app-scope-2"
+        ]
+      API_RESOURCES_INLINE: |
+        [
+          {
+            "Name": "some-app",
+            "Scopes": ["some-app-scope-1", "some-app-scope-2"]
+          }
+        ]
+      USERS_CONFIGURATION_INLINE: |
+        [
+          {
+            "SubjectId":"1",
+            "Username":"User1",
+            "Password":"pwd"
+          }
+        ]
+      CLIENTS_CONFIGURATION_PATH: /tmp/config/clients-config.json
+    volumes:
+      - ./oidc-config:/tmp/config:ro

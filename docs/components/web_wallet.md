@@ -14,10 +14,10 @@
 
 Once user agent is started using previous step,
 
-- Login to web wallet from user web wallet [dashboard](https://localhost:8091/dashboard). 
+- Login to web wallet from user web wallet [dashboard](https://localhost:8091/wallet/dashboard). 
 
   Proceed with pre-filled username/password for the login. Once login is successful, you will get a prompt from your browser to allow wallet to manage credentials, choose 'Allow'. 
-- Go to web wallet [demo page](https://localhost:8091/webwallet)
+- Go to web wallet [demo page](https://localhost:8091/wallet/webwallet)
 
   Web wallet demo page can be used to perform all supported wallet operations. Click on sample requests based on operation you wish to perform and click on `STORE` or `GET` buttons. 
   

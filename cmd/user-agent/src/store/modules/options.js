@@ -6,14 +6,14 @@ SPDX-License-Identifier: Apache-2.0
 
 const axios = require('axios').default;
 
-const trustblocOptsLocation = l => `${l}/trustbloc-agent/jsopts`
+const trustblocOptsLocation = l => `${l}/walletconfig/trustbloc`
 
-const ariesOptsLocation = l => `${l}/agent-js-worker/jsopts`
+const ariesOptsLocation = l => `${l}/walletconfig/aries`
 
-const credentialMediator = url => url ? `${url}?origin=${encodeURIComponent(window.location.origin)}` : undefined
+const credentialMediator = url => url ? `${url}?origin=${encodeURIComponent(window.location.origin)}${__webpack_public_path__}/` : undefined
 
 const defaultTrustBlocStartupOpts = {
-    assetsPath: '/trustbloc-agent/assets',
+    assetsPath: `${__webpack_public_path__}/trustbloc-agent/assets`,
     blocDomain: 'testnet.trustbloc.local',
     'log-level': 'debug',
     walletMediatorURL: 'https://localhost:10063',
@@ -23,7 +23,7 @@ const defaultTrustBlocStartupOpts = {
 }
 
 let defaultAriesStartupOpts = {
-    assetsPath: '/agent-js-worker/assets',
+    assetsPath: `${__webpack_public_path__}/agent-js-worker/assets`,
     'outbound-transport': ['ws', 'http'],
     'transport-return-route': 'all',
     'http-resolver-url': ["trustbloc:testnet.trustbloc.local@http://localhost:8080/1.0/identifiers", "web@http://localhost:8080/1.0/identifiers"],

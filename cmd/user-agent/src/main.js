@@ -46,7 +46,7 @@ router.beforeEach((to, from, next) => {
         } else {
             next({
                 name: "block-no-auth",
-                params: {login: "/login"},
+                params: {redirect: "login"},
             });
         }
     } else {

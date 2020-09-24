@@ -7,16 +7,26 @@ SPDX-License-Identifier: Apache-2.0
 package startcmd
 
 import (
+	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/cenkalti/backoff/v4"
+	oidcp "github.com/coreos/go-oidc"
+	"github.com/gorilla/mux"
 	"github.com/lpar/gzipped"
 	"github.com/spf13/cobra"
+	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
+	"github.com/trustbloc/edge-core/pkg/log"
+	"github.com/trustbloc/edge-core/pkg/storage/memstore"
 	cmdutils "github.com/trustbloc/edge-core/pkg/utils/cmd"
+	tlsutils "github.com/trustbloc/edge-core/pkg/utils/tls"
 )
 
 const (
@@ -44,6 +54,11 @@ const (
 	tlsKeyFileFlagUsage     = "tls key file." +
 		" Alternatively, this can be set with the following environment variable: " + tlsKeyFileEnvKey
 	tlsKeyFileEnvKey = "TLS_KEY_FILE"
+
+	tlsCACertsFlagName  = "tls-cacerts"
+	tlsCACertsFlagUsage = "Comma-Separated list of ca certs path." +
+		" Alternatively, this can be set with the following environment variable: " + tlsCACertsEnvKey
+	tlsCACertsEnvKey = "TLS_CACERTS"
 
 	// auto accept flag.
 	agentAutoAcceptFlagName  = "auto-accept"
@@ -116,14 +131,44 @@ const (
 	sdsURLFlagUsage     = "URL SDS instance is running on."
 	sdsURLEnvKey        = "HTTP_SERVER_SDS_URL"
 
-	// aries opts path.
-	ariesStartupOptsPath = "/agent-js-worker/jsopts"
-	indexHTLMPath        = "/index.html"
-	basePath             = "/"
+	dependencyMaxRetriesFlagName   = "dep-maxretries"
+	dependencyMaxRetriesFlagEnvKey = "HTTP_SERVER_DEP_MAXRETRIES"
+	dependencyMaxRetriesFlagUsage  = "Optional. Sets the maximum number of retries while establishing connections with" +
+		" external dependencies on startup. Default is 120. Delay between retries is 1s." +
+		" Alternatively, this can be set with the following environment variable: " + dependencyMaxRetriesFlagEnvKey
+	dependencyMaxRetriesDefault = uint64(120) // nolint:gomnd // false positive ("magic number")
 
-	// tustbloc agent opt path.
-	trustblocStartupOptsPath = "/trustbloc-agent/jsopts"
+	indexHTLMPath    = "/index.html"
+	uiBasePath       = "/wallet/"
+	uiConfigBasePath = "/walletconfig/"
+	oidcBasePath     = "/oidc/"
 )
+
+// OIDC config.
+const (
+	oidcProviderURLFlagName  = "oidc-opurl"
+	oidcProviderURLFlagUsage = "URL for the OIDC provider." +
+		" Alternatively, this can be set with the following environment variable: " + oidcProviderURLEnvKey
+	oidcProviderURLEnvKey = "HTTP_SERVER_OIDC_OPURL"
+
+	oidcClientIDFlagName  = "oidc-clientid"
+	oidcClientIDFlagUsage = "OAuth2 client_id for OIDC." +
+		" Alternatively, this can be set with the following environment variable: " + oidcClientIDEnvKey
+	oidcClientIDEnvKey = "HTTP_SERVER_OIDC_CLIENTID"
+
+	oidcClientSecretFlagName  = "oidc-clientsecret" // nolint:gosec // false positive on 'secret'
+	oidcClientSecretFlagUsage = "OAuth2 client secret for OIDC." +
+		" Alternatively, this can be set with the following environment variable: " + oidcClientSecretEnvKey
+	oidcClientSecretEnvKey = "HTTP_SERVER_OIDC_CLIENTSECRET" // nolint:gosec // false positive on 'SECRET'
+
+	// assumed to be the same landing page for all callbacks from all OIDC providers.
+	oidcCallbackURLFlagName  = "oidc-callback"
+	oidcCallbackURLFlagUsage = "Base URL for the OIDC callback endpoint." +
+		" Alternatively, this can be set with the following environment variable: " + oidcCallbackURLEnvKey
+	oidcCallbackURLEnvKey = "HTTP_SERVER_OIDC_CALLBACK"
+)
+
+var logger = log.New("edge-agent/http-server")
 
 type server interface {
 	ListenAndServe(host, certFile, keyFile string, handler http.Handler) error
@@ -158,48 +203,27 @@ type trustblocAgentJSOpts struct {
 	SDSServerURL          string `json:"sdsServerURL,omitempty"`
 }
 
-// VueHandler return a http.Handler that supports Vue Router app with history mode.
-func VueHandler(publicDir string, opts *ariesJSOpts, trustblocAgentOpts *trustblocAgentJSOpts) http.Handler {
-	handler := gzipped.FileServer(http.Dir(publicDir))
-
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		urlPath := req.URL.Path
-
-		// aries js opts
-		if urlPath == ariesStartupOptsPath {
-			j, _ := json.Marshal(opts) // nolint:errcheck // don't know why err is ignored
-
-			w.Write(j) // nolint:errcheck,gosec // don't know why err is ignored
-
-			return
-		}
-
-		// trustbloc agent js opts
-		if urlPath == trustblocStartupOptsPath {
-			j, _ := json.Marshal(trustblocAgentOpts) // nolint:errcheck // don't know why err is ignored
-
-			w.Write(j) // nolint:errcheck,gosec // don't know why err is ignored
-
-			return
-		}
-
-		// static files
-		if urlPath == basePath || strings.Contains(urlPath, ".") {
-			handler.ServeHTTP(w, req)
-
-			return
-		}
-
-		// the all 404 gonna be served as root
-		http.ServeFile(w, req, path.Join(publicDir, indexHTLMPath))
-	})
+type httpServerParameters struct {
+	dependencyMaxRetries uint64
+	srv                  server
+	hostURL, wasmPath    string
+	opts                 *ariesJSOpts
+	trustblocAgentOpts   *trustblocAgentJSOpts
+	tls                  *tlsParameters
+	oidc                 *oidcParameters
 }
 
-type httpServerParameters struct {
-	srv                                        server
-	hostURL, wasmPath, tlsCertFile, tlsKeyFile string
-	opts                                       *ariesJSOpts
-	trustblocAgentOpts                         *trustblocAgentJSOpts
+type tlsParameters struct {
+	certFile string
+	keyFile  string
+	config   *tls.Config
+}
+
+type oidcParameters struct {
+	providerURL  string
+	clientID     string
+	clientSecret string
+	callbackURL  string
 }
 
 // GetStartCmd returns the Cobra start command.
@@ -227,14 +251,9 @@ func createStartCmd(srv server) *cobra.Command {
 				return err
 			}
 
-			tlsCertFile, tlsCertFileErr := cmdutils.GetUserSetVarFromString(cmd, tlsCertFileFlagName, tlsCertFileEnvKey, true)
-			if tlsCertFileErr != nil {
-				return tlsCertFileErr
-			}
-
-			tlsKeyFile, tlsKeyFileErr := cmdutils.GetUserSetVarFromString(cmd, tlsKeyFileFlagName, tlsKeyFileEnvKey, true)
-			if tlsKeyFileErr != nil {
-				return tlsKeyFileErr
+			tlsParams, err := getTLSParams(cmd)
+			if err != nil {
+				return err
 			}
 
 			opt, optErr := fetchAriesWASMAgentOpts(cmd)
@@ -247,14 +266,25 @@ func createStartCmd(srv server) *cobra.Command {
 				return err
 			}
 
+			oidcParams, err := getOIDCParams(cmd)
+			if err != nil {
+				return err
+			}
+
+			retries, err := getDependencyMaxRetries(cmd)
+			if err != nil {
+				return err
+			}
+
 			parameters := &httpServerParameters{
-				srv:                srv,
-				wasmPath:           wasmPath,
-				hostURL:            hostURL,
-				tlsCertFile:        tlsCertFile,
-				tlsKeyFile:         tlsKeyFile,
-				opts:               opt,
-				trustblocAgentOpts: trustblocAgentOpts,
+				dependencyMaxRetries: retries,
+				srv:                  srv,
+				wasmPath:             wasmPath,
+				hostURL:              hostURL,
+				opts:                 opt,
+				trustblocAgentOpts:   trustblocAgentOpts,
+				tls:                  tlsParams,
+				oidc:                 oidcParams,
 			}
 
 			return startHTTPServer(parameters)
@@ -265,12 +295,8 @@ func createStartCmd(srv server) *cobra.Command {
 func createFlags(startCmd *cobra.Command) {
 	// wasm path flag
 	startCmd.Flags().StringP(wasmPathFlagName, wasmPathFlagShorthand, "", wasmPathFlagUsage)
-	// tls cert key flag
-	startCmd.Flags().StringP(tlsKeyFileFlagName, tlsKeyFileFlagShorthand, "", tlsKeyFileFlagUsage)
 	// host url flag
 	startCmd.Flags().StringP(hostURLFlagName, hostURLFlagShorthand, "", hostURLFlagUsage)
-	// tls cert file flag
-	startCmd.Flags().StringP(tlsCertFileFlagName, tlsCertFileFlagShorthand, "", tlsCertFileFlagUsage)
 	// aries db path flag
 	startCmd.Flags().StringP(agentDBNSFlagName, agentDBNSFlagShorthand, "", agentDBNSFlagUsage)
 	// aries log level
@@ -296,6 +322,142 @@ func createFlags(startCmd *cobra.Command) {
 	startCmd.Flags().StringP(blindedRoutingFlagName, "", "",
 		blindedRoutingURLFlagUsage)
 	startCmd.Flags().StringP(sdsURLFlagName, sdsURLFlagShorthand, "", sdsURLFlagUsage)
+	startCmd.Flags().StringP(dependencyMaxRetriesFlagName, "", "", dependencyMaxRetriesFlagUsage)
+	createOIDCFlags(startCmd)
+	createTLSFlags(startCmd)
+}
+
+func createTLSFlags(cmd *cobra.Command) {
+	cmd.Flags().StringP(tlsKeyFileFlagName, tlsKeyFileFlagShorthand, "", tlsKeyFileFlagUsage)
+	cmd.Flags().StringP(tlsCertFileFlagName, tlsCertFileFlagShorthand, "", tlsCertFileFlagUsage)
+	cmd.Flags().StringArrayP(tlsCACertsFlagName, "", []string{}, tlsCACertsFlagUsage)
+}
+
+func createOIDCFlags(cmd *cobra.Command) {
+	cmd.Flags().StringP(oidcProviderURLFlagName, "", "", oidcProviderURLFlagUsage)
+	cmd.Flags().StringP(oidcClientIDFlagName, "", "", oidcClientIDFlagUsage)
+	cmd.Flags().StringP(oidcClientSecretFlagName, "", "", oidcClientSecretFlagUsage)
+	cmd.Flags().StringP(oidcCallbackURLFlagName, "", "", oidcCallbackURLFlagUsage)
+}
+
+func getDependencyMaxRetries(cmd *cobra.Command) (uint64, error) {
+	retriesConfig, err := cmdutils.GetUserSetVarFromString(cmd,
+		dependencyMaxRetriesFlagName, dependencyMaxRetriesFlagEnvKey, true)
+	if err != nil {
+		return 0, fmt.Errorf("failed to configure dependencyMaxRetries: %w", err)
+	}
+
+	maxRetries := dependencyMaxRetriesDefault
+
+	if retriesConfig != "" {
+		retries, err := strconv.ParseUint(retriesConfig, 10, 64)
+		if err != nil {
+			return 0, fmt.Errorf("failed to parse dependencyMaxRetries value '%s': %w", retriesConfig, err)
+		}
+
+		if retries > 0 {
+			maxRetries = retries
+		}
+	}
+
+	return maxRetries, nil
+}
+
+func getTLSParams(cmd *cobra.Command) (*tlsParameters, error) {
+	params := &tlsParameters{}
+
+	var err error
+
+	params.certFile, err = cmdutils.GetUserSetVarFromString(cmd, tlsCertFileFlagName, tlsCertFileEnvKey, true)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure tls cert file: %w", err)
+	}
+
+	params.keyFile, err = cmdutils.GetUserSetVarFromString(cmd, tlsKeyFileFlagName, tlsKeyFileEnvKey, true)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure tls key file: %w", err)
+	}
+
+	rootCAs, err := cmdutils.GetUserSetVarFromArrayString(cmd, tlsCACertsFlagName, tlsCACertsEnvKey, true)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure root CAs: %w", err)
+	}
+
+	if len(rootCAs) > 0 {
+		certPool, err := tlsutils.GetCertPool(false, rootCAs)
+		if err != nil {
+			return nil, fmt.Errorf("failed to init tls cert pool: %w", err)
+		}
+
+		params.config = &tls.Config{
+			RootCAs:    certPool,
+			MinVersion: tls.VersionTLS13,
+		}
+	}
+
+	return params, nil
+}
+
+func getOIDCParams(cmd *cobra.Command) (*oidcParameters, error) {
+	params := &oidcParameters{}
+
+	var err error
+
+	params.clientID, err = cmdutils.GetUserSetVarFromString(cmd, oidcClientIDFlagName, oidcClientIDEnvKey, false)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure OIDC clientID: %w", err)
+	}
+
+	params.clientSecret, err = cmdutils.GetUserSetVarFromString(
+		cmd, oidcClientSecretFlagName, oidcClientSecretEnvKey, false)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure OIDC client secret: %w", err)
+	}
+
+	params.callbackURL, err = cmdutils.GetUserSetVarFromString(
+		cmd, oidcCallbackURLFlagName, oidcCallbackURLEnvKey, false)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure OIDC callback URL: %w", err)
+	}
+
+	params.providerURL, err = cmdutils.GetUserSetVarFromString(
+		cmd, oidcProviderURLFlagName, oidcProviderURLEnvKey, false)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure OIDC provider URL: %w", err)
+	}
+
+	return params, nil
+}
+
+func initOIDCProvider(providerURL string, retries uint64, tlsConfig *tls.Config) (*oidcp.Provider, error) {
+	var provider *oidcp.Provider
+
+	err := backoff.RetryNotify(
+		func() error {
+			var provErr error
+			provider, provErr = oidcp.NewProvider(
+				oidcp.ClientContext(
+					context.Background(),
+					&http.Client{Transport: &http.Transport{
+						TLSClientConfig: tlsConfig,
+					}},
+				),
+				providerURL,
+			)
+
+			return provErr
+		},
+		backoff.WithMaxRetries(backoff.NewConstantBackOff(time.Second), retries),
+		func(retryErr error, d time.Duration) {
+			fmt.Printf(
+				"failed to init OIDC provider - will sleep for %s before trying again: %s\n", d, retryErr.Error())
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to init OIDC provider: %w", err)
+	}
+
+	return provider, nil
 }
 
 func fetchAriesWASMAgentOpts(cmd *cobra.Command) (*ariesJSOpts, error) {
@@ -407,12 +569,106 @@ func startHTTPServer(parameters *httpServerParameters) error {
 		parameters.wasmPath = "."
 	}
 
-	err := parameters.srv.ListenAndServe(
-		parameters.hostURL, parameters.tlsCertFile, parameters.tlsKeyFile,
-		VueHandler(parameters.wasmPath, parameters.opts, parameters.trustblocAgentOpts))
+	router, err := router(parameters)
+	if err != nil {
+		return fmt.Errorf("failed to configure router: %w", err)
+	}
+
+	logger.Infof("starting http-server on %s...", parameters.hostURL)
+
+	err = parameters.srv.ListenAndServe(
+		parameters.hostURL, parameters.tls.certFile, parameters.tls.keyFile,
+		router)
 	if err != nil {
 		return fmt.Errorf("http server closed unexpectedly: %s", err)
 	}
 
 	return err
+}
+
+func router(config *httpServerParameters) (http.Handler, error) {
+	root := mux.NewRouter()
+
+	uiRouter := root.PathPrefix(uiBasePath).Subrouter()
+	addUIHandler(uiRouter, config.wasmPath)
+
+	uiConfigRouter := root.PathPrefix(uiConfigBasePath).Subrouter()
+	addUIConfigHandlers(uiConfigRouter, config)
+
+	oidcRouter := root.PathPrefix(oidcBasePath).Subrouter()
+
+	err := addOIDCHandlers(oidcRouter, config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to add OIDC handlers: %w", err)
+	}
+
+	return root, nil
+}
+
+func addUIHandler(router *mux.Router, publicDir string) {
+	handler := gzipped.FileServer(http.Dir(publicDir))
+	router.Methods(http.MethodGet).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		urlPath := r.URL.Path
+		logger.Infof("handling ui request: %s", urlPath)
+
+		if strings.Contains(urlPath, ".") {
+			r.URL.Path = r.URL.Path[len(uiBasePath):]
+			handler.ServeHTTP(w, r)
+
+			return
+		}
+
+		http.ServeFile(w, r, path.Join(publicDir, indexHTLMPath))
+	})
+}
+
+func addUIConfigHandlers(router *mux.Router, config *httpServerParameters) {
+	router.HandleFunc("/aries", func(w http.ResponseWriter, r *http.Request) {
+		logger.Infof("handling config request: %s", r.URL.String())
+		bits, _ := json.Marshal(config.opts) // nolint:errcheck // marshalling *ariesJSOpts never fails
+
+		_, err := w.Write(bits)
+		if err != nil {
+			logger.Errorf("failed to write config %s to response: %w", bits, err)
+		}
+	})
+	router.HandleFunc("/trustbloc", func(w http.ResponseWriter, r *http.Request) {
+		logger.Infof("handling config request: %s", r.URL.String())
+		bits, _ := json.Marshal(config.trustblocAgentOpts) // nolint:errcheck // marshalling *trustblocAgentJSOpts never fails
+
+		_, err := w.Write(bits)
+		if err != nil {
+			logger.Errorf("failed to write config %s to response: %w", bits, err)
+		}
+	})
+}
+
+func addOIDCHandlers(router *mux.Router, config *httpServerParameters) error {
+	provider, err := initOIDCProvider(config.oidc.providerURL, config.dependencyMaxRetries, config.tls.config)
+	if err != nil {
+		return fmt.Errorf("failed to init OIDC provider: %w", err)
+	}
+
+	oidcOps, err := oidc.New(&oidc.Config{
+		OIDC: &oidc.OIDCConfig{
+			Provider:     &oidc.OIDCProviderImpl{OP: provider},
+			ClientID:     config.oidc.clientID,
+			ClientSecret: config.oidc.clientSecret,
+			Scopes:       []string{oidcp.ScopeOpenID, "profile", "email"},
+			CallbackURL:  config.oidc.callbackURL,
+		},
+		Storage: &oidc.StorageConfig{
+			Storage:          memstore.NewProvider(),
+			TransientStorage: memstore.NewProvider(),
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to init oidc ops: %w", err)
+	}
+
+	for _, handler := range oidcOps.GetRESTHandlers() {
+		router.HandleFunc(handler.Path(), handler.Handle()).Methods(handler.Method())
+	}
+
+	return nil
 }

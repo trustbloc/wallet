@@ -57,6 +57,9 @@
     },
     "parserOptions": {
       "parser": "babel-eslint"
+    },
+    "globals": {
+      "__webpack_public_path__": "writable"
     }
   },
   "browserslist": [
