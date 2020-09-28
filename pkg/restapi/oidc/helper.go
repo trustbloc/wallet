@@ -20,3 +20,12 @@ func openStore(p storage.Provider, name string) (storage.Store, error) {
 
 	return p.OpenStore(name)
 }
+
+// validation rules on the received user claims from the OIDC provider go here
+func evaluateClaims(u *endUser) error {
+	if u.Sub == "" {
+		return fmt.Errorf("empty 'sub' in end user claims")
+	}
+
+	return nil
+}

@@ -8,44 +8,14 @@ package oidc
 
 import (
 	"context"
-	"github.com/coreos/go-oidc"
+	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"golang.org/x/oauth2"
 )
 
-// OIDCProvider is the OIDC identity provider.
-type OIDCProvider interface {
-	Endpoint() oauth2.Endpoint
-	Verifier(*oidc.Config) Verifier
-}
-
-// Verifier verifies id_tokens.
-type Verifier interface {
-	Verify(context.Context, string) (idToken, error)
-}
-
-// OIDCProviderImpl adapts an *oidc.Provider into an OIDCProvider.
-type OIDCProviderImpl struct {
-	OP *oidc.Provider
-}
-
-// Verifier returns a Verifier.
-func (o *OIDCProviderImpl) Verifier(config *oidc.Config) Verifier {
-	return &verifierImpl{v: o.OP.Verifier(config)}
-}
-
-// Endpoint returns the OIDC provider's endpoints.
-func (o *OIDCProviderImpl) Endpoint() oauth2.Endpoint {
-	return o.OP.Endpoint()
-}
-
-type verifierImpl struct {
-	v *oidc.IDTokenVerifier
-}
-
-func (v *verifierImpl) Verify(ctx context.Context, token string) (idToken, error) {
-	return v.v.Verify(ctx, token)
-}
-
-type idToken interface {
-	Claims(interface{}) error
+// OIDCClient is capable of formatting authorization requests, exchanging the token grant for an access_token
+// and id_token, and verifying id_tokens.
+type OIDCClient interface {
+	FormatRequest(state string) string
+	Exchange(c context.Context, code string) (*oauth2.Token, error)
+	VerifyIDToken(c context.Context, oauthToken oidc2.OAuth2Token) (oidc2.IDToken, error)
 }
