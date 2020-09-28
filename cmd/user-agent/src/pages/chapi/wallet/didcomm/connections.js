@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 import axios from 'axios';
 import {POST_STATE, waitForEvent} from "../../../../events";
 
-const routerCreateInvitationPath = `/outofband/create-invitation`
+const routerCreateInvitationPath = `/didcomm/invitation`
 const stateCompleted = 'completed'
 const topicDidExchangeStates = 'didexchange_states'
 
@@ -98,7 +98,7 @@ export class AgentMediator {
 }
 
 const createInvitationFromRouter = async (endpoint) => {
-    const response = await axios.post(`${endpoint}${routerCreateInvitationPath}`, {label: 'mediator-label'})
+    const response = await axios.get(`${endpoint}${routerCreateInvitationPath}`)
     return response.data.invitation
 }
 
