@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 import axios from 'axios';
 import {waitForEvent, POST_STATE} from '../../events'
 
-const mediatorLabel = 'mediator'
 const stateCompleted = 'completed'
 const topicDidExchangeStates = 'didexchange_states'
 const errRouterNotRegistered = 'router not registered'
@@ -41,7 +40,7 @@ export default {
         async registeredMediator({dispatch, getters}, routerURL) {
             if (getters.isMediatorRegistered) return;
 
-            let invitation = await axios.post(routerURL + '/outofband/create-invitation', {label: mediatorLabel})
+            let invitation = await axios.get(routerURL + '/didcomm/invitation')
             let conn = await dispatch('acceptInvitation', {
                 my_label: getters.agentDefaultLabel,
                 invitation: invitation.data.invitation,

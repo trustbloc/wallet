@@ -9,47 +9,53 @@ services:
 
   edge.router.agent.example.com:
     container_name: edge.router.agent.example.com
-    image: ${AGENT_REST_IMAGE}:${AGENT_REST_IMAGE_TAG}
+    image: ${HUB_ROUTER_IMAGE}:${HUB_ROUTER_IMAGE_TAG}
     environment:
-      - ARIESD_API_HOST=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_API_PORT}
-      - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${EDGE_ROUTER_HOST}:${EDGE_ROUTER_HTTP_INBOUND_PORT},${WS_SCHEME}@${EDGE_ROUTER_HOST}:${EDGE_ROUTER_WS_INBOUND_PORT}
-      - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://localhost:${EDGE_ROUTER_HTTP_INBOUND_PORT},${WS_SCHEME}@wss://localhost:${EDGE_ROUTER_WS_INBOUND_PORT}
-      - ARIESD_DB_PATH=${EDGE_ROUTER_DB_PATH}
-      - ARIESD_DEFAULT_LABEL=edge-router-agent
-      - ARIESD_OUTBOUND_TRANSPORT=${HTTP_SCHEME},${WS_SCHEME}
-      - ARIESD_AUTO_ACCEPT=${EDGE_ROUTER_AUTOACCEPT}
-      - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
-      - TLS_KEY_FILE=/etc/tls/ec-key.pem
-    volumes:
-      - ../keys/tls:/etc/tls
-      - ../db:/tmp/db
+      - HUB_ROUTER_HOST_URL=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_API_PORT}
+      - HUB_ROUTER_TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - HUB_ROUTER_TLS_SYSTEMCERTPOOL=true
+      - HUB_ROUTER_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
+      - HUB_ROUTER_TLS_SERVE_KEY=/etc/tls/ec-key.pem
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://localhost:${EDGE_ROUTER_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_WS_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${EDGE_ROUTER_WS_INBOUND_PORT}
+      - HUB_ROUTER_DSN_PERSISTENT=mem://tests
+      - HUB_ROUTER_DSN_TRANSIENT=mem://tests
+      - HUB_ROUTER_DSN_TIMEOUT=45
     ports:
+      - ${EDGE_ROUTER_API_PORT}:${EDGE_ROUTER_API_PORT}
       - ${EDGE_ROUTER_HTTP_INBOUND_PORT}:${EDGE_ROUTER_HTTP_INBOUND_PORT}
       - ${EDGE_ROUTER_WS_INBOUND_PORT}:${EDGE_ROUTER_WS_INBOUND_PORT}
-      - ${EDGE_ROUTER_API_PORT}:${EDGE_ROUTER_API_PORT}
-    command: start
+    entrypoint: ""
+    command: /bin/sh -c "hub-router start"
+    volumes:
+      - ../keys/tls:/etc/tls
 
   edge.router.agent2.example.com:
     container_name: edge.router.agent2.example.com
-    image: ${AGENT_REST_IMAGE}:${AGENT_REST_IMAGE_TAG}
+    image: ${HUB_ROUTER_IMAGE}:${HUB_ROUTER_IMAGE_TAG}
     environment:
-      - ARIESD_API_HOST=${EDGE_ROUTER2_HOST}:${EDGE_ROUTER2_API_PORT}
-      - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${EDGE_ROUTER2_HOST}:${EDGE_ROUTER2_HTTP_INBOUND_PORT},${WS_SCHEME}@${EDGE_ROUTER2_HOST}:${EDGE_ROUTER2_WS_INBOUND_PORT}
-      - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://localhost:${EDGE_ROUTER2_HTTP_INBOUND_PORT},${WS_SCHEME}@wss://localhost:${EDGE_ROUTER2_WS_INBOUND_PORT}
-      - ARIESD_DB_PATH=${EDGE_ROUTER2_DB_PATH}
-      - ARIESD_DEFAULT_LABEL=edge-router-agent
-      - ARIESD_OUTBOUND_TRANSPORT=${HTTP_SCHEME},${WS_SCHEME}
-      - ARIESD_AUTO_ACCEPT=${EDGE_ROUTER2_AUTOACCEPT}
-      - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
-      - TLS_KEY_FILE=/etc/tls/ec-key.pem
-    volumes:
-      - ../keys/tls:/etc/tls
-      - ../db:/tmp/db
+      - HUB_ROUTER_HOST_URL=${EDGE_ROUTER2_HOST}:${EDGE_ROUTER2_API_PORT}
+      - HUB_ROUTER_TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - HUB_ROUTER_TLS_SYSTEMCERTPOOL=true
+      - HUB_ROUTER_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
+      - HUB_ROUTER_TLS_SERVE_KEY=/etc/tls/ec-key.pem
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST=${EDGE_ROUTER2_HOST}:${EDGE_ROUTER2_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://localhost:${EDGE_ROUTER2_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST=${EDGE_ROUTER2_HOST}:${EDGE_ROUTER2_WS_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${EDGE_ROUTER2_WS_INBOUND_PORT}
+      - HUB_ROUTER_DSN_PERSISTENT=mem://tests
+      - HUB_ROUTER_DSN_TRANSIENT=mem://tests
+      - HUB_ROUTER_DSN_TIMEOUT=45
     ports:
+      - ${EDGE_ROUTER2_API_PORT}:${EDGE_ROUTER2_API_PORT}
       - ${EDGE_ROUTER2_HTTP_INBOUND_PORT}:${EDGE_ROUTER2_HTTP_INBOUND_PORT}
       - ${EDGE_ROUTER2_WS_INBOUND_PORT}:${EDGE_ROUTER2_WS_INBOUND_PORT}
-      - ${EDGE_ROUTER2_API_PORT}:${EDGE_ROUTER2_API_PORT}
-    command: start
+    entrypoint: ""
+    command: /bin/sh -c "hub-router start"
+    volumes:
+      - ../keys/tls:/etc/tls
 
   user.agent.example.com:
     container_name: user.agent.example.com
