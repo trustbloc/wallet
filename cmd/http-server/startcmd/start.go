@@ -22,6 +22,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/lpar/gzipped"
 	"github.com/spf13/cobra"
+	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
 	"github.com/trustbloc/edge-core/pkg/log"
 	"github.com/trustbloc/edge-core/pkg/storage/memstore"
@@ -650,13 +651,16 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters) error {
 	}
 
 	oidcOps, err := oidc.New(&oidc.Config{
-		OIDC: &oidc.OIDCConfig{
-			Provider:     &oidc.OIDCProviderImpl{OP: provider},
+		UIEndpoint: uiBasePath,
+		TLSConfig:  config.tls.config,
+		OIDCClient: oidc2.NewClient(&oidc2.Config{
+			TLSConfig:    config.tls.config,
+			Provider:     &oidc2.OIDCProviderAdapter{OP: provider},
+			CallbackURL:  config.oidc.callbackURL,
 			ClientID:     config.oidc.clientID,
 			ClientSecret: config.oidc.clientSecret,
 			Scopes:       []string{oidcp.ScopeOpenID, "profile", "email"},
-			CallbackURL:  config.oidc.callbackURL,
-		},
+		}),
 		Storage: &oidc.StorageConfig{
 			Storage:          memstore.NewProvider(),
 			TransientStorage: memstore.NewProvider(),
