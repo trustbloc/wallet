@@ -43,6 +43,7 @@ func TestListenAndServe(t *testing.T) {
 	router, err := router(&httpServerParameters{
 		oidc: &oidcParameters{providerURL: mockOIDCProvider(t)},
 		tls:  &tlsParameters{},
+		keys: &keyParameters{},
 	})
 	require.NoError(t, err)
 
@@ -171,6 +172,8 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
 			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + sessionCookieAuthKeyFlagName, key(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
 		}
 		startCmd.SetArgs(args)
 
@@ -269,6 +272,8 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
 			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
 			"--" + tlsCACertsFlagName, cert(t),
+			"--" + sessionCookieAuthKeyFlagName, key(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
 		}
 		startCmd.SetArgs(args)
 
@@ -354,6 +359,126 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"failed to configure OIDC callback URL: Neither oidc-callback (command line flag) nor"+
 				" HTTP_SERVER_OIDC_CALLBACK (environment variable) have been set.")
 	})
+
+	t.Run("missing session cookie auth key", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + dependencyMaxRetriesFlagName, "1",
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + blocDomainFlagName, "domain",
+			"--" + walletMediatorURLFlagName, "http://localhost:8999",
+			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
+			"--" + blindedRoutingFlagName, "true",
+			"--" + agentAutoAcceptFlagName, "false",
+			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
+			"--" + sdsURLFlagName, "someURL",
+			"--" + oidcProviderURLFlagName, "INVALID",
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + tlsCACertsFlagName, cert(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(),
+			"failed to configure session cookie auth key: Neither cookie-auth-key (command line flag) nor"+
+				" HTTP_SERVER_COOKIE_AUTH_KEY (environment variable) have been set.")
+	})
+
+	t.Run("invalid session cookie auth key path", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + dependencyMaxRetriesFlagName, "1",
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + blocDomainFlagName, "domain",
+			"--" + walletMediatorURLFlagName, "http://localhost:8999",
+			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
+			"--" + blindedRoutingFlagName, "true",
+			"--" + agentAutoAcceptFlagName, "false",
+			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
+			"--" + sdsURLFlagName, "someURL",
+			"--" + oidcProviderURLFlagName, "INVALID",
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + tlsCACertsFlagName, cert(t),
+			"--" + sessionCookieAuthKeyFlagName, "INVALID",
+			"--" + sessionCookieEncKeyFlagName, key(t),
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(),
+			"failed to configure session cookie auth key: failed to read file INVALID: open INVALID:"+
+				" no such file or directory")
+	})
+
+	t.Run("invalid session cookie auth key length", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + dependencyMaxRetriesFlagName, "1",
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + blocDomainFlagName, "domain",
+			"--" + walletMediatorURLFlagName, "http://localhost:8999",
+			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
+			"--" + blindedRoutingFlagName, "true",
+			"--" + agentAutoAcceptFlagName, "false",
+			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
+			"--" + sdsURLFlagName, "someURL",
+			"--" + oidcProviderURLFlagName, "INVALID",
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + tlsCACertsFlagName, cert(t),
+			"--" + sessionCookieAuthKeyFlagName, invalidKey(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "failed to configure session cookie auth key")
+	})
+
+	t.Run("missing session cookie enc key", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + dependencyMaxRetriesFlagName, "1",
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + blocDomainFlagName, "domain",
+			"--" + walletMediatorURLFlagName, "http://localhost:8999",
+			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
+			"--" + blindedRoutingFlagName, "true",
+			"--" + agentAutoAcceptFlagName, "false",
+			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
+			"--" + sdsURLFlagName, "someURL",
+			"--" + oidcProviderURLFlagName, "INVALID",
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + tlsCACertsFlagName, cert(t),
+			"--" + sessionCookieAuthKeyFlagName, key(t),
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(),
+			"failed to configure session cookie enc key: Neither cookie-enc-key (command line flag) nor"+
+				" HTTP_SERVER_COOKIE_ENC_KEY (environment variable) have been set.")
+	})
 }
 
 func TestStartCmdValidArgs(t *testing.T) {
@@ -374,6 +499,8 @@ func TestStartCmdValidArgs(t *testing.T) {
 		"--" + oidcClientSecretFlagName, uuid.New().String(),
 		"--" + oidcCallbackURLFlagName, "http://test.com/callback",
 		"--" + tlsCACertsFlagName, cert(t),
+		"--" + sessionCookieAuthKeyFlagName, key(t),
+		"--" + sessionCookieEncKeyFlagName, key(t),
 	}
 	startCmd.SetArgs(args)
 
@@ -412,6 +539,12 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	err = os.Setenv(oidcCallbackURLEnvKey, "http://test.com/callback")
 	require.NoError(t, err)
 
+	err = os.Setenv(sessionCookieEncKeyEnvKey, key(t))
+	require.NoError(t, err)
+
+	err = os.Setenv(sessionCookieAuthKeyEnvKey, key(t))
+	require.NoError(t, err)
+
 	err = startCmd.Execute()
 
 	require.NoError(t, err)
@@ -448,12 +581,12 @@ func TestRouter(t *testing.T) {
 				clientSecret: uuid.New().String(),
 				callbackURL:  "http://test.com/callback",
 			},
-			tls: &tlsParameters{},
+			tls:  &tlsParameters{},
+			keys: &keyParameters{},
 		})
 		require.NoError(t, err)
 		w := httptest.NewRecorder()
 		r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s%s", uiBasePath, path.Base(asset)), nil))
-		t.Log(w.Header().Get("Location"))
 		require.Equal(t, http.StatusOK, w.Code)
 		require.Equal(t, expected, w.Body.String())
 	})
@@ -481,6 +614,7 @@ func TestRouter(t *testing.T) {
 				keyFile:  "",
 				config:   &tls.Config{},
 			},
+			keys: &keyParameters{},
 		})
 		require.NoError(t, err)
 		w := httptest.NewRecorder()
@@ -516,6 +650,7 @@ func TestRouter(t *testing.T) {
 				keyFile:  "",
 				config:   &tls.Config{},
 			},
+			keys: &keyParameters{},
 		})
 		require.NoError(t, err)
 		w := httptest.NewRecorder()
@@ -628,6 +763,52 @@ func assetsPath(t *testing.T, contents string) string {
 	})
 
 	_, err = file.Write([]byte(contents))
+	require.NoError(t, err)
+
+	return file.Name()
+}
+
+func key(t *testing.T) string {
+	t.Helper()
+
+	key := make([]byte, 32)
+
+	n, err := rand.Reader.Read(key)
+	require.NoError(t, err)
+	require.Equal(t, 32, n)
+
+	file, err := ioutil.TempFile("", "test_*.key")
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		delErr := os.Remove(file.Name())
+		require.NoError(t, delErr)
+	})
+
+	err = ioutil.WriteFile(file.Name(), key, os.ModeAppend)
+	require.NoError(t, err)
+
+	return file.Name()
+}
+
+func invalidKey(t *testing.T) string {
+	t.Helper()
+
+	key := make([]byte, 18)
+
+	n, err := rand.Reader.Read(key)
+	require.NoError(t, err)
+	require.Equal(t, 18, n)
+
+	file, err := ioutil.TempFile("", "test_*.key")
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		delErr := os.Remove(file.Name())
+		require.NoError(t, delErr)
+	})
+
+	err = ioutil.WriteFile(file.Name(), key, os.ModeAppend)
 	require.NoError(t, err)
 
 	return file.Name()

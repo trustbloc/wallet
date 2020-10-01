@@ -8,6 +8,7 @@ package oidc
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"net/http"
@@ -66,7 +67,7 @@ func TestNew(t *testing.T) {
 	t.Run("error if cannot open user store", func(t *testing.T) {
 		config := config(t)
 		config.Storage.Storage = &mockstore.Provider{
-			FailNameSpace:      userStoreName,
+			FailNameSpace: userStoreName,
 		}
 		_, err := New(config)
 		require.Error(t, err)
@@ -75,7 +76,7 @@ func TestNew(t *testing.T) {
 	t.Run("error if cannot open token store", func(t *testing.T) {
 		config := config(t)
 		config.Storage.Storage = &mockstore.Provider{
-			FailNameSpace:      tokenStoreName,
+			FailNameSpace: tokenStoreName,
 		}
 		_, err := New(config)
 		require.Error(t, err)
@@ -99,16 +100,27 @@ func TestOperation_OIDCLoginHandler(t *testing.T) {
 		require.NotEmpty(t, w.Header().Get("Location"))
 	})
 
-	t.Run("internal server error if cannot save to transient store", func(t *testing.T) {
+	t.Run("internal server error if cannot fetch session cookie", func(t *testing.T) {
 		config := config(t)
-		config.Storage.TransientStorage = &mockstore.Provider{
-			Store: &mockstore.MockStore{
-				Store:  make(map[string][]byte),
-				ErrPut: errors.New("test"),
-			},
-		}
 		o, err := New(config)
 		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			err: errors.New("test"),
+		}
+		w := httptest.NewRecorder()
+		o.oidcLoginHandler(w, newOIDCLoginRequest())
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+	})
+
+	t.Run("internal server error if cannot save to cookie store", func(t *testing.T) {
+		config := config(t)
+		o, err := New(config)
+		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			val: &mockCookies{
+				saveErr: errors.New("test"),
+			},
+		}
 		w := httptest.NewRecorder()
 		o.oidcLoginHandler(w, newOIDCLoginRequest())
 		require.Equal(t, http.StatusInternalServerError, w.Code)
@@ -123,13 +135,6 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 
 		config := config(t)
 		config.UIEndpoint = uiEndpoint
-		config.Storage.TransientStorage = &mockstore.Provider{
-			Store: &mockstore.MockStore{
-				Store: map[string][]byte{
-					state: []byte(state),
-				},
-			},
-		}
 		config.OIDCClient = &mockOIDCClient{
 			oauthToken: &oauth2.Token{
 				AccessToken:  uuid.New().String(),
@@ -148,6 +153,15 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 
 		o, err := New(config)
 		require.NoError(t, err)
+
+		o.store.cookies = &mockCookieStore{
+			val: &mockCookies{
+				store: map[interface{}]interface{}{
+					stateCookieName: state,
+				},
+			},
+		}
+
 		w := httptest.NewRecorder()
 		o.oidcCallbackHandler(w, newOIDCCallbackRequest(code, state))
 
@@ -155,7 +169,18 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		require.Equal(t, uiEndpoint, w.Header().Get("Location"))
 	})
 
-	t.Run("error bad request if state query param is missing", func(t *testing.T) {
+	t.Run("error internal server error if cannot fetch the user's session", func(t *testing.T) {
+		o, err := New(config(t))
+		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			err: errors.New("test"),
+		}
+		w := httptest.NewRecorder()
+		o.oidcCallbackHandler(w, newOIDCCallbackRequest("code", ""))
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+	})
+
+	t.Run("error bad request if state cookie is not present", func(t *testing.T) {
 		o, err := New(config(t))
 		require.NoError(t, err)
 		w := httptest.NewRecorder()
@@ -163,53 +188,78 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		require.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
-	t.Run("error bad request if state query param is invalid", func(t *testing.T) {
+	t.Run("error bad request if state query param is missing", func(t *testing.T) {
 		o, err := New(config(t))
 		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			val: &mockCookies{
+				store: map[interface{}]interface{}{
+					stateCookieName: "123",
+				},
+			},
+		}
 		w := httptest.NewRecorder()
-		o.oidcCallbackHandler(w, newOIDCCallbackRequest("code", "INVALID"))
+		o.oidcCallbackHandler(w, newOIDCCallbackRequest("code", ""))
+		require.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("error bad request if state query param does not match state cookie", func(t *testing.T) {
+		o, err := New(config(t))
+		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			val: &mockCookies{
+				store: map[interface{}]interface{}{
+					stateCookieName: "123",
+				},
+			},
+		}
+		w := httptest.NewRecorder()
+		o.oidcCallbackHandler(w, newOIDCCallbackRequest("code", "456"))
 		require.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
 	t.Run("error bad request if code query param is missing", func(t *testing.T) {
+		state := uuid.New().String()
 		o, err := New(config(t))
 		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			val: &mockCookies{
+				store: map[interface{}]interface{}{
+					stateCookieName: state,
+				},
+			},
+		}
 		w := httptest.NewRecorder()
-		o.oidcCallbackHandler(w, newOIDCCallbackRequest("", "state"))
+		o.oidcCallbackHandler(w, newOIDCCallbackRequest("", state))
 		require.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
-	t.Run("error internal server error if cannot query transient store", func(t *testing.T) {
+	t.Run("error internal server error if cannot fetch session cookie", func(t *testing.T) {
 		state := uuid.New().String()
 		config := config(t)
-		config.Storage.TransientStorage = &mockstore.Provider{
-			Store: &mockstore.MockStore{
-				Store:  map[string][]byte{
-					state: []byte(state),
-				},
-				ErrGet: errors.New("test"),
-			},
-		}
 		o, err := New(config)
 		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			err: errors.New("test"),
+		}
 		w := httptest.NewRecorder()
 		o.oidcCallbackHandler(w, newOIDCCallbackRequest("code", state))
 		require.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 
-	t.Run("error internal server error if cannot delete transient state", func(t *testing.T) {
+	t.Run("error internal server error if cannot persist session cookies", func(t *testing.T) {
 		state := uuid.New().String()
 		config := config(t)
-		config.Storage.TransientStorage = &mockstore.Provider{
-			Store: &mockstore.MockStore{
-				Store:  map[string][]byte{
-					state: []byte(state),
-				},
-				ErrDelete: errors.New("test"),
-			},
-		}
 		o, err := New(config)
 		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			val: &mockCookies{
+				store: map[interface{}]interface{}{
+					stateCookieName: state,
+				},
+				saveErr: errors.New("test"),
+			},
+		}
 		w := httptest.NewRecorder()
 		o.oidcCallbackHandler(w, newOIDCCallbackRequest("code", state))
 		require.Equal(t, http.StatusInternalServerError, w.Code)
@@ -218,18 +268,18 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 	t.Run("error bad gateway if cannot exchange code for token", func(t *testing.T) {
 		state := uuid.New().String()
 		config := config(t)
-		config.Storage.TransientStorage = &mockstore.Provider{
-			Store: &mockstore.MockStore{
-				Store:  map[string][]byte{
-					state: []byte(state),
-				},
-			},
-		}
 		config.OIDCClient = &mockOIDCClient{
 			oauthErr: errors.New("test"),
 		}
 		o, err := New(config)
 		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			val: &mockCookies{
+				store: map[interface{}]interface{}{
+					stateCookieName: state,
+				},
+			},
+		}
 		w := httptest.NewRecorder()
 		o.oidcCallbackHandler(w, newOIDCCallbackRequest("code", state))
 		require.Equal(t, http.StatusBadGateway, w.Code)
@@ -238,18 +288,18 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 	t.Run("error bad gateway if cannot verify id_token", func(t *testing.T) {
 		state := uuid.New().String()
 		config := config(t)
-		config.Storage.TransientStorage = &mockstore.Provider{
-			Store: &mockstore.MockStore{
-				Store:  map[string][]byte{
-					state: []byte(state),
-				},
-			},
-		}
 		config.OIDCClient = &mockOIDCClient{
 			idTokenErr: errors.New("test"),
 		}
 		o, err := New(config)
 		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			val: &mockCookies{
+				store: map[interface{}]interface{}{
+					stateCookieName: state,
+				},
+			},
+		}
 		w := httptest.NewRecorder()
 		o.oidcCallbackHandler(w, newOIDCCallbackRequest("code", state))
 		require.Equal(t, http.StatusBadGateway, w.Code)
@@ -258,13 +308,6 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 	t.Run("error internal server error if cannot parse id_token", func(t *testing.T) {
 		state := uuid.New().String()
 		config := config(t)
-		config.Storage.TransientStorage = &mockstore.Provider{
-			Store: &mockstore.MockStore{
-				Store:  map[string][]byte{
-					state: []byte(state),
-				},
-			},
-		}
 		config.OIDCClient = &mockOIDCClient{
 			idToken: &mockIDToken{
 				claimsErr: errors.New("test"),
@@ -272,6 +315,13 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		}
 		o, err := New(config)
 		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			val: &mockCookies{
+				store: map[interface{}]interface{}{
+					stateCookieName: state,
+				},
+			},
+		}
 		w := httptest.NewRecorder()
 		o.oidcCallbackHandler(w, newOIDCCallbackRequest("code", state))
 		require.Equal(t, http.StatusInternalServerError, w.Code)
@@ -280,13 +330,6 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 	t.Run("error internal server error if cannot save to user store", func(t *testing.T) {
 		state := uuid.New().String()
 		config := config(t)
-		config.Storage.TransientStorage = &mockstore.Provider{
-			Store: &mockstore.MockStore{
-				Store:  map[string][]byte{
-					state: []byte(state),
-				},
-			},
-		}
 		config.Storage.Storage = &mockstore.Provider{
 			Store: &mockstore.MockStore{
 				Store:  make(map[string][]byte),
@@ -305,6 +348,13 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		}
 		o, err := New(config)
 		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			val: &mockCookies{
+				store: map[interface{}]interface{}{
+					stateCookieName: state,
+				},
+			},
+		}
 		w := httptest.NewRecorder()
 		o.oidcCallbackHandler(w, newOIDCCallbackRequest("code", state))
 		require.Equal(t, http.StatusInternalServerError, w.Code)
@@ -327,6 +377,10 @@ func config(t *testing.T) *Config {
 		Storage: &StorageConfig{
 			Storage:          memstore.NewProvider(),
 			TransientStorage: memstore.NewProvider(),
+		},
+		Keys: &KeyConfig{
+			Auth: key(t),
+			Enc:  key(t),
 		},
 	}
 }
@@ -362,4 +416,56 @@ func (m *mockIDToken) Claims(i interface{}) error {
 	}
 
 	return m.claimsErr
+}
+
+type mockCookieStore struct {
+	val Cookies
+	err error
+}
+
+func (m *mockCookieStore) Get(_ *http.Request, _ string) (Cookies, error) {
+	if m.val != nil || m.err != nil {
+		return m.val, m.err
+	}
+
+	return &mockCookies{}, nil
+}
+
+type mockCookies struct {
+	store   map[interface{}]interface{}
+	saveErr error
+}
+
+func (m *mockCookies) Set(k interface{}, v interface{}) {
+	if m.store == nil {
+		m.store = make(map[interface{}]interface{})
+	}
+
+	m.store[k] = v
+}
+
+func (m *mockCookies) Get(k interface{}) (interface{}, bool) {
+	v, ok := m.store[k]
+
+	return v, ok
+}
+
+func (m *mockCookies) Delete(k interface{}) {
+	delete(m.store, k)
+}
+
+func (m *mockCookies) Save(_ *http.Request, _ http.ResponseWriter) error {
+	return m.saveErr
+}
+
+func key(t *testing.T) []byte {
+	t.Helper()
+
+	key := make([]byte, 32)
+
+	n, err := rand.Reader.Read(key)
+	require.NoError(t, err)
+	require.Equal(t, 32, n)
+
+	return key
 }

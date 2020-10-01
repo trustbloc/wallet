@@ -63,9 +63,9 @@ services:
     environment:
       - HTTP_SERVER_HOST_URL=0.0.0.0:8091
       - ARIESD_HTTP_RESOLVER=${HTTP_RESOLVER}
-      - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
-      - TLS_KEY_FILE=/etc/tls/ec-key.pem
-      - TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - TLS_CERT_FILE=/etc/keys/tls/ec-pubCert.pem
+      - TLS_KEY_FILE=/etc/keys/tls/ec-key.pem
+      - TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
       - ARIESD_DEFAULT_LABEL=user-agent
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
@@ -74,10 +74,12 @@ services:
       - HTTP_SERVER_OIDC_CLIENTID=TODO
       - HTTP_SERVER_OIDC_CLIENTSECRET=TODO
       - HTTP_SERVER_OIDC_CALLBACK=http://TODO.com/callback
+      - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
+      - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
     ports:
       - 8091:8091
     volumes:
-      - ../keys/tls:/etc/tls
+      - ../keys:/etc/keys
     command: start
     depends_on:
       - sds.example.com
@@ -89,8 +91,8 @@ services:
     environment:
       - HTTP_SERVER_HOST_URL=0.0.0.0:8071
       - ARIESD_HTTP_RESOLVER=${HTTP_RESOLVER}
-      - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
-      - TLS_KEY_FILE=/etc/tls/ec-key.pem
+      - TLS_CERT_FILE=/etc/keys/tls/ec-pubCert.pem
+      - TLS_KEY_FILE=/etc/keys/tls/ec-key.pem
       - ARIESD_DEFAULT_LABEL=second-user-agent
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
@@ -99,10 +101,12 @@ services:
       - HTTP_SERVER_OIDC_CLIENTID=TODO
       - HTTP_SERVER_OIDC_CLIENTSECRET=TODO
       - HTTP_SERVER_OIDC_CALLBACK=http://TODO.com/callback
+      - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
+      - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
     ports:
       - 8071:8071
     volumes:
-      - ../keys/tls:/etc/tls
+      - ../keys:/etc/keys
     command: start
     depends_on:
       - sds.example.com

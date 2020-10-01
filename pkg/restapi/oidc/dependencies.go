@@ -10,6 +10,7 @@ import (
 	"context"
 	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"golang.org/x/oauth2"
+	"net/http"
 )
 
 // OIDCClient is capable of formatting authorization requests, exchanging the token grant for an access_token
@@ -18,4 +19,17 @@ type OIDCClient interface {
 	FormatRequest(state string) string
 	Exchange(c context.Context, code string) (*oauth2.Token, error)
 	VerifyIDToken(c context.Context, oauthToken oidc2.OAuth2Token) (oidc2.IDToken, error)
+}
+
+// CookieStore has session cookies.
+type CookieStore interface {
+	Get(*http.Request, string) (Cookies, error)
+}
+
+// Cookies are contained within a CookieStore.
+type Cookies interface {
+	Set(k interface{}, v interface{})
+	Get(k interface{}) (interface{}, bool)
+	Delete(k interface{})
+	Save(*http.Request, http.ResponseWriter) error
 }
