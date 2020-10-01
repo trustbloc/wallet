@@ -9,6 +9,7 @@ package oidc
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -156,9 +157,7 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// TODO only save new user if one doesn't already exist in the store for the given `sub`:
-	//  https://github.com/trustbloc/edge-agent/issues/381
-	user := &endUser{ID: uuid.New().String()}
+	user := &endUser{}
 
 	err := user.parse(oidcToken)
 	if err != nil {
@@ -168,16 +167,26 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = newPersistedData(o.store.users).put(user.ID, user)
-	if err != nil {
+	_, err = newPersistedData(o.store.users).getEndUser(user.Sub)
+	if err != nil && !errors.Is(err, storage.ErrValueNotFound) {
 		common.WriteErrorResponsef(w, logger,
-			http.StatusInternalServerError, "failed to persist user data: %s", err.Error())
+			http.StatusInternalServerError, "failed to query user data: %s", err.Error())
 
 		return
 	}
 
-	err = newPersistedData(o.store.tokens).put(user.ID, &endUserTokens{
-		ID:      user.ID,
+	if errors.Is(err, storage.ErrValueNotFound) {
+		err = newPersistedData(o.store.users).put(user.Sub, user)
+		if err != nil {
+			common.WriteErrorResponsef(w, logger,
+				http.StatusInternalServerError, "failed to persist user data: %s", err.Error())
+
+			return
+		}
+	}
+
+	err = newPersistedData(o.store.tokens).put(user.Sub, &endUserTokens{
+		ID:      user.Sub,
 		Access:  oauthToken.AccessToken,
 		Refresh: oauthToken.RefreshToken,
 	})
