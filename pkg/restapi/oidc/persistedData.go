@@ -16,7 +16,6 @@ import (
 
 // standard claims: https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
 type endUser struct {
-	ID         string
 	Sub        string `json:"sub"`
 	Name       string `json:"name"`
 	GivenName  string `json:"given_name"`
@@ -61,4 +60,13 @@ func (e *persistedData) put(k string, v interface{}) error {
 	return e.s.Put(k, bits)
 }
 
+func (e *persistedData) getEndUser(sub string) (*endUser, error) {
+	bits, err := e.s.Get(sub)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch user from store: %w", err)
+	}
 
+	user := &endUser{}
+
+	return user, json.Unmarshal(bits, user)
+}

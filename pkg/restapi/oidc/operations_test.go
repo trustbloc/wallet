@@ -327,6 +327,46 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		require.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 
+	t.Run("error internal server error if cannot query user store", func(t *testing.T) {
+		userSub := uuid.New().String()
+		state := uuid.New().String()
+		config := config(t)
+		config.Storage.Storage = &mockstore.Provider{
+			Store: &mockstore.MockStore{
+				Store: map[string][]byte{
+					userSub: []byte(userSub),
+				},
+				ErrGet: errors.New("test"),
+			},
+		}
+		config.OIDCClient = &mockOIDCClient{
+			idToken: &mockIDToken{
+				claimsFunc: func(i interface{}) error {
+					user, ok := i.(*endUser)
+					require.True(t, ok)
+					user.Sub = userSub
+					return nil
+				},
+			},
+			oauthToken: &oauth2.Token{
+				AccessToken:  uuid.New().String(),
+				RefreshToken: uuid.New().String(),
+			},
+		}
+		o, err := New(config)
+		require.NoError(t, err)
+		o.store.cookies = &mockCookieStore{
+			val: &mockCookies{
+				store: map[interface{}]interface{}{
+					stateCookieName: state,
+				},
+			},
+		}
+		w := httptest.NewRecorder()
+		o.oidcCallbackHandler(w, newOIDCCallbackRequest("code", state))
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+	})
+
 	t.Run("error internal server error if cannot save to user store", func(t *testing.T) {
 		state := uuid.New().String()
 		config := config(t)
