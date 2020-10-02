@@ -11,8 +11,10 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -169,6 +171,19 @@ const (
 	oidcCallbackURLEnvKey = "HTTP_SERVER_OIDC_CALLBACK"
 )
 
+// Keys.
+const (
+	sessionCookieAuthKeyFlagName  = "cookie-auth-key"
+	sessionCookieAuthKeyFlagUsage = "Path to the pem-encoded 32-byte key to use to authenticate session cookies." +
+		" Alternatively, this can be set with the following environment variable: " + sessionCookieAuthKeyEnvKey
+	sessionCookieAuthKeyEnvKey = "HTTP_SERVER_COOKIE_AUTH_KEY"
+
+	sessionCookieEncKeyFlagName  = "cookie-enc-key"
+	sessionCookieEncKeyFlagUsage = "Path to the pem-encoded 32-byte key to use to encrypt session cookies." +
+		" Alternatively, this can be set with the following environment variable: " + sessionCookieEncKeyEnvKey
+	sessionCookieEncKeyEnvKey = "HTTP_SERVER_COOKIE_ENC_KEY"
+)
+
 var logger = log.New("edge-agent/http-server")
 
 type server interface {
@@ -212,6 +227,7 @@ type httpServerParameters struct {
 	trustblocAgentOpts   *trustblocAgentJSOpts
 	tls                  *tlsParameters
 	oidc                 *oidcParameters
+	keys                 *keyParameters
 }
 
 type tlsParameters struct {
@@ -225,6 +241,11 @@ type oidcParameters struct {
 	clientID     string
 	clientSecret string
 	callbackURL  string
+}
+
+type keyParameters struct {
+	sessionCookieAuthKey []byte
+	sessionCookieEncKey  []byte
 }
 
 // GetStartCmd returns the Cobra start command.
@@ -277,6 +298,11 @@ func createStartCmd(srv server) *cobra.Command {
 				return err
 			}
 
+			keys, err := getKeyParams(cmd)
+			if err != nil {
+				return err
+			}
+
 			parameters := &httpServerParameters{
 				dependencyMaxRetries: retries,
 				srv:                  srv,
@@ -286,6 +312,7 @@ func createStartCmd(srv server) *cobra.Command {
 				trustblocAgentOpts:   trustblocAgentOpts,
 				tls:                  tlsParams,
 				oidc:                 oidcParams,
+				keys:                 keys,
 			}
 
 			return startHTTPServer(parameters)
@@ -326,6 +353,7 @@ func createFlags(startCmd *cobra.Command) {
 	startCmd.Flags().StringP(dependencyMaxRetriesFlagName, "", "", dependencyMaxRetriesFlagUsage)
 	createOIDCFlags(startCmd)
 	createTLSFlags(startCmd)
+	createKeyFlags(startCmd)
 }
 
 func createTLSFlags(cmd *cobra.Command) {
@@ -339,6 +367,11 @@ func createOIDCFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP(oidcClientIDFlagName, "", "", oidcClientIDFlagUsage)
 	cmd.Flags().StringP(oidcClientSecretFlagName, "", "", oidcClientSecretFlagUsage)
 	cmd.Flags().StringP(oidcCallbackURLFlagName, "", "", oidcCallbackURLFlagUsage)
+}
+
+func createKeyFlags(cmd *cobra.Command) {
+	cmd.Flags().StringP(sessionCookieAuthKeyFlagName, "", "", sessionCookieAuthKeyFlagUsage)
+	cmd.Flags().StringP(sessionCookieEncKeyFlagName, "", "", sessionCookieEncKeyFlagUsage)
 }
 
 func getDependencyMaxRetries(cmd *cobra.Command) (uint64, error) {
@@ -428,6 +461,52 @@ func getOIDCParams(cmd *cobra.Command) (*oidcParameters, error) {
 	}
 
 	return params, nil
+}
+
+func getKeyParams(cmd *cobra.Command) (*keyParameters, error) {
+	params := &keyParameters{}
+
+	sessionCookieAuthKeyPath, err := cmdutils.GetUserSetVarFromString(cmd,
+		sessionCookieAuthKeyFlagName, sessionCookieAuthKeyEnvKey, false)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure session cookie auth key: %w", err)
+	}
+
+	params.sessionCookieAuthKey, err = parseKey(sessionCookieAuthKeyPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure session cookie auth key: %w", err)
+	}
+
+	sessionCookieEncKeyPath, err := cmdutils.GetUserSetVarFromString(cmd,
+		sessionCookieEncKeyFlagName, sessionCookieEncKeyEnvKey, false)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure session cookie enc key: %w", err)
+	}
+
+	params.sessionCookieEncKey, err = parseKey(sessionCookieEncKeyPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure session cooie enc key: %w", err)
+	}
+
+	return params, nil
+}
+
+func parseKey(file string) ([]byte, error) {
+	const (
+		keyLen = 32
+		bitNum = 8
+	)
+
+	bits, err := ioutil.ReadFile(filepath.Clean(file))
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file %s: %w", file, err)
+	}
+
+	if len(bits) != keyLen {
+		return nil, fmt.Errorf("%s: need key of %d bits but got %d", file, keyLen*bitNum, len(bits)*bitNum)
+	}
+
+	return bits, nil
 }
 
 func initOIDCProvider(providerURL string, retries uint64, tlsConfig *tls.Config) (*oidcp.Provider, error) {
@@ -664,6 +743,10 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters) error {
 		Storage: &oidc.StorageConfig{
 			Storage:          memstore.NewProvider(),
 			TransientStorage: memstore.NewProvider(),
+		},
+		Keys: &oidc.KeyConfig{
+			Auth: config.keys.sessionCookieAuthKey,
+			Enc:  config.keys.sessionCookieEncKey,
 		},
 	})
 	if err != nil {

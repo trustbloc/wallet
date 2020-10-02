@@ -28,6 +28,8 @@ type ErrorResponse struct {
 
 // WriteErrorResponsef write error resp.
 func WriteErrorResponsef(rw http.ResponseWriter, logger log.Logger, status int, msg string, args ...interface{}) {
+	logger.Errorf(msg, args...)
+
 	rw.WriteHeader(status)
 
 	err := json.NewEncoder(rw).Encode(ErrorResponse{
