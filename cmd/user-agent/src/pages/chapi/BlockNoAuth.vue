@@ -24,7 +24,7 @@ SPDX-License-Identifier: Apache-2.0
     export default {
         data() {
             return {
-                loginURL: this.$route.params['login'] ? this.$route.params['login'] : '/',
+                loginURL: this.$route.params['loginURL'] ? this.$route.params['loginURL'] : '/',
             };
         }
     }

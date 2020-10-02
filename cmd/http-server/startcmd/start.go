@@ -23,6 +23,7 @@ import (
 	oidcp "github.com/coreos/go-oidc"
 	"github.com/gorilla/mux"
 	"github.com/lpar/gzipped"
+	"github.com/rs/cors"
 	"github.com/spf13/cobra"
 	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
@@ -654,11 +655,18 @@ func startHTTPServer(parameters *httpServerParameters) error {
 		return fmt.Errorf("failed to configure router: %w", err)
 	}
 
+	handler := cors.New(
+		cors.Options{
+			AllowedMethods: []string{http.MethodGet, http.MethodPost},
+			AllowedHeaders: []string{"Origin", "Accept", "Content-Type", "X-Requested-With", "Authorization"},
+		},
+	).Handler(router)
+
 	logger.Infof("starting http-server on %s...", parameters.hostURL)
 
 	err = parameters.srv.ListenAndServe(
 		parameters.hostURL, parameters.tls.certFile, parameters.tls.keyFile,
-		router)
+		handler)
 	if err != nil {
 		return fmt.Errorf("http server closed unexpectedly: %s", err)
 	}
