@@ -26,11 +26,11 @@ SPDX-License-Identifier: Apache-2.0
                 mediatorOrigin : opts.credentialMediatorURL,
                 async get(event) {
                     console.log('Received get() event:', event.event);
-                    return {type: 'redirect', url: `${__webpack_public_path__}/GetFromWallet`};
+                    return {type: 'redirect', url: `${__webpack_public_path__}GetFromWallet`};
                 },
                 async store(event) {
                     console.log('Received store() event:', event.event);
-                    return {type: 'redirect', url: `${__webpack_public_path__}/StoreInWallet`};
+                    return {type: 'redirect', url: `${__webpack_public_path__}StoreInWallet`};
                 }
             })
         }

@@ -82,7 +82,7 @@ export class RegisterWallet extends WalletManager {
                 throw "failed to register wallet, please try again later"
             }
 
-            const registration = await this.wcredHandler.installHandler({url: `${__webpack_public_path__}/worker`})
+            const registration = await this.wcredHandler.installHandler({url: `${__webpack_public_path__}worker`})
 
             await registration.credentialManager.hints.set(
                 'edge', {
@@ -101,6 +101,6 @@ export class RegisterWallet extends WalletManager {
             return
         }
 
-        await this.wcredHandler.uninstallHandler({url: `${__webpack_public_path__}/worker`})
+        await this.wcredHandler.uninstallHandler({url: `${__webpack_public_path__}worker`})
     }
 }
