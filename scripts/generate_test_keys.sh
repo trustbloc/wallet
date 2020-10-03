@@ -20,15 +20,17 @@ keyUsage = Digital Signature, Key Encipherment
 subjectAltName = @alt_names
 [alt_names]
 DNS.1 = localhost
-DNS.2 = testnet.trustbloc.local
+DNS.2 = *.trustbloc.local
 DNS.3 = stakeholder.one
-DNS.4 = sidetree-mock" >> "$tmp"
+DNS.4 = sidetree-mock
+DNS.5 = hydra
+DNS.6 = mock.login.consent.example.com" >> "$tmp"
 
 CERT_CA="test/bdd/fixtures/keys/tls/ec-cacert.pem"
 if [ ! -f "$CERT_CA" ]; then
 #create CA
 openssl ecparam -name prime256v1 -genkey -noout -out test/bdd/fixtures/keys/tls/ec-cakey.pem
-openssl req -new -x509 -key test/bdd/fixtures/keys/tls/ec-cakey.pem -subj "/C=CA/ST=ON/O=Example Internet CA Inc.:CA Sec/OU=CA Sec" -out test/bdd/fixtures/keys/tls/ec-cacert.pem
+openssl req -new -x509 -key test/bdd/fixtures/keys/tls/ec-cakey.pem -subj "/C=CA/ST=ON/O=Example Internet CA Inc.:CA Sec/OU=CA Sec" -out $CERT_CA
 else
     echo "Skipping CA generation - already exists"
 fi

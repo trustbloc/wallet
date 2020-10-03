@@ -70,10 +70,10 @@ services:
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - HTTP_SERVER_SDS_URL=${HTTP_SERVER_SDS_URL}
-      - HTTP_SERVER_OIDC_OPURL=http://mock.oidc.provider
-      - HTTP_SERVER_OIDC_CLIENTID=TODO
-      - HTTP_SERVER_OIDC_CLIENTSECRET=TODO
-      - HTTP_SERVER_OIDC_CALLBACK=http://TODO.com/callback
+      - HTTP_SERVER_OIDC_OPURL=https://hydra.trustbloc.local:4444/
+      - HTTP_SERVER_OIDC_CLIENTID=client-id
+      - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
+      - HTTP_SERVER_OIDC_CALLBACK=https://localhost:8091/oidc/callback
       - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
     ports:
@@ -83,7 +83,8 @@ services:
     command: start
     depends_on:
       - sds.example.com
-      - mock.oidc.provider
+      - hydra
+      - mock.login.consent.example.com
 
   second.user.agent.example.com:
     container_name: second.user.agent.example.com
@@ -93,14 +94,15 @@ services:
       - ARIESD_HTTP_RESOLVER=${HTTP_RESOLVER}
       - TLS_CERT_FILE=/etc/keys/tls/ec-pubCert.pem
       - TLS_KEY_FILE=/etc/keys/tls/ec-key.pem
+      - TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
       - ARIESD_DEFAULT_LABEL=second-user-agent
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - HTTP_SERVER_SDS_URL=${HTTP_SERVER_SDS_URL}
-      - HTTP_SERVER_OIDC_OPURL=http://mock.oidc.provider
-      - HTTP_SERVER_OIDC_CLIENTID=TODO
-      - HTTP_SERVER_OIDC_CLIENTSECRET=TODO
-      - HTTP_SERVER_OIDC_CALLBACK=http://TODO.com/callback
+      - HTTP_SERVER_OIDC_OPURL=https://hydra.trustbloc.local:4444/
+      - HTTP_SERVER_OIDC_CLIENTID=client-id
+      - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
+      - HTTP_SERVER_OIDC_CALLBACK=http://localhost:8071/oidc/callback
       - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
     ports:
@@ -110,7 +112,8 @@ services:
     command: start
     depends_on:
       - sds.example.com
-      - mock.oidc.provider
+      - hydra
+      - mock.login.consent.example.com
 
   couchdb.example.com:
     container_name: couchdb.example.com
@@ -226,40 +229,53 @@ services:
     volumes:
       - ../keys/tls:/etc/tls
 
-  mock.oidc.provider:
-    container_name: mock.oidc.provider
-    image: soluto/oidc-server-mock:0.2.2
+  hydra:
+    container_name: hydra.trustbloc.local
+    image: oryd/hydra:${HYDRA_IMAGE_TAG}
     ports:
-      - 8040:80
+      - 4444:4444 # Public port
+      - 4445:4445 # Admin port
+    command:  /bin/sh -c "hydra migrate sql --read-from-env --yes; tmp/hydra_configure.sh& hydra serve all"
+    entrypoint: ""
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      SERVER_OPTIONS_INLINE: |
-        {
-          "AccessTokenJwtType": "JWT",
-          "Discovery": {
-            "ShowKeySet": true
-          }
-        }
-      API_SCOPES_INLINE: |
-        [
-          "some-app-scope-1",
-          "some-app-scope-2"
-        ]
-      API_RESOURCES_INLINE: |
-        [
-          {
-            "Name": "some-app",
-            "Scopes": ["some-app-scope-1", "some-app-scope-2"]
-          }
-        ]
-      USERS_CONFIGURATION_INLINE: |
-        [
-          {
-            "SubjectId":"1",
-            "Username":"User1",
-            "Password":"pwd"
-          }
-        ]
-      CLIENTS_CONFIGURATION_PATH: /tmp/config/clients-config.json
+      - DSN=mysql://hydra:hydra-pwd@tcp(mysql:3306)/hydra?max_conns=20&max_idle_conns=4
+      - URLS_SELF_ISSUER=https://hydra.trustbloc.local:4444/
+      - URLS_CONSENT=https://localhost:8099/mock/consent
+      - URLS_LOGIN=https://localhost:8099/mock/login
+      - SECRETS_SYSTEM=testSecretsSystem
+      - OIDC_SUBJECT_TYPES_SUPPORTED=public
+      - OIDC_SUBJECT_TYPE_PAIRWISE_SALT=testSecretsSystem
+      - SERVE_TLS_KEY_PATH=/etc/tls/ec-key.pem
+      - SERVE_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
+    restart: unless-stopped
     volumes:
-      - ./oidc-config:/tmp/config:ro
+      - ../keys/tls:/etc/tls
+      - ./hydra-config/hydra_configure.sh:/tmp/hydra_configure.sh
+    depends_on:
+      - mysql
+
+  mysql:
+    container_name: mysql
+    image: mysql:${MYSQL_IMAGE_TAG}
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    logging:
+      driver: "none"
+    volumes:
+      - ./mysql-config:/docker-entrypoint-initdb.d
+
+  mock.login.consent.example.com:
+    container_name: mock.login.consent.example.com
+    image: ${MOCK_LOGIN_CONSENT_IMAGE}:latest
+    environment:
+      - LISTEN_ADDR=:8099
+      - HYDRA_ADMIN_URL=https://hydra.trustbloc.local:4445
+      - TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
+      - TLS_KEY_PATH=/etc/tls/ec-key.pem
+      - ROOT_CA_CERTS_PATH=/etc/tls/ec-cacert.pem
+    ports:
+      - 8099:8099
+    volumes:
+      - ../keys/tls:/etc/tls
