@@ -11,9 +11,11 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/tokens"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
 	"net/http"
-
-	"github.com/gorilla/sessions"
 
 	"github.com/google/uuid"
 	"github.com/trustbloc/edge-core/pkg/log"
@@ -32,10 +34,7 @@ const (
 
 // Stores.
 const (
-	transientStoreName = "edgeagent_trx"
-	userStoreName      = "edgeagent_users"
-	tokenStoreName     = "edgeagent_tks"
-	cookieStoreName    = "edgeagent_wallet"
+	transientStoreName = "edgeagent_oidc_trx"
 	stateCookieName    = "oauth2_state"
 )
 
@@ -43,7 +42,7 @@ var logger = log.New("hub-auth/oidc")
 
 // Config holds all configuration for an Operation.
 type Config struct {
-	OIDCClient OIDCClient
+	OIDCClient oidc.Client
 	Storage    *StorageConfig
 	UIEndpoint string
 	TLSConfig  *tls.Config
@@ -61,33 +60,27 @@ type StorageConfig struct {
 	TransientStorage storage.Provider
 }
 
-type store struct {
-	users     storage.Store
-	tokens    storage.Store
+type stores struct {
+	users     *user.Store
+	tokens    *tokens.Store
 	transient storage.Store
-	cookies   CookieStore
+	cookies   cookie.Store
 }
 
 // Operation implements OIDC operations.
 type Operation struct {
-	store      *store
-	oidcClient OIDCClient
+	store      *stores
+	oidcClient oidc.Client
 	uiEndpoint string
 	tlsConfig  *tls.Config
 }
 
 // New returns a new Operation.
 func New(config *Config) (*Operation, error) {
-	// TODO make session cookies max age configurable: https://github.com/trustbloc/edge-agent/issues/388
-	cookieStore := sessions.NewCookieStore(config.Keys.Auth, config.Keys.Enc)
-	cookieStore.MaxAge(900) // 15 mins
-
 	op := &Operation{
 		oidcClient: config.OIDCClient,
-		store: &store{
-			cookies: &cookieStoreAdapter{
-				cookieStore: cookieStore,
-			},
+		store: &stores{
+			cookies: cookie.NewStore(config.Keys.Auth, config.Keys.Enc),
 		},
 		uiEndpoint: config.UIEndpoint,
 		tlsConfig:  config.TLSConfig,
@@ -95,17 +88,17 @@ func New(config *Config) (*Operation, error) {
 
 	var err error
 
-	op.store.transient, err = openStore(config.Storage.TransientStorage, transientStoreName)
+	op.store.transient, err = store.Open(config.Storage.TransientStorage, transientStoreName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open transient store: %w", err)
 	}
 
-	op.store.users, err = openStore(config.Storage.Storage, userStoreName)
+	op.store.users, err = user.NewStore(config.Storage.Storage)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open users store: %w", err)
 	}
 
-	op.store.tokens, err = openStore(config.Storage.Storage, tokenStoreName)
+	op.store.tokens, err = tokens.NewStore(config.Storage.Storage)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open tokens store: %w", err)
 	}
@@ -124,10 +117,10 @@ func (o *Operation) GetRESTHandlers() []common.Handler {
 func (o *Operation) oidcLoginHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("handling login request: %s", r.URL.String())
 
-	session, err := o.store.cookies.Get(r, cookieStoreName)
+	session, err := o.store.cookies.Open(r)
 	if err != nil {
 		common.WriteErrorResponsef(w, logger,
-			http.StatusInternalServerError, "failed to create or decode session cookie: %s", err.Error())
+			http.StatusInternalServerError, "failed to read user session cookie: %s", err.Error())
 
 		return
 	}
@@ -157,9 +150,7 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	user := &endUser{}
-
-	err := user.parse(oidcToken)
+	user, err := user.ParseIDToken(oidcToken)
 	if err != nil {
 		common.WriteErrorResponsef(w, logger,
 			http.StatusInternalServerError, "failed to parse id_token: %s", err.Error())
@@ -167,7 +158,7 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_, err = newPersistedData(o.store.users).getEndUser(user.Sub)
+	_, err = o.store.users.Get(user.Sub)
 	if err != nil && !errors.Is(err, storage.ErrValueNotFound) {
 		common.WriteErrorResponsef(w, logger,
 			http.StatusInternalServerError, "failed to query user data: %s", err.Error())
@@ -176,7 +167,7 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if errors.Is(err, storage.ErrValueNotFound) {
-		err = newPersistedData(o.store.users).put(user.Sub, user)
+		err = o.store.users.Save(user)
 		if err != nil {
 			common.WriteErrorResponsef(w, logger,
 				http.StatusInternalServerError, "failed to persist user data: %s", err.Error())
@@ -185,8 +176,8 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	err = newPersistedData(o.store.tokens).put(user.Sub, &endUserTokens{
-		ID:      user.Sub,
+	err = o.store.tokens.Save(&tokens.UserTokens{
+		UserSub: user.Sub,
 		Access:  oauthToken.AccessToken,
 		Refresh: oauthToken.RefreshToken,
 	})
@@ -203,7 +194,7 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 
 func (o *Operation) fetchTokens(
 	w http.ResponseWriter, r *http.Request) (oauthToken *oauth2.Token, oidcToken oidc.IDToken, proceed bool) {
-	session, err := o.store.cookies.Get(r, cookieStoreName)
+	session, err := o.store.cookies.Open(r)
 	if err != nil {
 		common.WriteErrorResponsef(w, logger,
 			http.StatusInternalServerError, "failed to create or decode session cookie: %s", err.Error())
