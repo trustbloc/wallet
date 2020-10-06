@@ -91,9 +91,21 @@ user-agent-start: clean user-agent-wasm-docker generate-test-config generate-tes
 generate-test-config:
 	@/bin/bash scripts/generate_test_config.sh
 
+.PHONY: bdd-test
+bdd-test: bdd-test-js bdd-test-http-server
+
 .PHONY: bdd-test-js
-bdd-test-js: clean user-agent-wasm-docker generate-test-config generate-test-keys
+bdd-test-js: clean user-agent-wasm-docker generate-test-config generate-test-keys mock-login-consent-docker
 	@scripts/check_js_integration.sh
+
+.PHONY: bdd-test-http-server
+bdd-test-http-server: clean user-agent-wasm-docker generate-test-config generate-test-keys mock-login-consent-docker
+	@scripts/check_httpserver_integration.sh
+
+.PHONY: mock-login-consent-docker
+mock-login-consent-docker:
+	@echo "Building mock login consent server for BDD tests..."
+	@cd test/bdd/mock/loginconsent && docker build -f image/Dockerfile --build-arg GO_VER=$(GO_VER) --build-arg ALPINE_VER=$(ALPINE_VER) -t edgeagent/mockloginconsent:latest .
 
 .PHONY: clean
 clean: clean-build

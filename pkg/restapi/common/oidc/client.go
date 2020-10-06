@@ -71,8 +71,8 @@ func (o *oauth2ConfigImpl) Exchange(
 type OIDCClient struct {
 	provider     OIDCProvider
 	oauth2ConfigSupplier func() oauth2Config
-	clientID     string
-	tlsConfig    *tls.Config
+	clientID             string
+	tlsConfig            *tls.Config
 }
 
 // Config defines configuration for oidc client.
@@ -88,7 +88,7 @@ type Config struct {
 // NewClient returns new client instance
 func NewClient(config *Config) *OIDCClient {
 	return &OIDCClient{
-		provider:     config.Provider,
+		provider: config.Provider,
 		oauth2ConfigSupplier: func() oauth2Config {
 			return &oauth2ConfigImpl{oc: &oauth2.Config{
 				ClientID:     config.ClientID,
@@ -98,7 +98,8 @@ func NewClient(config *Config) *OIDCClient {
 				Scopes:       config.Scopes,
 			}}
 		},
-		clientID:     config.ClientID,
+		clientID:  config.ClientID,
+		tlsConfig: config.TLSConfig,
 	}
 }
 
