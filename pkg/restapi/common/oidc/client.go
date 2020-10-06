@@ -48,10 +48,6 @@ func (v *verifierAdapter) Verify(ctx context.Context, token string) (*oidc.IDTok
 	return v.v.Verify(ctx, token)
 }
 
-// IDToken is the OIDC id_token.
-type IDToken interface {
-	Claims(interface{}) error
-}
 
 type oauth2Config interface {
 	AuthCodeURL(string, ...oauth2.AuthCodeOption) string
@@ -71,14 +67,8 @@ func (o *oauth2ConfigImpl) Exchange(
 	return o.oc.Exchange(ctx, code, options...)
 }
 
-// OAuth2Token is the oauth2.Token.
-type OAuth2Token interface {
-	Extra(string) interface{}
-	Valid() bool
-}
-
-// Client for oidc
-type Client struct {
+// OIDCClient for oidc
+type OIDCClient struct {
 	provider     OIDCProvider
 	oauth2ConfigSupplier func() oauth2Config
 	clientID     string
@@ -96,8 +86,8 @@ type Config struct {
 }
 
 // NewClient returns new client instance
-func NewClient(config *Config) *Client {
-	return &Client{
+func NewClient(config *Config) *OIDCClient {
+	return &OIDCClient{
 		provider:     config.Provider,
 		oauth2ConfigSupplier: func() oauth2Config {
 			return &oauth2ConfigImpl{oc: &oauth2.Config{
@@ -113,12 +103,12 @@ func NewClient(config *Config) *Client {
 }
 
 // FormatRequest returns a correctly-formatted OIDC request.
-func (c *Client) FormatRequest(state string) string {
+func (c *OIDCClient) FormatRequest(state string) string {
 	return c.oauth2ConfigSupplier().AuthCodeURL(state)
 }
 
 // Exchange the auth code for the OAuth2 token.
-func (c *Client) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
+func (c *OIDCClient) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
 	token, err := c.oauth2ConfigSupplier().Exchange(
 		context.WithValue(
 			ctx,
@@ -139,7 +129,7 @@ func (c *Client) Exchange(ctx context.Context, code string) (*oauth2.Token, erro
 }
 
 // VerifyIDToken parses the id_token within the OAuth2 token and verifies it.
-func (c *Client) VerifyIDToken(ctx context.Context, oauthToken OAuth2Token) (IDToken, error) {
+func (c *OIDCClient) VerifyIDToken(ctx context.Context, oauthToken OAuth2Token) (IDToken, error) {
 	rawIDToken, found := oauthToken.Extra("id_token").(string)
 	if !found {
 		return nil, fmt.Errorf("missing id_token")
