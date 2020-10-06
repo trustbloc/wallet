@@ -4,8 +4,11 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import {WalletManager} from "../../pages/chapi/wallet";
+import {WalletManager, Messenger} from "../../pages/chapi/wallet";
 import * as Aries from "@trustbloc/agent-js-worker";
+
+// TODO message type domain needs to be finalized
+const msgServices = [{name: 'request-peer-did', type: 'https://didcomm.org/peerdidrequest/1.0/message'}]
 
 export default {
     state: {
@@ -119,6 +122,11 @@ export default {
                     })
 
                     let aries = await new Aries.Framework(opts)
+                    let messenger = new Messenger(aries)
+
+                    for (const {name, type} of msgServices) {
+                        await messenger.register(name, type)
+                    }
 
                     commit('setInstance', {instance: aries, user: rootState.user.username})
                     commit('startAllNotifiers')

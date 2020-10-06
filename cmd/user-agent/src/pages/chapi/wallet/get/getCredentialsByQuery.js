@@ -10,7 +10,8 @@ import {PresentationExchange} from '../common/presentationExchange'
 import {WalletManager} from "../register/walletManager";
 import {getCredentialType} from '../common/util'
 import {DIDExchange} from '../common/didExchange'
-import {AgentMediator} from '../didcomm/connections'
+import {AgentMediator} from '../didcomm/mediator'
+import {BlindedRouter} from '../didcomm/blindedRouter'
 
 var uuid = require('uuid/v4')
 
@@ -23,7 +24,7 @@ const manifestType = 'IssuerManifestCredential'
  * @class
  */
 export class WalletGetByQuery extends WalletGet {
-    constructor(aries, credEvent) {
+    constructor(aries, credEvent, opts) {
         super(aries, credEvent);
 
         // validate query and init Presentation Exchange
@@ -47,8 +48,8 @@ export class WalletGetByQuery extends WalletGet {
         this.govnVC = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="DIDConnect")].credentials[?(@.type[0]=="GovernanceCredential" || @.type[1]=="GovernanceCredential")]');
 
         this.walletManager = new WalletManager()
-
         this.mediator = new AgentMediator(aries)
+        this.blindedRouter = new BlindedRouter(aries, opts)
     }
 
     requirementDetails() {
@@ -85,7 +86,7 @@ export class WalletGetByQuery extends WalletGet {
                 presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes)
 
                 if (this.invitation.length > 0) {
-                    presentationSubmission = await getAuthorizationCredentials(this.aries, presentationSubmission, this.invitation[0], this.walletManager)
+                    presentationSubmission = await getAuthorizationCredentials(this.aries, presentationSubmission, this.invitation[0], this.walletManager, this.blindedRouter)
                 }
             }
 
@@ -148,10 +149,13 @@ function retainOnlySelected(presentationSubmission, selectedIndexes) {
     return presentationSubmission
 }
 
-async function getAuthorizationCredentials(aries, presentationSubmission, invitation, walletManager) {
+async function getAuthorizationCredentials(aries, presentationSubmission, invitation, walletManager, blindedRouter) {
     let exchange = new DIDExchange(aries)
     let rpConn = await exchange.connect(invitation)
     let rpDIDDoc = await aries.vdri.resolveDID({id: rpConn.result.TheirDID})
+
+    // share peer DID with RP for blinded routing
+    await blindedRouter.sharePeerDID(rpConn)
 
     let acceptCredPool = new Map()
     await Promise.all(presentationSubmission.verifiableCredential.map(async (vc, index) => {

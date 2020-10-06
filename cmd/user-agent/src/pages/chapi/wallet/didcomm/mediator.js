@@ -95,6 +95,11 @@ export class AgentMediator {
 
         return response.invitation
     }
+
+    // TODO to be implemented
+    async requestDID(){
+        console.warn('feature for requesting peer DID from router is not yet available')
+    }
 }
 
 const createInvitationFromRouter = async (endpoint) => {
