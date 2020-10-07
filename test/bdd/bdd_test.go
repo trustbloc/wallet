@@ -4,15 +4,11 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package bdd
+package bdd_test
 
 import (
 	"flag"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/trustbloc/edge-agent/test/bdd/dockerutil"
-	"github.com/trustbloc/edge-agent/test/bdd/pkg/bddcontext"
-	"github.com/trustbloc/edge-agent/test/bdd/pkg/login"
 	"os"
 	"strconv"
 	"strings"
@@ -20,6 +16,10 @@ import (
 	"time"
 
 	"github.com/cucumber/godog"
+	"github.com/google/uuid"
+	"github.com/trustbloc/edge-agent/test/bdd/dockerutil"
+	"github.com/trustbloc/edge-agent/test/bdd/pkg/bddcontext"
+	"github.com/trustbloc/edge-agent/test/bdd/pkg/login"
 )
 
 func TestMain(m *testing.M) {
@@ -53,48 +53,9 @@ func TestMain(m *testing.M) {
 func runBDDTests(tags, format string) int {
 	return godog.RunWithOptions("godogs", func(s *godog.Suite) {
 		var composition []*dockerutil.Composition
-		var composeFiles = []string{"./fixtures/agent-wasm"}
-		s.BeforeSuite(func() {
-			if os.Getenv("DISABLE_COMPOSITION") != "true" {
-				composeProjectName := strings.ReplaceAll(uuid.New().String(), "-", "")
-
-				for _, v := range composeFiles {
-					newComposition, err := dockerutil.NewComposition(composeProjectName, "docker-compose.yml", v)
-					if err != nil {
-						panic(fmt.Sprintf("Error composing system in BDD context: %s", err))
-					}
-					composition = append(composition, newComposition)
-				}
-
-				fmt.Println("docker-compose up ... waiting for containers to start ...")
-				testSleep := 30
-
-				if os.Getenv("TEST_SLEEP") != "" {
-					var e error
-
-					testSleep, e = strconv.Atoi(os.Getenv("TEST_SLEEP"))
-					if e != nil {
-						panic(fmt.Sprintf("Invalid value found in 'TEST_SLEEP': %s", e))
-					}
-				}
-
-				fmt.Printf("*** testSleep=%d", testSleep)
-				println()
-				time.Sleep(time.Second * time.Duration(testSleep))
-			}
-		})
-		s.AfterSuite(func() {
-			for _, c := range composition {
-				if c != nil {
-					if err := c.GenerateLogs(c.Dir, "docker-compose.log"); err != nil {
-						panic(err)
-					}
-					if _, err := c.Decompose(c.Dir); err != nil {
-						panic(err)
-					}
-				}
-			}
-		})
+		composeFiles := []string{"./fixtures/agent-wasm"}
+		s.BeforeSuite(beforeSuite(composition, composeFiles))
+		s.AfterSuite(afterSuite(composition))
 		featureContext(s)
 	}, godog.Options{
 		Tags:          tags,
@@ -104,6 +65,56 @@ func runBDDTests(tags, format string) int {
 		Strict:        true,
 		StopOnFailure: true,
 	})
+}
+
+func beforeSuite(composition []*dockerutil.Composition, composeFiles []string) func() {
+	return func() {
+		if os.Getenv("DISABLE_COMPOSITION") != "true" {
+			composeProjectName := strings.ReplaceAll(uuid.New().String(), "-", "")
+
+			for _, v := range composeFiles {
+				newComposition, err := dockerutil.NewComposition(composeProjectName, "docker-compose.yml", v)
+				if err != nil {
+					panic(fmt.Sprintf("Error composing system in BDD context: %s", err))
+				}
+
+				composition = append(composition, newComposition)
+			}
+
+			fmt.Println("docker-compose up ... waiting for containers to start ...")
+
+			testSleep := 30
+
+			if os.Getenv("TEST_SLEEP") != "" {
+				var e error
+
+				testSleep, e = strconv.Atoi(os.Getenv("TEST_SLEEP"))
+				if e != nil {
+					panic(fmt.Sprintf("Invalid value found in 'TEST_SLEEP': %s", e))
+				}
+			}
+
+			fmt.Printf("*** testSleep=%d", testSleep)
+			println()
+			time.Sleep(time.Second * time.Duration(testSleep))
+		}
+	}
+}
+
+func afterSuite(composition []*dockerutil.Composition) func() {
+	return func() {
+		for _, c := range composition {
+			if c != nil {
+				if err := c.GenerateLogs(c.Dir, "docker-compose.log"); err != nil {
+					panic(err)
+				}
+
+				if _, err := c.Decompose(c.Dir); err != nil {
+					panic(err)
+				}
+			}
+		}
+	}
 }
 
 func getCmdArg(argName string) string {

@@ -15,38 +15,38 @@ import (
 	"net/http/cookiejar"
 	"strings"
 
-	"github.com/google/uuid"
-
 	"github.com/cucumber/godog"
+	"github.com/google/uuid"
 	"github.com/trustbloc/edge-agent/test/bdd/pkg/bddcontext"
 )
 
 // HTTP server.
 const (
-	host      = "https://localhost:8091"
-	loginPath = host + "/oidc/login"
+	host       = "https://localhost:8091"
+	loginPath  = host + "/oidc/login"
 	walletPath = host + "/wallet/"
 )
 
 // Mock Login Consent App.
 const (
-	mockLoginEndpoint   = "https://localhost:8099/mock/login"
-	mockConsentEndpoint = "https://localhost:8099/mock/consent"
-	mockAuthNEndpoint   = "https://localhost:8099/mock/authn"
-	mockAuthZEndpoint   = "https://localhost:8099/mock/authz"
+	mockLoginEndpoint = "https://localhost:8099/mock/login"
+	mockAuthNEndpoint = "https://localhost:8099/mock/authn"
+	mockAuthZEndpoint = "https://localhost:8099/mock/authz"
 )
 
+// AuthConfigRequest can be sent to mockAuthNEndpoint to configure the user authentication behaviour.
 type AuthConfigRequest struct {
 	Sub  string `json:"sub"`
 	Fail bool   `json:"fail,omitempty"`
 }
 
+// ConsentConfigRequest can be sent to mockAuthZEndpoint to configure the user authorization behaviour.
 type ConsentConfigRequest struct {
 	UserClaims *UserClaims `json:"user_claims,omitempty"`
 	Fail       bool        `json:"fail,omitempty"`
 }
 
-// BDD tests can configure
+// UserClaims can be used by BDD tests to configure the claims in the id_token.
 type UserClaims struct {
 	Sub        string `json:"sub"`
 	Name       string `json:"name"`
@@ -61,10 +61,12 @@ type httpResponse struct {
 	url        string
 }
 
+// NewSteps returns login BDD test steps.
 func NewSteps(ctx *bddcontext.BDDContext) *Steps {
 	return &Steps{ctx: ctx}
 }
 
+// Steps are the login BDD test steps.
 type Steps struct {
 	browser             *http.Client
 	ctx                 *bddcontext.BDDContext
@@ -74,6 +76,7 @@ type Steps struct {
 	authZResult         *httpResponse
 }
 
+// Register the login BDD test steps in the godog suite.
 func (s *Steps) Register(gs *godog.Suite) {
 	gs.Step("the user clicks on the Login button", s.userClicksLoginButton)
 	gs.Step("the user is redirected to the OIDC provider", s.userRedirectedToOIDCProvider)
@@ -93,7 +96,7 @@ func (s *Steps) userClicksLoginButton() error {
 		Jar:       cookieJar,
 	}
 
-	resp, err := s.browser.Get(loginPath)
+	resp, err := s.browser.Get(loginPath) // nolint:noctx // no need to set context
 	if err != nil {
 		return fmt.Errorf("failed to invoke http server login endpoint %s: %w", loginPath, err)
 	}
@@ -150,6 +153,7 @@ func (s *Steps) userIsAuthenticated() error {
 		return fmt.Errorf("failed to marshal auth config request: %w", err)
 	}
 
+	// nolint:noctx // no need to set the context
 	resp, err := s.browser.Post(mockAuthNEndpoint, "application/json", bytes.NewReader(request))
 	if err != nil {
 		return fmt.Errorf("failed to post request to mock auth endpoint: %w", err)
@@ -182,6 +186,7 @@ func (s *Steps) userAuthorizesAccessToTheirData() error {
 		return fmt.Errorf("failed to marshal consent config request: %w", err)
 	}
 
+	// nolint:noctx // no need to set the context
 	resp, err := s.browser.Post(mockAuthZEndpoint, "application/json", bytes.NewReader(request))
 	if err != nil {
 		return fmt.Errorf("failed to invoke mock authZ endpoint %s: %w", mockAuthZEndpoint, err)
@@ -210,6 +215,7 @@ func (s *Steps) userRedirectedToWallet() error {
 	if s.authZResult.statusCode != http.StatusOK {
 		fmt.Printf("url: %s\n", s.authZResult.url)
 		fmt.Printf("body: %s\n", s.authZResult.body)
+
 		return fmt.Errorf("expected status code %d but got %d", http.StatusFound, s.authZResult.statusCode)
 	}
 
