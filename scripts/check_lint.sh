@@ -19,3 +19,5 @@ echo "Linting user-agent..."
 (cd $(pwd)/cmd/user-agent && npm install && npm run lint)
 echo "Linting http-server..."
 ${DOCKER_CMD} run --rm -v $(pwd):/opt/workspace -w /opt/workspace/cmd/http-server golangci/golangci-lint:v1.31.0 golangci-lint run -c ../../.golangci.yml
+echo "Linting BDD test packages..."
+${DOCKER_CMD} run --rm -v $(pwd):/opt/workspace -w /opt/workspace/test/bdd golangci/golangci-lint:v1.31.0 golangci-lint run -c ../../.golangci.yml
