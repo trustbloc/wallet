@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 import {WalletManager} from '../register/walletManager'
 import {WalletStore} from '../store/saveCredential'
 import {DIDExchange} from '../common/didExchange'
+import {BlindedRouter} from '../didcomm/blindedRouter'
 import {getCredentialType, filterCredentialsByType} from "..";
 
 const manifestCredType = "IssuerManifestCredential"
@@ -26,6 +27,7 @@ export class DIDConn {
         this.walletManager = new WalletManager()
         this.walletStore = new WalletStore(aries, trustblocAgent, trustblocStartupOpts, credEvent, walletUser)
         this.exchange = new DIDExchange(aries)
+        this.blindedRouter = new BlindedRouter(aries, trustblocStartupOpts)
         this.credEvent = credEvent
 
         const {domain, challenge, invitation, credentials} = getRequestParams(credEvent);
@@ -56,6 +58,9 @@ export class DIDConn {
     async connect() {
         // perform did exchange
         let connection = await this.exchange.connect(this.invitation)
+
+        // share peer DID with inviter for blinded routing
+        await this.blindedRouter.sharePeerDID(connection)
 
         // save wallet metadata
         let walletMetadata = await this.walletManager.getWalletMetadata(this.walletUser)

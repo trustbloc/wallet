@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import {WalletManager} from './walletManager'
-import {AgentMediator} from "../didcomm/connections";
+import {AgentMediator} from "../didcomm/mediator";
 import {DIDManager} from "../didmgmt/didManager";
 
 

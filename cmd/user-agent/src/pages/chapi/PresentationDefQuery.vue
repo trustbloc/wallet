@@ -154,7 +154,7 @@ SPDX-License-Identifier: Apache-2.0
     export default {
         components: {Governance},
         created: async function () {
-            this.wallet = new WalletGetByQuery(this.getAriesInstance(), this.$parent.credentialEvent)
+            this.wallet = new WalletGetByQuery(this.getAriesInstance(), this.$parent.credentialEvent, this.getTrustblocOpts())
             await this.wallet.connect()
 
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
@@ -202,7 +202,7 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
-            ...mapGetters(['getCurrentUser']),
+            ...mapGetters(['getCurrentUser', 'getTrustblocOpts']),
             ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
             createPresentation: async function () {
                 this.loading = true
