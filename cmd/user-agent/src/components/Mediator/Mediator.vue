@@ -9,7 +9,7 @@ SPDX-License-Identifier: Apache-2.0
     <md-card-header data-background-color="green">
       <h4 class="title">{{ title }}</h4>
     </md-card-header>
-    <md-card-content v-if="!isMediatorRegistered" style="background-color: white;">
+    <md-card-content style="background-color: white;">
       <md-field>
         <label>Mediator URL</label>
         <md-input placeholder="http://router.example.com" v-model="URL" required></md-input>
@@ -21,15 +21,15 @@ SPDX-License-Identifier: Apache-2.0
         </md-button>
       </div>
     </md-card-content>
-    <md-card-content v-if="isMediatorRegistered" style="background-color: white;">
+    <md-card-content v-for="connection in getMediatorConnections" style="background-color: white;" :key="connection">
       <div class="md-layout router">
-        <div class="md-layout-item md-layout">
+        <div class="md-layout-item md-layout" style="padding-right: 0px">
           <div class="md-layout-item router-done">
-            <div>Mediator is registered</div>
+            <div>Mediator is registered {{ connection }}</div>
           </div>
-          <div class="md-layout-item">
+          <div class="md-layout-item md-size-25" style="padding-right: 0px">
             <md-button class="md-button md-danger md-square right" id='routerUnregister'
-                       v-on:click="unregisteredMediator">
+                       v-on:click="unregisteredMediator(connection)">
               <b>Unregister</b>
             </md-button>
           </div>
@@ -52,7 +52,7 @@ export default {
   },
   methods: {
     ...mapActions(['unregisteredMediator', 'registeredMediator']),
-    register() {
+    async register() {
       this.error = ""
 
       let URL = this.URL.trim().replace(/\/$/, "");
@@ -64,7 +64,7 @@ export default {
       this.disabled = true
 
       try {
-        this.registeredMediator(URL)
+        await this.registeredMediator(URL)
       } catch (e) {
         this.error = e.message
       }
@@ -72,7 +72,7 @@ export default {
       this.disabled = false
     },
   },
-  computed: mapGetters(['isMediatorRegistered']),
+  computed: mapGetters(['getMediatorConnections']),
   data: () => ({
     URL: '',
     error: '',

@@ -207,7 +207,7 @@ const Aries = function (opts) {
          * Introduce methods - Refer to [OpenAPI spec](docs/rest/openapi_spec.md#generate-openapi-spec) for
          * input params and output return json values.
          */
-        introduce:{
+        introduce: {
             pkgname: "introduce",
             /**
              * Actions returns pending actions that have not yet to be executed or canceled.
@@ -876,8 +876,8 @@ const Aries = function (opts) {
              *
              * @returns {Promise<Object>}
              */
-            unregister: async function () {
-                return invoke(aw, pending, this.pkgname, "Unregister", "{}", "timeout while registering router")
+            unregister: async function (req) {
+                return invoke(aw, pending, this.pkgname, "Unregister", req, "timeout while registering router")
             },
 
             /**
@@ -885,9 +885,8 @@ const Aries = function (opts) {
              *
              * @returns {Promise<Object>}
              */
-            getConnection: async function () {
-                // console.log("router get connection")
-                return invoke(aw, pending, this.pkgname, "Connection", "{}", "timeout while fetching router connection id")
+            getConnections: async function () {
+                return invoke(aw, pending, this.pkgname, "Connections", "{}", "timeout while fetching router connection id")
             },
 
             /**
@@ -984,7 +983,7 @@ const Aries = function (opts) {
              * @returns {Promise<Object>}
              */
             signCredential: async function (req) {
-                return invoke(aw, pending,  this.pkgname, "SignCredential", req, "timeout while adding proof to credential")
+                return invoke(aw, pending, this.pkgname, "SignCredential", req, "timeout while adding proof to credential")
             },
 
             /**
@@ -994,7 +993,7 @@ const Aries = function (opts) {
              * @returns {Promise<Object>}
              */
             generatePresentation: async function (req) {
-                return invoke(aw, pending,  this.pkgname, "GeneratePresentation", req, "timeout while generating verifiable presentation")
+                return invoke(aw, pending, this.pkgname, "GeneratePresentation", req, "timeout while generating verifiable presentation")
             },
 
             /**
@@ -1004,7 +1003,7 @@ const Aries = function (opts) {
              * @returns {Promise<Object>}
              */
             generatePresentationByID: async function (req) {
-                return invoke(aw, pending,  this.pkgname, "GeneratePresentationByID", req, "timeout while generating verifiable presentation by id")
+                return invoke(aw, pending, this.pkgname, "GeneratePresentationByID", req, "timeout while generating verifiable presentation by id")
             },
 
             /**

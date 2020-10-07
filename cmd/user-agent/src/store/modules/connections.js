@@ -4,6 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
+import {getMediatorConnections} from "../../pages/chapi/wallet/didcomm/mediator.js"
 
 export default {
     actions: {
@@ -28,18 +29,27 @@ export default {
         async createInvitation(ctx, label) {
             let aries = ctx.getters['aries/getInstance']
             // creates invitation through the out-of-band protocol
-            let res = await aries.outofband.createInvitation({label: label})
+            let res = await aries.outofband.createInvitation({
+                label: label,
+                router_connection_id: await getMediatorConnections(aries, true)
+            })
 
             return res.invitation
         },
-        acceptExchangeRequest({dispatch, getters}, id) {
+        async acceptExchangeRequest({dispatch, getters}, id) {
             let aries = getters['aries/getInstance']
-            aries.didexchange.acceptExchangeRequest({id: id}).then(() => dispatch('queryConnections'))
+            aries.didexchange.acceptExchangeRequest({
+                id: id,
+                router_connections: await getMediatorConnections(aries, true),
+            }).then(() => dispatch('queryConnections'))
         },
         async acceptInvitation({dispatch, getters}, payload) {
             let aries = getters['aries/getInstance']
             // accepts invitation thought out-of-band protocol
-            let res = await aries.outofband.acceptInvitation(payload)
+            let res = await aries.outofband.acceptInvitation({
+                ...payload,
+                router_connections: await getMediatorConnections(aries, true)
+            })
 
             dispatch('queryConnections')
 

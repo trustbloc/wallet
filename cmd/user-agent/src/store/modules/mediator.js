@@ -9,46 +9,35 @@ import {waitForEvent, POST_STATE} from '../../events'
 
 const stateCompleted = 'completed'
 const topicDidExchangeStates = 'didexchange_states'
-const errRouterNotRegistered = 'router not registered'
 
 export default {
     actions: {
         async loadMediatorState({commit, getters}) {
             let aries = getters['aries/getInstance']
-            let res = await aries.mediator.getConnection().catch(err => {
-                if (!err.message.includes(errRouterNotRegistered)) {
-                    throw err
-                }
-            })
+            let res = await aries.mediator.getConnections()
 
-            let connectionID = '';
-            if (res) {
-                connectionID = res.connectionID
-            }
-
-            commit('updateMediatorConnID', connectionID)
+            commit('updateMediatorConnections', res.connections)
         },
-        async unregisteredMediator({getters, commit}) {
-            if (!getters.isMediatorRegistered) {
+        async unregisteredMediator({dispatch, getters}, connID) {
+            if (!getters.getMediatorConnections.includes(connID)) {
                 return
             }
 
             let aries = getters['aries/getInstance']
-            await aries.mediator.unregister({id: getters.getMediatorConnID})
-            commit('updateMediatorConnID', '')
+            await aries.mediator.unregister({connectionID: connID})
+            await dispatch('loadMediatorState')
         },
         async registeredMediator({dispatch, getters}, routerURL) {
-            if (getters.isMediatorRegistered) return;
-
             let invitation = await axios.get(routerURL + '/didcomm/invitation')
-            let conn = await dispatch('acceptInvitation', {
+            let aries = getters['aries/getInstance']
+            // accepts invitation thought out-of-band protocol
+            let conn = await aries.outofband.acceptInvitation({
                 my_label: getters.agentDefaultLabel,
                 invitation: invitation.data.invitation,
             })
 
             let connID = conn['connection_id']
 
-            let aries = getters['aries/getInstance']
             await waitForEvent(aries, {
                 type: POST_STATE,
                 stateID: stateCompleted,
@@ -58,23 +47,24 @@ export default {
 
             await aries.mediator.register({connectionID: connID})
 
+            await dispatch('queryConnections')
             await dispatch('loadMediatorState')
         },
     },
     mutations: {
-        updateMediatorConnID(state, conID) {
-            state.mediatorConnID = conID
+        updateMediatorConnections(state, connections) {
+            state.mediatorConnections = connections
         },
     },
     state: {
-        mediatorConnID: '',
+        mediatorConnections: [],
     },
     getters: {
-        getMediatorConnID(state) {
-            return state.mediatorConnID
+        getMediatorConnections(state) {
+            return state.mediatorConnections
         },
         isMediatorRegistered(state, getters) {
-            return getters.getMediatorConnID !== ''
+            return getters.getMediatorConnections && getters.getMediatorConnections.length > 0
         },
     }
 }

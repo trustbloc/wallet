@@ -8,7 +8,7 @@ go 1.15
 
 require (
 	github.com/google/uuid v1.1.2
-	github.com/hyperledger/aries-framework-go v0.1.4
+	github.com/hyperledger/aries-framework-go v0.1.5-0.20201007102709-e11b4b934c42
 	github.com/mitchellh/mapstructure v1.3.3
 	github.com/stretchr/testify v1.6.1
 	github.com/trustbloc/edge-core v0.1.4
