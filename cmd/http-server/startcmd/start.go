@@ -742,7 +742,7 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters) error {
 		TLSConfig:  config.tls.config,
 		OIDCClient: oidc2.NewClient(&oidc2.Config{
 			TLSConfig:    config.tls.config,
-			Provider:     &oidc2.OIDCProviderAdapter{OP: provider},
+			Provider:     &oidc2.ProviderAdapter{OP: provider},
 			CallbackURL:  config.oidc.callbackURL,
 			ClientID:     config.oidc.clientID,
 			ClientSecret: config.oidc.clientSecret,

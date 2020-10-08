@@ -13,7 +13,7 @@ type CreateDIDRequest struct {
 	PublicKeys []PublicKey `json:"publicKeys,omitempty"`
 }
 
-// PublicKey public key
+// PublicKey public key.
 type PublicKey struct {
 	ID       string   `json:"id,omitempty"`
 	Type     string   `json:"type,omitempty"`
@@ -25,6 +25,7 @@ type PublicKey struct {
 	Value    string   `json:"value,omitempty"`
 }
 
+// CreateDIDResponse contains the newly-create DID doc.
 type CreateDIDResponse struct {
 	DID map[string]interface{}
 }

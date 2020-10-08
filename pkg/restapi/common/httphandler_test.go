@@ -7,12 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 package common_test
 
 import (
-	"github.com/trustbloc/edge-agent/pkg/restapi/common"
 	"net/http"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common"
 )
 
 func TestNewHTTPHandler(t *testing.T) {

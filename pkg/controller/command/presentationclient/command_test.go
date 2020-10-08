@@ -3,7 +3,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package presentationclient
+package presentationclient // nolint:testpackage // uses internal implementation details
 
 import (
 	"bytes"
@@ -13,11 +13,10 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/require"
 	"github.com/trustbloc/edge-agent/pkg/controller/command/sdscomm"
 	"github.com/trustbloc/edv/pkg/edvprovider/memedvprovider"
 	"github.com/trustbloc/edv/pkg/restapi"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestNew(t *testing.T) {

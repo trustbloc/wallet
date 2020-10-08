@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/trustbloc/edge-core/pkg/storage"
 )
 

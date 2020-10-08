@@ -16,27 +16,29 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// OIDCProvider provides discovery of OIDC provider endpoints and also verifies id_tokens.
-type OIDCProvider interface {
+// Provider provides discovery of OIDC provider endpoints and also verifies id_tokens.
+type Provider interface {
 	Endpoint() oauth2.Endpoint
-	Verifier(*oidc.Config) OIDCVerifier
+	Verifier(*oidc.Config) Verifier
 }
 
-// OIDCProviderAdapter adapts an *oidc.Provider into an OIDCProvider.
-type OIDCProviderAdapter struct {
+// ProviderAdapter adapts an *oidc.Provider into an OIDCProvider.
+type ProviderAdapter struct {
 	OP *oidc.Provider
 }
 
-func (o *OIDCProviderAdapter) Endpoint() oauth2.Endpoint {
+// Endpoint returns the OIDC endpoints.
+func (o *ProviderAdapter) Endpoint() oauth2.Endpoint {
 	return o.OP.Endpoint()
 }
 
-func (o *OIDCProviderAdapter) Verifier(config *oidc.Config) OIDCVerifier {
+// Verifier returns an OIDC verifier.
+func (o *ProviderAdapter) Verifier(config *oidc.Config) Verifier {
 	return &verifierAdapter{v: o.OP.Verifier(config)}
 }
 
-// OIDCVerifier parses and verifies a raw id_token.
-type OIDCVerifier interface {
+// Verifier parses and verifies a raw id_token.
+type Verifier interface {
 	Verify(ctx context.Context, rawIDToken string) (*oidc.IDToken, error)
 }
 
@@ -47,7 +49,6 @@ type verifierAdapter struct {
 func (v *verifierAdapter) Verify(ctx context.Context, token string) (*oidc.IDToken, error) {
 	return v.v.Verify(ctx, token)
 }
-
 
 type oauth2Config interface {
 	AuthCodeURL(string, ...oauth2.AuthCodeOption) string
@@ -67,9 +68,9 @@ func (o *oauth2ConfigImpl) Exchange(
 	return o.oc.Exchange(ctx, code, options...)
 }
 
-// OIDCClient for oidc
-type OIDCClient struct {
-	provider     OIDCProvider
+// BasicClient for OIDC.
+type BasicClient struct {
+	provider             Provider
 	oauth2ConfigSupplier func() oauth2Config
 	clientID             string
 	tlsConfig            *tls.Config
@@ -78,16 +79,16 @@ type OIDCClient struct {
 // Config defines configuration for oidc client.
 type Config struct {
 	TLSConfig    *tls.Config
-	Provider     OIDCProvider
+	Provider     Provider
 	CallbackURL  string
 	ClientID     string
 	ClientSecret string
 	Scopes       []string
 }
 
-// NewClient returns new client instance
-func NewClient(config *Config) *OIDCClient {
-	return &OIDCClient{
+// NewClient returns new BasicClient instance.
+func NewClient(config *Config) *BasicClient {
+	return &BasicClient{
 		provider: config.Provider,
 		oauth2ConfigSupplier: func() oauth2Config {
 			return &oauth2ConfigImpl{oc: &oauth2.Config{
@@ -104,12 +105,12 @@ func NewClient(config *Config) *OIDCClient {
 }
 
 // FormatRequest returns a correctly-formatted OIDC request.
-func (c *OIDCClient) FormatRequest(state string) string {
+func (c *BasicClient) FormatRequest(state string) string {
 	return c.oauth2ConfigSupplier().AuthCodeURL(state)
 }
 
 // Exchange the auth code for the OAuth2 token.
-func (c *OIDCClient) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
+func (c *BasicClient) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
 	token, err := c.oauth2ConfigSupplier().Exchange(
 		context.WithValue(
 			ctx,
@@ -130,7 +131,7 @@ func (c *OIDCClient) Exchange(ctx context.Context, code string) (*oauth2.Token, 
 }
 
 // VerifyIDToken parses the id_token within the OAuth2 token and verifies it.
-func (c *OIDCClient) VerifyIDToken(ctx context.Context, oauthToken OAuth2Token) (IDToken, error) {
+func (c *BasicClient) VerifyIDToken(ctx context.Context, oauthToken OAuth2Token) (IDToken, error) {
 	rawIDToken, found := oauthToken.Extra("id_token").(string)
 	if !found {
 		return nil, fmt.Errorf("missing id_token")

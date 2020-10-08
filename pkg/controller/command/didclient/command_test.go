@@ -3,7 +3,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package didclient
+package didclient // nolint:testpackage // uses internal implementation details
 
 import (
 	"bytes"
@@ -16,12 +16,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/did"
 	"github.com/stretchr/testify/require"
+	"github.com/trustbloc/edge-agent/pkg/controller/command"
+	"github.com/trustbloc/edge-agent/pkg/controller/command/sdscomm"
 	"github.com/trustbloc/edv/pkg/edvprovider/memedvprovider"
 	"github.com/trustbloc/edv/pkg/restapi"
 	didclient "github.com/trustbloc/trustbloc-did-method/pkg/did"
-
-	"github.com/trustbloc/edge-agent/pkg/controller/command"
-	"github.com/trustbloc/edge-agent/pkg/controller/command/sdscomm"
 )
 
 func TestNew(t *testing.T) {
@@ -55,8 +54,10 @@ func TestCommand_CreateDID(t *testing.T) {
 
 		var b bytes.Buffer
 
-		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1",
-			Value: base64.RawURLEncoding.EncodeToString([]byte("value"))}}})
+		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{
+			ID: "key1", Type: "key1",
+			Value: base64.RawURLEncoding.EncodeToString([]byte("value")),
+		}}})
 		require.NoError(t, err)
 
 		cmdErr := c.CreateDID(&b, bytes.NewBuffer(req))
@@ -74,8 +75,10 @@ func TestCommand_CreateDID(t *testing.T) {
 
 		var b bytes.Buffer
 
-		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1",
-			Value: "value"}}})
+		req, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{
+			ID: "key1", Type: "key1",
+			Value: "value",
+		}}})
 		require.NoError(t, err)
 
 		cmdErr := c.CreateDID(&b, bytes.NewBuffer(req))
@@ -94,8 +97,10 @@ func TestCommand_CreateDID(t *testing.T) {
 
 	t.Run("test success create did with Ed25519 key", func(t *testing.T) {
 		// ED key
-		r, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{ID: "key1", Type: "key1", KeyType: "Ed25519",
-			Value: base64.RawURLEncoding.EncodeToString([]byte("value"))}}})
+		r, err := json.Marshal(CreateDIDRequest{PublicKeys: []PublicKey{{
+			ID: "key1", Type: "key1", KeyType: "Ed25519",
+			Value: base64.RawURLEncoding.EncodeToString([]byte("value")),
+		}}})
 		require.NoError(t, err)
 
 		cmdErr := c.CreateDID(&b, bytes.NewBuffer(r))
