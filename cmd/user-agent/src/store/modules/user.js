@@ -4,11 +4,14 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import {WalletManager, Messenger} from "../../pages/chapi/wallet";
+import {Messenger, WalletManager} from "../../pages/chapi/wallet";
 import * as Aries from "@trustbloc/agent-js-worker";
 
 // TODO message type domain needs to be finalized
-const msgServices = [{name: 'request-peer-did', type: 'https://didcomm.org/peerdidrequest/1.0/message'}]
+const msgServices = [
+    {name: 'request-peer-did', type: 'https://didcomm.org/peerdidrequest/1.0/message'},
+    {name: 'create-conn-resp', type: 'https://trustbloc.github.io/blinded-routing/1.0/create-conn-resp'},
+]
 
 export default {
     state: {
@@ -49,7 +52,7 @@ export default {
 
         },
         async refreshUserMetadata({commit, state}) {
-            if (!state.username){
+            if (!state.username) {
                 throw 'invalid operation, user not logged in'
             }
 
@@ -96,7 +99,7 @@ export default {
                     state.instance.startNotifier(notifier.callback, notifier.topics)
                 },
                 startAllNotifiers(state) {
-                    if (!state.notifiers ) {
+                    if (!state.notifiers) {
                         return
                     }
                     state.notifiers.forEach(function (notifier) {

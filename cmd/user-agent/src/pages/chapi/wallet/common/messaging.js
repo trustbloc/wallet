@@ -19,7 +19,7 @@ export class Messenger {
         await this.aries.messaging.registerService({name, type})
     }
 
-    async services(){
+    async services() {
         return await this.aries.messaging.services()
     }
 
@@ -31,8 +31,20 @@ export class Messenger {
         this.aries.messaging.reply({"message_ID": msgID, "message_body": msg})
     }
 
-    async sendAndWaitForReply(connectionID, msg) {
+    async sendAndWaitForReply(connectionID, msg, replyTopic) {
         this.send(connectionID, msg)
+
         // TODO implement listen for reply and correlate [Issue#405]
+        const incomingMsg = await new Promise((resolve, reject) => {
+            setTimeout(() => reject(new Error("time out waiting for reply")), 15000)
+            const stop = this.aries.startNotifier(msg => {
+                stop()
+                resolve(msg.payload.message)
+            }, [replyTopic])
+        })
+
+        return incomingMsg
     }
 }
+
+

@@ -6,10 +6,15 @@ SPDX-License-Identifier: Apache-2.0
 
 import axios from 'axios';
 import {POST_STATE, waitForEvent} from "../../../../events";
+import {Messenger} from "..";
+
+var uuid = require('uuid/v4')
 
 const routerCreateInvitationPath = `/didcomm/invitation`
 const stateCompleted = 'completed'
 const topicDidExchangeStates = 'didexchange_states'
+const createConnReqType = 'https://trustbloc.github.io/blinded-routing/1.0/create-conn-req'
+const createConnResTopic = 'create-conn-resp'
 
 /**
  * AgentMediator provides aries mediator features
@@ -19,6 +24,7 @@ const topicDidExchangeStates = 'didexchange_states'
 export class AgentMediator {
     constructor(aries) {
         this.aries = aries
+        this.messenger = new Messenger(aries)
     }
 
     async connect(endpoint) {
@@ -96,9 +102,28 @@ export class AgentMediator {
         return response.invitation
     }
 
-    // TODO to be implemented
-    async requestDID() {
-        console.warn('feature for requesting peer DID from router is not yet available')
+    async requestDID(reqDoc) {
+        let connection = await getMediatorConnections(this.aries, true)
+        if (!connection) {
+            console.error('failed to send connection request to router, no connection found!')
+            throw 'could not find connection with router'
+        }
+
+        let response = await this.messenger.sendAndWaitForReply(connection, {
+                "@id": uuid(),
+                "@type": createConnReqType,
+                "~purpose": ["create-conn-req"],
+                data: {thirdPartyDIDDoc: reqDoc}
+            }, createConnResTopic
+        )
+
+        // TODO currently getting routerDIDDoc as byte[], to be fixed
+        if (response.data.routerDIDDoc && response.data.routerDIDDoc.length > 0) {
+            return JSON.parse(String.fromCharCode.apply(String, response.data.routerDIDDoc))
+        }
+
+        console.error('failed to request DID from router, failed to get connection response')
+        throw 'failed to request DID from router, failed to get connection response'
     }
 }
 

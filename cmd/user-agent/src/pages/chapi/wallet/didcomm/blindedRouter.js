@@ -19,7 +19,6 @@ const sendPeerDIDMsgType = 'send-peer-did'
  */
 export class BlindedRouter {
     constructor(aries, opts) {
-        console.log('opts in blinded router', opts)
         if (!opts.blindedRouting) {
             return
         }
@@ -36,7 +35,7 @@ export class BlindedRouter {
         }
 
         // send message to connection requesting peer DID
-        // TODO sending empty message for now, to be implemented
+        // TODO sending empty message for now, to be implemented #409
         this.messenger.sendAndWaitForReply(connection, {
             "@id": uuid(),
             "@type": requestPeerDIDMsgType,
@@ -45,11 +44,18 @@ export class BlindedRouter {
         })
 
         // send message to router requesting peerDID
-        // TODO response peer DID from previous step to be sent to router
-        this.mediator.requestDID()
+        // TODO response peer DID from previous step to be sent to router #409
+
+        // TODO temporarily send myDID to test response (to test integration with router create-connection api) #409
+        console.log('conn.result', JSON.stringify(connection.result))
+        let response = await _getPeerDID(this.aries, connection)
+        // ...
+
+        let walletDID = await this.mediator.requestDID(response.did)
+        console.log('wallet DID', walletDID)
 
         // end router peerDID to connection
-        // TODO sending empty message for now, to be implemented (sending peer DID from router)
+        // TODO sending empty message for now, to be implemented (sending peer DID from router) #409
         this.messenger.send(connection, {
             "@id": uuid(),
             "@type": sendPeerDIDMsgType,
@@ -59,3 +65,5 @@ export class BlindedRouter {
 
     }
 }
+
+let _getPeerDID = async (aries, conn) => await aries.vdri.resolveDID({id: conn.result.MyDID})

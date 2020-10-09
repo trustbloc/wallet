@@ -21,7 +21,6 @@ You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following 
     127.0.0.1 testnet.trustbloc.local
     127.0.0.1 stakeholder.one
     127.0.0.1 sidetree-mock
-    127.0.0.1 authorization.localhost
 
 ## Running BDD tests
 
