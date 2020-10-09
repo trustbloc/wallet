@@ -8,14 +8,16 @@ package command
 import (
 	"encoding/json"
 	"io"
-
-	"github.com/trustbloc/edge-core/pkg/log"
 )
+
+type logger interface {
+	Errorf(string, ...interface{})
+}
 
 // WriteNillableResponse is a utility function that writes v to w.
 // If v is nil then an empty object is written.
-// TODO this capability should be injected into the command implementations
-func WriteNillableResponse(w io.Writer, v interface{}, l log.Logger) {
+// TODO this capability should be injected into the command implementations.
+func WriteNillableResponse(w io.Writer, v interface{}, l logger) {
 	obj := v
 	if v == nil {
 		obj = map[string]interface{}{}

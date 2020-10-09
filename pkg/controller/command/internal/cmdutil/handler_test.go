@@ -3,7 +3,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package cmdutil
+package cmdutil_test
 
 import (
 	"io"
@@ -13,6 +13,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/trustbloc/edge-agent/pkg/controller/command"
+	"github.com/trustbloc/edge-agent/pkg/controller/command/internal/cmdutil"
 )
 
 func TestNewHTTPHandler(t *testing.T) {
@@ -24,7 +25,7 @@ func TestNewHTTPHandler(t *testing.T) {
 		handled <- true
 	}
 
-	handler := NewHTTPHandler(path, method, handlerFn)
+	handler := cmdutil.NewHTTPHandler(path, method, handlerFn)
 	require.Equal(t, path, handler.Path())
 	require.Equal(t, method, handler.Method())
 	require.NotNil(t, handler.Handle())
@@ -46,10 +47,11 @@ func TestNewCommandHandler(t *testing.T) {
 	handlerFn := func(rw io.Writer, req io.Reader) command.Error {
 		// do nothing
 		handled <- true
+
 		return nil
 	}
 
-	handler := NewCommandHandler(name, method, handlerFn)
+	handler := cmdutil.NewCommandHandler(name, method, handlerFn)
 	require.Equal(t, name, handler.Name())
 	require.Equal(t, method, handler.Method())
 	require.NotNil(t, handler.Handle())

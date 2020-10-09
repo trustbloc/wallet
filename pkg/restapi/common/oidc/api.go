@@ -8,10 +8,11 @@ package oidc
 
 import (
 	"context"
+
 	"golang.org/x/oauth2"
 )
 
-// OIDCClient is capable of formatting authorization requests, exchanging the token grant for an access_token
+// Client is capable of formatting authorization requests, exchanging the token grant for an access_token
 // and id_token, and verifying id_tokens.
 type Client interface {
 	FormatRequest(state string) string

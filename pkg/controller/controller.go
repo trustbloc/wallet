@@ -7,16 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 package controller
 
 import (
-	"github.com/trustbloc/edge-core/pkg/log"
-
 	"github.com/trustbloc/edge-agent/pkg/controller/command"
 	credentialclientcmd "github.com/trustbloc/edge-agent/pkg/controller/command/credentialclient"
 	didclientcmd "github.com/trustbloc/edge-agent/pkg/controller/command/didclient"
 	presentationclientcmd "github.com/trustbloc/edge-agent/pkg/controller/command/presentationclient"
 	"github.com/trustbloc/edge-agent/pkg/controller/command/sdscomm"
 )
-
-var logger = log.New("edge-agent-didclient-controller")
 
 type allOpts struct {
 	blocDomain   string

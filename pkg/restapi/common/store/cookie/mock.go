@@ -10,12 +10,12 @@ import "net/http"
 
 // MockStore is a mock cookie Store.
 type MockStore struct {
-	Jar     CookieJar
+	Jar     Jar
 	OpenErr error
 }
 
-// Open returns a CookieJar.
-func (m *MockStore) Open(_ *http.Request) (CookieJar, error) {
+// Open returns a Jar.
+func (m *MockStore) Open(_ *http.Request) (Jar, error) {
 	if m.Jar != nil || m.OpenErr != nil {
 		return m.Jar, m.OpenErr
 	}
@@ -23,14 +23,14 @@ func (m *MockStore) Open(_ *http.Request) (CookieJar, error) {
 	return &MockJar{}, nil
 }
 
-// MockJar is a mock CookieJar.
+// MockJar is a mock Jar.
 type MockJar struct {
 	Cookies map[interface{}]interface{}
 	SaveErr error
 }
 
 // Set the cookie.
-func (m *MockJar) Set(k interface{}, v interface{}) {
+func (m *MockJar) Set(k, v interface{}) {
 	if m.Cookies == nil {
 		m.Cookies = make(map[interface{}]interface{})
 	}
@@ -50,7 +50,7 @@ func (m *MockJar) Delete(k interface{}) {
 	delete(m.Cookies, k)
 }
 
-// Save changes to the CookieJar.
+// Save changes to the Jar.
 func (m *MockJar) Save(_ *http.Request, _ http.ResponseWriter) error {
 	return m.SaveErr
 }

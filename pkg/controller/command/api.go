@@ -9,10 +9,10 @@ import (
 	"io"
 )
 
-// Exec is controller command execution function type
+// Exec is controller command execution function type.
 type Exec func(rw io.Writer, req io.Reader) Error
 
-// Handler for each controller command
+// Handler for each controller command.
 type Handler interface {
 	// name of the command
 	Name() string

@@ -10,8 +10,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	"github.com/trustbloc/edge-core/pkg/log"
 )
 
 // Handler http handler for each controller API endpoint.
@@ -21,13 +19,17 @@ type Handler interface {
 	Handle() http.HandlerFunc
 }
 
+type logger interface {
+	Errorf(string, ...interface{})
+}
+
 // ErrorResponse to send error message in the response.
 type ErrorResponse struct {
 	Message string `json:"errMessage,omitempty"`
 }
 
 // WriteErrorResponsef write error resp.
-func WriteErrorResponsef(rw http.ResponseWriter, logger log.Logger, status int, msg string, args ...interface{}) {
+func WriteErrorResponsef(rw http.ResponseWriter, logger logger, status int, msg string, args ...interface{}) {
 	logger.Errorf(msg, args...)
 
 	rw.WriteHeader(status)
@@ -35,7 +37,6 @@ func WriteErrorResponsef(rw http.ResponseWriter, logger log.Logger, status int, 
 	err := json.NewEncoder(rw).Encode(ErrorResponse{
 		Message: fmt.Sprintf(msg, args...),
 	})
-
 	if err != nil {
 		logger.Errorf("Unable to send error message: %s", err)
 	}

@@ -8,7 +8,7 @@ package sdscomm
 
 import "errors"
 
-// Error messages
+// Error messages.
 const (
 	failureEnsuringDIDVaultExistsErrMsg   = "failure while ensuring that the user's DID vault exists: %w"
 	failureEnsuringCredVaultExistsErrMsg  = "failure while ensuring that the user's credential vault exists: %w"
@@ -22,7 +22,7 @@ const (
 	failureStoringDocErrMsg               = "failed to store document: %w"
 )
 
-// Log messages
+// Log messages.
 const (
 	vaultAlreadyExistsLogMsg = "%s vault already exists. Skipping vault creation."
 	newVaultCreatedLogMsg    = "%s vault created."

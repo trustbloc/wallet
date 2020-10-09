@@ -19,12 +19,12 @@ const (
 type Code int32
 
 // Group is the error groups.
-// Note: recommended to use [0-9]*000 pattern for any new entries
-// Example: 2000, 3000, 4000 ...... 25000
+// Note: recommended to use [0-9]*000 pattern for any new entries.
+// Example: 2000, 3000, 4000 ...... 25000.
 type Group int32
 
 const (
-	// DIDClient error group for DID client command errors
+	// DIDClient error group for DID client command errors.
 	DIDClient Group = 1000
 )
 

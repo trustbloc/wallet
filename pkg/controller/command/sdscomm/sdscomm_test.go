@@ -3,7 +3,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package sdscomm
+package sdscomm // nolint:testpackage // uses internal implementation details
 
 import (
 	"fmt"
@@ -91,6 +91,7 @@ func TestSDSComm_StorePresentation(t *testing.T) {
 		sdsComm := New(fmt.Sprintf("%s/encrypted-data-vaults", sdsSrv.URL))
 
 		err := sdsComm.ensureVaultExists(sdsComm.getPresentationVaultID(exampleUserID))
+		require.NoError(t, err)
 
 		samplePresentationData := SavePresentationToSDSRequest{}
 

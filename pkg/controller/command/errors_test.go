@@ -3,25 +3,26 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package command
+package command_test
 
 import (
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/trustbloc/edge-agent/pkg/controller/command"
 )
 
 func TestNewExecuteError(t *testing.T) {
-	e := NewExecuteError(1, fmt.Errorf("error"))
+	e := command.NewExecuteError(1, fmt.Errorf("error"))
 	require.Equal(t, "error", e.Error())
-	require.Equal(t, Code(1), e.Code())
-	require.Equal(t, Type(1), e.Type())
+	require.Equal(t, command.Code(1), e.Code())
+	require.Equal(t, command.Type(1), e.Type())
 }
 
 func TestNewValidationError(t *testing.T) {
-	e := NewValidationError(1, fmt.Errorf("error"))
+	e := command.NewValidationError(1, fmt.Errorf("error"))
 	require.Equal(t, "error", e.Error())
-	require.Equal(t, Code(1), e.Code())
-	require.Equal(t, Type(0), e.Type())
+	require.Equal(t, command.Code(1), e.Code())
+	require.Equal(t, command.Type(0), e.Type())
 }

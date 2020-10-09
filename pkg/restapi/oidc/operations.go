@@ -11,19 +11,18 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"net/http"
+
+	"github.com/google/uuid"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/tokens"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
-	"net/http"
-
-	"github.com/google/uuid"
 	"github.com/trustbloc/edge-core/pkg/log"
 	"github.com/trustbloc/edge-core/pkg/storage"
 	"golang.org/x/oauth2"
-
-	"github.com/trustbloc/edge-agent/pkg/restapi/common"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 )
 
 // Endpoints.
@@ -49,6 +48,7 @@ type Config struct {
 	Keys       *KeyConfig
 }
 
+// KeyConfig holds configuration for cryptographic keys.
 type KeyConfig struct {
 	Auth []byte
 	Enc  []byte
@@ -150,7 +150,7 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	user, err := user.ParseIDToken(oidcToken)
+	usr, err := user.ParseIDToken(oidcToken)
 	if err != nil {
 		common.WriteErrorResponsef(w, logger,
 			http.StatusInternalServerError, "failed to parse id_token: %s", err.Error())
@@ -158,7 +158,7 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_, err = o.store.users.Get(user.Sub)
+	_, err = o.store.users.Get(usr.Sub)
 	if err != nil && !errors.Is(err, storage.ErrValueNotFound) {
 		common.WriteErrorResponsef(w, logger,
 			http.StatusInternalServerError, "failed to query user data: %s", err.Error())
@@ -167,7 +167,7 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if errors.Is(err, storage.ErrValueNotFound) {
-		err = o.store.users.Save(user)
+		err = o.store.users.Save(usr)
 		if err != nil {
 			common.WriteErrorResponsef(w, logger,
 				http.StatusInternalServerError, "failed to persist user data: %s", err.Error())
@@ -177,7 +177,7 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	err = o.store.tokens.Save(&tokens.UserTokens{
-		UserSub: user.Sub,
+		UserSub: usr.Sub,
 		Access:  oauthToken.AccessToken,
 		Refresh: oauthToken.RefreshToken,
 	})
@@ -193,33 +193,10 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (o *Operation) fetchTokens(
-	w http.ResponseWriter, r *http.Request) (oauthToken *oauth2.Token, oidcToken oidc.IDToken, proceed bool) {
-	session, err := o.store.cookies.Open(r)
-	if err != nil {
-		common.WriteErrorResponsef(w, logger,
-			http.StatusInternalServerError, "failed to create or decode session cookie: %s", err.Error())
-
-		return nil, nil, false
-	}
-
-	stateCookie, found := session.Get(stateCookieName)
-	if !found {
-		common.WriteErrorResponsef(w, logger, http.StatusBadRequest, "missing state session cookie")
-
-		return nil, nil, false
-	}
-
-	state := r.URL.Query().Get("state")
-	if state == "" {
-		common.WriteErrorResponsef(w, logger, http.StatusBadRequest, "missing state parameter")
-
-		return nil, nil, false
-	}
-
-	if state != stateCookie {
-		common.WriteErrorResponsef(w, logger, http.StatusBadRequest, "invalid state parameter")
-
-		return nil, nil, false
+	w http.ResponseWriter, r *http.Request) (oauthToken *oauth2.Token, oidcToken oidc.IDToken, valid bool) {
+	session, valid := o.getAndVerifyUserSession(w, r)
+	if !valid {
+		return
 	}
 
 	session.Delete(stateCookieName)
@@ -231,7 +208,7 @@ func (o *Operation) fetchTokens(
 		return nil, nil, false
 	}
 
-	oauthToken, err = o.oidcClient.Exchange(
+	oauthToken, err := o.oidcClient.Exchange(
 		context.WithValue(
 			r.Context(),
 			oauth2.HTTPClient,
@@ -263,4 +240,36 @@ func (o *Operation) fetchTokens(
 	}
 
 	return oauthToken, oidcToken, true
+}
+
+func (o *Operation) getAndVerifyUserSession(w http.ResponseWriter, r *http.Request) (cookie.Jar, bool) {
+	session, err := o.store.cookies.Open(r)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "failed to create or decode session cookie: %s", err.Error())
+
+		return nil, false
+	}
+
+	stateCookie, found := session.Get(stateCookieName)
+	if !found {
+		common.WriteErrorResponsef(w, logger, http.StatusBadRequest, "missing state session cookie")
+
+		return nil, false
+	}
+
+	state := r.URL.Query().Get("state")
+	if state == "" {
+		common.WriteErrorResponsef(w, logger, http.StatusBadRequest, "missing state parameter")
+
+		return nil, false
+	}
+
+	if state != stateCookie {
+		common.WriteErrorResponsef(w, logger, http.StatusBadRequest, "invalid state parameter")
+
+		return nil, false
+	}
+
+	return session, true
 }

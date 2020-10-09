@@ -9,6 +9,7 @@ package user
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
 	"github.com/trustbloc/edge-core/pkg/storage"
@@ -47,7 +48,7 @@ func ParseIDToken(t oidc.IDToken) (*User, error) {
 	return user, nil
 }
 
-// validation rules on the received user claims from the OIDC provider go here
+// validation rules on the received user claims from the OIDC provider go here.
 func evaluateClaims(u *User) error {
 	if u.Sub == "" {
 		return fmt.Errorf("empty 'sub' in end user claims")

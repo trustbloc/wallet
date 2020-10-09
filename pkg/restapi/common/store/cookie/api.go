@@ -8,13 +8,13 @@ package cookie
 
 import "net/http"
 
-// Store has session cookies.
+// Store contains cookie jars.
 type Store interface {
-	Open(*http.Request) (CookieJar, error)
+	Open(*http.Request) (Jar, error)
 }
 
-// CookieJar are contained within a CookieStore.
-type CookieJar interface {
+// Jar is a container of cookies from a Jars.
+type Jar interface {
 	Set(k interface{}, v interface{})
 	Get(k interface{}) (interface{}, bool)
 	Delete(k interface{})

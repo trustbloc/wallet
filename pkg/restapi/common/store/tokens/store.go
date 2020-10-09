@@ -8,6 +8,7 @@ package tokens
 
 import (
 	"fmt"
+
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
 	"github.com/trustbloc/edge-core/pkg/storage"
 )

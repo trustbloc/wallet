@@ -4,27 +4,26 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package oidc
+package oidc // nolint:testpackage // changing to different package requires exposing internal REST handlers
 
 import (
 	"crypto/rand"
 	"errors"
 	"fmt"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/tokens"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
 	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/tokens"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
 	"github.com/trustbloc/edge-core/pkg/storage"
 	"github.com/trustbloc/edge-core/pkg/storage/memstore"
 	"github.com/trustbloc/edge-core/pkg/storage/mockstore"
 	"golang.org/x/oauth2"
-
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNew(t *testing.T) {
@@ -148,6 +147,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 					user, ok := i.(*user.User)
 					require.True(t, ok)
 					user.Sub = uuid.New().String()
+
 					return nil
 				},
 			},
@@ -347,6 +347,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 					user, ok := i.(*user.User)
 					require.True(t, ok)
 					user.Sub = userSub
+
 					return nil
 				},
 			},
@@ -384,6 +385,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 					user, ok := i.(*user.User)
 					require.True(t, ok)
 					user.Sub = uuid.New().String()
+
 					return nil
 				},
 			},
