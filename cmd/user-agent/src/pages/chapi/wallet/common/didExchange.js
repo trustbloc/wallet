@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 
 import {POST_STATE, waitForEvent} from "../../../../events";
+import {getMediatorConnections} from "../../../../pages/chapi/wallet/didcomm/mediator.js"
 
 const stateCompleted = 'completed'
 const topicDidExchangeStates = 'didexchange_states'
@@ -24,6 +25,7 @@ export class DIDExchange {
         let conn = await this.aries.outofband.acceptInvitation({
             my_label: 'agent-default-label',
             invitation: invitation,
+            router_connections: await getMediatorConnections(this.aries, true),
         })
 
         let connID = conn['connection_id']

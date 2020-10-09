@@ -23,7 +23,6 @@ export class AgentMediator {
 
     async connect(endpoint) {
         let invitation = await createInvitationFromRouter(endpoint)
-
         let conn = await this.aries.outofband.acceptInvitation({
             my_label: 'agent-default-label',
             invitation: invitation,
@@ -44,31 +43,33 @@ export class AgentMediator {
             try {
                 await this.aries.mediator.register({connectionID: connID})
             } catch (e) {
-                if (!e.message.includes("timeout waiting for grant from the router") || i==retries) {
+                if (!e.message.includes("timeout waiting for grant from the router") || i === retries) {
                     throw e
                 }
                 await sleep(500);
                 continue
             }
-           break
+            break
         }
 
-        let res = await this.aries.mediator.getConnection().catch(err => {
-            if (!err.message.includes("router not registered")) {
-                throw err
-            }
-        })
+        let res = await this.aries.mediator.getConnections()
 
-        console.log("router registered successfully..!!", res.connectionID)
+        if (res.connections.includes(connID)) {
+            console.log("router registered successfully!", connID)
+        } else {
+            console.log("router was not registered!", connID)
+        }
 
         // return handle for disconnect
-        return () => this.aries.mediator.unregister()
+        return () => this.aries.mediator.unregister({connectionID: connID})
     }
 
     async reconnect() {
         try {
-            let res = await this.aries.mediator.getConnection()
-            await this.aries.mediator.reconnect({connectionID: res.connectionID})
+            let res = await this.aries.mediator.getConnections()
+            for (const connection of res.connections) {
+                await this.aries.mediator.reconnect({connectionID: connection})
+            }
         } catch (e) {
             console.error('unable to reconnect to router', e)
         }
@@ -77,29 +78,41 @@ export class AgentMediator {
     async isAlreadyConnected() {
         let res
         try {
-            res = await this.aries.mediator.getConnection()
+            res = await this.aries.mediator.getConnections()
         } catch (e) {
-            if (e.toString().includes("router not registered")) {
-                return false
-            }
-
             throw e
         }
 
-        return res.connectionID != ""
+        return res.connections && res.connections.length > 0
     }
 
     async createInvitation() {
         // creates invitation through the out-of-band protocol
-        let response = await this.aries.outofband.createInvitation({label: 'agent-label'})
+        let response = await this.aries.outofband.createInvitation({
+            label: 'agent-label',
+            router_connection_id: await getMediatorConnections(this.aries, true)
+        })
 
         return response.invitation
     }
 
     // TODO to be implemented
-    async requestDID(){
+    async requestDID() {
         console.warn('feature for requesting peer DID from router is not yet available')
     }
+}
+
+export async function getMediatorConnections(agent, single) {
+    let resp = await agent.mediator.getConnections()
+    if (!resp.connections || resp.connections.length === 0) {
+        return ""
+    }
+
+    if (single) {
+        return resp.connections[Math.floor(Math.random() * resp.connections.length)]
+    }
+
+    return resp.connections.join(",");
 }
 
 const createInvitationFromRouter = async (endpoint) => {

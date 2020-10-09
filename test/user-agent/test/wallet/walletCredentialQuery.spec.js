@@ -17,6 +17,7 @@ import * as polyfill from 'credential-handler-polyfill'
 import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import {issue_credential, manifest, prcAndUdcVP, presentationDefQuery1, presentationDefQuery2} from './testdata.js'
 import {waitForEvent} from "../../../../cmd/user-agent/src/events";
+import {getMediatorConnections} from "../../../../cmd/user-agent/src/pages/chapi/wallet/didcomm/mediator.js"
 
 var uuid = require('uuid/v4')
 
@@ -248,7 +249,10 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
 
         let res = await waitForEvent(issuer, {topic: 'didexchange_actions'})
         // approve did connection request from issuer
-        await issuer.didexchange.acceptExchangeRequest({id: res.Properties.connectionID})
+        await issuer.didexchange.acceptExchangeRequest({
+            id: res.Properties.connectionID,
+            router_connections: await getMediatorConnections(issuer, true),
+        })
 
         const resp = await credResponse
         if (resp.dataType == 'VerifiablePresentation') {
@@ -335,7 +339,10 @@ describe('verifier queries credentials - DIDComm Flow', () => {
 
         // approve did connection request from verifier
         let res = await waitForEvent(verifier, {topic: 'didexchange_actions'})
-        await verifier.didexchange.acceptExchangeRequest({id: res.Properties.connectionID})
+        await verifier.didexchange.acceptExchangeRequest({
+            id: res.Properties.connectionID,
+            router_connections: await getMediatorConnections(verifier, true),
+        })
 
         // issue credential from issuer
         res = await waitForEvent(issuer, {topic: 'issue-credential_actions'})
