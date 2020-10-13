@@ -15,8 +15,8 @@ export class Messenger {
         this.aries = aries
     }
 
-    async register(name, type) {
-        await this.aries.messaging.registerService({name, type})
+    async register(name, purpose, type) {
+        await this.aries.messaging.registerService({name, purpose, type})
     }
 
     async services() {

@@ -112,8 +112,8 @@ export class AgentMediator {
         let response = await this.messenger.sendAndWaitForReply(connection, {
                 "@id": uuid(),
                 "@type": createConnReqType,
-                "~purpose": ["create-conn-req"],
-                data: {thirdPartyDIDDoc: reqDoc}
+                data: {thirdPartyDIDDoc: reqDoc},
+                "sent_time": new Date().toJSON(),
             }, createConnResTopic
         )
 

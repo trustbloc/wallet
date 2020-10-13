@@ -155,7 +155,7 @@ async function getAuthorizationCredentials(aries, presentationSubmission, invita
     let rpDIDDoc = await aries.vdri.resolveDID({id: rpConn.result.TheirDID})
 
     // share peer DID with RP for blinded routing
-    await blindedRouter.sharePeerDID(rpConn)
+    await blindedRouter.sharePeerDID(rpConn.result)
 
     let acceptCredPool = new Map()
     await Promise.all(presentationSubmission.verifiableCredential.map(async (vc, index) => {

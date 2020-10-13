@@ -60,7 +60,7 @@ export class DIDConn {
         let connection = await this.exchange.connect(this.invitation)
 
         // share peer DID with inviter for blinded routing
-        await this.blindedRouter.sharePeerDID(connection)
+        await this.blindedRouter.sharePeerDID(connection.result)
 
         // save wallet metadata
         let walletMetadata = await this.walletManager.getWalletMetadata(this.walletUser)

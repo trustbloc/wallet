@@ -9,8 +9,9 @@ import {AgentMediator} from './mediator'
 
 var uuid = require('uuid/v4')
 
-const requestPeerDIDMsgType = 'request-peer-did'
-const sendPeerDIDMsgType = 'send-peer-did'
+const peerDIDRequestMsgType = 'https://trustbloc.github.io/blinded-routing/1.0/diddoc-req'
+const peerDIDResponseTopic = 'diddoc-resp'
+const sharePeerDIDMsgType = 'https://trustbloc.github.io/blinded-routing/1.0/share-diddoc'
 
 /**
  * BlindedRouter provides blinded routing features
@@ -34,36 +35,35 @@ export class BlindedRouter {
             return
         }
 
-        // send message to connection requesting peer DID
-        // TODO sending empty message for now, to be implemented #409
-        this.messenger.sendAndWaitForReply(connection, {
+        let { ConnectionID } = connection
+
+        // request peer DID from other party
+        let responseMsg = this.messenger.sendAndWaitForReply(ConnectionID, {
             "@id": uuid(),
-            "@type": requestPeerDIDMsgType,
-            "~l10n": {"locale": "en"},
+            "@type": peerDIDRequestMsgType,
             "sent_time": new Date().toJSON(),
-        })
+        }, peerDIDResponseTopic)
 
-        // send message to router requesting peerDID
-        // TODO response peer DID from previous step to be sent to router #409
+        let peerDID = _parseResponseDID(responseMsg)
+        if (!peerDID) {
+            console.error('failed to get peerDID from inviter, could not find peer DID in response message.')
+            throw 'failed to get peer DID from inviter'
+        }
 
-        // TODO temporarily send myDID to test response (to test integration with router create-connection api) #409
-        console.log('conn.result', JSON.stringify(connection.result))
-        let response = await _getPeerDID(this.aries, connection)
-        // ...
+        // request wallet peer DID from router by sending peer DID from other party
+        let walletDID = await this.mediator.requestDID(peerDID)
 
-        let walletDID = await this.mediator.requestDID(response.did)
-        console.log('wallet DID', walletDID)
-
-        // end router peerDID to connection
-        // TODO sending empty message for now, to be implemented (sending peer DID from router) #409
-        this.messenger.send(connection, {
+        // share wallet peer DID to other party
+        this.messenger.sendAndWaitForReply(ConnectionID, {
             "@id": uuid(),
-            "@type": sendPeerDIDMsgType,
-            "~l10n": {"locale": "en"},
+            "@type": sharePeerDIDMsgType,
+            data: {didDoc: walletDID},
             "sent_time": new Date().toJSON(),
         })
 
     }
 }
 
-let _getPeerDID = async (aries, conn) => await aries.vdri.resolveDID({id: conn.result.MyDID})
+let _parseResponseDID = (response) => response.data.didDoc && response.data.didDoc.length > 0 ?
+    JSON.parse(String.fromCharCode.apply(String, response.data.routerDIDDoc)) : undefined
+
