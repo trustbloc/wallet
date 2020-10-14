@@ -6,23 +6,10 @@ SPDX-License-Identifier: Apache-2.0
 
 const axios = require('axios').default;
 
-const trustblocOptsLocation = l => `${l}/walletconfig/trustbloc`
-
-const ariesOptsLocation = l => `${l}/walletconfig/aries`
-
+const agentOptsLocation = l => `${l}/walletconfig/agent`
 const credentialMediator = url => url ? `${url}?origin=${encodeURIComponent(window.location.origin)}${__webpack_public_path__}/` : undefined
 
-const defaultTrustBlocStartupOpts = {
-    assetsPath: `${__webpack_public_path__}/trustbloc-agent/assets`,
-    blocDomain: 'testnet.trustbloc.local',
-    'log-level': 'debug',
-    walletMediatorURL: 'https://localhost:10063',
-    blindedRouting: false,
-    credentialMediatorURL: '',
-    sdsServerURL: ''
-}
-
-let defaultAriesStartupOpts = {
+let defaultAgentStartupOpts = {
     assetsPath: `${__webpack_public_path__}/agent-js-worker/assets`,
     'outbound-transport': ['ws', 'http'],
     'transport-return-route': 'all',
@@ -31,7 +18,13 @@ let defaultAriesStartupOpts = {
     'agent-default-label': 'demo-user-agent',
     'auto-accept': true,
     'log-level': 'debug',
-    'db-namespace': 'agent'
+    'db-namespace': 'agent',
+
+    blocDomain: 'testnet.trustbloc.local',
+    walletMediatorURL: 'https://localhost:10063',
+    blindedRouting: false,
+    credentialMediatorURL: '',
+    sdsServerURL: ''
 }
 
 export default {
@@ -39,76 +32,54 @@ export default {
         async initOpts({commit}, location) {
             location = location ? location :  window.location.origin
 
-            let tbOpts = {}
-            let ariesOpts = {}
+            let agentOpts = {}
 
             console.log('process.env.NODE_ENV process.env.NODE_ENV', process.env.NODE_ENV)
 
             if (process.env.NODE_ENV === "production") {
-                // call service to get the trustbloc opts
-                await axios.get(trustblocOptsLocation(location))
+                // call service to get the agent opts
+                await axios.get(agentOptsLocation(location))
                     .then(resp => {
-                        tbOpts = resp.data
-                        console.log("successfully fetched trustbloc start up options");
-                    })
-                    .catch(err => {
-                        console.log("error fetching start up options - using default options : errMsg=", err);
-                    })
-
-                // call service to get the aries opts
-                await axios.get(ariesOptsLocation(location))
-                    .then(resp => {
-                        ariesOpts = resp.data
-                        console.log("successfully fetched aries start up options");
+                        agentOpts = resp.data
+                        console.log("successfully fetched agent start up options");
                     })
                     .catch(err => {
                         console.log("error fetching start up options - using default options : errMsg=", err);
                     })
             }
 
-            commit('updateTrustblocOpts', {
-                assetsPath: defaultTrustBlocStartupOpts['assetsPath'],
-                blocDomain: ('blocDomain' in tbOpts) ? tbOpts['blocDomain'] : defaultTrustBlocStartupOpts['blocDomain'],
-                walletMediatorURL: ('walletMediatorURL' in tbOpts) ? tbOpts['walletMediatorURL'] : defaultTrustBlocStartupOpts['walletMediatorURL'],
-                credentialMediatorURL: credentialMediator(('credentialMediatorURL' in tbOpts) ? tbOpts['credentialMediatorURL'] : defaultTrustBlocStartupOpts['credentialMediatorURL']),
-                blindedRouting: ('blindedRouting' in tbOpts) ? tbOpts['blindedRouting'] : defaultTrustBlocStartupOpts['blindedRouting'],
-                'log-level': ('log-level' in tbOpts) ? tbOpts['log-level'] : defaultTrustBlocStartupOpts['log-level'],
-                sdsServerURL: ('sdsServerURL' in tbOpts) ? tbOpts['sdsServerURL'] : defaultTrustBlocStartupOpts['sdsServerURL']
-            })
+            commit('updateAgentOpts', {
+                assetsPath: defaultAgentStartupOpts['assetsPath'],
+                'outbound-transport': defaultAgentStartupOpts['outbound-transport'],
+                'transport-return-route': defaultAgentStartupOpts['transport-return-route'],
+                'http-resolver-url': ('http-resolver-url' in agentOpts) ? agentOpts['http-resolver-url'] : defaultAgentStartupOpts['http-resolver-url'],
+                'agent-default-label': ('agent-default-label' in agentOpts) ? agentOpts['agent-default-label'] : defaultAgentStartupOpts['agent-default-label'],
+                'auto-accept': ('auto-accept' in agentOpts) ? agentOpts['auto-accept'] : defaultAgentStartupOpts['auto-accept'],
+                'log-level': ('log-level' in agentOpts) ? agentOpts['log-level'] : defaultAgentStartupOpts['log-level'],
+                'db-namespace': ('db-namespace' in agentOpts) ? agentOpts['db-namespace'] : defaultAgentStartupOpts['db-namespace'],
 
-            commit('updateAriesOpts', {
-                assetsPath: defaultAriesStartupOpts['assetsPath'],
-                'outbound-transport': defaultAriesStartupOpts['outbound-transport'],
-                'transport-return-route': defaultAriesStartupOpts['transport-return-route'],
-                'http-resolver-url': ('http-resolver-url' in ariesOpts) ? ariesOpts['http-resolver-url'] : defaultAriesStartupOpts['http-resolver-url'],
-                'agent-default-label': ('agent-default-label' in ariesOpts) ? ariesOpts['agent-default-label'] : defaultAriesStartupOpts['agent-default-label'],
-                'auto-accept': ('auto-accept' in ariesOpts) ? ariesOpts['auto-accept'] : defaultAriesStartupOpts['auto-accept'],
-                'log-level': ('log-level' in ariesOpts) ? ariesOpts['log-level'] : defaultAriesStartupOpts['log-level'],
-                'db-namespace': ('db-namespace' in ariesOpts) ? ariesOpts['db-namespace'] : defaultAriesStartupOpts['db-namespace']
+                blocDomain: ('blocDomain' in agentOpts) ? agentOpts['blocDomain'] : defaultAgentStartupOpts['blocDomain'],
+                walletMediatorURL: ('walletMediatorURL' in agentOpts) ? agentOpts['walletMediatorURL'] : defaultAgentStartupOpts['walletMediatorURL'],
+                credentialMediatorURL: credentialMediator(('credentialMediatorURL' in agentOpts) ? agentOpts['credentialMediatorURL'] : defaultAgentStartupOpts['credentialMediatorURL']),
+                blindedRouting: ('blindedRouting' in agentOpts) ? agentOpts['blindedRouting'] : defaultAgentStartupOpts['blindedRouting'],
+                sdsServerURL: ('sdsServerURL' in agentOpts) ? agentOpts['sdsServerURL'] : defaultAgentStartupOpts['sdsServerURL']
             })
         },
     },
     mutations: {
-        updateTrustblocOpts(state, opts) {
-            state.trustblocOpts = opts
-        },
-        updateAriesOpts(state, opts) {
-            state.ariesOpts = opts
+        updateAgentOpts(state, opts) {
+            state.agentOpts = opts
         }
     },
     state: {
-        ariesOpts: {},
-        trustblocOpts: {},
+        agentOpts: {},
     },
     getters: {
-        getAriesOpts(state) {
-            return state.ariesOpts
+        getAgentOpts(state) {
+            return state.agentOpts
         },
         agentDefaultLabel(state) {
-            return state.ariesOpts['agent-default-label']
-        },
-        getTrustblocOpts(state) {
-            return state.trustblocOpts
+            return state.agentOpts['agent-default-label']
         },
     }
 }

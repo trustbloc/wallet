@@ -17,17 +17,17 @@ var uuid = require('uuid/v4')
 
 /**
  * DIDConn provides CHAPI did connection/exchange features
- * @param aries instance & credential event
+ * @param agent instance & credential event
  * @class
  */
 export class DIDConn {
-    constructor(aries, trustblocAgent, trustblocStartupOpts, credEvent, walletUser) {
-        this.aries = aries
+    constructor(agent, startupOpts, credEvent, walletUser) {
+        this.agent = agent
         this.walletUser = walletUser
         this.walletManager = new WalletManager()
-        this.walletStore = new WalletStore(aries, trustblocAgent, trustblocStartupOpts, credEvent, walletUser)
-        this.exchange = new DIDExchange(aries)
-        this.blindedRouter = new BlindedRouter(aries, trustblocStartupOpts)
+        this.walletStore = new WalletStore(agent, startupOpts, credEvent, walletUser)
+        this.exchange = new DIDExchange(agent)
+        this.blindedRouter = new BlindedRouter(agent, startupOpts)
         this.credEvent = credEvent
 
         const {domain, challenge, invitation, credentials} = getRequestParams(credEvent);
@@ -111,7 +111,7 @@ export class DIDConn {
 
         // create did connection VC
         let vc, failure
-        await this.aries.verifiable.signCredential({
+        await this.agent.verifiable.signCredential({
             credential: credential,
             did: walletMetadata.did,
             signatureType: walletMetadata.signatureType
@@ -143,7 +143,7 @@ export class DIDConn {
         }
 
         let data
-        await this.aries.verifiable.generatePresentation({
+        await this.agent.verifiable.generatePresentation({
             presentation: presentation,
             domain: this.domain,
             challenge: this.challenge,

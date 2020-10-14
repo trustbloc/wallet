@@ -21,13 +21,13 @@ SPDX-License-Identifier: Apache-2.0
 
     export default {
         created: async function () {
-            this.registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, this.getAriesInstance(),
-                this.$trustblocAgent, this.getTrustblocOpts())
+            this.registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, this.getAgentInstance(),
+                this.getAgentOpts())
         },
         methods: {
             ...mapActions({logoutUser: 'logout'}),
-            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
-            ...mapGetters(['getTrustblocOpts']),
+            ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
+            ...mapGetters(['getAgentOpts']),
             logout: async function () {
                 await this.registrar.uninstallHandlers()
                 await this.logoutUser()

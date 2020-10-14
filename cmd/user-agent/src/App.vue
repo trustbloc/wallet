@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   <div>
     <div class="loader" v-if="!$root.loaded">
       <md-progress-spinner :md-diameter="100" :md-stroke="10" md-mode="indeterminate"></md-progress-spinner>
-      <div>Loading Aries...</div>
+      <div>Loading Agent...</div>
     </div>
     <router-view v-if="$root.loaded"></router-view>
   </div>

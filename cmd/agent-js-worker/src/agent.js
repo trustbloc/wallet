@@ -6,28 +6,13 @@ SPDX-License-Identifier: Apache-2.0
 
 'use strict'
 
-const inNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null
-const inBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
-
 // wait for 'notifierWait' milliseconds before retrying to check for incoming notifications
 const notifierWait = 10000
 
 // time out for command operations
 const commandTimeout = 20000
 
-// base path to load assets from at runtime
-const __publicPath = _ => {
-    if (inNode) {
-        // TODO determine module_path at runtime
-        return process.cwd() + "/node_modules/@trustbloc/agent-js-worker/"
-    } else if (inBrowser) {
-        return "/agent-js-worker/"
-    } else {
-        // TODO #1127 - throw error or use default?
-    }
-}
-
-__webpack_public_path__ = __publicPath()
+__webpack_public_path__ = "/agent-js-worker/"
 
 const {loadWorker} = require("worker_loader")
 
@@ -87,9 +72,9 @@ function newMsg(pkg, fn, payload) {
 }
 
 /**
- * Aries framework class provides Aries SSI-agent features.
+ * Agent class provides SSI-agent features.
  *
- * `opts` is an object with the framework's initialization options:
+ * `opts` is an object with the agent's initialization options:
  *
  * {
  *      assetsPath: "/path/serving/the/framework/assets",
@@ -103,28 +88,28 @@ function newMsg(pkg, fn, payload) {
  *      "agent-rest-wshook": "ws://controller.api.example.com"
  * }
  *
- * @param opts framework initialization options.
+ * @param opts agent initialization options.
  * @class
  */
 export const Framework = class {
     constructor(opts) {
-        return Aries(opts)
+        return Agent(opts)
     }
 };
 
 
 /**
- * Aries provides Aries SSI-agent functions.
+ * Agent provides SSI-agent functions.
  * @param opts initialization options.
  * @constructor
  */
-const Aries = function (opts) {
+const Agent = function(opts) {
     if (!opts) {
-        throw new Error("aries: missing options")
+        throw new Error("agent: missing options")
     }
 
     if (!opts.assetsPath) {
-        throw new Error("aries: missing assets path")
+        throw new Error("agent: missing assets path")
     }
 
     // TODO synchronized access
@@ -150,7 +135,7 @@ const Aries = function (opts) {
                 return new Promise((resolve, reject) => {
                     invoke(aw, pending, "test", "echo", {"echo": text}, "_echo() timed out").then(
                         resp => resolve(resp.echo),
-                        err => reject(new Error("aries: _echo() failed. error: " + err.message))
+                        err => reject(new Error("agent: _echo() failed. error: " + err.message))
                     )
                 })
             }
@@ -158,7 +143,7 @@ const Aries = function (opts) {
         },
 
         destroy: async function () {
-            var response = await invoke(aw, pending, "aries", "Stop", "{}", "timeout while stopping aries")
+            var response = await invoke(aw, pending, "agent", "Stop", "{}", "timeout while stopping agent")
             aw.terminate()
             aw = null
             return response
@@ -1061,6 +1046,45 @@ const Aries = function (opts) {
                 return invoke(aw, pending, this.pkgname, "ImportKey", req, "timeout while importing key")
             },
         },
+        /**
+         * DIDClient methods
+         */
+        didclient: {
+            pkgname: "didclient",
+
+            /**
+             * Creates a DID.
+             *
+             * @param req - json document
+             * @returns {Promise<Object>}
+             */
+            createDID: async function (req) {
+                return invoke(aw, pending, this.pkgname, "CreateDID", req, "timeout while creating did")
+            },
+            saveDID: async function (req) {
+                return invoke(aw, pending, this.pkgname, "SaveDID", req, "timeout while saving did")
+            },
+        },
+        /**
+         * CredentialClient methods
+         */
+        credentialclient: {
+            pkgname: "credentialclient",
+
+            saveCredential: async function (req) {
+                return invoke(aw, pending, this.pkgname, "SaveCredential", req, "timeout while saving credential")
+            },
+        },
+        /**
+         * PresentationClient methods
+         */
+        presentationclient: {
+            pkgname: "presentationclient",
+
+            savePresentation: async function (req) {
+                return invoke(aw, pending, this.pkgname, "SavePresentation", req, "timeout while saving presentation")
+            },
+        },
     }
 
     // start aries worker
@@ -1076,10 +1100,10 @@ const Aries = function (opts) {
 
     // return promise which waits for worker to load and aries to start.
     return new Promise((resolve, reject) => {
-        const timer = setTimeout(_ => reject(new Error("timeout waiting for aries to initialize")), 10000)
+        const timer = setTimeout(_ => reject(new Error("timeout waiting for agent to initialize")), 10000)
         notifications.set("asset-ready", new Map().set("asset", async (result) => {
             clearTimeout(timer)
-            invoke(aw, pending, "aries", "Start", opts, "timeout while starting aries").then(
+            invoke(aw, pending, "agent", "Start", opts, "timeout while starting agent").then(
                 resp => resolve(instance),
                 err => reject(new Error(err.message))
             )

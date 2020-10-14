@@ -16,9 +16,9 @@ export default {
             dispatch('queryConnections')
         },
         async queryConnections({commit, getters}) {
-            let aries = getters['aries/getInstance']
+            let agent = getters['agent/getInstance']
             // retrieves all agent connections
-            let res = await aries.didexchange.queryConnections()
+            let res = await agent.didexchange.queryConnections()
             if (res.hasOwnProperty('results')) {
                 // sets connections
                 commit('updateConnections', res.results)
@@ -27,28 +27,28 @@ export default {
             return res.results
         },
         async createInvitation(ctx, label) {
-            let aries = ctx.getters['aries/getInstance']
+            let agent = ctx.getters['agent/getInstance']
             // creates invitation through the out-of-band protocol
-            let res = await aries.outofband.createInvitation({
+            let res = await agent.outofband.createInvitation({
                 label: label,
-                router_connection_id: await getMediatorConnections(aries, true)
+                router_connection_id: await getMediatorConnections(agent, true)
             })
 
             return res.invitation
         },
         async acceptExchangeRequest({dispatch, getters}, id) {
-            let aries = getters['aries/getInstance']
-            aries.didexchange.acceptExchangeRequest({
+            let agent = getters['agent/getInstance']
+            agent.didexchange.acceptExchangeRequest({
                 id: id,
-                router_connections: await getMediatorConnections(aries, true),
+                router_connections: await getMediatorConnections(agent, true),
             }).then(() => dispatch('queryConnections'))
         },
         async acceptInvitation({dispatch, getters}, payload) {
-            let aries = getters['aries/getInstance']
+            let agent = getters['agent/getInstance']
             // accepts invitation thought out-of-band protocol
-            let res = await aries.outofband.acceptInvitation({
+            let res = await agent.outofband.acceptInvitation({
                 ...payload,
-                router_connections: await getMediatorConnections(aries, true)
+                router_connections: await getMediatorConnections(agent, true)
             })
 
             dispatch('queryConnections')

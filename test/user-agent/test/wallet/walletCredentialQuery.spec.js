@@ -14,7 +14,6 @@ import DIDConnect from '../../../../cmd/user-agent/src/pages/chapi/DIDConnect.vu
 import {AgentMediator, RegisterWallet} from '../../../../cmd/user-agent/src/pages/chapi/wallet'
 import {loadFrameworks, localVue, mockStore, promiseWhen, wcredHandler} from '../common.js'
 import * as polyfill from 'credential-handler-polyfill'
-import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import {issue_credential, manifest, prcAndUdcVP, presentationDefQuery1, presentationDefQuery2} from './testdata.js'
 import {waitForEvent} from "../../../../cmd/user-agent/src/events";
 import {getMediatorConnections} from "../../../../cmd/user-agent/src/pages/chapi/wallet/didcomm/mediator.js"
@@ -26,14 +25,13 @@ const challenge = `705aa4da-b240-4c14-8652-8ed35a886ed5-${Math.random()}`
 
 function mountStore(wch, done) {
     return function (frameworks) {
-        toBeDestroyed.push(frameworks.aries)
+        toBeDestroyed.push(frameworks.agent)
         done(shallowMount(Store, {
             localVue,
-            store: mockStore(frameworks.aries),
+            store: mockStore(frameworks.agent),
             mocks: {
                 $polyfill: polyfill,
                 $webCredentialHandler: wch,
-                $trustblocAgent: trustblocAgent
             }
         }))
     }
@@ -41,14 +39,13 @@ function mountStore(wch, done) {
 
 function mountGet(wch, done) {
     return function (frameworks) {
-        toBeDestroyed.push(frameworks.aries)
+        toBeDestroyed.push(frameworks.agent)
         done(mount(Get, {
             localVue,
-            store: mockStore(frameworks.aries),
+            store: mockStore(frameworks.agent),
             mocks: {
                 $polyfill: polyfill,
-                $webCredentialHandler: wch,
-                $trustblocAgent: trustblocAgent
+                $webCredentialHandler: wch
             }
         }))
     }
@@ -64,8 +61,8 @@ describe('register wallet', () => {
     let wch = new wcredHandler()
 
     it('logged in to wallet', async () => {
-        let opts = await loadFrameworks({loadTrustbloc: true})
-        let register = new RegisterWallet(polyfill, wch, opts.aries, trustblocAgent, opts.trustblocStartupOpts)
+        let opts = await loadFrameworks({loadStartupOpts: true})
+        let register = new RegisterWallet(polyfill, wch, opts.agent, opts.agentStartupOpts)
         try {
             register.skipPolyfill = true
             await register.register(walletUser)
@@ -89,9 +86,9 @@ describe('store credentials', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadFrameworks({loadTrustbloc: true}).then(mountStore(wch, wr => wrapper = wr)
+        return loadFrameworks({loadStartupOpts: true}).then(mountStore(wch, wr => wrapper = wr)
         ).catch(err => {
-            console.error('error starting aries framework : errMsg=', err)
+            console.error('error starting agent: errMsg=', err)
         })
     });
 
@@ -137,10 +134,10 @@ describe('get credentials by presentation definition query', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadFrameworks({loadTrustbloc: true}).then(mountGet(wch, (wr) => {
+        return loadFrameworks({loadStartupOpts: true}).then(mountGet(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
-            console.error('error starting aries framework : errMsg=', err)
+            console.error('error starting agent: errMsg=', err)
         })
     });
 
@@ -166,7 +163,7 @@ describe('get credentials by presentation definition query', () => {
 
         const resp = await credResponse
         //TODO remove this if condition once problem in CI is fixed
-        if (resp.dataType == 'VerifiablePresentation') {
+        if (resp.dataType === 'VerifiablePresentation') {
             // expect(resp.dataType).to.be.equal('VerifiablePresentation')
             expect(resp.data.presentation_submission).to.deep.equal({
                 "descriptor_map": [
@@ -212,16 +209,16 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
 
     // start issuer, register router and create invitation
     loadFrameworks({name: 'issuer'}).then(async opts => {
-        let mediator = new AgentMediator(opts.aries)
+        let mediator = new AgentMediator(opts.agent)
         await mediator.connect('https://localhost:10063').then(ur => {
             console.log("issuer mediator registered successfully")
         }).catch(err => {
-            console.error('failed to register mediator for issuer agent : errMsg=', err)
+            console.error('failed to register mediator for issuer agent: errMsg=', err)
         })
         event.credentialRequestOptions.web.VerifiablePresentation.invitation = await mediator.createInvitation()
-        issuer = opts.aries
+        issuer = opts.agent
     }).catch(err => {
-        console.error('error starting issuer agent : errMsg=', err)
+        console.error('error starting issuer agent: errMsg=', err)
     })
 
     // create web credential handler
@@ -231,10 +228,10 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadFrameworks({loadTrustbloc: true}).then(mountGet(wch, (wr) => {
+        return loadFrameworks({loadStartupOpts: true}).then(mountGet(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
-            console.error('error starting aries framework : errMsg=', err)
+            console.error('error starting agent: errMsg=', err)
         })
     });
 
@@ -255,7 +252,7 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
         })
 
         const resp = await credResponse
-        if (resp.dataType == 'VerifiablePresentation') {
+        if (resp.dataType === 'VerifiablePresentation') {
             expect(resp.dataType).to.be.equal('VerifiablePresentation')
             expect(resp.data.verifiableCredential[0].credentialSubject.connectionState).to.equal('completed')
             expect(resp.data.proof.challenge).to.equal(challenge)
@@ -291,16 +288,16 @@ describe('verifier queries credentials - DIDComm Flow', () => {
     // start verifier, register router and create invitation
     let verifier
     loadFrameworks({name: 'verifier'}).then(async opts => {
-        let mediator = new AgentMediator(opts.aries)
+        let mediator = new AgentMediator(opts.agent)
         await mediator.connect('https://localhost:10063').then(ur => {
             console.log("verifier mediator registered successfully")
         }).catch(err => {
-            console.error('failed to register mediator for verifier agent : errMsg=', err)
+            console.error('failed to register mediator for verifier agent: errMsg=', err)
         })
         event.credentialRequestOptions.web.VerifiablePresentation.query[1].invitation = await mediator.createInvitation()
-        verifier = opts.aries
+        verifier = opts.agent
     }).catch(err => {
-        console.error('error starting verifier agent : errMsg=', err)
+        console.error('error starting verifier agent: errMsg=', err)
     })
 
     // create web credential handler
@@ -310,10 +307,10 @@ describe('verifier queries credentials - DIDComm Flow', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadFrameworks({loadTrustbloc: true}).then(mountGet(wch, (wr) => {
+        return loadFrameworks({loadStartupOpts: true}).then(mountGet(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
-            console.error('error starting aries framework : errMsg=', err)
+            console.error('error starting agent: errMsg=', err)
         })
     });
 

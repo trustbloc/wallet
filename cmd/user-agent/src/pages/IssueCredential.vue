@@ -141,15 +141,15 @@ SPDX-License-Identifier: Apache-2.0
 
     export default {
         created: async function () {
-            this.addAriesNotifiers({callback:this.onIssueCredentialState, topics:["issue-credential_states"]})
-            this.aries = this.getAriesInstance()
+            this.addAgentNotifiers({callback:this.onIssueCredentialState, topics:["issue-credential_states"]})
+            this.agent = this.getAgentInstance()
 
             await this.queryConnections()
             await this.refreshActions()
         },
         methods: {
-            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
-            ...mapActions('aries', {addAriesNotifiers: 'addNotifier'}),
+            ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
+            ...mapActions('agent', {addAgentNotifiers: 'addNotifier'}),
             ...mapActions(['onIssueCredentialState']),
             isOfferCredential: function (action) {
                 return action.Msg['@type'].endsWith('/offer-credential')
@@ -167,7 +167,6 @@ SPDX-License-Identifier: Apache-2.0
                     return
                 }
 
-
                 this.acceptCredentialError = ""
                 if (this.issueCredentialNames.trim().length === 0) {
                     this.acceptCredentialError = "Please fill in the field!"
@@ -175,7 +174,7 @@ SPDX-License-Identifier: Apache-2.0
                 }
 
                 try {
-                    await this.aries.issuecredential.acceptCredential({
+                    await this.agent.issuecredential.acceptCredential({
                         piid: action.PIID,
                         names: this.issueCredentialNames.split(','),
                     })
@@ -189,7 +188,7 @@ SPDX-License-Identifier: Apache-2.0
             },
             declineCredential: async function (action) {
                 try {
-                    await this.aries.issuecredential.declineCredential({
+                    await this.agent.issuecredential.declineCredential({
                         piid: action.PIID,
                     })
                 } catch (e) {
@@ -223,7 +222,7 @@ SPDX-License-Identifier: Apache-2.0
                 }
 
                 try {
-                    await this.aries.issuecredential.acceptRequest({
+                    await this.agent.issuecredential.acceptRequest({
                         piid: action.PIID,
                         issue_credential: credential,
                     })
@@ -237,7 +236,7 @@ SPDX-License-Identifier: Apache-2.0
             },
             declineRequest: async function (action) {
                 try {
-                    await this.aries.issuecredential.declineRequest({
+                    await this.agent.issuecredential.declineRequest({
                         piid: action.PIID,
                     })
                 } catch (e) {
@@ -249,12 +248,12 @@ SPDX-License-Identifier: Apache-2.0
                 await this.refreshActions()
             },
             refreshActions: async function () {
-                let res = await this.aries.issuecredential.actions()
+                let res = await this.agent.issuecredential.actions()
                 this.actions = res.actions
             },
             declineOffer: async function (action) {
                 try {
-                    await this.aries.issuecredential.declineOffer({
+                    await this.agent.issuecredential.declineOffer({
                         piid: action.PIID,
                     })
                 } catch (e) {
@@ -267,7 +266,7 @@ SPDX-License-Identifier: Apache-2.0
             },
             acceptOffer: async function (action) {
                 try {
-                    await this.aries.issuecredential.acceptOffer({
+                    await this.agent.issuecredential.acceptOffer({
                         piid: action.PIID,
                     })
                 } catch (e) {
@@ -304,7 +303,7 @@ SPDX-License-Identifier: Apache-2.0
                 }
 
                 try {
-                    await this.aries.issuecredential.sendOffer({
+                    await this.agent.issuecredential.sendOffer({
                         my_did: conn.MyDID,
                         their_did: conn.TheirDID,
                         offer_credential: offerCredential,
@@ -316,7 +315,7 @@ SPDX-License-Identifier: Apache-2.0
             },
             queryConnections: async function () {
                 try {
-                    let res = await this.aries.didexchange.queryConnections()
+                    let res = await this.agent.didexchange.queryConnections()
                     if (res.results) {
                         this.connections = res.results.filter(function (conn) {
                             return conn.State === "completed";

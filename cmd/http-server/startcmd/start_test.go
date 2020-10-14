@@ -591,13 +591,18 @@ func TestRouter(t *testing.T) {
 		require.Equal(t, expected, w.Body.String())
 	})
 
-	t.Run("serves aries wasm opts", func(t *testing.T) {
-		expected := &ariesJSOpts{
-			HTTPResolvedURLs:  []string{uuid.New().String()},
-			AgentDefaultLabel: uuid.New().String(),
-			AutoAccept:        true,
-			LogLevel:          uuid.New().String(),
-			DBNamespace:       uuid.New().String(),
+	t.Run("serves agent wasm opts", func(t *testing.T) {
+		expected := &agentJSOpts{
+			HTTPResolvedURLs:      []string{uuid.New().String()},
+			AgentDefaultLabel:     uuid.New().String(),
+			AutoAccept:            true,
+			LogLevel:              uuid.New().String(),
+			DBNamespace:           uuid.New().String(),
+			BlocDomain:            uuid.New().String(),
+			WalletMediatorURL:     "http://test.mediator.com",
+			CredentialMediatorURL: "http://test.credential.mediator.com",
+			BlindedRouting:        true,
+			SDSServerURL:          "http://test.sds.server.com",
 		}
 		r, err := router(&httpServerParameters{
 			hostURL:  "test",
@@ -618,45 +623,9 @@ func TestRouter(t *testing.T) {
 		})
 		require.NoError(t, err)
 		w := httptest.NewRecorder()
-		r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, fmt.Sprintf("%saries", uiConfigBasePath), nil))
+		r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, fmt.Sprintf("%sagent", uiConfigBasePath), nil))
 		require.Equal(t, http.StatusOK, w.Code)
-		result := &ariesJSOpts{}
-		err = json.NewDecoder(w.Body).Decode(result)
-		require.NoError(t, err)
-		require.Equal(t, expected, result)
-	})
-
-	t.Run("serves trustbloc wasm opts", func(t *testing.T) {
-		expected := &trustblocAgentJSOpts{
-			BlocDomain:            uuid.New().String(),
-			WalletMediatorURL:     "http://test.mediator.com",
-			CredentialMediatorURL: "http://test.credential.mediator.com",
-			BlindedRouting:        true,
-			LogLevel:              "error",
-			SDSServerURL:          "http://test.sds.server.com",
-		}
-		r, err := router(&httpServerParameters{
-			hostURL:            "test",
-			wasmPath:           "test",
-			trustblocAgentOpts: expected,
-			oidc: &oidcParameters{
-				providerURL:  mockOIDCProvider(t),
-				clientID:     uuid.New().String(),
-				clientSecret: uuid.New().String(),
-				callbackURL:  "http://test.com/callback",
-			},
-			tls: &tlsParameters{
-				certFile: cert(t),
-				keyFile:  "",
-				config:   &tls.Config{},
-			},
-			keys: &keyParameters{},
-		})
-		require.NoError(t, err)
-		w := httptest.NewRecorder()
-		r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, fmt.Sprintf("%strustbloc", uiConfigBasePath), nil))
-		require.Equal(t, http.StatusOK, w.Code)
-		result := &trustblocAgentJSOpts{}
+		result := &agentJSOpts{}
 		err = json.NewDecoder(w.Body).Decode(result)
 		require.NoError(t, err)
 		require.Equal(t, expected, result)

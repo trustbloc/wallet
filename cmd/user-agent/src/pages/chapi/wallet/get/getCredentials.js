@@ -11,12 +11,12 @@ const responseType = "VerifiablePresentation"
 
 /**
  * WalletGet provides CHAPI get credential features
- * @param aries instance & credential event
+ * @param agent instance & credential event
  * @class
  */
 export class WalletGet extends DIDAuth {
-    constructor(aries, credEvent) {
-        super(aries, credEvent);
+    constructor(agent, credEvent) {
+        super(agent, credEvent);
         this.setReasonAndSearchKey()
     }
 
@@ -46,7 +46,7 @@ export class WalletGet extends DIDAuth {
     async getCredentialRecords() {
         let vcs = []
 
-        await this.aries.verifiable.getCredentials().then(
+        await this.agent.verifiable.getCredentials().then(
             resp => {
                 if (resp.result) {
                     resp.result.forEach((item, id) => {
@@ -71,7 +71,7 @@ export class WalletGet extends DIDAuth {
         try {
             let vcs = []
             for (let selectedVC of selections) {
-                const resp = await this.aries.verifiable.getCredential({
+                const resp = await this.agent.verifiable.getCredential({
                     id: selectedVC.key
                 })
                 vcs.push(JSON.parse(resp.verifiableCredential))
@@ -80,7 +80,7 @@ export class WalletGet extends DIDAuth {
             let didMetadata = await this.didManager.getDIDMetadata(did)
 
             let data
-            await this.aries.verifiable.generatePresentation({
+            await this.agent.verifiable.generatePresentation({
                 verifiableCredential: vcs,
                 did: did,
                 domain: this.domain,

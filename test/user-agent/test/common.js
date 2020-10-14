@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import * as Aries from "@trustbloc/agent-js-worker"
+import * as Agent from "@trustbloc/agent-js-worker"
 import {createLocalVue} from "@vue/test-utils";
 import Vuex from "vuex";
 
@@ -26,7 +26,7 @@ export class wcredHandler {
 
         // handle for event response
         return new Promise((resolve, reject) => {
-            const timer = setTimeout(_ => reject(new Error("timout waiting for credential event response")), 30000)
+            const timer = setTimeout(_ => reject(new Error("timeout waiting for credential event response")), 30000)
             respond = async (result) => {
                 clearTimeout(timer)
                 resolve(await result)
@@ -50,7 +50,7 @@ export class wcredHandler {
 
 
 // TODO endpoints should be read from configurations
-const ariesStartupOpts = {
+const agentStartupOpts = {
     assetsPath: "/base/public/agent-js-worker/assets",
     'outbound-transport': ['ws', 'http'],
     'transport-return-route': 'all',
@@ -58,34 +58,29 @@ const ariesStartupOpts = {
     'agent-default-label': 'demo-user-agent',
     'auto-accept': true,
     'log-level': 'debug',
-    'db-namespace': 'agent'
-}
+    'db-namespace': 'agent',
 
-// TODO endpoints should be read from configurations
-export const trustBlocStartupOpts = {
-    assetsPath: '/base/public/trustbloc-agent/assets',
     blocDomain: 'testnet.trustbloc.local',
     walletMediatorURL: 'https://localhost:10093',
-    'log-level': 'debug',
     sdsServerURL: 'https://localhost:8072/encrypted-data-vaults'
 }
 
-export async function loadFrameworks({name = '', loadAries = true, loadTrustbloc = false}) {
-    let ariesOpts = ariesStartupOpts
-
+export async function loadFrameworks({name = '', loadAgent = true, loadStartupOpts = false}) {
+    let agentOpts = agentStartupOpts
     let opts = {}
+
     if (name) {
-        ariesOpts = JSON.parse(JSON.stringify(ariesStartupOpts))
-        ariesOpts["db-namespace"] = `${name}db`
-        ariesOpts["agent-default-label"] = `${name}-user-agent`
+        agentOpts = JSON.parse(JSON.stringify(agentStartupOpts))
+        agentOpts["db-namespace"] = `${name}db`
+        agentOpts["agent-default-label"] = `${name}-user-agent`
     }
 
-    if (loadAries) {
-        opts.aries = await new Aries.Framework(ariesOpts)
+    if (loadAgent) {
+        opts.agent = await new Agent.Framework(agentOpts)
     }
 
-    if (loadTrustbloc) {
-        opts.trustblocStartupOpts = trustBlocStartupOpts
+    if (loadStartupOpts) {
+        opts.agentStartupOpts = agentStartupOpts
     }
 
     return opts
@@ -100,7 +95,7 @@ export function promiseWhen(fn, timeout, interval) {
     }
 
     return new Promise(function (resolve, reject) {
-        setTimeout(_ => reject(new Error("timout waiting for condition")), timeout ? timeout : 10000)
+        setTimeout(_ => reject(new Error("timeout waiting for condition")), timeout ? timeout : 10000)
         loop(resolve)
     });
 }
@@ -114,15 +109,12 @@ export function mockStore(aries) {
             getCurrentUser(state) {
                 return {username: 'sampleWalletUser'}
             },
-            getTrustblocOpts(state) {
-                return trustBlocStartupOpts
-            },
-            getAriesOpts(state) {
-                return ariesStartupOpts
+            getAgentOpts(state) {
+                return agentStartupOpts
             }
         },
         modules: {
-            aries: {
+            agent: {
                 namespaced: true,
                 actions: {
                     async init({commit, rootState, state}) {

@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import {Messenger, WalletManager} from "../../pages/chapi/wallet";
-import * as Aries from "@trustbloc/agent-js-worker";
+import * as Agent from "@trustbloc/agent-js-worker";
 
 // TODO message type domain needs to be finalized
 const msgServices = [
@@ -46,7 +46,7 @@ export default {
             await new WalletManager().getWalletMetadata(username).then(
                 async resp => {
                     commit('setUserMetadata', JSON.stringify(resp))
-                    await dispatch('aries/init')
+                    await dispatch('agent/init')
                 }
             )
 
@@ -64,7 +64,7 @@ export default {
         },
         async logout({commit, dispatch}) {
             commit('clearUser')
-            await dispatch('aries/destroy')
+            await dispatch('agent/destroy')
         },
         loadUser({commit}) {
             commit('loadUser')
@@ -76,7 +76,7 @@ export default {
         }
     },
     modules: {
-        aries: {
+        agent: {
             namespaced: true,
             state: {
                 instance: null,
@@ -114,24 +114,24 @@ export default {
                     }
 
                     if (!rootState.user.username) {
-                        console.error('user should be logged in to initialize aries instance')
+                        console.error('user should be logged in to initialize agent instance')
                         throw 'invalid user state'
                     }
 
                     let opts = {}
-                    Object.assign(opts, rootGetters.getAriesOpts, {
+                    Object.assign(opts, rootGetters.getAgentOpts, {
                         'agent-default-label': rootState.user.username,
                         'db-namespace': rootState.user.username
                     })
 
-                    let aries = await new Aries.Framework(opts)
-                    let messenger = new Messenger(aries)
+                    let agent = await new Agent.Framework(opts)
+                    let messenger = new Messenger(agent)
 
                     for (const {name, purpose, type} of msgServices) {
                         await messenger.register(name, purpose, type)
                     }
 
-                    commit('setInstance', {instance: aries, user: rootState.user.username})
+                    commit('setInstance', {instance: agent, user: rootState.user.username})
                     commit('startAllNotifiers')
                 },
                 async destroy({commit, state}) {

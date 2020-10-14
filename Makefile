@@ -48,12 +48,12 @@ unit-test-wasm: depend
 agent-wasm:
 	@scripts/build_agent_wasm.sh ${AGENT_NAME}
 
-.PHONY: trustbloc-agent-wasm
-trustbloc-agent-wasm:
-	@scripts/build_trustbloc_agent_wasm.sh
+.PHONY: agent-js-worker-wasm
+agent-js-worker-wasm:
+	@scripts/build_agent_js_worker_wasm.sh
 
 .PHONY: user-agent-wasm
-user-agent-wasm: trustbloc-agent-wasm
+user-agent-wasm: agent-js-worker-wasm
 	AGENT_NAME="user" make agent-wasm
 
 .PHONY: http-server
@@ -117,6 +117,4 @@ clean-build:
 	@rm -Rf ./cmd/user-agent/node_modules
 	@rm -Rf ./cmd/agent-js-worker/node_modules
 	@rm -Rf ./cmd/agent-js-worker/dist
-	@rm -Rf ./cmd/trustbloc-agent-js-worker/node_modules
-	@rm -Rf ./cmd/trustbloc-agent-js-worker/dist
 	@rm -Rf ./test/bdd/fixtures/agent-wasm/config

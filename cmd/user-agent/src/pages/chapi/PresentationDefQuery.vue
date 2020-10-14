@@ -148,13 +148,13 @@ SPDX-License-Identifier: Apache-2.0
     import Governance from "./Governance.vue";
     import {mapGetters} from 'vuex'
 
-    const warning = "No credentials found in your wallet for above information asked"
+    const warning = "No credentials found in your wallet for information asked above"
     const manifestCredType = 'IssuerManifestCredential'
 
     export default {
         components: {Governance},
         created: async function () {
-            this.wallet = new WalletGetByQuery(this.getAriesInstance(), this.$parent.credentialEvent, this.getTrustblocOpts())
+            this.wallet = new WalletGetByQuery(this.getAgentInstance(), this.$parent.credentialEvent, this.getAgentOpts())
             await this.wallet.connect()
 
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
@@ -202,8 +202,8 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
-            ...mapGetters(['getCurrentUser', 'getTrustblocOpts']),
-            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapGetters(['getCurrentUser', 'getAgentOpts']),
+            ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
             createPresentation: async function () {
                 this.loading = true
                 await this.wallet.createAndSendPresentation(this.getCurrentUser().username, this.presentation, this.selectedVCs)

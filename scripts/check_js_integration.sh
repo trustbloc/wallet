@@ -18,10 +18,6 @@ cd $ROOT/test/bdd/fixtures/agent-wasm
 echo "waiting for containers to start..."
 sleep 15s
 
-cd $ROOT/cmd/trustbloc-agent-js-worker
-npm install
-npm run build
-
 cd $ROOT/cmd/agent-js-worker
 npm install
 npm run build

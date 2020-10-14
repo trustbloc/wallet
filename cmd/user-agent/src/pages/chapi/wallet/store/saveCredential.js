@@ -8,15 +8,14 @@ import {getCredentialType} from '../common/util.js';
 
 /**
  * WalletStore provides CHAPI store features
- * @param aries instance & credential event
+ * @param agent instance & credential event
  * @class
  */
 export class WalletStore {
-    constructor(aries, trustblocAgent, trustblocStartupOpts, credEvent, user) {
+    constructor(agent, startupOpts, credEvent, user) {
         this.walletUser = user
-        this.aries = aries
-        this.trustblocAgent = trustblocAgent
-        this.trustblocStartupOpts = trustblocStartupOpts
+        this.agent = agent
+        this.startupOpts = startupOpts
         this.credEvent = credEvent
     }
 
@@ -34,7 +33,7 @@ export class WalletStore {
             })
         }
 
-        // Call aries to save credentials
+        // Call agent to save credentials
         let status = 'success'
         try {
             for (let r of records) {
@@ -56,7 +55,7 @@ export class WalletStore {
     }
 
     async save(name, vcData) {
-        await this.aries.verifiable.saveCredential({
+        await this.agent.verifiable.saveCredential({
             name: name,
             verifiableCredential: JSON.stringify(vcData)
         }).then(() => {
@@ -67,10 +66,10 @@ export class WalletStore {
             throw err
         })
 
-        if (this.trustblocStartupOpts.sdsServerURL) {
+        if (this.startupOpts.sdsServerURL) {
            // Save credential to persistent storage
            // TODO: Deal with SDS sync failures better #328
-           await this.trustblocAgent.credentialclient.saveCredential({
+           await this.agent.credentialclient.saveCredential({
                 name: name,
                 credential: vcData,
                 userID: this.walletUser
@@ -81,8 +80,8 @@ export class WalletStore {
     }
 
     async savePresentation(name, presentation) {
-       if (this.trustblocStartupOpts.sdsServerURL) {
-            const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
+       if (this.startupOpts.sdsServerURL) {
+            const t = await new this.agent.Framework(this.startupOpts)
 
             // Save presentation to persistent storage
             // TODO: Deal with SDS sync failures better #328

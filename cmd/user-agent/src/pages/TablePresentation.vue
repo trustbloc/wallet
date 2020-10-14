@@ -95,10 +95,10 @@ SPDX-License-Identifier: Apache-2.0
       VueJsonPretty
     },
     created: async function () {
-      this.wallet = new WalletStore(this.getCurrentUser().username, this.getAriesInstance(), this.$trustblocAgent, this.getTrustblocOpts(), null)
+      this.wallet = new WalletStore(this.getCurrentUser().username, this.getAgentInstance(), this.getAgentOpts(), null)
       await this.loadIssuers()
       // Load the Credentials in the drop down
-      await this.getAriesInstance().verifiable.getCredentials()
+      await this.getAgentInstance().verifiable.getCredentials()
               .then(resp => {
                         const data = resp.result
                         if (data.length == 0) {
@@ -130,8 +130,8 @@ SPDX-License-Identifier: Apache-2.0
       };
     },
     methods: {
-      ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
-      ...mapGetters(['getTrustblocOpts', 'getCurrentUser']),
+      ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
+      ...mapGetters(['getAgentOpts', 'getCurrentUser']),
       getDIDMetadata: function (id) {
         return new Promise(function(resolve) {
           var openDB = indexedDB.open("did-metadata", 1);
@@ -176,7 +176,7 @@ SPDX-License-Identifier: Apache-2.0
         let QrData
         // generate presentation
         if (data.vc) {
-          await this.getAriesInstance().verifiable.generatePresentation({
+          await this.getAgentInstance().verifiable.generatePresentation({
             verifiableCredential: data.vc,
             did: this.issuers[this.selectedIssuer].key,
             skipVerify: true,
@@ -193,7 +193,7 @@ SPDX-License-Identifier: Apache-2.0
           console.log("Response presentation:", this.vpData)
 
          // save presentation
-          this.getAriesInstance().verifiable.savePresentation({
+          this.getAgentInstance().verifiable.savePresentation({
                    verifiablePresentation: this.vpData,
                    name: this.friendlyName
            }).then(resp => {
@@ -224,7 +224,7 @@ SPDX-License-Identifier: Apache-2.0
 
         try {
           let vc = []
-          await this.getAriesInstance().verifiable.getCredential({
+          await this.getAgentInstance().verifiable.getCredential({
             id: this.selectedVC
           }).then(resp => {
                     vc.push(JSON.parse(resp.verifiableCredential))
@@ -238,7 +238,7 @@ SPDX-License-Identifier: Apache-2.0
         }
       },
       loadIssuers: async function () {
-        await this.getAriesInstance().vdri.getDIDRecords().then(
+        await this.getAgentInstance().vdri.getDIDRecords().then(
                 resp => {
                   const data = resp.result
                   if (!data || data.length == 0) {

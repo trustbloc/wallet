@@ -62,24 +62,24 @@ SPDX-License-Identifier: Apache-2.0
             await this.refreshUserMetadata()
 
             this.username = this.getCurrentUser().username
-            this.showOfflineWarning = this.getTrustblocOpts().walletMediatorURL && !JSON.parse(this.getCurrentUser().metadata).invitation
+            this.showOfflineWarning = this.getAgentOpts().walletMediatorURL && !JSON.parse(this.getCurrentUser().metadata).invitation
         },
         methods: {
-            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
-            ...mapGetters(['getCurrentUser', 'allCredentials', 'getTrustblocOpts']),
+            ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
+            ...mapGetters(['getCurrentUser', 'allCredentials', 'getAgentOpts']),
             ...mapActions(['getCredentials', 'refreshUserMetadata']),
             fetchAllCredentials: async function () {
                 this.verifiableCredentials = []
                 try {
                     for (let c of filterCredentialsByType(this.allCredentials(), [manifestCredType, governanceCredType])) {
-                        let resp = await this.getAriesInstance().verifiable.getCredential({
+                        let resp = await this.getAgentInstance().verifiable.getCredential({
                             id: c.id
                         })
                         this.verifiableCredentials.push(JSON.parse(resp.verifiableCredential))
                     }
                 } catch (e) {
                     console.error('failed to get all stored credentials', e)
-                    this.error = 'Failed to get your stored credetntials'
+                    this.error = 'Failed to get your stored credentials'
                     this.errorDescription = 'Unable to get stored credentials from your wallet, please try again later.'
                 }
 
@@ -92,7 +92,7 @@ SPDX-License-Identifier: Apache-2.0
             return {
                 verifiableCredentials: [],
                 username: '',
-                aries: null,
+                agent: null,
                 icon: 'perm_identity',
                 showOfflineWarning: false,
                 error: 'No stored credentials',

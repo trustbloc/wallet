@@ -13,8 +13,8 @@ const topicDidExchangeStates = 'didexchange_states'
 export default {
     actions: {
         async loadMediatorState({commit, getters}) {
-            let aries = getters['aries/getInstance']
-            let res = await aries.mediator.getConnections()
+            let agent = getters['agent/getInstance']
+            let res = await agent.mediator.getConnections()
 
             commit('updateMediatorConnections', res.connections)
         },
@@ -23,29 +23,29 @@ export default {
                 return
             }
 
-            let aries = getters['aries/getInstance']
-            await aries.mediator.unregister({connectionID: connID})
+            let agent = getters['agent/getInstance']
+            await agent.mediator.unregister({connectionID: connID})
             await dispatch('loadMediatorState')
         },
         async registeredMediator({dispatch, getters}, routerURL) {
             let invitation = await axios.get(routerURL + '/didcomm/invitation')
-            let aries = getters['aries/getInstance']
+            let agent = getters['agent/getInstance']
             // accepts invitation thought out-of-band protocol
-            let conn = await aries.outofband.acceptInvitation({
+            let conn = await agent.outofband.acceptInvitation({
                 my_label: getters.agentDefaultLabel,
                 invitation: invitation.data.invitation,
             })
 
             let connID = conn['connection_id']
 
-            await waitForEvent(aries, {
+            await waitForEvent(agent, {
                 type: POST_STATE,
                 stateID: stateCompleted,
                 connectionID: connID,
                 topic: topicDidExchangeStates,
             })
 
-            await aries.mediator.register({connectionID: connID})
+            await agent.mediator.register({connectionID: connID})
 
             await dispatch('queryConnections')
             await dispatch('loadMediatorState')

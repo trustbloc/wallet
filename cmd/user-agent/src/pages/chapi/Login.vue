@@ -58,8 +58,6 @@ SPDX-License-Identifier: Apache-2.0
                 this.handleSuccess()
                 return
             }
-
-
         },
         data() {
             return {
@@ -71,8 +69,8 @@ SPDX-License-Identifier: Apache-2.0
         },
         methods: {
             ...mapActions({loginUser: 'login', loadUser: 'loadUser'}),
-            ...mapGetters(['getCurrentUser', 'getTrustblocOpts']),
-            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapGetters(['getCurrentUser', 'getAgentOpts']),
+            ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
             // this function to be called after successful OIDC login
             login: async function () {
                 this.loading = true
@@ -80,8 +78,8 @@ SPDX-License-Identifier: Apache-2.0
                 await this.loginUser(this.username)
                 let user = this.getCurrentUser()
 
-                let registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, this.getAriesInstance(),
-                    this.$trustblocAgent, this.getTrustblocOpts())
+                let registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, this.getAgentInstance(),
+                    this.getAgentOpts())
 
                 try {
                     if (!user || !user.metadata) {
@@ -110,4 +108,3 @@ SPDX-License-Identifier: Apache-2.0
     }
 
 </script>
-

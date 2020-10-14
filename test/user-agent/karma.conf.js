@@ -11,7 +11,6 @@ module.exports = function (config) {
         frameworks: ['mocha'],
         files: [
             {pattern: "public/agent-js-worker/assets/*", included: false},
-            {pattern: "public/trustbloc-agent/assets/*", included: false},
             {pattern: "test/common.js", included: false},
             {pattern: "test/**/*.spec.js", type: "module"}
         ],

@@ -13,30 +13,30 @@ const topicDidExchangeStates = 'didexchange_states'
 
 /**
  * DIDExchange provides exchange features
- * @param aries instance
+ * @param agent instance
  * @class
  */
 export class DIDExchange {
-    constructor(aries) {
-        this.aries = aries
+    constructor(agent) {
+        this.agent = agent
     }
 
     async connect(invitation) {
-        let conn = await this.aries.outofband.acceptInvitation({
+        let conn = await this.agent.outofband.acceptInvitation({
             my_label: 'agent-default-label',
             invitation: invitation,
-            router_connections: await getMediatorConnections(this.aries, true),
+            router_connections: await getMediatorConnections(this.agent, true),
         })
 
         let connID = conn['connection_id']
-        await waitForEvent(this.aries, {
+        await waitForEvent(this.agent, {
             type: POST_STATE,
             stateID: stateCompleted,
             connectionID: connID,
             topic: topicDidExchangeStates,
         })
 
-        return await this.aries.didexchange.queryConnectionByID({id: connID})
+        return await this.agent.didexchange.queryConnectionByID({id: connID})
     }
 
     cancel() {

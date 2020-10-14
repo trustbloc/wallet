@@ -10,7 +10,6 @@ import {shallowMount} from '@vue/test-utils'
 import Store from '../../../../cmd/user-agent/src/pages/chapi/Store.vue'
 import {loadFrameworks, localVue, mockStore, promiseWhen, wcredHandler} from '../common.js'
 import * as polyfill from 'credential-handler-polyfill'
-import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import {studentCardAndDegreeToStore, studentCardToStore} from './testdata.js'
 
 var uuid = require('uuid/v4')
@@ -19,14 +18,13 @@ const storeCredentialFriendlyName = `StudentCard_Mr.Foo_${uuid()}`
 
 function mountStore(wch, done) {
     return function (frameworks) {
-        toBeDestroyed.push(frameworks.aries)
+        toBeDestroyed.push(frameworks.agent)
         done(shallowMount(Store, {
             localVue,
-            store: mockStore(frameworks.aries),
+            store: mockStore(frameworks.agent),
             mocks: {
                 $polyfill: polyfill,
-                $webCredentialHandler: wch,
-                $trustblocAgent: trustblocAgent
+                $webCredentialHandler: wch
             }
         }))
     }
@@ -50,9 +48,9 @@ describe('store a credential in wallet', () => {
     // wait for aries to load to mount component
     let wrapper
     before(async function () {
-        return loadFrameworks({loadTrustbloc: true}).then(mountStore(wch, wr => wrapper = wr)
+        return loadFrameworks({loadStartupOpts: true}).then(mountStore(wch, wr => wrapper = wr)
         ).catch(err => {
-            console.error('error starting aries framework : errMsg=', err)
+            console.error('error starting agent: errMsg=', err)
         })
 
     });
@@ -103,10 +101,10 @@ describe('store a credential in wallet with existing friendly name', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadFrameworks({loadTrustbloc: true}).then(mountStore(wch, (wr) => {
+        return loadFrameworks({loadStartupOpts: true}).then(mountStore(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
-            console.error('error starting aries framework : errMsg=', err)
+            console.error('error starting agent: errMsg=', err)
         })
     });
 
@@ -147,9 +145,9 @@ describe('store multiple credentials in wallet', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadFrameworks({loadTrustbloc: true}).then(mountStore(wch, wr => wrapper = wr)
+        return loadFrameworks({loadStartupOpts: true}).then(mountStore(wch, wr => wrapper = wr)
         ).catch(err => {
-            console.error('error starting aries framework : errMsg=', err)
+            console.error('error starting agent: errMsg=', err)
         })
     });
 
