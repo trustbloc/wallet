@@ -15,7 +15,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/trustbloc/edge-core v0.1.5-0.20200916124536-c32454a16108
 	github.com/trustbloc/edv v0.1.4
-	github.com/trustbloc/trustbloc-did-method v0.1.5-0.20200908200541-17cf34d3c842
+	github.com/trustbloc/trustbloc-did-method v0.1.5-0.20201013133524-7c8154bccbd3
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 )
