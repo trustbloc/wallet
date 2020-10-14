@@ -110,12 +110,13 @@ export class AgentMediator {
         }
 
         let response = await this.messenger.sendAndWaitForReply(connection, {
-                "@id": uuid(),
-                "@type": createConnReqType,
-                data: {thirdPartyDIDDoc: reqDoc},
-                "sent_time": new Date().toJSON(),
-            }, createConnResTopic
-        )
+            "@id": uuid(),
+            "@type": createConnReqType,
+            data: {thirdPartyDIDDoc: reqDoc},
+            "sent_time": new Date().toJSON(),
+            "~purpose": ["create-conn-req"],
+        }, createConnResTopic)
+
 
         // TODO currently getting routerDIDDoc as byte[], to be fixed
         if (response.data.routerDIDDoc && response.data.routerDIDDoc.length > 0) {
