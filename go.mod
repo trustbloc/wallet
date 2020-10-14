@@ -8,6 +8,8 @@ go 1.15
 
 require (
 	github.com/coreos/go-oidc v2.2.1+incompatible
+	github.com/duo-labs/webauthn v0.0.0-20200714211715-1daaee874e43
+	github.com/duo-labs/webauthn.io v0.0.0-20200929144140-c031a3e0f95d
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/sessions v1.2.1
@@ -18,4 +20,5 @@ require (
 	github.com/trustbloc/trustbloc-did-method v0.1.5-0.20201013133524-7c8154bccbd3
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
+	mvdan.cc/gofumpt v0.0.0-20200927160801-5bfeb2e70dd6 // indirect
 )
