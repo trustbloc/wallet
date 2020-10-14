@@ -84,7 +84,7 @@ generate-test-keys:
 		frapsoft/openssl
 
 .PHONY: user-agent-start
-user-agent-start: clean user-agent-wasm-docker generate-test-config generate-test-keys
+user-agent-start: clean user-agent-wasm-docker generate-test-config generate-test-keys mock-login-consent-docker
 	@scripts/user_agent_start.sh
 
 .PHONY: generate-test-config

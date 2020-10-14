@@ -127,8 +127,8 @@ export default {
                     let aries = await new Aries.Framework(opts)
                     let messenger = new Messenger(aries)
 
-                    for (const {name, type} of msgServices) {
-                        await messenger.register(name, type)
+                    for (const {name, purpose, type} of msgServices) {
+                        await messenger.register(name, purpose, type)
                     }
 
                     commit('setInstance', {instance: aries, user: rootState.user.username})
