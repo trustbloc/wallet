@@ -15,32 +15,68 @@ export class Messenger {
         this.aries = aries
     }
 
+    /**
+     * registers message service with given name, purpose & type
+     */
     async register(name, purpose, type) {
         await this.aries.messaging.registerService({name, purpose, type})
     }
 
+    /**
+     * services returns list of all message services regstered
+     */
     async services() {
         return await this.aries.messaging.services()
     }
 
+    /**
+     * send sends given message over connection
+     *
+     * @param {string} connectionID : connection over which message to be sent
+     * @param {object} msg : reply message to be sent
+     */
     send(connectionID, msg) {
         this.aries.messaging.send({"connection_ID": connectionID, "message_body": msg})
     }
 
+    /**
+     * reply sends given message as a reply to given message ID
+     *
+     * @param {string} msgID : message ID to which reply to be sent
+     * @param {object} msg : reply message to be sent
+     */
     reply(msgID, msg) {
         this.aries.messaging.reply({"message_ID": msgID, "message_body": msg})
     }
 
-    async sendAndWaitForReply(connectionID, msg, replyTopic) {
+    /**
+     * sendAndWaitForReply sends message to given connection and waits for reply for
+     * given topic under same thread
+     *
+     * @param {string} connectionID : connection over which message to be sent
+     * @param {object} msg : message to be sent
+     * @param {string} replyTopic (optional) : topic on reply is expected. Will be 'all' if none passed.
+     * @param {int} replyTimeout (optional) : time in millisecond to wait for reply. Will be '15000ms' if none passed.
+     * @returns {Promise<Object>} containing replied message payload.
+     */
+    async sendAndWaitForReply(connectionID, msg, replyTopic, replyTimeout) {
         this.send(connectionID, msg)
 
-        // TODO implement listen for reply and correlate [Issue#405]
+        const msgID = msg['@id']
+        const topic = replyTopic ? replyTopic : 'all'
+        const timeout = replyTimeout ? replyTimeout : 15000
+
         const incomingMsg = await new Promise((resolve, reject) => {
-            setTimeout(() => reject(new Error("time out waiting for reply")), 15000)
+            setTimeout(() => reject(new Error("time out waiting for reply")), timeout)
             const stop = this.aries.startNotifier(msg => {
+                let thID = msg.payload.message['~thread'] ? msg.payload.message['~thread'].thid : ''
+                if (thID != msgID) {
+                    return
+                }
+
                 stop()
                 resolve(msg.payload.message)
-            }, [replyTopic])
+            }, [topic])
         })
 
         return incomingMsg
