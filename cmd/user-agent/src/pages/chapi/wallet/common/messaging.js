@@ -56,7 +56,7 @@ export class Messenger {
      * @param {string} connectionID : connection over which message to be sent
      * @param {object} msg : message to be sent
      * @param {string} replyTopic (optional) : topic on reply is expected. Will be 'all' if none passed.
-     * @param {int} replyTimeout (optional) : time in millisecond to wait for reply. Will be '15000ms' if none passed.
+     * @param {int} replyTimeout (optional) : time in millisecond to wait for reply. Will be '30000ms' if none passed.
      * @returns {Promise<Object>} containing replied message payload.
      */
     async sendAndWaitForReply(connectionID, msg, replyTopic, replyTimeout) {
@@ -64,10 +64,10 @@ export class Messenger {
 
         const msgID = msg['@id']
         const topic = replyTopic ? replyTopic : 'all'
-        const timeout = replyTimeout ? replyTimeout : 15000
+        const timeout = replyTimeout ? replyTimeout : 30000
 
         const incomingMsg = await new Promise((resolve, reject) => {
-            setTimeout(() => reject(new Error("time out waiting for reply")), timeout)
+            setTimeout(() => reject(new Error(`time out waiting reply for topic '${replyTopic}'`)), timeout)
             const stop = this.agent.startNotifier(msg => {
                 let thID = msg.payload.message['~thread'] ? msg.payload.message['~thread'].thid : ''
                 if (thID != msgID) {

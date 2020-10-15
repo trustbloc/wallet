@@ -11,7 +11,8 @@ var uuid = require('uuid/v4')
 
 const peerDIDRequestMsgType = 'https://trustbloc.github.io/blinded-routing/1.0/diddoc-req'
 const peerDIDResponseTopic = 'diddoc-resp'
-const sharePeerDIDMsgType = 'https://trustbloc.github.io/blinded-routing/1.0/share-diddoc'
+const sharePeerDIDReqType = 'https://trustbloc.github.io/blinded-routing/1.0/share-diddoc-req'
+const sharePeerDIDResTopic = 'share-diddoc-res'
 
 /**
  * BlindedRouter provides blinded routing features
@@ -35,10 +36,10 @@ export class BlindedRouter {
             return
         }
 
-        let { ConnectionID } = connection
+        let {ConnectionID} = connection
 
         // request peer DID from other party
-        let responseMsg = this.messenger.sendAndWaitForReply(ConnectionID, {
+        let responseMsg = await this.messenger.sendAndWaitForReply(ConnectionID, {
             "@id": uuid(),
             "@type": peerDIDRequestMsgType,
             "sent_time": new Date().toJSON(),
@@ -56,13 +57,12 @@ export class BlindedRouter {
         // share wallet peer DID to other party
         this.messenger.sendAndWaitForReply(ConnectionID, {
             "@id": uuid(),
-            "@type": sharePeerDIDMsgType,
+            "@type": sharePeerDIDReqType,
             data: {didDoc: walletDID},
             "sent_time": new Date().toJSON(),
-        })
+        }, sharePeerDIDResTopic)
 
     }
 }
 
-let _parseResponseDID = (response) => response.data.didDoc && response.data.didDoc.length > 0 ?
-    JSON.parse(String.fromCharCode.apply(String, response.data.routerDIDDoc)) : undefined
+let _parseResponseDID = (response) => response.data.didDoc ? response.data.didDoc : undefined

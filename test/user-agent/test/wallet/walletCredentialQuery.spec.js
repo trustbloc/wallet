@@ -22,6 +22,7 @@ var uuid = require('uuid/v4')
 
 const walletUser = "sampleWalletUser"
 const challenge = `705aa4da-b240-4c14-8652-8ed35a886ed5-${Math.random()}`
+const testOpts = {loadStartupOpts: true}
 
 function mountStore(wch, done) {
     return function (frameworks) {
@@ -61,7 +62,7 @@ describe('register wallet', () => {
     let wch = new wcredHandler()
 
     it('logged in to wallet', async () => {
-        let opts = await loadFrameworks({loadStartupOpts: true})
+        let opts = await loadFrameworks(testOpts)
         let register = new RegisterWallet(polyfill, wch, opts.agent, opts.agentStartupOpts)
         try {
             register.skipPolyfill = true
@@ -86,7 +87,7 @@ describe('store credentials', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadFrameworks({loadStartupOpts: true}).then(mountStore(wch, wr => wrapper = wr)
+        return loadFrameworks(testOpts).then(mountStore(wch, wr => wrapper = wr)
         ).catch(err => {
             console.error('error starting agent: errMsg=', err)
         })
@@ -134,7 +135,7 @@ describe('get credentials by presentation definition query', () => {
     // wait for aries to load to mount component
     let wrapper
     before(function () {
-        return loadFrameworks({loadStartupOpts: true}).then(mountGet(wch, (wr) => {
+        return loadFrameworks(testOpts).then(mountGet(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
             console.error('error starting agent: errMsg=', err)
@@ -210,7 +211,8 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
     let wrapper
     let credResponse
 
-    // wait for aries to load to mount component
+    // - wait for aries to load to mount component
+    // - load and setup issuer
     before(async function () {
         // start issuer, register router and create invitation
         await loadFrameworks({name: 'issuer'}).then(async opts => {
@@ -232,7 +234,7 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
         let wch = new wcredHandler()
         credResponse = wch.addEventToQueue(event)
 
-        return loadFrameworks({loadStartupOpts: true}).then(mountGet(wch, (wr) => {
+        return loadFrameworks(testOpts).then(mountGet(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
             console.error('error starting agent: errMsg=', err)
@@ -315,7 +317,7 @@ describe('verifier queries credentials - DIDComm Flow', () => {
         let wch = new wcredHandler()
         credResponse = wch.addEventToQueue(event)
 
-        return loadFrameworks({loadStartupOpts: true}).then(mountGet(wch, (wr) => {
+        return loadFrameworks(testOpts).then(mountGet(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
             console.error('error starting agent: errMsg=', err)
