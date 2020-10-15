@@ -9,12 +9,12 @@ import {getDomainAndChallenge} from '../common/util.js';
 
 /**
  * DIDAuth provides CHAPI did auth features
- * @param aries instance & credential event
+ * @param agent instance & credential event
  * @class
  */
 export class DIDAuth {
-    constructor(aries, credEvent) {
-        this.aries = aries
+    constructor(agent, credEvent) {
+        this.agent = agent
         this.credEvent = credEvent
         this.didManager = new DIDManager()
 
@@ -26,7 +26,7 @@ export class DIDAuth {
     async getDIDRecords() {
         let issuers = []
 
-        await this.aries.vdri.getDIDRecords().then(
+        await this.agent.vdri.getDIDRecords().then(
             resp => {
                 if (resp.result) {
                     resp.result.forEach((item, id) => {
@@ -45,7 +45,7 @@ export class DIDAuth {
         let didMetadata = await this.didManager.getDIDMetadata(did)
 
         let data
-        await this.aries.verifiable.generatePresentation({
+        await this.agent.verifiable.generatePresentation({
             presentation: {
                 "@context": "https://www.w3.org/2018/credentials/v1",
                 "type": "VerifiablePresentation"

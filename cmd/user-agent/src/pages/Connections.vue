@@ -36,10 +36,10 @@ SPDX-License-Identifier: Apache-2.0
         components: {Mediator, CreateInvitation, ReceiveInvitation, Connections},
         methods: {
             ...mapActions(['queryConnections', 'onDidExchangeState', 'loadMediatorState']),
-            ...mapActions('aries', {addAriesNotifiers: 'addNotifier'})
+            ...mapActions('agent', {addAgentNotifiers: 'addNotifier'})
         },
         mounted() {
-            this.addAriesNotifiers({callback: this.onDidExchangeState, topics: ["didexchange_states"]})
+            this.addAgentNotifiers({callback: this.onDidExchangeState, topics: ["didexchange_states"]})
             this.loadMediatorState()
             // refreshes connections when component is mounted
             this.queryConnections()

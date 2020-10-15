@@ -2,13 +2,12 @@
   "name": "@trustbloc/agent-js-worker",
   "version": "0.1.0",
   "description": "TrustBloc Agent Wasm API",
-  "main": "dist/node/agent.js",
+  "main": "dist/web/agent.js",
   "browser": "dist/web/agent.js",
   "scripts": {
-    "build:node": "webpack --config ./webpack.config.node.js --mode=production",
     "build:web": "webpack --config ./webpack.config.web.js --mode=production",
     "build:assets": "bash scripts/build_assets.sh",
-    "build": "rm -rf dist/* && cp -p ../../LICENSE . && npm run build:assets && npm run build:node && npm run build:web",
+    "build": "rm -rf dist/* && cp -p ../../LICENSE . && npm run build:assets && npm run build:web",
     "prepare": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

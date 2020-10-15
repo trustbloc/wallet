@@ -185,9 +185,9 @@ SPDX-License-Identifier: Apache-2.0
 
     export default {
         created: async function () {
-            this.aries = this.getAriesInstance()
+            this.agent = this.getAgentInstance()
 
-            this.didManager = new DIDManager(this.aries, this.$trustblocAgent, this.getTrustblocOpts())
+            this.didManager = new DIDManager(this.agent, this.getAgentOpts())
             this.searched = this.myData
             this.username = this.getCurrentUser().username
 
@@ -195,8 +195,8 @@ SPDX-License-Identifier: Apache-2.0
             this.searched = this.myData
         },
         methods: {
-            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
-            ...mapGetters(['getCurrentUser', 'getTrustblocOpts']),
+            ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
+            ...mapGetters(['getCurrentUser', 'getAgentOpts']),
             createDID: async function () {
                 this.errors.length = 0
                 if (this.friendlyName.length == 0) {
@@ -270,7 +270,7 @@ SPDX-License-Identifier: Apache-2.0
 
                 var resp
                 try {
-                    resp = await this.aries.vdri.resolveDID({
+                    resp = await this.agent.vdri.resolveDID({
                         id: this.didID,
                     })
                 } catch (err) {
@@ -281,7 +281,7 @@ SPDX-License-Identifier: Apache-2.0
                 var obj = JSON.parse(this.privateKeyJwk);
 
                 try {
-                    await this.aries.kms.importKey(obj)
+                    await this.agent.kms.importKey(obj)
                 } catch (err) {
                     this.saveErrors.push(err)
                     return

@@ -12,14 +12,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"syscall/js"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/hyperledger/aries-framework-go/pkg/controller"
-	cmdctrl "github.com/hyperledger/aries-framework-go/pkg/controller/command"
+	ariesctrl "github.com/hyperledger/aries-framework-go/pkg/controller"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/messaging/msghandler"
 	arieshttp "github.com/hyperledger/aries-framework-go/pkg/didcomm/transport/http"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/transport/ws"
@@ -28,6 +28,8 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/vdri/httpbinding"
 	"github.com/mitchellh/mapstructure"
 	"github.com/trustbloc/edge-core/pkg/log"
+
+	agentctrl "github.com/trustbloc/edge-agent/pkg/controller"
 )
 
 var logger = log.New("agent-js-worker")
@@ -35,9 +37,9 @@ var logger = log.New("agent-js-worker")
 const (
 	wasmStartupTopic = "asset-ready"
 	handleResultFn   = "handleResult"
-	ariesCommandPkg  = "aries"
-	ariesStartFn     = "Start"
-	ariesStopFn      = "Stop"
+	commandPkg       = "agent"
+	startFn          = "Start"
+	stopFn           = "Stop"
 	workers          = 2
 )
 
@@ -65,8 +67,8 @@ type result struct {
 	Topic   string                 `json:"topic"`
 }
 
-// ariesStartOpts contains opts for starting aries.
-type ariesStartOpts struct {
+// agentStartOpts contains opts for starting agent.
+type agentStartOpts struct {
 	Label                string   `json:"agent-default-label"`
 	HTTPResolvers        []string `json:"http-resolver-url"`
 	AutoAccept           bool     `json:"auto-accept"`
@@ -74,6 +76,8 @@ type ariesStartOpts struct {
 	TransportReturnRoute string   `json:"transport-return-route"`
 	LogLevel             string   `json:"log-level"`
 	DBNamespace          string   `json:"db-namespace"`
+	BlocDomain           string   `json:"blocDomain"`
+	SDSServerURL         string   `json:"sdsServerURL"`
 }
 
 // main registers the 'handleMsg' function in the JS context's global scope to receive commands.
@@ -104,7 +108,7 @@ func takeFrom(in chan *command) func(js.Value, []js.Value) interface{} {
 	return func(_ js.Value, args []js.Value) interface{} {
 		cmd := &command{}
 		if err := json.Unmarshal([]byte(args[0].String()), cmd); err != nil {
-			logger.Errorf("aries wasm: unable to unmarshal input=%s. err=%s", args[0].String(), err)
+			logger.Errorf("agent wasm: unable to unmarshal input=%s. err=%s", args[0].String(), err)
 
 			return nil
 		}
@@ -118,7 +122,7 @@ func takeFrom(in chan *command) func(js.Value, []js.Value) interface{} {
 func pipe(input chan *command, output chan *result) {
 	handlers := testHandlers()
 
-	addAriesHandlers(handlers)
+	addAgentHandlers(handlers)
 
 	for w := 0; w < workers; w++ {
 		go worker(input, output, handlers)
@@ -128,7 +132,7 @@ func pipe(input chan *command, output chan *result) {
 func worker(input chan *command, output chan *result, handlers map[string]map[string]func(*command) *result) {
 	for c := range input {
 		if c.ID == "" {
-			logger.Warnf("aries wasm: missing ID for input: %v", c)
+			logger.Warnf("agent wasm: missing ID for input: %v", c)
 		}
 
 		if pkg, found := handlers[c.Pkg]; found {
@@ -146,51 +150,10 @@ func sendTo(out chan *result) {
 	for r := range out {
 		out, err := json.Marshal(r)
 		if err != nil {
-			logger.Errorf("aries wasm: failed to marshal response for id=%s err=%s ", r.ID, err)
+			logger.Errorf("agent wasm: failed to marshal response for id=%s err=%s ", r.ID, err)
 		}
 
 		js.Global().Call(handleResultFn, string(out))
-	}
-}
-
-func cmdExecToFn(exec cmdctrl.Exec) func(*command) *result {
-	return func(c *command) *result {
-		b, er := json.Marshal(c.Payload)
-		if er != nil {
-			return &result{
-				ID:     c.ID,
-				IsErr:  true,
-				ErrMsg: fmt.Sprintf("aries wasm: failed to unmarshal payload. err=%s", er),
-			}
-		}
-
-		req := bytes.NewBuffer(b)
-
-		var buf bytes.Buffer
-
-		err := exec(&buf, req)
-		if err != nil {
-			return newErrResult(c.ID, fmt.Sprintf("code: %+v, message: %s", err.Code(), err.Error()))
-		}
-
-		payload := make(map[string]interface{})
-
-		if len(buf.Bytes()) > 0 {
-			if err := json.Unmarshal(buf.Bytes(), &payload); err != nil {
-				return &result{
-					ID:    c.ID,
-					IsErr: true,
-					ErrMsg: fmt.Sprintf(
-						"aries wasm: failed to unmarshal command result=%+v err=%s",
-						buf.String(), err),
-				}
-			}
-		}
-
-		return &result{
-			ID:      c.ID,
-			Payload: payload,
-		}
 	}
 }
 
@@ -221,26 +184,26 @@ func testHandlers() map[string]map[string]func(*command) *result {
 }
 
 func isStartCommand(c *command) bool {
-	return c.Pkg == ariesCommandPkg && c.Fn == ariesStartFn
+	return c.Pkg == commandPkg && c.Fn == startFn
 }
 
 func isStopCommand(c *command) bool {
-	return c.Pkg == ariesCommandPkg && c.Fn == ariesStopFn
+	return c.Pkg == commandPkg && c.Fn == stopFn
 }
 
 func handlerNotFoundErr(c *command) *result {
 	if isStartCommand(c) {
-		return newErrResult(c.ID, "Aries agent already started")
+		return newErrResult(c.ID, "Agent already started")
 	} else if isStopCommand(c) {
-		return newErrResult(c.ID, "Aries agent not running")
+		return newErrResult(c.ID, "Agent not running")
 	}
 
-	return newErrResult(c.ID, fmt.Sprintf("invalid pkg/fn: %s/%s, make sure aries is started", c.Pkg, c.Fn))
+	return newErrResult(c.ID, fmt.Sprintf("invalid pkg/fn: %s/%s, make sure agent is started", c.Pkg, c.Fn))
 }
 
-func addAriesHandlers(pkgMap map[string]map[string]func(*command) *result) {
+func addAgentHandlers(pkgMap map[string]map[string]func(*command) *result) {
 	fnMap := make(map[string]func(*command) *result)
-	fnMap[ariesStartFn] = func(c *command) *result {
+	fnMap[startFn] = func(c *command) *result {
 		cOpts, err := startOpts(c.Payload)
 		if err != nil {
 			return newErrResult(c.ID, err.Error())
@@ -251,7 +214,7 @@ func addAriesHandlers(pkgMap map[string]map[string]func(*command) *result) {
 			return newErrResult(c.ID, err.Error())
 		}
 
-		options, err := ariesOpts(cOpts)
+		options, err := agentOpts(cOpts)
 		if err != nil {
 			return newErrResult(c.ID, err.Error())
 		}
@@ -264,47 +227,154 @@ func addAriesHandlers(pkgMap map[string]map[string]func(*command) *result) {
 			return newErrResult(c.ID, err.Error())
 		}
 
-		ctx, err := a.Context()
+		handlers, err := getAriesHandlers(a, msgHandler, cOpts)
 		if err != nil {
 			return newErrResult(c.ID, err.Error())
 		}
 
-		commands, err := controller.GetCommandHandlers(ctx, controller.WithMessageHandler(msgHandler),
-			controller.WithDefaultLabel(cOpts.Label), controller.WithNotifier(&jsNotifier{}))
+		agentHandlers, err := getAgentHandlers(cOpts)
 		if err != nil {
 			return newErrResult(c.ID, err.Error())
 		}
+
+		handlers = append(handlers, agentHandlers...)
 
 		// add command handlers
-		addCommandHandlers(commands, pkgMap)
+		addCommandHandlers(handlers, pkgMap)
 
-		// add stop aries handler
-		addStopAriesHandler(a, pkgMap)
+		// add stop agent handler
+		addStopAgentHandler(a, pkgMap)
 
 		return &result{
 			ID:      c.ID,
-			Payload: map[string]interface{}{"message": "aries agent started successfully"},
+			Payload: map[string]interface{}{"message": "agent started successfully"},
 		}
 	}
 
-	pkgMap[ariesCommandPkg] = fnMap
+	pkgMap[commandPkg] = fnMap
 }
 
-func addCommandHandlers(commands []cmdctrl.Handler, pkgMap map[string]map[string]func(*command) *result) {
-	for _, cmd := range commands {
-		fnMap, ok := pkgMap[cmd.Name()]
+type execFn func(rw io.Writer, req io.Reader) error
+
+type commandHandler struct {
+	name   string
+	method string
+	exec   execFn
+}
+
+func getAriesHandlers(a *aries.Aries, r *msghandler.Registrar, opts *agentStartOpts) ([]commandHandler, error) {
+	ctx, err := a.Context()
+	if err != nil {
+		return nil, err
+	}
+
+	handlers, err := ariesctrl.GetCommandHandlers(ctx, ariesctrl.WithMessageHandler(r),
+		ariesctrl.WithDefaultLabel(opts.Label), ariesctrl.WithNotifier(&jsNotifier{}))
+	if err != nil {
+		return nil, err
+	}
+
+	var hh []commandHandler
+
+	for _, h := range handlers {
+		handle := h.Handle()
+		hh = append(hh, commandHandler{
+			name:   h.Name(),
+			method: h.Method(),
+			exec: func(rw io.Writer, req io.Reader) error {
+				e := handle(rw, req)
+				if e != nil {
+					return fmt.Errorf("code: %+v, message: %s", e.Code(), e.Error())
+				}
+				return nil
+			},
+		})
+	}
+
+	return hh, nil
+}
+
+func getAgentHandlers(opts *agentStartOpts) ([]commandHandler, error) {
+	handlers, err := agentctrl.GetCommandHandlers(agentctrl.WithBlocDomain(opts.BlocDomain),
+		agentctrl.WithSDSServerURL(opts.SDSServerURL))
+	if err != nil {
+		return nil, err
+	}
+
+	var hh []commandHandler
+
+	for _, h := range handlers {
+		handle := h.Handle()
+		hh = append(hh, commandHandler{
+			name:   h.Name(),
+			method: h.Method(),
+			exec: func(rw io.Writer, req io.Reader) error {
+				e := handle(rw, req)
+				if e != nil {
+					return fmt.Errorf("code: %+v, message: %s", e.Code(), e.Error())
+				}
+				return nil
+			},
+		})
+	}
+
+	return hh, nil
+}
+
+func addCommandHandlers(handlers []commandHandler, pkgMap map[string]map[string]func(*command) *result) {
+	for _, h := range handlers {
+		fnMap, ok := pkgMap[h.name]
 		if !ok {
 			fnMap = make(map[string]func(*command) *result)
 		}
 
-		fnMap[cmd.Method()] = cmdExecToFn(cmd.Handle())
-		pkgMap[cmd.Name()] = fnMap
+		fnMap[h.method] = cmdExecToFn(h.exec)
+		pkgMap[h.name] = fnMap
 	}
 }
 
-func addStopAriesHandler(a *aries.Aries, pkgMap map[string]map[string]func(*command) *result) {
+func cmdExecToFn(exec execFn) func(*command) *result {
+	return func(c *command) *result {
+		b, er := json.Marshal(c.Payload)
+		if er != nil {
+			return &result{
+				ID:     c.ID,
+				IsErr:  true,
+				ErrMsg: fmt.Sprintf("agent wasm: failed to unmarshal payload. err=%s", er),
+			}
+		}
+
+		req := bytes.NewBuffer(b)
+
+		var buf bytes.Buffer
+
+		err := exec(&buf, req)
+		if err != nil {
+			return newErrResult(c.ID, err.Error())
+		}
+
+		payload := make(map[string]interface{})
+
+		if len(buf.Bytes()) > 0 {
+			if err := json.Unmarshal(buf.Bytes(), &payload); err != nil {
+				return &result{
+					ID:    c.ID,
+					IsErr: true,
+					ErrMsg: fmt.Sprintf("agent wasm: failed to unmarshal command result=%+v err=%s", buf.String(), err),
+				}
+			}
+		}
+
+		return &result{
+			ID:      c.ID,
+			Payload: payload,
+		}
+	}
+}
+
+func addStopAgentHandler(a *aries.Aries, pkgMap map[string]map[string]func(*command) *result) {
 	fnMap := make(map[string]func(*command) *result)
-	fnMap[ariesStopFn] = func(c *command) *result {
+	fnMap[stopFn] = func(c *command) *result {
 		err := a.Close()
 		if err != nil {
 			return newErrResult(c.ID, err.Error())
@@ -316,26 +386,26 @@ func addStopAriesHandler(a *aries.Aries, pkgMap map[string]map[string]func(*comm
 		}
 
 		// put back start command once stopped
-		addAriesHandlers(pkgMap)
+		addAgentHandlers(pkgMap)
 
 		return &result{
 			ID:      c.ID,
-			Payload: map[string]interface{}{"message": "aries agent stopped"},
+			Payload: map[string]interface{}{"message": "agent stopped"},
 		}
 	}
-	pkgMap[ariesCommandPkg] = fnMap
+	pkgMap[commandPkg] = fnMap
 }
 
 func newErrResult(id, msg string) *result {
 	return &result{
 		ID:     id,
 		IsErr:  true,
-		ErrMsg: "aries wasm: " + msg,
+		ErrMsg: "agent wasm: " + msg,
 	}
 }
 
-func startOpts(payload map[string]interface{}) (*ariesStartOpts, error) {
-	opts := &ariesStartOpts{}
+func startOpts(payload map[string]interface{}) (*agentStartOpts, error) {
+	opts := &agentStartOpts{}
 
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		TagName: "json",
@@ -353,7 +423,7 @@ func startOpts(payload map[string]interface{}) (*ariesStartOpts, error) {
 	return opts, nil
 }
 
-func ariesOpts(opts *ariesStartOpts) ([]aries.Option, error) {
+func agentOpts(opts *agentStartOpts) ([]aries.Option, error) {
 	msgHandler := msghandler.NewRegistrar()
 
 	var options []aries.Option

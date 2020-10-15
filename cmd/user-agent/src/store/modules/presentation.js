@@ -15,9 +15,9 @@ export default {
             dispatch('getPresentations')
         },
         async getPresentations({commit, getters}) {
-            let aries = getters['aries/getInstance']
+            let agent = getters['agent/getInstance']
             // retrieves all agent credentials
-            let res = await aries.verifiable.getPresentations()
+            let res = await agent.verifiable.getPresentations()
             if (!res.hasOwnProperty('result')) {
                 return
             }

@@ -20,12 +20,12 @@ const manifestType = 'IssuerManifestCredential'
 
 /**
  * WalletGetByQuery provides CHAPI get vp features
- * @param aries instance & credential event
+ * @param agent instance & credential event
  * @class
  */
 export class WalletGetByQuery extends WalletGet {
-    constructor(aries, credEvent, opts) {
-        super(aries, credEvent);
+    constructor(agent, credEvent, opts) {
+        super(agent, credEvent);
 
         // validate query and init Presentation Exchange
         let query = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="PresentationDefinitionQuery")]');
@@ -48,8 +48,8 @@ export class WalletGetByQuery extends WalletGet {
         this.govnVC = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="DIDConnect")].credentials[?(@.type[0]=="GovernanceCredential" || @.type[1]=="GovernanceCredential")]');
 
         this.walletManager = new WalletManager()
-        this.mediator = new AgentMediator(aries)
-        this.blindedRouter = new BlindedRouter(aries, opts)
+        this.mediator = new AgentMediator(agent)
+        this.blindedRouter = new BlindedRouter(agent, opts)
     }
 
     requirementDetails() {
@@ -66,7 +66,7 @@ export class WalletGetByQuery extends WalletGet {
 
         let vcs = []
         for (let credential of credentials) {
-            const resp = await this.aries.verifiable.getCredential({
+            const resp = await this.agent.verifiable.getCredential({
                 id: credential.key
             })
 
@@ -86,14 +86,14 @@ export class WalletGetByQuery extends WalletGet {
                 presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes)
 
                 if (this.invitation.length > 0) {
-                    presentationSubmission = await getAuthorizationCredentials(this.aries, presentationSubmission, this.invitation[0], this.walletManager, this.blindedRouter)
+                    presentationSubmission = await getAuthorizationCredentials(this.agent, presentationSubmission, this.invitation[0], this.walletManager, this.blindedRouter)
                 }
             }
 
             let walletMetadata = await this.walletManager.getWalletMetadata(walletUser)
 
             let data
-            await this.aries.verifiable.generatePresentation({
+            await this.agent.verifiable.generatePresentation({
                 presentation: presentationSubmission,
                 did: walletMetadata.did,
                 domain: this.domain,
@@ -149,10 +149,10 @@ function retainOnlySelected(presentationSubmission, selectedIndexes) {
     return presentationSubmission
 }
 
-async function getAuthorizationCredentials(aries, presentationSubmission, invitation, walletManager, blindedRouter) {
-    let exchange = new DIDExchange(aries)
+async function getAuthorizationCredentials(agent, presentationSubmission, invitation, walletManager, blindedRouter) {
+    let exchange = new DIDExchange(agent)
     let rpConn = await exchange.connect(invitation)
-    let rpDIDDoc = await aries.vdri.resolveDID({id: rpConn.result.TheirDID})
+    let rpDIDDoc = await agent.vdri.resolveDID({id: rpConn.result.TheirDID})
 
     // share peer DID with RP for blinded routing
     await blindedRouter.sharePeerDID(rpConn.result)
@@ -164,7 +164,7 @@ async function getAuthorizationCredentials(aries, presentationSubmission, invita
         }
 
         let connection = await walletManager.getConnectionByID(vc.connection)
-        let resp = await aries.issuecredential.sendRequest({
+        let resp = await agent.issuecredential.sendRequest({
             my_did: connection.MyDID,
             their_did: connection.TheirDID,
             request_credential: {
@@ -192,7 +192,7 @@ async function getAuthorizationCredentials(aries, presentationSubmission, invita
 
     console.log(`${acceptCredPool.size} issue credential requests sent`)
 
-    await waitForCredentials(aries, acceptCredPool)
+    await waitForCredentials(agent, acceptCredPool)
 
     acceptCredPool.forEach(function (value) {
         presentationSubmission.verifiableCredential[value.index] = value.credential
@@ -201,23 +201,23 @@ async function getAuthorizationCredentials(aries, presentationSubmission, invita
     return presentationSubmission
 }
 
-async function waitForCredentials(aries, pool) {
+async function waitForCredentials(agent, pool) {
     let processed = 0
     return new Promise(async (resolve, reject) => {
         setTimeout(() => reject(new Error("timout waiting for incoming credentials")), 20000)
 
         for (; ;) {
-            let resp = await aries.issuecredential.actions()
+            let resp = await agent.issuecredential.actions()
             for (let action of resp.actions) {
                 if (pool.has(action.PIID)) {
                     let credID = uuid()
-                    aries.issuecredential.acceptCredential({
+                    agent.issuecredential.acceptCredential({
                         piid: action.PIID,
                         names: [credID],
                     })
 
-                    let metadata = await getCredentialMetadata(aries, credID)
-                    let credential = await aries.verifiable.getCredential(metadata)
+                    let metadata = await getCredentialMetadata(agent, credID)
+                    let credential = await agent.verifiable.getCredential(metadata)
 
                     pool.get(action.PIID).credential = JSON.parse(credential.verifiableCredential)
 

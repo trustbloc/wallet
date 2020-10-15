@@ -4,7 +4,6 @@
   "description": "tests for user-agent vue components",
   "dependencies": {
     "@trustbloc/agent-js-worker": "file:../../cmd/agent-js-worker",
-    "@trustbloc/trustbloc-agent": "file:../../cmd/trustbloc-agent-js-worker",
     "@trustbloc/user-agent": "file:../../cmd/user-agent",
     "jsonpath": "^1.0.2",
     "vue": "^2.6.11",

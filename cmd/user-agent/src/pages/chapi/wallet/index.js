@@ -17,4 +17,3 @@ export {RegisterWallet} from './register/register.js';
 export {WalletManager} from './register/walletManager.js';
 export {AgentMediator} from './didcomm/mediator.js'
 export {BlindedRouter} from './didcomm/blindedRouter.js'
-

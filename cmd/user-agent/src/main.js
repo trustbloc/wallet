@@ -11,7 +11,6 @@ import VueRouter from "vue-router";
 import routes from "./router/index";
 import * as polyfill from "credential-handler-polyfill";
 import * as webCredentialHandler from "web-credential-handler";
-import * as trustblocAgent from "@trustbloc/trustbloc-agent"
 import MaterialDashboard from "./material-dashboard";
 import {mapActions, mapGetters} from "vuex";
 
@@ -19,7 +18,6 @@ Vue.config.productionTip = false
 
 Vue.prototype.$polyfill = polyfill
 Vue.prototype.$webCredentialHandler = webCredentialHandler
-Vue.prototype.$trustblocAgent = trustblocAgent
 
 // configure router
 const router = new VueRouter({
@@ -65,9 +63,9 @@ new Vue({
     }),
     methods: {
         ...mapActions(['initOpts', 'loadUser']),
-        ...mapActions('aries', {initAries: 'init'}),
-        ...mapGetters('aries', {isAriesInitialized: 'isInitialized'}),
-        ...mapGetters(['getTrustblocOpts']),
+        ...mapActions('agent', {initAgent: 'init'}),
+        ...mapGetters('agent', {isAgentInitialized: 'isInitialized'}),
+        ...mapGetters(['getAgentOpts']),
     },
     mounted: async function () {
         // load opts
@@ -76,9 +74,9 @@ new Vue({
         // load user if already logged in
         this.loadUser()
 
-        // load aries if user already logged in and aries not initialized (scenario: page refresh)
-        if (store.getters.getCurrentUser && !this.isAriesInitialized()) {
-            await this.initAries()
+        // load agent if user already logged in and agent not initialized (scenario: page refresh)
+        if (store.getters.getCurrentUser && !this.isAgentInitialized()) {
+            await this.initAgent()
         }
 
         // removes spinner

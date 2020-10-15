@@ -17,17 +17,17 @@ var allowedTypes = ['VerifiablePresentation', 'VerifiableCredential']
 
 /**
  * RegisterWallet registers webcredential handler and manages wallet metadata in underlying db
- * @param polyfill, web credential handler, aries agent instance, trustbloc agent instance and options.
+ * @param polyfill, web credential handler, agent instance.
  * @class
  */
 export class RegisterWallet extends WalletManager {
-    constructor(polyfill, wcredHandler, aries, trustblocAgent, opts) {
+    constructor(polyfill, wcredHandler, agent, opts) {
         super()
 
         this.polyfill = polyfill
         this.wcredHandler = wcredHandler
-        this.didManager = new DIDManager(aries, trustblocAgent, opts)
-        this.mediator = new AgentMediator(aries)
+        this.didManager = new DIDManager(agent, opts)
+        this.mediator = new AgentMediator(agent)
         this.mediatorEndpoint = opts.walletMediatorURL
         this.credentialMediator = opts.credentialMediatorURL
     }

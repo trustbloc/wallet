@@ -15,17 +15,17 @@ const sharePeerDIDMsgType = 'https://trustbloc.github.io/blinded-routing/1.0/sha
 
 /**
  * BlindedRouter provides blinded routing features
- * @param aries agent instance
+ * @param agent instance
  * @class
  */
 export class BlindedRouter {
-    constructor(aries, opts) {
+    constructor(agent, opts) {
         if (!opts.blindedRouting) {
             return
         }
 
-        this.messenger = new Messenger(aries)
-        this.mediator = new AgentMediator(aries)
+        this.messenger = new Messenger(agent)
+        this.mediator = new AgentMediator(agent)
         this.mediatorEndpoint = opts.walletMediatorURL
     }
 
@@ -66,4 +66,3 @@ export class BlindedRouter {
 
 let _parseResponseDID = (response) => response.data.didDoc && response.data.didDoc.length > 0 ?
     JSON.parse(String.fromCharCode.apply(String, response.data.routerDIDDoc)) : undefined
-

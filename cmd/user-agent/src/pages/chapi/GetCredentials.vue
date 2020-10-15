@@ -91,12 +91,11 @@ SPDX-License-Identifier: Apache-2.0
 
     export default {
         created: async function () {
-            this.wallet = new WalletGet(this.getAriesInstance(), this.$parent.credentialEvent)
+            this.wallet = new WalletGet(this.getAgentInstance(), this.$parent.credentialEvent)
             this.search = this.wallet.search
             this.reason = this.wallet.reason
             this.credentialEvent = this.$parent.credentialEvent
             this.requestOrigin = this.credentialEvent.credentialRequestOrigin
-
 
             await this.loadIssuers()
             await this.loadCredentials()
@@ -122,7 +121,7 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
-            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
             searchOnTable() {
                 this.searched = searchByTypeAndHolder(this.savedVCs, this.search, this.issuers[this.selectedIssuer].key)
             },

@@ -1,3 +1,9 @@
+/*
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
+
 <template>
     <div class="content">
         <md-dialog :md-active.sync="dialog">
@@ -136,17 +142,17 @@
 
     export default {
         created: async function () {
-            this.addAriesNotifiers({callback:this.onPresentProofState, topics:["present-proof_states"]})
-            this.aries = this.getAriesInstance()
+            this.addAgentNotifiers({callback:this.onPresentProofState, topics:["present-proof_states"]})
+            this.agent = this.getAgentInstance()
             await this.queryConnections()
             await this.refreshActions()
         },
         methods: {
-            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
-            ...mapActions('aries', {addAriesNotifiers: 'addNotifier'}),
+            ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
+            ...mapActions('agent', {addAgentNotifiers: 'addNotifier'}),
             ...mapActions(['onPresentProofState']),
             refreshActions: async function () {
-                let res = await this.aries.presentproof.actions()
+                let res = await this.agent.presentproof.actions()
                 this.actions = res.actions
             },
             isRequestPresentation: function (action) {
@@ -169,7 +175,7 @@
                 }
 
                 try {
-                    await this.aries.presentproof.acceptPresentation({
+                    await this.agent.presentproof.acceptPresentation({
                         piid: action.PIID,
                         names: this.presentationNames.split(','),
                     })
@@ -203,7 +209,7 @@
                 }
 
                 try {
-                    await this.aries.presentproof.acceptRequestPresentation({
+                    await this.agent.presentproof.acceptRequestPresentation({
                         piid: action.PIID,
                         presentation: presentation,
                     })
@@ -218,7 +224,7 @@
             },
             declineRequestPresentation: async function (action) {
                 try {
-                    await this.aries.presentproof.declineRequestPresentation({
+                    await this.agent.presentproof.declineRequestPresentation({
                         piid: action.PIID,
                     })
                 } catch (e) {
@@ -231,7 +237,7 @@
             },
             declinePresentation: async function (action) {
                 try {
-                    await this.aries.presentproof.declinePresentation({
+                    await this.agent.presentproof.declinePresentation({
                         piid: action.PIID,
                     })
                 } catch (e) {
@@ -268,7 +274,7 @@
                 }
 
                 try {
-                    await this.aries.presentproof.sendRequestPresentation({
+                    await this.agent.presentproof.sendRequestPresentation({
                         my_did: conn.MyDID,
                         their_did: conn.TheirDID,
                         request_presentation: requestPresentation,
@@ -280,7 +286,7 @@
             },
             queryConnections: async function () {
                 try {
-                    let res = await this.aries.didexchange.queryConnections()
+                    let res = await this.agent.didexchange.queryConnections()
                     if (res.results) {
                         this.connections = res.results.filter(function (conn) {
                             return conn.State === "completed";

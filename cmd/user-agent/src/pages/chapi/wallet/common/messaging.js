@@ -7,26 +7,26 @@ SPDX-License-Identifier: Apache-2.0
 
 /**
  * Messenger provides messaging service for sending/replying secured messages our didcomm
- * @param aries instance
+ * @param agent instance
  * @class
  */
 export class Messenger {
-    constructor(aries) {
-        this.aries = aries
+    constructor(agent) {
+        this.agent = agent
     }
 
     /**
      * registers message service with given name, purpose & type
      */
     async register(name, purpose, type) {
-        await this.aries.messaging.registerService({name, purpose, type})
+        await this.agent.messaging.registerService({name, purpose, type})
     }
 
     /**
      * services returns list of all message services regstered
      */
     async services() {
-        return await this.aries.messaging.services()
+        return await this.agent.messaging.services()
     }
 
     /**
@@ -36,7 +36,7 @@ export class Messenger {
      * @param {object} msg : reply message to be sent
      */
     send(connectionID, msg) {
-        this.aries.messaging.send({"connection_ID": connectionID, "message_body": msg})
+        this.agent.messaging.send({"connection_ID": connectionID, "message_body": msg})
     }
 
     /**
@@ -46,7 +46,7 @@ export class Messenger {
      * @param {object} msg : reply message to be sent
      */
     reply(msgID, msg) {
-        this.aries.messaging.reply({"message_ID": msgID, "message_body": msg})
+        this.agent.messaging.reply({"message_ID": msgID, "message_body": msg})
     }
 
     /**
@@ -68,7 +68,7 @@ export class Messenger {
 
         const incomingMsg = await new Promise((resolve, reject) => {
             setTimeout(() => reject(new Error("time out waiting for reply")), timeout)
-            const stop = this.aries.startNotifier(msg => {
+            const stop = this.agent.startNotifier(msg => {
                 let thID = msg.payload.message['~thread'] ? msg.payload.message['~thread'].thid : ''
                 if (thID != msgID) {
                     return

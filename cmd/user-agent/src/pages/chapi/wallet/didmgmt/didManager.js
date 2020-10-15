@@ -12,30 +12,29 @@ const sigTypeIndex = new Map([["Ed25519Signature2018", "Ed25519VerificationKey20
 const keyTypeIndex = new Map([["Ed25519", "ED25519"], ["P256", "ECDSAP256IEEEP1363"]]);
 
 /**
- * DIDManager is manages DID create/store/query features
+ * DIDManager manages DID create/store/query features
  * @class
  */
 export class DIDManager extends KeyValueStore {
-    constructor(aries, trustblocAgent, opts) {
+    constructor(agent, opts) {
         super(dbName, storeName)
 
         // params needed for create DID operation
-        this.aries = aries
-        this.trustblocAgent = trustblocAgent
-        this.trustblocStartupOpts = opts
+        this.agent = agent
+        this.startupOpts = opts
     }
 
     async createDID(keyType, signType) {
-        if (!this.aries || !this.trustblocAgent) {
-            console.error("aries and trustbloc agents are required to create DIDs")
+        if (!this.agent) {
+            console.error("agent is required to create DIDs")
             throw "operation not supported"
         }
 
         let generateKeyType = keyTypeIndex.get(keyType)
 
-        const keySet = await this.aries.kms.createKeySet({keyType: generateKeyType})
-        const recoveryKeySet = await this.aries.kms.createKeySet({keyType: generateKeyType})
-        const updateKeySet = await this.aries.kms.createKeySet({keyType: generateKeyType})
+        const keySet = await this.agent.kms.createKeySet({keyType: generateKeyType})
+        const recoveryKeySet = await this.agent.kms.createKeySet({keyType: generateKeyType})
+        const updateKeySet = await this.agent.kms.createKeySet({keyType: generateKeyType})
 
         const createDIDRequest = {
             "publicKeys": [{
@@ -63,46 +62,38 @@ export class DIDManager extends KeyValueStore {
             ]
         };
 
-        const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
-
         let did
-        await t.didclient.createDID(createDIDRequest).then(
+        await this.agent.didclient.createDID(createDIDRequest).then(
             resp => {
                 // TODO generate public key from generic wasm
                 // TODO pass public key to createDID
                 did = resp.DID
-
             })
             .catch(err => {
-                t.destroy()
                 console.error("failed to create did", err)
                 throw err
             })
-
-        await t.destroy()
 
         return did
     }
 
     async saveDID(user, name, signType, did){
-        if (!this.aries || !this.trustblocAgent) {
-            console.error("aries and trustbloc agents are required for saving DIDs")
+        if (!this.agent) {
+            console.error("agent is required for saving DIDs")
             throw "operation not supported"
         }
 
         // Save DID to local browser storage
-        await this.aries.vdri.saveDID({
+        await this.agent.vdri.saveDID({
                 name: name,
                 did: did
             }
         )
 
-        if (this.trustblocStartupOpts.sdsServerURL) {
-            const t = await new this.trustblocAgent.Framework(this.trustblocStartupOpts)
-
+        if (this.startupOpts.sdsServerURL) {
             // Save DID to persistent storage
             // TODO: Deal with SDS sync failures better #328
-            await t.didclient.saveDID({
+            await this.agent.didclient.saveDID({
                 name: name,
                 signType: signType,
                 did: did,

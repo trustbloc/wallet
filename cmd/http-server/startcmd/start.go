@@ -203,20 +203,17 @@ func (s *HTTPServer) ListenAndServe(host, certFile, keyFile string, handler http
 	return http.ListenAndServe(host, handler)
 }
 
-type ariesJSOpts struct {
+type agentJSOpts struct {
 	HTTPResolvedURLs  []string `json:"http-resolver-url,omitempty"`
 	AgentDefaultLabel string   `json:"agent-default-label,omitempty"`
 	AutoAccept        bool     `json:"auto-accept,omitempty"`
 	LogLevel          string   `json:"log-level,omitempty"`
 	DBNamespace       string   `json:"db-namespace,omitempty"`
-}
 
-type trustblocAgentJSOpts struct {
 	BlocDomain            string `json:"blocDomain,omitempty"`
 	WalletMediatorURL     string `json:"walletMediatorURL,omitempty"`
 	CredentialMediatorURL string `json:"credentialMediatorURL,omitempty"`
 	BlindedRouting        bool   `json:"blindedRouting,omitempty"`
-	LogLevel              string `json:"log-level,omitempty"`
 	SDSServerURL          string `json:"sdsServerURL,omitempty"`
 }
 
@@ -224,8 +221,7 @@ type httpServerParameters struct {
 	dependencyMaxRetries uint64
 	srv                  server
 	hostURL, wasmPath    string
-	opts                 *ariesJSOpts
-	trustblocAgentOpts   *trustblocAgentJSOpts
+	opts                 *agentJSOpts
 	tls                  *tlsParameters
 	oidc                 *oidcParameters
 	keys                 *keyParameters
@@ -279,14 +275,9 @@ func createStartCmd(srv server) *cobra.Command {
 				return err
 			}
 
-			opt, optErr := fetchAriesWASMAgentOpts(cmd)
+			opt, optErr := fetchAgentWASMOpts(cmd)
 			if optErr != nil {
 				return optErr
-			}
-
-			trustblocAgentOpts, err := fetchTrustBlocWASMAgentOpts(cmd)
-			if err != nil {
-				return err
 			}
 
 			oidcParams, err := getOIDCParams(cmd)
@@ -310,7 +301,6 @@ func createStartCmd(srv server) *cobra.Command {
 				wasmPath:             wasmPath,
 				hostURL:              hostURL,
 				opts:                 opt,
-				trustblocAgentOpts:   trustblocAgentOpts,
 				tls:                  tlsParams,
 				oidc:                 oidcParams,
 				keys:                 keys,
@@ -328,9 +318,9 @@ func createFlags(startCmd *cobra.Command) {
 	startCmd.Flags().StringP(hostURLFlagName, hostURLFlagShorthand, "", hostURLFlagUsage)
 	// aries db path flag
 	startCmd.Flags().StringP(agentDBNSFlagName, agentDBNSFlagShorthand, "", agentDBNSFlagUsage)
-	// aries log level
+	// agent log level
 	startCmd.Flags().StringP(agentLogLevelFlagName, "", "", agentLogLevelFlagUsage)
-	// aries agent default label flag
+	// aries default label flag
 	startCmd.Flags().StringP(agentDefaultLabelFlagName, agentDefaultLabelFlagShorthand, "",
 		agentDefaultLabelFlagUsage)
 	// aries auto accept flag
@@ -338,13 +328,13 @@ func createFlags(startCmd *cobra.Command) {
 	// aries http resolver url flag
 	startCmd.Flags().StringArrayP(agentHTTPResolverFlagName, agentHTTPResolverFlagShorthand, []string{},
 		agentHTTPResolverFlagUsage)
-	// trustbloc agent bloc domain
+	// agent bloc domain
 	startCmd.Flags().StringP(blocDomainFlagName, blocDomainFlagShorthand, "",
 		blocDomainFlagUsage)
-	// trustbloc agent wallet mediator URL
+	// agent wallet mediator URL
 	startCmd.Flags().StringP(walletMediatorURLFlagName, walletMediatorURLFlagShorthand, "",
 		walletMediatorURLFlagUsage)
-	// trustbloc agent credential mediator URL
+	// agent credential mediator URL
 	startCmd.Flags().StringP(credentialMediatorURLFlagName, credentialMediatorURLFlagShorthand, "",
 		credentialMediatorURLFlagUsage)
 	// blinded routing for wallet
@@ -541,95 +531,104 @@ func initOIDCProvider(providerURL string, retries uint64, tlsConfig *tls.Config)
 	return provider, nil
 }
 
-func fetchAriesWASMAgentOpts(cmd *cobra.Command) (*ariesJSOpts, error) {
-	defaultLabel, err := cmdutils.GetUserSetVarFromString(
-		cmd, agentDefaultLabelFlagName, agentDefaultLabelEnvKey, true)
-	if err != nil {
+func fetchAgentWASMOpts(cmd *cobra.Command) (*agentJSOpts, error) {
+	opts := &agentJSOpts{}
+
+	if err := setAriesOptions(opts, cmd); err != nil {
 		return nil, err
+	}
+
+	if err := setTrustblocOptions(opts, cmd); err != nil {
+		return nil, err
+	}
+
+	return opts, nil
+}
+
+//nolint:dupl // code differs in parameters that are processed
+func setAriesOptions(opts *agentJSOpts, cmd *cobra.Command) error {
+	defaultLabel, err := cmdutils.GetUserSetVarFromString(cmd,
+		agentDefaultLabelFlagName, agentDefaultLabelEnvKey, true)
+	if err != nil {
+		return err
 	}
 
 	dbNS, err := cmdutils.GetUserSetVarFromString(cmd, agentDBNSFlagName, agentDBNSEnvKey, true)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	logLevel, err := cmdutils.GetUserSetVarFromString(cmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	autoAcceptStr, err := cmdutils.GetUserSetVarFromString(cmd, agentAutoAcceptFlagName, agentAutoAcceptEnvKey, true)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	autoAccept, err := parseBoolFlagValue(autoAcceptStr)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	httpResolvers, err := cmdutils.GetUserSetVarFromArrayString(
-		cmd, agentHTTPResolverFlagName, agentHTTPResolverEnvKey, true)
+	httpResolvers, err := cmdutils.GetUserSetVarFromArrayString(cmd,
+		agentHTTPResolverFlagName, agentHTTPResolverEnvKey, true)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &ariesJSOpts{
-		HTTPResolvedURLs:  httpResolvers,
-		AgentDefaultLabel: defaultLabel,
-		AutoAccept:        autoAccept,
-		LogLevel:          logLevel,
-		DBNamespace:       dbNS,
-	}, nil
+	opts.AgentDefaultLabel = defaultLabel
+	opts.DBNamespace = dbNS
+	opts.LogLevel = logLevel
+	opts.AutoAccept = autoAccept
+	opts.HTTPResolvedURLs = httpResolvers
+
+	return nil
 }
 
-func fetchTrustBlocWASMAgentOpts(cmd *cobra.Command) (*trustblocAgentJSOpts, error) {
+//nolint:dupl // code differs in parameters that are processed
+func setTrustblocOptions(opts *agentJSOpts, cmd *cobra.Command) error {
 	blocDomain, err := cmdutils.GetUserSetVarFromString(cmd, blocDomainFlagName, blocDomainEnvKey, false)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	walletMediatorURL, err := cmdutils.GetUserSetVarFromString(cmd,
 		walletMediatorURLFlagName, walletMediatorURLEnvKey, true)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	credentialMediatorURL, err := cmdutils.GetUserSetVarFromString(cmd,
 		credentialMediatorURLFlagName, credentialMediatorURLEnvKey, true)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	blindedRoutingStr, err := cmdutils.GetUserSetVarFromString(cmd,
-		blindedRoutingFlagName, blindedRoutingEnvKey, true)
+	blindedRoutingStr, err := cmdutils.GetUserSetVarFromString(cmd, blindedRoutingFlagName, blindedRoutingEnvKey, true)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	blindedRouting, err := parseBoolFlagValue(blindedRoutingStr)
 	if err != nil {
-		return nil, err
-	}
-
-	logLevel, err := cmdutils.GetUserSetVarFromString(cmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
-	if err != nil {
-		return nil, err
+		return err
 	}
 
 	sdsServerURL, err := cmdutils.GetUserSetVarFromString(cmd, sdsURLFlagName, sdsURLEnvKey, true)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &trustblocAgentJSOpts{
-		BlocDomain:            blocDomain,
-		WalletMediatorURL:     walletMediatorURL,
-		CredentialMediatorURL: credentialMediatorURL,
-		BlindedRouting:        blindedRouting,
-		LogLevel:              logLevel,
-		SDSServerURL:          sdsServerURL,
-	}, nil
+	opts.BlocDomain = blocDomain
+	opts.WalletMediatorURL = walletMediatorURL
+	opts.CredentialMediatorURL = credentialMediatorURL
+	opts.BlindedRouting = blindedRouting
+	opts.SDSServerURL = sdsServerURL
+
+	return nil
 }
 
 func parseBoolFlagValue(v string) (bool, error) {
@@ -711,18 +710,9 @@ func addUIHandler(router *mux.Router, publicDir string) {
 }
 
 func addUIConfigHandlers(router *mux.Router, config *httpServerParameters) {
-	router.HandleFunc("/aries", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/agent", func(w http.ResponseWriter, r *http.Request) {
 		logger.Infof("handling config request: %s", r.URL.String())
-		bits, _ := json.Marshal(config.opts) // nolint:errcheck // marshalling *ariesJSOpts never fails
-
-		_, err := w.Write(bits)
-		if err != nil {
-			logger.Errorf("failed to write config %s to response: %w", bits, err)
-		}
-	})
-	router.HandleFunc("/trustbloc", func(w http.ResponseWriter, r *http.Request) {
-		logger.Infof("handling config request: %s", r.URL.String())
-		bits, _ := json.Marshal(config.trustblocAgentOpts) // nolint:errcheck // marshalling *trustblocAgentJSOpts never fails
+		bits, _ := json.Marshal(config.opts) // nolint:errcheck // marshalling *agentJSOpts never fails
 
 		_, err := w.Write(bits)
 		if err != nil {

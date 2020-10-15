@@ -7,12 +7,8 @@
 set -e
 
 
-echo "Building trustbloc agent wasm"
+echo "Building agent js worker wasm"
 
-cd cmd/trustbloc-agent-js-worker
-npm install
-npm run build
-
-cd ../agent-js-worker
+cd cmd/agent-js-worker
 npm install
 npm run build

@@ -74,7 +74,7 @@ SPDX-License-Identifier: Apache-2.0
 
     export default {
         created: async function () {
-            this.wallet = new DIDAuth(this.getAriesInstance(), this.$parent.credentialEvent)
+            this.wallet = new DIDAuth(this.getAgentInstance(), this.$parent.credentialEvent)
             this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
 
             await this.loadIssuers()
@@ -91,7 +91,7 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
-            ...mapGetters('aries', {getAriesInstance: 'getInstance'}),
+            ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
             loadIssuers: async function () {
                 try {
                     this.issuers = await this.wallet.getDIDRecords()
