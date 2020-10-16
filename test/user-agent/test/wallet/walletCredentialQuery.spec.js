@@ -207,27 +207,31 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
         }
     }
 
-    // start issuer, register router and create invitation
-    loadFrameworks({name: 'issuer'}).then(async opts => {
-        let mediator = new AgentMediator(opts.agent)
-        await mediator.connect('https://localhost:10063').then(ur => {
-            console.log("issuer mediator registered successfully")
-        }).catch(err => {
-            console.error('failed to register mediator for issuer agent: errMsg=', err)
-        })
-        event.credentialRequestOptions.web.VerifiablePresentation.invitation = await mediator.createInvitation()
-        issuer = opts.agent
-    }).catch(err => {
-        console.error('error starting issuer agent: errMsg=', err)
-    })
-
-    // create web credential handler
-    let wch = new wcredHandler()
-    let credResponse = wch.addEventToQueue(event)
+    let wrapper
+    let credResponse
 
     // wait for aries to load to mount component
-    let wrapper
-    before(function () {
+    before(async function () {
+        // start issuer, register router and create invitation
+        await loadFrameworks({name: 'issuer'}).then(async opts => {
+            let mediator = new AgentMediator(opts.agent)
+
+            await mediator.connect('https://localhost:10063').then(ur => {
+                console.log("issuer mediator registered successfully")
+            }).catch(err => {
+                console.error('failed to register mediator for issuer agent: errMsg=', err)
+            })
+
+            event.credentialRequestOptions.web.VerifiablePresentation.invitation = await mediator.createInvitation()
+            issuer = opts.agent
+        }).catch(err => {
+            console.error('error starting issuer agent: errMsg=', err)
+        })
+
+        // create web credential handler
+        let wch = new wcredHandler()
+        credResponse = wch.addEventToQueue(event)
+
         return loadFrameworks({loadStartupOpts: true}).then(mountGet(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
@@ -285,28 +289,32 @@ describe('verifier queries credentials - DIDComm Flow', () => {
         }
     }
 
-    // start verifier, register router and create invitation
     let verifier
-    loadFrameworks({name: 'verifier'}).then(async opts => {
-        let mediator = new AgentMediator(opts.agent)
-        await mediator.connect('https://localhost:10063').then(ur => {
-            console.log("verifier mediator registered successfully")
-        }).catch(err => {
-            console.error('failed to register mediator for verifier agent: errMsg=', err)
-        })
-        event.credentialRequestOptions.web.VerifiablePresentation.query[1].invitation = await mediator.createInvitation()
-        verifier = opts.agent
-    }).catch(err => {
-        console.error('error starting verifier agent: errMsg=', err)
-    })
-
-    // create web credential handler
-    let wch = new wcredHandler()
-    let credResponse = wch.addEventToQueue(event)
+    let wrapper
+    let credResponse
 
     // wait for aries to load to mount component
-    let wrapper
-    before(function () {
+    before(async function () {
+        // start verifier, register router and create invitation
+        await loadFrameworks({name: 'verifier'}).then(async opts => {
+            let mediator = new AgentMediator(opts.agent)
+
+            await mediator.connect('https://localhost:10063').then(ur => {
+                console.log("verifier mediator registered successfully")
+            }).catch(err => {
+                console.error('failed to register mediator for verifier agent: errMsg=', err)
+            })
+
+            event.credentialRequestOptions.web.VerifiablePresentation.query[1].invitation = await mediator.createInvitation()
+            verifier = opts.agent
+        }).catch(err => {
+            console.error('error starting verifier agent: errMsg=', err)
+        })
+
+        // create web credential handler
+        let wch = new wcredHandler()
+        credResponse = wch.addEventToQueue(event)
+
         return loadFrameworks({loadStartupOpts: true}).then(mountGet(wch, (wr) => {
             wrapper = wr
         })).catch(err => {
