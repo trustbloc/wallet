@@ -15,8 +15,7 @@ import {AgentMediator, RegisterWallet} from '../../../../cmd/user-agent/src/page
 import {loadFrameworks, localVue, mockStore, promiseWhen, wcredHandler} from '../common.js'
 import * as polyfill from 'credential-handler-polyfill'
 import {issue_credential, manifest, prcAndUdcVP, presentationDefQuery1, presentationDefQuery2} from './testdata.js'
-import {waitForEvent} from "../../../../cmd/user-agent/src/events";
-import {getMediatorConnections} from "../../../../cmd/user-agent/src/pages/chapi/wallet/didcomm/mediator.js"
+import {IssuerAdapter, RPAdapter} from "../mocks"
 
 var uuid = require('uuid/v4')
 
@@ -225,7 +224,11 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
             })
 
             event.credentialRequestOptions.web.VerifiablePresentation.invitation = await mediator.createInvitation()
-            issuer = opts.agent
+
+            // initialize issuer
+            issuer = new IssuerAdapter(opts.agent)
+            await issuer.init()
+
         }).catch(err => {
             console.error('error starting issuer agent: errMsg=', err)
         })
@@ -250,12 +253,8 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
         btn.trigger('click')
         await Vue.nextTick()
 
-        let res = await waitForEvent(issuer, {topic: 'didexchange_actions'})
-        // approve did connection request from issuer
-        await issuer.didexchange.acceptExchangeRequest({
-            id: res.Properties.connectionID,
-            router_connections: await getMediatorConnections(issuer, true),
-        })
+        // wait for did exchange request from wallet & approve did connection request from issuer
+        await issuer.acceptExchangeRequest()
 
         const resp = await credResponse
         if (resp.dataType === 'VerifiablePresentation') {
@@ -308,7 +307,13 @@ describe('verifier queries credentials - DIDComm Flow', () => {
             })
 
             event.credentialRequestOptions.web.VerifiablePresentation.query[1].invitation = await mediator.createInvitation()
-            verifier = opts.agent
+
+            // initialize issuer & verifier adapter
+            // issuer = new IssuerAdapter(opts.agent)
+            verifier = new RPAdapter(opts.agent)
+
+            await verifier.init()
+
         }).catch(err => {
             console.error('error starting verifier agent: errMsg=', err)
         })
@@ -344,19 +349,11 @@ describe('verifier queries credentials - DIDComm Flow', () => {
         btn.trigger('click')
         await Vue.nextTick()
 
-        // approve did connection request from verifier
-        let res = await waitForEvent(verifier, {topic: 'didexchange_actions'})
-        await verifier.didexchange.acceptExchangeRequest({
-            id: res.Properties.connectionID,
-            router_connections: await getMediatorConnections(verifier, true),
-        })
+        // wait for did exchange request from wallet & approve did connection request from verifier
+        await verifier.acceptExchangeRequest()
 
         // issue credential from issuer
-        res = await waitForEvent(issuer, {topic: 'issue-credential_actions'})
-        await issuer.issuecredential.acceptRequest({
-            piid: res.Properties.piid,
-            issue_credential
-        })
+        await issuer.issueCredential(issue_credential)
 
         const resp = await credResponse
         if (resp.dataType === 'VerifiablePresentation') {
