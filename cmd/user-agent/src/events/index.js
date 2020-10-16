@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 export const PRE_STATE = "pre_state"
 export const POST_STATE = "post_state"
 
-const defaultTimeout = 10000
+const defaultTimeout = 20000
 const defaultTimeoutError = "time out while waiting for event"
 const defaultTopic = 'all'
 
