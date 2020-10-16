@@ -11,6 +11,8 @@ import * as Agent from "@trustbloc/agent-js-worker";
 const msgServices = [
     {name: 'request-peer-did', type: 'https://didcomm.org/peerdidrequest/1.0/message'},
     {name: 'create-conn-resp', type: 'https://trustbloc.github.io/blinded-routing/1.0/create-conn-resp'},
+    {name: 'diddoc-resp', type: 'https://trustbloc.github.io/blinded-routing/1.0/diddoc-res'},
+    {name: 'share-diddoc-res', type: 'https://trustbloc.github.io/blinded-routing/1.0/share-diddoc-res'},
 ]
 
 export default {

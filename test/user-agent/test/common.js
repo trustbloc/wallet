@@ -65,7 +65,14 @@ const agentStartupOpts = {
     sdsServerURL: 'https://localhost:8072/encrypted-data-vaults'
 }
 
-export async function loadFrameworks({name = '', loadAgent = true, loadStartupOpts = false}) {
+const msgServices = [
+    {name: 'request-peer-did', type: 'https://didcomm.org/peerdidrequest/1.0/message'},
+    {name: 'create-conn-resp', type: 'https://trustbloc.github.io/blinded-routing/1.0/create-conn-resp'},
+    {name: 'diddoc-resp', type: 'https://trustbloc.github.io/blinded-routing/1.0/diddoc-res'},
+    {name: 'share-diddoc-res', type: 'https://trustbloc.github.io/blinded-routing/1.0/share-diddoc-res'},
+]
+
+export async function loadFrameworks({name = '', loadAgent = true, loadStartupOpts = false, blinded=false}) {
     let agentOpts = agentStartupOpts
     let opts = {}
 
@@ -77,10 +84,17 @@ export async function loadFrameworks({name = '', loadAgent = true, loadStartupOp
 
     if (loadAgent) {
         opts.agent = await new Agent.Framework(agentOpts)
+        for (const svc of msgServices) {
+            await opts.agent.messaging.registerService(svc)
+        }
     }
 
     if (loadStartupOpts) {
         opts.agentStartupOpts = agentStartupOpts
+    }
+
+    if (blinded) {
+        opts.agentStartupOpts.blindedRouting = true
     }
 
     return opts
