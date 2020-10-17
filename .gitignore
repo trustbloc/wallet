@@ -29,7 +29,7 @@ vendor
 .idea
 .DS_Store
 bin
-coverage.txt
+coverage.out
 .build
 
 node_modules
