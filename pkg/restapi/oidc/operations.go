@@ -35,6 +35,7 @@ const (
 const (
 	transientStoreName = "edgeagent_oidc_trx"
 	stateCookieName    = "oauth2_state"
+	deviceCookieName   = "device_user"
 )
 
 var logger = log.New("hub-auth/oidc")
@@ -187,6 +188,16 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 
 		return
 	}
+
+	session, err := o.store.cookies.Open(r)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "failed to create or decode user sub session cookie: %s", err.Error())
+
+		return
+	}
+
+	session.Set(deviceCookieName, usr.Sub)
 
 	http.Redirect(w, r, o.uiEndpoint, http.StatusFound)
 	logger.Debugf("redirected user to: %s", o.uiEndpoint)
