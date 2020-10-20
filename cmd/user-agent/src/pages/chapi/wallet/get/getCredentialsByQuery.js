@@ -152,7 +152,7 @@ function retainOnlySelected(presentationSubmission, selectedIndexes) {
 async function getAuthorizationCredentials(agent, presentationSubmission, invitation, walletManager, blindedRouter) {
     let exchange = new DIDExchange(agent)
     let rpConn = await exchange.connect(invitation)
-    let rpDIDDoc = await agent.vdri.resolveDID({id: rpConn.result.TheirDID})
+    let rpDIDDoc = await agent.vdr.resolveDID({id: rpConn.result.TheirDID})
 
     // share peer DID with RP for blinded routing
     await blindedRouter.sharePeerDID(rpConn.result)

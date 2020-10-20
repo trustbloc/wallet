@@ -39,11 +39,11 @@ export class BlindedRouter {
         let {ConnectionID} = connection
 
         // request peer DID from other party
-        let responseMsg = await this.messenger.sendAndWaitForReply(ConnectionID, {
+        let responseMsg = await this.messenger.send(ConnectionID, {
             "@id": uuid(),
             "@type": peerDIDRequestMsgType,
             "sent_time": new Date().toJSON(),
-        }, peerDIDResponseTopic)
+        }, {replyTopic: peerDIDResponseTopic})
 
         let peerDID = _parseResponseDID(responseMsg)
         if (!peerDID) {
@@ -55,12 +55,12 @@ export class BlindedRouter {
         let walletDID = await this.mediator.requestDID(peerDID)
 
         // share wallet peer DID to other party
-        this.messenger.sendAndWaitForReply(ConnectionID, {
+        await this.messenger.reply(responseMsg['@id'], {
             "@id": uuid(),
             "@type": sharePeerDIDReqType,
             data: {didDoc: walletDID},
             "sent_time": new Date().toJSON(),
-        }, sharePeerDIDResTopic)
+        }, {replyTopic: sharePeerDIDResTopic, startNewThread: true})
 
     }
 }

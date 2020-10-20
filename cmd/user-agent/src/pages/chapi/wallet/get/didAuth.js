@@ -26,7 +26,7 @@ export class DIDAuth {
     async getDIDRecords() {
         let issuers = []
 
-        await this.agent.vdri.getDIDRecords().then(
+        await this.agent.vdr.getDIDRecords().then(
             resp => {
                 if (resp.result) {
                     resp.result.forEach((item, id) => {

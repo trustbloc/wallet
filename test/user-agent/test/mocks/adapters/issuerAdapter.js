@@ -59,7 +59,7 @@ class Adapter {
         let reqForDID = await waitForEvent(this.agent, {topic: 'request-for-diddoc'})
 
         // send any sample peer DID to wallet
-        let sampleRes = await this.agent.vdri.resolveDID({id: reqForDID.mydid})
+        let sampleRes = await this.agent.vdr.resolveDID({id: reqForDID.mydid})
         this.agent.messaging.reply({
             "message_ID": reqForDID.message['@id'],
             "message_body": {
