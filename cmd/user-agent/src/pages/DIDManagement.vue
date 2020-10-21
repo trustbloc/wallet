@@ -270,7 +270,7 @@ SPDX-License-Identifier: Apache-2.0
 
                 var resp
                 try {
-                    resp = await this.agent.vdri.resolveDID({
+                    resp = await this.agent.vdr.resolveDID({
                         id: this.didID,
                     })
                 } catch (err) {

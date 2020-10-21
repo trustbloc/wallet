@@ -84,7 +84,7 @@ export class DIDManager extends KeyValueStore {
         }
 
         // Save DID to local browser storage
-        await this.agent.vdri.saveDID({
+        await this.agent.vdr.saveDID({
                 name: name,
                 did: did
             }

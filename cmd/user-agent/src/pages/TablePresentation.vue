@@ -238,7 +238,7 @@ SPDX-License-Identifier: Apache-2.0
         }
       },
       loadIssuers: async function () {
-        await this.getAgentInstance().vdri.getDIDRecords().then(
+        await this.getAgentInstance().vdr.getDIDRecords().then(
                 resp => {
                   const data = resp.result
                   if (!data || data.length == 0) {

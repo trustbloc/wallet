@@ -19,13 +19,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/hyperledger/aries-framework-go/component/storage/jsindexeddb"
 	ariesctrl "github.com/hyperledger/aries-framework-go/pkg/controller"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/messaging/msghandler"
 	arieshttp "github.com/hyperledger/aries-framework-go/pkg/didcomm/transport/http"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/transport/ws"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/aries"
-	"github.com/hyperledger/aries-framework-go/pkg/framework/aries/defaults"
-	"github.com/hyperledger/aries-framework-go/pkg/vdri/httpbinding"
+	"github.com/hyperledger/aries-framework-go/pkg/vdr/httpbinding"
+
 	"github.com/mitchellh/mapstructure"
 	"github.com/trustbloc/edge-core/pkg/log"
 
@@ -358,8 +360,8 @@ func cmdExecToFn(exec execFn) func(*command) *result {
 		if len(buf.Bytes()) > 0 {
 			if err := json.Unmarshal(buf.Bytes(), &payload); err != nil {
 				return &result{
-					ID:    c.ID,
-					IsErr: true,
+					ID:     c.ID,
+					IsErr:  true,
 					ErrMsg: fmt.Sprintf("agent wasm: failed to unmarshal command result=%+v err=%s", buf.String(), err),
 				}
 			}
@@ -433,9 +435,12 @@ func agentOpts(opts *agentStartOpts) ([]aries.Option, error) {
 		options = append(options, aries.WithTransportReturnRoute(opts.TransportReturnRoute))
 	}
 
-	if opts.DBNamespace != "" {
-		options = append(options, defaults.WithStorePath(opts.DBNamespace))
+	store, err := jsindexeddb.NewProvider(opts.DBNamespace)
+	if err != nil {
+		return nil, err
 	}
+
+	options = append(options, aries.WithStoreProvider(store))
 
 	for _, transport := range opts.OutboundTransport {
 		switch transport {
@@ -483,7 +488,7 @@ func getResolverOpts(httpResolvers []string) ([]aries.Option, error) {
 				return nil, fmt.Errorf("failed to setup http resolver :  %w", err)
 			}
 
-			opts = append(opts, aries.WithVDRI(httpVDRI))
+			opts = append(opts, aries.WithVDR(httpVDRI))
 		}
 	}
 

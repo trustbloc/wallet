@@ -109,13 +109,13 @@ export class AgentMediator {
             throw 'could not find connection with router'
         }
 
-        let response = await this.messenger.sendAndWaitForReply(connection, {
+        let response = await this.messenger.send(connection, {
             "@id": uuid(),
             "@type": createConnReqType,
             data: {thirdPartyDIDDoc: reqDoc},
             "sent_time": new Date().toJSON(),
             "~purpose": ["create-conn-req"],
-        }, createConnResTopic)
+        }, {replyTopic: createConnResTopic})
 
 
         // TODO currently getting routerDIDDoc as byte[], to be fixed
