@@ -13,7 +13,7 @@ var uuid = require('uuid/v4')
 const routerCreateInvitationPath = `/didcomm/invitation`
 const stateCompleted = 'completed'
 const topicDidExchangeStates = 'didexchange_states'
-const createConnReqType = 'https://trustbloc.github.io/blinded-routing/1.0/create-conn-req'
+const createConnReqType = 'https://trustbloc.dev/blinded-routing/1.0/create-conn-req'
 const createConnResTopic = 'create-conn-resp'
 
 /**
@@ -112,15 +112,14 @@ export class AgentMediator {
         let response = await this.messenger.send(connection, {
             "@id": uuid(),
             "@type": createConnReqType,
-            data: {thirdPartyDIDDoc: reqDoc},
+            data: {didDoc: reqDoc},
             "sent_time": new Date().toJSON(),
-            "~purpose": ["create-conn-req"],
         }, {replyTopic: createConnResTopic})
 
 
         // TODO currently getting routerDIDDoc as byte[], to be fixed
-        if (response.data.routerDIDDoc && response.data.routerDIDDoc.length > 0) {
-            return JSON.parse(String.fromCharCode.apply(String, response.data.routerDIDDoc))
+        if (response.data.didDoc && response.data.didDoc.length > 0) {
+            return JSON.parse(String.fromCharCode.apply(String, response.data.didDoc))
         }
 
         console.error('failed to request DID from router, failed to get connection response')

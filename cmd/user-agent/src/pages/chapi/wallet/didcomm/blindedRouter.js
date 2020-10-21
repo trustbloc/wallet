@@ -9,10 +9,10 @@ import {AgentMediator} from './mediator'
 
 var uuid = require('uuid/v4')
 
-const peerDIDRequestMsgType = 'https://trustbloc.github.io/blinded-routing/1.0/diddoc-req'
+const peerDIDRequestMsgType = 'https://trustbloc.dev/blinded-routing/1.0/diddoc-req'
 const peerDIDResponseTopic = 'diddoc-resp'
-const sharePeerDIDReqType = 'https://trustbloc.github.io/blinded-routing/1.0/share-diddoc-req'
-const sharePeerDIDResTopic = 'share-diddoc-res'
+const sharePeerDIDReqType = 'https://trustbloc.dev/blinded-routing/1.0/register-route-req'
+const sharePeerDIDResTopic = 'register-route-res'
 
 /**
  * BlindedRouter provides blinded routing features
