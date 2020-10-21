@@ -10,9 +10,9 @@ import * as Agent from "@trustbloc/agent-js-worker";
 // TODO message type domain needs to be finalized
 const msgServices = [
     {name: 'request-peer-did', type: 'https://didcomm.org/peerdidrequest/1.0/message'},
-    {name: 'create-conn-resp', type: 'https://trustbloc.github.io/blinded-routing/1.0/create-conn-resp'},
-    {name: 'diddoc-resp', type: 'https://trustbloc.github.io/blinded-routing/1.0/diddoc-res'},
-    {name: 'share-diddoc-res', type: 'https://trustbloc.github.io/blinded-routing/1.0/share-diddoc-res'},
+    {name: 'create-conn-resp', type: 'https://trustbloc.dev/blinded-routing/1.0/create-conn-resp'},
+    {name: 'diddoc-resp', type: 'https://trustbloc.dev/blinded-routing/1.0/diddoc-res'},
+    {name: 'register-route-res', type: 'https://trustbloc.dev/blinded-routing/1.0/register-route-res'},
 ]
 
 export default {

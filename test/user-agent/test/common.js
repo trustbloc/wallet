@@ -67,9 +67,9 @@ const agentStartupOpts = {
 
 const msgServices = [
     {name: 'request-peer-did', type: 'https://didcomm.org/peerdidrequest/1.0/message'},
-    {name: 'create-conn-resp', type: 'https://trustbloc.github.io/blinded-routing/1.0/create-conn-resp'},
-    {name: 'diddoc-resp', type: 'https://trustbloc.github.io/blinded-routing/1.0/diddoc-res'},
-    {name: 'share-diddoc-res', type: 'https://trustbloc.github.io/blinded-routing/1.0/share-diddoc-res'},
+    {name: 'create-conn-resp', type: 'https://trustbloc.dev/blinded-routing/1.0/create-conn-resp'},
+    {name: 'diddoc-resp', type: 'https://trustbloc.dev/blinded-routing/1.0/diddoc-res'},
+    {name: 'register-route-res', type: 'https://trustbloc.dev/blinded-routing/1.0/register-route-res'},
 ]
 
 export async function loadFrameworks({name = '', loadAgent = true, loadStartupOpts = false, blinded=false}) {

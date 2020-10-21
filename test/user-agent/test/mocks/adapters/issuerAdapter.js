@@ -8,8 +8,8 @@ import {getMediatorConnections} from "../../../../../cmd/user-agent/src/pages/ch
 import {waitForEvent} from "../../../../../cmd/user-agent/src/events";
 
 const msgServices = [
-    {name: 'request-for-diddoc', type: 'https://trustbloc.github.io/blinded-routing/1.0/diddoc-req'},
-    {name: 'share-diddoc-req', type: 'https://trustbloc.github.io/blinded-routing/1.0/share-diddoc-req'},
+    {name: 'request-for-diddoc', type: 'https://trustbloc.dev/blinded-routing/1.0/diddoc-req'},
+    {name: 'register-route-req', type: 'https://trustbloc.dev/blinded-routing/1.0/register-route-req'},
 ]
 
 var uuid = require('uuid/v4')
@@ -56,7 +56,7 @@ class Adapter {
      */
     async sharePeerDID() {
         // wait for request from wallet for peer DID
-        let reqForDID = await waitForEvent(this.agent, {topic: 'request-for-diddoc'})
+        let reqForDID = await waitForEvent(this.agent, {topic: 'request-for-diddoc', timeoutError: 'timeout error #1'})
 
         // send any sample peer DID to wallet
         let sampleRes = await this.agent.vdr.resolveDID({id: reqForDID.mydid})
@@ -64,19 +64,19 @@ class Adapter {
             "message_ID": reqForDID.message['@id'],
             "message_body": {
                 "@id": uuid(),
-                "@type": 'https://trustbloc.github.io/blinded-routing/1.0/diddoc-res',
+                "@type": 'https://trustbloc.dev/blinded-routing/1.0/diddoc-res',
                 data: {didDoc: sampleRes.did},
             }
         })
 
         // wait for did shared by other party
-        let sharedDID = await waitForEvent(this.agent, {topic: 'share-diddoc-req'})
+        let sharedDID = await waitForEvent(this.agent, {topic: 'register-route-req', timeoutError: 'timeout error #2'})
         // send acknowledgement to wallet
         this.agent.messaging.reply({
             "message_ID": sharedDID.message['@id'],
             "message_body": {
                 "@id": uuid(),
-                "@type": 'https://trustbloc.github.io/blinded-routing/1.0/share-diddoc-res'
+                "@type": 'https://trustbloc.dev/blinded-routing/1.0/register-route-res'
             }
         })
 
@@ -97,7 +97,7 @@ export class IssuerAdapter extends Adapter {
      * issueCredential issues given credential from issuer adapter
      */
     async issueCredential(cred) {
-        let res = await waitForEvent(this.agent, {topic: 'issue-credential_actions'})
+        let res = await waitForEvent(this.agent, {topic: 'issue-credential_actions', timeoutError: 'timeout error #1 issuer'})
         await this.agent.issuecredential.acceptRequest({
             piid: res.Properties.piid,
             issue_credential: cred
