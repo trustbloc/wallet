@@ -116,6 +116,9 @@ jobs:
           git lfs pull
           source ci/version_var.sh
           echo $DOCKER_PASSWORD | docker login docker.pkg.github.com --username $DOCKER_USER --password-stdin
+          echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
+          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make user-agent-wasm-docker
           docker tag docker.pkg.github.com/trustbloc/edge-agent/user-agent-wasm:latest ${USER_WASM_PKG}:${EDGE_AGENT_TAG}
           docker push ${USER_WASM_PKG}:${EDGE_AGENT_TAG}
