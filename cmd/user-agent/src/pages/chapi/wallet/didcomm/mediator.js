@@ -49,7 +49,7 @@ export class AgentMediator {
             try {
                 await this.agent.mediator.register({connectionID: connID})
             } catch (e) {
-                if (!e.message.includes("timeout waiting for grant from the router") || i === retries) {
+                if (!e.message.includes("router registration : get grant: store: data not found") || i === retries) {
                     throw e
                 }
                 await sleep(500);
