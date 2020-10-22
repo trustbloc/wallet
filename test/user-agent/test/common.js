@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import * as Agent from "@trustbloc/agent-js-worker"
+import * as Agent from "@trustbloc/agent-sdk"
 import {createLocalVue} from "@vue/test-utils";
 import Vuex from "vuex";
 
@@ -72,7 +72,7 @@ const msgServices = [
     {name: 'register-route-res', type: 'https://trustbloc.dev/blinded-routing/1.0/register-route-res'},
 ]
 
-export async function loadFrameworks({name = '', loadAgent = true, loadStartupOpts = false, blinded=false}) {
+export async function loadFrameworks({name = '', loadAgent = true, loadStartupOpts = false, blinded = false}) {
     let agentOpts = agentStartupOpts
     let opts = {}
 

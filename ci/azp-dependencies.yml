@@ -10,7 +10,3 @@ steps:
       goPath: $(GOPATH)
   - script: echo "##vso[task.setvariable variable=PATH]$(Agent.BuildDirectory)/go/bin:${PATH}"
     displayName: Include go/bin in PATH
-  - task: Go@0
-    displayName: 'go get gobin'
-    inputs:
-      arguments: github.com/myitcv/gobin

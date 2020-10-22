@@ -30,7 +30,7 @@ let defaultAgentStartupOpts = {
 export default {
     actions: {
         async initOpts({commit}, location) {
-            location = location ? location :  window.location.origin
+            location = location ? location : window.location.origin
 
             let agentOpts = {}
 
