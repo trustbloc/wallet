@@ -50,6 +50,9 @@ export class WalletGetByQuery extends WalletGet {
         this.walletManager = new WalletManager()
         this.mediator = new AgentMediator(agent)
         this.blindedRouter = new BlindedRouter(agent, opts)
+
+        // TODO below line to be remove after #434
+        this.blindedRouting = opts.blindedRouting && opts.runRPBlinded
     }
 
     requirementDetails() {
@@ -86,7 +89,8 @@ export class WalletGetByQuery extends WalletGet {
                 presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes)
 
                 if (this.invitation.length > 0) {
-                    presentationSubmission = await getAuthorizationCredentials(this.agent, presentationSubmission, this.invitation[0], this.walletManager, this.blindedRouter)
+                    presentationSubmission = await getAuthorizationCredentials(this.agent, presentationSubmission, this.invitation[0],
+                        this.walletManager, this.blindedRouting ? this.blindedRouter : undefined)
                 }
             }
 
@@ -154,8 +158,10 @@ async function getAuthorizationCredentials(agent, presentationSubmission, invita
     let rpConn = await exchange.connect(invitation)
     let rpDIDDoc = await agent.vdr.resolveDID({id: rpConn.result.TheirDID})
 
-    // share peer DID with RP for blinded routing
-    await blindedRouter.sharePeerDID(rpConn.result)
+    if (blindedRouter) {
+        // share peer DID with RP for blinded routing
+        await blindedRouter.sharePeerDID(rpConn.result)
+    }
 
     let acceptCredPool = new Map()
     await Promise.all(presentationSubmission.verifiableCredential.map(async (vc, index) => {
