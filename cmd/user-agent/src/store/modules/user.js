@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import {Messenger, WalletManager} from "../../pages/chapi/wallet";
-import * as Agent from "@trustbloc/agent-js-worker";
+import * as Agent from "@trustbloc/agent-sdk";
 
 // TODO message type domain needs to be finalized
 const msgServices = [

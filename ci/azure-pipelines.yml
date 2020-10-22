@@ -43,16 +43,6 @@ jobs:
           CODECOV_UPLOAD_TOKEN: $(CODECOV_UPLOAD_TOKEN)
         displayName: Upload coverage to Codecov
 
-  - job: UnitTestWasm
-    pool:
-      vmImage: ubuntu-18.04
-    timeoutInMinutes: 30
-    steps:
-      - template: azp-dependencies.yml
-      - checkout: self
-      - script: make unit-test-wasm
-        displayName: Run unit test wasm
-
   - job: BDDTestJS
     pool:
       vmImage: ubuntu-18.04

@@ -4,7 +4,6 @@
 
 
 HTTP_SERVER_PATH       = cmd/http-server
-GOBIN_PATH             = $(abspath .)/build/bin
 
 # GO version
 ALPINE_VER ?= 3.12
@@ -18,11 +17,6 @@ REPO_IMAGE_NAME          ?= trustbloc/edge-agent
 
 .PHONY: all
 all: clean checks unit-test
-
-.PHONY: depend
-depend:
-	@mkdir -p ./build/bin
-	GO111MODULE=off GOBIN=$(GOBIN_PATH) go get github.com/agnivade/wasmbrowsertest
 
 .PHONY: checks
 checks: license lint
@@ -39,21 +33,12 @@ license:
 unit-test:
 	@scripts/check_unit.sh
 
-.PHONY: unit-test-wasm
-unit-test-wasm: export GOBIN=$(GOBIN_PATH)
-unit-test-wasm: depend
-	@scripts/check_unit_wasm.sh
-
 .PHONY: agent-wasm
 agent-wasm:
 	@scripts/build_agent_wasm.sh ${AGENT_NAME}
 
-.PHONY: agent-js-worker-wasm
-agent-js-worker-wasm:
-	@scripts/build_agent_js_worker_wasm.sh
-
 .PHONY: user-agent-wasm
-user-agent-wasm: agent-js-worker-wasm
+user-agent-wasm:
 	AGENT_NAME="user" make agent-wasm
 
 .PHONY: http-server
@@ -115,6 +100,4 @@ clean-build:
 	@rm -Rf ./build
 	@rm -Rf ./cmd/user-agent/dist
 	@rm -Rf ./cmd/user-agent/node_modules
-	@rm -Rf ./cmd/agent-js-worker/node_modules
-	@rm -Rf ./cmd/agent-js-worker/dist
 	@rm -Rf ./test/bdd/fixtures/agent-wasm/config
