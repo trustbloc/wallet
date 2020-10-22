@@ -6,6 +6,7 @@
 - Go 1.15
 - Npm
 - GitHub packages setup : you will need to authenticate to GitHub packages with your [personal token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line#creating-a-token).
+- Configuring npm for use with GitHub Packages `echo "//npm.pkg.github.com/:_authToken=${PERSONAL_TOKEN}" > ~/.npmrc`
 
 ## Prerequisites (for running tests and demos)
 - Docker
