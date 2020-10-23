@@ -56,7 +56,8 @@ class Adapter {
      */
     async sharePeerDID() {
         // wait for request from wallet for peer DID
-        let reqForDID = await waitForEvent(this.agent, {topic: 'request-for-diddoc', timeoutError: 'timeout error #1'})
+        let reqForDID = await waitForEvent(this.agent, {topic: 'request-for-diddoc',
+            timeoutError: 'timeout waiting for peer DID request'})
 
         // send any sample peer DID to wallet
         let sampleRes = await this.agent.vdr.resolveDID({id: reqForDID.mydid})
@@ -70,7 +71,8 @@ class Adapter {
         })
 
         // wait for did shared by other party
-        let sharedDID = await waitForEvent(this.agent, {topic: 'register-route-req', timeoutError: 'timeout error #2'})
+        let sharedDID = await waitForEvent(this.agent, {topic: 'register-route-req',
+            timeoutError: 'timeout waiting for register route request'})
         // send acknowledgement to wallet
         this.agent.messaging.reply({
             "message_ID": sharedDID.message['@id'],
@@ -97,7 +99,8 @@ export class IssuerAdapter extends Adapter {
      * issueCredential issues given credential from issuer adapter
      */
     async issueCredential(cred) {
-        let res = await waitForEvent(this.agent, {topic: 'issue-credential_actions', timeoutError: 'timeout error #1 issuer'})
+        let res = await waitForEvent(this.agent, {topic: 'issue-credential_actions',
+            timeoutError: 'timeout waiting for issue credential request'})
         await this.agent.issuecredential.acceptRequest({
             piid: res.Properties.piid,
             issue_credential: cred

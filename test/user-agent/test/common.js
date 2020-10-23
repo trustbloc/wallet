@@ -95,6 +95,8 @@ export async function loadFrameworks({name = '', loadAgent = true, loadStartupOp
 
     if (blinded) {
         opts.agentStartupOpts.blindedRouting = true
+        // TODO below line to be remove after #434
+        opts.agentStartupOpts.runRPBlinded = true
     }
 
     return opts
