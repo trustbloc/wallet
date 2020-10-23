@@ -65,7 +65,7 @@ class Adapter {
             "message_ID": reqForDID.message['@id'],
             "message_body": {
                 "@id": uuid(),
-                "@type": 'https://trustbloc.dev/blinded-routing/1.0/diddoc-res',
+                "@type": 'https://trustbloc.dev/blinded-routing/1.0/diddoc-resp',
                 data: {didDoc: sampleRes.did},
             }
         })
@@ -78,7 +78,7 @@ class Adapter {
             "message_ID": sharedDID.message['@id'],
             "message_body": {
                 "@id": uuid(),
-                "@type": 'https://trustbloc.dev/blinded-routing/1.0/register-route-res'
+                "@type": 'https://trustbloc.dev/blinded-routing/1.0/register-route-resp'
             }
         })
 
