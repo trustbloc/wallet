@@ -46,11 +46,11 @@ export class Messenger {
      *
      * timeout: (optional) timeout for reply.
      */
-    async send(connectionID, msg, { replyTopic = '', timeout = undefined} = {}) {
+    async send(connectionID, msg, {replyTopic = '', timeout = undefined, retry = undefined} = {}) {
         this.agent.messaging.send({"connection_ID": connectionID, "message_body": msg})
 
         if (replyTopic) {
-            return await this.waitForReply(msg['@id'], replyTopic, timeout)
+            return await this.waitForReply(msg['@id'], replyTopic, timeout, retry)
         }
     }
 
@@ -69,11 +69,11 @@ export class Messenger {
      *
      * timeout: (optional) timeout for reply.
      */
-    async reply(msgID, msg, { replyTopic = '', startNewThread = false, timeout = undefined} = {}) {
+    async reply(msgID, msg, {replyTopic = '', startNewThread = false, timeout = undefined, retry = undefined} = {}) {
         this.agent.messaging.reply({"message_ID": msgID, "message_body": msg, "start_new_thread": startNewThread})
 
         if (replyTopic) {
-            return await this.waitForReply(msg['@id'], replyTopic, timeout)
+            return await this.waitForReply(msg['@id'], replyTopic, timeout, retry)
         }
     }
 
@@ -85,21 +85,37 @@ export class Messenger {
      * @param {int} timeout (optional) : timeout for reply.
      *
      */
-    async waitForReply(msgID, topic, timeout) {
+    async waitForReply(msgID, topic, timeout, retry) {
+        retry = retry ? retry : {attempts: 0}
         timeout = timeout ? timeout : 30000
 
-        const incomingMsg = await new Promise((resolve, reject) => {
-            setTimeout(() => reject(new Error(`time out waiting reply for topic '${topic}'`)), timeout)
-            const stop = this.agent.startNotifier(msg => {
-                let thID = msg.payload.message['~thread'] ? msg.payload.message['~thread'].thid : ''
-                if (thID != msgID) {
-                    return
-                }
+        let incomingMsg
+        for (let i = 0; i <= retry.attempts; i++) {
+            try {
+                incomingMsg = await new Promise((resolve, reject) => {
+                    setTimeout(() => reject(new Error(`time out waiting reply for topic '${topic}'`)), timeout)
+                    const stop = this.agent.startNotifier(msg => {
+                        let thID = msg.payload.message['~thread'] ? msg.payload.message['~thread'].thid : ''
+                        if (thID != msgID) {
+                            return
+                        }
 
-                stop()
-                resolve(msg.payload.message)
-            }, [topic])
-        })
+                        stop()
+                        resolve(msg.payload.message)
+                    }, [topic])
+                })
+            } catch (e) {
+                if (i == retry.attempts) {
+                    throw e
+                } else if (!retry.err || e.message.includes(retry.err)) {
+                    continue
+                } else {
+                    throw e
+                }
+            }
+
+            break
+        }
 
         return incomingMsg
     }

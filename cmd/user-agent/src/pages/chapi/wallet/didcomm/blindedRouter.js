@@ -43,7 +43,15 @@ export class BlindedRouter {
             "@id": uuid(),
             "@type": peerDIDRequestMsgType,
             "sent_time": new Date().toJSON(),
-        }, {replyTopic: peerDIDResponseTopic})
+        }, {
+            replyTopic: peerDIDResponseTopic,
+            timeout: 5000,
+            retry: {
+                attempts: 5,
+                err: 'time out waiting reply for topic'
+            }
+        })
+
 
         let peerDID = _parseResponseDID(responseMsg)
         if (!peerDID) {
