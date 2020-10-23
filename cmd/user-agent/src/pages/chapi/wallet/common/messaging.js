@@ -47,11 +47,15 @@ export class Messenger {
      * timeout: (optional) timeout for reply.
      */
     async send(connectionID, msg, {replyTopic = '', timeout = undefined, retry = undefined} = {}) {
-        this.agent.messaging.send({"connection_ID": connectionID, "message_body": msg})
+        let action = () => {
+            this.agent.messaging.send({"connection_ID": connectionID, "message_body": msg})
+        }
 
         if (replyTopic) {
-            return await this.waitForReply(msg['@id'], replyTopic, timeout, retry)
+            return await this.waitForReply(action, msg['@id'], replyTopic, timeout, retry)
         }
+
+        action()
     }
 
     /**
@@ -70,11 +74,15 @@ export class Messenger {
      * timeout: (optional) timeout for reply.
      */
     async reply(msgID, msg, {replyTopic = '', startNewThread = false, timeout = undefined, retry = undefined} = {}) {
-        this.agent.messaging.reply({"message_ID": msgID, "message_body": msg, "start_new_thread": startNewThread})
+        let action = () => {
+            this.agent.messaging.reply({"message_ID": msgID, "message_body": msg, "start_new_thread": startNewThread})
+        }
 
         if (replyTopic) {
-            return await this.waitForReply(msg['@id'], replyTopic, timeout, retry)
+            return await this.waitForReply(action, msg['@id'], replyTopic, timeout, retry)
         }
+
+        action()
     }
 
     /**
@@ -85,13 +93,15 @@ export class Messenger {
      * @param {int} timeout (optional) : timeout for reply.
      *
      */
-    async waitForReply(msgID, topic, timeout, retry) {
-        retry = retry ? retry : {attempts: 0}
+    async waitForReply(action, msgID, topic, timeout, retry) {
         timeout = timeout ? timeout : 30000
+        retry = retry ? retry : {attempts: 0}
 
         let incomingMsg
         for (let i = 0; i <= retry.attempts; i++) {
             try {
+                action()
+
                 incomingMsg = await new Promise((resolve, reject) => {
                     setTimeout(() => reject(new Error(`time out waiting reply for topic '${topic}'`)), timeout)
                     const stop = this.agent.startNotifier(msg => {
