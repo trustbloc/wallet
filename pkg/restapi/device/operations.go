@@ -9,14 +9,13 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/duo-labs/webauthn.io/session"
 	"github.com/duo-labs/webauthn/protocol"
 	"github.com/duo-labs/webauthn/webauthn"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
 	"github.com/trustbloc/edge-core/pkg/log"
@@ -27,10 +26,13 @@ import (
 const (
 	registerBeginPath  = "register/begin"
 	registerFinishPath = "register/finish"
+	loginBeginPath     = "login/begin"
+	loginFinishPath    = "login/finish"
 )
 
 // Stores.
 const (
+	deviceStoreName  = "edgeagent_device_trx"
 	deviceCookieName = "device_user"
 )
 
@@ -59,6 +61,7 @@ type StorageConfig struct {
 type stores struct {
 	users   *user.Store
 	cookies cookie.Store
+	storage storage.Store
 	session *session.Store
 }
 
@@ -82,6 +85,11 @@ func New(config *Config) (*Operation, error) {
 
 	var err error
 
+	op.store.storage, err = store.Open(config.Storage.Storage, deviceStoreName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open store: %w", err)
+	}
+
 	op.store.session, err = session.NewStore()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create web auth protocol session store: %w", err)
@@ -100,6 +108,8 @@ func (o *Operation) GetRESTHandlers() []common.Handler {
 	return []common.Handler{
 		common.NewHTTPHandler(registerBeginPath, http.MethodGet, o.beginRegistration),
 		common.NewHTTPHandler(registerFinishPath, http.MethodPost, o.finishRegistration),
+		common.NewHTTPHandler(loginBeginPath, http.MethodGet, o.beginLogin),
+		common.NewHTTPHandler(loginFinishPath, http.MethodPost, o.finishLogin),
 	}
 }
 
@@ -137,14 +147,6 @@ func (o *Operation) beginRegistration(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-
-	protocolCredentialBytes, err := marshallResponse(protocolCredential)
-	if err != nil {
-		common.WriteErrorResponsef(w, logger,
-			http.StatusBadRequest, "failed to marshal protocol credential %s", err.Error())
-
-		return
-	}
 	// store session data as marshaled JSON
 	err = o.store.session.SaveWebauthnSession(userData.Sub, sessionData, r, w)
 	if err != nil {
@@ -154,10 +156,7 @@ func (o *Operation) beginRegistration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.Response = &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       ioutil.NopCloser(strings.NewReader(string(protocolCredentialBytes))),
-	}
+	jsonResponse(w, protocolCredential, http.StatusOK)
 
 	logger.Debugf("Registration begins: %s", o.uiEndpoint)
 }
@@ -188,20 +187,93 @@ func (o *Operation) finishRegistration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	credentialBytes, err := marshallResponse(credential)
+	device.AddCredential(*credential)
+
+	err = o.saveDeviceInfo(device)
 	if err != nil {
 		common.WriteErrorResponsef(w, logger,
-			http.StatusInternalServerError, "failed to marshal finished credential %s", err.Error())
+			http.StatusInternalServerError, "failed to save device info: %s", err.Error())
 
 		return
 	}
-	// sending credential as part of response
-	r.Response = &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       ioutil.NopCloser(strings.NewReader(string(credentialBytes))),
-	}
+
+	jsonResponse(w, credential, http.StatusOK)
 
 	logger.Debugf("Registration success: %s", o.uiEndpoint)
+}
+
+func (o *Operation) beginLogin(w http.ResponseWriter, r *http.Request) {
+	logger.Debugf("handling begin device login: %s", r.URL.String())
+
+	// get username
+	userData, canProceed := o.getUserData(w, r)
+	if !canProceed {
+		return
+	}
+
+	deviceData, err := o.getDeviceInfo(userData.Sub)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusBadRequest, "failed to get device data: %s", err.Error())
+
+		return
+	}
+
+	// generate PublicKeyCredentialRequestOptions, session data
+	options, sessionData, err := o.webauthn.BeginLogin(deviceData)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "failed to begin login: %s", err.Error())
+
+		return
+	}
+
+	// store session data as marshaled JSON
+	err = o.store.session.SaveWebauthnSession(deviceData.ID, sessionData, r, w)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "failed to save web auth login session: %s", err.Error())
+
+		return
+	}
+
+	jsonResponse(w, options, http.StatusOK)
+}
+
+func (o *Operation) finishLogin(w http.ResponseWriter, r *http.Request) {
+	// get username
+	// get username
+	userData, canProceed := o.getUserData(w, r)
+	if !canProceed {
+		return
+	}
+
+	deviceData, err := o.getDeviceInfo(userData.Sub)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusBadRequest, "failed to get device data: %s", err.Error())
+
+		return
+	}
+	// load the session data
+	sessionData, err := o.store.session.GetWebauthnSession(deviceData.ID, r)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusBadRequest, "failed to get web auth login session: %s", err.Error())
+
+		return
+	}
+
+	_, err = o.webauthn.FinishLogin(deviceData, sessionData, r)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusBadRequest, "failed to finish login: %s", err.Error())
+
+		return
+	}
+
+	// handle successful login
+	jsonResponse(w, "Login Success", http.StatusOK)
 }
 
 func (o *Operation) getUserData(w http.ResponseWriter, r *http.Request) (userData *user.User, proceed bool) {
@@ -231,6 +303,50 @@ func (o *Operation) getUserData(w http.ResponseWriter, r *http.Request) (userDat
 	return userData, true
 }
 
-func marshallResponse(value interface{}) ([]byte, error) {
-	return json.Marshal(value)
+func (o *Operation) saveDeviceInfo(device *Device) error {
+	deviceBytes, err := json.Marshal(device)
+	if err != nil {
+		return fmt.Errorf("failed to marshall the device data: %s", err)
+	}
+
+	err = o.store.storage.Put(device.ID, deviceBytes)
+
+	if err != nil {
+		return fmt.Errorf("failed to save the device data: %s", err)
+	}
+
+	return nil
+}
+
+func (o *Operation) getDeviceInfo(username string) (*Device, error) {
+	// fetch user and check if user doesn't exist
+	userData, err := o.store.users.Get(username)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %s", err.Error())
+	}
+
+	deviceDataBytes, err := o.store.storage.Get(userData.Sub)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch device data: %s", err.Error())
+	}
+
+	deviceData := &Device{}
+
+	err = json.Unmarshal(deviceDataBytes, deviceData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshall device data: %s", err.Error())
+	}
+
+	return deviceData, nil
+}
+
+func jsonResponse(w http.ResponseWriter, resp interface{}, c int) {
+	respBytes, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, "Error creating JSON response", http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(c)
+	fmt.Fprintf(w, "%s", respBytes)
 }
