@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import {KeyValueStore} from '../common/keyValStore.js'
+import {getMediatorConnections} from '../didcomm/mediator'
 
 const dbName = "did-metadata"
 const storeName = "metadata"
@@ -24,7 +25,7 @@ export class DIDManager extends KeyValueStore {
         this.startupOpts = opts
     }
 
-    async createDID(keyType, signType) {
+    async createTrustBlocDID(keyType, signType) {
         if (!this.agent) {
             console.error("agent is required to create DIDs")
             throw "operation not supported"
@@ -75,6 +76,12 @@ export class DIDManager extends KeyValueStore {
             })
 
         return did
+    }
+
+    async createPeerDID() {
+        let routerConnectionID = await getMediatorConnections(this.agent, true)
+
+        return await this.agent.didclient.createPeerDID({routerConnectionID})
     }
 
     async saveDID(user, name, signType, did){
