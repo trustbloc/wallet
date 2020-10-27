@@ -12,6 +12,7 @@ import {getCredentialType} from '../common/util'
 import {DIDExchange} from '../common/didExchange'
 import {AgentMediator} from '../didcomm/mediator'
 import {BlindedRouter} from '../didcomm/blindedRouter'
+import {DIDManager} from '../didmgmt/didManager'
 
 var uuid = require('uuid/v4')
 
@@ -50,6 +51,8 @@ export class WalletGetByQuery extends WalletGet {
         this.walletManager = new WalletManager()
         this.mediator = new AgentMediator(agent)
         this.blindedRouter = new BlindedRouter(agent, opts)
+        this.didManager = new DIDManager(agent, opts)
+        this.didExchange = new DIDExchange(agent)
 
         // TODO below line to be remove after #434
         this.blindedRouting = opts.blindedRouting && opts.runRPBlinded
@@ -89,8 +92,7 @@ export class WalletGetByQuery extends WalletGet {
                 presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes)
 
                 if (this.invitation.length > 0) {
-                    presentationSubmission = await getAuthorizationCredentials(this.agent, presentationSubmission, this.invitation[0],
-                        this.walletManager, this.blindedRouting ? this.blindedRouter : undefined)
+                    presentationSubmission = await this._getAuthorizationCredentials(presentationSubmission)
                 }
             }
 
@@ -124,6 +126,69 @@ export class WalletGetByQuery extends WalletGet {
     sendNoCredntials() {
         this.sendResponse("error", "no credentials found for given presentation exchange request")
     }
+
+
+    async _getAuthorizationCredentials(presentationSubmission) {
+        let rpConn = await this.didExchange.connect(this.invitation[0])
+        let rpDIDDoc = await this.agent.vdr.resolveDID({id: rpConn.result.TheirDID})
+
+        if (this.blindedRouting) {
+            // share peer DID with RP for blinded routing
+            await this.blindedRouter.sharePeerDID(rpConn.result)
+        }
+
+        let peerDID = await this.didManager.createPeerDID()
+        let agent = this.agent
+        let walletManager = this.walletManager
+        let acceptCredPool = new Map()
+
+        await Promise.all(presentationSubmission.verifiableCredential.map(async (vc, index) => {
+            if (getCredentialType(vc.type) != manifestType) {
+                return
+            }
+
+            let connection = await walletManager.getConnectionByID(vc.connection)
+            // TODO `request_credential.requests~attach.data.json.subjectDID` to be removed once adapters are updated
+            let resp = await agent.issuecredential.sendRequest({
+                my_did: connection.MyDID,
+                their_did: connection.TheirDID,
+                request_credential: {
+                    "requests~attach": [
+                        {
+                            "lastmod_time": new Date(),
+                            data: {
+                                json: {
+                                    subjectDID: peerDID.id,
+                                    subjectDIDDoc: {
+                                        id: peerDID.id,
+                                        doc: peerDID
+                                    },
+                                    requestingPartyDIDDoc: {
+                                        id: rpDIDDoc.did.id,
+                                        doc: rpDIDDoc.did
+                                    },
+                                }
+                            }
+                        }
+                    ]
+                }
+            })
+
+            console.log('sent request credential message', resp.piid)
+
+            acceptCredPool.set(resp.piid, {index})
+        }))
+
+        console.log(`${acceptCredPool.size} issue credential requests sent`)
+
+        await waitForCredentials(agent, acceptCredPool)
+
+        acceptCredPool.forEach(function (value) {
+            presentationSubmission.verifiableCredential[value.index] = value.credential
+        })
+
+        return presentationSubmission
+    }
 }
 
 // retainOnlySelected retain only selected VCs and their respective descriptors
@@ -149,60 +214,6 @@ function retainOnlySelected(presentationSubmission, selectedIndexes) {
 
     presentationSubmission.verifiableCredential = vcs
     presentationSubmission.presentation_submission.descriptor_map = descriptors
-
-    return presentationSubmission
-}
-
-async function getAuthorizationCredentials(agent, presentationSubmission, invitation, walletManager, blindedRouter) {
-    let exchange = new DIDExchange(agent)
-    let rpConn = await exchange.connect(invitation)
-    let rpDIDDoc = await agent.vdr.resolveDID({id: rpConn.result.TheirDID})
-
-    if (blindedRouter) {
-        // share peer DID with RP for blinded routing
-        await blindedRouter.sharePeerDID(rpConn.result)
-    }
-
-    let acceptCredPool = new Map()
-    await Promise.all(presentationSubmission.verifiableCredential.map(async (vc, index) => {
-        if (getCredentialType(vc.type) != manifestType) {
-            return
-        }
-
-        let connection = await walletManager.getConnectionByID(vc.connection)
-        let resp = await agent.issuecredential.sendRequest({
-            my_did: connection.MyDID,
-            their_did: connection.TheirDID,
-            request_credential: {
-                "requests~attach": [
-                    {
-                        "lastmod_time": new Date(),
-                        data: {
-                            json: {
-                                subjectDID: rpConn.result.MyDID,
-                                requestingPartyDIDDoc: {
-                                    id: rpDIDDoc.did.id,
-                                    doc: rpDIDDoc.did
-                                },
-                            }
-                        }
-                    }
-                ]
-            }
-        })
-
-        console.log('sent request credential message', resp.piid)
-
-        acceptCredPool.set(resp.piid, {index})
-    }))
-
-    console.log(`${acceptCredPool.size} issue credential requests sent`)
-
-    await waitForCredentials(agent, acceptCredPool)
-
-    acceptCredPool.forEach(function (value) {
-        presentationSubmission.verifiableCredential[value.index] = value.credential
-    })
 
     return presentationSubmission
 }

@@ -216,7 +216,7 @@ SPDX-License-Identifier: Apache-2.0
 
                 let did
                 try {
-                    did = await this.didManager.createDID(this.selectType, this.signType)
+                    did = await this.didManager.createTrustBlocDID(this.selectType, this.signType)
                 } catch (e) {
                     this.loading = false;
                     this.didDocTextArea = `failed to create did: ${e.toString()}`

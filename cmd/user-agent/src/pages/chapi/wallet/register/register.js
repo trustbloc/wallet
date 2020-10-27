@@ -56,7 +56,7 @@ export class RegisterWallet extends WalletManager {
         }
 
         // create DID
-        let did = await this.didManager.createDID(keyType, signType)
+        let did = await this.didManager.createTrustBlocDID(keyType, signType)
 
         // save wallet metadata
         // TODO wallet metadata to be saved after saveDID [ #332]
