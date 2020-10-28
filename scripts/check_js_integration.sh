@@ -19,11 +19,11 @@ echo "waiting for containers to start..."
 sleep 15s
 
 cd $ROOT/cmd/user-agent
+rm -rf node_modules
 npm install
 npm run build
 
 cd $ROOT/test/user-agent
-rm -rf package-lock.json
 rm -rf node_modules
 npm install
 
