@@ -63,19 +63,10 @@ export class DIDManager extends KeyValueStore {
             ]
         };
 
-        let did
-        await this.agent.didclient.createTrustBlocDID(createDIDRequest).then(
-            resp => {
-                // TODO generate public key from generic wasm
-                // TODO pass public key to createDID
-                did = resp.DID
-            })
-            .catch(err => {
-                console.error("failed to create did", err)
-                throw err
-            })
+        // TODO generate public key from generic wasm and pass public key to createDID
+        let resp = await this.agent.didclient.createTrustBlocDID(createDIDRequest)
 
-        return did
+        return resp.DID
     }
 
     async createPeerDID() {
