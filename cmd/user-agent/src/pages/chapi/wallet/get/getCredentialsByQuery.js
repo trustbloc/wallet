@@ -155,7 +155,7 @@ export class WalletGetByQuery extends WalletGet {
             rpDIDDoc = (await this.agent.vdr.resolveDID({id: rpConn.result.TheirDID})).did
         }
 
-        let peerDID = await this.didManager.createPeerDID()
+        let peerDID = (await this.didManager.createPeerDID()).DID
         let agent = this.agent
         let walletManager = this.walletManager
         let acceptCredPool = new Map()
