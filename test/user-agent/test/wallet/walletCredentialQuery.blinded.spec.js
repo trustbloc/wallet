@@ -244,6 +244,7 @@ describe('verifier queries credentials - DIDComm Flow using blinded routing', ()
 
         // wait for verifier to share peer DID
         let didFromWallet = await verifier.sharePeerDID()
+        await verifier.shareNewPeerDID()
 
         expect(didFromWallet).to.not.be.null
         expect(didFromWallet['@context']).to.deep.equal(["https://w3id.org/did/v1"])

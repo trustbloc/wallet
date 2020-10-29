@@ -32,9 +32,9 @@ module.exports = function (config) {
             }
         },
         client: {
-            captureConsole: false,
+            captureConsole: true,
             mocha: {
-                timeout: 40000
+                timeout: 60000
             }
         }
     })

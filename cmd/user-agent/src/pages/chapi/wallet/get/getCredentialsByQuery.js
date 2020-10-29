@@ -10,6 +10,7 @@ import {PresentationExchange} from '../common/presentationExchange'
 import {WalletManager} from "../register/walletManager";
 import {getCredentialType} from '../common/util'
 import {DIDExchange} from '../common/didExchange'
+import {Messenger} from '../common/messaging'
 import {AgentMediator} from '../didcomm/mediator'
 import {BlindedRouter} from '../didcomm/blindedRouter'
 import {DIDManager} from '../didmgmt/didManager'
@@ -18,6 +19,8 @@ var uuid = require('uuid/v4')
 
 const responseType = 'VerifiablePresentation'
 const manifestType = 'IssuerManifestCredential'
+const didDocReqMsgType = 'https://trustbloc.dev/adapter/1.0/diddoc-req'
+const didDocResTopic = 'diddoc-res'
 
 /**
  * WalletGetByQuery provides CHAPI get vp features
@@ -53,9 +56,10 @@ export class WalletGetByQuery extends WalletGet {
         this.blindedRouter = new BlindedRouter(agent, opts)
         this.didManager = new DIDManager(agent, opts)
         this.didExchange = new DIDExchange(agent)
+        this.messenger = new Messenger(agent)
 
         // TODO below line to be remove after #434
-        this.blindedRouting = opts.blindedRouting && opts.runRPBlinded
+        this.betaFeature = opts.betaFeature
     }
 
     requirementDetails() {
@@ -130,11 +134,25 @@ export class WalletGetByQuery extends WalletGet {
 
     async _getAuthorizationCredentials(presentationSubmission) {
         let rpConn = await this.didExchange.connect(this.invitation[0])
-        let rpDIDDoc = await this.agent.vdr.resolveDID({id: rpConn.result.TheirDID})
 
-        if (this.blindedRouting) {
+        let rpDIDDoc
+        if (this.betaFeature) {
             // share peer DID with RP for blinded routing
             await this.blindedRouter.sharePeerDID(rpConn.result)
+
+            // request new peer DID from RP
+            let responseMsg = await this.messenger.send(rpConn.result.ConnectionID, {
+                "@id": uuid(),
+                "@type": didDocReqMsgType,
+                "sent_time": new Date().toJSON(),
+            }, {
+                replyTopic: didDocResTopic,
+            })
+
+            rpDIDDoc = responseMsg.data.didDoc
+        } else {
+            // TODO to be removed as part of #434 while integrating with RP, for now use RP DID from connection
+            rpDIDDoc = (await this.agent.vdr.resolveDID({id: rpConn.result.TheirDID})).did
         }
 
         let peerDID = await this.didManager.createPeerDID()
@@ -164,8 +182,8 @@ export class WalletGetByQuery extends WalletGet {
                                         doc: peerDID
                                     },
                                     requestingPartyDIDDoc: {
-                                        id: rpDIDDoc.did.id,
-                                        doc: rpDIDDoc.did
+                                        id: rpDIDDoc.id,
+                                        doc: rpDIDDoc
                                     },
                                 }
                             }
