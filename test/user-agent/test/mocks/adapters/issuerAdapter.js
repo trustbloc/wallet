@@ -10,6 +10,7 @@ import {waitForEvent} from "../../../../../cmd/user-agent/src/events";
 const msgServices = [
     {name: 'request-for-diddoc', type: 'https://trustbloc.dev/blinded-routing/1.0/diddoc-req'},
     {name: 'register-route-req', type: 'https://trustbloc.dev/blinded-routing/1.0/register-route-req'},
+    {name: 'diddoc-req', type: 'https://trustbloc.dev/adapter/1.0/diddoc-req'}
 ]
 
 var uuid = require('uuid/v4')
@@ -118,4 +119,24 @@ export class IssuerAdapter extends Adapter {
  */
 export class RPAdapter extends Adapter {
 
+    /**
+     * shareNewPeerDID shares new peer DID with wallet for DID comm
+     */
+    async shareNewPeerDID() {
+        // wait for DID doc request from wallet
+        let request = await waitForEvent(this.agent, {topic: 'diddoc-req',
+            timeoutError: 'timeout waiting request for new peer DID'})
+
+        let sampleRes = await this.agent.vdr.resolveDID({id: request.mydid})
+
+        // send new peer DID to wallet
+        this.agent.messaging.reply({
+            "message_ID": request.message['@id'],
+            "message_body": {
+                "@id": uuid(),
+                "@type": 'https://trustbloc.dev/adapter/1.0/diddoc-resp',
+                data: {didDoc: sampleRes.did}
+            }
+        })
+    }
 }

@@ -352,6 +352,9 @@ describe('verifier queries credentials - DIDComm Flow', () => {
         // wait for did exchange request from wallet & approve did connection request from verifier
         await verifier.acceptExchangeRequest()
 
+        // wait for new peer DID request from wallet & share new peer DID
+        await verifier.shareNewPeerDID()
+
         // issue credential from issuer
         await issuer.issueCredential(issue_credential)
 

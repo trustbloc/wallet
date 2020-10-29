@@ -26,7 +26,7 @@ export class wcredHandler {
 
         // handle for event response
         return new Promise((resolve, reject) => {
-            const timer = setTimeout(_ => reject(new Error("timeout waiting for credential event response")), 30000)
+            const timer = setTimeout(_ => reject(new Error("timeout waiting for credential event response")), 40000)
             respond = async (result) => {
                 clearTimeout(timer)
                 resolve(await result)
@@ -70,6 +70,7 @@ const msgServices = [
     {name: 'create-conn-resp', type: 'https://trustbloc.dev/blinded-routing/1.0/create-conn-resp'},
     {name: 'diddoc-resp', type: 'https://trustbloc.dev/blinded-routing/1.0/diddoc-resp'},
     {name: 'register-route-res', type: 'https://trustbloc.dev/blinded-routing/1.0/register-route-resp'},
+    {name: 'diddoc-res', type: 'https://trustbloc.dev/adapter/1.0/diddoc-resp'},
 ]
 
 export async function loadFrameworks({name = '', loadAgent = true, loadStartupOpts = false, blinded = false}) {
@@ -91,12 +92,14 @@ export async function loadFrameworks({name = '', loadAgent = true, loadStartupOp
 
     if (loadStartupOpts) {
         opts.agentStartupOpts = agentStartupOpts
+
+        // TODO below config to be remove after #434
+        //beta feature flag, for features enabled only for tests
+        opts.agentStartupOpts.betaFeature = true
     }
 
     if (blinded) {
         opts.agentStartupOpts.blindedRouting = true
-        // TODO below line to be remove after #434
-        opts.agentStartupOpts.runRPBlinded = true
     }
 
     return opts
