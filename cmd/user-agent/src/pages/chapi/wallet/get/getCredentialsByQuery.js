@@ -154,7 +154,10 @@ export class WalletGetByQuery extends WalletGet {
             }
         })
 
-        let rpDIDDoc = didDocRes.data.didDoc
+        // response could be byte array from RP
+        let rpDIDDoc =  Array.isArray(didDocRes.data.didDoc) ?
+            JSON.parse(String.fromCharCode.apply(String, didDocRes.data.didDoc)) : didDocRes.data.didDoc
+
         let peerDID = (await this.didManager.createPeerDID()).DID
         let agent = this.agent
         let walletManager = this.walletManager
