@@ -135,26 +135,21 @@ export class WalletGetByQuery extends WalletGet {
     async _getAuthorizationCredentials(presentationSubmission) {
         let rpConn = await this.didExchange.connect(this.invitation[0])
 
-        let rpDIDDoc
         if (this.betaFeature) {
             // share peer DID with RP for blinded routing
             await this.blindedRouter.sharePeerDID(rpConn.result)
-
-            // request new peer DID from RP
-            let responseMsg = await this.messenger.send(rpConn.result.ConnectionID, {
-                "@id": uuid(),
-                "@type": didDocReqMsgType,
-                "sent_time": new Date().toJSON(),
-            }, {
-                replyTopic: didDocResTopic,
-            })
-
-            rpDIDDoc = responseMsg.data.didDoc
-        } else {
-            // TODO to be removed as part of #434 while integrating with RP, for now use RP DID from connection
-            rpDIDDoc = (await this.agent.vdr.resolveDID({id: rpConn.result.TheirDID})).did
         }
 
+        // request new peer DID from RP
+        let didDocRes = await this.messenger.send(rpConn.result.ConnectionID, {
+            "@id": uuid(),
+            "@type": didDocReqMsgType,
+            "sent_time": new Date().toJSON(),
+        }, {
+            replyTopic: didDocResTopic,
+        })
+
+        let rpDIDDoc = didDocRes.data.didDoc
         let peerDID = (await this.didManager.createPeerDID()).DID
         let agent = this.agent
         let walletManager = this.walletManager
