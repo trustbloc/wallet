@@ -13,7 +13,7 @@ const msgServices = [
     {name: 'create-conn-resp', type: 'https://trustbloc.dev/blinded-routing/1.0/create-conn-resp'},
     {name: 'diddoc-resp', type: 'https://trustbloc.dev/blinded-routing/1.0/diddoc-resp'},
     {name: 'register-route-res', type: 'https://trustbloc.dev/blinded-routing/1.0/register-route-resp'},
-    {name: 'diddoc-res', type: '"https://trustbloc.dev/adapter/1.0/diddoc-resp"'},
+    {name: 'diddoc-res', type: 'https://trustbloc.dev/adapter/1.0/diddoc-resp'},
 ]
 
 export default {
