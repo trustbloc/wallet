@@ -147,6 +147,11 @@ export class WalletGetByQuery extends WalletGet {
             "sent_time": new Date().toJSON(),
         }, {
             replyTopic: didDocResTopic,
+            timeout: 5000,
+            retry: {
+                attempts: 5,
+                err: 'time out waiting reply for topic'
+            }
         })
 
         let rpDIDDoc = didDocRes.data.didDoc
