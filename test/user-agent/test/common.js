@@ -92,10 +92,6 @@ export async function loadFrameworks({name = '', loadAgent = true, loadStartupOp
 
     if (loadStartupOpts) {
         opts.agentStartupOpts = agentStartupOpts
-
-        // TODO below config to be remove after #434
-        //beta feature flag, for features enabled only for tests
-        opts.agentStartupOpts.betaFeature = true
     }
 
     if (blinded) {
