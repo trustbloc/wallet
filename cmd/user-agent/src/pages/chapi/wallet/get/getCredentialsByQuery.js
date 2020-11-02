@@ -57,9 +57,6 @@ export class WalletGetByQuery extends WalletGet {
         this.didManager = new DIDManager(agent, opts)
         this.didExchange = new DIDExchange(agent)
         this.messenger = new Messenger(agent)
-
-        // TODO below line to be remove after #434
-        this.betaFeature = opts.betaFeature
     }
 
     requirementDetails() {
@@ -135,10 +132,8 @@ export class WalletGetByQuery extends WalletGet {
     async _getAuthorizationCredentials(presentationSubmission) {
         let rpConn = await this.didExchange.connect(this.invitation[0])
 
-        if (this.betaFeature) {
-            // share peer DID with RP for blinded routing
-            await this.blindedRouter.sharePeerDID(rpConn.result)
-        }
+        // share peer DID with RP for blinded routing
+        await this.blindedRouter.sharePeerDID(rpConn.result)
 
         // request new peer DID from RP
         let didDocRes = await this.messenger.send(rpConn.result.ConnectionID, {
@@ -155,7 +150,7 @@ export class WalletGetByQuery extends WalletGet {
         })
 
         // response could be byte array from RP
-        let rpDIDDoc =  Array.isArray(didDocRes.data.didDoc) ?
+        let rpDIDDoc = Array.isArray(didDocRes.data.didDoc) ?
             JSON.parse(String.fromCharCode.apply(String, didDocRes.data.didDoc)) : didDocRes.data.didDoc
 
         let peerDID = (await this.didManager.createPeerDID()).DID
