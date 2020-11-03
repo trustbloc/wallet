@@ -22,7 +22,7 @@ Edge Agent is agent involved in sending (creating) and receiving (processing) an
 
 # Dev
 
-- [Dev Mode](docs/test/dev-mode.md)
+- [Dev Mode](docs/dev/dev-mode.md)
 
 ## Contributing
 Thank you for your interest in contributing. Please see our [community contribution guidelines](https://github.com/trustbloc/community/blob/master/CONTRIBUTING.md) for more information.
