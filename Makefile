@@ -72,6 +72,11 @@ generate-test-keys:
 user-agent-start: clean user-agent-wasm-docker generate-test-config generate-test-keys mock-login-consent-docker
 	@scripts/user_agent_start.sh
 
+# starting user agent in dev mode for hot deployment
+.PHONY: user-agent-dev-start
+user-agent-dev-start:
+	@scripts/user_agent_dev_start.sh
+
 .PHONY: generate-test-config
 generate-test-config:
 	@/bin/bash scripts/generate_test_config.sh
