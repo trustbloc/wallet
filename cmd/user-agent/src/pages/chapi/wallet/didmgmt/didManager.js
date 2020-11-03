@@ -44,7 +44,7 @@ export class DIDManager extends KeyValueStore {
                 "value": keySet.publicKey,
                 "encoding": "Jwk",
                 "keyType": keyType,
-                "purpose": ["general", "auth"]
+                "purposes": ["verificationMethod", "authentication"]
             }, {
                 "id": recoveryKeySet.keyID,
                 "type": sigTypeIndex.get(signType),
