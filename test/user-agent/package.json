@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "tests for user-agent vue components",
   "dependencies": {
-    "@trustbloc-cicd/agent-sdk": "^0.1.5-snapshot-0af2a4d",
+    "@trustbloc-cicd/agent-sdk": "^0.1.5-snapshot-bec8d1c",
     "@trustbloc/user-agent": "file:../../cmd/user-agent",
     "jsonpath": "^1.0.2",
     "vue": "^2.6.11",
