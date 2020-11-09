@@ -632,6 +632,12 @@ func TestRouter(t *testing.T) {
 	})
 }
 
+func TestHealthCheckHandler(t *testing.T) {
+	result := httptest.NewRecorder()
+	healthCheckHandler(result, nil)
+	require.Equal(t, http.StatusOK, result.Code)
+}
+
 func checkFlagPropertiesCorrect(t *testing.T, cmd *cobra.Command, flagName, flagShorthand, flagUsage string) {
 	flag := cmd.Flag(flagName)
 

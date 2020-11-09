@@ -19,6 +19,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/trustbloc/edge-agent/test/bdd/dockerutil"
 	"github.com/trustbloc/edge-agent/test/bdd/pkg/bddcontext"
+	"github.com/trustbloc/edge-agent/test/bdd/pkg/healthcheck"
 	"github.com/trustbloc/edge-agent/test/bdd/pkg/login"
 )
 
@@ -133,4 +134,5 @@ func featureContext(s *godog.Suite) {
 	}
 
 	login.NewSteps(ctx).Register(s)
+	healthcheck.NewSteps(ctx).Register(s)
 }
