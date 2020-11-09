@@ -146,6 +146,7 @@ const (
 	uiBasePath       = "/wallet/"
 	uiConfigBasePath = "/walletconfig/"
 	oidcBasePath     = "/oidc/"
+	healthCheckPath  = "/healthcheck"
 )
 
 // OIDC config.
@@ -676,6 +677,8 @@ func startHTTPServer(parameters *httpServerParameters) error {
 func router(config *httpServerParameters) (http.Handler, error) {
 	root := mux.NewRouter()
 
+	root.HandleFunc(healthCheckPath, healthCheckHandler).Methods(http.MethodGet)
+
 	uiRouter := root.PathPrefix(uiBasePath).Subrouter()
 	addUIHandler(uiRouter, config.wasmPath)
 
@@ -756,4 +759,21 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters) error {
 	}
 
 	return nil
+}
+
+type healthCheckResp struct {
+	Status      string    `json:"status"`
+	CurrentTime time.Time `json:"currentTime"`
+}
+
+func healthCheckHandler(rw http.ResponseWriter, _ *http.Request) {
+	rw.WriteHeader(http.StatusOK)
+
+	err := json.NewEncoder(rw).Encode(&healthCheckResp{
+		Status:      "success",
+		CurrentTime: time.Now(),
+	})
+	if err != nil {
+		logger.Errorf("healthcheck response failure, %s", err)
+	}
 }
