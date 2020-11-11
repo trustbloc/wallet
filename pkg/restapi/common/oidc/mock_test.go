@@ -47,7 +47,7 @@ func TestMockClient_Exchange(t *testing.T) {
 
 func TestMockClient_VerifyIDToken(t *testing.T) {
 	t.Run("returns id_token", func(t *testing.T) {
-		expected := &oidc.MockIDToken{}
+		expected := &oidc.MockClaimer{}
 		m := &oidc.MockClient{IDToken: expected}
 		result, err := m.VerifyIDToken(context.TODO(), nil)
 		require.NoError(t, err)
@@ -62,10 +62,30 @@ func TestMockClient_VerifyIDToken(t *testing.T) {
 	})
 }
 
-func TestMockIDToken_Claims(t *testing.T) {
+func TestMockClient_UserInfo(t *testing.T) {
+	t.Run("returns userinfo", func(t *testing.T) {
+		expected := &oidc.MockClaimer{
+			ClaimsErr: errors.New("test"),
+		}
+		m := &oidc.MockClient{UserInfoVal: expected}
+		result, err := m.UserInfo(context.TODO(), nil)
+		require.NoError(t, err)
+		require.Equal(t, expected, result)
+	})
+
+	t.Run("returns error", func(t *testing.T) {
+		expected := errors.New("test")
+		m := &oidc.MockClient{UserInfoErr: expected}
+		_, err := m.UserInfo(context.TODO(), nil)
+		require.Error(t, err)
+		require.True(t, errors.Is(err, expected))
+	})
+}
+
+func TestMockClaimer_Claims(t *testing.T) {
 	t.Run("runs ClaimsFunc", func(t *testing.T) {
 		executed := false
-		m := &oidc.MockIDToken{ClaimsFunc: func(interface{}) error {
+		m := &oidc.MockClaimer{ClaimsFunc: func(interface{}) error {
 			executed = true
 
 			return nil
@@ -77,7 +97,7 @@ func TestMockIDToken_Claims(t *testing.T) {
 
 	t.Run("returns error", func(t *testing.T) {
 		expected := errors.New("test")
-		m := &oidc.MockIDToken{ClaimsErr: expected}
+		m := &oidc.MockClaimer{ClaimsErr: expected}
 		result := m.Claims(nil)
 		require.Equal(t, expected, result)
 	})

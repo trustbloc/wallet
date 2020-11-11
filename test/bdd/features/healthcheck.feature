@@ -9,5 +9,5 @@
 Feature: health check
 
   Scenario:
-    When HTTP GET is sent to "https://localhost:8091/healthcheck"
+    When HTTP GET is sent to "https://localhost:8077/healthcheck"
     Then The "status" field in the response has the value "success"

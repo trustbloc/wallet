@@ -1,0 +1,152 @@
+<!--
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+ -->
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="utf-8">
+    <link rel="icon" type="images/x-icon" href="img/logo.png" >
+    <title>Bank Login Page</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="https://unpkg.com/tailwindcss/dist/tailwind.min.css">
+    <!--Replace with your tailwind.css once created-->
+
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+        .gradient {
+            background: linear-gradient(90deg, #006AC3 20%, #006AC3 100%);
+        }
+    </style>
+
+</head>
+
+<body class="leading-normal tracking-normal text-white gradient" style="font-family: 'Source Sans Pro', sans-serif;">
+
+<!--Nav-->
+<div class="pt-16">
+<nav id="header" class="fixed w-full z-30 top-0 text-white">
+
+    <div class="w-full container mx-auto flex flex-wrap items-center justify-between mt-0 py-2">
+
+        <div class="pl-4 flex items-center">
+            <a class="toggleColour text-white no-underline hover:no-underline font-bold text-2xl lg:text-4xl"  href="javascript:history.back()">
+                <i class="fa fa-cubes px-2" style="font-size:32px;color:white; border-right: solid"></i>
+                TrustBloc Bank
+            </a>
+        </div>
+
+        <div class="w-full flex-grow lg:flex lg:items-center lg:w-auto hidden lg:block mt-2 lg:mt-0 bg-white lg:bg-transparent text-black p-4 lg:p-0 z-20" id="nav-content">
+            <ul class="list-reset lg:flex justify-end flex-1 items-center">
+                <li class="mr-3">
+                    <a class="inline-block text-gray-400 no-underline hover:text-green hover:text-underline py-2 px-4" href="https://github.com/trustbloc/edge-sandbox">
+                        <i class="fa fa-github"></i></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <hr class="border-b border-gray-100 opacity-25 my-0 py-0" />
+</nav>
+</div>
+
+<section class="bg-white border-b py-48">
+    <div class="container mx-auto flex  flex-wrap pt-4 pb-12">
+        <div class="bg-blue w-full md:w-1/3 p-6 flex flex-col flex-grow flex-shrink">
+            <div class="flex-none mt-auto bg-white rounded-b rounded-t-none overflow-hidden p-6">
+                <div class=" flex items-center justify-center">
+                    <form class="shadow-md rounded px-16 pt-8 pb-8 md:flex-wrap md:justify-between gradient" action="/login" method="post">
+                        <p class="text-white lg:text-2xl sm:text-xs text-center">Sign in to Online Banking</p>
+                        </br>
+
+                        <input type="hidden" name="challenge" value="{{.login_challenge}}">
+
+                        <div class="mb-4">
+                            <label class="block text-white text-lg font-bold mb-2 text-left" for="email">
+                                Client Card or Username (required)
+                            </label>
+                            <input class="shadow appearance-none border w-full py-2 px-8 text-gray-700
+                        leading-tight focus:outline-none focus:shadow-outline" type="tel" inputmode="numeric" pattern="[0-9\s]{13,19}" maxlength="19" value="4506 4456 4307 3456" required>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-white text-lg font-bold mb-2 text-left" for="password">
+                                Password
+                            </label>
+                            <input class="shadow appearance-none border w-full py-2 px-8 text-gray-700 mb-3 leading-tight
+                        focus:outline-none focus:shadow-outline" id="password" name='password' type="password" value="f00B@r!23">
+                            <p class="text-green-200 text-xs italic text-left">For demo password is optional.</p>
+                        </div>
+                        <div class="container flex-auto  mb-6">
+                        <div class="w-full content-center mb-2 bg-yellow-400 py-2 text-center">
+                            <button class="mx-auto lg:mx-0  hover:underline font-bold text-xl text-black text-center" type='submit' id="accept" name='btn_login'>
+                                Login
+                            </button>
+                        </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<footer>
+    <section class="container mx-auto text-center py-2">
+        <div class="text-lg text-white font py-1">
+            Copyright &copy; <a href="https://securekey.com/" rel="nofollow">SecureKey Technologies</a> and the TrustBloc Contributors.
+        </div>
+    </section>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<script>
+
+    var navMenuDiv = document.getElementById("nav-content");
+    var navMenu = document.getElementById("nav-toggle");
+
+    document.onclick = check;
+    function check(e){
+        var target = (e && e.target) || (event && event.srcElement);
+
+        //Nav Menu
+        if (!checkParent(target, navMenuDiv)) {
+            // click NOT on the menu
+            if (checkParent(target, navMenu)) {
+                // click on the link
+                if (navMenuDiv.classList.contains("hidden")) {
+                    navMenuDiv.classList.remove("hidden");
+                } else {navMenuDiv.classList.add("hidden");}
+            } else {
+                // click both outside link and outside menu, hide menu
+                navMenuDiv.classList.add("hidden");
+            }
+        }
+    }
+
+    function checkParent(t, elm) {
+        while(t.parentNode) {
+            if( t == elm ) {return true;}
+            t = t.parentNode;
+        }
+        return false;
+    }
+
+</script>
+
+
+</body>
+
+</html>
+

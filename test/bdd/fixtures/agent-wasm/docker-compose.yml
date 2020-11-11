@@ -69,7 +69,7 @@ services:
       - ARIESD_DEFAULT_LABEL=user-agent
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
-      - HTTP_SERVER_OIDC_OPURL=https://hydra.trustbloc.local:4444/
+      - HTTP_SERVER_OIDC_OPURL=https://demo-hydra.trustbloc.local:5555/
       - HTTP_SERVER_OIDC_CLIENTID=client-id
       - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
       - HTTP_SERVER_OIDC_CALLBACK=https://localhost:8091/oidc/callback
@@ -83,7 +83,7 @@ services:
     depends_on:
       - sds.example.com
       - hydra
-      - mock.login.consent.example.com
+      - mock-bddtest-login-consent.example.com
 
   second.user.agent.example.com:
     container_name: second.user.agent.example.com
@@ -97,10 +97,10 @@ services:
       - ARIESD_DEFAULT_LABEL=second-user-agent
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
-      - HTTP_SERVER_OIDC_OPURL=https://hydra.trustbloc.local:4444/
+      - HTTP_SERVER_OIDC_OPURL=https://demo-hydra.trustbloc.local:5555/
       - HTTP_SERVER_OIDC_CLIENTID=client-id
       - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
-      - HTTP_SERVER_OIDC_CALLBACK=http://localhost:8071/oidc/callback
+      - HTTP_SERVER_OIDC_CALLBACK=https://localhost:8071/oidc/callback
       - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
     ports:
@@ -111,7 +111,36 @@ services:
     depends_on:
       - sds.example.com
       - hydra
-      - mock.login.consent.example.com
+      - mock-bddtest-login-consent.example.com
+
+  bddtest.user.agent.example.com:
+    container_name: bddtest.user.agent.example.com
+    image: ${USER_WASM_IMAGE}:latest
+    environment:
+      - HTTP_SERVER_HOST_URL=0.0.0.0:8077
+      - ARIESD_HTTP_RESOLVER=${HTTP_RESOLVER}
+      - TLS_CERT_FILE=/etc/keys/tls/ec-pubCert.pem
+      - TLS_KEY_FILE=/etc/keys/tls/ec-key.pem
+      - TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
+      - ARIESD_DEFAULT_LABEL=second-user-agent
+      - BLOC_DOMAIN=testnet.trustbloc.local
+      - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
+      - HTTP_SERVER_OIDC_OPURL=https://hydra.trustbloc.local:4444/
+      - HTTP_SERVER_OIDC_CLIENTID=client-id
+      - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
+      - HTTP_SERVER_OIDC_CALLBACK=https://localhost:8077/oidc/callback
+      - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
+      - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
+      - ARIESD_LOG_LEVEL=DEBUG
+    ports:
+      - 8077:8077
+    volumes:
+      - ../keys:/etc/keys
+    command: start
+    depends_on:
+      - sds.example.com
+      - hydra
+      - mock-bddtest-login-consent.example.com
 
   couchdb.example.com:
     container_name: couchdb.example.com
@@ -228,6 +257,34 @@ services:
     volumes:
       - ../keys/tls:/etc/tls
 
+  demo-hydra:
+    container_name: demo-hydra.trustbloc.local
+    image: oryd/hydra:${HYDRA_IMAGE_TAG}
+    ports:
+      - 5555:5555 # Public port
+      - 5556:5556 # Admin port
+    command:  /bin/sh -c "hydra migrate sql --read-from-env --yes; tmp/hydra_configure.sh& hydra serve all"
+    entrypoint: ""
+    environment:
+      - DSN=mysql://demohydra:demohydra-pwd@tcp(mysql:3306)/demohydra?max_conns=20&max_idle_conns=4
+      - URLS_SELF_ISSUER=https://demo-hydra.trustbloc.local:5555/
+      - URLS_CONSENT=http://localhost:3300/consent
+      - URLS_LOGIN=http://localhost:3300/login
+      - SECRETS_SYSTEM=testSecretsSystem
+      - OIDC_SUBJECT_TYPES_SUPPORTED=public
+      - OIDC_SUBJECT_TYPE_PAIRWISE_SALT=testSecretsSystem
+      - SERVE_TLS_KEY_PATH=/etc/tls/ec-key.pem
+      - SERVE_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
+      - SERVE_PUBLIC_PORT=5555
+      - SERVE_ADMIN_PORT=5556
+    restart: unless-stopped
+    volumes:
+      - ../keys/tls:/etc/tls
+      - ./hydra-config/demo_hydra_configure.sh:/tmp/hydra_configure.sh
+    depends_on:
+      - mock-bddtest-login-consent.example.com
+      - mysql
+
   hydra:
     container_name: hydra.trustbloc.local
     image: oryd/hydra:${HYDRA_IMAGE_TAG}
@@ -249,8 +306,9 @@ services:
     restart: unless-stopped
     volumes:
       - ../keys/tls:/etc/tls
-      - ./hydra-config/hydra_configure.sh:/tmp/hydra_configure.sh
+      - ./hydra-config/bddtest_hydra_configure.sh:/tmp/hydra_configure.sh
     depends_on:
+      - mock-bddtest-login-consent.example.com
       - mysql
 
   mysql:
@@ -265,9 +323,9 @@ services:
     volumes:
       - ./mysql-config:/docker-entrypoint-initdb.d
 
-  mock.login.consent.example.com:
-    container_name: mock.login.consent.example.com
-    image: ${MOCK_LOGIN_CONSENT_IMAGE}:latest
+  mock-bddtest-login-consent.example.com:
+    container_name: mock-bddtest-login-consent.example.com
+    image: ${MOCK_BDDTEST_LOGIN_CONSENT_IMAGE}:latest
     environment:
       - LISTEN_ADDR=:8099
       - HYDRA_ADMIN_URL=https://hydra.trustbloc.local:4445
@@ -276,5 +334,17 @@ services:
       - ROOT_CA_CERTS_PATH=/etc/tls/ec-cacert.pem
     ports:
       - 8099:8099
+    volumes:
+      - ../keys/tls:/etc/tls
+
+  mock-demo-login-consent.example.com:
+    container_name: mock-demo-login-consent.example.com
+    image: ${MOCK_DEMO_LOGIN_CONSENT_IMAGE}:latest
+    environment:
+      - ADMIN_URL=https://demo-hydra.trustbloc.local:5556
+      - SERVE_PORT=3300
+      - TLS_CACERTS=/etc/tls/ec-cacert.pem
+    ports:
+      - 3300:3300
     volumes:
       - ../keys/tls:/etc/tls

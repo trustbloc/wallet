@@ -22,9 +22,11 @@ import (
 
 // HTTP server.
 const (
-	host       = "https://localhost:8091"
-	loginPath  = host + "/oidc/login"
-	walletPath = host + "/wallet/"
+	host            = "https://localhost:8077"
+	loginPath       = host + "/oidc/login"
+	walletPath      = host + "/wallet/"
+	userProfilePath = host + "/oidc/userinfo"
+	userLogoutPath  = host + "/oidc/logout"
 )
 
 // Mock Login Consent App.
@@ -83,6 +85,10 @@ func (s *Steps) Register(gs *godog.Suite) {
 	gs.Step("the user is authenticated", s.userIsAuthenticated)
 	gs.Step("the user consents to sharing their identity data", s.userAuthorizesAccessToTheirData)
 	gs.Step("the user is redirected to the wallet's dashboard", s.userRedirectedToWallet)
+	gs.Step("the user can retrieve their profile", s.userRetrievesProfile)
+	gs.Step("the user is logged in", s.userIsLoggedIn)
+	gs.Step("the user logs out", s.userLogout)
+	gs.Step("the user cannot access their profile", s.userCannotAccessProfile)
 }
 
 func (s *Steps) userClicksLoginButton() error {
@@ -123,7 +129,8 @@ func (s *Steps) userClicksLoginButton() error {
 func (s *Steps) userRedirectedToOIDCProvider() error {
 	if s.loginRedirectResult.statusCode != http.StatusOK {
 		return fmt.Errorf(
-			"expected StatusCode=%d on login redirection but got %d", http.StatusOK, s.loginRedirectResult.statusCode)
+			"expected StatusCode=%d on login redirection but got %d, msg=%s",
+			http.StatusOK, s.loginRedirectResult.statusCode, s.loginRedirectResult.body)
 	}
 
 	if s.loginRedirectResult.body != "mock UI" {
@@ -221,6 +228,109 @@ func (s *Steps) userRedirectedToWallet() error {
 
 	if !strings.HasPrefix(s.authZResult.url, walletPath) {
 		return fmt.Errorf("expected path %s but got %s", walletPath, s.authZResult.url)
+	}
+
+	return nil
+}
+
+func (s *Steps) userRetrievesProfile() error {
+	response, err := s.browser.Get(userProfilePath) // nolint:noctx // ignoring rule since these are bdd tests
+	if err != nil {
+		return fmt.Errorf("user failed to fetch their profile: %w", err)
+	}
+
+	profile := make(map[string]interface{})
+
+	err = json.NewDecoder(response.Body).Decode(&profile)
+	if err != nil {
+		return fmt.Errorf("user failed to decode their profile: %w", err)
+	}
+
+	err = response.Body.Close()
+	if err != nil {
+		return fmt.Errorf("failed to close response body: %w", err)
+	}
+
+	sub, found := profile["sub"]
+	if !found {
+		return fmt.Errorf("user did not receive their 'sub' value in their profile")
+	}
+
+	if sub != s.expectedUserClaims.Sub {
+		return fmt.Errorf(
+			"unexpected 'sub' value received in user profile; expected %s got %s",
+			s.expectedUserClaims.Sub, sub)
+	}
+
+	return nil
+}
+
+func (s *Steps) userIsLoggedIn() error {
+	err := s.userClicksLoginButton()
+	if err != nil {
+		return err
+	}
+
+	err = s.userRedirectedToOIDCProvider()
+	if err != nil {
+		return err
+	}
+
+	err = s.userIsAuthenticated()
+	if err != nil {
+		return err
+	}
+
+	err = s.userAuthorizesAccessToTheirData()
+	if err != nil {
+		return err
+	}
+
+	err = s.userRedirectedToWallet()
+	if err != nil {
+		return err
+	}
+
+	return s.userRetrievesProfile()
+}
+
+func (s *Steps) userLogout() error {
+	response, err := s.browser.Get(userLogoutPath) // nolint:noctx // ignoring rule since this is a bdd test
+	if err != nil {
+		return fmt.Errorf("user failed to logout: %w", err)
+	}
+
+	if response.StatusCode != http.StatusOK {
+		return fmt.Errorf(
+			"unexpected response code when logging out; expected %d got %d",
+			http.StatusOK, response.StatusCode,
+		)
+	}
+
+	err = response.Body.Close()
+	if err != nil {
+		return fmt.Errorf("failed to close response body: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Steps) userCannotAccessProfile() error {
+	response, err := s.browser.Get(userProfilePath) // nolint:noctx // ignoring rule since this is a bdd test
+	if err != nil {
+		return fmt.Errorf("user failed to invoke user profile endpoint: %w", err)
+	}
+
+	if response.StatusCode != http.StatusForbidden {
+		return fmt.Errorf(
+			"unexpected response code when logging out; expected %d got %d",
+			http.StatusForbidden, response.StatusCode,
+		)
+	}
+
+	err = response.Body.Close()
+	if err != nil {
+		return fmt.Errorf("failed to close body: %w", err)
 	}
 
 	return nil

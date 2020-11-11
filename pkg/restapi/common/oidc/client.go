@@ -20,11 +20,13 @@ import (
 type Provider interface {
 	Endpoint() oauth2.Endpoint
 	Verifier(*oidc.Config) Verifier
+	UserInfo(context.Context, oauth2.TokenSource) (*oidc.UserInfo, error)
 }
 
 // ProviderAdapter adapts an *oidc.Provider into an OIDCProvider.
 type ProviderAdapter struct {
-	OP *oidc.Provider
+	OP        *oidc.Provider
+	TLSConfig *tls.Config
 }
 
 // Endpoint returns the OIDC endpoints.
@@ -35,6 +37,18 @@ func (o *ProviderAdapter) Endpoint() oauth2.Endpoint {
 // Verifier returns an OIDC verifier.
 func (o *ProviderAdapter) Verifier(config *oidc.Config) Verifier {
 	return &verifierAdapter{v: o.OP.Verifier(config)}
+}
+
+// UserInfo returns the user's info.
+func (o *ProviderAdapter) UserInfo(ctx context.Context, ts oauth2.TokenSource) (*oidc.UserInfo, error) {
+	return o.OP.UserInfo(
+		context.WithValue(
+			ctx,
+			oauth2.HTTPClient,
+			&http.Client{Transport: &http.Transport{TLSClientConfig: o.TLSConfig}},
+		),
+		ts,
+	)
 }
 
 // Verifier parses and verifies a raw id_token.
@@ -131,7 +145,7 @@ func (c *BasicClient) Exchange(ctx context.Context, code string) (*oauth2.Token,
 }
 
 // VerifyIDToken parses the id_token within the OAuth2 token and verifies it.
-func (c *BasicClient) VerifyIDToken(ctx context.Context, oauthToken OAuth2Token) (IDToken, error) {
+func (c *BasicClient) VerifyIDToken(ctx context.Context, oauthToken OAuth2Token) (Claimer, error) {
 	rawIDToken, found := oauthToken.Extra("id_token").(string)
 	if !found {
 		return nil, fmt.Errorf("missing id_token")
@@ -143,4 +157,14 @@ func (c *BasicClient) VerifyIDToken(ctx context.Context, oauthToken OAuth2Token)
 	}
 
 	return idToken, nil
+}
+
+// UserInfo returns the user's info.
+func (c *BasicClient) UserInfo(ctx context.Context, token *oauth2.Token) (Claimer, error) {
+	info, err := c.provider.UserInfo(ctx, oauth2.StaticTokenSource(token))
+	if err != nil {
+		return nil, fmt.Errorf("oidc provider failed to fetch user info: %w", err)
+	}
+
+	return info, nil
 }

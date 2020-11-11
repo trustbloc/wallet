@@ -69,7 +69,7 @@ generate-test-keys:
 		frapsoft/openssl
 
 .PHONY: user-agent-start
-user-agent-start: clean user-agent-wasm-docker generate-test-config generate-test-keys mock-login-consent-docker
+user-agent-start: clean user-agent-wasm-docker generate-test-config generate-test-keys mock-images
 	@scripts/user_agent_start.sh
 
 # starting user agent in dev mode for hot deployment
@@ -85,17 +85,25 @@ generate-test-config:
 bdd-test: bdd-test-js bdd-test-http-server
 
 .PHONY: bdd-test-js
-bdd-test-js: clean user-agent-wasm-docker generate-test-config generate-test-keys mock-login-consent-docker
+bdd-test-js: clean user-agent-wasm-docker generate-test-config generate-test-keys mock-images
 	@scripts/check_js_integration.sh
 
 .PHONY: bdd-test-http-server
-bdd-test-http-server: clean user-agent-wasm-docker generate-test-config generate-test-keys mock-login-consent-docker
+bdd-test-http-server: clean user-agent-wasm-docker generate-test-config generate-test-keys mock-images
 	@scripts/check_httpserver_integration.sh
 
-.PHONY: mock-login-consent-docker
-mock-login-consent-docker:
+.PHONY: mock-bddtest-login-consent-docker
+mock-bddtest-login-consent-docker:
 	@echo "Building mock login consent server for BDD tests..."
-	@cd test/bdd/mock/loginconsent && docker build -f image/Dockerfile --build-arg GO_VER=$(GO_VER) --build-arg ALPINE_VER=$(ALPINE_VER) -t edgeagent/mockloginconsent:latest .
+	@cd test/bdd/mock/bddtest-login-consent-server && docker build -f image/Dockerfile --build-arg GO_VER=$(GO_VER) --build-arg ALPINE_VER=$(ALPINE_VER) -t edgeagent/mockbddtestloginconsent:latest .
+
+.PHONY: mock-demo-login-consent-docker
+mock-demo-login-consent-docker:
+	@echo "Building login consent server for demo..."
+	@cd test/bdd/mock/demo-login-consent-server && docker build -f image/Dockerfile --build-arg GO_VER=$(GO_VER) --build-arg ALPINE_VER=$(ALPINE_VER) -t edgeagent/demologinconsent:latest .
+
+.PHONY: mock-images
+mock-images: mock-bddtest-login-consent-docker mock-demo-login-consent-docker
 
 .PHONY: clean
 clean: clean-build

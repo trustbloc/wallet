@@ -18,26 +18,12 @@ SPDX-License-Identifier: Apache-2.0
 
             <md-card-content v-else>
                 <form>
-                    <md-field md-clearable>
-                        <label>Enter your username here</label>
-                        <md-input v-model="username"></md-input>
-                    </md-field>
-
-                    <md-field md-clearable :md-toggle-password="false">
-                        <label>Enter your password here</label>
-                        <md-input v-model="password" type="password"></md-input>
-                    </md-field>
-
-                    <div style="font-weight: 400; color: #d73a49; margin: 2px" v-if="statusMsg.length">
-                        <md-icon style="color: red">error</md-icon>
-                        {{ statusMsg }}
-                    </div>
-
-                    <md-button v-on:click="login" class="md-raised md-success" id="loginBtn">
-                        Login
+                  <md-card-content>
+                    <md-button v-on:click="beginOIDCLogin" class="md-raised md-success" id="loginBtn">
+                      Login
                     </md-button>
+                  </md-card-content>
                 </form>
-
             </md-card-content>
 
         </md-card>
@@ -58,50 +44,51 @@ SPDX-License-Identifier: Apache-2.0
                 this.handleSuccess()
                 return
             }
+
+            await this.loadOIDCUser()
+            if (this.getCurrentUser()) {
+                await this.finishOIDCLogin()
+                this.handleSuccess()
+                return
+            }
+
+            this.loading = false
         },
         data() {
             return {
-                username: 'walletuser',
-                password: 'mysecurepassword',
                 statusMsg: '',
-                loading: false,
+                loading: true,
             };
         },
         methods: {
-            ...mapActions({loginUser: 'login', loadUser: 'loadUser'}),
+            ...mapActions({loginUser: 'login', loadUser: 'loadUser', loadOIDCUser: 'loadOIDCUser'}),
             ...mapGetters(['getCurrentUser', 'getAgentOpts']),
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
-            // this function to be called after successful OIDC login
-            login: async function () {
-                this.loading = true
-
-                await this.loginUser(this.username)
+            beginOIDCLogin: async function() {
+                window.location.href = "/oidc/login"
+            },
+            finishOIDCLogin: async function() {
                 let user = this.getCurrentUser()
 
                 let registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, this.getAgentInstance(),
                     this.getAgentOpts())
 
                 try {
-                    if (!user || !user.metadata) {
+                    if (!user.metadata) {
                         // first time login, register this user
-                        await registrar.register(this.username)
+                        await registrar.register(user.username)
                     }
 
-                    await registrar.installHandlers(this.username)
+                    await registrar.installHandlers(user.username)
                 } catch (e) {
                     this.handleFailure(e)
-                    this.loading = false
-                    return
                 }
-
-                this.handleSuccess()
-                this.loading = false
             },
             handleSuccess() {
                 this.$router.push(this.redirect);
             },
             handleFailure(e) {
-                console.error(e)
+                console.error("login failure: ", e)
                 this.statusMsg = e.toString()
             }
         }
