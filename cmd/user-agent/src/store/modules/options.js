@@ -18,12 +18,13 @@ let defaultAgentStartupOpts = {
     'agent-default-label': 'demo-user-agent',
     'auto-accept': true,
     'log-level': 'debug',
-    'db-namespace': 'agent',
+    'indexedDB-namespace': 'agent',
 
     blocDomain: 'testnet.trustbloc.local',
     walletMediatorURL: 'https://localhost:10063',
     blindedRouting: false,
     credentialMediatorURL: '',
+    storageType: `indexedDB`, 	// TODO (#475): Allow the storage type to be configurable.
     sdsServerURL: ''
 }
 
@@ -56,12 +57,13 @@ export default {
                 'agent-default-label': ('agent-default-label' in agentOpts) ? agentOpts['agent-default-label'] : defaultAgentStartupOpts['agent-default-label'],
                 'auto-accept': ('auto-accept' in agentOpts) ? agentOpts['auto-accept'] : defaultAgentStartupOpts['auto-accept'],
                 'log-level': ('log-level' in agentOpts) ? agentOpts['log-level'] : defaultAgentStartupOpts['log-level'],
-                'db-namespace': ('db-namespace' in agentOpts) ? agentOpts['db-namespace'] : defaultAgentStartupOpts['db-namespace'],
+                'indexedDB-namespace': ('indexedDB-namespace' in agentOpts) ? agentOpts['indexedDB-namespace'] : defaultAgentStartupOpts['indexedDB-namespace'],
 
                 blocDomain: ('blocDomain' in agentOpts) ? agentOpts['blocDomain'] : defaultAgentStartupOpts['blocDomain'],
                 walletMediatorURL: ('walletMediatorURL' in agentOpts) ? agentOpts['walletMediatorURL'] : defaultAgentStartupOpts['walletMediatorURL'],
                 credentialMediatorURL: credentialMediator(('credentialMediatorURL' in agentOpts) ? agentOpts['credentialMediatorURL'] : defaultAgentStartupOpts['credentialMediatorURL']),
                 blindedRouting: ('blindedRouting' in agentOpts) ? agentOpts['blindedRouting'] : defaultAgentStartupOpts['blindedRouting'],
+                storageType: ('storageType' in agentOpts) ? agentOpts['storageType'] : defaultAgentStartupOpts['storageType'],
                 sdsServerURL: ('sdsServerURL' in agentOpts) ? agentOpts['sdsServerURL'] : defaultAgentStartupOpts['sdsServerURL']
             })
         },
