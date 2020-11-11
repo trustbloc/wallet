@@ -209,7 +209,7 @@ type agentJSOpts struct {
 	AgentDefaultLabel string   `json:"agent-default-label,omitempty"`
 	AutoAccept        bool     `json:"auto-accept,omitempty"`
 	LogLevel          string   `json:"log-level,omitempty"`
-	DBNamespace       string   `json:"db-namespace,omitempty"`
+	DBNamespace       string   `json:"indexedDB-namespace,omitempty"`
 
 	BlocDomain            string `json:"blocDomain,omitempty"`
 	WalletMediatorURL     string `json:"walletMediatorURL,omitempty"`

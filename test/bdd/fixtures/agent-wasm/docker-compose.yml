@@ -69,7 +69,6 @@ services:
       - ARIESD_DEFAULT_LABEL=user-agent
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
-      - HTTP_SERVER_SDS_URL=${HTTP_SERVER_SDS_URL}
       - HTTP_SERVER_OIDC_OPURL=https://hydra.trustbloc.local:4444/
       - HTTP_SERVER_OIDC_CLIENTID=client-id
       - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
@@ -98,7 +97,6 @@ services:
       - ARIESD_DEFAULT_LABEL=second-user-agent
       - BLOC_DOMAIN=testnet.trustbloc.local
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
-      - HTTP_SERVER_SDS_URL=${HTTP_SERVER_SDS_URL}
       - HTTP_SERVER_OIDC_OPURL=https://hydra.trustbloc.local:4444/
       - HTTP_SERVER_OIDC_CLIENTID=client-id
       - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
