@@ -58,11 +58,12 @@ const agentStartupOpts = {
     'agent-default-label': 'demo-user-agent',
     'auto-accept': true,
     'log-level': 'debug',
-    'db-namespace': 'agent',
+    'indexedDB-namespace': 'agent',
 
     blocDomain: 'testnet.trustbloc.local',
     walletMediatorURL: 'https://localhost:10093',
-    sdsServerURL: 'https://localhost:8072/encrypted-data-vaults'
+    storageType: `indexedDB`, 	// TODO (#475): Allow the storage type to be configurable.
+    sdsServerURL: ''
 }
 
 const msgServices = [
@@ -79,7 +80,7 @@ export async function loadFrameworks({name = '', loadAgent = true, loadStartupOp
 
     if (name) {
         agentOpts = JSON.parse(JSON.stringify(agentStartupOpts))
-        agentOpts["db-namespace"] = `${name}db`
+        agentOpts["indexedDB-namespace"] = `${name}db`
         agentOpts["agent-default-label"] = `${name}-user-agent`
     }
 
