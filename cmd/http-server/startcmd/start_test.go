@@ -479,6 +479,37 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"failed to configure session cookie enc key: Neither cookie-enc-key (command line flag) nor"+
 				" HTTP_SERVER_COOKIE_ENC_KEY (environment variable) have been set.")
 	})
+
+	t.Run("invalid log level", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + blocDomainFlagName, "domain",
+			"--" + walletMediatorURLFlagName, "http://localhost:8999",
+			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
+			"--" + blindedRoutingFlagName, "true",
+			"--" + agentAutoAcceptFlagName, "false",
+			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
+			"--" + sdsURLFlagName, "someURL",
+			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + tlsCACertsFlagName, cert(t),
+			"--" + sessionCookieAuthKeyFlagName, key(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
+			"--" + agentLogLevelFlagName, "INVALID",
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+
+		require.Error(t, err)
+		require.Contains(t, err.Error(),
+			"failed to set log level: failed to parse log level 'INVALID' : logger: invalid log level")
+	})
 }
 
 func TestStartCmdValidArgs(t *testing.T) {

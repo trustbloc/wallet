@@ -17,8 +17,10 @@ type MockClient struct {
 	AuthRequest string
 	OAuthToken  *oauth2.Token
 	OAuthErr    error
-	IDToken     IDToken
+	IDToken     Claimer
 	IDTokenErr  error
+	UserInfoVal Claimer
+	UserInfoErr error
 }
 
 // FormatRequest formats the OIDC authorization request.
@@ -32,18 +34,23 @@ func (m *MockClient) Exchange(_ context.Context, _ string) (*oauth2.Token, error
 }
 
 // VerifyIDToken verifies the id_token inside the OAuth2 token.
-func (m *MockClient) VerifyIDToken(_ context.Context, _ OAuth2Token) (IDToken, error) {
+func (m *MockClient) VerifyIDToken(_ context.Context, _ OAuth2Token) (Claimer, error) {
 	return m.IDToken, m.IDTokenErr
 }
 
-// MockIDToken is a mock OIDC id_token.
-type MockIDToken struct {
+// UserInfo returns the user's info.
+func (m *MockClient) UserInfo(_ context.Context, _ *oauth2.Token) (Claimer, error) {
+	return m.UserInfoVal, m.UserInfoErr
+}
+
+// MockClaimer can be a mock id_token or a mock UserInfo.
+type MockClaimer struct {
 	ClaimsErr  error
 	ClaimsFunc func(interface{}) error
 }
 
 // Claims scans the claims into 'i'.
-func (m *MockIDToken) Claims(i interface{}) error {
+func (m *MockClaimer) Claims(i interface{}) error {
 	if m.ClaimsFunc != nil {
 		return m.ClaimsFunc(i)
 	}

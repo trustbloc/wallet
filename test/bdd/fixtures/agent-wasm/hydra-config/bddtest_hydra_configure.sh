@@ -16,5 +16,5 @@ hydra clients create \
     --response-types code,id_token \
     --scope openid,profile,email \
     --skip-tls-verify \
-    --callbacks https://localhost:8091/oidc/callback
+    --callbacks https://localhost:8077/oidc/callback
 echo "Finish Creating client"

@@ -155,17 +155,62 @@ func TestClient_VerifyIDToken(t *testing.T) {
 	})
 }
 
+func TestClient_UserInfo(t *testing.T) {
+	t.Run("returns userinfo", func(t *testing.T) {
+		expected := &oidc.UserInfo{
+			Subject:       uuid.New().String(),
+			Profile:       uuid.New().String(),
+			Email:         uuid.New().String(),
+			EmailVerified: true,
+		}
+		c := NewClient(&Config{
+			Provider: &mockOIDCProvider{
+				userInfo: expected,
+			},
+			CallbackURL:  "http://test.com/callback",
+			ClientID:     uuid.New().String(),
+			ClientSecret: uuid.New().String(),
+			Scopes:       []string{"scope1", "scope2"},
+		})
+		result, err := c.UserInfo(context.Background(), &oauth2.Token{})
+		require.NoError(t, err)
+		require.Equal(t, expected, result)
+	})
+
+	t.Run("error if cannot fetch user info", func(t *testing.T) {
+		expected := errors.New("test")
+		c := NewClient(&Config{
+			Provider: &mockOIDCProvider{
+				userInfoErr: expected,
+			},
+			CallbackURL:  "http://test.com/callback",
+			ClientID:     uuid.New().String(),
+			ClientSecret: uuid.New().String(),
+			Scopes:       []string{"scope1", "scope2"},
+		})
+		_, err := c.UserInfo(context.Background(), &oauth2.Token{})
+		require.Error(t, err)
+		require.True(t, errors.Is(err, expected))
+	})
+}
+
 type mockOIDCProvider struct {
-	endpoint oauth2.Endpoint
-	verifier Verifier
+	endpoint    oauth2.Endpoint
+	verifier    Verifier
+	userInfo    *oidc.UserInfo
+	userInfoErr error
 }
 
 func (m *mockOIDCProvider) Endpoint() oauth2.Endpoint {
 	return m.endpoint
 }
 
-func (m *mockOIDCProvider) Verifier(config *oidc.Config) Verifier {
+func (m *mockOIDCProvider) Verifier(_ *oidc.Config) Verifier {
 	return m.verifier
+}
+
+func (m *mockOIDCProvider) UserInfo(_ context.Context, _ oauth2.TokenSource) (*oidc.UserInfo, error) {
+	return m.userInfo, m.userInfoErr
 }
 
 type mockOAuth2Config struct {

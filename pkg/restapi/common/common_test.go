@@ -42,15 +42,42 @@ func TestWriteErrorResponsef(t *testing.T) {
 	})
 }
 
+func TestWriteResponse(t *testing.T) {
+	t.Run("writes response", func(t *testing.T) {
+		expected := map[string]interface{}{
+			"data": uuid.New().String(),
+		}
+		result := httptest.NewRecorder()
+		common.WriteResponse(result, &mocklogger.MockLogger{}, expected)
+		require.Equal(t, http.StatusOK, result.Code)
+		body := result.Body.String()
+		require.NotEmpty(t, body)
+		data := make(map[string]interface{})
+		err := json.Unmarshal([]byte(body), &data)
+		require.NoError(t, err)
+		require.Equal(t, expected, data)
+	})
+
+	t.Run("logs error if cannot write response", func(t *testing.T) {
+		expected := errors.New("test")
+		result := &mocklogger.MockLogger{}
+		common.WriteResponse(&mockHTTPResponseWriter{writeErr: expected}, result, expected.Error())
+		require.Contains(t, result.ErrorLogContents, expected.Error())
+	})
+}
+
 type mockHTTPResponseWriter struct {
-	writeErr error
+	writeErr   error
+	writtenVal []byte
 }
 
 func (m *mockHTTPResponseWriter) Header() http.Header {
 	return make(http.Header)
 }
 
-func (m *mockHTTPResponseWriter) Write(_ []byte) (int, error) {
+func (m *mockHTTPResponseWriter) Write(b []byte) (int, error) {
+	m.writtenVal = b
+
 	return 0, m.writeErr
 }
 

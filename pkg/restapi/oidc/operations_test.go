@@ -8,6 +8,7 @@ package oidc // nolint:testpackage // changing to different package requires exp
 
 import (
 	"crypto/rand"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -135,14 +136,14 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		state := uuid.New().String()
 
 		config := config(t)
-		config.UIEndpoint = uiEndpoint
+		config.WalletDashboard = uiEndpoint
 		config.OIDCClient = &oidc2.MockClient{
 			OAuthToken: &oauth2.Token{
 				AccessToken:  uuid.New().String(),
 				RefreshToken: uuid.New().String(),
 				TokenType:    "Bearer",
 			},
-			IDToken: &oidc2.MockIDToken{
+			IDToken: &oidc2.MockClaimer{
 				ClaimsFunc: func(i interface{}) error {
 					user, ok := i.(*user.User)
 					require.True(t, ok)
@@ -311,7 +312,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		state := uuid.New().String()
 		config := config(t)
 		config.OIDCClient = &oidc2.MockClient{
-			IDToken: &oidc2.MockIDToken{
+			IDToken: &oidc2.MockClaimer{
 				ClaimsErr: errors.New("test"),
 			},
 		}
@@ -342,7 +343,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 			},
 		}
 		config.OIDCClient = &oidc2.MockClient{
-			IDToken: &oidc2.MockIDToken{
+			IDToken: &oidc2.MockClaimer{
 				ClaimsFunc: func(i interface{}) error {
 					user, ok := i.(*user.User)
 					require.True(t, ok)
@@ -380,7 +381,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 			},
 		}
 		config.OIDCClient = &oidc2.MockClient{
-			IDToken: &oidc2.MockIDToken{
+			IDToken: &oidc2.MockClaimer{
 				ClaimsFunc: func(i interface{}) error {
 					user, ok := i.(*user.User)
 					require.True(t, ok)
@@ -405,12 +406,229 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 	})
 }
 
+func TestOperation_UserProfileHandler(t *testing.T) {
+	t.Run("returns the user profile", func(t *testing.T) {
+		sub := uuid.New().String()
+		config := config(t)
+		config.Storage.Storage = &mockstore.Provider{
+			Store: &mockstore.MockStore{
+				Store: map[string][]byte{
+					sub: marshal(t, &tokens.UserTokens{}),
+				},
+			},
+		}
+		config.OIDCClient = &oidc2.MockClient{
+			UserInfoVal: &oidc2.MockClaimer{
+				ClaimsFunc: func(v interface{}) error {
+					m, ok := v.(*map[string]interface{})
+					require.True(t, ok)
+					(*m)["sub"] = sub
+
+					return nil
+				},
+			},
+		}
+		o, err := New(config)
+		require.NoError(t, err)
+		o.store.cookies = &cookie.MockStore{
+			Jar: &cookie.MockJar{
+				Cookies: map[interface{}]interface{}{
+					userSubCookieName: sub,
+				},
+			},
+		}
+		result := httptest.NewRecorder()
+		o.userProfileHandler(result, newUserProfileRequest())
+		require.Equal(t, http.StatusOK, result.Code)
+		resultData := make(map[string]interface{})
+		err = json.NewDecoder(result.Body).Decode(&resultData)
+		require.NoError(t, err)
+		require.Contains(t, resultData, "sub")
+		require.Equal(t, sub, resultData["sub"])
+	})
+
+	t.Run("err badrequest if cannot open cookies", func(t *testing.T) {
+		o, err := New(config(t))
+		require.NoError(t, err)
+		o.store.cookies = &cookie.MockStore{
+			OpenErr: errors.New("test"),
+		}
+		result := httptest.NewRecorder()
+		o.userProfileHandler(result, newUserProfileRequest())
+		require.Equal(t, http.StatusBadRequest, result.Code)
+		require.Contains(t, result.Body.String(), "cannot open cookies")
+	})
+
+	t.Run("err forbidden if user cookie is not set", func(t *testing.T) {
+		o, err := New(config(t))
+		require.NoError(t, err)
+		result := httptest.NewRecorder()
+		o.userProfileHandler(result, newUserProfileRequest())
+		require.Equal(t, http.StatusForbidden, result.Code)
+		require.Contains(t, result.Body.String(), "not logged in")
+	})
+
+	t.Run("err internalservererror if cookie is not a string (should not happen)", func(t *testing.T) {
+		o, err := New(config(t))
+		require.NoError(t, err)
+		o.store.cookies = &cookie.MockStore{
+			Jar: &cookie.MockJar{
+				Cookies: map[interface{}]interface{}{
+					userSubCookieName: struct{}{},
+				},
+			},
+		}
+		result := httptest.NewRecorder()
+		o.userProfileHandler(result, newUserProfileRequest())
+		require.Equal(t, http.StatusInternalServerError, result.Code)
+		require.Contains(t, result.Body.String(), "invalid user sub cookie format")
+	})
+
+	t.Run("err internal server error if cannot fetch user tokens from storage", func(t *testing.T) {
+		config := config(t)
+		config.Storage.Storage = &mockstore.Provider{
+			Store: &mockstore.MockStore{
+				ErrGet: errors.New("test"),
+			},
+		}
+		o, err := New(config)
+		require.NoError(t, err)
+		o.store.cookies = &cookie.MockStore{
+			Jar: &cookie.MockJar{
+				Cookies: map[interface{}]interface{}{
+					userSubCookieName: uuid.New().String(),
+				},
+			},
+		}
+		result := httptest.NewRecorder()
+		o.userProfileHandler(result, newUserProfileRequest())
+		require.Equal(t, http.StatusInternalServerError, result.Code)
+		require.Contains(t, result.Body.String(), "failed to fetch user tokens from store")
+	})
+
+	t.Run("err badgateway error if cannot fetch userinfo from oidc provider", func(t *testing.T) {
+		sub := uuid.New().String()
+		config := config(t)
+		config.OIDCClient = &oidc2.MockClient{UserInfoErr: errors.New("test")}
+		config.Storage.Storage = &mockstore.Provider{
+			Store: &mockstore.MockStore{
+				Store: map[string][]byte{
+					sub: marshal(t, &tokens.UserTokens{}),
+				},
+			},
+		}
+		o, err := New(config)
+		require.NoError(t, err)
+		o.store.cookies = &cookie.MockStore{
+			Jar: &cookie.MockJar{
+				Cookies: map[interface{}]interface{}{
+					userSubCookieName: sub,
+				},
+			},
+		}
+		result := httptest.NewRecorder()
+		o.userProfileHandler(result, newUserProfileRequest())
+		require.Equal(t, http.StatusBadGateway, result.Code)
+		require.Contains(t, result.Body.String(), "failed to fetch user info")
+	})
+
+	t.Run("err internalservererror if cannot extract claims from userinfo", func(t *testing.T) {
+		sub := uuid.New().String()
+		config := config(t)
+		config.OIDCClient = &oidc2.MockClient{UserInfoVal: &oidc2.MockClaimer{
+			ClaimsErr: errors.New("test"),
+		}}
+		config.Storage.Storage = &mockstore.Provider{
+			Store: &mockstore.MockStore{
+				Store: map[string][]byte{
+					sub: marshal(t, &tokens.UserTokens{}),
+				},
+			},
+		}
+		o, err := New(config)
+		require.NoError(t, err)
+		o.store.cookies = &cookie.MockStore{
+			Jar: &cookie.MockJar{
+				Cookies: map[interface{}]interface{}{
+					userSubCookieName: sub,
+				},
+			},
+		}
+		result := httptest.NewRecorder()
+		o.userProfileHandler(result, newUserProfileRequest())
+		require.Equal(t, http.StatusInternalServerError, result.Code)
+		require.Contains(t, result.Body.String(), "failed to extract claims from user info")
+	})
+}
+
+func TestOperation_UserLogoutHandler(t *testing.T) {
+	t.Run("logs out user", func(t *testing.T) {
+		o, err := New(config(t))
+		require.NoError(t, err)
+		o.store.cookies = &cookie.MockStore{
+			Jar: &cookie.MockJar{
+				Cookies: map[interface{}]interface{}{
+					userSubCookieName: uuid.New().String(),
+				},
+			},
+		}
+		result := httptest.NewRecorder()
+		o.userLogoutHandler(result, newUserLogoutRequest())
+		require.Equal(t, http.StatusOK, result.Code)
+	})
+
+	t.Run("err badrequest if cannot open cookies", func(t *testing.T) {
+		o, err := New(config(t))
+		require.NoError(t, err)
+		o.store.cookies = &cookie.MockStore{
+			OpenErr: errors.New("test"),
+		}
+		result := httptest.NewRecorder()
+		o.userLogoutHandler(result, newUserLogoutRequest())
+		require.Equal(t, http.StatusBadRequest, result.Code)
+		require.Contains(t, result.Body.String(), "cannot open cookies")
+	})
+
+	t.Run("no-op if user sub cookie is not found", func(t *testing.T) {
+		o, err := New(config(t))
+		require.NoError(t, err)
+		result := httptest.NewRecorder()
+		o.userLogoutHandler(result, newUserLogoutRequest())
+		require.Equal(t, http.StatusOK, result.Code)
+	})
+
+	t.Run("err internal server error if cannot delete cookie", func(t *testing.T) {
+		o, err := New(config(t))
+		require.NoError(t, err)
+		o.store.cookies = &cookie.MockStore{
+			Jar: &cookie.MockJar{
+				Cookies: map[interface{}]interface{}{
+					userSubCookieName: uuid.New().String(),
+				},
+				SaveErr: errors.New("test"),
+			},
+		}
+		result := httptest.NewRecorder()
+		o.userLogoutHandler(result, newUserLogoutRequest())
+		require.Equal(t, http.StatusInternalServerError, result.Code)
+		require.Contains(t, result.Body.String(), "failed to delete user sub cookie")
+	})
+}
+
 func newOIDCLoginRequest() *http.Request {
 	return httptest.NewRequest(http.MethodGet, "/oidc/login", nil)
 }
 
 func newOIDCCallbackRequest(code, state string) *http.Request {
 	return httptest.NewRequest(http.MethodGet, fmt.Sprintf("/oidc/callback?code=%s&state=%s", code, state), nil)
+}
+
+func newUserProfileRequest() *http.Request {
+	return httptest.NewRequest(http.MethodGet, "/oidc/userinfo", nil)
+}
+
+func newUserLogoutRequest() *http.Request {
+	return httptest.NewRequest(http.MethodGet, "/oidc/logout", nil)
 }
 
 func config(t *testing.T) *Config {
@@ -439,4 +657,13 @@ func key(t *testing.T) []byte {
 	require.Equal(t, 32, n)
 
 	return key
+}
+
+func marshal(t *testing.T, v interface{}) []byte {
+	t.Helper()
+
+	bits, err := json.Marshal(v)
+	require.NoError(t, err)
+
+	return bits
 }

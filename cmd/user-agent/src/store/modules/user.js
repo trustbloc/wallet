@@ -65,7 +65,25 @@ export default {
                 }
             )
         },
+        async loadOIDCUser({commit, dispatch}) {
+            let userInfo = await fetch("/oidc/userinfo")
+
+            if (userInfo.ok) {
+                let profile = await userInfo.json()
+                console.log("received user data: " + JSON.stringify(profile, null, 2))
+
+                commit('setUser', profile.sub)
+
+                await new WalletManager().getWalletMetadata(profile.sub).then(
+                    async resp => {
+                        commit('setUserMetadata', JSON.stringify(resp))
+                        await dispatch('agent/init')
+                    }
+                )
+            }
+        },
         async logout({commit, dispatch}) {
+            await fetch("/oidc/logout")
             commit('clearUser')
             await dispatch('agent/destroy')
         },

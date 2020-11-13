@@ -24,7 +24,7 @@ DNS.2 = *.trustbloc.local
 DNS.3 = stakeholder.one
 DNS.4 = sidetree-mock
 DNS.5 = hydra
-DNS.6 = mock.login.consent.example.com" >> "$tmp"
+DNS.6 = *.example.com" >> "$tmp"
 
 CERT_CA="test/bdd/fixtures/keys/tls/ec-cacert.pem"
 if [ ! -f "$CERT_CA" ]; then

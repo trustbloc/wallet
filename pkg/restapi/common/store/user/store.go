@@ -32,7 +32,7 @@ type User struct {
 }
 
 // ParseIDToken parses a User from an IDToken.
-func ParseIDToken(t oidc.IDToken) (*User, error) {
+func ParseIDToken(t oidc.Claimer) (*User, error) {
 	user := &User{}
 
 	err := t.Claims(user)

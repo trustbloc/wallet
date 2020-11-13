@@ -650,6 +650,11 @@ func startHTTPServer(parameters *httpServerParameters) error {
 		parameters.wasmPath = "."
 	}
 
+	err := setLogLevel(parameters.opts.LogLevel)
+	if err != nil {
+		return fmt.Errorf("failed to set log level: %w", err)
+	}
+
 	router, err := router(parameters)
 	if err != nil {
 		return fmt.Errorf("failed to configure router: %w", err)
@@ -731,11 +736,11 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters) error {
 	}
 
 	oidcOps, err := oidc.New(&oidc.Config{
-		UIEndpoint: uiBasePath,
-		TLSConfig:  config.tls.config,
+		WalletDashboard: uiBasePath + "dashboard",
+		TLSConfig:       config.tls.config,
 		OIDCClient: oidc2.NewClient(&oidc2.Config{
 			TLSConfig:    config.tls.config,
-			Provider:     &oidc2.ProviderAdapter{OP: provider},
+			Provider:     &oidc2.ProviderAdapter{OP: provider, TLSConfig: config.tls.config},
 			CallbackURL:  config.oidc.callbackURL,
 			ClientID:     config.oidc.clientID,
 			ClientSecret: config.oidc.clientSecret,
@@ -776,4 +781,23 @@ func healthCheckHandler(rw http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		logger.Errorf("healthcheck response failure, %s", err)
 	}
+}
+
+func setLogLevel(logLevel string) error {
+	if logLevel == "" {
+		logLevel = "INFO"
+	}
+
+	return setEdgeCoreLogLevel(logLevel)
+}
+
+func setEdgeCoreLogLevel(logLevel string) error {
+	level, err := log.ParseLevel(logLevel)
+	if err != nil {
+		return fmt.Errorf("failed to parse log level '%s' : %w", logLevel, err)
+	}
+
+	log.SetLevel("", level)
+
+	return nil
 }

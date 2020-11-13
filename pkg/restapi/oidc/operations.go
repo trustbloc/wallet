@@ -29,24 +29,26 @@ import (
 const (
 	oidcLoginPath    = "/login"
 	oidcCallbackPath = "/callback"
+	oidcUserInfoPath = "/userinfo"
+	logoutPath       = "/logout"
 )
 
 // Stores.
 const (
 	transientStoreName = "edgeagent_oidc_trx"
 	stateCookieName    = "oauth2_state"
-	deviceCookieName   = "device_user"
+	userSubCookieName  = "user_sub"
 )
 
 var logger = log.New("hub-auth/oidc")
 
 // Config holds all configuration for an Operation.
 type Config struct {
-	OIDCClient oidc.Client
-	Storage    *StorageConfig
-	UIEndpoint string
-	TLSConfig  *tls.Config
-	Keys       *KeyConfig
+	OIDCClient      oidc.Client
+	Storage         *StorageConfig
+	WalletDashboard string
+	TLSConfig       *tls.Config
+	Keys            *KeyConfig
 }
 
 // KeyConfig holds configuration for cryptographic keys.
@@ -70,10 +72,10 @@ type stores struct {
 
 // Operation implements OIDC operations.
 type Operation struct {
-	store      *stores
-	oidcClient oidc.Client
-	uiEndpoint string
-	tlsConfig  *tls.Config
+	store           *stores
+	oidcClient      oidc.Client
+	walletDashboard string
+	tlsConfig       *tls.Config
 }
 
 // New returns a new Operation.
@@ -83,8 +85,8 @@ func New(config *Config) (*Operation, error) {
 		store: &stores{
 			cookies: cookie.NewStore(config.Keys.Auth, config.Keys.Enc),
 		},
-		uiEndpoint: config.UIEndpoint,
-		tlsConfig:  config.TLSConfig,
+		walletDashboard: config.WalletDashboard,
+		tlsConfig:       config.TLSConfig,
 	}
 
 	var err error
@@ -112,6 +114,8 @@ func (o *Operation) GetRESTHandlers() []common.Handler {
 	return []common.Handler{
 		common.NewHTTPHandler(oidcLoginPath, http.MethodGet, o.oidcLoginHandler),
 		common.NewHTTPHandler(oidcCallbackPath, http.MethodGet, o.oidcCallbackHandler),
+		common.NewHTTPHandler(oidcUserInfoPath, http.MethodGet, o.userProfileHandler),
+		common.NewHTTPHandler(logoutPath, http.MethodGet, o.userLogoutHandler),
 	}
 }
 
@@ -143,7 +147,7 @@ func (o *Operation) oidcLoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // TODO encrypt data before storing: https://github.com/trustbloc/edge-agent/issues/380
-func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) {
+func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) { // nolint:funlen // cannot reduce
 	logger.Debugf("handling oidc callback: %s", r.URL.String())
 
 	oauthToken, oidcToken, canProceed := o.fetchTokens(w, r)
@@ -197,14 +201,22 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	session.Set(deviceCookieName, usr.Sub)
+	session.Set(userSubCookieName, usr.Sub)
 
-	http.Redirect(w, r, o.uiEndpoint, http.StatusFound)
-	logger.Debugf("redirected user to: %s", o.uiEndpoint)
+	err = session.Save(r, w)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "failed to save user sub cookie: %s", err.Error())
+
+		return
+	}
+
+	http.Redirect(w, r, o.walletDashboard, http.StatusFound)
+	logger.Debugf("redirected user to: %s", o.walletDashboard)
 }
 
 func (o *Operation) fetchTokens(
-	w http.ResponseWriter, r *http.Request) (oauthToken *oauth2.Token, oidcToken oidc.IDToken, valid bool) {
+	w http.ResponseWriter, r *http.Request) (oauthToken *oauth2.Token, oidcToken oidc.Claimer, valid bool) {
 	session, valid := o.getAndVerifyUserSession(w, r)
 	if !valid {
 		return
@@ -283,4 +295,94 @@ func (o *Operation) getAndVerifyUserSession(w http.ResponseWriter, r *http.Reque
 	}
 
 	return session, true
+}
+
+func (o *Operation) userProfileHandler(w http.ResponseWriter, r *http.Request) {
+	logger.Debugf("handling userprofile request")
+
+	jar, err := o.store.cookies.Open(r)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusBadRequest, "cannot open cookies: %s", err.Error())
+
+		return
+	}
+
+	userSubCookie, found := jar.Get(userSubCookieName)
+	if !found {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusForbidden, "not logged in")
+
+		return
+	}
+
+	userSub, ok := userSubCookie.(string)
+	if !ok {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "invalid user sub cookie format")
+
+		return
+	}
+
+	tokns, err := o.store.tokens.Get(userSub)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "failed to fetch user tokens from store: %s", err.Error())
+
+		return
+	}
+
+	userInfo, err := o.oidcClient.UserInfo(r.Context(), &oauth2.Token{
+		AccessToken:  tokns.Access,
+		TokenType:    "Bearer",
+		RefreshToken: tokns.Refresh,
+	})
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusBadGateway, "failed to fetch user info: %s", err.Error())
+
+		return
+	}
+
+	data := make(map[string]interface{})
+
+	err = userInfo.Claims(&data)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "failed to extract claims from user info: %s", err.Error())
+
+		return
+	}
+
+	common.WriteResponse(w, logger, data)
+	logger.Debugf("finished handling userprofile request")
+}
+
+func (o *Operation) userLogoutHandler(w http.ResponseWriter, r *http.Request) {
+	logger.Debugf("handling logout request")
+
+	jar, err := o.store.cookies.Open(r)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusBadRequest, "cannot open cookies: %s", err.Error())
+
+		return
+	}
+
+	_, found := jar.Get(userSubCookieName)
+	if !found {
+		logger.Infof("missing user cookie - this is a no-op")
+
+		return
+	}
+
+	jar.Delete(userSubCookieName)
+
+	err = jar.Save(r, w)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger, http.StatusInternalServerError,
+			"failed to delete user sub cookie: %s", err.Error())
+	}
+
+	logger.Debugf("finished handling logout request")
 }

@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package tokens
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
@@ -41,6 +42,18 @@ type Store struct {
 }
 
 // Save the UserTokens to the store.
-func (t *Store) Save(ut *UserTokens) error {
-	return store.Save(t.s, ut.UserSub, ut)
+func (s *Store) Save(ut *UserTokens) error {
+	return store.Save(s.s, ut.UserSub, ut)
+}
+
+// Get fetches a UserTokens from the underlying storage.
+func (s *Store) Get(sub string) (*UserTokens, error) {
+	raw, err := s.s.Get(sub)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch user tokens from store: %w", err)
+	}
+
+	tokens := &UserTokens{}
+
+	return tokens, json.Unmarshal(raw, tokens)
 }

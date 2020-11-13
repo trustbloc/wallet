@@ -22,6 +22,7 @@ You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following 
     127.0.0.1 testnet.trustbloc.local
     127.0.0.1 stakeholder.one
     127.0.0.1 sidetree-mock
+    127.0.0.1 demo-hydra.trustbloc.local
 
 ## Running BDD tests
 
@@ -62,9 +63,15 @@ make user-agent-start
 - To access user agent wasm open [user home page](https://localhost:8091/wallet/dashboard).
 - To access second user agent wasm open [user home page](https://localhost:8071/wallet/dashboard).
 
+Click on the login button on both agents. You will land on a mock login form. Any credentials will work.
+
 ## Data Storage
 
-- The `make user-agent-start` command also starts up an [SDS instance](https://github.com/trustbloc/edv) with a CouchDB backend that's used for persistent data storage. If you want to examine the database for yourself while the agents are running, open the [CouchDB Fauxton Interface](http://127.0.0.1:5984/_utils). Note that the CouchDb instance started up by the `make user-agent-start` command will lose its data when the image is stopped.
+- The `make user-agent-start` command also starts up an [SDS instance](https://github.com/trustbloc/edv)
+  with a CouchDB backend that's used for persistent data storage. If you want to examine the database for
+  yourself while the agents are running, open the [CouchDB Fauxton Interface](http://127.0.0.1:5984/_utils).
+  Note that the CouchDb instance started up by the `make user-agent-start` command will lose its data when
+  the image is stopped.
 
 ## How to establish a did-connection between agents?
 
