@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 <template>
     <md-toolbar md-elevation="0" class="md-transparent" :style="topNavStyle">
         <div class="md-toolbar-row">
+            <register-device/>
             <div class="md-toolbar-section-end">
-
                 <div>
                     <i class="md-title" style="font-size: 20px; color: white !important;">
                         <md-icon style="color: white; margin: 10px;">person_outline</md-icon>
@@ -32,6 +32,7 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import Logout from "@/pages/chapi/Logout.vue";
+    import RegisterDevice from "../chapi/RegisterDevice";
 
     export default {
         data() {
@@ -43,6 +44,7 @@ SPDX-License-Identifier: Apache-2.0
             }
         },
         components: {
+            RegisterDevice,
             Logout,
         },
         computed: {

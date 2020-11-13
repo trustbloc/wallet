@@ -15,5 +15,6 @@ export {DIDAuth} from './get/didAuth.js';
 export {DIDConn} from './get/didConn.js';
 export {RegisterWallet} from './register/register.js';
 export {WalletManager} from './register/walletManager.js';
-export {AgentMediator} from './didcomm/mediator.js'
-export {BlindedRouter} from './didcomm/blindedRouter.js'
+export {AgentMediator} from './didcomm/mediator.js';
+export {BlindedRouter} from './didcomm/blindedRouter.js';
+export {DeviceRegister} from './device/register.js';

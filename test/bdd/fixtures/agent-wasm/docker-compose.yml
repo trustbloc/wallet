@@ -76,6 +76,9 @@ services:
       - HTTP_SERVER_OIDC_CALLBACK=https://localhost:8091/oidc/callback
       - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
+      - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
+      - HTTP_SERVER_RP_ORIGIN_NAME=localhostt
+      - HTTP_SERVER_RP_ID=http://localhost
     ports:
       - 8091:8091
     volumes:
@@ -105,6 +108,9 @@ services:
       - HTTP_SERVER_OIDC_CALLBACK=http://localhost:8071/oidc/callback
       - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
+      - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
+      - HTTP_SERVER_RP_ORIGIN_NAME=localhostt
+      - HTTP_SERVER_RP_ID=http://localhost
     ports:
       - 8071:8071
     volumes:
