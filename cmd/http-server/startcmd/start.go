@@ -21,11 +21,13 @@ import (
 
 	"github.com/cenkalti/backoff/v4"
 	oidcp "github.com/coreos/go-oidc"
+	"github.com/duo-labs/webauthn/webauthn"
 	"github.com/gorilla/mux"
 	"github.com/lpar/gzipped"
 	"github.com/rs/cors"
 	"github.com/spf13/cobra"
 	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
+	"github.com/trustbloc/edge-agent/pkg/restapi/device"
 	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
 	"github.com/trustbloc/edge-core/pkg/log"
 	"github.com/trustbloc/edge-core/pkg/storage/memstore"
@@ -147,6 +149,7 @@ const (
 	uiConfigBasePath = "/walletconfig/"
 	oidcBasePath     = "/oidc/"
 	healthCheckPath  = "/healthcheck"
+	deviceBasePath   = "/device/"
 )
 
 // OIDC config.
@@ -184,6 +187,24 @@ const (
 	sessionCookieEncKeyFlagUsage = "Path to the pem-encoded 32-byte key to use to encrypt session cookies." +
 		" Alternatively, this can be set with the following environment variable: " + sessionCookieEncKeyEnvKey
 	sessionCookieEncKeyEnvKey = "HTTP_SERVER_COOKIE_ENC_KEY"
+)
+
+// WebAuth Config
+const (
+	webAuthRPDisplayFlagName  = "webauth-rp-displayname"
+	webAuthRPDisplayEnvKey    = "HTTP_SERVER_RP_DISPLAY_NAME"
+	webAuthRPDisplayFlagUsage = "WebAuth rp display name use to display name." +
+		" Alternatively, this can be set with the following environment variable: " + webAuthRPDisplayEnvKey
+
+	webAuthRPOriginFlagName  = "webauth-rp-origin"
+	webAuthRPOriginEnvKey    = "HTTP_SERVER_RP_ORIGIN_NAME"
+	webAuthRPOriginFlagUsage = "WebAuth rp origin url use for webauth requests ." +
+		" Alternatively, this can be set with the following environment variable: " + webAuthRPOriginEnvKey
+
+	webAuthRPIDFlagName  = "webauth-rp-id"
+	webAuthRPIDEnvKey    = "HTTP_SERVER_RP_ID"
+	webAuthRPIDFlagUsage = "WebAuth rp ID is generally the domain name for your site ." +
+		" Alternatively, this can be set with the following environment variable: " + webAuthRPIDEnvKey
 )
 
 var logger = log.New("edge-agent/http-server")
@@ -226,6 +247,7 @@ type httpServerParameters struct {
 	tls                  *tlsParameters
 	oidc                 *oidcParameters
 	keys                 *keyParameters
+	webAuth              *webauthParameters
 }
 
 type tlsParameters struct {
@@ -239,6 +261,12 @@ type oidcParameters struct {
 	clientID     string
 	clientSecret string
 	callbackURL  string
+}
+
+type webauthParameters struct {
+	rpDisplayName string
+	rpID          string
+	rpOrigin      string
 }
 
 type keyParameters struct {
@@ -296,6 +324,11 @@ func createStartCmd(srv server) *cobra.Command {
 				return err
 			}
 
+			webAuthParams, err := getWebAuthParams(cmd)
+			if err != nil {
+				return err
+			}
+
 			parameters := &httpServerParameters{
 				dependencyMaxRetries: retries,
 				srv:                  srv,
@@ -304,6 +337,7 @@ func createStartCmd(srv server) *cobra.Command {
 				opts:                 opt,
 				tls:                  tlsParams,
 				oidc:                 oidcParams,
+				webAuth:              webAuthParams,
 				keys:                 keys,
 			}
 
@@ -346,6 +380,7 @@ func createFlags(startCmd *cobra.Command) {
 	createOIDCFlags(startCmd)
 	createTLSFlags(startCmd)
 	createKeyFlags(startCmd)
+	createWebAuthFlags(startCmd)
 }
 
 func createTLSFlags(cmd *cobra.Command) {
@@ -364,6 +399,12 @@ func createOIDCFlags(cmd *cobra.Command) {
 func createKeyFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP(sessionCookieAuthKeyFlagName, "", "", sessionCookieAuthKeyFlagUsage)
 	cmd.Flags().StringP(sessionCookieEncKeyFlagName, "", "", sessionCookieEncKeyFlagUsage)
+}
+
+func createWebAuthFlags(cmd *cobra.Command) {
+	cmd.Flags().StringP(webAuthRPDisplayFlagName, "", "", webAuthRPDisplayFlagUsage)
+	cmd.Flags().StringP(webAuthRPOriginFlagName, "", "", webAuthRPOriginFlagUsage)
+	cmd.Flags().StringP(webAuthRPIDFlagName, "", "", webAuthRPIDFlagUsage)
 }
 
 func getDependencyMaxRetries(cmd *cobra.Command) (uint64, error) {
@@ -450,6 +491,31 @@ func getOIDCParams(cmd *cobra.Command) (*oidcParameters, error) {
 		cmd, oidcProviderURLFlagName, oidcProviderURLEnvKey, false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to configure OIDC provider URL: %w", err)
+	}
+
+	return params, nil
+}
+
+func getWebAuthParams(cmd *cobra.Command) (*webauthParameters, error) {
+	params := &webauthParameters{}
+
+	var err error
+
+	params.rpDisplayName, err = cmdutils.GetUserSetVarFromString(
+		cmd, webAuthRPDisplayFlagName, webAuthRPDisplayEnvKey, false)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure webauth rp display name: %w", err)
+	}
+	params.rpID, err = cmdutils.GetUserSetVarFromString(
+		cmd, webAuthRPIDFlagName, webAuthRPIDEnvKey, false)
+	if err != nil {
+			return nil, fmt.Errorf("failed to configure webauth rpID: %w", err)
+	}
+
+	params.rpOrigin, err = cmdutils.GetUserSetVarFromString(
+		cmd, webAuthRPOriginFlagName, webAuthRPOriginEnvKey, false)
+	if err != nil {
+			return nil, fmt.Errorf("failed to configure webauth rp origin: %w", err)
 	}
 
 	return params, nil
@@ -692,6 +758,12 @@ func router(config *httpServerParameters) (http.Handler, error) {
 		return nil, fmt.Errorf("failed to add OIDC handlers: %w", err)
 	}
 
+	deviceRouter := root.PathPrefix(deviceBasePath).Subrouter()
+	err = addDeviceHandlers(deviceRouter, config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to add device handlers: %w", err)
+	}
+
 	return root, nil
 }
 
@@ -755,6 +827,40 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters) error {
 	}
 
 	for _, handler := range oidcOps.GetRESTHandlers() {
+		router.HandleFunc(handler.Path(), handler.Handle()).Methods(handler.Method())
+	}
+
+	return nil
+}
+
+func addDeviceHandlers(router *mux.Router, config *httpServerParameters) error {
+	webAuthn, err := webauthn.New(&webauthn.Config{
+		RPDisplayName: config.webAuth.rpDisplayName, // Display Name for your site
+		RPID:          config.webAuth.rpID,          // Generally the domain name for your site
+		RPOrigin:      config.webAuth.rpOrigin,      // The origin URL for WebAuthn requests
+	})
+	if err != nil {
+		return fmt.Errorf("failed to init webauthn: %w", err)
+	}
+
+	deviceOps, err := device.New(&device.Config{
+		UIEndpoint: uiBasePath,
+		TLSConfig:  config.tls.config,
+		Storage: &device.StorageConfig{
+			Storage: memstore.NewProvider(),
+			SessionStore:memstore.NewProvider(),
+		},
+		Keys: &device.KeyConfig{
+			Auth: config.keys.sessionCookieAuthKey,
+			Enc:  config.keys.sessionCookieEncKey,
+		},
+		Webauthn: webAuthn,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to init device ops: %w", err)
+	}
+
+	for _, handler := range deviceOps.GetRESTHandlers() {
 		router.HandleFunc(handler.Path(), handler.Handle()).Methods(handler.Method())
 	}
 

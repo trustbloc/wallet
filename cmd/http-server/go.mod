@@ -9,6 +9,7 @@ go 1.15
 require (
 	github.com/cenkalti/backoff/v4 v4.0.2
 	github.com/coreos/go-oidc v2.2.1+incompatible
+	github.com/duo-labs/webauthn v0.0.0-20200714211715-1daaee874e43
 	github.com/golang/gddo v0.0.0-20190904175337-72a348e765d2 // indirect
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.8.0

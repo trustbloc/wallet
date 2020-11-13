@@ -44,6 +44,11 @@ func TestListenAndServe(t *testing.T) {
 		oidc: &oidcParameters{providerURL: mockOIDCProvider(t)},
 		tls:  &tlsParameters{},
 		keys: &keyParameters{},
+		webAuth: &webauthParameters{
+			rpDisplayName: "Foobar Corp.",
+			rpID:          "localhost",
+			rpOrigin:      "http://localhost",
+		},
 	})
 	require.NoError(t, err)
 
@@ -174,6 +179,9 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
 			"--" + sessionCookieAuthKeyFlagName, key(t),
 			"--" + sessionCookieEncKeyFlagName, key(t),
+			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
+			"--" + webAuthRPIDFlagName, "localhost",
+			"--" + webAuthRPOriginFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -274,6 +282,9 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + tlsCACertsFlagName, cert(t),
 			"--" + sessionCookieAuthKeyFlagName, key(t),
 			"--" + sessionCookieEncKeyFlagName, key(t),
+			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
+			"--" + webAuthRPIDFlagName, "localhost",
+			"--" + webAuthRPOriginFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -299,6 +310,9 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
 			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
 			"--" + tlsCACertsFlagName, cert(t),
+			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
+			"--" + webAuthRPIDFlagName, "localhost",
+			"--" + webAuthRPOriginFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -501,6 +515,9 @@ func TestStartCmdValidArgs(t *testing.T) {
 		"--" + tlsCACertsFlagName, cert(t),
 		"--" + sessionCookieAuthKeyFlagName, key(t),
 		"--" + sessionCookieEncKeyFlagName, key(t),
+		"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
+		"--" + webAuthRPIDFlagName, "localhost",
+		"--" + webAuthRPOriginFlagName, "http://localhost",
 	}
 	startCmd.SetArgs(args)
 
@@ -545,6 +562,15 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	err = os.Setenv(sessionCookieAuthKeyEnvKey, key(t))
 	require.NoError(t, err)
 
+	err = os.Setenv(webAuthRPDisplayEnvKey, "Foobar Corp.")
+	require.NoError(t, err)
+
+	err = os.Setenv(webAuthRPIDEnvKey, "http://localhost")
+	require.NoError(t, err)
+
+	err = os.Setenv(webAuthRPOriginEnvKey, "localhost")
+	require.NoError(t, err)
+
 	err = startCmd.Execute()
 
 	require.NoError(t, err)
@@ -581,6 +607,11 @@ func TestRouter(t *testing.T) {
 				clientSecret: uuid.New().String(),
 				callbackURL:  "http://test.com/callback",
 			},
+			webAuth: &webauthParameters{
+					rpDisplayName: "Foobar Corp.",
+					rpID:          "localhost",
+					rpOrigin:      "http://localhost",
+			},
 			tls:  &tlsParameters{},
 			keys: &keyParameters{},
 		})
@@ -613,6 +644,11 @@ func TestRouter(t *testing.T) {
 				clientID:     uuid.New().String(),
 				clientSecret: uuid.New().String(),
 				callbackURL:  "http://test.com/callback",
+			},
+			webAuth: &webauthParameters{
+				rpDisplayName: "Foobar Corp.",
+				rpID:          "localhost",
+				rpOrigin:      "http://localhost",
 			},
 			tls: &tlsParameters{
 				certFile: cert(t),
