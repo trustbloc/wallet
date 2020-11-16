@@ -24,10 +24,10 @@ import (
 
 // Endpoints.
 const (
-	registerBeginPath  = "register/begin"
-	registerFinishPath = "register/finish"
-	loginBeginPath     = "login/begin"
-	loginFinishPath    = "login/finish"
+	registerBeginPath  = "/register/begin"
+	registerFinishPath = "/register/finish"
+	loginBeginPath     = "/login/begin"
+	loginFinishPath    = "/login/finish"
 )
 
 // Stores.
