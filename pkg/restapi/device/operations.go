@@ -44,6 +44,7 @@ type Config struct {
 	UIEndpoint string
 	TLSConfig  *tls.Config
 	Keys       *KeyConfig
+	Webauthn   *webauthn.WebAuthn
 }
 
 // KeyConfig holds configuration for cryptographic keys.
