@@ -182,6 +182,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
 			"--" + webAuthRPIDFlagName, "localhost",
 			"--" + webAuthRPOriginFlagName, "http://localhost",
+			"--" + authzKMSURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -285,6 +286,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
 			"--" + webAuthRPIDFlagName, "localhost",
 			"--" + webAuthRPOriginFlagName, "http://localhost",
+			"--" + authzKMSURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -313,6 +315,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
 			"--" + webAuthRPIDFlagName, "localhost",
 			"--" + webAuthRPOriginFlagName, "http://localhost",
+			"--" + authzKMSURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -515,6 +518,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + sessionCookieAuthKeyFlagName, key(t),
 			"--" + sessionCookieEncKeyFlagName, key(t),
 			"--" + agentLogLevelFlagName, "INVALID",
+			"--" + authzKMSURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -523,6 +527,36 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		require.Error(t, err)
 		require.Contains(t, err.Error(),
 			"failed to set log level: failed to parse log level 'INVALID' : logger: invalid log level")
+	})
+
+	t.Run("missing authz key server url", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + blocDomainFlagName, "domain",
+			"--" + walletMediatorURLFlagName, "http://localhost:8999",
+			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
+			"--" + blindedRoutingFlagName, "true",
+			"--" + agentAutoAcceptFlagName, "false",
+			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
+			"--" + sdsURLFlagName, "someURL",
+			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + tlsCACertsFlagName, cert(t),
+			"--" + sessionCookieAuthKeyFlagName, key(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+
+		require.Error(t, err)
+		require.Contains(t, err.Error(),
+			"Neither authz-kms-url (command line flag) nor HTTP_SERVER_AUTHZ_KMS_URL (environment variable) have been set.")
 	})
 }
 
@@ -549,6 +583,7 @@ func TestStartCmdValidArgs(t *testing.T) {
 		"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
 		"--" + webAuthRPIDFlagName, "localhost",
 		"--" + webAuthRPOriginFlagName, "http://localhost",
+		"--" + authzKMSURLFlagName, "http://localhost",
 	}
 	startCmd.SetArgs(args)
 
@@ -600,6 +635,9 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	require.NoError(t, err)
 
 	err = os.Setenv(webAuthRPOriginEnvKey, "localhost")
+	require.NoError(t, err)
+
+	err = os.Setenv(authzKMSURLEnvKey, "localhost")
 	require.NoError(t, err)
 
 	err = startCmd.Execute()

@@ -144,6 +144,10 @@ const (
 		" Alternatively, this can be set with the following environment variable: " + dependencyMaxRetriesFlagEnvKey
 	dependencyMaxRetriesDefault = uint64(120) // nolint:gomnd // false positive ("magic number")
 
+	authzKMSURLFlagName  = "authz-kms-url"
+	authzKMSURLFlagUsage = "Authorization KMS Server URL"
+	authzKMSURLEnvKey    = "HTTP_SERVER_AUTHZ_KMS_URL"
+
 	indexHTLMPath    = "/index.html"
 	uiBasePath       = "/wallet/"
 	uiConfigBasePath = "/walletconfig/"
@@ -248,6 +252,7 @@ type httpServerParameters struct {
 	oidc                 *oidcParameters
 	keys                 *keyParameters
 	webAuth              *webauthParameters
+	authzKMSURL          string
 }
 
 type tlsParameters struct {
@@ -283,7 +288,7 @@ func GetStartCmd(srv server) *cobra.Command {
 	return startCmd
 }
 
-func createStartCmd(srv server) *cobra.Command {
+func createStartCmd(srv server) *cobra.Command { //nolint:funlen // no real logic
 	return &cobra.Command{
 		Use:   "start",
 		Short: "Start http server",
@@ -329,6 +334,11 @@ func createStartCmd(srv server) *cobra.Command {
 				return err
 			}
 
+			authzKMSURL, err := cmdutils.GetUserSetVarFromString(cmd, authzKMSURLFlagName, authzKMSURLEnvKey, false)
+			if err != nil {
+				return err
+			}
+
 			parameters := &httpServerParameters{
 				dependencyMaxRetries: retries,
 				srv:                  srv,
@@ -339,6 +349,7 @@ func createStartCmd(srv server) *cobra.Command {
 				oidc:                 oidcParams,
 				webAuth:              webAuthParams,
 				keys:                 keys,
+				authzKMSURL:          authzKMSURL,
 			}
 
 			return startHTTPServer(parameters)
@@ -377,6 +388,7 @@ func createFlags(startCmd *cobra.Command) {
 		blindedRoutingURLFlagUsage)
 	startCmd.Flags().StringP(sdsURLFlagName, sdsURLFlagShorthand, "", sdsURLFlagUsage)
 	startCmd.Flags().StringP(dependencyMaxRetriesFlagName, "", "", dependencyMaxRetriesFlagUsage)
+	startCmd.Flags().StringP(authzKMSURLFlagName, "", "", authzKMSURLFlagUsage)
 	createOIDCFlags(startCmd)
 	createTLSFlags(startCmd)
 	createKeyFlags(startCmd)
@@ -828,6 +840,7 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters) error {
 			Auth: config.keys.sessionCookieAuthKey,
 			Enc:  config.keys.sessionCookieEncKey,
 		},
+		AuthzKMSURL: config.authzKMSURL,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to init oidc ops: %w", err)

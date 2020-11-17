@@ -7,10 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 package oidc // nolint:testpackage // changing to different package requires exposing internal REST handlers
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -130,8 +132,9 @@ func TestOperation_OIDCLoginHandler(t *testing.T) {
 }
 
 func TestOperation_OIDCCallbackHandler(t *testing.T) {
+	uiEndpoint := "http://test.com/wallet/"
+
 	t.Run("fetches OIDC tokens and redirects to the UI", func(t *testing.T) {
-		uiEndpoint := "http://test.com/wallet/"
 		code := uuid.New().String()
 		state := uuid.New().String()
 
@@ -156,6 +159,14 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 
 		o, err := New(config)
 		require.NoError(t, err)
+
+		o.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusCreated, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+				}, nil
+			},
+		}
 
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
@@ -403,6 +414,97 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		w := httptest.NewRecorder()
 		o.oidcCallbackHandler(w, newOIDCCallbackRequest("code", state))
 		require.Equal(t, http.StatusInternalServerError, w.Code)
+	})
+
+	t.Run("failure to create authz keystore", func(t *testing.T) {
+		code := uuid.New().String()
+		state := uuid.New().String()
+
+		config := config(t)
+		config.WalletDashboard = uiEndpoint
+		config.OIDCClient = &oidc2.MockClient{
+			OAuthToken: &oauth2.Token{
+				AccessToken:  uuid.New().String(),
+				RefreshToken: uuid.New().String(),
+				TokenType:    "Bearer",
+			},
+			IDToken: &oidc2.MockClaimer{
+				ClaimsFunc: func(i interface{}) error {
+					user, ok := i.(*user.User)
+					require.True(t, ok)
+					user.Sub = uuid.New().String()
+
+					return nil
+				},
+			},
+		}
+
+		o, err := New(config)
+		require.NoError(t, err)
+		o.store.cookies = &cookie.MockStore{
+			Jar: &cookie.MockJar{
+				Cookies: map[interface{}]interface{}{
+					stateCookieName: state,
+				},
+			},
+		}
+
+		o.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+				}, nil
+			},
+		}
+
+		w := httptest.NewRecorder()
+		o.oidcCallbackHandler(w, newOIDCCallbackRequest(code, state))
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Contains(t, w.Body.String(), "create authz keystore")
+	})
+
+	t.Run("failure to split secret", func(t *testing.T) {
+		code := uuid.New().String()
+		state := uuid.New().String()
+
+		config := config(t)
+		config.WalletDashboard = uiEndpoint
+		config.OIDCClient = &oidc2.MockClient{
+			OAuthToken: &oauth2.Token{
+				AccessToken:  uuid.New().String(),
+				RefreshToken: uuid.New().String(),
+				TokenType:    "Bearer",
+			},
+			IDToken: &oidc2.MockClaimer{
+				ClaimsFunc: func(i interface{}) error {
+					user, ok := i.(*user.User)
+					require.True(t, ok)
+					user.Sub = uuid.New().String()
+
+					return nil
+				},
+			},
+		}
+
+		o, err := New(config)
+		require.NoError(t, err)
+		o.store.cookies = &cookie.MockStore{
+			Jar: &cookie.MockJar{
+				Cookies: map[interface{}]interface{}{
+					stateCookieName: state,
+				},
+			},
+		}
+
+		o.secretSplitter = &mockSplitter{SplitErr: errors.New("secret split error")}
+
+		w := httptest.NewRecorder()
+		o.oidcCallbackHandler(w, newOIDCCallbackRequest(code, state))
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Contains(t, w.Body.String(), "split user secret key")
 	})
 }
 
@@ -666,4 +768,25 @@ func marshal(t *testing.T, v interface{}) []byte {
 	require.NoError(t, err)
 
 	return bits
+}
+
+type mockHTTPClient struct {
+	DoFunc func(req *http.Request) (*http.Response, error)
+}
+
+func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
+	return m.DoFunc(req)
+}
+
+type mockSplitter struct {
+	SplitErr   error
+	CombineErr error
+}
+
+func (m *mockSplitter) Split(secret []byte, numParts, threshold int) ([][]byte, error) {
+	return nil, m.SplitErr
+}
+
+func (m *mockSplitter) Combine(secretParts [][]byte) ([]byte, error) {
+	return nil, m.CombineErr
 }

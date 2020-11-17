@@ -7,10 +7,14 @@ SPDX-License-Identifier: Apache-2.0
 package oidc
 
 import (
+	"bytes"
 	"context"
+	"crypto/rand"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -21,6 +25,8 @@ import (
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/tokens"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
 	"github.com/trustbloc/edge-core/pkg/log"
+	"github.com/trustbloc/edge-core/pkg/sss"
+	"github.com/trustbloc/edge-core/pkg/sss/base"
 	"github.com/trustbloc/edge-core/pkg/storage"
 	"golang.org/x/oauth2"
 )
@@ -49,6 +55,7 @@ type Config struct {
 	WalletDashboard string
 	TLSConfig       *tls.Config
 	Keys            *KeyConfig
+	AuthzKMSURL     string
 }
 
 // KeyConfig holds configuration for cryptographic keys.
@@ -61,6 +68,10 @@ type KeyConfig struct {
 type StorageConfig struct {
 	Storage          storage.Provider
 	TransientStorage storage.Provider
+}
+
+type httpClient interface {
+	Do(req *http.Request) (*http.Response, error)
 }
 
 type stores struct {
@@ -76,6 +87,9 @@ type Operation struct {
 	oidcClient      oidc.Client
 	walletDashboard string
 	tlsConfig       *tls.Config
+	secretSplitter  sss.SecretSplitter
+	httpClient      httpClient
+	authzKMSURL     string
 }
 
 // New returns a new Operation.
@@ -87,6 +101,9 @@ func New(config *Config) (*Operation, error) {
 		},
 		walletDashboard: config.WalletDashboard,
 		tlsConfig:       config.TLSConfig,
+		secretSplitter:  &base.Splitter{},
+		httpClient:      &http.Client{Transport: &http.Transport{TLSClientConfig: config.TLSConfig}},
+		authzKMSURL:     config.AuthzKMSURL,
 	}
 
 	var err error
@@ -147,7 +164,7 @@ func (o *Operation) oidcLoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // TODO encrypt data before storing: https://github.com/trustbloc/edge-agent/issues/380
-func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) { // nolint:funlen // cannot reduce
+func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) { // nolint:funlen,gocyclo,lll // cannot reduce
 	logger.Debugf("handling oidc callback: %s", r.URL.String())
 
 	oauthToken, oidcToken, canProceed := o.fetchTokens(w, r)
@@ -172,6 +189,14 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if errors.Is(err, storage.ErrValueNotFound) {
+		err = o.onboardUser(usr.Sub)
+		if err != nil {
+			common.WriteErrorResponsef(w, logger,
+				http.StatusInternalServerError, "failed to onboard the user: %s", err.Error())
+
+			return
+		}
+
 		err = o.store.users.Save(usr)
 		if err != nil {
 			common.WriteErrorResponsef(w, logger,
@@ -385,4 +410,71 @@ func (o *Operation) userLogoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logger.Debugf("finished handling logout request")
+}
+
+func (o *Operation) onboardUser(sub string) error {
+	b := make([]byte, 32)
+
+	_, err := rand.Read(b)
+	if err != nil {
+		return fmt.Errorf("create user secret key : %w", err)
+	}
+
+	secrets, err := o.secretSplitter.Split(b, 2, 2)
+	if err != nil {
+		return fmt.Errorf("split user secret key : %w", err)
+	}
+
+	// TODO https://github.com/trustbloc/edge-agent/issues/488 send half secret key to hub-auth and remove logger
+	logger.Infof(string(secrets[0]))
+	logger.Infof(string(secrets[1]))
+
+	reqBytes, err := json.Marshal(createKeystoreReq{
+		Controller: sub,
+	})
+	if err != nil {
+		return fmt.Errorf("marshal create keystore req : %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(context.TODO(),
+		http.MethodPost, o.authzKMSURL+"/kms/keystores", bytes.NewBuffer(reqBytes))
+	if err != nil {
+		return err
+	}
+
+	// TODO https://github.com/trustbloc/edge-agent/issues/488 pass half secret and oauth token to hub-kms
+	_, headers, err := sendHTTPRequest(req, o.httpClient, http.StatusCreated)
+	if err != nil {
+		return fmt.Errorf("create authz keystore : %w", err)
+	}
+
+	// TODO https://github.com/trustbloc/edge-agent/issues/489 send keystore id to hub-auth and remove the logger
+	logger.Errorf(headers.Get("Location"))
+
+	return nil
+}
+
+func sendHTTPRequest(req *http.Request, client httpClient, status int) ([]byte, http.Header, error) {
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, nil, fmt.Errorf("http request : %w", err)
+	}
+
+	defer func() {
+		err = resp.Body.Close()
+		if err != nil {
+			logger.Errorf("failed to close response body")
+		}
+	}()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, nil, fmt.Errorf("http request: failed to read resp body %d : %w", resp.StatusCode, err)
+	}
+
+	if resp.StatusCode != status {
+		return nil, nil, fmt.Errorf("http request: expected=%d actual=%d body=%s", status, resp.StatusCode, string(body))
+	}
+
+	return body, resp.Header, nil
 }
