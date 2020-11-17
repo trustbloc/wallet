@@ -19,7 +19,13 @@ require (
 	github.com/spf13/cobra v0.0.6
 	github.com/stretchr/testify v1.6.1
 	github.com/trustbloc/edge-agent v0.0.0-00010101000000-000000000000
-	github.com/trustbloc/edge-core v0.1.5-0.20200916124536-c32454a16108
+	github.com/trustbloc/edge-core v0.1.5-0.20201106164919-76ecfeca954f
 )
 
 replace github.com/trustbloc/edge-agent => ../..
+
+// Added redirect as a workaround for https://github.com/duo-labs/webauthn/issues/76
+replace (
+	google.golang.org/grpc => google.golang.org/grpc v1.29.1
+	google.golang.org/grpc/examples => google.golang.org/grpc/examples v1.29.1
+)
