@@ -13,6 +13,14 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/pkg/errors v0.9.1
 	github.com/tidwall/gjson v1.6.3
-	github.com/trustbloc/edge-core v0.1.5-0.20200929143719-9c16791b7d04
+	github.com/trustbloc/edge-core v0.1.5-0.20201106164919-76ecfeca954f
 	gotest.tools/v3 v3.0.2 // indirect
+)
+
+replace (
+	// https://github.com/ory/dockertest/issues/208#issuecomment-686820414
+	golang.org/x/sys => golang.org/x/sys v0.0.0-20200826173525-f9321e4c35a6
+	// Added redirect as a workaround for https://github.com/duo-labs/webauthn/issues/76
+	google.golang.org/grpc => google.golang.org/grpc v1.29.1
+	google.golang.org/grpc/examples => google.golang.org/grpc/examples v1.29.1
 )
