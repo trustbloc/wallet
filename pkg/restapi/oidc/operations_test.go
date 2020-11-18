@@ -26,6 +26,8 @@ import (
 	"github.com/trustbloc/edge-core/pkg/storage"
 	"github.com/trustbloc/edge-core/pkg/storage/memstore"
 	"github.com/trustbloc/edge-core/pkg/storage/mockstore"
+	"github.com/trustbloc/edv/pkg/client"
+	"github.com/trustbloc/edv/pkg/restapi/models"
 	"golang.org/x/oauth2"
 )
 
@@ -167,6 +169,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 				}, nil
 			},
 		}
+		o.keySDSClient = &mockSDSClient{}
 
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
@@ -417,39 +420,9 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 	})
 
 	t.Run("failure to create authz keystore", func(t *testing.T) {
-		code := uuid.New().String()
 		state := uuid.New().String()
-
-		config := config(t)
-		config.WalletDashboard = uiEndpoint
-		config.OIDCClient = &oidc2.MockClient{
-			OAuthToken: &oauth2.Token{
-				AccessToken:  uuid.New().String(),
-				RefreshToken: uuid.New().String(),
-				TokenType:    "Bearer",
-			},
-			IDToken: &oidc2.MockClaimer{
-				ClaimsFunc: func(i interface{}) error {
-					user, ok := i.(*user.User)
-					require.True(t, ok)
-					user.Sub = uuid.New().String()
-
-					return nil
-				},
-			},
-		}
-
-		o, err := New(config)
-		require.NoError(t, err)
-		o.store.cookies = &cookie.MockStore{
-			Jar: &cookie.MockJar{
-				Cookies: map[interface{}]interface{}{
-					stateCookieName: state,
-				},
-			},
-		}
-
-		o.httpClient = &mockHTTPClient{
+		ops := setupOnboardingTest(t, state)
+		ops.httpClient = &mockHTTPClient{
 			DoFunc: func(req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
@@ -459,52 +432,75 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		}
 
 		w := httptest.NewRecorder()
-		o.oidcCallbackHandler(w, newOIDCCallbackRequest(code, state))
+		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
 
 		require.Equal(t, http.StatusInternalServerError, w.Code)
 		require.Contains(t, w.Body.String(), "create authz keystore")
 	})
 
 	t.Run("failure to split secret", func(t *testing.T) {
-		code := uuid.New().String()
 		state := uuid.New().String()
-
-		config := config(t)
-		config.WalletDashboard = uiEndpoint
-		config.OIDCClient = &oidc2.MockClient{
-			OAuthToken: &oauth2.Token{
-				AccessToken:  uuid.New().String(),
-				RefreshToken: uuid.New().String(),
-				TokenType:    "Bearer",
-			},
-			IDToken: &oidc2.MockClaimer{
-				ClaimsFunc: func(i interface{}) error {
-					user, ok := i.(*user.User)
-					require.True(t, ok)
-					user.Sub = uuid.New().String()
-
-					return nil
-				},
-			},
-		}
-
-		o, err := New(config)
-		require.NoError(t, err)
-		o.store.cookies = &cookie.MockStore{
-			Jar: &cookie.MockJar{
-				Cookies: map[interface{}]interface{}{
-					stateCookieName: state,
-				},
-			},
-		}
-
-		o.secretSplitter = &mockSplitter{SplitErr: errors.New("secret split error")}
+		ops := setupOnboardingTest(t, state)
+		ops.secretSplitter = &mockSplitter{SplitErr: errors.New("secret split error")}
 
 		w := httptest.NewRecorder()
-		o.oidcCallbackHandler(w, newOIDCCallbackRequest(code, state))
+		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
 
 		require.Equal(t, http.StatusInternalServerError, w.Code)
 		require.Contains(t, w.Body.String(), "split user secret key")
+	})
+
+	t.Run("failure to create key data vault", func(t *testing.T) {
+		state := uuid.New().String()
+		ops := setupOnboardingTest(t, state)
+		ops.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusCreated,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+				}, nil
+			},
+		}
+		ops.keySDSClient = &mockSDSClient{
+			CreateErr: errors.New("vault creation error"),
+		}
+
+		w := httptest.NewRecorder()
+		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Contains(t, w.Body.String(), "create key sds vault")
+	})
+
+	t.Run("failure to create ops keystore", func(t *testing.T) {
+		state := uuid.New().String()
+		ops := setupOnboardingTest(t, state)
+		ops.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				var request createKeystoreReq
+				err := json.NewDecoder(req.Body).Decode(&request)
+				require.NoError(t, err)
+
+				if request.OperationalVaultID != "" {
+					return &http.Response{
+						StatusCode: http.StatusInternalServerError,
+						Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
+				}
+
+				return &http.Response{
+					StatusCode: http.StatusCreated,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+				}, nil
+			},
+		}
+		ops.keySDSClient = &mockSDSClient{}
+
+		w := httptest.NewRecorder()
+		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Contains(t, w.Body.String(), "create operational keystore")
 	})
 }
 
@@ -746,6 +742,11 @@ func config(t *testing.T) *Config {
 			Auth: key(t),
 			Enc:  key(t),
 		},
+		KeyServer: &KeyServerConfig{
+			AuthzKMSURL: "",
+			KeySDSURL:   "",
+			OpsKMSURL:   "",
+		},
 	}
 }
 
@@ -770,6 +771,40 @@ func marshal(t *testing.T, v interface{}) []byte {
 	return bits
 }
 
+func setupOnboardingTest(t *testing.T, state string) *Operation {
+	config := config(t)
+	config.WalletDashboard = "http://test.com/wallet/"
+	config.OIDCClient = &oidc2.MockClient{
+		OAuthToken: &oauth2.Token{
+			AccessToken:  uuid.New().String(),
+			RefreshToken: uuid.New().String(),
+			TokenType:    "Bearer",
+		},
+		IDToken: &oidc2.MockClaimer{
+			ClaimsFunc: func(i interface{}) error {
+				user, ok := i.(*user.User)
+				require.True(t, ok)
+				user.Sub = uuid.New().String()
+
+				return nil
+			},
+		},
+	}
+
+	ops, err := New(config)
+	require.NoError(t, err)
+
+	ops.store.cookies = &cookie.MockStore{
+		Jar: &cookie.MockJar{
+			Cookies: map[interface{}]interface{}{
+				stateCookieName: state,
+			},
+		},
+	}
+
+	return ops
+}
+
 type mockHTTPClient struct {
 	DoFunc func(req *http.Request) (*http.Response, error)
 }
@@ -789,4 +824,16 @@ func (m *mockSplitter) Split(secret []byte, numParts, threshold int) ([][]byte, 
 
 func (m *mockSplitter) Combine(secretParts [][]byte) ([]byte, error) {
 	return nil, m.CombineErr
+}
+
+type mockSDSClient struct {
+	CreateErr error
+}
+
+func (m *mockSDSClient) CreateDataVault(_ *models.DataVaultConfiguration, _ ...client.EDVOption) (string, error) {
+	if m.CreateErr != nil {
+		return "", m.CreateErr
+	}
+
+	return "http://sds.example.com" + uuid.New().String(), nil
 }

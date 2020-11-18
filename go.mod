@@ -14,6 +14,7 @@ require (
 	github.com/gorilla/sessions v1.2.1
 	github.com/stretchr/testify v1.6.1
 	github.com/trustbloc/edge-core v0.1.5-0.20201106164919-76ecfeca954f
+	github.com/trustbloc/edv v0.1.5-0.20201116214851-c634f0545148
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 )
 

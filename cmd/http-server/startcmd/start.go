@@ -144,16 +144,27 @@ const (
 		" Alternatively, this can be set with the following environment variable: " + dependencyMaxRetriesFlagEnvKey
 	dependencyMaxRetriesDefault = uint64(120) // nolint:gomnd // false positive ("magic number")
 
-	authzKMSURLFlagName  = "authz-kms-url"
-	authzKMSURLFlagUsage = "Authorization KMS Server URL"
-	authzKMSURLEnvKey    = "HTTP_SERVER_AUTHZ_KMS_URL"
-
 	indexHTLMPath    = "/index.html"
 	uiBasePath       = "/wallet/"
 	uiConfigBasePath = "/walletconfig/"
 	oidcBasePath     = "/oidc/"
 	healthCheckPath  = "/healthcheck"
 	deviceBasePath   = "/device/"
+)
+
+// Key management config.
+const (
+	authzKMSURLFlagName  = "authz-kms-url"
+	authzKMSURLFlagUsage = "Authorization KMS Server URL"
+	authzKMSURLEnvKey    = "HTTP_SERVER_AUTHZ_KMS_URL"
+
+	opsKMSURLFlagName  = "ops-kms-url"
+	opsKMSURLFlagUsage = "Operational KMS Server URL"
+	opsKMSURLEnvKey    = "HTTP_SERVER_OPS_KMS_URL"
+
+	keySDSURLFlagName  = "key-sds-url"
+	keySDSURLFlagUsage = "Operational key SDS Server URL"
+	keySDSURLEnvKey    = "HTTP_SERVER_KEY_SDS_URL"
 )
 
 // OIDC config.
@@ -252,7 +263,7 @@ type httpServerParameters struct {
 	oidc                 *oidcParameters
 	keys                 *keyParameters
 	webAuth              *webauthParameters
-	authzKMSURL          string
+	keyServer            *keyServerParameters
 }
 
 type tlsParameters struct {
@@ -277,6 +288,12 @@ type webauthParameters struct {
 type keyParameters struct {
 	sessionCookieAuthKey []byte
 	sessionCookieEncKey  []byte
+}
+
+type keyServerParameters struct {
+	authzKMSURL string
+	opsKMSURL   string
+	keySDSURL   string
 }
 
 // GetStartCmd returns the Cobra start command.
@@ -334,7 +351,7 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen // no real logi
 				return err
 			}
 
-			authzKMSURL, err := cmdutils.GetUserSetVarFromString(cmd, authzKMSURLFlagName, authzKMSURLEnvKey, false)
+			keyServer, err := getKeyServerParams(cmd)
 			if err != nil {
 				return err
 			}
@@ -349,7 +366,7 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen // no real logi
 				oidc:                 oidcParams,
 				webAuth:              webAuthParams,
 				keys:                 keys,
-				authzKMSURL:          authzKMSURL,
+				keyServer:            keyServer,
 			}
 
 			return startHTTPServer(parameters)
@@ -389,6 +406,8 @@ func createFlags(startCmd *cobra.Command) {
 	startCmd.Flags().StringP(sdsURLFlagName, sdsURLFlagShorthand, "", sdsURLFlagUsage)
 	startCmd.Flags().StringP(dependencyMaxRetriesFlagName, "", "", dependencyMaxRetriesFlagUsage)
 	startCmd.Flags().StringP(authzKMSURLFlagName, "", "", authzKMSURLFlagUsage)
+	startCmd.Flags().StringP(opsKMSURLFlagName, "", "", opsKMSURLFlagUsage)
+	startCmd.Flags().StringP(keySDSURLFlagName, "", "", keySDSURLFlagUsage)
 	createOIDCFlags(startCmd)
 	createTLSFlags(startCmd)
 	createKeyFlags(startCmd)
@@ -560,6 +579,32 @@ func getKeyParams(cmd *cobra.Command) (*keyParameters, error) {
 	}
 
 	return params, nil
+}
+
+func getKeyServerParams(cmd *cobra.Command) (*keyServerParameters, error) {
+	authzKMSURL, err := cmdutils.GetUserSetVarFromString(
+		cmd, authzKMSURLFlagName, authzKMSURLEnvKey, false)
+	if err != nil {
+		return nil, fmt.Errorf("authz key server url : %w", err)
+	}
+
+	keySDSURL, err := cmdutils.GetUserSetVarFromString(
+		cmd, keySDSURLFlagName, keySDSURLEnvKey, false)
+	if err != nil {
+		return nil, fmt.Errorf("ops sds server url : %w", err)
+	}
+
+	opsKMSURL, err := cmdutils.GetUserSetVarFromString(
+		cmd, opsKMSURLFlagName, opsKMSURLEnvKey, false)
+	if err != nil {
+		return nil, fmt.Errorf("ops key server url : %w", err)
+	}
+
+	return &keyServerParameters{
+		authzKMSURL: authzKMSURL,
+		keySDSURL:   keySDSURL,
+		opsKMSURL:   opsKMSURL,
+	}, nil
 }
 
 func parseKey(file string) ([]byte, error) {
@@ -840,7 +885,11 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters) error {
 			Auth: config.keys.sessionCookieAuthKey,
 			Enc:  config.keys.sessionCookieEncKey,
 		},
-		AuthzKMSURL: config.authzKMSURL,
+		KeyServer: &oidc.KeyServerConfig{
+			AuthzKMSURL: config.keyServer.authzKMSURL,
+			OpsKMSURL:   config.keyServer.opsKMSURL,
+			KeySDSURL:   config.keyServer.keySDSURL,
+		},
 	})
 	if err != nil {
 		return fmt.Errorf("failed to init oidc ops: %w", err)

@@ -49,6 +49,9 @@ func TestListenAndServe(t *testing.T) {
 			rpID:          "localhost",
 			rpOrigin:      "http://localhost",
 		},
+		keyServer: &keyServerParameters{
+			authzKMSURL: "http://localhost",
+		},
 	})
 	require.NoError(t, err)
 
@@ -183,6 +186,8 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + webAuthRPIDFlagName, "localhost",
 			"--" + webAuthRPOriginFlagName, "http://localhost",
 			"--" + authzKMSURLFlagName, "http://localhost",
+			"--" + opsKMSURLFlagName, "http://localhost",
+			"--" + keySDSURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -287,6 +292,8 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + webAuthRPIDFlagName, "localhost",
 			"--" + webAuthRPOriginFlagName, "http://localhost",
 			"--" + authzKMSURLFlagName, "http://localhost",
+			"--" + opsKMSURLFlagName, "http://localhost",
+			"--" + keySDSURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -519,6 +526,8 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + sessionCookieEncKeyFlagName, key(t),
 			"--" + agentLogLevelFlagName, "INVALID",
 			"--" + authzKMSURLFlagName, "http://localhost",
+			"--" + opsKMSURLFlagName, "http://localhost",
+			"--" + keySDSURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -558,6 +567,69 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		require.Contains(t, err.Error(),
 			"Neither authz-kms-url (command line flag) nor HTTP_SERVER_AUTHZ_KMS_URL (environment variable) have been set.")
 	})
+
+	t.Run("missing ops sds server url", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + blocDomainFlagName, "domain",
+			"--" + walletMediatorURLFlagName, "http://localhost:8999",
+			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
+			"--" + blindedRoutingFlagName, "true",
+			"--" + agentAutoAcceptFlagName, "false",
+			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
+			"--" + sdsURLFlagName, "someURL",
+			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + tlsCACertsFlagName, cert(t),
+			"--" + sessionCookieAuthKeyFlagName, key(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
+			"--" + authzKMSURLFlagName, "http://localhost",
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+
+		require.Error(t, err)
+		require.Contains(t, err.Error(),
+			"Neither key-sds-url (command line flag) nor HTTP_SERVER_KEY_SDS_URL (environment variable) have been set.")
+	})
+
+	t.Run("missing ops key server url", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + blocDomainFlagName, "domain",
+			"--" + walletMediatorURLFlagName, "http://localhost:8999",
+			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
+			"--" + blindedRoutingFlagName, "true",
+			"--" + agentAutoAcceptFlagName, "false",
+			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
+			"--" + sdsURLFlagName, "someURL",
+			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + tlsCACertsFlagName, cert(t),
+			"--" + sessionCookieAuthKeyFlagName, key(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
+			"--" + authzKMSURLFlagName, "http://localhost",
+			"--" + keySDSURLFlagName, "http://localhost",
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+
+		require.Error(t, err)
+		require.Contains(t, err.Error(),
+			"Neither ops-kms-url (command line flag) nor HTTP_SERVER_OPS_KMS_URL (environment variable) have been set.")
+	})
 }
 
 func TestStartCmdValidArgs(t *testing.T) {
@@ -584,6 +656,8 @@ func TestStartCmdValidArgs(t *testing.T) {
 		"--" + webAuthRPIDFlagName, "localhost",
 		"--" + webAuthRPOriginFlagName, "http://localhost",
 		"--" + authzKMSURLFlagName, "http://localhost",
+		"--" + opsKMSURLFlagName, "http://localhost",
+		"--" + keySDSURLFlagName, "http://localhost",
 	}
 	startCmd.SetArgs(args)
 
@@ -640,6 +714,12 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	err = os.Setenv(authzKMSURLEnvKey, "localhost")
 	require.NoError(t, err)
 
+	err = os.Setenv(opsKMSURLEnvKey, "localhost")
+	require.NoError(t, err)
+
+	err = os.Setenv(keySDSURLEnvKey, "localhost")
+	require.NoError(t, err)
+
 	err = startCmd.Execute()
 
 	require.NoError(t, err)
@@ -683,6 +763,9 @@ func TestRouter(t *testing.T) {
 			},
 			tls:  &tlsParameters{},
 			keys: &keyParameters{},
+			keyServer: &keyServerParameters{
+				authzKMSURL: "http://localhost",
+			},
 		})
 		require.NoError(t, err)
 		w := httptest.NewRecorder()
@@ -725,6 +808,9 @@ func TestRouter(t *testing.T) {
 				config:   &tls.Config{},
 			},
 			keys: &keyParameters{},
+			keyServer: &keyServerParameters{
+				authzKMSURL: "http://localhost",
+			},
 		})
 		require.NoError(t, err)
 		w := httptest.NewRecorder()
