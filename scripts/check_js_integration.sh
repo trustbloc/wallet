@@ -12,7 +12,7 @@ ROOT=`pwd`
 
 npm -v
 echo "starting containers..."
-cd $ROOT/test/bdd/fixtures/agent-wasm
+cd $ROOT/test/bdd/fixtures/user-agent
 (source .env && docker-compose down && docker-compose up --force-recreate -d)
 
 echo "waiting for containers to start..."
@@ -31,5 +31,5 @@ echo "running tests..."
 npm run test
 
 echo "stopping containers..."
-cd $ROOT/test/bdd/fixtures/agent-wasm
+cd $ROOT/test/bdd/fixtures/user-agent
 (source .env && docker-compose down --remove-orphans)

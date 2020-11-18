@@ -8,7 +8,6 @@ const isSnapshot = require('./package.json').dependencies.hasOwnProperty("@trust
 const agent_sdk = (isSnapshot) ? "@trustbloc-cicd/agent-sdk" : "@trustbloc/agent-sdk"
 
 module.exports = {
-    publicPath: '/wallet/',
     chainWebpack: config => config.resolve.symlinks(false),
     runtimeCompiler: true,
     configureWebpack: {

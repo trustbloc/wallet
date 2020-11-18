@@ -11,7 +11,7 @@ echo "Running $0"
 ROOT=`pwd`
 
 echo "starting containers..."
-cd $ROOT/test/bdd/fixtures/agent-wasm
+cd $ROOT/test/bdd/fixtures/user-agent
 (source .env && docker-compose down && docker-compose up --force-recreate -d)
 
 echo "waiting for containers to start..."

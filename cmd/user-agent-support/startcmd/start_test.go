@@ -10,7 +10,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/json"
@@ -22,7 +21,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"path"
 	"testing"
 	"time"
 
@@ -51,9 +49,6 @@ func TestListenAndServe(t *testing.T) {
 		},
 		keyServer: &keyServerParameters{
 			authzKMSURL: "http://localhost",
-		},
-		opts: &agentJSOpts{
-			SDSServerURL: sdsURLEnvKey,
 		},
 	})
 	require.NoError(t, err)
@@ -96,6 +91,7 @@ func TestStartCmdWithBlankArg(t *testing.T) {
 
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + tlsCertFileFlagName, "",
 			"--" + tlsKeyFileFlagName, "key",
 		}
@@ -111,6 +107,7 @@ func TestStartCmdWithBlankArg(t *testing.T) {
 
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "",
 		}
@@ -133,52 +130,13 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			err.Error())
 	})
 
-	t.Run("test missing bloc domain arg", func(t *testing.T) {
-		startCmd := GetStartCmd(&mockServer{})
-
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080",
-			"--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-		}
-		startCmd.SetArgs(args)
-
-		err := startCmd.Execute()
-		require.Error(t, err)
-		require.Equal(t,
-			"Neither bloc-domain (command line flag) nor BLOC_DOMAIN (environment variable) have been set.",
-			err.Error())
-	})
-
-	t.Run("test invalid auto accept flag", func(t *testing.T) {
-		startCmd := GetStartCmd(&mockServer{})
-
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080",
-			"--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentAutoAcceptFlagName, "invalid",
-		}
-		startCmd.SetArgs(args)
-
-		err := startCmd.Execute()
-		require.Error(t, err)
-		require.Equal(t,
-			"invalid option - set true or false as the value",
-			err.Error())
-	})
-
 	t.Run("test invalid auto accept flag", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{Err: errors.New("error starting the server")})
 
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -199,37 +157,13 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		require.Contains(t, err.Error(), "error starting the server")
 	})
 
-	t.Run("test invalid blinded routing flag", func(t *testing.T) {
-		startCmd := GetStartCmd(&mockServer{Err: errors.New("error starting the server")})
-
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + blindedRoutingFlagName, "invalid",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
-		}
-		startCmd.SetArgs(args)
-
-		err := startCmd.Execute()
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "invalid option - set true or false as the value")
-	})
-
 	t.Run("test invalid tls-cacerts", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -250,13 +184,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
 			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
@@ -277,13 +205,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + dependencyMaxRetriesFlagName, "1",
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, "INVALID",
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -311,13 +233,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
 			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
@@ -341,13 +257,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
@@ -367,13 +277,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -394,13 +298,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + dependencyMaxRetriesFlagName, "1",
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, "INVALID",
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -424,13 +322,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + dependencyMaxRetriesFlagName, "1",
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, "INVALID",
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -455,13 +347,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + dependencyMaxRetriesFlagName, "1",
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, "INVALID",
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -484,13 +370,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + dependencyMaxRetriesFlagName, "1",
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, "INVALID",
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -513,13 +393,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -547,13 +421,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -577,13 +445,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -608,13 +470,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		args := []string{
 			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
-			"--" + blocDomainFlagName, "domain",
-			"--" + walletMediatorURLFlagName, "http://localhost:8999",
-			"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-			"--" + blindedRoutingFlagName, "true",
-			"--" + agentAutoAcceptFlagName, "false",
-			"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-			"--" + sdsURLFlagName, "someURL",
+			"--" + agentUIURLFlagName, "ui",
 			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
 			"--" + oidcClientIDFlagName, uuid.New().String(),
 			"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -641,13 +497,7 @@ func TestStartCmdValidArgs(t *testing.T) {
 	args := []string{
 		"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
 		"--" + tlsKeyFileFlagName, "key",
-		"--" + blocDomainFlagName, "domain",
-		"--" + walletMediatorURLFlagName, "http://localhost:8999",
-		"--" + credentialMediatorURLFlagName, "http://auth.sample/mediator",
-		"--" + blindedRoutingFlagName, "true",
-		"--" + agentAutoAcceptFlagName, "false",
-		"--" + agentHTTPResolverFlagName, "sidetree@http://localhost:8901",
-		"--" + sdsURLFlagName, "someURL",
+		"--" + agentUIURLFlagName, "ui",
 		"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
 		"--" + oidcClientIDFlagName, uuid.New().String(),
 		"--" + oidcClientSecretFlagName, uuid.New().String(),
@@ -681,10 +531,7 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	err = os.Setenv(tlsKeyFileEnvKey, "key")
 	require.NoError(t, err)
 
-	err = os.Setenv(blocDomainEnvKey, "domain")
-	require.NoError(t, err)
-
-	err = os.Setenv(sdsURLEnvKey, "someURL")
+	err = os.Setenv(agentUIURLEnvKey, "ui")
 	require.NoError(t, err)
 
 	err = os.Setenv(oidcProviderURLEnvKey, mockOIDCProvider(t))
@@ -744,88 +591,6 @@ func TestStartCmdWithBlankEnvVar(t *testing.T) {
 		err = startCmd.Execute()
 		require.Error(t, err)
 		require.Equal(t, "HTTP_SERVER_HOST_URL value is empty", err.Error())
-	})
-}
-
-func TestRouter(t *testing.T) {
-	t.Run("serves UI asset", func(t *testing.T) {
-		expected := "Hello, World!"
-		asset := assetsPath(t, expected)
-		r, err := router(&httpServerParameters{
-			wasmPath: path.Dir(asset),
-			oidc: &oidcParameters{
-				providerURL:  mockOIDCProvider(t),
-				clientID:     uuid.New().String(),
-				clientSecret: uuid.New().String(),
-				callbackURL:  "http://test.com/callback",
-			},
-			webAuth: &webauthParameters{
-				rpDisplayName: "Foobar Corp.",
-				rpID:          "localhost",
-				rpOrigin:      "http://localhost",
-			},
-			tls:  &tlsParameters{},
-			keys: &keyParameters{},
-			keyServer: &keyServerParameters{
-				authzKMSURL: "http://localhost",
-			},
-			opts: &agentJSOpts{
-				SDSServerURL: sdsURLEnvKey,
-			},
-		})
-		require.NoError(t, err)
-		w := httptest.NewRecorder()
-		r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s%s", uiBasePath, path.Base(asset)), nil))
-		require.Equal(t, http.StatusOK, w.Code)
-		require.Equal(t, expected, w.Body.String())
-	})
-
-	t.Run("serves agent wasm opts", func(t *testing.T) {
-		expected := &agentJSOpts{
-			HTTPResolvedURLs:      []string{uuid.New().String()},
-			AgentDefaultLabel:     uuid.New().String(),
-			AutoAccept:            true,
-			LogLevel:              uuid.New().String(),
-			DBNamespace:           uuid.New().String(),
-			BlocDomain:            uuid.New().String(),
-			WalletMediatorURL:     "http://test.mediator.com",
-			CredentialMediatorURL: "http://test.credential.mediator.com",
-			BlindedRouting:        true,
-			SDSServerURL:          "http://test.sds.server.com",
-		}
-		r, err := router(&httpServerParameters{
-			hostURL:  "test",
-			wasmPath: "test",
-			opts:     expected,
-			oidc: &oidcParameters{
-				providerURL:  mockOIDCProvider(t),
-				clientID:     uuid.New().String(),
-				clientSecret: uuid.New().String(),
-				callbackURL:  "http://test.com/callback",
-			},
-			webAuth: &webauthParameters{
-				rpDisplayName: "Foobar Corp.",
-				rpID:          "localhost",
-				rpOrigin:      "http://localhost",
-			},
-			tls: &tlsParameters{
-				certFile: cert(t),
-				keyFile:  "",
-				config:   &tls.Config{},
-			},
-			keys: &keyParameters{},
-			keyServer: &keyServerParameters{
-				authzKMSURL: "http://localhost",
-			},
-		})
-		require.NoError(t, err)
-		w := httptest.NewRecorder()
-		r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, fmt.Sprintf("%sagent", uiConfigBasePath), nil))
-		require.Equal(t, http.StatusOK, w.Code)
-		result := &agentJSOpts{}
-		err = json.NewDecoder(w.Body).Decode(result)
-		require.NoError(t, err)
-		require.Equal(t, expected, result)
 	})
 }
 
@@ -920,21 +685,6 @@ func cert(t *testing.T) string {
 	require.NoError(t, err)
 
 	err = pem.Encode(file, &pem.Block{Type: "CERTIFICATE", Bytes: der})
-	require.NoError(t, err)
-
-	return file.Name()
-}
-
-func assetsPath(t *testing.T, contents string) string {
-	file, err := ioutil.TempFile("", "*.html")
-	require.NoError(t, err)
-
-	t.Cleanup(func() {
-		fileErr := os.Remove(file.Name())
-		require.NoError(t, fileErr)
-	})
-
-	_, err = file.Write([]byte(contents))
 	require.NoError(t, err)
 
 	return file.Name()

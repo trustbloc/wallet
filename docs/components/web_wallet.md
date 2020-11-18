@@ -14,10 +14,10 @@
 
 Once user agent is started using previous step,
 
-- Login to web wallet from user web wallet [dashboard](https://localhost:8091/wallet/dashboard). 
+- Login to web wallet from user web wallet [dashboard](https://user.ui.agent.example.com:8091/dashboard).
 
   Proceed with pre-filled username/password for the login. Once login is successful, you will get a prompt from your browser to allow wallet to manage credentials, choose 'Allow'. 
-- Go to web wallet [demo page](https://localhost:8091/wallet/webwallet)
+- Go to web wallet [demo page](https://user.ui.agent.example.com:8091/webwallet)
 
   Web wallet demo page can be used to perform all supported wallet operations. Click on sample requests based on operation you wish to perform and click on `STORE` or `GET` buttons. 
   
@@ -41,7 +41,7 @@ In addition to that, user agent web wallet will perform some onboarding operatio
 
  - Registering with router(also known as mediator). Since user agent web wallet is technically also an agent which runs in your browser. Since it has no inbound transport and cannot be online always, it has to register 
  with [router](https://github.com/hyperledger/aries-framework-go/blob/master/docs/didcomm_mediator.md) to route the messages to it by asking for permission. On successful grant, agent receives the endpoint and routing key details.
- Sample configuration of how to pass a mediator URL in user agent setup can be found [here](https://github.com/trustbloc/edge-agent/blob/master/test/bdd/fixtures/agent-wasm/docker-compose.yml#L71)
+ Sample configuration of how to pass a mediator URL in user agent setup can be found [here](https://github.com/trustbloc/edge-agent/blob/master/test/bdd/fixtures/user-agent/docker-compose.yml#L71)
  - Creating TrustBloc DID. By default user agent web wallet uses trustbloc DIDs for generating verifiable presentation response over CHAPI.
  - Saving created DIDs and other metadata in storage for future operations.
 

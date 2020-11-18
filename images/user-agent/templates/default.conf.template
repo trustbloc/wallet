@@ -1,0 +1,42 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    ssl on;
+    ssl_certificate /etc/nginx/certs/ec-pubCert.pem;
+    ssl_certificate_key /etc/nginx/certs/ec-key.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    index index.html;
+    root /usr/share/nginx/www;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~ agent-js-worker\.wasm$ {
+        gzip_static on;
+        types {
+            application/wasm  wasm;
+        }
+    }
+
+    location /walletconfig/agent {
+        add_header 'Content-Type' 'application/json charset=UTF-8';
+
+        return 200 '{
+            "http-resolver-url":"${HTTP_RESOLVER_URL}",
+            "agent-default-label":"${AGENT_DEFAULT_LABEL}",
+            "auto-accept": ${AUTO_ACCEPT},
+            "log-level":"${LOG_LEVEL}",
+            "indexedDB-namespace":"${INDEXEDDB_NAMESPACE}",
+            "blocDomain":"${BLOC_DOMAIN}",
+            "walletMediatorURL":"${WALLET_MEDIATOR_URL}",
+            "credentialMediatorURL":"${CREDENTIAL_MEDIATOR_URL}",
+            "blindedRouting":"${BLINDED_ROUTING}",
+            "storageType":"${STORAGE_TYPE}",
+            "sdsServerURL":"${SDS_SERVER_URL}",
+            "edge-agent-server":"${EDGE_AGENT_SERVER}"
+        }';
+    }
+}

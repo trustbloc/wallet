@@ -26,7 +26,7 @@ function convert_file_osx() {
 
 pwd=`pwd`
 
-configs=( test/bdd/fixtures/agent-wasm )
+configs=( test/bdd/fixtures/user-agent )
 
 # processes config data files using provided function, to generate config files for bdd tests
 function process_files() {

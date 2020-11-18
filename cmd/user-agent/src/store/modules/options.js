@@ -10,7 +10,7 @@ const agentOptsLocation = l => `${l}/walletconfig/agent`
 const credentialMediator = url => url ? `${url}?origin=${encodeURIComponent(window.location.origin)}${__webpack_public_path__}/` : undefined
 
 let defaultAgentStartupOpts = {
-    assetsPath: `${__webpack_public_path__}/agent-js-worker/assets`,
+    assetsPath: `${__webpack_public_path__}agent-js-worker/assets`,
     'outbound-transport': ['ws', 'http'],
     'transport-return-route': 'all',
     'http-resolver-url': ["trustbloc:testnet.trustbloc.local@http://localhost:8080/1.0/identifiers", "web@http://localhost:8080/1.0/identifiers"],
@@ -19,6 +19,7 @@ let defaultAgentStartupOpts = {
     'auto-accept': true,
     'log-level': 'debug',
     'indexedDB-namespace': 'agent',
+    'edge-agent-server':'',
 
     blocDomain: 'testnet.trustbloc.local',
     walletMediatorURL: 'https://localhost:10063',
@@ -47,6 +48,8 @@ export default {
                     .catch(err => {
                         console.log("error fetching start up options - using default options : errMsg=", err);
                     })
+
+                agentOpts['http-resolver-url'] = agentOpts['http-resolver-url'].split(',')
             }
 
             commit('updateAgentOpts', {
@@ -58,7 +61,7 @@ export default {
                 'auto-accept': ('auto-accept' in agentOpts) ? agentOpts['auto-accept'] : defaultAgentStartupOpts['auto-accept'],
                 'log-level': ('log-level' in agentOpts) ? agentOpts['log-level'] : defaultAgentStartupOpts['log-level'],
                 'indexedDB-namespace': ('indexedDB-namespace' in agentOpts) ? agentOpts['indexedDB-namespace'] : defaultAgentStartupOpts['indexedDB-namespace'],
-
+                'edge-agent-server': ('edge-agent-server' in agentOpts) ? agentOpts['edge-agent-server'] : defaultAgentStartupOpts['edge-agent-server'],
                 blocDomain: ('blocDomain' in agentOpts) ? agentOpts['blocDomain'] : defaultAgentStartupOpts['blocDomain'],
                 walletMediatorURL: ('walletMediatorURL' in agentOpts) ? agentOpts['walletMediatorURL'] : defaultAgentStartupOpts['walletMediatorURL'],
                 credentialMediatorURL: credentialMediator(('credentialMediatorURL' in agentOpts) ? agentOpts['credentialMediatorURL'] : defaultAgentStartupOpts['credentialMediatorURL']),
@@ -82,6 +85,9 @@ export default {
         },
         agentDefaultLabel(state) {
             return state.agentOpts['agent-default-label']
+        },
+        serverURL(state) {
+            return state.agentOpts['edge-agent-server']
         },
     }
 }

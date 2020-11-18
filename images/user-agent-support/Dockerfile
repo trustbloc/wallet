@@ -18,13 +18,11 @@ ENV EXECUTABLES go git
 
 FROM golang as golang_build
 ARG GO_TAGS
-ARG NAME
-RUN GO_TAGS=${GO_TAGS} make http-server
+RUN GO_TAGS=${GO_TAGS} make user-agent-support
 
 FROM alpine:${ALPINE_VER} as base
-ARG NAME
-COPY --from=golang /opt/workspace/edge-agent/build/bin/wasm/${NAME} /usr/local/bin/${NAME}
-COPY --from=golang_build /opt/workspace/edge-agent/build/bin/http-server /usr/local/bin/${NAME}
-ENV PATH=/usr/local/bin/${NAME}:$PATH
-ENV HTTP_SERVER_WASM_PATH=/usr/local/bin/${NAME}
-ENTRYPOINT ["http-server"]
+
+COPY --from=golang_build /opt/workspace/edge-agent/build/bin/user-agent-support /usr/local/bin/user-agent-support
+ENV PATH=/usr/local/bin/user-agent-support:$PATH
+
+ENTRYPOINT ["user-agent-support"]

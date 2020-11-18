@@ -62,10 +62,10 @@ SPDX-License-Identifier: Apache-2.0
         },
         methods: {
             ...mapActions({loginUser: 'login', loadUser: 'loadUser', loadOIDCUser: 'loadOIDCUser'}),
-            ...mapGetters(['getCurrentUser', 'getAgentOpts']),
+            ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL']),
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
             beginOIDCLogin: async function() {
-                window.location.href = "/oidc/login"
+                window.location.href = this.serverURL() + "/oidc/login"
             },
             finishOIDCLogin: async function() {
                 let user = this.getCurrentUser()
