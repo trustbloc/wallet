@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/duo-labs/webauthn.io/session"
 	"github.com/duo-labs/webauthn/protocol"
@@ -24,16 +25,16 @@ import (
 
 // Endpoints.
 const (
-	registerBeginPath  = "register/begin"
-	registerFinishPath = "register/finish"
-	loginBeginPath     = "login/begin"
-	loginFinishPath    = "login/finish"
+	registerBeginPath  = "/register/begin"
+	registerFinishPath = "/register/finish"
+	loginBeginPath     = "/login/begin"
+	loginFinishPath    = "/login/finish"
 )
 
 // Stores.
 const (
-	deviceStoreName  = "edgeagent_device_trx"
-	deviceCookieName = "device_user"
+	deviceStoreName   = "edgeagent_device_trx"
+	userSubCookieName = "user_sub"
 )
 
 var logger = log.New("edge-agent/device-registration")
@@ -82,6 +83,7 @@ func New(config *Config) (*Operation, error) {
 		},
 		uiEndpoint: config.UIEndpoint,
 		tlsConfig:  config.TLSConfig,
+		webauthn:   config.Webauthn,
 	}
 
 	var err error
@@ -159,7 +161,7 @@ func (o *Operation) beginRegistration(w http.ResponseWriter, r *http.Request) {
 
 	jsonResponse(w, protocolCredential, http.StatusOK)
 
-	logger.Debugf("Registration begins: %s", o.uiEndpoint)
+	logger.Infof("Registration begins")
 }
 
 func (o *Operation) finishRegistration(w http.ResponseWriter, r *http.Request) {
@@ -183,7 +185,7 @@ func (o *Operation) finishRegistration(w http.ResponseWriter, r *http.Request) {
 	credential, err := o.webauthn.FinishRegistration(device, sessionData, r)
 	if err != nil {
 		common.WriteErrorResponsef(w, logger,
-			http.StatusInternalServerError, "failed to finish registration: %s", err.Error())
+			http.StatusInternalServerError, "failed to finish registration: %+v", err.Error())
 
 		return
 	}
@@ -200,7 +202,7 @@ func (o *Operation) finishRegistration(w http.ResponseWriter, r *http.Request) {
 
 	jsonResponse(w, credential, http.StatusOK)
 
-	logger.Debugf("Registration success: %s", o.uiEndpoint)
+	logger.Infof("Registration success")
 }
 
 func (o *Operation) beginLogin(w http.ResponseWriter, r *http.Request) {
@@ -242,7 +244,6 @@ func (o *Operation) beginLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (o *Operation) finishLogin(w http.ResponseWriter, r *http.Request) {
-	// get username
 	// get username
 	userData, canProceed := o.getUserData(w, r)
 	if !canProceed {
@@ -286,7 +287,7 @@ func (o *Operation) getUserData(w http.ResponseWriter, r *http.Request) (userDat
 		return nil, false
 	}
 
-	userSub, found := cookieSession.Get(deviceCookieName)
+	userSub, found := cookieSession.Get(userSubCookieName)
 	if !found {
 		common.WriteErrorResponsef(w, logger, http.StatusNotFound, "missing device user session cookie")
 
@@ -296,10 +297,14 @@ func (o *Operation) getUserData(w http.ResponseWriter, r *http.Request) (userDat
 	userData, err = o.store.users.Get(fmt.Sprintf("%v", userSub))
 	if err != nil {
 		common.WriteErrorResponsef(w, logger,
-			http.StatusInternalServerError, "failed to read user session cookie: %s", err.Error())
+			http.StatusInternalServerError, "failed to get user data %s:", err.Error())
 
 		return nil, false
 	}
+
+	displayName := strings.Split(fmt.Sprintf("%v", userSub), "@")[0]
+
+	userData.FamilyName = displayName
 
 	return userData, true
 }

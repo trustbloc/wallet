@@ -76,8 +76,8 @@ services:
       - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
-      - HTTP_SERVER_RP_ORIGIN_NAME=localhost
-      - HTTP_SERVER_RP_ID=http://localhost
+      - HTTP_SERVER_RP_ORIGIN_NAME=https://localhost:8091/
+      - HTTP_SERVER_RP_ID=localhost
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
       - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}
@@ -110,8 +110,8 @@ services:
       - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
-      - HTTP_SERVER_RP_ORIGIN_NAME=localhost
-      - HTTP_SERVER_RP_ID=http://localhost
+      - HTTP_SERVER_RP_ORIGIN_NAME=https://localhost:8071/
+      - HTTP_SERVER_RP_ID=localhost
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
       - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}
@@ -144,8 +144,8 @@ services:
       - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
-      - HTTP_SERVER_RP_ORIGIN_NAME=localhost
-      - HTTP_SERVER_RP_ID=http://localhost
+      - HTTP_SERVER_RP_ORIGIN_NAME=https://localhost:8077/
+      - HTTP_SERVER_RP_ID=localhost
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
       - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}
