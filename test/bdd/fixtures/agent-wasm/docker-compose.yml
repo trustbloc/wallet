@@ -78,7 +78,9 @@ services:
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
       - HTTP_SERVER_RP_ORIGIN_NAME=localhost
       - HTTP_SERVER_RP_ID=http://localhost
-      - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${HUB_KMS_PORT}
+      - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
+      - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
+      - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}
     ports:
       - 8091:8091
     volumes:
@@ -110,7 +112,9 @@ services:
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
       - HTTP_SERVER_RP_ORIGIN_NAME=localhost
       - HTTP_SERVER_RP_ID=http://localhost
-      - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${HUB_KMS_PORT}
+      - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
+      - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
+      - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}
     ports:
       - 8071:8071
     volumes:
@@ -142,7 +146,9 @@ services:
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
       - HTTP_SERVER_RP_ORIGIN_NAME=localhost
       - HTTP_SERVER_RP_ID=http://localhost
-      - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${HUB_KMS_PORT}
+      - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
+      - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
+      - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}
       - ARIESD_LOG_LEVEL=DEBUG
     ports:
       - 8077:8077
@@ -159,6 +165,11 @@ services:
     image: ${COUCHDB_IMAGE}:${COUCHDB_IMAGE_TAG}
     ports:
       - ${COUCHDB_PORT}:${COUCHDB_PORT}
+    environment:
+      - COUCHDB_USER=${COUCHDB_USERNAME}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+    volumes:
+      - ./couchdb-config/config.ini:/opt/couchdb/etc/local.d/config.ini
 
   sds.example.com:
     container_name: sds.example.com
@@ -365,7 +376,7 @@ services:
     container_name: authz-kms.trustbloc.local
     image: ${HUB_KMS_IMAGE}:${HUB_KMS_IMAGE_TAG}
     environment:
-      - KMS_HOST_URL=${HUB_KMS_HOST}:${HUB_KMS_PORT}
+      - KMS_HOST_URL=${HUB_KMS_HOST}:${AUTHZ_HUB_KMS_PORT}
       - KMS_CACERTS=/etc/tls/ec-cacert.pem
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
@@ -373,7 +384,28 @@ services:
       - KMS_SECRETS_DATABASE_TYPE=mem
       - KMS_OPERATIONAL_KMS_STORAGE_TYPE=mem
     ports:
-      - ${HUB_KMS_PORT}:${HUB_KMS_PORT}
+      - ${AUTHZ_HUB_KMS_PORT}:${AUTHZ_HUB_KMS_PORT}
+    entrypoint: ""
+    command: /bin/sh -c "sleep 5;kms-rest start"
+    volumes:
+      - ../keys/tls:/etc/tls
+    depends_on:
+      - couchdb.example.com
+
+  ops-kms.example.com:
+    container_name: ops-kms.trustbloc.local
+    image: ${HUB_KMS_IMAGE}:${HUB_KMS_IMAGE_TAG}
+    environment:
+      - KMS_HOST_URL=${HUB_KMS_HOST}:${OPS_HUB_KMS_PORT}
+      - KMS_CACERTS=/etc/tls/ec-cacert.pem
+      - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
+      - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
+      - KMS_DATABASE_TYPE=mem
+      - KMS_SECRETS_DATABASE_TYPE=mem
+      - KMS_OPERATIONAL_KMS_STORAGE_TYPE=sds
+      - KMS_OPERATIONAL_KMS_STORAGE_URL=https://sds.example.com:${OPS_SDS_PORT}
+    ports:
+      - ${OPS_HUB_KMS_PORT}:${OPS_HUB_KMS_PORT}
     entrypoint: ""
     command: /bin/sh -c "sleep 5;kms-rest start"
     volumes:

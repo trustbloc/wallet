@@ -28,6 +28,8 @@ import (
 	"github.com/trustbloc/edge-core/pkg/sss"
 	"github.com/trustbloc/edge-core/pkg/sss/base"
 	"github.com/trustbloc/edge-core/pkg/storage"
+	"github.com/trustbloc/edv/pkg/client"
+	"github.com/trustbloc/edv/pkg/restapi/models"
 	"golang.org/x/oauth2"
 )
 
@@ -55,7 +57,7 @@ type Config struct {
 	WalletDashboard string
 	TLSConfig       *tls.Config
 	Keys            *KeyConfig
-	AuthzKMSURL     string
+	KeyServer       *KeyServerConfig
 }
 
 // KeyConfig holds configuration for cryptographic keys.
@@ -70,8 +72,19 @@ type StorageConfig struct {
 	TransientStorage storage.Provider
 }
 
+// KeyServerConfig holds configuration for key management server.
+type KeyServerConfig struct {
+	AuthzKMSURL string
+	OpsKMSURL   string
+	KeySDSURL   string
+}
+
 type httpClient interface {
 	Do(req *http.Request) (*http.Response, error)
+}
+
+type sdsClient interface {
+	CreateDataVault(config *models.DataVaultConfiguration, opts ...client.EDVOption) (string, error)
 }
 
 type stores struct {
@@ -89,7 +102,8 @@ type Operation struct {
 	tlsConfig       *tls.Config
 	secretSplitter  sss.SecretSplitter
 	httpClient      httpClient
-	authzKMSURL     string
+	keySDSClient    sdsClient
+	keyServer       *KeyServerConfig
 }
 
 // New returns a new Operation.
@@ -103,7 +117,11 @@ func New(config *Config) (*Operation, error) {
 		tlsConfig:       config.TLSConfig,
 		secretSplitter:  &base.Splitter{},
 		httpClient:      &http.Client{Transport: &http.Transport{TLSClientConfig: config.TLSConfig}},
-		authzKMSURL:     config.AuthzKMSURL,
+		keySDSClient: client.New(
+			config.KeyServer.KeySDSURL+"/encrypted-data-vaults",
+			client.WithTLSConfig(config.TLSConfig),
+		),
+		keyServer: config.KeyServer,
 	}
 
 	var err error
@@ -429,33 +447,77 @@ func (o *Operation) onboardUser(sub string) error {
 	logger.Infof(string(secrets[0]))
 	logger.Infof(string(secrets[1]))
 
-	reqBytes, err := json.Marshal(createKeystoreReq{
-		Controller: sub,
-	})
-	if err != nil {
-		return fmt.Errorf("marshal create keystore req : %w", err)
-	}
-
-	req, err := http.NewRequestWithContext(context.TODO(),
-		http.MethodPost, o.authzKMSURL+"/kms/keystores", bytes.NewBuffer(reqBytes))
-	if err != nil {
-		return err
-	}
-
-	// TODO https://github.com/trustbloc/edge-agent/issues/488 pass half secret and oauth token to hub-kms
-	_, headers, err := sendHTTPRequest(req, o.httpClient, http.StatusCreated)
+	authzKeyStoreURL, err := createKeyStore(o.keyServer.AuthzKMSURL, sub, "", o.httpClient)
 	if err != nil {
 		return fmt.Errorf("create authz keystore : %w", err)
 	}
 
-	// TODO https://github.com/trustbloc/edge-agent/issues/489 send keystore id to hub-auth and remove the logger
-	logger.Errorf(headers.Get("Location"))
+	// TODO https://github.com/trustbloc/edge-agent/issues/493 create controller
+	controller := uuid.New().URN()
+
+	opsSDSVaultURL, err := createSDSDataVault(o.keySDSClient, controller)
+	if err != nil {
+		return fmt.Errorf("create key sds vault : %w", err)
+	}
+
+	opsKeyStoreURL, err := createKeyStore(o.keyServer.OpsKMSURL, controller, opsSDSVaultURL, o.httpClient)
+	if err != nil {
+		return fmt.Errorf("create operational keystore : %w", err)
+	}
+
+	// TODO https://github.com/trustbloc/edge-agent/issues/489 send keystore/vault ids to hub-auth and remove the logger
+	logger.Infof("authzKeyStoreURL=%s", authzKeyStoreURL)
+	logger.Infof("opsSDSVaultURL=%s", opsSDSVaultURL)
+	logger.Infof("opsKeyStoreURL=%s", opsKeyStoreURL)
 
 	return nil
 }
 
-func sendHTTPRequest(req *http.Request, client httpClient, status int) ([]byte, http.Header, error) {
-	resp, err := client.Do(req)
+func createKeyStore(baseURL, controller, vaultID string, httpClient httpClient) (string, error) {
+	reqBytes, err := json.Marshal(createKeystoreReq{
+		Controller:         controller,
+		OperationalVaultID: vaultID,
+	})
+	if err != nil {
+		return "", fmt.Errorf("marshal create keystore req : %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(context.TODO(),
+		http.MethodPost, baseURL+"/kms/keystores", bytes.NewBuffer(reqBytes))
+	if err != nil {
+		return "", err
+	}
+
+	// TODO https://github.com/trustbloc/edge-agent/issues/488 pass half secret and oauth token to hub-kms
+	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
+	if err != nil {
+		return "", fmt.Errorf("create authz keystore : %w", err)
+	}
+
+	keystoreURL := headers.Get("Location")
+
+	return keystoreURL, nil
+}
+
+func createSDSDataVault(sdsClient sdsClient, controller string) (string, error) {
+	config := models.DataVaultConfiguration{
+		Sequence:    0,
+		Controller:  controller,
+		ReferenceID: uuid.New().String(),
+		KEK:         models.IDTypePair{ID: uuid.New().URN(), Type: "AesKeyWrappingKey2019"},
+		HMAC:        models.IDTypePair{ID: uuid.New().URN(), Type: "Sha256HmacKey2019"},
+	}
+
+	vaultURL, err := sdsClient.CreateDataVault(&config)
+	if err != nil {
+		return "", fmt.Errorf("create data vault : %w", err)
+	}
+
+	return vaultURL, nil
+}
+
+func sendHTTPRequest(req *http.Request, httpClient httpClient, status int) ([]byte, http.Header, error) {
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, nil, fmt.Errorf("http request : %w", err)
 	}
