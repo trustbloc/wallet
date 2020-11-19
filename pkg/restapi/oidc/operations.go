@@ -58,6 +58,7 @@ type Config struct {
 	TLSConfig       *tls.Config
 	Keys            *KeyConfig
 	KeyServer       *KeyServerConfig
+	UserSDSURL      string
 }
 
 // KeyConfig holds configuration for cryptographic keys.
@@ -104,6 +105,7 @@ type Operation struct {
 	httpClient      httpClient
 	keySDSClient    sdsClient
 	keyServer       *KeyServerConfig
+	userSDSClient   sdsClient
 }
 
 // New returns a new Operation.
@@ -118,7 +120,7 @@ func New(config *Config) (*Operation, error) {
 		secretSplitter:  &base.Splitter{},
 		httpClient:      &http.Client{Transport: &http.Transport{TLSClientConfig: config.TLSConfig}},
 		keySDSClient: client.New(
-			config.KeyServer.KeySDSURL+"/encrypted-data-vaults",
+			config.KeyServer.KeySDSURL,
 			client.WithTLSConfig(config.TLSConfig),
 		),
 		keyServer: config.KeyServer,
@@ -139,6 +141,13 @@ func New(config *Config) (*Operation, error) {
 	op.store.tokens, err = tokens.NewStore(config.Storage.Storage)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open tokens store: %w", err)
+	}
+
+	if config.UserSDSURL != "" {
+		op.userSDSClient = client.New(
+			config.UserSDSURL,
+			client.WithTLSConfig(config.TLSConfig),
+		)
 	}
 
 	return op, nil
@@ -465,10 +474,20 @@ func (o *Operation) onboardUser(sub string) error {
 		return fmt.Errorf("create operational keystore : %w", err)
 	}
 
+	var userSDSVaultURL string
+
+	if o.userSDSClient != nil {
+		userSDSVaultURL, err = createSDSDataVault(o.userSDSClient, controller)
+		if err != nil {
+			return fmt.Errorf("create user sds vault : %w", err)
+		}
+	}
+
 	// TODO https://github.com/trustbloc/edge-agent/issues/489 send keystore/vault ids to hub-auth and remove the logger
 	logger.Infof("authzKeyStoreURL=%s", authzKeyStoreURL)
 	logger.Infof("opsSDSVaultURL=%s", opsSDSVaultURL)
 	logger.Infof("opsKeyStoreURL=%s", opsKeyStoreURL)
+	logger.Infof("userSDSVaultURL=%s", userSDSVaultURL)
 
 	return nil
 }
