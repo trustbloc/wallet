@@ -30,6 +30,7 @@ import (
 	"github.com/trustbloc/edge-agent/pkg/restapi/device"
 	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
 	"github.com/trustbloc/edge-core/pkg/log"
+	"github.com/trustbloc/edge-core/pkg/storage"
 	"github.com/trustbloc/edge-core/pkg/storage/memstore"
 	cmdutils "github.com/trustbloc/edge-core/pkg/utils/cmd"
 	tlsutils "github.com/trustbloc/edge-core/pkg/utils/tls"
@@ -816,14 +817,16 @@ func router(config *httpServerParameters) (http.Handler, error) {
 
 	oidcRouter := root.PathPrefix(oidcBasePath).Subrouter()
 
-	err := addOIDCHandlers(oidcRouter, config)
+	store := memstore.NewProvider()
+
+	err := addOIDCHandlers(oidcRouter, config, store)
 	if err != nil {
 		return nil, fmt.Errorf("failed to add OIDC handlers: %w", err)
 	}
 
 	deviceRouter := root.PathPrefix(deviceBasePath).Subrouter()
 
-	err = addDeviceHandlers(deviceRouter, config)
+	err = addDeviceHandlers(deviceRouter, config, store)
 	if err != nil {
 		return nil, fmt.Errorf("failed to add device handlers: %w", err)
 	}
@@ -860,7 +863,7 @@ func addUIConfigHandlers(router *mux.Router, config *httpServerParameters) {
 	})
 }
 
-func addOIDCHandlers(router *mux.Router, config *httpServerParameters) error {
+func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store storage.Provider) error {
 	provider, err := initOIDCProvider(config.oidc.providerURL, config.dependencyMaxRetries, config.tls.config)
 	if err != nil {
 		return fmt.Errorf("failed to init OIDC provider: %w", err)
@@ -878,7 +881,7 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters) error {
 			Scopes:       []string{oidcp.ScopeOpenID, "profile", "email"},
 		}),
 		Storage: &oidc.StorageConfig{
-			Storage:          memstore.NewProvider(),
+			Storage:          store,
 			TransientStorage: memstore.NewProvider(),
 		},
 		Keys: &oidc.KeyConfig{
@@ -902,7 +905,7 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters) error {
 	return nil
 }
 
-func addDeviceHandlers(router *mux.Router, config *httpServerParameters) error {
+func addDeviceHandlers(router *mux.Router, config *httpServerParameters, store storage.Provider) error {
 	webAuthn, err := webauthn.New(&webauthn.Config{
 		RPDisplayName: config.webAuth.rpDisplayName, // Display Name for your site
 		RPID:          config.webAuth.rpID,          // Generally the domain name for your site
@@ -916,7 +919,7 @@ func addDeviceHandlers(router *mux.Router, config *httpServerParameters) error {
 		UIEndpoint: uiBasePath,
 		TLSConfig:  config.tls.config,
 		Storage: &device.StorageConfig{
-			Storage:      memstore.NewProvider(),
+			Storage:      store,
 			SessionStore: memstore.NewProvider(),
 		},
 		Keys: &device.KeyConfig{

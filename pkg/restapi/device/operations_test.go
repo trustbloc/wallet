@@ -102,7 +102,7 @@ func Test_GetUserData(t *testing.T) {
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
-					deviceCookieName: userSub,
+					userSubCookieName: userSub,
 				},
 			},
 		}
@@ -132,7 +132,7 @@ func Test_GetUserData(t *testing.T) {
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
-					deviceCookieName: userSub,
+					userSubCookieName: userSub,
 				},
 			},
 		}
@@ -163,7 +163,7 @@ func TestRegistration_BeginRegistration(t *testing.T) {
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
-					deviceCookieName: userSub,
+					userSubCookieName: userSub,
 				},
 			},
 		}
@@ -192,7 +192,7 @@ func TestRegistration_BeginRegistration(t *testing.T) {
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
-					deviceCookieName: userSub,
+					userSubCookieName: userSub,
 				},
 			},
 		}
@@ -220,7 +220,7 @@ func TestRegistration_FinishRegistration(t *testing.T) {
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
-					deviceCookieName: userSub,
+					userSubCookieName: userSub,
 				},
 			},
 		}
@@ -246,7 +246,7 @@ func TestRegistration_FinishRegistration(t *testing.T) {
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
-					deviceCookieName: userSub,
+					userSubCookieName: userSub,
 				},
 			},
 		}
@@ -279,7 +279,7 @@ func TestRegistration_FinishRegistration(t *testing.T) {
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
-					deviceCookieName: userSub,
+					userSubCookieName: userSub,
 				},
 			},
 		}
@@ -308,7 +308,7 @@ func TestRegistration_FinishRegistration(t *testing.T) {
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
-					deviceCookieName: userSub,
+					userSubCookieName: userSub,
 				},
 			},
 		}
@@ -343,7 +343,7 @@ func TestBeginLogin(t *testing.T) {
 	o.store.cookies = &cookie.MockStore{
 		Jar: &cookie.MockJar{
 			Cookies: map[interface{}]interface{}{
-				deviceCookieName: userSub,
+				userSubCookieName: userSub,
 			},
 		},
 	}
@@ -380,7 +380,7 @@ func TestBeginLogin(t *testing.T) {
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
-					deviceCookieName: userSub,
+					userSubCookieName: userSub,
 				},
 			},
 		}
@@ -422,7 +422,7 @@ func TestFinishLogin(t *testing.T) {
 	o.store.cookies = &cookie.MockStore{
 		Jar: &cookie.MockJar{
 			Cookies: map[interface{}]interface{}{
-				deviceCookieName: userSub,
+				userSubCookieName: userSub,
 			},
 		},
 	}
@@ -482,7 +482,7 @@ func TestFinishLogin(t *testing.T) {
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
-					deviceCookieName: userSub,
+					userSubCookieName: userSub,
 				},
 			},
 		}
