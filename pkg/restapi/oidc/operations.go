@@ -165,6 +165,13 @@ func (o *Operation) oidcLoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_, found := session.Get(userSubCookieName)
+	if found {
+		http.Redirect(w, r, o.walletDashboard, http.StatusMovedPermanently)
+
+		return
+	}
+
 	state := uuid.New().String()
 	session.Set(stateCookieName, state)
 	redirectURL := o.oidcClient.FormatRequest(state)

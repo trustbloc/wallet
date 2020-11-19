@@ -131,6 +131,21 @@ func TestOperation_OIDCLoginHandler(t *testing.T) {
 		o.oidcLoginHandler(w, newOIDCLoginRequest())
 		require.Equal(t, http.StatusInternalServerError, w.Code)
 	})
+
+	t.Run("user already logged in", func(t *testing.T) {
+		o, err := New(config(t))
+		require.NoError(t, err)
+		result := httptest.NewRecorder()
+		o.store.cookies = &cookie.MockStore{
+			Jar: &cookie.MockJar{
+				Cookies: map[interface{}]interface{}{
+					userSubCookieName: uuid.New().String(),
+				},
+			},
+		}
+		o.oidcLoginHandler(result, newOIDCLoginRequest())
+		require.Equal(t, http.StatusMovedPermanently, result.Code)
+	})
 }
 
 func TestOperation_OIDCCallbackHandler(t *testing.T) {
