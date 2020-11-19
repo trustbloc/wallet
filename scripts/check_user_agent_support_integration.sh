@@ -7,7 +7,7 @@
 set -e
 
 
-echo "Running http-server integration tests..."
+echo "Running user-agent-support integration tests..."
 
 ROOT=$(pwd)
 

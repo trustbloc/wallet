@@ -26,9 +26,9 @@ PKGS=`go list github.com/trustbloc/edge-agent/... 2> /dev/null | \
 go test $PKGS -count=1 -race -coverprofile=profile.out -covermode=atomic -timeout=10m
 amend_coverage_file
 
-# Running http server unit tests
-cd cmd/http-server
-PKGS=`go list github.com/trustbloc/edge-agent/cmd/http-server/... 2> /dev/null | \
+# Running user-agent-support unit tests
+cd cmd/user-agent-support
+PKGS=`go list github.com/trustbloc/edge-agent/cmd/user-agent-support/... 2> /dev/null | \
                                                  grep -v /mocks`
 go test $PKGS -count=1 -race -coverprofile=profile.out -covermode=atomic -timeout=10m
 amend_coverage_file

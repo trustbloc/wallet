@@ -20,8 +20,8 @@ Once successful, the target will print user agent dev endpoints in terminal like
 
 
   App running at:
-  - Local:   https://localhost:8080/wallet/ 
-  - Network: https://192.168.0.14:8080/wallet/
+  - Local:   https://localhost:8080 
+  - Network: https://192.168.0.14:8080
 
   Note that the development build is not optimized.
   To create a production build, run npm run build.

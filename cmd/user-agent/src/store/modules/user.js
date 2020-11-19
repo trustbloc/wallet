@@ -65,8 +65,11 @@ export default {
                 }
             )
         },
-        async loadOIDCUser({commit, dispatch}) {
-            let userInfo = await fetch("/oidc/userinfo")
+        async loadOIDCUser({commit, dispatch, getters}) {
+            let userInfo = await fetch(getters.serverURL+"/oidc/userinfo",{
+                method: 'GET',
+                credentials: 'include'
+            })
 
             if (userInfo.ok) {
                 let profile = await userInfo.json()
@@ -82,8 +85,11 @@ export default {
                 )
             }
         },
-        async logout({commit, dispatch}) {
-            await fetch("/oidc/logout")
+        async logout({commit, dispatch,getters}) {
+            await fetch(getters.serverURL+"/oidc/logout",{
+                method: 'GET',
+                credentials: 'include'
+            })
             commit('clearUser')
             await dispatch('agent/destroy')
         },

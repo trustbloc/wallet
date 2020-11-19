@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-module github.com/trustbloc/edge-agent/cmd/http-server
+module github.com/trustbloc/edge-agent/cmd/user-agent-support
 
 go 1.15
 

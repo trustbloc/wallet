@@ -8,5 +8,5 @@ set -e
 
 echo "Running $0"
 
-cd test/bdd/fixtures/agent-wasm
+cd test/bdd/fixtures/user-agent
 (source .env && docker-compose down && docker-compose up --force-recreate)

@@ -149,7 +149,7 @@ func TestOperation_OIDCLoginHandler(t *testing.T) {
 }
 
 func TestOperation_OIDCCallbackHandler(t *testing.T) {
-	uiEndpoint := "http://test.com/wallet/"
+	uiEndpoint := "http://test.com/dashboard"
 
 	t.Run("fetches OIDC tokens and redirects to the UI", func(t *testing.T) {
 		code := uuid.New().String()
@@ -811,7 +811,7 @@ func marshal(t *testing.T, v interface{}) []byte {
 
 func setupOnboardingTest(t *testing.T, state string) *Operation {
 	config := config(t)
-	config.WalletDashboard = "http://test.com/wallet/"
+	config.WalletDashboard = "http://test.com/dashboard"
 	config.OIDCClient = &oidc2.MockClient{
 		OAuthToken: &oauth2.Token{
 			AccessToken:  uuid.New().String(),

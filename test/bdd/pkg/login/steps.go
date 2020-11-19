@@ -24,9 +24,9 @@ import (
 const (
 	host            = "https://localhost:8077"
 	loginPath       = host + "/oidc/login"
-	walletPath      = host + "/wallet/"
 	userProfilePath = host + "/oidc/userinfo"
 	userLogoutPath  = host + "/oidc/logout"
+	dashboardPath   = "https://localhost:8078/dashboard"
 )
 
 // Mock Login Consent App.
@@ -226,8 +226,8 @@ func (s *Steps) userRedirectedToWallet() error {
 		return fmt.Errorf("expected status code %d but got %d", http.StatusFound, s.authZResult.statusCode)
 	}
 
-	if !strings.HasPrefix(s.authZResult.url, walletPath) {
-		return fmt.Errorf("expected path %s but got %s", walletPath, s.authZResult.url)
+	if !strings.HasPrefix(s.authZResult.url, dashboardPath) {
+		return fmt.Errorf("expected path %s but got %s", dashboardPath, s.authZResult.url)
 	}
 
 	return nil

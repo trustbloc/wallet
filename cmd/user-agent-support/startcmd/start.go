@@ -13,17 +13,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"path"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
 	oidcp "github.com/coreos/go-oidc"
 	"github.com/duo-labs/webauthn/webauthn"
 	"github.com/gorilla/mux"
-	"github.com/lpar/gzipped"
 	"github.com/rs/cors"
 	"github.com/spf13/cobra"
 	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
@@ -43,12 +40,16 @@ const (
 		" Alternatively, this can be set with the following environment variable: " + hostURLEnvKey
 	hostURLEnvKey = "HTTP_SERVER_HOST_URL"
 
-	wasmPathFlagName      = "wasm-path"
-	wasmPathFlagShorthand = "w"
-	wasmPathFlagUsage     = "WASM path." +
-		" Defaults to current directory." +
-		" Alternatively, this can be set with the following environment variable: " + wasmPathEnvKey
-	wasmPathEnvKey = "HTTP_SERVER_WASM_PATH"
+	agentUIURLFlagName  = "agent-ui-url"
+	agentUIURLFlagUsage = "Agent UI URL." +
+		" Alternatively, this can be set with the following environment variable: " + agentUIURLEnvKey
+	agentUIURLEnvKey = "AGENT_UI_URL"
+
+	agentLogLevelFlagName  = "log-level"
+	agentLogLevelEnvKey    = "ARIESD_LOG_LEVEL"
+	agentLogLevelFlagUsage = "Log level." +
+		" Possible values [INFO] [DEBUG] [ERROR] [WARNING] [CRITICAL] . Defaults to INFO if not set." +
+		" Alternatively, this can be set with the following environment variable: " + agentLogLevelEnvKey
 
 	tlsCertFileFlagName      = "tls-cert-file"
 	tlsCertFileFlagShorthand = "c"
@@ -67,77 +68,6 @@ const (
 		" Alternatively, this can be set with the following environment variable: " + tlsCACertsEnvKey
 	tlsCACertsEnvKey = "TLS_CACERTS"
 
-	// auto accept flag.
-	agentAutoAcceptFlagName  = "auto-accept"
-	agentAutoAcceptEnvKey    = "ARIESD_AUTO_ACCEPT"
-	agentAutoAcceptFlagUsage = "Auto accept requests." +
-		" Possible values [true] [false]. Defaults to false if not set." +
-		" Alternatively, this can be set with the following environment variable: " + agentAutoAcceptEnvKey
-
-	// log level.
-	agentLogLevelFlagName  = "log-level"
-	agentLogLevelEnvKey    = "ARIESD_LOG_LEVEL"
-	agentLogLevelFlagUsage = "Log level." +
-		" Possible values [INFO] [DEBUG] [ERROR] [WARNING] [CRITICAL] . Defaults to INFO if not set." +
-		" Alternatively, this can be set with the following environment variable: " + agentLogLevelEnvKey
-
-	// default label flag.
-	agentDefaultLabelFlagName      = "agent-default-label"
-	agentDefaultLabelEnvKey        = "ARIESD_DEFAULT_LABEL"
-	agentDefaultLabelFlagShorthand = "l"
-	agentDefaultLabelFlagUsage     = "Default Label for this agent. Defaults to blank if not set." +
-		" Alternatively, this can be set with the following environment variable: " + agentDefaultLabelEnvKey
-
-	// db namespace flag.
-	agentDBNSFlagName      = "db-namespace"
-	agentDBNSEnvKey        = "ARIESD_DB_NAMESPACE"
-	agentDBNSFlagShorthand = "d"
-	agentDBNSFlagUsage     = "database namespace." +
-		" Alternatively, this can be set with the following environment variable: " + agentDBNSEnvKey
-
-	// http resolver url flag.
-	agentHTTPResolverFlagName      = "http-resolver-url"
-	agentHTTPResolverEnvKey        = "ARIESD_HTTP_RESOLVER"
-	agentHTTPResolverFlagShorthand = "r"
-	agentHTTPResolverFlagUsage     = "HTTP binding DID resolver method and url. Values should be in `method@url` format." +
-		" This flag can be repeated, allowing multiple http resolvers. Defaults to peer DID resolver if not set." +
-		" Alternatively, this can be set with the following environment variable (in CSV format): " +
-		agentHTTPResolverEnvKey
-
-	blocDomainFlagName      = "bloc-domain"
-	blocDomainFlagShorthand = "b"
-	blocDomainFlagUsage     = "Bloc domain"
-	blocDomainEnvKey        = "BLOC_DOMAIN"
-
-	// wallet mediator url flag.
-	walletMediatorURLFlagName      = "wallet-mediator-url"
-	walletMediatorURLEnvKey        = "WALLET_MEDIATOR_URL"
-	walletMediatorURLFlagShorthand = "m"
-	walletMediatorURLFlagUsage     = "Mediator URL for wallet for performing DID communication" +
-		" Alternatively, this can be set with the following environment variable: " +
-		walletMediatorURLEnvKey
-
-	// credential mediator url flag.
-	credentialMediatorURLFlagName      = "credential-mediator-url"
-	credentialMediatorURLEnvKey        = "CREDENTIAL_MEDIATOR_URL"
-	credentialMediatorURLFlagShorthand = "a"
-	credentialMediatorURLFlagUsage     = "credential mediator URL which provides Credential Mediator polyfill " +
-		"for the W3C CCG Credential Handler API specification" +
-		credentialMediatorURLEnvKey
-
-	// blinded routing flag.
-	blindedRoutingFlagName     = "blinded-routing"
-	blindedRoutingEnvKey       = "BLINDED_ROUTING"
-	blindedRoutingURLFlagUsage = "Flag to enable blinded routing to maintain identity privacy of the issuers " +
-		"and verifiers involved. Possible values [true] [false]. Defaults to false if not set." +
-		"Alternatively, this can be set with the following environment variable: " + blindedRoutingEnvKey
-
-	// TODO Derive the SDS URL from the hub-auth bootstrap data #271.
-	sdsURLFlagName      = "sds-url"
-	sdsURLFlagShorthand = "s"
-	sdsURLFlagUsage     = "URL SDS instance is running on."
-	sdsURLEnvKey        = "HTTP_SERVER_SDS_URL"
-
 	dependencyMaxRetriesFlagName   = "dep-maxretries"
 	dependencyMaxRetriesFlagEnvKey = "HTTP_SERVER_DEP_MAXRETRIES"
 	dependencyMaxRetriesFlagUsage  = "Optional. Sets the maximum number of retries while establishing connections with" +
@@ -145,12 +75,9 @@ const (
 		" Alternatively, this can be set with the following environment variable: " + dependencyMaxRetriesFlagEnvKey
 	dependencyMaxRetriesDefault = uint64(120) // nolint:gomnd // false positive ("magic number")
 
-	indexHTLMPath    = "/index.html"
-	uiBasePath       = "/wallet/"
-	uiConfigBasePath = "/walletconfig/"
-	oidcBasePath     = "/oidc/"
-	healthCheckPath  = "/healthcheck"
-	deviceBasePath   = "/device/"
+	oidcBasePath    = "/oidc/"
+	healthCheckPath = "/healthcheck"
+	deviceBasePath  = "/device/"
 )
 
 // Key management config.
@@ -230,7 +157,7 @@ const (
 		" Alternatively, this can be set with the following environment variable: " + webAuthRPIDEnvKey
 )
 
-var logger = log.New("edge-agent/http-server")
+var logger = log.New("edge-agent/user-agent-support")
 
 type server interface {
 	ListenAndServe(host, certFile, keyFile string, handler http.Handler) error
@@ -248,31 +175,18 @@ func (s *HTTPServer) ListenAndServe(host, certFile, keyFile string, handler http
 	return http.ListenAndServe(host, handler)
 }
 
-type agentJSOpts struct {
-	HTTPResolvedURLs  []string `json:"http-resolver-url,omitempty"`
-	AgentDefaultLabel string   `json:"agent-default-label,omitempty"`
-	AutoAccept        bool     `json:"auto-accept,omitempty"`
-	LogLevel          string   `json:"log-level,omitempty"`
-	DBNamespace       string   `json:"indexedDB-namespace,omitempty"`
-
-	BlocDomain            string `json:"blocDomain,omitempty"`
-	WalletMediatorURL     string `json:"walletMediatorURL,omitempty"`
-	CredentialMediatorURL string `json:"credentialMediatorURL,omitempty"`
-	BlindedRouting        bool   `json:"blindedRouting,omitempty"`
-	SDSServerURL          string `json:"sdsServerURL,omitempty"`
-}
-
 type httpServerParameters struct {
 	dependencyMaxRetries uint64
 	srv                  server
-	hostURL, wasmPath    string
-	opts                 *agentJSOpts
+	hostURL              string
 	tls                  *tlsParameters
 	oidc                 *oidcParameters
 	keys                 *keyParameters
 	webAuth              *webauthParameters
 	keyServer            *keyServerParameters
 	userSDSURL           string
+	agentUIURL           string
+	logLevel             string
 }
 
 type tlsParameters struct {
@@ -325,7 +239,12 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				return hostURLErr
 			}
 
-			wasmPath, err := cmdutils.GetUserSetVarFromString(cmd, wasmPathFlagName, wasmPathEnvKey, true)
+			agentUIURL, err := cmdutils.GetUserSetVarFromString(cmd, agentUIURLFlagName, agentUIURLEnvKey, false)
+			if err != nil {
+				return err
+			}
+
+			logLevel, err := cmdutils.GetUserSetVarFromString(cmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
 			if err != nil {
 				return err
 			}
@@ -333,11 +252,6 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 			tlsParams, err := getTLSParams(cmd)
 			if err != nil {
 				return err
-			}
-
-			opt, optErr := fetchAgentWASMOpts(cmd)
-			if optErr != nil {
-				return optErr
 			}
 
 			oidcParams, err := getOIDCParams(cmd)
@@ -373,15 +287,15 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 			parameters := &httpServerParameters{
 				dependencyMaxRetries: retries,
 				srv:                  srv,
-				wasmPath:             wasmPath,
 				hostURL:              hostURL,
-				opts:                 opt,
 				tls:                  tlsParams,
 				oidc:                 oidcParams,
 				webAuth:              webAuthParams,
 				keys:                 keys,
 				keyServer:            keyServer,
 				userSDSURL:           userSDSURL,
+				agentUIURL:           agentUIURL,
+				logLevel:             logLevel,
 			}
 
 			return startHTTPServer(parameters)
@@ -390,35 +304,12 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 }
 
 func createFlags(startCmd *cobra.Command) {
-	// wasm path flag
-	startCmd.Flags().StringP(wasmPathFlagName, wasmPathFlagShorthand, "", wasmPathFlagUsage)
 	// host url flag
 	startCmd.Flags().StringP(hostURLFlagName, hostURLFlagShorthand, "", hostURLFlagUsage)
-	// aries db path flag
-	startCmd.Flags().StringP(agentDBNSFlagName, agentDBNSFlagShorthand, "", agentDBNSFlagUsage)
+	// agent ui url flag
+	startCmd.Flags().StringP(agentUIURLFlagName, "", "", agentUIURLFlagUsage)
 	// agent log level
 	startCmd.Flags().StringP(agentLogLevelFlagName, "", "", agentLogLevelFlagUsage)
-	// aries default label flag
-	startCmd.Flags().StringP(agentDefaultLabelFlagName, agentDefaultLabelFlagShorthand, "",
-		agentDefaultLabelFlagUsage)
-	// aries auto accept flag
-	startCmd.Flags().StringP(agentAutoAcceptFlagName, "", "", agentAutoAcceptFlagUsage)
-	// aries http resolver url flag
-	startCmd.Flags().StringArrayP(agentHTTPResolverFlagName, agentHTTPResolverFlagShorthand, []string{},
-		agentHTTPResolverFlagUsage)
-	// agent bloc domain
-	startCmd.Flags().StringP(blocDomainFlagName, blocDomainFlagShorthand, "",
-		blocDomainFlagUsage)
-	// agent wallet mediator URL
-	startCmd.Flags().StringP(walletMediatorURLFlagName, walletMediatorURLFlagShorthand, "",
-		walletMediatorURLFlagUsage)
-	// agent credential mediator URL
-	startCmd.Flags().StringP(credentialMediatorURLFlagName, credentialMediatorURLFlagShorthand, "",
-		credentialMediatorURLFlagUsage)
-	// blinded routing for wallet
-	startCmd.Flags().StringP(blindedRoutingFlagName, "", "",
-		blindedRoutingURLFlagUsage)
-	startCmd.Flags().StringP(sdsURLFlagName, sdsURLFlagShorthand, "", sdsURLFlagUsage)
 	startCmd.Flags().StringP(dependencyMaxRetriesFlagName, "", "", dependencyMaxRetriesFlagUsage)
 	startCmd.Flags().StringP(authzKMSURLFlagName, "", "", authzKMSURLFlagUsage)
 	startCmd.Flags().StringP(opsKMSURLFlagName, "", "", opsKMSURLFlagUsage)
@@ -672,125 +563,8 @@ func initOIDCProvider(providerURL string, retries uint64, tlsConfig *tls.Config)
 	return provider, nil
 }
 
-func fetchAgentWASMOpts(cmd *cobra.Command) (*agentJSOpts, error) {
-	opts := &agentJSOpts{}
-
-	if err := setAriesOptions(opts, cmd); err != nil {
-		return nil, err
-	}
-
-	if err := setTrustblocOptions(opts, cmd); err != nil {
-		return nil, err
-	}
-
-	return opts, nil
-}
-
-//nolint:dupl // code differs in parameters that are processed
-func setAriesOptions(opts *agentJSOpts, cmd *cobra.Command) error {
-	defaultLabel, err := cmdutils.GetUserSetVarFromString(cmd,
-		agentDefaultLabelFlagName, agentDefaultLabelEnvKey, true)
-	if err != nil {
-		return err
-	}
-
-	dbNS, err := cmdutils.GetUserSetVarFromString(cmd, agentDBNSFlagName, agentDBNSEnvKey, true)
-	if err != nil {
-		return err
-	}
-
-	logLevel, err := cmdutils.GetUserSetVarFromString(cmd, agentLogLevelFlagName, agentLogLevelEnvKey, true)
-	if err != nil {
-		return err
-	}
-
-	autoAcceptStr, err := cmdutils.GetUserSetVarFromString(cmd, agentAutoAcceptFlagName, agentAutoAcceptEnvKey, true)
-	if err != nil {
-		return err
-	}
-
-	autoAccept, err := parseBoolFlagValue(autoAcceptStr)
-	if err != nil {
-		return err
-	}
-
-	httpResolvers, err := cmdutils.GetUserSetVarFromArrayString(cmd,
-		agentHTTPResolverFlagName, agentHTTPResolverEnvKey, true)
-	if err != nil {
-		return err
-	}
-
-	opts.AgentDefaultLabel = defaultLabel
-	opts.DBNamespace = dbNS
-	opts.LogLevel = logLevel
-	opts.AutoAccept = autoAccept
-	opts.HTTPResolvedURLs = httpResolvers
-
-	return nil
-}
-
-//nolint:dupl // code differs in parameters that are processed
-func setTrustblocOptions(opts *agentJSOpts, cmd *cobra.Command) error {
-	blocDomain, err := cmdutils.GetUserSetVarFromString(cmd, blocDomainFlagName, blocDomainEnvKey, false)
-	if err != nil {
-		return err
-	}
-
-	walletMediatorURL, err := cmdutils.GetUserSetVarFromString(cmd,
-		walletMediatorURLFlagName, walletMediatorURLEnvKey, true)
-	if err != nil {
-		return err
-	}
-
-	credentialMediatorURL, err := cmdutils.GetUserSetVarFromString(cmd,
-		credentialMediatorURLFlagName, credentialMediatorURLEnvKey, true)
-	if err != nil {
-		return err
-	}
-
-	blindedRoutingStr, err := cmdutils.GetUserSetVarFromString(cmd, blindedRoutingFlagName, blindedRoutingEnvKey, true)
-	if err != nil {
-		return err
-	}
-
-	blindedRouting, err := parseBoolFlagValue(blindedRoutingStr)
-	if err != nil {
-		return err
-	}
-
-	sdsServerURL, err := cmdutils.GetUserSetVarFromString(cmd, sdsURLFlagName, sdsURLEnvKey, true)
-	if err != nil {
-		return err
-	}
-
-	opts.BlocDomain = blocDomain
-	opts.WalletMediatorURL = walletMediatorURL
-	opts.CredentialMediatorURL = credentialMediatorURL
-	opts.BlindedRouting = blindedRouting
-	opts.SDSServerURL = sdsServerURL
-
-	return nil
-}
-
-func parseBoolFlagValue(v string) (bool, error) {
-	if v == "" {
-		return false, nil
-	}
-
-	val, err := strconv.ParseBool(v)
-	if err != nil {
-		return false, fmt.Errorf("invalid option - set true or false as the value")
-	}
-
-	return val, nil
-}
-
 func startHTTPServer(parameters *httpServerParameters) error {
-	if parameters.wasmPath == "" {
-		parameters.wasmPath = "."
-	}
-
-	err := setLogLevel(parameters.opts.LogLevel)
+	err := setLogLevel(parameters.logLevel)
 	if err != nil {
 		return fmt.Errorf("failed to set log level: %w", err)
 	}
@@ -802,8 +576,10 @@ func startHTTPServer(parameters *httpServerParameters) error {
 
 	handler := cors.New(
 		cors.Options{
-			AllowedMethods: []string{http.MethodGet, http.MethodPost},
-			AllowedHeaders: []string{"Origin", "Accept", "Content-Type", "X-Requested-With", "Authorization"},
+			AllowedMethods:   []string{http.MethodGet, http.MethodPost},
+			AllowedHeaders:   []string{"Origin", "Accept", "Content-Type", "X-Requested-With", "Authorization"},
+			AllowedOrigins:   []string{parameters.agentUIURL},
+			AllowCredentials: true,
 		},
 	).Handler(router)
 
@@ -824,12 +600,6 @@ func router(config *httpServerParameters) (http.Handler, error) {
 
 	root.HandleFunc(healthCheckPath, healthCheckHandler).Methods(http.MethodGet)
 
-	uiRouter := root.PathPrefix(uiBasePath).Subrouter()
-	addUIHandler(uiRouter, config.wasmPath)
-
-	uiConfigRouter := root.PathPrefix(uiConfigBasePath).Subrouter()
-	addUIConfigHandlers(uiConfigRouter, config)
-
 	oidcRouter := root.PathPrefix(oidcBasePath).Subrouter()
 
 	store := memstore.NewProvider()
@@ -849,35 +619,6 @@ func router(config *httpServerParameters) (http.Handler, error) {
 	return root, nil
 }
 
-func addUIHandler(router *mux.Router, publicDir string) {
-	handler := gzipped.FileServer(http.Dir(publicDir))
-	router.Methods(http.MethodGet).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		urlPath := r.URL.Path
-		logger.Infof("handling ui request: %s", urlPath)
-
-		if strings.Contains(urlPath, ".") {
-			r.URL.Path = r.URL.Path[len(uiBasePath):]
-			handler.ServeHTTP(w, r)
-
-			return
-		}
-
-		http.ServeFile(w, r, path.Join(publicDir, indexHTLMPath))
-	})
-}
-
-func addUIConfigHandlers(router *mux.Router, config *httpServerParameters) {
-	router.HandleFunc("/agent", func(w http.ResponseWriter, r *http.Request) {
-		logger.Infof("handling config request: %s", r.URL.String())
-		bits, _ := json.Marshal(config.opts) // nolint:errcheck // marshalling *agentJSOpts never fails
-
-		_, err := w.Write(bits)
-		if err != nil {
-			logger.Errorf("failed to write config %s to response: %w", bits, err)
-		}
-	})
-}
-
 func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store storage.Provider) error {
 	provider, err := initOIDCProvider(config.oidc.providerURL, config.dependencyMaxRetries, config.tls.config)
 	if err != nil {
@@ -885,7 +626,7 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store sto
 	}
 
 	oidcOps, err := oidc.New(&oidc.Config{
-		WalletDashboard: uiBasePath + "dashboard",
+		WalletDashboard: config.agentUIURL + "/dashboard",
 		TLSConfig:       config.tls.config,
 		OIDCClient: oidc2.NewClient(&oidc2.Config{
 			TLSConfig:    config.tls.config,
@@ -932,8 +673,7 @@ func addDeviceHandlers(router *mux.Router, config *httpServerParameters, store s
 	}
 
 	deviceOps, err := device.New(&device.Config{
-		UIEndpoint: uiBasePath,
-		TLSConfig:  config.tls.config,
+		TLSConfig: config.tls.config,
 		Storage: &device.StorageConfig{
 			Storage:      store,
 			SessionStore: memstore.NewProvider(),

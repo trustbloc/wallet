@@ -41,11 +41,10 @@ var logger = log.New("edge-agent/device-registration")
 
 // Config holds all configuration for an Operation.
 type Config struct {
-	Storage    *StorageConfig
-	UIEndpoint string
-	TLSConfig  *tls.Config
-	Keys       *KeyConfig
-	Webauthn   *webauthn.WebAuthn
+	Storage   *StorageConfig
+	TLSConfig *tls.Config
+	Keys      *KeyConfig
+	Webauthn  *webauthn.WebAuthn
 }
 
 // KeyConfig holds configuration for cryptographic keys.
@@ -69,10 +68,9 @@ type stores struct {
 
 // Operation implements OIDC operations.
 type Operation struct {
-	store      *stores
-	uiEndpoint string
-	tlsConfig  *tls.Config
-	webauthn   *webauthn.WebAuthn
+	store     *stores
+	tlsConfig *tls.Config
+	webauthn  *webauthn.WebAuthn
 }
 
 // New returns a new Operation.
@@ -81,9 +79,8 @@ func New(config *Config) (*Operation, error) {
 		store: &stores{
 			cookies: cookie.NewStore(config.Keys.Auth, config.Keys.Enc),
 		},
-		uiEndpoint: config.UIEndpoint,
-		tlsConfig:  config.TLSConfig,
-		webauthn:   config.Webauthn,
+		tlsConfig: config.TLSConfig,
+		webauthn:  config.Webauthn,
 	}
 
 	var err error

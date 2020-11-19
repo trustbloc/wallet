@@ -4,6 +4,10 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import axios from 'axios';
+
+const client = axios.create({
+    withCredentials: true
+})
 /**
  * DeviceRegister provides device registration features
  * @param agent instance
@@ -12,12 +16,12 @@ import axios from 'axios';
 export class DeviceRegister {
     constructor(agent) {
         this.agent = agent
-
     }
 
     async register() {
      //   let alertMessage;
-        axios.get('/device/register/begin',null,
+        const serverURL = this.agent['edge-agent-server'];
+        client.get(serverURL+'/device/register/begin',null,
             function (data) {
                 return data
             },
@@ -42,8 +46,8 @@ export class DeviceRegister {
                 let clientDataJSON = credential.response.clientDataJSON;
                 let rawId = credential.rawId;
 
-                axios.post(
-                    '/device/register/finish',
+                client.post(
+                    serverURL+'/device/register/finish',
                     JSON.stringify({
                         id: credential.id,
                         rawId: bufferEncode(rawId),

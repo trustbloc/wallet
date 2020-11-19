@@ -54,7 +54,7 @@ func TestMain(m *testing.M) {
 func runBDDTests(tags, format string) int {
 	return godog.RunWithOptions("godogs", func(s *godog.Suite) {
 		var composition []*dockerutil.Composition
-		composeFiles := []string{"./fixtures/agent-wasm"}
+		composeFiles := []string{"./fixtures/user-agent"}
 		s.BeforeSuite(beforeSuite(composition, composeFiles))
 		s.AfterSuite(afterSuite(composition))
 		featureContext(s)

@@ -62,7 +62,7 @@ jobs:
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make bdd-test-js
+          make bdd-test-user-agent
         env:
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)
@@ -88,11 +88,11 @@ jobs:
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make bdd-test-http-server
+          make bdd-test-user-agent-support
         env:
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)
-        displayName: Run HTTP Server BDD tests
+        displayName: Run HTTP Server (user-agent-support)
 
   - job: Publish
     dependsOn:
@@ -119,9 +119,12 @@ jobs:
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make user-agent-wasm-docker
-          docker tag docker.pkg.github.com/trustbloc/edge-agent/user-agent-wasm:latest ${USER_WASM_PKG}:${EDGE_AGENT_TAG}
-          docker push ${USER_WASM_PKG}:${EDGE_AGENT_TAG}
+          make user-agent-docker
+          docker tag docker.pkg.github.com/trustbloc/edge-agent/user-agent:latest ${USER_AGENT_PKG}:${USER_AGENT_TAG}
+          docker push ${USER_AGENT_PKG}:${USER_AGENT_TAG}
+          make user-agent-support-docker
+          docker tag docker.pkg.github.com/trustbloc/edge-agent/user-agent-support:latest ${USER_AGENT_SUPPORT_PKG}:${USER_AGENT_SUPPORT_TAG}
+          docker push ${USER_AGENT_SUPPORT_PKG}:${USER_AGENT_SUPPORT_TAG}
         env:
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)

@@ -8,15 +8,15 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/trustbloc/edge-agent/cmd/http-server/startcmd"
+	"github.com/trustbloc/edge-agent/cmd/user-agent-support/startcmd"
 	"github.com/trustbloc/edge-core/pkg/log"
 )
 
-var logger = log.New("edge-agent-http-server")
+var logger = log.New("user-agent-support")
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use: "http server",
+		Use: "user-agent-support",
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.HelpFunc()(cmd, args)
 		},
