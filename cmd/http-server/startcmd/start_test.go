@@ -52,6 +52,9 @@ func TestListenAndServe(t *testing.T) {
 		keyServer: &keyServerParameters{
 			authzKMSURL: "http://localhost",
 		},
+		opts: &agentJSOpts{
+			SDSServerURL: sdsURLEnvKey,
+		},
 	})
 	require.NoError(t, err)
 
@@ -765,6 +768,9 @@ func TestRouter(t *testing.T) {
 			keys: &keyParameters{},
 			keyServer: &keyServerParameters{
 				authzKMSURL: "http://localhost",
+			},
+			opts: &agentJSOpts{
+				SDSServerURL: sdsURLEnvKey,
 			},
 		})
 		require.NoError(t, err)

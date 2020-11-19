@@ -168,6 +168,13 @@ const (
 	keySDSURLEnvKey    = "HTTP_SERVER_KEY_SDS_URL"
 )
 
+// SDS config.
+const (
+	userSDSURLFlagName  = "user-sds-url"
+	userSDSURLFlagUsage = "User SDS Server URL"
+	userSDSURLEnvKey    = "HTTP_SERVER_USER_SDS_URL"
+)
+
 // OIDC config.
 const (
 	oidcProviderURLFlagName  = "oidc-opurl"
@@ -265,6 +272,7 @@ type httpServerParameters struct {
 	keys                 *keyParameters
 	webAuth              *webauthParameters
 	keyServer            *keyServerParameters
+	userSDSURL           string
 }
 
 type tlsParameters struct {
@@ -306,7 +314,7 @@ func GetStartCmd(srv server) *cobra.Command {
 	return startCmd
 }
 
-func createStartCmd(srv server) *cobra.Command { //nolint:funlen // no real logic
+func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no real logic
 	return &cobra.Command{
 		Use:   "start",
 		Short: "Start http server",
@@ -357,6 +365,11 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen // no real logi
 				return err
 			}
 
+			userSDSURL, err := cmdutils.GetUserSetVarFromString(cmd, userSDSURLFlagName, userSDSURLEnvKey, true)
+			if err != nil {
+				return fmt.Errorf("user sds url : %w", err)
+			}
+
 			parameters := &httpServerParameters{
 				dependencyMaxRetries: retries,
 				srv:                  srv,
@@ -368,6 +381,7 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen // no real logi
 				webAuth:              webAuthParams,
 				keys:                 keys,
 				keyServer:            keyServer,
+				userSDSURL:           userSDSURL,
 			}
 
 			return startHTTPServer(parameters)
@@ -409,6 +423,7 @@ func createFlags(startCmd *cobra.Command) {
 	startCmd.Flags().StringP(authzKMSURLFlagName, "", "", authzKMSURLFlagUsage)
 	startCmd.Flags().StringP(opsKMSURLFlagName, "", "", opsKMSURLFlagUsage)
 	startCmd.Flags().StringP(keySDSURLFlagName, "", "", keySDSURLFlagUsage)
+	startCmd.Flags().StringP(userSDSURLFlagName, "", "", userSDSURLFlagUsage)
 	createOIDCFlags(startCmd)
 	createTLSFlags(startCmd)
 	createKeyFlags(startCmd)
@@ -893,6 +908,7 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store sto
 			OpsKMSURL:   config.keyServer.opsKMSURL,
 			KeySDSURL:   config.keyServer.keySDSURL,
 		},
+		UserSDSURL: config.userSDSURL,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to init oidc ops: %w", err)

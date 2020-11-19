@@ -80,7 +80,8 @@ services:
       - HTTP_SERVER_RP_ID=localhost
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
-      - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}
+      - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}/encrypted-data-vaults
+      - HTTP_SERVER_USER_SDS_URL=https://sds.example.com:${SDS_PORT}/encrypted-data-vaults
     ports:
       - 8091:8091
     volumes:
@@ -114,7 +115,8 @@ services:
       - HTTP_SERVER_RP_ID=localhost
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
-      - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}
+      - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}/encrypted-data-vaults
+      - HTTP_SERVER_USER_SDS_URL=https://sds.example.com:${SDS_PORT}/encrypted-data-vaults
     ports:
       - 8071:8071
     volumes:
@@ -148,7 +150,8 @@ services:
       - HTTP_SERVER_RP_ID=localhost
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
-      - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}
+      - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}/encrypted-data-vaults
+      - HTTP_SERVER_USER_SDS_URL=https://sds.example.com:${SDS_PORT}/encrypted-data-vaults
       - ARIESD_LOG_LEVEL=DEBUG
     ports:
       - 8077:8077

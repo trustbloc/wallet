@@ -185,6 +185,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 			},
 		}
 		o.keySDSClient = &mockSDSClient{}
+		o.userSDSClient = &mockSDSClient{}
 
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
@@ -517,6 +518,27 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		require.Equal(t, http.StatusInternalServerError, w.Code)
 		require.Contains(t, w.Body.String(), "create operational keystore")
 	})
+
+	t.Run("failure to create user sds vault", func(t *testing.T) {
+		state := uuid.New().String()
+		ops := setupOnboardingTest(t, state)
+		ops.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusCreated,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+				}, nil
+			},
+		}
+		ops.keySDSClient = &mockSDSClient{}
+		ops.userSDSClient = &mockSDSClient{CreateErr: errors.New("create error")}
+
+		w := httptest.NewRecorder()
+		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Contains(t, w.Body.String(), "create user sds vault")
+	})
 }
 
 func TestOperation_UserProfileHandler(t *testing.T) {
@@ -762,6 +784,7 @@ func config(t *testing.T) *Config {
 			KeySDSURL:   "",
 			OpsKMSURL:   "",
 		},
+		UserSDSURL: "http://example.com",
 	}
 }
 
