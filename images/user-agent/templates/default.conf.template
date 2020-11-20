@@ -1,10 +1,9 @@
 server {
+    listen 80;
     listen 443 ssl;
-    listen [::]:443 ssl;
 
-    ssl on;
-    ssl_certificate /etc/nginx/certs/ec-pubCert.pem;
-    ssl_certificate_key /etc/nginx/certs/ec-key.pem;
+    ssl_certificate ${TLS_CERT};
+    ssl_certificate_key ${TLS_KEY};
     ssl_protocols TLSv1.2 TLSv1.3;
 
     index index.html;

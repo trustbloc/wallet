@@ -19,6 +19,8 @@ services:
       - BLOC_DOMAIN=testnet.trustbloc.local
       - EDGE_AGENT_SERVER=https://user.agent.example.com:8090
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
+      - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
+      - TLS_KEY=/etc/nginx/certs/ec-key.pem
 
   second.ui.user.agent.example.com:
     container_name: second.ui.user.agent.example.com
@@ -33,6 +35,8 @@ services:
       - BLOC_DOMAIN=testnet.trustbloc.local
       - EDGE_AGENT_SERVER=https://second.user.agent.example.com:8070
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
+      - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
+      - TLS_KEY=/etc/nginx/certs/ec-key.pem
 
   edge.router.agent.example.com:
     container_name: edge.router.agent.example.com
@@ -161,6 +165,8 @@ services:
       - BLOC_DOMAIN=testnet.trustbloc.local
       - EDGE_AGENT_SERVER=https://localhost:8077
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
+      - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
+      - TLS_KEY=/etc/nginx/certs/ec-key.pem
 
   bddtest.user.agent.example.com:
     container_name: bddtest.user.agent.example.com
