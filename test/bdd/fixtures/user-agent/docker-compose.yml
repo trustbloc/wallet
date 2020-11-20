@@ -444,8 +444,8 @@ services:
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
       - KMS_DATABASE_TYPE=mem
       - KMS_SECRETS_DATABASE_TYPE=mem
-      - KMS_OPERATIONAL_KMS_STORAGE_TYPE=edv
-      - KMS_OPERATIONAL_KMS_STORAGE_URL=https://edv.example.com:${OPS_EDV_PORT}
+      - KMS_OPERATIONAL_KMS_STORAGE_TYPE=sds
+      - KMS_OPERATIONAL_KMS_STORAGE_URL=https://edv.example.com:${EDV_PORT}
     ports:
       - ${OPS_HUB_KMS_PORT}:${OPS_HUB_KMS_PORT}
     entrypoint: ""
