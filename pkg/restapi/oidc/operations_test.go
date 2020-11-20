@@ -539,6 +539,31 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		require.Equal(t, http.StatusInternalServerError, w.Code)
 		require.Contains(t, w.Body.String(), "create user edv vault")
 	})
+
+	t.Run("failure to save temporary bootstrap data", func(t *testing.T) {
+		state := uuid.New().String()
+		ops := setupOnboardingTest(t, state)
+		ops.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusCreated,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+				}, nil
+			},
+		}
+		ops.keyEDVClient = &mockEDVClient{}
+		ops.userEDVClient = &mockEDVClient{}
+		ops.store.tempBootstrapData = &mockstore.MockStore{
+			Store:  make(map[string][]byte),
+			ErrPut: errors.New("test"),
+		}
+
+		w := httptest.NewRecorder()
+		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Contains(t, w.Body.String(), "failed to store temporary bootstrap data model")
+	})
 }
 
 func TestOperation_UserProfileHandler(t *testing.T) {
@@ -693,6 +718,45 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 		o.userProfileHandler(result, newUserProfileRequest())
 		require.Equal(t, http.StatusInternalServerError, result.Code)
 		require.Contains(t, result.Body.String(), "failed to extract claims from user info")
+	})
+
+	t.Run("err internalserver error if cannot fetch temporary bootstrap data", func(t *testing.T) {
+		sub := uuid.New().String()
+		config := config(t)
+		config.Storage.Storage = &mockstore.Provider{
+			Store: &mockstore.MockStore{
+				Store: map[string][]byte{
+					sub: marshal(t, &tokens.UserTokens{}),
+				},
+			},
+		}
+		config.OIDCClient = &oidc2.MockClient{
+			UserInfoVal: &oidc2.MockClaimer{
+				ClaimsFunc: func(v interface{}) error {
+					m, ok := v.(*map[string]interface{})
+					require.True(t, ok)
+					(*m)["sub"] = sub
+
+					return nil
+				},
+			},
+		}
+		o, err := New(config)
+		require.NoError(t, err)
+		o.store.cookies = &cookie.MockStore{
+			Jar: &cookie.MockJar{
+				Cookies: map[interface{}]interface{}{
+					userSubCookieName: sub,
+				},
+			},
+		}
+		o.store.tempBootstrapData = &mockstore.MockStore{
+			ErrGet: errors.New("test"),
+		}
+		result := httptest.NewRecorder()
+		o.userProfileHandler(result, newUserProfileRequest())
+		require.Equal(t, http.StatusInternalServerError, result.Code)
+		require.Contains(t, result.Body.String(), "failed to fetch bootstrap data")
 	})
 }
 
