@@ -63,7 +63,7 @@ const agentStartupOpts = {
     blocDomain: 'testnet.trustbloc.local',
     walletMediatorURL: 'https://localhost:10093',
     storageType: `indexedDB`, 	// TODO (#475): Allow the storage type to be configurable.
-    sdsServerURL: ''
+    edvServerURL: ''
 }
 
 const msgServices = [

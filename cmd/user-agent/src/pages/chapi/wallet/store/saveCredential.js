@@ -65,34 +65,6 @@ export class WalletStore {
             console.log(`vc save failed for ${name} : errMsg=${err}`)
             throw err
         })
-
-        if (this.startupOpts.sdsServerURL) {
-           // Save credential to persistent storage
-           // TODO: Deal with SDS sync failures better #328
-           await this.agent.credentialclient.saveCredential({
-                name: name,
-                credential: vcData,
-                userID: this.walletUser
-            })
-        } else {
-            console.log("Skipping credential storage to SDS since no SDS server URL was configured.")
-        }
-    }
-
-    async savePresentation(name, presentation) {
-       if (this.startupOpts.sdsServerURL) {
-            const t = await new this.agent.Framework(this.startupOpts)
-
-            // Save presentation to persistent storage
-            // TODO: Deal with SDS sync failures better #328
-            await t.presentationclient.savePresentation({
-                name: name,
-                presentation: presentation,
-                userID: this.walletUser
-            })
-        } else {
-            console.log("Skipping presentation storage to SDS since no SDS server URL was configured.")
-        }
     }
 
     cancel() {

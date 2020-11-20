@@ -81,25 +81,12 @@ export class DIDManager extends KeyValueStore {
             throw "operation not supported"
         }
 
-        // Save DID to local browser storage
+        // Save DID to Aries agent storage
         await this.agent.vdr.saveDID({
                 name: name,
                 did: did
             }
         )
-
-        if (this.startupOpts.sdsServerURL) {
-            // Save DID to persistent storage
-            // TODO: Deal with SDS sync failures better #328
-            await this.agent.didclient.saveDID({
-                name: name,
-                signType: signType,
-                did: did,
-                userID: user
-            })
-        } else {
-            console.log("Skipping DID storage to SDS since no SDS server URL was configured.")
-        }
     }
 
     async getAllDIDMetadata() {

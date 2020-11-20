@@ -148,7 +148,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + webAuthRPOriginFlagName, "http://localhost",
 			"--" + authzKMSURLFlagName, "http://localhost",
 			"--" + opsKMSURLFlagName, "http://localhost",
-			"--" + keySDSURLFlagName, "http://localhost",
+			"--" + keyEDVURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -218,7 +218,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + webAuthRPOriginFlagName, "http://localhost",
 			"--" + authzKMSURLFlagName, "http://localhost",
 			"--" + opsKMSURLFlagName, "http://localhost",
-			"--" + keySDSURLFlagName, "http://localhost",
+			"--" + keyEDVURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -404,7 +404,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + agentLogLevelFlagName, "INVALID",
 			"--" + authzKMSURLFlagName, "http://localhost",
 			"--" + opsKMSURLFlagName, "http://localhost",
-			"--" + keySDSURLFlagName, "http://localhost",
+			"--" + keyEDVURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -439,7 +439,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"Neither authz-kms-url (command line flag) nor HTTP_SERVER_AUTHZ_KMS_URL (environment variable) have been set.")
 	})
 
-	t.Run("missing ops sds server url", func(t *testing.T) {
+	t.Run("missing ops edv server url", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
 		args := []string{
@@ -461,7 +461,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 
 		require.Error(t, err)
 		require.Contains(t, err.Error(),
-			"Neither key-sds-url (command line flag) nor HTTP_SERVER_KEY_SDS_URL (environment variable) have been set.")
+			"Neither key-edv-url (command line flag) nor HTTP_SERVER_KEY_EDV_URL (environment variable) have been set.")
 	})
 
 	t.Run("missing ops key server url", func(t *testing.T) {
@@ -479,7 +479,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + sessionCookieAuthKeyFlagName, key(t),
 			"--" + sessionCookieEncKeyFlagName, key(t),
 			"--" + authzKMSURLFlagName, "http://localhost",
-			"--" + keySDSURLFlagName, "http://localhost",
+			"--" + keyEDVURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -510,7 +510,7 @@ func TestStartCmdValidArgs(t *testing.T) {
 		"--" + webAuthRPOriginFlagName, "http://localhost",
 		"--" + authzKMSURLFlagName, "http://localhost",
 		"--" + opsKMSURLFlagName, "http://localhost",
-		"--" + keySDSURLFlagName, "http://localhost",
+		"--" + keyEDVURLFlagName, "http://localhost",
 	}
 	startCmd.SetArgs(args)
 
@@ -567,7 +567,7 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	err = os.Setenv(opsKMSURLEnvKey, "localhost")
 	require.NoError(t, err)
 
-	err = os.Setenv(keySDSURLEnvKey, "localhost")
+	err = os.Setenv(keyEDVURLEnvKey, "localhost")
 	require.NoError(t, err)
 
 	err = startCmd.Execute()
