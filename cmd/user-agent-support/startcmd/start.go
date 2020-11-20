@@ -90,16 +90,16 @@ const (
 	opsKMSURLFlagUsage = "Operational KMS Server URL"
 	opsKMSURLEnvKey    = "HTTP_SERVER_OPS_KMS_URL"
 
-	keySDSURLFlagName  = "key-sds-url"
-	keySDSURLFlagUsage = "Operational key SDS Server URL"
-	keySDSURLEnvKey    = "HTTP_SERVER_KEY_SDS_URL"
+	keyEDVURLFlagName  = "key-edv-url"
+	keyEDVURLFlagUsage = "Operational key EDV Server URL"
+	keyEDVURLEnvKey    = "HTTP_SERVER_KEY_EDV_URL"
 )
 
-// SDS config.
+// EDV config.
 const (
-	userSDSURLFlagName  = "user-sds-url"
-	userSDSURLFlagUsage = "User SDS Server URL"
-	userSDSURLEnvKey    = "HTTP_SERVER_USER_SDS_URL"
+	userEDVURLFlagName  = "user-edv-url"
+	userEDVURLFlagUsage = "User EDV Server URL"
+	userEDVURLEnvKey    = "HTTP_SERVER_USER_EDV_URL"
 )
 
 // OIDC config.
@@ -184,7 +184,7 @@ type httpServerParameters struct {
 	keys                 *keyParameters
 	webAuth              *webauthParameters
 	keyServer            *keyServerParameters
-	userSDSURL           string
+	userEDVURL           string
 	agentUIURL           string
 	logLevel             string
 }
@@ -216,7 +216,7 @@ type keyParameters struct {
 type keyServerParameters struct {
 	authzKMSURL string
 	opsKMSURL   string
-	keySDSURL   string
+	keyEDVURL   string
 }
 
 // GetStartCmd returns the Cobra start command.
@@ -279,9 +279,9 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				return err
 			}
 
-			userSDSURL, err := cmdutils.GetUserSetVarFromString(cmd, userSDSURLFlagName, userSDSURLEnvKey, true)
+			userEDVURL, err := cmdutils.GetUserSetVarFromString(cmd, userEDVURLFlagName, userEDVURLEnvKey, true)
 			if err != nil {
-				return fmt.Errorf("user sds url : %w", err)
+				return fmt.Errorf("user edv url : %w", err)
 			}
 
 			parameters := &httpServerParameters{
@@ -293,7 +293,7 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				webAuth:              webAuthParams,
 				keys:                 keys,
 				keyServer:            keyServer,
-				userSDSURL:           userSDSURL,
+				userEDVURL:           userEDVURL,
 				agentUIURL:           agentUIURL,
 				logLevel:             logLevel,
 			}
@@ -313,8 +313,8 @@ func createFlags(startCmd *cobra.Command) {
 	startCmd.Flags().StringP(dependencyMaxRetriesFlagName, "", "", dependencyMaxRetriesFlagUsage)
 	startCmd.Flags().StringP(authzKMSURLFlagName, "", "", authzKMSURLFlagUsage)
 	startCmd.Flags().StringP(opsKMSURLFlagName, "", "", opsKMSURLFlagUsage)
-	startCmd.Flags().StringP(keySDSURLFlagName, "", "", keySDSURLFlagUsage)
-	startCmd.Flags().StringP(userSDSURLFlagName, "", "", userSDSURLFlagUsage)
+	startCmd.Flags().StringP(keyEDVURLFlagName, "", "", keyEDVURLFlagUsage)
+	startCmd.Flags().StringP(userEDVURLFlagName, "", "", userEDVURLFlagUsage)
 	createOIDCFlags(startCmd)
 	createTLSFlags(startCmd)
 	createKeyFlags(startCmd)
@@ -495,10 +495,10 @@ func getKeyServerParams(cmd *cobra.Command) (*keyServerParameters, error) {
 		return nil, fmt.Errorf("authz key server url : %w", err)
 	}
 
-	keySDSURL, err := cmdutils.GetUserSetVarFromString(
-		cmd, keySDSURLFlagName, keySDSURLEnvKey, false)
+	keyEDVURL, err := cmdutils.GetUserSetVarFromString(
+		cmd, keyEDVURLFlagName, keyEDVURLEnvKey, false)
 	if err != nil {
-		return nil, fmt.Errorf("ops sds server url : %w", err)
+		return nil, fmt.Errorf("ops edv server url : %w", err)
 	}
 
 	opsKMSURL, err := cmdutils.GetUserSetVarFromString(
@@ -509,7 +509,7 @@ func getKeyServerParams(cmd *cobra.Command) (*keyServerParameters, error) {
 
 	return &keyServerParameters{
 		authzKMSURL: authzKMSURL,
-		keySDSURL:   keySDSURL,
+		keyEDVURL:   keyEDVURL,
 		opsKMSURL:   opsKMSURL,
 	}, nil
 }
@@ -647,9 +647,9 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store sto
 		KeyServer: &oidc.KeyServerConfig{
 			AuthzKMSURL: config.keyServer.authzKMSURL,
 			OpsKMSURL:   config.keyServer.opsKMSURL,
-			KeySDSURL:   config.keyServer.keySDSURL,
+			KeyEDVURL:   config.keyServer.keyEDVURL,
 		},
-		UserSDSURL: config.userSDSURL,
+		UserEDVURL: config.userEDVURL,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to init oidc ops: %w", err)

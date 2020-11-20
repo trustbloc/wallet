@@ -184,8 +184,8 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 				}, nil
 			},
 		}
-		o.keySDSClient = &mockSDSClient{}
-		o.userSDSClient = &mockSDSClient{}
+		o.keyEDVClient = &mockEDVClient{}
+		o.userEDVClient = &mockEDVClient{}
 
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
@@ -477,7 +477,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 				}, nil
 			},
 		}
-		ops.keySDSClient = &mockSDSClient{
+		ops.keyEDVClient = &mockEDVClient{
 			CreateErr: errors.New("vault creation error"),
 		}
 
@@ -485,7 +485,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
 
 		require.Equal(t, http.StatusInternalServerError, w.Code)
-		require.Contains(t, w.Body.String(), "create key sds vault")
+		require.Contains(t, w.Body.String(), "create key edv vault")
 	})
 
 	t.Run("failure to create ops keystore", func(t *testing.T) {
@@ -510,7 +510,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 				}, nil
 			},
 		}
-		ops.keySDSClient = &mockSDSClient{}
+		ops.keyEDVClient = &mockEDVClient{}
 
 		w := httptest.NewRecorder()
 		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
@@ -519,7 +519,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		require.Contains(t, w.Body.String(), "create operational keystore")
 	})
 
-	t.Run("failure to create user sds vault", func(t *testing.T) {
+	t.Run("failure to create user edv vault", func(t *testing.T) {
 		state := uuid.New().String()
 		ops := setupOnboardingTest(t, state)
 		ops.httpClient = &mockHTTPClient{
@@ -530,14 +530,14 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 				}, nil
 			},
 		}
-		ops.keySDSClient = &mockSDSClient{}
-		ops.userSDSClient = &mockSDSClient{CreateErr: errors.New("create error")}
+		ops.keyEDVClient = &mockEDVClient{}
+		ops.userEDVClient = &mockEDVClient{CreateErr: errors.New("create error")}
 
 		w := httptest.NewRecorder()
 		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
 
 		require.Equal(t, http.StatusInternalServerError, w.Code)
-		require.Contains(t, w.Body.String(), "create user sds vault")
+		require.Contains(t, w.Body.String(), "create user edv vault")
 	})
 }
 
@@ -781,10 +781,10 @@ func config(t *testing.T) *Config {
 		},
 		KeyServer: &KeyServerConfig{
 			AuthzKMSURL: "",
-			KeySDSURL:   "",
+			KeyEDVURL:   "",
 			OpsKMSURL:   "",
 		},
-		UserSDSURL: "http://example.com",
+		UserEDVURL: "http://example.com",
 	}
 }
 
@@ -864,14 +864,14 @@ func (m *mockSplitter) Combine(secretParts [][]byte) ([]byte, error) {
 	return nil, m.CombineErr
 }
 
-type mockSDSClient struct {
+type mockEDVClient struct {
 	CreateErr error
 }
 
-func (m *mockSDSClient) CreateDataVault(_ *models.DataVaultConfiguration, _ ...client.EDVOption) (string, error) {
+func (m *mockEDVClient) CreateDataVault(_ *models.DataVaultConfiguration, _ ...client.EDVOption) (string, error) {
 	if m.CreateErr != nil {
 		return "", m.CreateErr
 	}
 
-	return "http://sds.example.com" + uuid.New().String(), nil
+	return "http://edv.example.com" + uuid.New().String(), nil
 }

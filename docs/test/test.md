@@ -76,7 +76,7 @@ Click on the login button on both agents. You will land on a mock login form. An
 
 ## Data Storage
 
-- The `make user-agent-start` command also starts up an [SDS instance](https://github.com/trustbloc/edv)
+- The `make user-agent-start` command also starts up an [EDV instance](https://github.com/trustbloc/edv)
   with a CouchDB backend that's used for persistent data storage. If you want to examine the database for
   yourself while the agents are running, open the [CouchDB Fauxton Interface](http://127.0.0.1:5984/_utils).
   Note that the CouchDb instance started up by the `make user-agent-start` command will lose its data when

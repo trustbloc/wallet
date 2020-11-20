@@ -26,7 +26,7 @@ let defaultAgentStartupOpts = {
     blindedRouting: false,
     credentialMediatorURL: '',
     storageType: `indexedDB`, 	// TODO (#475): Allow the storage type to be configurable.
-    sdsServerURL: ''
+    edvServerURL: ''
 }
 
 export default {
@@ -67,7 +67,7 @@ export default {
                 credentialMediatorURL: credentialMediator(('credentialMediatorURL' in agentOpts) ? agentOpts['credentialMediatorURL'] : defaultAgentStartupOpts['credentialMediatorURL']),
                 blindedRouting: ('blindedRouting' in agentOpts) ? agentOpts['blindedRouting'] : defaultAgentStartupOpts['blindedRouting'],
                 storageType: ('storageType' in agentOpts) ? agentOpts['storageType'] : defaultAgentStartupOpts['storageType'],
-                sdsServerURL: ('sdsServerURL' in agentOpts) ? agentOpts['sdsServerURL'] : defaultAgentStartupOpts['sdsServerURL']
+                edvServerURL: ('edvServerURL' in agentOpts) ? agentOpts['edvServerURL'] : defaultAgentStartupOpts['edvServerURL']
             })
         },
     },

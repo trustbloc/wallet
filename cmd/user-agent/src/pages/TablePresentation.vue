@@ -205,8 +205,6 @@ SPDX-License-Identifier: Apache-2.0
               }
            )
 
-          await this.wallet.savePresentation(this.friendlyName, this.vpData)
-
           // Generate QR code
           let QRCode = require('qrcode')
           QRCode.toDataURL(QrData, function (err, url) {

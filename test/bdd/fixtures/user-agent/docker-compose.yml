@@ -104,15 +104,15 @@ services:
       - HTTP_SERVER_RP_ID=user.ui.agent.example.com
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
-      - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}/encrypted-data-vaults
-      - HTTP_SERVER_USER_SDS_URL=https://sds.example.com:${SDS_PORT}/encrypted-data-vaults
+      - HTTP_SERVER_KEY_EDV_URL=https://edv.example.com:${EDV_PORT}/encrypted-data-vaults
+      - HTTP_SERVER_USER_EDV_URL=https://edv.example.com:${EDV_PORT}/encrypted-data-vaults
     ports:
       - 8090:8090
     volumes:
       - ../keys:/etc/keys
     command: start
     depends_on:
-      - sds.example.com
+      - edv.example.com
       - hydra
       - mock-bddtest-login-consent.example.com
 
@@ -136,15 +136,15 @@ services:
       - HTTP_SERVER_RP_ID=second.ui.user.agent.example.com
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
-      - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}/encrypted-data-vaults
-      - HTTP_SERVER_USER_SDS_URL=https://sds.example.com:${SDS_PORT}/encrypted-data-vaults
+      - HTTP_SERVER_KEY_EDV_URL=https://edv.example.com:${EDV_PORT}/encrypted-data-vaults
+      - HTTP_SERVER_USER_EDV_URL=https://edv.example.com:${EDV_PORT}/encrypted-data-vaults
     ports:
       - 8070:8070
     volumes:
       - ../keys:/etc/keys
     command: start
     depends_on:
-      - sds.example.com
+      - edv.example.com
       - hydra
       - mock-bddtest-login-consent.example.com
 
@@ -182,8 +182,8 @@ services:
       - HTTP_SERVER_RP_ID=localhost
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
-      - HTTP_SERVER_KEY_SDS_URL=https://sds.example.com:${SDS_PORT}/encrypted-data-vaults
-      - HTTP_SERVER_USER_SDS_URL=https://sds.example.com:${SDS_PORT}/encrypted-data-vaults
+      - HTTP_SERVER_KEY_EDV_URL=https://edv.example.com:${EDV_PORT}/encrypted-data-vaults
+      - HTTP_SERVER_USER_EDV_URL=https://edv.example.com:${EDV_PORT}/encrypted-data-vaults
       - ARIESD_LOG_LEVEL=DEBUG
     ports:
       - 8077:8077
@@ -191,7 +191,7 @@ services:
       - ../keys:/etc/keys
     command: start
     depends_on:
-      - sds.example.com
+      - edv.example.com
       - hydra
       - mock-bddtest-login-consent.example.com
 
@@ -206,19 +206,19 @@ services:
     volumes:
       - ./couchdb-config/config.ini:/opt/couchdb/etc/local.d/config.ini
 
-  sds.example.com:
-    container_name: sds.example.com
-    image: ${SDS_REST_IMAGE}:${SDS_REST_IMAGE_TAG}
+  edv.example.com:
+    container_name: edv.example.com
+    image: ${EDV_REST_IMAGE}:${EDV_REST_IMAGE_TAG}
     environment:
-      - EDV_HOST_URL=${SDS_HOST}:${SDS_PORT}
-      - EDV_DATABASE_TYPE=${SDS_DATABASE_TYPE}
-      - EDV_DATABASE_URL=${SDS_DATABASE_URL}
-      - EDV_DATABASE_PREFIX=${SDS_DATABASE_PREFIX}
+      - EDV_HOST_URL=${EDV_HOST}:${EDV_PORT}
+      - EDV_DATABASE_TYPE=${EDV_DATABASE_TYPE}
+      - EDV_DATABASE_URL=${EDV_DATABASE_URL}
+      - EDV_DATABASE_PREFIX=${EDV_DATABASE_PREFIX}
       - EDV_LOG_LEVEL=debug
       - EDV_TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
       - EDV_TLS_KEY_FILE=/etc/tls/ec-key.pem
     ports:
-      - ${SDS_PORT}:${SDS_PORT}
+      - ${EDV_PORT}:${EDV_PORT}
     volumes:
       - ../keys/tls:/etc/tls
     command: start
@@ -438,8 +438,8 @@ services:
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
       - KMS_DATABASE_TYPE=mem
       - KMS_SECRETS_DATABASE_TYPE=mem
-      - KMS_OPERATIONAL_KMS_STORAGE_TYPE=sds
-      - KMS_OPERATIONAL_KMS_STORAGE_URL=https://sds.example.com:${OPS_SDS_PORT}
+      - KMS_OPERATIONAL_KMS_STORAGE_TYPE=edv
+      - KMS_OPERATIONAL_KMS_STORAGE_URL=https://edv.example.com:${OPS_EDV_PORT}
     ports:
       - ${OPS_HUB_KMS_PORT}:${OPS_HUB_KMS_PORT}
     entrypoint: ""

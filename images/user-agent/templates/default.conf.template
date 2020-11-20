@@ -35,7 +35,7 @@ server {
             "credentialMediatorURL":"${CREDENTIAL_MEDIATOR_URL}",
             "blindedRouting":"${BLINDED_ROUTING}",
             "storageType":"${STORAGE_TYPE}",
-            "sdsServerURL":"${SDS_SERVER_URL}",
+            "edvServerURL":"${EDV_SERVER_URL}",
             "edge-agent-server":"${EDGE_AGENT_SERVER}"
         }';
     }

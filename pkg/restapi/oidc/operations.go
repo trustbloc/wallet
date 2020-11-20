@@ -58,7 +58,7 @@ type Config struct {
 	TLSConfig       *tls.Config
 	Keys            *KeyConfig
 	KeyServer       *KeyServerConfig
-	UserSDSURL      string
+	UserEDVURL      string
 }
 
 // KeyConfig holds configuration for cryptographic keys.
@@ -77,14 +77,14 @@ type StorageConfig struct {
 type KeyServerConfig struct {
 	AuthzKMSURL string
 	OpsKMSURL   string
-	KeySDSURL   string
+	KeyEDVURL   string
 }
 
 type httpClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-type sdsClient interface {
+type edvClient interface {
 	CreateDataVault(config *models.DataVaultConfiguration, opts ...client.EDVOption) (string, error)
 }
 
@@ -103,9 +103,9 @@ type Operation struct {
 	tlsConfig       *tls.Config
 	secretSplitter  sss.SecretSplitter
 	httpClient      httpClient
-	keySDSClient    sdsClient
+	keyEDVClient    edvClient
 	keyServer       *KeyServerConfig
-	userSDSClient   sdsClient
+	userEDVClient   edvClient
 }
 
 // New returns a new Operation.
@@ -119,8 +119,8 @@ func New(config *Config) (*Operation, error) {
 		tlsConfig:       config.TLSConfig,
 		secretSplitter:  &base.Splitter{},
 		httpClient:      &http.Client{Transport: &http.Transport{TLSClientConfig: config.TLSConfig}},
-		keySDSClient: client.New(
-			config.KeyServer.KeySDSURL,
+		keyEDVClient: client.New(
+			config.KeyServer.KeyEDVURL,
 			client.WithTLSConfig(config.TLSConfig),
 		),
 		keyServer: config.KeyServer,
@@ -143,9 +143,9 @@ func New(config *Config) (*Operation, error) {
 		return nil, fmt.Errorf("failed to open tokens store: %w", err)
 	}
 
-	if config.UserSDSURL != "" {
-		op.userSDSClient = client.New(
-			config.UserSDSURL,
+	if config.UserEDVURL != "" {
+		op.userEDVClient = client.New(
+			config.UserEDVURL,
 			client.WithTLSConfig(config.TLSConfig),
 		)
 	}
@@ -471,30 +471,30 @@ func (o *Operation) onboardUser(sub string) error {
 	// TODO https://github.com/trustbloc/edge-agent/issues/493 create controller
 	controller := uuid.New().URN()
 
-	opsSDSVaultURL, err := createSDSDataVault(o.keySDSClient, controller)
+	opsEDVVaultURL, err := createEDVDataVault(o.keyEDVClient, controller)
 	if err != nil {
-		return fmt.Errorf("create key sds vault : %w", err)
+		return fmt.Errorf("create key edv vault : %w", err)
 	}
 
-	opsKeyStoreURL, err := createKeyStore(o.keyServer.OpsKMSURL, controller, opsSDSVaultURL, o.httpClient)
+	opsKeyStoreURL, err := createKeyStore(o.keyServer.OpsKMSURL, controller, opsEDVVaultURL, o.httpClient)
 	if err != nil {
 		return fmt.Errorf("create operational keystore : %w", err)
 	}
 
-	var userSDSVaultURL string
+	var userEDVVaultURL string
 
-	if o.userSDSClient != nil {
-		userSDSVaultURL, err = createSDSDataVault(o.userSDSClient, controller)
+	if o.userEDVClient != nil {
+		userEDVVaultURL, err = createEDVDataVault(o.userEDVClient, controller)
 		if err != nil {
-			return fmt.Errorf("create user sds vault : %w", err)
+			return fmt.Errorf("create user edv vault : %w", err)
 		}
 	}
 
 	// TODO https://github.com/trustbloc/edge-agent/issues/489 send keystore/vault ids to hub-auth and remove the logger
 	logger.Infof("authzKeyStoreURL=%s", authzKeyStoreURL)
-	logger.Infof("opsSDSVaultURL=%s", opsSDSVaultURL)
+	logger.Infof("opsEDVVaultURL=%s", opsEDVVaultURL)
 	logger.Infof("opsKeyStoreURL=%s", opsKeyStoreURL)
-	logger.Infof("userSDSVaultURL=%s", userSDSVaultURL)
+	logger.Infof("userEDVVaultURL=%s", userEDVVaultURL)
 
 	return nil
 }
@@ -525,7 +525,7 @@ func createKeyStore(baseURL, controller, vaultID string, httpClient httpClient) 
 	return keystoreURL, nil
 }
 
-func createSDSDataVault(sdsClient sdsClient, controller string) (string, error) {
+func createEDVDataVault(edvClient edvClient, controller string) (string, error) {
 	config := models.DataVaultConfiguration{
 		Sequence:    0,
 		Controller:  controller,
@@ -534,7 +534,7 @@ func createSDSDataVault(sdsClient sdsClient, controller string) (string, error) 
 		HMAC:        models.IDTypePair{ID: uuid.New().URN(), Type: "Sha256HmacKey2019"},
 	}
 
-	vaultURL, err := sdsClient.CreateDataVault(&config)
+	vaultURL, err := edvClient.CreateDataVault(&config)
 	if err != nil {
 		return "", fmt.Errorf("create data vault : %w", err)
 	}
