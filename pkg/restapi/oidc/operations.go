@@ -43,9 +43,10 @@ const (
 
 // Stores.
 const (
-	transientStoreName = "edgeagent_oidc_trx"
-	stateCookieName    = "oauth2_state"
-	userSubCookieName  = "user_sub"
+	transientStoreName      = "edgeagent_oidc_trx"
+	stateCookieName         = "oauth2_state"
+	userSubCookieName       = "user_sub"
+	todoDeleteThisStoreName = "todo_delete"
 )
 
 var logger = log.New("hub-auth/oidc")
@@ -89,10 +90,11 @@ type edvClient interface {
 }
 
 type stores struct {
-	users     *user.Store
-	tokens    *tokens.Store
-	transient storage.Store
-	cookies   cookie.Store
+	users             *user.Store
+	tokens            *tokens.Store
+	transient         storage.Store
+	cookies           cookie.Store
+	tempBootstrapData storage.Store
 }
 
 // Operation implements OIDC operations.
@@ -141,6 +143,11 @@ func New(config *Config) (*Operation, error) {
 	op.store.tokens, err = tokens.NewStore(config.Storage.Storage)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open tokens store: %w", err)
+	}
+
+	op.store.tempBootstrapData, err = store.Open(config.Storage.Storage, todoDeleteThisStoreName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open '%s': %w", todoDeleteThisStoreName, err)
 	}
 
 	if config.UserEDVURL != "" {
@@ -383,12 +390,22 @@ func (o *Operation) userProfileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokns, err := o.store.tokens.Get(userSub)
+	data, proceed := o.fetchUserData(w, r, userSub)
+	if !proceed {
+		return
+	}
+
+	common.WriteResponse(w, logger, data)
+	logger.Debugf("finished handling userprofile request")
+}
+
+func (o *Operation) fetchUserData(w http.ResponseWriter, r *http.Request, sub string) (map[string]interface{}, bool) {
+	tokns, err := o.store.tokens.Get(sub)
 	if err != nil {
 		common.WriteErrorResponsef(w, logger,
 			http.StatusInternalServerError, "failed to fetch user tokens from store: %s", err.Error())
 
-		return
+		return nil, false
 	}
 
 	userInfo, err := o.oidcClient.UserInfo(r.Context(), &oauth2.Token{
@@ -400,7 +417,7 @@ func (o *Operation) userProfileHandler(w http.ResponseWriter, r *http.Request) {
 		common.WriteErrorResponsef(w, logger,
 			http.StatusBadGateway, "failed to fetch user info: %s", err.Error())
 
-		return
+		return nil, false
 	}
 
 	data := make(map[string]interface{})
@@ -410,11 +427,29 @@ func (o *Operation) userProfileHandler(w http.ResponseWriter, r *http.Request) {
 		common.WriteErrorResponsef(w, logger,
 			http.StatusInternalServerError, "failed to extract claims from user info: %s", err.Error())
 
-		return
+		return nil, false
 	}
 
-	common.WriteResponse(w, logger, data)
-	logger.Debugf("finished handling userprofile request")
+	data["bootstrap"], err = o.fetchBootstrapData(sub)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger, http.StatusInternalServerError,
+			"failed to fetch bootstrap data: %s", err.Error())
+
+		return nil, false
+	}
+
+	return data, true
+}
+
+func (o *Operation) fetchBootstrapData(sub string) (*todoDeleteThisModel, error) {
+	rawBootstrapData, err := o.store.tempBootstrapData.Get(sub)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch bootstrap data: %w", err)
+	}
+
+	bootstrapData := &todoDeleteThisModel{}
+
+	return bootstrapData, json.Unmarshal(rawBootstrapData, bootstrapData)
 }
 
 func (o *Operation) userLogoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -490,11 +525,21 @@ func (o *Operation) onboardUser(sub string) error {
 		}
 	}
 
-	// TODO https://github.com/trustbloc/edge-agent/issues/489 send keystore/vault ids to hub-auth and remove the logger
-	logger.Infof("authzKeyStoreURL=%s", authzKeyStoreURL)
-	logger.Infof("opsEDVVaultURL=%s", opsEDVVaultURL)
-	logger.Infof("opsKeyStoreURL=%s", opsKeyStoreURL)
-	logger.Infof("userEDVVaultURL=%s", userEDVVaultURL)
+	// TODO https://github.com/trustbloc/edge-agent/issues/489 send keystore/vault ids to hub-auth instead of saving
+	bits, err := json.Marshal(&todoDeleteThisModel{
+		UserEDVVaultURL:  userEDVVaultURL,
+		OpsEDVVaultURL:   opsEDVVaultURL,
+		AuthzKeyStoreURL: authzKeyStoreURL,
+		OpsKeyStoreURL:   opsKeyStoreURL,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to marshal temporary bootstrap data model: %w", err)
+	}
+
+	err = o.store.tempBootstrapData.Put(sub, bits)
+	if err != nil {
+		return fmt.Errorf("failed to store temporary bootstrap data model: %w", err)
+	}
 
 	return nil
 }
