@@ -21,6 +21,7 @@ services:
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
+      - EDV_SERVER_URL=https://edv.example.com:8072/encrypted-data-vaults
 
   second.ui.user.agent.example.com:
     container_name: second.ui.user.agent.example.com
@@ -37,6 +38,7 @@ services:
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
+      - EDV_SERVER_URL=https://edv.example.com:8072/encrypted-data-vaults
 
   edge.router.agent.example.com:
     container_name: edge.router.agent.example.com
@@ -167,6 +169,7 @@ services:
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
+      - EDV_SERVER_URL=https://edv.example.com:8072/encrypted-data-vaults
 
   bddtest.user.agent.example.com:
     container_name: bddtest.user.agent.example.com
