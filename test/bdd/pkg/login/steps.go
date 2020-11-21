@@ -22,11 +22,15 @@ import (
 
 // HTTP server.
 const (
-	host            = "https://localhost:8077"
-	loginPath       = host + "/oidc/login"
-	userProfilePath = host + "/oidc/userinfo"
-	userLogoutPath  = host + "/oidc/logout"
-	dashboardPath   = "https://localhost:8078/dashboard"
+	host                         = "https://bddtest-user-agent.trustbloc.local:8077"
+	loginPath                    = host + "/oidc/login"
+	userProfilePath              = host + "/oidc/userinfo"
+	userLogoutPath               = host + "/oidc/logout"
+	dashboardPath                = "https://localhost:8078/dashboard"
+	hubAuthHost                  = "https://localhost:8045"
+	hubAuthSelectOIDCProviderURL = hubAuthHost + "/oauth2/login"
+	mockLoginURL                 = "https://localhost:8099/mock/login"
+	mockOIDCProviderName         = "mockbank" // providers.yaml
 )
 
 // Mock Login Consent App.
@@ -105,6 +109,25 @@ func (s *Steps) userClicksLoginButton() error {
 	resp, err := s.browser.Get(loginPath) // nolint:noctx // no need to set context
 	if err != nil {
 		return fmt.Errorf("failed to invoke http server login endpoint %s: %w", loginPath, err)
+	}
+
+	err = resp.Body.Close()
+	if err != nil {
+		return fmt.Errorf("failed to close HTTP response body: %w", err)
+	}
+
+	request := fmt.Sprintf("%s?provider=%s", hubAuthSelectOIDCProviderURL, mockOIDCProviderName)
+
+	resp, err = s.browser.Get(request) // nolint:noctx // no need to set context
+	if err != nil {
+		return fmt.Errorf("user failed to select OIDC provider using request %s: %w", request, err)
+	}
+
+	if !strings.HasPrefix(resp.Request.URL.String(), mockLoginURL) {
+		return fmt.Errorf(
+			"user at wrong third party OIDC provider; expected %s got %s",
+			mockLoginURL, resp.Request.URL.String(),
+		)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)

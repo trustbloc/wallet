@@ -101,7 +101,7 @@ services:
       - TLS_CERT_FILE=/etc/keys/tls/ec-pubCert.pem
       - TLS_KEY_FILE=/etc/keys/tls/ec-key.pem
       - TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
-      - HTTP_SERVER_OIDC_OPURL=https://demo-hydra.trustbloc.local:5555/
+      - HTTP_SERVER_OIDC_OPURL=https://demo-hub-auth-hydra.trustbloc.local:5555/
       - HTTP_SERVER_OIDC_CLIENTID=client-id
       - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
       - HTTP_SERVER_OIDC_CALLBACK=https://user.agent.example.com:8090/oidc/callback
@@ -121,8 +121,6 @@ services:
     command: start
     depends_on:
       - edv.example.com
-      - hydra
-      - mock-bddtest-login-consent.example.com
 
   second.user.agent.example.com:
     container_name: second.user.agent.example.com
@@ -133,7 +131,7 @@ services:
       - TLS_CERT_FILE=/etc/keys/tls/ec-pubCert.pem
       - TLS_KEY_FILE=/etc/keys/tls/ec-key.pem
       - TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
-      - HTTP_SERVER_OIDC_OPURL=https://demo-hydra.trustbloc.local:5555/
+      - HTTP_SERVER_OIDC_OPURL=https://demo-hub-auth-hydra.trustbloc.local:5555/
       - HTTP_SERVER_OIDC_CLIENTID=client-id
       - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
       - HTTP_SERVER_OIDC_CALLBACK=https://second.user.agent.example.com:8070/oidc/callback
@@ -153,8 +151,6 @@ services:
     command: start
     depends_on:
       - edv.example.com
-      - hydra
-      - mock-bddtest-login-consent.example.com
 
   bddtest.ui.user.agent.example.com:
     container_name: bddtest.ui.user.agent.example.com
@@ -174,8 +170,8 @@ services:
       - EDV_SERVER_URL=https://edv.example.com:8072/encrypted-data-vaults
       - STORAGE_TYPE=indexedDB
 
-  bddtest.user.agent.example.com:
-    container_name: bddtest.user.agent.example.com
+  bddtest-user-agent.trustbloc.local:
+    container_name: bddtest-user-agent.trustbloc.local
     image: ${USER_AGENT_SUPPORT_IMAGE}:latest
     environment:
       - AGENT_UI_URL=https://localhost:8078
@@ -183,14 +179,14 @@ services:
       - TLS_CERT_FILE=/etc/keys/tls/ec-pubCert.pem
       - TLS_KEY_FILE=/etc/keys/tls/ec-key.pem
       - TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
-      - HTTP_SERVER_OIDC_OPURL=https://hydra.trustbloc.local:4444/
+      - HTTP_SERVER_OIDC_OPURL=https://bdd-hub-auth-hydra.trustbloc.local:8888/
       - HTTP_SERVER_OIDC_CLIENTID=client-id
       - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
-      - HTTP_SERVER_OIDC_CALLBACK=https://localhost:8077/oidc/callback
+      - HTTP_SERVER_OIDC_CALLBACK=https://bddtest-user-agent.trustbloc.local:8077/oidc/callback
       - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
-      - HTTP_SERVER_RP_ORIGIN_NAME=https://localhost:8077/
+      - HTTP_SERVER_RP_ORIGIN_NAME=https://bddtest-user-agent.trustbloc.local:8077/
       - HTTP_SERVER_RP_ID=localhost
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
@@ -204,8 +200,7 @@ services:
     command: start
     depends_on:
       - edv.example.com
-      - hydra
-      - mock-bddtest-login-consent.example.com
+      - bdd-hub-auth-rest.trustbloc.local
 
   couchdb.example.com:
     container_name: couchdb.example.com
@@ -328,8 +323,42 @@ services:
     volumes:
       - ../keys/tls:/etc/tls
 
-  demo-hydra:
-    container_name: demo-hydra.trustbloc.local
+  demo-auth.rest.example.com:
+    container_name: demo-hub-auth.trustbloc.local
+    image: ${AUTH_REST_IMAGE}:${AUTH_REST_IMAGE_TAG}
+    environment:
+      - AUTH_REST_HOST_URL=0.0.0.0:8044
+      - AUTH_REST_TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
+      - AUTH_REST_TLS_SYSTEMCERTPOOL=true
+      - AUTH_REST_TLS_SERVE_CERT=/etc/keys/tls/ec-pubCert.pem
+      - AUTH_REST_TLS_SERVE_KEY=/etc/keys/tls/ec-key.pem
+      - AUTH_REST_DATABASE_TYPE=mysql
+      - AUTH_REST_DATABASE_URL=authrest:authrest-secret-pw@tcp(mysql:3306)/
+      - AUTH_REST_DATABASE_PREFIX=authrest
+      - AUTH_REST_OIDC_CALLBACK=https://demo-hub-auth.trustbloc.local:8044/oauth2/callback
+      - AUTH_REST_OIDC_PROVIDERS_CONFIG=/etc/oidc-config/demo_providers.yaml
+      - AUTH_REST_SDS_DOCS_URL=https://TODO.docs.sds.org/
+      - AUTH_REST_SDS_OPSKEYS_URL=https://TODO.keys.sds.org/
+      - AUTH_REST_KEYSERVER_AUTH_URL=https://TODO.auth.keyserver.org/
+      - AUTH_REST_KEYSERVER_OPS_URL=https://TODO.ops.keyserver.org/
+      - AUTH_REST_HYDRA_URL=https://demo-hub-auth-hydra.trustbloc.local:5556
+      - AUTH_REST_LOG_LEVEL=DEBUG
+      - AUTH_REST_API_TOKEN=test_token
+      - AUTH_REST_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
+      - AUTH_REST_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
+    ports:
+      - 8044:8044
+    entrypoint: ""
+    command:  /bin/sh -c "sleep 30 && auth-rest start"
+    volumes:
+      - ../keys:/etc/keys
+      - ./oidc-config:/etc/oidc-config
+    depends_on:
+      - demo-auth.rest.hydra.example.com
+      - mysql
+
+  demo-auth.rest.hydra.example.com:
+    container_name: demo-hub-auth-hydra.trustbloc.local
     image: oryd/hydra:${HYDRA_IMAGE_TAG}
     ports:
       - 5555:5555 # Public port
@@ -337,10 +366,10 @@ services:
     command:  /bin/sh -c "hydra migrate sql --read-from-env --yes; tmp/hydra_configure.sh& hydra serve all"
     entrypoint: ""
     environment:
-      - DSN=mysql://demohydra:demohydra-pwd@tcp(mysql:3306)/demohydra?max_conns=20&max_idle_conns=4
-      - URLS_SELF_ISSUER=https://demo-hydra.trustbloc.local:5555/
-      - URLS_CONSENT=http://localhost:3300/consent
-      - URLS_LOGIN=http://localhost:3300/login
+      - DSN=mysql://authresthydra:authresthydra-secret-pw@tcp(mysql:3306)/authresthydra?max_conns=20&max_idle_conns=4
+      - URLS_SELF_ISSUER=https://demo-hub-auth-hydra.trustbloc.local:5555/
+      - URLS_CONSENT=https://demo-hub-auth.trustbloc.local:8044/hydra/consent
+      - URLS_LOGIN=https://demo-hub-auth.trustbloc.local:8044/hydra/login
       - SECRETS_SYSTEM=testSecretsSystem
       - OIDC_SUBJECT_TYPES_SUPPORTED=public
       - OIDC_SUBJECT_TYPE_PAIRWISE_SALT=testSecretsSystem
@@ -351,13 +380,102 @@ services:
     restart: unless-stopped
     volumes:
       - ../keys/tls:/etc/tls
-      - ./hydra-config/demo_hydra_configure.sh:/tmp/hydra_configure.sh
+      - ./hydra-config/demo_auth-rest-hydra_configure.sh:/tmp/hydra_configure.sh
     depends_on:
       - mock-bddtest-login-consent.example.com
       - mysql
 
-  hydra:
-    container_name: hydra.trustbloc.local
+  demo-hydra:
+    container_name: demo-hydra.trustbloc.local
+    image: oryd/hydra:${HYDRA_IMAGE_TAG}
+    ports:
+      - 7777:7777 # Public port
+      - 7778:7778 # Admin port
+    command:  /bin/sh -c "hydra migrate sql --read-from-env --yes; tmp/hydra_configure.sh& hydra serve all"
+    entrypoint: ""
+    environment:
+      - DSN=mysql://demohydra:demohydra-pwd@tcp(mysql:3306)/demohydra?max_conns=20&max_idle_conns=4
+      - URLS_SELF_ISSUER=https://demo-hydra.trustbloc.local:7777/
+      - URLS_CONSENT=http://localhost:3300/consent
+      - URLS_LOGIN=http://localhost:3300/login
+      - SECRETS_SYSTEM=testSecretsSystem
+      - OIDC_SUBJECT_TYPES_SUPPORTED=public
+      - OIDC_SUBJECT_TYPE_PAIRWISE_SALT=testSecretsSystem
+      - SERVE_TLS_KEY_PATH=/etc/tls/ec-key.pem
+      - SERVE_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
+      - SERVE_PUBLIC_PORT=7777
+      - SERVE_ADMIN_PORT=7778
+    restart: unless-stopped
+    volumes:
+      - ../keys/tls:/etc/tls
+      - ./hydra-config/demo_hydra_configure.sh:/tmp/hydra_configure.sh
+    depends_on:
+      - mock-demo-login-consent.example.com
+      - mysql
+
+  bdd-hub-auth-rest.trustbloc.local:
+    container_name: bdd-hub-auth-rest.trustbloc.local
+    image: ${AUTH_REST_IMAGE}:${AUTH_REST_IMAGE_TAG}
+    environment:
+      - AUTH_REST_HOST_URL=0.0.0.0:8045
+      - AUTH_REST_TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
+      - AUTH_REST_TLS_SYSTEMCERTPOOL=true
+      - AUTH_REST_TLS_SERVE_CERT=/etc/keys/tls/ec-pubCert.pem
+      - AUTH_REST_TLS_SERVE_KEY=/etc/keys/tls/ec-key.pem
+      - AUTH_REST_DATABASE_TYPE=mysql
+      - AUTH_REST_DATABASE_URL=authrest:authrest-secret-pw@tcp(mysql:3306)/
+      - AUTH_REST_DATABASE_PREFIX=authrest
+      - AUTH_REST_OIDC_CALLBACK=https://localhost:8045/oauth2/callback
+      - AUTH_REST_OIDC_PROVIDERS_CONFIG=/etc/oidc-config/bdd_providers.yaml
+      - AUTH_REST_SDS_DOCS_URL=https://TODO.docs.sds.org/
+      - AUTH_REST_SDS_OPSKEYS_URL=https://TODO.keys.sds.org/
+      - AUTH_REST_KEYSERVER_AUTH_URL=https://TODO.auth.keyserver.org/
+      - AUTH_REST_KEYSERVER_OPS_URL=https://TODO.ops.keyserver.org/
+      - AUTH_REST_HYDRA_URL=https://bdd-hub-auth-hydra.trustbloc.local:8889
+      - AUTH_REST_LOG_LEVEL=DEBUG
+      - AUTH_REST_API_TOKEN=test_token
+      - AUTH_REST_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
+      - AUTH_REST_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
+    ports:
+      - 8045:8045
+    entrypoint: ""
+    command:  /bin/sh -c "sleep 30 && auth-rest start"
+    volumes:
+      - ../keys:/etc/keys
+      - ./oidc-config:/etc/oidc-config
+    depends_on:
+      - bdd-hydra.trustbloc.local
+      - mysql
+
+  bdd-hub-auth-hydra.trustbloc.local:
+    container_name: bdd-hub-auth-hydra.trustbloc.local
+    image: oryd/hydra:${HYDRA_IMAGE_TAG}
+    ports:
+      - 8888:8888 # Public port
+      - 8889:8889 # Admin port
+    command:  /bin/sh -c "hydra migrate sql --read-from-env --yes; tmp/hydra_configure.sh& hydra serve all"
+    entrypoint: ""
+    environment:
+      - DSN=mysql://bddauthresthydra:bddauthresthydra-secret-pw@tcp(mysql:3306)/bddauthresthydra?max_conns=20&max_idle_conns=4
+      - URLS_SELF_ISSUER=https://bdd-hub-auth-hydra.trustbloc.local:8888/
+      - URLS_CONSENT=https://localhost:8045/hydra/consent
+      - URLS_LOGIN=https://localhost:8045/hydra/login
+      - SECRETS_SYSTEM=testSecretsSystem
+      - OIDC_SUBJECT_TYPES_SUPPORTED=public
+      - OIDC_SUBJECT_TYPE_PAIRWISE_SALT=testSecretsSystem
+      - SERVE_TLS_KEY_PATH=/etc/tls/ec-key.pem
+      - SERVE_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
+      - SERVE_PUBLIC_PORT=8888
+      - SERVE_ADMIN_PORT=8889
+    restart: unless-stopped
+    volumes:
+      - ../keys/tls:/etc/tls
+      - ./hydra-config/bdd_auth-rest-hydra_configure.sh:/tmp/hydra_configure.sh
+    depends_on:
+      - mysql
+
+  bdd-hydra.trustbloc.local:
+    container_name: bdd-hydra.trustbloc.local
     image: oryd/hydra:${HYDRA_IMAGE_TAG}
     ports:
       - 4444:4444 # Public port
@@ -365,8 +483,8 @@ services:
     command:  /bin/sh -c "hydra migrate sql --read-from-env --yes; tmp/hydra_configure.sh& hydra serve all"
     entrypoint: ""
     environment:
-      - DSN=mysql://hydra:hydra-pwd@tcp(mysql:3306)/hydra?max_conns=20&max_idle_conns=4
-      - URLS_SELF_ISSUER=https://hydra.trustbloc.local:4444/
+      - DSN=mysql://bddhydra:bddhydra-pwd@tcp(mysql:3306)/bddhydra?max_conns=20&max_idle_conns=4
+      - URLS_SELF_ISSUER=https://bdd-hydra.trustbloc.local:4444/
       - URLS_CONSENT=https://localhost:8099/mock/consent
       - URLS_LOGIN=https://localhost:8099/mock/login
       - SECRETS_SYSTEM=testSecretsSystem
@@ -377,7 +495,7 @@ services:
     restart: unless-stopped
     volumes:
       - ../keys/tls:/etc/tls
-      - ./hydra-config/bddtest_hydra_configure.sh:/tmp/hydra_configure.sh
+      - ./hydra-config/bdd_hydra_configure.sh:/tmp/hydra_configure.sh
     depends_on:
       - mock-bddtest-login-consent.example.com
       - mysql
@@ -399,7 +517,7 @@ services:
     image: ${MOCK_BDDTEST_LOGIN_CONSENT_IMAGE}:latest
     environment:
       - LISTEN_ADDR=:8099
-      - HYDRA_ADMIN_URL=https://hydra.trustbloc.local:4445
+      - HYDRA_ADMIN_URL=https://bdd-hydra.trustbloc.local:4445
       - TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
       - TLS_KEY_PATH=/etc/tls/ec-key.pem
       - ROOT_CA_CERTS_PATH=/etc/tls/ec-cacert.pem
@@ -412,7 +530,7 @@ services:
     container_name: mock-demo-login-consent.example.com
     image: ${MOCK_DEMO_LOGIN_CONSENT_IMAGE}:latest
     environment:
-      - ADMIN_URL=https://demo-hydra.trustbloc.local:5556
+      - ADMIN_URL=https://demo-hydra.trustbloc.local:7778
       - SERVE_PORT=3300
       - TLS_CACERTS=/etc/tls/ec-cacert.pem
     ports:

@@ -22,13 +22,18 @@ You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following 
     127.0.0.1 testnet.trustbloc.local
     127.0.0.1 stakeholder.one
     127.0.0.1 sidetree-mock
-    127.0.0.1 demo-hydra.trustbloc.local
     127.0.0.1 user.ui.agent.example.com
     127.0.0.1 user.agent.example.com
     127.0.0.1 second.ui.user.agent.example.com
     127.0.0.1 second.user.agent.example.com
     127.0.0.1 edge.router.agent.example.com
     127.0.0.1 uni-resolver-web.example.com
+    127.0.0.1 demo-hub-auth.trustbloc.local
+    127.0.0.1 demo-hub-auth-hydra.trustbloc.local
+    127.0.0.1 demo-hydra.trustbloc.local
+    127.0.0.1 bdd-hub-auth-hydra.trustbloc.local
+    127.0.0.1 bdd-hydra.trustbloc.local
+    127.0.0.1 bddtest-user-agent.trustbloc.local
 
 ## Running BDD tests
 

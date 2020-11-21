@@ -59,6 +59,9 @@ jobs:
           echo '127.0.0.1 testnet.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 stakeholder.one' | sudo tee -a /etc/hosts
           echo '127.0.0.1 sidetree-mock' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 bdd-hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 bdd-hydra.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 bddtest-user-agent.trustbloc.local' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
@@ -85,6 +88,9 @@ jobs:
           echo '127.0.0.1 hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 stakeholder.one' | sudo tee -a /etc/hosts
           echo '127.0.0.1 sidetree-mock' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 bdd-hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 bdd-hydra.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 bddtest-user-agent.trustbloc.local' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
