@@ -22,6 +22,7 @@ services:
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv.example.com:8072/encrypted-data-vaults
+      - STORAGE_TYPE=indexedDB
 
   second.ui.user.agent.example.com:
     container_name: second.ui.user.agent.example.com
@@ -39,6 +40,7 @@ services:
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv.example.com:8072/encrypted-data-vaults
+      - STORAGE_TYPE=indexedDB
 
   edge.router.agent.example.com:
     container_name: edge.router.agent.example.com
@@ -170,6 +172,7 @@ services:
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv.example.com:8072/encrypted-data-vaults
+      - STORAGE_TYPE=indexedDB
 
   bddtest.user.agent.example.com:
     container_name: bddtest.user.agent.example.com
