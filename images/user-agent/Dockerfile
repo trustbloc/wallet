@@ -1,3 +1,7 @@
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 FROM nginx:latest
 
 COPY build/bin/user-agent/ /usr/share/nginx/www/
@@ -14,6 +18,6 @@ ENV BLOC_DOMAIN=
 ENV WALLET_MEDIATOR_URL=
 ENV CREDENTIAL_MEDIATOR_URL=
 ENV BLINDED_ROUTING=
-ENV STORAGE_TYPE=indexedDB
+ENV STORAGE_TYPE=
 ENV EDV_SERVER_URL=
 ENV EDGE_AGENT_SERVER=

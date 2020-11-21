@@ -25,8 +25,9 @@ let defaultAgentStartupOpts = {
     walletMediatorURL: 'https://localhost:10063',
     blindedRouting: false,
     credentialMediatorURL: '',
-    storageType: `indexedDB`, 	// TODO (#475): Allow the storage type to be configurable.
-    edvServerURL: ''
+    storageType: `edv`,
+    edvServerURL: '',
+    edvVaultID: ''
 }
 
 export default {
@@ -50,6 +51,31 @@ export default {
                     })
 
                 agentOpts['http-resolver-url'] = agentOpts['http-resolver-url'].split(',')
+
+                const userInfoURL = agentOpts["edge-agent-server"] + "/oidc/userinfo"
+
+                console.log("User info URL is: " + userInfoURL)
+
+                const client = axios.create({
+                    withCredentials: true
+                })
+
+                await client.get(userInfoURL)
+                    .then(resp => {
+                        const edvVaultURL = resp.data.bootstrap.edvVaultURL
+
+                        console.log("User EDV Vault URL is: " + edvVaultURL)
+
+                        const edvVaultID = edvVaultURL.substring(edvVaultURL.lastIndexOf('/')+1)
+
+                        console.log("User EDV Vault ID is: " + edvVaultID)
+
+                        agentOpts.edvVaultID = edvVaultID
+                    })
+                    .catch(err => {
+                        console.log("error fetching user info: errMsg=", err);
+                        console.log("Note: If you haven't logged in yet and you just got a 403 error, then it's expected")
+                    })
             }
 
             commit('updateAgentOpts', {
@@ -67,7 +93,8 @@ export default {
                 credentialMediatorURL: credentialMediator(('credentialMediatorURL' in agentOpts) ? agentOpts['credentialMediatorURL'] : defaultAgentStartupOpts['credentialMediatorURL']),
                 blindedRouting: ('blindedRouting' in agentOpts) ? agentOpts['blindedRouting'] : defaultAgentStartupOpts['blindedRouting'],
                 storageType: ('storageType' in agentOpts) ? agentOpts['storageType'] : defaultAgentStartupOpts['storageType'],
-                edvServerURL: ('edvServerURL' in agentOpts) ? agentOpts['edvServerURL'] : defaultAgentStartupOpts['edvServerURL']
+                edvServerURL: ('edvServerURL' in agentOpts) ? agentOpts['edvServerURL'] : defaultAgentStartupOpts['edvServerURL'],
+                edvVaultID: ('edvVaultID' in agentOpts) ? agentOpts['edvVaultID'] : defaultAgentStartupOpts['edvVaultID']
             })
         },
     },
