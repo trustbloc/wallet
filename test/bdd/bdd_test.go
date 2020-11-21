@@ -84,7 +84,7 @@ func beforeSuite(composition []*dockerutil.Composition, composeFiles []string) f
 
 			fmt.Println("docker-compose up ... waiting for containers to start ...")
 
-			testSleep := 30
+			testSleep := 60
 
 			if os.Getenv("TEST_SLEEP") != "" {
 				var e error
