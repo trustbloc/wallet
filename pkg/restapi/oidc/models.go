@@ -10,6 +10,14 @@ type createKeystoreReq struct {
 	OperationalVaultID string `json:"operationalVaultID,omitempty"`
 }
 
+type createKeyReq struct {
+	KeyType string `json:"keyType,omitempty"`
+}
+
+type exportKeyResp struct {
+	PublicKey string `json:"publicKey,omitempty"`
+}
+
 // TODO delete during completion of https://github.com/trustbloc/edge-agent/issues/489.
 type todoDeleteThisModel struct {
 	UserEDVVaultURL  string `json:"edvVaultURL"`

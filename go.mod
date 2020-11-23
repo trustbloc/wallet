@@ -12,6 +12,7 @@ require (
 	github.com/duo-labs/webauthn.io v0.0.0-20200929144140-c031a3e0f95d
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/sessions v1.2.1
+	github.com/hyperledger/aries-framework-go v0.1.5-0.20201030222504-2f5e96e162b3
 	github.com/stretchr/testify v1.6.1
 	github.com/trustbloc/edge-core v0.1.5-0.20201106164919-76ecfeca954f
 	github.com/trustbloc/edv v0.1.5-0.20201116214851-c634f0545148

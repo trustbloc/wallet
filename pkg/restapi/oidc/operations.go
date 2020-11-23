@@ -17,8 +17,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
+	"github.com/hyperledger/aries-framework-go/pkg/vdr/fingerprint"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
@@ -54,6 +56,8 @@ const (
 const (
 	hubAuthSecretPath        = "/secret"
 	hubKMSCreateKeyStorePath = "/kms/keystores"
+	keysEndpoint             = "/kms/keystores/%s/keys"
+	exportKeyEndpoint        = "/kms/keystores/%s/keys/%s/export"
 )
 
 var logger = log.New("hub-auth/oidc")
@@ -517,8 +521,19 @@ func (o *Operation) onboardUser(sub, accessToken string) error { // nolint:funle
 		return fmt.Errorf("create authz keystore : %w", err)
 	}
 
-	// TODO https://github.com/trustbloc/edge-agent/issues/493 create controller
-	controller := uuid.New().URN()
+	authzKeyStoreID := getKeystoreID(authzKeyStoreURL)
+
+	keyID, err := createKey(o.keyServer.AuthzKMSURL, authzKeyStoreID, "ED25519", o.httpClient)
+	if err != nil {
+		return fmt.Errorf("failed create authz key : %w", err)
+	}
+
+	pkBytes, err := exportPublicKey(o.keyServer.AuthzKMSURL, authzKeyStoreID, keyID, o.httpClient)
+	if err != nil {
+		return fmt.Errorf("failed export public key key : %w", err)
+	}
+
+	_, controller := fingerprint.CreateDIDKey(pkBytes)
 
 	opsEDVVaultURL, err := createEDVDataVault(o.keyEDVClient, controller)
 	if err != nil {
@@ -574,7 +589,7 @@ func postSecret(baseURL, accessToken string, secret []byte, httpClient httpClien
 
 	addAccessToken(req, accessToken)
 
-	_, err = sendHTTPRequest(req, httpClient, http.StatusOK)
+	_, _, err = sendHTTPRequest(req, httpClient, http.StatusOK)
 	if err != nil {
 		return err
 	}
@@ -598,7 +613,7 @@ func createKeyStore(baseURL, controller, vaultID string, httpClient httpClient) 
 	}
 
 	// TODO https://github.com/trustbloc/edge-agent/issues/488 pass half secret and oauth token to hub-kms
-	headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
+	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
 	if err != nil {
 		return "", fmt.Errorf("create authz keystore : %w", err)
 	}
@@ -606,6 +621,90 @@ func createKeyStore(baseURL, controller, vaultID string, httpClient httpClient) 
 	keystoreURL := headers.Get("Location")
 
 	return keystoreURL, nil
+}
+
+func createKey(baseURL, keystoreID, keyType string, httpClient httpClient) (string, error) {
+	reqBytes, err := json.Marshal(createKeyReq{
+		KeyType: keyType,
+	})
+	if err != nil {
+		return "", fmt.Errorf("marshal create key req : %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(context.TODO(),
+		http.MethodPost, baseURL+fmt.Sprintf(keysEndpoint, keystoreID), bytes.NewBuffer(reqBytes))
+	if err != nil {
+		return "", err
+	}
+
+	// TODO change it
+	req.Header.Add("Hub-Kms-Secret", "changeme")
+
+	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
+	if err != nil {
+		return "", fmt.Errorf("create authz key : %w", err)
+	}
+
+	return getKeyID(headers.Get("Location")), nil
+}
+
+func exportPublicKey(baseURL, keystoreID, keyID string, httpClient httpClient) ([]byte, error) {
+	req, err := http.NewRequestWithContext(context.TODO(),
+		http.MethodGet, baseURL+fmt.Sprintf(exportKeyEndpoint, keystoreID, keyID), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO change it
+	req.Header.Add("Hub-Kms-Secret", "changeme")
+
+	resp, _, err := sendHTTPRequest(req, httpClient, http.StatusOK)
+	if err != nil {
+		return nil, fmt.Errorf("failed to export authz key : %w", err)
+	}
+
+	var exportKey exportKeyResp
+
+	if errUnmarshal := json.Unmarshal(resp, &exportKey); errUnmarshal != nil {
+		return nil, errUnmarshal
+	}
+
+	pkBytes, err := base64.URLEncoding.DecodeString(exportKey.PublicKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return pkBytes, nil
+}
+
+func getKeystoreID(location string) string {
+	const (
+		keystoreIDPos = 3
+	)
+
+	s := strings.Split(location, "/")
+
+	keystoreID := ""
+	if len(s) > keystoreIDPos {
+		keystoreID = s[keystoreIDPos]
+	}
+
+	return keystoreID
+}
+
+func getKeyID(location string) string {
+	const (
+		keyIDPos = 5
+	)
+
+	s := strings.Split(location, "/")
+
+	keyID := ""
+	if len(s) > keyIDPos {
+		keyID = s[keyIDPos]
+	}
+
+	return keyID
 }
 
 func createEDVDataVault(edvClient edvClient, controller string) (string, error) {
@@ -625,10 +724,10 @@ func createEDVDataVault(edvClient edvClient, controller string) (string, error) 
 	return vaultURL, nil
 }
 
-func sendHTTPRequest(req *http.Request, httpClient httpClient, status int) (http.Header, error) {
+func sendHTTPRequest(req *http.Request, httpClient httpClient, status int) ([]byte, http.Header, error) {
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("http request : %w", err)
+		return nil, nil, fmt.Errorf("http request : %w", err)
 	}
 
 	defer func() {
@@ -640,14 +739,14 @@ func sendHTTPRequest(req *http.Request, httpClient httpClient, status int) (http
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("http request: failed to read resp body %d : %w", resp.StatusCode, err)
+		return nil, nil, fmt.Errorf("http request: failed to read resp body %d : %w", resp.StatusCode, err)
 	}
 
 	if resp.StatusCode != status {
-		return nil, fmt.Errorf("http request: expected=%d actual=%d body=%s", status, resp.StatusCode, string(body))
+		return nil, nil, fmt.Errorf("http request: expected=%d actual=%d body=%s", status, resp.StatusCode, string(body))
 	}
 
-	return resp.Header, nil
+	return body, resp.Header, nil
 }
 
 func addAccessToken(r *http.Request, token string) {

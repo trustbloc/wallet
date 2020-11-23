@@ -50,7 +50,6 @@ cmd/wallet-web/dist
 test/bdd/fixtures/db
 test/bdd/fixtures/keys/tls
 test/bdd/fixtures/wallet-web/config/
-test/bdd/fixtures/discovery-server/config
-test/bdd/fixtures/stakeholder-server/config
+test/bdd/fixtures/user-agent/config
 cmd/wallet-web/public/agent-js-worker/
 wasm_exec.js
