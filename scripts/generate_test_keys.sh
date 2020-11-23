@@ -50,5 +50,6 @@ openssl x509 -req -in test/bdd/fixtures/keys/tls/ec-key.csr -CA test/bdd/fixture
 mkdir -p test/bdd/fixtures/keys/session_cookies
 openssl rand -out test/bdd/fixtures/keys/session_cookies/auth.key 32
 openssl rand -out test/bdd/fixtures/keys/session_cookies/enc.key 32
+openssl rand 32 | base64 | sed 's/+/-/g; s/\//_/g' > test/bdd/fixtures/keys/tls/service-lock.key
 
 echo "done generating edge-agent PKI"

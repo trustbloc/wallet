@@ -15,6 +15,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -148,7 +149,7 @@ func TestOperation_OIDCLoginHandler(t *testing.T) {
 	})
 }
 
-func TestOperation_OIDCCallbackHandler(t *testing.T) {
+func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocognit,gocyclo // test
 	uiEndpoint := "http://test.com/dashboard"
 
 	t.Run("fetches OIDC tokens and redirects to the UI", func(t *testing.T) {
@@ -185,8 +186,14 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 					}, nil
 				}
 
+				statusCode := http.StatusCreated
+
+				if strings.Contains(req.URL.Path, "/export") {
+					statusCode = http.StatusOK
+				}
+
 				return &http.Response{
-					StatusCode: http.StatusCreated, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					StatusCode: statusCode, Body: ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
 				}, nil
 			},
 		}
@@ -203,7 +210,6 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		o.oidcCallbackHandler(w, newOIDCCallbackRequest(code, state))
-
 		require.Equal(t, http.StatusFound, w.Code)
 		require.Equal(t, uiEndpoint, w.Header().Get("Location"))
 	})
@@ -507,9 +513,15 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 					}, nil
 				}
 
+				statusCode := http.StatusCreated
+
+				if strings.Contains(req.URL.Path, "/export") {
+					statusCode = http.StatusOK
+				}
+
 				return &http.Response{
-					StatusCode: http.StatusCreated,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					StatusCode: statusCode,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
 				}, nil
 			},
 		}
@@ -536,19 +548,28 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 				}
 
 				var request createKeystoreReq
-				err := json.NewDecoder(req.Body).Decode(&request)
-				require.NoError(t, err)
 
-				if request.OperationalVaultID != "" {
-					return &http.Response{
-						StatusCode: http.StatusInternalServerError,
-						Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
-					}, nil
+				if req.Body != nil {
+					err := json.NewDecoder(req.Body).Decode(&request)
+					require.NoError(t, err)
+
+					if request.OperationalVaultID != "" {
+						return &http.Response{
+							StatusCode: http.StatusInternalServerError,
+							Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+						}, nil
+					}
+				}
+
+				statusCode := http.StatusCreated
+
+				if req.Method == http.MethodGet {
+					statusCode = http.StatusOK
 				}
 
 				return &http.Response{
-					StatusCode: http.StatusCreated,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					StatusCode: statusCode,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
 				}, nil
 			},
 		}
@@ -572,9 +593,15 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 					}, nil
 				}
 
+				statusCode := http.StatusCreated
+
+				if strings.Contains(req.URL.Path, "/export") {
+					statusCode = http.StatusOK
+				}
+
 				return &http.Response{
-					StatusCode: http.StatusCreated,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					StatusCode: statusCode,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
 				}, nil
 			},
 		}
@@ -599,9 +626,15 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 					}, nil
 				}
 
+				statusCode := http.StatusCreated
+
+				if strings.Contains(req.URL.Path, "/export") {
+					statusCode = http.StatusOK
+				}
+
 				return &http.Response{
-					StatusCode: http.StatusCreated,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					StatusCode: statusCode,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
 				}, nil
 			},
 		}

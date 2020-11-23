@@ -215,6 +215,8 @@ services:
       - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
     volumes:
       - ./couchdb-config/config.ini:/opt/couchdb/etc/local.d/config.ini
+    logging:
+      driver: none
 
   edv.example.com:
     container_name: edv.example.com
@@ -549,13 +551,20 @@ services:
       - KMS_CACERTS=/etc/tls/ec-cacert.pem
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
-      - KMS_DATABASE_TYPE=mem
-      - KMS_SECRETS_DATABASE_TYPE=mem
-      - KMS_OPERATIONAL_KMS_STORAGE_TYPE=mem
+      - KMS_DATABASE_TYPE=couchdb
+      - KMS_DATABASE_URL=${EDV_DATABASE_URL}
+      - KMS_DATABASE_PREFIX=authzkeystore
+      - KMS_SECRETS_DATABASE_TYPE=couchdb
+      - KMS_SECRETS_DATABASE_URL=${EDV_DATABASE_URL}
+      - KMS_SECRETS_DATABASE_PREFIX=authzkms
+      - KMS_SECRETS_MASTER_KEY_PATH=/etc/tls/service-lock.key
+      - KMS_OPERATIONAL_KMS_STORAGE_TYPE=couchdb
+      - KMS_OPERATIONAL_KMS_STORAGE_URL=${EDV_DATABASE_URL}
+      - KMS_OPERATIONAL_KMS_STORAGE_PREFIX=ops
     ports:
       - ${AUTHZ_HUB_KMS_PORT}:${AUTHZ_HUB_KMS_PORT}
     entrypoint: ""
-    command: /bin/sh -c "sleep 5;kms-rest start"
+    command: /bin/sh -c "sleep 30;kms-rest start"
     volumes:
       - ../keys/tls:/etc/tls
     depends_on:
