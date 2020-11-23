@@ -553,7 +553,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 					err := json.NewDecoder(req.Body).Decode(&request)
 					require.NoError(t, err)
 
-					if request.OperationalVaultID != "" {
+					if request.VaultID != "" {
 						return &http.Response{
 							StatusCode: http.StatusInternalServerError,
 							Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
