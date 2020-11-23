@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-USER_AGENT_SUPPORT_PATH	= cmd/user-agent-support
+WALLET_SERVER_PATH	= cmd/wallet-server
 
 # GO version
 ALPINE_VER ?= 3.12
@@ -33,24 +33,24 @@ license:
 unit-test:
 	@scripts/check_unit.sh
 
-.PHONY: user-agent
-user-agent:
-	@scripts/build_agent_wasm.sh
+.PHONY: wallet-web
+wallet-web:
+	@scripts/build_wallet_web.sh
 
-.PHONY: user-agent-docker
-user-agent-docker: clean user-agent
-	@echo "Building user agent (UI) docker image"
-	@docker build -f ./images/user-agent/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(REPO_IMAGE_NAME)/user-agent:latest .
+.PHONY: wallet-web-docker
+wallet-web-docker: clean wallet-web
+	@echo "Building wallet-web docker image"
+	@docker build -f ./images/wallet-web/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(REPO_IMAGE_NAME)/wallet-web:latest .
 
-.PHONY: user-agent-support
-user-agent-support:
-	@echo "Building user-agent-support"
-	@cd ${USER_AGENT_SUPPORT_PATH} && go build -o ../../build/bin/user-agent-support main.go
+.PHONY: wallet-server
+wallet-server:
+	@echo "Building wallet-server"
+	@cd ${WALLET_SERVER_PATH} && go build -o ../../build/bin/wallet-server main.go
 
-.PHONY: user-agent-support-docker
-user-agent-support-docker: clean
-	@echo "Building user agent support (backend) docker image"
-	@docker build -f ./images/user-agent-support/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(REPO_IMAGE_NAME)/user-agent-support:latest \
+.PHONY: wallet-server-docker
+wallet-server-docker: clean
+	@echo "Building wallet-server docker image"
+	@docker build -f ./images/wallet-server/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(REPO_IMAGE_NAME)/wallet-server:latest \
 	--build-arg GO_VER=$(GO_VER) \
 	--build-arg ALPINE_VER=$(ALPINE_VER) \
 	--build-arg GO_TAGS=$(GO_TAGS) .
@@ -63,29 +63,29 @@ generate-test-keys:
 		--entrypoint "/opt/workspace/edge-agent/scripts/generate_test_keys.sh" \
 		frapsoft/openssl
 
-.PHONY: user-agent-start
-user-agent-start: clean user-agent-docker user-agent-support-docker generate-test-config generate-test-keys mock-images
-	@scripts/user_agent_start.sh
+.PHONY: wallet-web-start
+wallet-web-start: clean wallet-web-docker wallet-server-docker generate-test-config generate-test-keys mock-images
+	@scripts/wallet_web_start.sh
 
-# starting user agent in dev mode for hot deployment
-.PHONY: user-agent-dev-start
-user-agent-dev-start:
-	@scripts/user_agent_dev_start.sh
+# starting wallet-web in dev mode for hot deployment
+.PHONY: wallet-web-dev-start
+wallet-web-dev-start:
+	@scripts/wallet_web_dev_start.sh
 
 .PHONY: generate-test-config
 generate-test-config:
 	@/bin/bash scripts/generate_test_config.sh
 
 .PHONY: bdd-test
-bdd-test: bdd-test-user-agent bdd-test-user-agent-support
+bdd-test: bdd-test-wallet-web bdd-test-wallet-server
 
-.PHONY: bdd-test-user-agent
-bdd-test-user-agent: clean user-agent-docker user-agent-support-docker generate-test-config generate-test-keys mock-images
+.PHONY: bdd-test-wallet-web
+bdd-test-wallet-web: clean wallet-web-docker wallet-server-docker generate-test-config generate-test-keys mock-images
 	@scripts/check_js_integration.sh
 
-.PHONY: bdd-test-user-agent-support
-bdd-test-user-agent-support: clean user-agent-docker user-agent-support-docker generate-test-config generate-test-keys mock-images
-	@scripts/check_user_agent_support_integration.sh
+.PHONY: bdd-test-wallet-server
+bdd-test-wallet-server: clean wallet-web-docker wallet-server-docker generate-test-config generate-test-keys mock-images
+	@scripts/check_wallet_server_integration.sh
 
 .PHONY: mock-bddtest-login-consent-docker
 mock-bddtest-login-consent-docker:
@@ -103,6 +103,6 @@ mock-images: mock-bddtest-login-consent-docker mock-demo-login-consent-docker
 .PHONY: clean
 clean:
 	@rm -Rf ./build
-	@rm -Rf ./cmd/user-agent/dist
-	@rm -Rf ./cmd/user-agent/node_modules
-	@rm -Rf ./test/bdd/fixtures/user-agent/config
+	@rm -Rf ./cmd/wallet-web/dist
+	@rm -Rf ./cmd/wallet-web/node_modules
+	@rm -Rf ./test/bdd/fixtures/wallet-web/config

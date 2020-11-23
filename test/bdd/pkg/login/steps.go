@@ -22,7 +22,7 @@ import (
 
 // HTTP server.
 const (
-	host                         = "https://bddtest-user-agent.trustbloc.local:8077"
+	host                         = "https://bddtest-wallet-web.trustbloc.local:8077"
 	loginPath                    = host + "/oidc/login"
 	userProfilePath              = host + "/oidc/userinfo"
 	userLogoutPath               = host + "/oidc/logout"

@@ -10,7 +10,6 @@ echo "Running $0"
 
 ROOT=`pwd`
 
-npm -v
 echo "starting containers..."
 cd $ROOT/test/bdd/fixtures/wallet-web
 (source .env && docker-compose down && docker-compose up --force-recreate -d)
@@ -19,17 +18,5 @@ echo "waiting for containers to start..."
 sleep 15s
 
 cd $ROOT/cmd/wallet-web
-rm -rf node_modules
 npm install
-npm run build
-
-cd $ROOT/test/wallet-web
-rm -rf node_modules
-npm install
-
-echo "running tests..."
-npm run test
-
-echo "stopping containers..."
-cd $ROOT/test/bdd/fixtures/wallet-web
-(source .env && docker-compose down --remove-orphans)
+npm run serve
