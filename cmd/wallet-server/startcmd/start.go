@@ -102,6 +102,13 @@ const (
 	userEDVURLEnvKey    = "HTTP_SERVER_USER_EDV_URL"
 )
 
+// Hub auth config.
+const (
+	hubAuthURLFlagName  = "hub-auth-url"
+	hubAuthURLFlagUsage = "Hub Auth Servr URL"
+	hubAuthURLEnvKey    = "HTTP_SERVER_HUB_AUTH_URL"
+)
+
 // OIDC config.
 const (
 	oidcProviderURLFlagName  = "oidc-opurl"
@@ -185,6 +192,7 @@ type httpServerParameters struct {
 	webAuth              *webauthParameters
 	keyServer            *keyServerParameters
 	userEDVURL           string
+	hubAuthURL           string
 	agentUIURL           string
 	logLevel             string
 }
@@ -284,6 +292,11 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				return fmt.Errorf("user edv url : %w", err)
 			}
 
+			hubAuthURL, err := cmdutils.GetUserSetVarFromString(cmd, hubAuthURLFlagName, hubAuthURLEnvKey, false)
+			if err != nil {
+				return fmt.Errorf("hub-auth url : %w", err)
+			}
+
 			parameters := &httpServerParameters{
 				dependencyMaxRetries: retries,
 				srv:                  srv,
@@ -294,6 +307,7 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				keys:                 keys,
 				keyServer:            keyServer,
 				userEDVURL:           userEDVURL,
+				hubAuthURL:           hubAuthURL,
 				agentUIURL:           agentUIURL,
 				logLevel:             logLevel,
 			}
@@ -315,6 +329,7 @@ func createFlags(startCmd *cobra.Command) {
 	startCmd.Flags().StringP(opsKMSURLFlagName, "", "", opsKMSURLFlagUsage)
 	startCmd.Flags().StringP(keyEDVURLFlagName, "", "", keyEDVURLFlagUsage)
 	startCmd.Flags().StringP(userEDVURLFlagName, "", "", userEDVURLFlagUsage)
+	startCmd.Flags().StringP(hubAuthURLFlagName, "", "", hubAuthURLFlagUsage)
 	createOIDCFlags(startCmd)
 	createTLSFlags(startCmd)
 	createKeyFlags(startCmd)
@@ -650,6 +665,7 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store sto
 			KeyEDVURL:   config.keyServer.keyEDVURL,
 		},
 		UserEDVURL: config.userEDVURL,
+		HubAuthURL: config.hubAuthURL,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to init oidc ops: %w", err)

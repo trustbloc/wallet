@@ -11,6 +11,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -49,6 +50,12 @@ const (
 	todoDeleteThisStoreName = "todo_delete"
 )
 
+// external url paths.
+const (
+	hubAuthSecretPath        = "/secret"
+	hubKMSCreateKeyStorePath = "/kms/keystores"
+)
+
 var logger = log.New("hub-auth/oidc")
 
 // Config holds all configuration for an Operation.
@@ -60,6 +67,7 @@ type Config struct {
 	Keys            *KeyConfig
 	KeyServer       *KeyServerConfig
 	UserEDVURL      string
+	HubAuthURL      string
 }
 
 // KeyConfig holds configuration for cryptographic keys.
@@ -108,6 +116,7 @@ type Operation struct {
 	keyEDVClient    edvClient
 	keyServer       *KeyServerConfig
 	userEDVClient   edvClient
+	hubAuthURL      string
 }
 
 // New returns a new Operation.
@@ -125,7 +134,8 @@ func New(config *Config) (*Operation, error) {
 			config.KeyServer.KeyEDVURL,
 			client.WithTLSConfig(config.TLSConfig),
 		),
-		keyServer: config.KeyServer,
+		keyServer:  config.KeyServer,
+		hubAuthURL: config.HubAuthURL,
 	}
 
 	var err error
@@ -230,7 +240,7 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if errors.Is(err, storage.ErrValueNotFound) {
-		err = o.onboardUser(usr.Sub)
+		err = o.onboardUser(usr.Sub, oauthToken.AccessToken)
 		if err != nil {
 			common.WriteErrorResponsef(w, logger,
 				http.StatusInternalServerError, "failed to onboard the user: %s", err.Error())
@@ -481,7 +491,7 @@ func (o *Operation) userLogoutHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("finished handling logout request")
 }
 
-func (o *Operation) onboardUser(sub string) error {
+func (o *Operation) onboardUser(sub, accessToken string) error { // nolint:funlen,gocyclo // not much logic
 	b := make([]byte, 32)
 
 	_, err := rand.Read(b)
@@ -494,9 +504,13 @@ func (o *Operation) onboardUser(sub string) error {
 		return fmt.Errorf("split user secret key : %w", err)
 	}
 
-	// TODO https://github.com/trustbloc/edge-agent/issues/488 send half secret key to hub-auth and remove logger
-	logger.Infof(string(secrets[0]))
+	// TODO https://github.com/trustbloc/edge-agent/issues/488 send half secret key to hub-kms and remove logger
 	logger.Infof(string(secrets[1]))
+
+	err = postSecret(o.hubAuthURL, accessToken, secrets[0], o.httpClient)
+	if err != nil {
+		return fmt.Errorf("post half secret to hub-auth : %w", err)
+	}
 
 	authzKeyStoreURL, err := createKeyStore(o.keyServer.AuthzKMSURL, sub, "", o.httpClient)
 	if err != nil {
@@ -544,6 +558,30 @@ func (o *Operation) onboardUser(sub string) error {
 	return nil
 }
 
+func postSecret(baseURL, accessToken string, secret []byte, httpClient httpClient) error {
+	reqBytes, err := json.Marshal(secretRequest{
+		Secret: secret,
+	})
+	if err != nil {
+		return fmt.Errorf("marshal secret req : %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(context.TODO(),
+		http.MethodPost, baseURL+hubAuthSecretPath, bytes.NewBuffer(reqBytes))
+	if err != nil {
+		return err
+	}
+
+	addAccessToken(req, accessToken)
+
+	_, err = sendHTTPRequest(req, httpClient, http.StatusOK)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func createKeyStore(baseURL, controller, vaultID string, httpClient httpClient) (string, error) {
 	reqBytes, err := json.Marshal(createKeystoreReq{
 		Controller:         controller,
@@ -554,13 +592,13 @@ func createKeyStore(baseURL, controller, vaultID string, httpClient httpClient) 
 	}
 
 	req, err := http.NewRequestWithContext(context.TODO(),
-		http.MethodPost, baseURL+"/kms/keystores", bytes.NewBuffer(reqBytes))
+		http.MethodPost, baseURL+hubKMSCreateKeyStorePath, bytes.NewBuffer(reqBytes))
 	if err != nil {
 		return "", err
 	}
 
 	// TODO https://github.com/trustbloc/edge-agent/issues/488 pass half secret and oauth token to hub-kms
-	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
+	headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
 	if err != nil {
 		return "", fmt.Errorf("create authz keystore : %w", err)
 	}
@@ -587,10 +625,10 @@ func createEDVDataVault(edvClient edvClient, controller string) (string, error) 
 	return vaultURL, nil
 }
 
-func sendHTTPRequest(req *http.Request, httpClient httpClient, status int) ([]byte, http.Header, error) {
+func sendHTTPRequest(req *http.Request, httpClient httpClient, status int) (http.Header, error) {
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return nil, nil, fmt.Errorf("http request : %w", err)
+		return nil, fmt.Errorf("http request : %w", err)
 	}
 
 	defer func() {
@@ -602,12 +640,19 @@ func sendHTTPRequest(req *http.Request, httpClient httpClient, status int) ([]by
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, nil, fmt.Errorf("http request: failed to read resp body %d : %w", resp.StatusCode, err)
+		return nil, fmt.Errorf("http request: failed to read resp body %d : %w", resp.StatusCode, err)
 	}
 
 	if resp.StatusCode != status {
-		return nil, nil, fmt.Errorf("http request: expected=%d actual=%d body=%s", status, resp.StatusCode, string(body))
+		return nil, fmt.Errorf("http request: expected=%d actual=%d body=%s", status, resp.StatusCode, string(body))
 	}
 
-	return body, resp.Header, nil
+	return resp.Header, nil
+}
+
+func addAccessToken(r *http.Request, token string) {
+	r.Header.Set(
+		"authorization",
+		fmt.Sprintf("Bearer %s", base64.StdEncoding.EncodeToString([]byte(token))),
+	)
 }
