@@ -17,3 +17,7 @@ type todoDeleteThisModel struct {
 	AuthzKeyStoreURL string `json:"authKeyStoreURL"`
 	OpsKeyStoreURL   string `json:"opsKeyStoreURL"`
 }
+
+type secretRequest struct {
+	Secret []byte `json:"secret,omitempty"`
+}

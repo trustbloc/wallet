@@ -179,6 +179,12 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 
 		o.httpClient = &mockHTTPClient{
 			DoFunc: func(req *http.Request) (*http.Response, error) {
+				if req.URL.Path == hubAuthSecretPath {
+					return &http.Response{
+						StatusCode: http.StatusOK, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
+				}
+
 				return &http.Response{
 					StatusCode: http.StatusCreated, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
 				}, nil
@@ -411,6 +417,11 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 			},
 		}
 		config.OIDCClient = &oidc2.MockClient{
+			OAuthToken: &oauth2.Token{
+				AccessToken:  uuid.New().String(),
+				RefreshToken: uuid.New().String(),
+				TokenType:    "Bearer",
+			},
 			IDToken: &oidc2.MockClaimer{
 				ClaimsFunc: func(i interface{}) error {
 					user, ok := i.(*user.User)
@@ -466,11 +477,36 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		require.Contains(t, w.Body.String(), "split user secret key")
 	})
 
+	t.Run("failure to post secret", func(t *testing.T) {
+		state := uuid.New().String()
+		ops := setupOnboardingTest(t, state)
+		ops.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusInternalServerError,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+				}, nil
+			},
+		}
+
+		w := httptest.NewRecorder()
+		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Contains(t, w.Body.String(), "post half secret to hub-auth")
+	})
+
 	t.Run("failure to create key data vault", func(t *testing.T) {
 		state := uuid.New().String()
 		ops := setupOnboardingTest(t, state)
 		ops.httpClient = &mockHTTPClient{
 			DoFunc: func(req *http.Request) (*http.Response, error) {
+				if req.URL.Path == hubAuthSecretPath {
+					return &http.Response{
+						StatusCode: http.StatusOK, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
+				}
+
 				return &http.Response{
 					StatusCode: http.StatusCreated,
 					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
@@ -493,6 +529,12 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		ops := setupOnboardingTest(t, state)
 		ops.httpClient = &mockHTTPClient{
 			DoFunc: func(req *http.Request) (*http.Response, error) {
+				if req.URL.Path == hubAuthSecretPath {
+					return &http.Response{
+						StatusCode: http.StatusOK, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
+				}
+
 				var request createKeystoreReq
 				err := json.NewDecoder(req.Body).Decode(&request)
 				require.NoError(t, err)
@@ -524,6 +566,12 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		ops := setupOnboardingTest(t, state)
 		ops.httpClient = &mockHTTPClient{
 			DoFunc: func(req *http.Request) (*http.Response, error) {
+				if req.URL.Path == hubAuthSecretPath {
+					return &http.Response{
+						StatusCode: http.StatusOK, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
+				}
+
 				return &http.Response{
 					StatusCode: http.StatusCreated,
 					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
@@ -545,6 +593,12 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) {
 		ops := setupOnboardingTest(t, state)
 		ops.httpClient = &mockHTTPClient{
 			DoFunc: func(req *http.Request) (*http.Response, error) {
+				if req.URL.Path == hubAuthSecretPath {
+					return &http.Response{
+						StatusCode: http.StatusOK, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
+				}
+
 				return &http.Response{
 					StatusCode: http.StatusCreated,
 					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),

@@ -149,6 +149,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + authzKMSURLFlagName, "http://localhost",
 			"--" + opsKMSURLFlagName, "http://localhost",
 			"--" + keyEDVURLFlagName, "http://localhost",
+			"--" + hubAuthURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -219,6 +220,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + authzKMSURLFlagName, "http://localhost",
 			"--" + opsKMSURLFlagName, "http://localhost",
 			"--" + keyEDVURLFlagName, "http://localhost",
+			"--" + hubAuthURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -405,6 +407,7 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + authzKMSURLFlagName, "http://localhost",
 			"--" + opsKMSURLFlagName, "http://localhost",
 			"--" + keyEDVURLFlagName, "http://localhost",
+			"--" + hubAuthURLFlagName, "http://localhost",
 		}
 		startCmd.SetArgs(args)
 
@@ -489,6 +492,33 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		require.Contains(t, err.Error(),
 			"Neither ops-kms-url (command line flag) nor HTTP_SERVER_OPS_KMS_URL (environment variable) have been set.")
 	})
+
+	t.Run("missing hub-auth server url", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + agentUIURLFlagName, "ui",
+			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + tlsCACertsFlagName, cert(t),
+			"--" + sessionCookieAuthKeyFlagName, key(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
+			"--" + authzKMSURLFlagName, "http://localhost",
+			"--" + keyEDVURLFlagName, "http://localhost",
+			"--" + opsKMSURLFlagName, "http://localhost",
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+
+		require.Error(t, err)
+		require.Contains(t, err.Error(),
+			"Neither hub-auth-url (command line flag) nor HTTP_SERVER_HUB_AUTH_URL (environment variable) have been set.")
+	})
 }
 
 func TestStartCmdValidArgs(t *testing.T) {
@@ -511,6 +541,7 @@ func TestStartCmdValidArgs(t *testing.T) {
 		"--" + authzKMSURLFlagName, "http://localhost",
 		"--" + opsKMSURLFlagName, "http://localhost",
 		"--" + keyEDVURLFlagName, "http://localhost",
+		"--" + hubAuthURLFlagName, "http://localhost",
 	}
 	startCmd.SetArgs(args)
 
@@ -568,6 +599,9 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	require.NoError(t, err)
 
 	err = os.Setenv(keyEDVURLEnvKey, "localhost")
+	require.NoError(t, err)
+
+	err = os.Setenv(hubAuthURLEnvKey, "localhost")
 	require.NoError(t, err)
 
 	err = startCmd.Execute()
