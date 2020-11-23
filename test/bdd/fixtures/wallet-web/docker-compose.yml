@@ -558,9 +558,9 @@ services:
       - KMS_SECRETS_DATABASE_URL=${EDV_DATABASE_URL}
       - KMS_SECRETS_DATABASE_PREFIX=authzkms
       - KMS_SECRETS_MASTER_KEY_PATH=/etc/tls/service-lock.key
-      - KMS_OPERATIONAL_KMS_STORAGE_TYPE=couchdb
-      - KMS_OPERATIONAL_KMS_STORAGE_URL=${EDV_DATABASE_URL}
-      - KMS_OPERATIONAL_KMS_STORAGE_PREFIX=ops
+      - KMS_KEY_MANAGER_STORAGE_TYPE=couchdb
+      - KMS_KEY_MANAGER_STORAGE_URL=${EDV_DATABASE_URL}
+      - KMS_KEY_MANAGER_STORAGE_PREFIX=ops
     ports:
       - ${AUTHZ_HUB_KMS_PORT}:${AUTHZ_HUB_KMS_PORT}
     entrypoint: ""
@@ -580,8 +580,8 @@ services:
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
       - KMS_DATABASE_TYPE=mem
       - KMS_SECRETS_DATABASE_TYPE=mem
-      - KMS_OPERATIONAL_KMS_STORAGE_TYPE=sds
-      - KMS_OPERATIONAL_KMS_STORAGE_URL=https://edv.example.com:${EDV_PORT}
+      - KMS_KEY_MANAGER_STORAGE_TYPE=edv
+      - KMS_KEY_MANAGER_STORAGE_URL=https://edv.example.com:${EDV_PORT}
     ports:
       - ${OPS_HUB_KMS_PORT}:${OPS_HUB_KMS_PORT}
     entrypoint: ""

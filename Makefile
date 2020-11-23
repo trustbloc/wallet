@@ -48,7 +48,7 @@ wallet-server:
 	@cd ${WALLET_SERVER_PATH} && go build -o ../../build/bin/wallet-server main.go
 
 .PHONY: wallet-server-docker
-wallet-server-docker: clean
+wallet-server-docker:
 	@echo "Building wallet-server docker image"
 	@docker build -f ./images/wallet-server/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(REPO_IMAGE_NAME)/wallet-server:latest \
 	--build-arg GO_VER=$(GO_VER) \

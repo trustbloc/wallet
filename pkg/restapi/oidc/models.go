@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 package oidc
 
 type createKeystoreReq struct {
-	Controller         string `json:"controller,omitempty"`
-	OperationalVaultID string `json:"operationalVaultID,omitempty"`
+	Controller string `json:"controller,omitempty"`
+	VaultID    string `json:"vaultID,omitempty"`
 }
 
 type createKeyReq struct {

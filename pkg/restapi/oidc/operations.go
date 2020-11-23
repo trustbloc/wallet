@@ -599,8 +599,8 @@ func postSecret(baseURL, accessToken string, secret []byte, httpClient httpClien
 
 func createKeyStore(baseURL, controller, vaultID string, httpClient httpClient) (string, error) {
 	reqBytes, err := json.Marshal(createKeystoreReq{
-		Controller:         controller,
-		OperationalVaultID: vaultID,
+		Controller: controller,
+		VaultID:    vaultID,
 	})
 	if err != nil {
 		return "", fmt.Errorf("marshal create keystore req : %w", err)
