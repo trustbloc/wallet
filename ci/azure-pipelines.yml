@@ -61,11 +61,11 @@ jobs:
           echo '127.0.0.1 sidetree-mock' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-hydra.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 bddtest-user-agent.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 bddtest-wallet-web.trustbloc.local' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make bdd-test-user-agent
+          make bdd-test-wallet-web
         env:
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)
@@ -90,15 +90,15 @@ jobs:
           echo '127.0.0.1 sidetree-mock' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-hydra.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 bddtest-user-agent.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 bddtest-wallet-web.trustbloc.local' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make bdd-test-user-agent-support
+          make bdd-test-wallet-server
         env:
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)
-        displayName: Run HTTP Server (user-agent-support)
+        displayName: Run HTTP Server (wallet-server)
 
   - job: Publish
     dependsOn:
@@ -125,12 +125,12 @@ jobs:
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make user-agent-docker
-          docker tag docker.pkg.github.com/trustbloc/edge-agent/user-agent:latest ${USER_AGENT_PKG}:${USER_AGENT_TAG}
-          docker push ${USER_AGENT_PKG}:${USER_AGENT_TAG}
-          make user-agent-support-docker
-          docker tag docker.pkg.github.com/trustbloc/edge-agent/user-agent-support:latest ${USER_AGENT_SUPPORT_PKG}:${USER_AGENT_SUPPORT_TAG}
-          docker push ${USER_AGENT_SUPPORT_PKG}:${USER_AGENT_SUPPORT_TAG}
+          make wallet-web-docker
+          docker tag docker.pkg.github.com/trustbloc/edge-agent/wallet-web:latest ${WALLET_WEB_PKG}:${WALLET_WEB_TAG}
+          docker push ${WALLET_WEB_PKG}:${WALLET_WEB_TAG}
+          make wallet-server-docker
+          docker tag docker.pkg.github.com/trustbloc/edge-agent/wallet-server:latest ${WALLET_SERVER_PKG}:${WALLET_SERVER_TAG}
+          docker push ${WALLET_SERVER_PKG}:${WALLET_SERVER_TAG}
         env:
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)

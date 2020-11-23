@@ -26,7 +26,7 @@ function convert_file_osx() {
 
 pwd=`pwd`
 
-configs=( test/bdd/fixtures/user-agent )
+configs=( test/bdd/fixtures/wallet-web )
 
 # processes config data files using provided function, to generate config files for bdd tests
 function process_files() {

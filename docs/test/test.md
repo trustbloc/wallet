@@ -33,7 +33,7 @@ You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following 
     127.0.0.1 demo-hydra.trustbloc.local
     127.0.0.1 bdd-hub-auth-hydra.trustbloc.local
     127.0.0.1 bdd-hydra.trustbloc.local
-    127.0.0.1 bddtest-user-agent.trustbloc.local
+    127.0.0.1 bddtest-wallet-web.trustbloc.local
 
 ## Running BDD tests
 
@@ -56,11 +56,11 @@ make unit-test
 # run unit test for all components
 make unit-test
 
-# create docker image for user-agent
-make user-agent-docker
+# create docker image for wallet-web
+make wallet-web-docker
 
-# create docker image for user-agent-support
-make user-agent-support-docker
+# create docker image for wallet-server
+make wallet-server-docker
 
 # generate tls keys
 make generate-test-keys
@@ -69,7 +69,7 @@ make generate-test-keys
 ## Steps to start user agents
 
 ```bash
-make user-agent-start
+make wallet-web-start
 ```
 
 ## Agents
@@ -81,10 +81,10 @@ Click on the login button on both agents. You will land on a mock login form. An
 
 ## Data Storage
 
-- The `make user-agent-start` command also starts up an [EDV instance](https://github.com/trustbloc/edv)
+- The `make wallet-web-start` command also starts up an [EDV instance](https://github.com/trustbloc/edv)
   with a CouchDB backend that's used for persistent data storage. If you want to examine the database for
   yourself while the agents are running, open the [CouchDB Fauxton Interface](http://127.0.0.1:5984/_utils).
-  Note that the CouchDb instance started up by the `make user-agent-start` command will lose its data when
+  Note that the CouchDb instance started up by the `make wallet-web-start` command will lose its data when
   the image is stopped.
 
 ## How to establish a did-connection between agents?
@@ -97,7 +97,7 @@ Copy that invitation to the buffer. Make sure you copied only the invitation pay
     {
         "@id": "3f3fda9c-bfed-4b21-9d9f-cbc4d2209f84",
         "@type": "https://didcomm.org/didexchange/1.0/invitation",
-        "label": "user-agent",
+        "label": "wallet-web",
         "recipientKeys": [
           "EfmBzcTEtkQDh8Gjfc4ZpGSaqfAD8x9PRXroFt2mveKu"
         ],

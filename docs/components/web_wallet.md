@@ -7,7 +7,7 @@
 - run below command to build and start user agent
 
     ```bash
-    make user-agent-start
+    make wallet-web-start
     ```
 
 ## Web wallet demo
@@ -41,7 +41,7 @@ In addition to that, user agent web wallet will perform some onboarding operatio
 
  - Registering with router(also known as mediator). Since user agent web wallet is technically also an agent which runs in your browser. Since it has no inbound transport and cannot be online always, it has to register 
  with [router](https://github.com/hyperledger/aries-framework-go/blob/master/docs/didcomm_mediator.md) to route the messages to it by asking for permission. On successful grant, agent receives the endpoint and routing key details.
- Sample configuration of how to pass a mediator URL in user agent setup can be found [here](https://github.com/trustbloc/edge-agent/blob/master/test/bdd/fixtures/user-agent/docker-compose.yml#L71)
+ Sample configuration of how to pass a mediator URL in user agent setup can be found [here](https://github.com/trustbloc/edge-agent/blob/master/test/bdd/fixtures/wallet-web/docker-compose.yml#L71)
  - Creating TrustBloc DID. By default user agent web wallet uses trustbloc DIDs for generating verifiable presentation response over CHAPI.
  - Saving created DIDs and other metadata in storage for future operations.
 

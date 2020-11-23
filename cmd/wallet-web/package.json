@@ -1,0 +1,72 @@
+{
+  "name": "wallet-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "setup:assets": "bash scripts/setup_assets.sh",
+    "serve": "npm run setup:assets && vue-cli-service serve",
+    "build": " npm run setup:assets && vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@trustbloc-cicd/agent-sdk": "0.1.5-snapshot-e006055",
+    "ajv": "^6.12.2",
+    "core-js": "^3.4.3",
+    "credential-handler-polyfill": "^2.1.0",
+    "es6-promise": "^4.2.8",
+    "jsonpath": "^1.0.2",
+    "minimist": "^1.2.5",
+    "qrcode": "^1.4.4",
+    "sweetalert2": "^9.10.4",
+    "vue": "^2.6.10",
+    "vue-badger-accordion": "^1.1.6",
+    "vue-json-pretty": "^1.6.3",
+    "vue-material": "1.0.0-beta-11",
+    "vue-router": "3.1.6",
+    "vuex": "^3.5.1",
+    "web-credential-handler": "^1.0.1"
+  },
+  "devDependencies": {
+    "@nuxtjs/vuetify": "^1.11.0",
+    "@vue/cli-plugin-babel": "^4.1.0",
+    "@vue/cli-plugin-eslint": "^4.1.0",
+    "@vue/cli-plugin-router": "4.2.3",
+    "@vue/cli-service": "^4.1.0",
+    "axios": "^0.19.2",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^5.16.0",
+    "eslint-plugin-prettier": "3.1.2",
+    "eslint-plugin-vue": "^5.0.0",
+    "prettier": "1.19.1",
+    "sass": "1.26.2",
+    "sass-loader": "8.0.2",
+    "vue-template-compiler": "^2.6.10",
+    "node-forge": ">=0.10.0",
+    "yargs-parser": ">=18.1.2",
+    "dot-prop": ">=4.2.1",
+    "serialize-javascript": ">=3.1.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {
+      "no-console": "off"
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "globals": {
+      "__webpack_public_path__": "writable"
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}

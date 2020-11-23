@@ -10,7 +10,7 @@ Refer [prerequisites](../test/test.md) of running tests
 Run below target to run edge-agent in dev mode with hot deployment for JS & Vue components.
 
 ```bash
-make user-agent-dev-start
+make wallet-web-dev-start
 ```
 
 Once successful, the target will print user agent dev endpoints in terminal like below,
