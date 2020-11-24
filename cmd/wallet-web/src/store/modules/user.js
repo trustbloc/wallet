@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import {Messenger, WalletManager} from "../../pages/chapi/wallet";
 import * as Agent from "@trustbloc/agent-sdk";
+import {KeyValueStore} from "@/pages/chapi/wallet/common/keyValStore";
 
 // TODO message type domain needs to be finalized
 const msgServices = [
@@ -83,6 +84,24 @@ export default {
                         await dispatch('agent/init')
                     }
                 )
+
+                // TODO (#518) We shouldn't have to use IndexedDB for storage of the user's vault ID.
+                //  This is just a temporary workaround while we figure out how to get it from the bootstrap service in
+                //  a CHAPI window.
+                const edvVaultURL = profile.bootstrap.edvVaultURL
+
+                if (edvVaultURL) {
+                    const edvVaultID = edvVaultURL.substring(edvVaultURL.lastIndexOf('/')+1)
+
+                    console.log(`While loading OIDC user, got EDV vault URL ${edvVaultURL} from bootstrap service. ` +
+                        `The vaultID is ${edvVaultID}.`)
+
+                    const vaultIDStore = new KeyValueStore(`user-edvVaultID`, 'edvVaultID')
+                    await vaultIDStore.store("edvVaultID", {
+                        vaultID: edvVaultID
+                    })
+                    console.log('User EDV vault ID is now stored in local storage.')
+                }
             }
         },
         async logout({commit, dispatch,getters}) {
@@ -92,6 +111,8 @@ export default {
             })
             commit('clearUser')
             await dispatch('agent/destroy')
+            const vaultIDStore = new KeyValueStore(`user-edvVaultID`, 'edvVaultID')
+            await vaultIDStore.clear()
         },
         loadUser({commit}) {
             commit('loadUser')
