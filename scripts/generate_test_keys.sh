@@ -25,10 +25,10 @@ DNS.3 = stakeholder.one
 DNS.4 = sidetree-mock
 DNS.5 = hydra
 DNS.6 = *.example.com
-DNS.7 = user.ui.agent.example.com
-DNS.8 = user.agent.example.com
-DNS.9 = second.ui.user.agent.example.com
-DNS.10 = second.user.agent.example.com
+DNS.7 = user-ui-agent.example.com
+DNS.8 = user-agent.example.com
+DNS.9 = second-ui-user-agent.example.com
+DNS.10 = second-user-agent.example.com
 DNS.11 = edge.router.agent.example.com
 DNS.12 = uni-resolver-web.example.com" >> "$tmp"
 

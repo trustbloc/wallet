@@ -6,8 +6,8 @@
 version: '2'
 
 services:
-  user.ui.agent.example.com:
-    container_name: user.ui.agent.example.com
+  user-ui-agent.example.com:
+    container_name: user-ui-agent.example.com
     image: ${WALLET_WEB_IMAGE}:latest
     volumes:
       - ../keys/tls:/etc/nginx/certs
@@ -17,15 +17,15 @@ services:
       - HTTP_RESOLVER_URL=${HTTP_RESOLVER}
       - AGENT_DEFAULT_LABEL=wallet-web
       - BLOC_DOMAIN=testnet.trustbloc.local
-      - EDGE_AGENT_SERVER=https://user.agent.example.com:8090
+      - EDGE_AGENT_SERVER=https://user-agent.example.com:8090
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv.example.com:8072/encrypted-data-vaults
       - STORAGE_TYPE=edv
 
-  second.ui.user.agent.example.com:
-    container_name: second.ui.user.agent.example.com
+  second-ui-user-agent.example.com:
+    container_name: second-ui-user-agent.example.com
     image: ${WALLET_WEB_IMAGE}:latest
     volumes:
       - ../keys/tls:/etc/nginx/certs
@@ -35,7 +35,7 @@ services:
       - HTTP_RESOLVER_URL=${HTTP_RESOLVER}
       - AGENT_DEFAULT_LABEL=second-wallet-web
       - BLOC_DOMAIN=testnet.trustbloc.local
-      - EDGE_AGENT_SERVER=https://second.user.agent.example.com:8070
+      - EDGE_AGENT_SERVER=https://second-user-agent.example.com:8070
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
@@ -92,11 +92,11 @@ services:
     volumes:
       - ../keys/tls:/etc/tls
 
-  user.agent.example.com:
-    container_name: user.agent.example.com
+  user-agent.example.com:
+    container_name: user-agent.example.com
     image: ${WALLET_SERVER_IMAGE}:latest
     environment:
-      - AGENT_UI_URL=https://user.ui.agent.example.com:8091
+      - AGENT_UI_URL=https://user-ui-agent.example.com:8091
       - HTTP_SERVER_HOST_URL=0.0.0.0:8090
       - TLS_CERT_FILE=/etc/keys/tls/ec-pubCert.pem
       - TLS_KEY_FILE=/etc/keys/tls/ec-key.pem
@@ -105,12 +105,12 @@ services:
       - HTTP_SERVER_OIDC_OPURL=https://demo-hub-auth-hydra.trustbloc.local:5555/
       - HTTP_SERVER_OIDC_CLIENTID=client-id
       - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
-      - HTTP_SERVER_OIDC_CALLBACK=https://user.agent.example.com:8090/oidc/callback
+      - HTTP_SERVER_OIDC_CALLBACK=https://user-agent.example.com:8090/oidc/callback
       - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
-      - HTTP_SERVER_RP_ORIGIN_NAME=https://user.ui.agent.example.com:8091/
-      - HTTP_SERVER_RP_ID=user.ui.agent.example.com
+      - HTTP_SERVER_RP_ORIGIN_NAME=https://user-ui-agent.example.com:8091/
+      - HTTP_SERVER_RP_ID=user-ui-agent.example.com
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
       - HTTP_SERVER_KEY_EDV_URL=https://edv.example.com:${EDV_PORT}/encrypted-data-vaults
@@ -123,11 +123,11 @@ services:
     depends_on:
       - edv.example.com
 
-  second.user.agent.example.com:
-    container_name: second.user.agent.example.com
+  second-user-agent.example.com:
+    container_name: second-user-agent.example.com
     image: ${WALLET_SERVER_IMAGE}:latest
     environment:
-      - AGENT_UI_URL=https://second.ui.user.agent.example.com:8071
+      - AGENT_UI_URL=https://second-ui-user-agent.example.com:8071
       - HTTP_SERVER_HOST_URL=0.0.0.0:8070
       - TLS_CERT_FILE=/etc/keys/tls/ec-pubCert.pem
       - TLS_KEY_FILE=/etc/keys/tls/ec-key.pem
@@ -136,12 +136,12 @@ services:
       - HTTP_SERVER_OIDC_OPURL=https://demo-hub-auth-hydra.trustbloc.local:5555/
       - HTTP_SERVER_OIDC_CLIENTID=client-id
       - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
-      - HTTP_SERVER_OIDC_CALLBACK=https://second.user.agent.example.com:8070/oidc/callback
+      - HTTP_SERVER_OIDC_CALLBACK=https://second-user-agent.example.com:8070/oidc/callback
       - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
-      - HTTP_SERVER_RP_ORIGIN_NAME=https://second.ui.user.agent.example.com:8071/
-      - HTTP_SERVER_RP_ID=second.ui.user.agent.example.com
+      - HTTP_SERVER_RP_ORIGIN_NAME=https://second-ui-user-agent.example.com:8071/
+      - HTTP_SERVER_RP_ID=second-ui-user-agent.example.com
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
       - HTTP_SERVER_KEY_EDV_URL=https://edv.example.com:${EDV_PORT}/encrypted-data-vaults
@@ -154,8 +154,8 @@ services:
     depends_on:
       - edv.example.com
 
-  bddtest.ui.user.agent.example.com:
-    container_name: bddtest.ui.user.agent.example.com
+  bddtest.ui.user-agent.example.com:
+    container_name: bddtest.ui.user-agent.example.com
     image: ${WALLET_WEB_IMAGE}:latest
     volumes:
       - ../keys/tls:/etc/nginx/certs

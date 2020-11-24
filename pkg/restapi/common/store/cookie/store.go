@@ -67,5 +67,10 @@ func (s *Session) Delete(k interface{}) {
 
 // Save changes to the Jar.
 func (s *Session) Save(r *http.Request, w http.ResponseWriter) error {
+	s.s.Options = &sessions.Options{
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+	}
+
 	return s.s.Save(r, w)
 }
