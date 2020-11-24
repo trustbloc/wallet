@@ -16,5 +16,5 @@ hydra clients create \
     --response-types code,id_token \
     --scope openid,profile,email \
     --skip-tls-verify \
-    --callbacks https://user.agent.example.com:8090/oidc/callback,https://second.user.agent.example.com:8070/oidc/callback
+    --callbacks https://user-agent.example.com:8090/oidc/callback,https://second-user-agent.example.com:8070/oidc/callback
 echo "Finish creating demo wallet-server clients with hub-auth"
