@@ -9,6 +9,7 @@ package login
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/google/uuid"
+	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
 	"github.com/trustbloc/edge-agent/test/bdd/pkg/bddcontext"
 )
 
@@ -256,7 +258,7 @@ func (s *Steps) userRedirectedToWallet() error {
 	return nil
 }
 
-func (s *Steps) userRetrievesProfile() error {
+func (s *Steps) userRetrievesProfile() error { // nolint:gocyclo // not much logic
 	response, err := s.browser.Get(userProfilePath) // nolint:noctx // ignoring rule since these are bdd tests
 	if err != nil {
 		return fmt.Errorf("user failed to fetch their profile: %w", err)
@@ -283,6 +285,34 @@ func (s *Steps) userRetrievesProfile() error {
 		return fmt.Errorf(
 			"unexpected 'sub' value received in user profile; expected %s got %s",
 			s.expectedUserClaims.Sub, sub)
+	}
+
+	b, err := json.Marshal(profile["bootstrap"])
+	if err != nil {
+		return fmt.Errorf("unmarshal bootstrap data: %w", err)
+	}
+
+	respData := oidc.BootstrapData{}
+
+	err = json.Unmarshal(b, &respData)
+	if err != nil {
+		return fmt.Errorf("failed to close response body: %w", err)
+	}
+
+	if respData.AuthzKeyStoreURL == "" {
+		return errors.New("authz kms keystore url can't be empty")
+	}
+
+	if respData.OpsKeyStoreURL == "" {
+		return errors.New("ops kms keystore url can't be empty")
+	}
+
+	if respData.OpsEDVVaultURL == "" {
+		return errors.New("ops edv vault url can't be empty")
+	}
+
+	if respData.UserEDVVaultURL == "" {
+		return errors.New("user edv vault url can't be empty")
 	}
 
 	return nil
