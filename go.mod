@@ -12,15 +12,16 @@ require (
 	github.com/duo-labs/webauthn.io v0.0.0-20200929144140-c031a3e0f95d
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/sessions v1.2.1
-	github.com/hyperledger/aries-framework-go v0.1.5-0.20201030222504-2f5e96e162b3
+	github.com/hyperledger/aries-framework-go v0.1.5-0.20201123085011-2625d433b8fd
 	github.com/stretchr/testify v1.6.1
-	github.com/trustbloc/edge-core v0.1.5-0.20201106164919-76ecfeca954f
-	github.com/trustbloc/edv v0.1.5-0.20201116214851-c634f0545148
+	github.com/trustbloc/edge-core v0.1.5-0.20201121214029-0646e96dbdcf
+	github.com/trustbloc/edv v0.1.5-0.20201122203913-1dae4015cad6
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 )
 
 // Added redirect as a workaround for https://github.com/duo-labs/webauthn/issues/76
 replace (
+	github.com/kilic/bls12-381 => github.com/trustbloc/bls12-381 v0.0.0-20201104214312-31de2a204df8
 	google.golang.org/grpc => google.golang.org/grpc v1.29.1
 	google.golang.org/grpc/examples => google.golang.org/grpc/examples v1.29.1
 )
