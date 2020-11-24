@@ -689,7 +689,8 @@ func addDeviceHandlers(router *mux.Router, config *httpServerParameters, store s
 	}
 
 	deviceOps, err := device.New(&device.Config{
-		TLSConfig: config.tls.config,
+		WalletDashboard: config.agentUIURL + "/dashboard",
+		TLSConfig:       config.tls.config,
 		Storage: &device.StorageConfig{
 			Storage:      store,
 			SessionStore: memstore.NewProvider(),
