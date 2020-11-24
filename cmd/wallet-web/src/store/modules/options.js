@@ -4,8 +4,6 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import {KeyValueStore} from "@/pages/chapi/wallet/common/keyValStore";
-
 const axios = require('axios').default;
 
 const agentOptsLocation = l => `${l}/walletconfig/agent`
@@ -55,49 +53,34 @@ export default {
                 agentOpts['http-resolver-url'] = agentOpts['http-resolver-url'].split(',')
 
                 if (agentOpts.storageType === 'edv') {
-                    // TODO (#518) We shouldn't have to use IndexedDB for storage of the user's vault ID.
-                    //  This is just a temporary workaround while we figure out how to get it from the bootstrap service in
-                    //  a CHAPI window.
-                    const vaultIDStore = new KeyValueStore(`user-edvVaultID`, 'edvVaultID')
-                    const edvVaultDBEntry = await vaultIDStore.get("edvVaultID")
+                    const userInfoURL = agentOpts["edge-agent-server"] + "/oidc/userinfo"
 
-                    if (edvVaultDBEntry) {
-                        console.log(`Found existing vault ID ${edvVaultDBEntry.vaultID} in local storage.`)
-                        agentOpts.edvVaultID = edvVaultDBEntry.vaultID
-                    } else {
-                        // On the first login, IndexedDB won't have the user's vault ID yet.
-                        // TODO (#518): Don't use IndexedDB for this.
-                        console.log("No vault ID in local storage could be found." +
-                            " This probably means that you're not logged in or are logging in for the first time.")
+                    console.log("User info URL is: " + userInfoURL)
 
-                        console.log("Attempting to get vault ID from bootstrap service")
+                    const client = axios.create({
+                        withCredentials: true
+                    })
 
-                        const userInfoURL = agentOpts["edge-agent-server"] + "/oidc/userinfo"
-                        console.log(`User info URL is ${userInfoURL}.`)
+                    await client.get(userInfoURL)
+                        .then(resp => {
+                            const edvVaultURL = resp.data.bootstrap.edvVaultURL
 
-                        const client = axios.create({
-                            withCredentials: true
+                            console.log("User EDV Vault URL is: " + edvVaultURL)
+
+                            const edvVaultID = edvVaultURL.substring(edvVaultURL.lastIndexOf('/')+1)
+
+                            console.log("User EDV Vault ID is: " + edvVaultID)
+
+                            agentOpts.edvVaultID = edvVaultID
                         })
-
-                        await client.get(userInfoURL)
-                            .then(resp => {
-                                const edvVaultURL = resp.data.bootstrap.edvVaultURL
-
-                                agentOpts.edvVaultID = edvVaultURL.substring(edvVaultURL.lastIndexOf('/')+1)
-
-                                console.log(`While loading OIDC user, got EDV vault URL ${edvVaultURL} from bootstrap service. ` +
-                                    `The vaultID is ${agentOpts.edvVaultID}.`)
-                            })
-                            .catch(err => {
-                                console.log("error fetching user info: errMsg=", err)
-                                console.log("Note: If you haven't logged in yet and you just got a 403 error, then it's expected")
-                            })
-                    }
+                        .catch(err => {
+                            console.log("error fetching user info: errMsg=", err);
+                            console.log("Note: If you haven't logged in yet and you just got a 403 error, then it's expected")
+                        })
                 }
+                console.log("agent-sdk will be started with:")
+                console.log(agentOpts)
             }
-
-            console.log("agent-sdk will be started with:")
-            console.log(agentOpts)
 
             commit('updateAgentOpts', {
                 assetsPath: defaultAgentStartupOpts['assetsPath'],
