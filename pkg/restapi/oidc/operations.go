@@ -20,6 +20,8 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
 	"github.com/hyperledger/aries-framework-go/pkg/vdr/fingerprint"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
@@ -31,6 +33,7 @@ import (
 	"github.com/trustbloc/edge-core/pkg/sss"
 	"github.com/trustbloc/edge-core/pkg/sss/base"
 	"github.com/trustbloc/edge-core/pkg/storage"
+	"github.com/trustbloc/edge-core/pkg/zcapld"
 	"github.com/trustbloc/edv/pkg/client"
 	"github.com/trustbloc/edv/pkg/restapi/models"
 	"golang.org/x/oauth2"
@@ -58,6 +61,12 @@ const (
 	hubKMSCreateKeyStorePath = "/kms/keystores"
 	keysEndpoint             = "/kms/keystores/%s/keys"
 	exportKeyEndpoint        = "/kms/keystores/%s/keys/%s/export"
+	capabilityEndpoint       = "/kms/keystores/%s/capability"
+	signEndpoint             = "/kms/keystores/%s/keys/%s/sign"
+)
+
+const (
+	edvResource = "urn:edv:vault"
 )
 
 var logger = log.New("hub-auth/oidc")
@@ -98,7 +107,7 @@ type httpClient interface {
 }
 
 type edvClient interface {
-	CreateDataVault(config *models.DataVaultConfiguration, opts ...client.EDVOption) (string, error)
+	CreateDataVault(config *models.DataVaultConfiguration, opts ...client.ReqOption) (string, []byte, error)
 }
 
 type stores struct {
@@ -516,7 +525,7 @@ func (o *Operation) onboardUser(sub, accessToken string) error { // nolint:funle
 		return fmt.Errorf("post half secret to hub-auth : %w", err)
 	}
 
-	authzKeyStoreURL, err := createKeyStore(o.keyServer.AuthzKMSURL, sub, "", o.httpClient)
+	authzKeyStoreURL, _, err := createKeyStore(o.keyServer.AuthzKMSURL, sub, "", o.httpClient)
 	if err != nil {
 		return fmt.Errorf("create authz keystore : %w", err)
 	}
@@ -530,25 +539,38 @@ func (o *Operation) onboardUser(sub, accessToken string) error { // nolint:funle
 
 	pkBytes, err := exportPublicKey(o.keyServer.AuthzKMSURL, authzKeyStoreID, keyID, o.httpClient)
 	if err != nil {
-		return fmt.Errorf("failed export public key key : %w", err)
+		return fmt.Errorf("failed export public key: %w", err)
 	}
 
 	_, controller := fingerprint.CreateDIDKey(pkBytes)
 
-	opsEDVVaultURL, err := createEDVDataVault(o.keyEDVClient, controller)
+	opsEDVVaultURL, opsEDVCapability, err := createEDVDataVault(o.keyEDVClient, controller)
 	if err != nil {
-		return fmt.Errorf("create key edv vault : %w", err)
+		return fmt.Errorf("create edv vault : %w", err)
 	}
 
-	opsKeyStoreURL, err := createKeyStore(o.keyServer.OpsKMSURL, controller, opsEDVVaultURL, o.httpClient)
+	opsEDVVaultID := getVaultID(opsEDVVaultURL)
+
+	opsKeyStoreURL, opsKeyStoreEDVDIDKey, err := createKeyStore(o.keyServer.OpsKMSURL, controller,
+		opsEDVVaultID, o.httpClient)
 	if err != nil {
 		return fmt.Errorf("create operational keystore : %w", err)
 	}
 
+	if len(opsEDVCapability) != 0 {
+		if errUpdate := updateEDVCapabilityInKeyStore(o.keyServer.OpsKMSURL, getKeystoreID(opsKeyStoreURL), controller,
+			opsEDVVaultID, opsEDVCapability, opsKeyStoreEDVDIDKey, newKMSSigner(o.keyServer.AuthzKMSURL,
+				authzKeyStoreID, keyID, o.httpClient), o.httpClient); errUpdate != nil {
+			return errUpdate
+		}
+	}
+
 	var userEDVVaultURL string
 
+	var userEDVCapability []byte
+
 	if o.userEDVClient != nil {
-		userEDVVaultURL, err = createEDVDataVault(o.userEDVClient, controller)
+		userEDVVaultURL, userEDVCapability, err = createEDVDataVault(o.userEDVClient, controller)
 		if err != nil {
 			return fmt.Errorf("create user edv vault : %w", err)
 		}
@@ -556,10 +578,11 @@ func (o *Operation) onboardUser(sub, accessToken string) error { // nolint:funle
 
 	// TODO https://github.com/trustbloc/edge-agent/issues/489 send keystore/vault ids to hub-auth instead of saving
 	bits, err := json.Marshal(&todoDeleteThisModel{
-		UserEDVVaultURL:  userEDVVaultURL,
-		OpsEDVVaultURL:   opsEDVVaultURL,
-		AuthzKeyStoreURL: authzKeyStoreURL,
-		OpsKeyStoreURL:   opsKeyStoreURL,
+		UserEDVVaultURL:   userEDVVaultURL,
+		OpsEDVVaultURL:    opsEDVVaultURL,
+		AuthzKeyStoreURL:  authzKeyStoreURL,
+		OpsKeyStoreURL:    opsKeyStoreURL,
+		UserEDVCapability: userEDVCapability,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to marshal temporary bootstrap data model: %w", err)
@@ -597,30 +620,76 @@ func postSecret(baseURL, accessToken string, secret []byte, httpClient httpClien
 	return nil
 }
 
-func createKeyStore(baseURL, controller, vaultID string, httpClient httpClient) (string, error) {
+func createKeyStore(baseURL, controller, vaultID string, httpClient httpClient) (string, string, error) {
 	reqBytes, err := json.Marshal(createKeystoreReq{
 		Controller: controller,
 		VaultID:    vaultID,
 	})
 	if err != nil {
-		return "", fmt.Errorf("marshal create keystore req : %w", err)
+		return "", "", fmt.Errorf("marshal create keystore req : %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(context.TODO(),
 		http.MethodPost, baseURL+hubKMSCreateKeyStorePath, bytes.NewBuffer(reqBytes))
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	// TODO https://github.com/trustbloc/edge-agent/issues/488 pass half secret and oauth token to hub-kms
 	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
 	if err != nil {
-		return "", fmt.Errorf("create authz keystore : %w", err)
+		return "", "", fmt.Errorf("create authz keystore : %w", err)
 	}
 
 	keystoreURL := headers.Get("Location")
+	edvDIDKey := headers.Get("Edvdidkey")
 
-	return keystoreURL, nil
+	return keystoreURL, edvDIDKey, nil
+}
+
+func updateEDVCapabilityInKeyStore(baseURL, keystoreID, controller, vaultID string, edvCapability []byte,
+	kmsDIDKey string, s signer, httpClient httpClient) error {
+	capability, err := zcapld.ParseCapability(edvCapability)
+	if err != nil {
+		return err
+	}
+
+	chainCapability, err := zcapld.NewCapability(&zcapld.Signer{
+		SignatureSuite:     ed25519signature2018.New(suite.WithSigner(s)),
+		SuiteType:          ed25519signature2018.SignatureType,
+		VerificationMethod: controller,
+	}, zcapld.WithParent(capability.ID), zcapld.WithInvoker(kmsDIDKey),
+		zcapld.WithAllowedActions("read", "write"),
+		zcapld.WithInvocationTarget(vaultID, edvResource),
+		zcapld.WithCapabilityChain(capability.Parent, capability.ID))
+	if err != nil {
+		return err
+	}
+
+	chainCapabilityBytes, err := json.Marshal(chainCapability)
+	if err != nil {
+		return err
+	}
+
+	reqBytes, err := json.Marshal(updateCapabilityReq{
+		EDVCapability: chainCapabilityBytes,
+	})
+	if err != nil {
+		return fmt.Errorf("marshal create update capability req : %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(context.TODO(),
+		http.MethodPost, baseURL+fmt.Sprintf(capabilityEndpoint, keystoreID), bytes.NewBuffer(reqBytes))
+	if err != nil {
+		return err
+	}
+
+	_, _, err = sendHTTPRequest(req, httpClient, http.StatusOK)
+	if err != nil {
+		return fmt.Errorf("failed to update edv capability keystore : %w", err)
+	}
+
+	return nil
 }
 
 func createKey(baseURL, keystoreID, keyType string, httpClient httpClient) (string, error) {
@@ -707,7 +776,13 @@ func getKeyID(location string) string {
 	return keyID
 }
 
-func createEDVDataVault(edvClient edvClient, controller string) (string, error) {
+func getVaultID(vaultURL string) string {
+	parts := strings.Split(vaultURL, "/")
+
+	return parts[len(parts)-1]
+}
+
+func createEDVDataVault(edvClient edvClient, controller string) (string, []byte, error) {
 	config := models.DataVaultConfiguration{
 		Sequence:    0,
 		Controller:  controller,
@@ -716,12 +791,12 @@ func createEDVDataVault(edvClient edvClient, controller string) (string, error) 
 		HMAC:        models.IDTypePair{ID: uuid.New().URN(), Type: "Sha256HmacKey2019"},
 	}
 
-	vaultURL, err := edvClient.CreateDataVault(&config)
+	vaultURL, capability, err := edvClient.CreateDataVault(&config)
 	if err != nil {
-		return "", fmt.Errorf("create data vault : %w", err)
+		return "", nil, fmt.Errorf("create data vault : %w", err)
 	}
 
-	return vaultURL, nil
+	return vaultURL, capability, nil
 }
 
 func sendHTTPRequest(req *http.Request, httpClient httpClient, status int) ([]byte, http.Header, error) {

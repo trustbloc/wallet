@@ -19,6 +19,8 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
 	"github.com/stretchr/testify/require"
 	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
@@ -27,6 +29,7 @@ import (
 	"github.com/trustbloc/edge-core/pkg/storage"
 	"github.com/trustbloc/edge-core/pkg/storage/memstore"
 	"github.com/trustbloc/edge-core/pkg/storage/mockstore"
+	"github.com/trustbloc/edge-core/pkg/zcapld"
 	"github.com/trustbloc/edv/pkg/client"
 	"github.com/trustbloc/edv/pkg/restapi/models"
 	"golang.org/x/oauth2"
@@ -149,6 +152,47 @@ func TestOperation_OIDCLoginHandler(t *testing.T) {
 	})
 }
 
+func TestKmsSigner_Sign(t *testing.T) {
+	t.Run("failed to sign", func(t *testing.T) {
+		_, err := newKMSSigner("", "", "",
+			&mockHTTPClient{
+				DoFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{
+						StatusCode: http.StatusInternalServerError, Body: ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+					}, nil
+				},
+			}).Sign([]byte("data"))
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "failed to sign from kms")
+	})
+
+	t.Run("failed to unmarshal sign resp", func(t *testing.T) {
+		_, err := newKMSSigner("", "", "",
+			&mockHTTPClient{
+				DoFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{
+						StatusCode: http.StatusOK, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
+				},
+			}).Sign([]byte("data"))
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "failed to unmarshal sign resp")
+	})
+
+	t.Run("failed to unmarshal sign resp", func(t *testing.T) {
+		_, err := newKMSSigner("", "", "",
+			&mockHTTPClient{
+				DoFunc: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{
+						StatusCode: http.StatusOK, Body: ioutil.NopCloser(bytes.NewReader([]byte(`{"signature":"1"}`))),
+					}, nil
+				},
+			}).Sign([]byte("data"))
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "illegal base64 data")
+	})
+}
+
 func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocognit,gocyclo // test
 	uiEndpoint := "http://test.com/dashboard"
 
@@ -188,7 +232,9 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 
 				statusCode := http.StatusCreated
 
-				if strings.Contains(req.URL.Path, "/export") {
+				if strings.Contains(req.URL.Path, "/export") ||
+					strings.Contains(req.URL.Path, "/sign") ||
+					strings.Contains(req.URL.Path, "/capability") {
 					statusCode = http.StatusOK
 				}
 
@@ -471,6 +517,56 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 		require.Contains(t, w.Body.String(), "create authz keystore")
 	})
 
+	t.Run("failure to create authz key", func(t *testing.T) {
+		state := uuid.New().String()
+		ops := setupOnboardingTest(t, state)
+		ops.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				if req.URL.Path == hubKMSCreateKeyStorePath {
+					return &http.Response{
+						StatusCode: http.StatusCreated, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
+				}
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+				}, nil
+			},
+		}
+
+		w := httptest.NewRecorder()
+		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Contains(t, w.Body.String(), "failed create authz key")
+	})
+
+	t.Run("failure to export authz key", func(t *testing.T) {
+		state := uuid.New().String()
+		ops := setupOnboardingTest(t, state)
+		ops.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				if req.URL.Path == hubKMSCreateKeyStorePath || strings.Contains(req.URL.Path, "/keys") {
+					return &http.Response{
+						StatusCode: http.StatusCreated, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
+				}
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+				}, nil
+			},
+		}
+
+		w := httptest.NewRecorder()
+		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Contains(t, w.Body.String(), "failed export public key")
+	})
+
 	t.Run("failure to split secret", func(t *testing.T) {
 		state := uuid.New().String()
 		ops := setupOnboardingTest(t, state)
@@ -533,7 +629,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
 
 		require.Equal(t, http.StatusInternalServerError, w.Code)
-		require.Contains(t, w.Body.String(), "create key edv vault")
+		require.Contains(t, w.Body.String(), "vault creation error")
 	})
 
 	t.Run("failure to create ops keystore", func(t *testing.T) {
@@ -595,7 +691,9 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 
 				statusCode := http.StatusCreated
 
-				if strings.Contains(req.URL.Path, "/export") {
+				if strings.Contains(req.URL.Path, "/export") ||
+					strings.Contains(req.URL.Path, "/sign") ||
+					strings.Contains(req.URL.Path, "/capability") {
 					statusCode = http.StatusOK
 				}
 
@@ -615,6 +713,44 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 		require.Contains(t, w.Body.String(), "create user edv vault")
 	})
 
+	t.Run("failure to update edv capability in keystore", func(t *testing.T) {
+		state := uuid.New().String()
+		ops := setupOnboardingTest(t, state)
+		ops.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				if req.URL.Path == hubAuthSecretPath {
+					return &http.Response{
+						StatusCode: http.StatusOK, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
+				}
+
+				statusCode := http.StatusCreated
+
+				if strings.Contains(req.URL.Path, "/export") ||
+					strings.Contains(req.URL.Path, "/sign") {
+					statusCode = http.StatusOK
+				}
+
+				if strings.Contains(req.URL.Path, "/capability") {
+					statusCode = http.StatusInternalServerError
+				}
+
+				return &http.Response{
+					StatusCode: statusCode,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+				}, nil
+			},
+		}
+		ops.keyEDVClient = &mockEDVClient{}
+		ops.userEDVClient = &mockEDVClient{CreateErr: errors.New("create error")}
+
+		w := httptest.NewRecorder()
+		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Contains(t, w.Body.String(), "failed to update edv capability keystore")
+	})
+
 	t.Run("failure to save temporary bootstrap data", func(t *testing.T) {
 		state := uuid.New().String()
 		ops := setupOnboardingTest(t, state)
@@ -628,7 +764,9 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 
 				statusCode := http.StatusCreated
 
-				if strings.Contains(req.URL.Path, "/export") {
+				if strings.Contains(req.URL.Path, "/export") ||
+					strings.Contains(req.URL.Path, "/sign") ||
+					strings.Contains(req.URL.Path, "/capability") {
 					statusCode = http.StatusOK
 				}
 
@@ -1019,10 +1157,32 @@ type mockEDVClient struct {
 	CreateErr error
 }
 
-func (m *mockEDVClient) CreateDataVault(_ *models.DataVaultConfiguration, _ ...client.EDVOption) (string, error) {
+func (m *mockEDVClient) CreateDataVault(_ *models.DataVaultConfiguration,
+	_ ...client.ReqOption) (string, []byte, error) {
 	if m.CreateErr != nil {
-		return "", m.CreateErr
+		return "", nil, m.CreateErr
 	}
 
-	return "http://edv.example.com" + uuid.New().String(), nil
+	c, err := zcapld.NewCapability(&zcapld.Signer{
+		SignatureSuite:     ed25519signature2018.New(suite.WithSigner(&mockSigner{})),
+		SuiteType:          ed25519signature2018.SignatureType,
+		VerificationMethod: "test:123",
+	}, zcapld.WithParent(uuid.New().URN()))
+	if err != nil {
+		return "", nil, err
+	}
+
+	b, err := json.Marshal(c)
+	if err != nil {
+		return "", nil, err
+	}
+
+	return "http://edv.example.com" + uuid.New().String(), b, nil
+}
+
+type mockSigner struct {
+}
+
+func (m *mockSigner) Sign(data []byte) ([]byte, error) {
+	return nil, nil
 }
