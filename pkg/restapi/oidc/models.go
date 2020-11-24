@@ -32,13 +32,17 @@ type signResp struct {
 	Signature string `json:"signature,omitempty"`
 }
 
-// TODO delete during completion of https://github.com/trustbloc/edge-agent/issues/489.
-type todoDeleteThisModel struct {
-	UserEDVVaultURL   string          `json:"edvVaultURL"`
-	OpsEDVVaultURL    string          `json:"opsVaultURL"`
-	AuthzKeyStoreURL  string          `json:"authKeyStoreURL"`
-	OpsKeyStoreURL    string          `json:"opsKeyStoreURL"`
+// BootstrapData user bootsrap data.
+type BootstrapData struct {
+	UserEDVVaultURL   string          `json:"edvVaultURL,omitempty"`
+	OpsEDVVaultURL    string          `json:"opsVaultURL,omitempty"`
+	AuthzKeyStoreURL  string          `json:"authKeyStoreURL,omitempty"`
+	OpsKeyStoreURL    string          `json:"opsKeyStoreURL,omitempty"`
 	UserEDVCapability json.RawMessage `json:"uerEDVCapability,omitempty"`
+}
+
+type userBootstrapData struct {
+	Data *BootstrapData `json:"data,omitempty"`
 }
 
 type secretRequest struct {

@@ -228,6 +228,10 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 					return &http.Response{
 						StatusCode: http.StatusOK, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
 					}, nil
+				} else if req.URL.Path == hubAuthBootstrapDataPath {
+					return &http.Response{
+						StatusCode: http.StatusOK, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
 				}
 
 				statusCode := http.StatusCreated
@@ -751,7 +755,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 		require.Contains(t, w.Body.String(), "failed to update edv capability keystore")
 	})
 
-	t.Run("failure to save temporary bootstrap data", func(t *testing.T) {
+	t.Run("failure to post bootstrap data", func(t *testing.T) {
 		state := uuid.New().String()
 		ops := setupOnboardingTest(t, state)
 		ops.httpClient = &mockHTTPClient{
@@ -778,16 +782,12 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 		}
 		ops.keyEDVClient = &mockEDVClient{}
 		ops.userEDVClient = &mockEDVClient{}
-		ops.store.tempBootstrapData = &mockstore.MockStore{
-			Store:  make(map[string][]byte),
-			ErrPut: errors.New("test"),
-		}
 
 		w := httptest.NewRecorder()
 		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
 
 		require.Equal(t, http.StatusInternalServerError, w.Code)
-		require.Contains(t, w.Body.String(), "failed to store temporary bootstrap data model")
+		require.Contains(t, w.Body.String(), "update user bootstrap data")
 	})
 }
 
@@ -822,6 +822,40 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 				},
 			},
 		}
+
+		originalZcap, err := zcapld.NewCapability(&zcapld.Signer{
+			SignatureSuite:     ed25519signature2018.New(suite.WithSigner(&mockSigner{})),
+			SuiteType:          ed25519signature2018.SignatureType,
+			VerificationMethod: "test:123",
+		}, zcapld.WithParent(uuid.New().URN()))
+		require.NoError(t, err)
+
+		originalZcapBytes, err := json.Marshal(originalZcap)
+		require.NoError(t, err)
+
+		d := &BootstrapData{
+			AuthzKeyStoreURL:  "http://localhost/authz/kms/" + uuid.New().String(),
+			OpsKeyStoreURL:    "http://localhost/ops/kms/" + uuid.New().String(),
+			UserEDVVaultURL:   "http://localhost/user/vault/" + uuid.New().String(),
+			OpsEDVVaultURL:    "http://localhost/ops/vault/" + uuid.New().String(),
+			UserEDVCapability: originalZcapBytes,
+		}
+		o.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				data := userBootstrapData{
+					Data: d,
+				}
+
+				resp, respErr := json.Marshal(data)
+				require.NoError(t, respErr)
+
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       ioutil.NopCloser(bytes.NewReader(resp)),
+				}, nil
+			},
+		}
+
 		result := httptest.NewRecorder()
 		o.userProfileHandler(result, newUserProfileRequest())
 		require.Equal(t, http.StatusOK, result.Code)
@@ -830,6 +864,28 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 		require.NoError(t, err)
 		require.Contains(t, resultData, "sub")
 		require.Equal(t, sub, resultData["sub"])
+
+		b, err := json.Marshal(resultData["bootstrap"])
+		require.NoError(t, err)
+
+		respData := BootstrapData{}
+
+		err = json.Unmarshal(b, &respData)
+		require.NoError(t, err)
+
+		require.Equal(t, d.AuthzKeyStoreURL, respData.AuthzKeyStoreURL)
+		require.Equal(t, d.OpsEDVVaultURL, respData.OpsEDVVaultURL)
+		require.Equal(t, d.OpsKeyStoreURL, respData.OpsKeyStoreURL)
+		require.Equal(t, d.UserEDVVaultURL, respData.UserEDVVaultURL)
+
+		zCapResp := &zcapld.Capability{}
+
+		err = json.Unmarshal(respData.UserEDVCapability, zCapResp)
+		require.NoError(t, err)
+
+		require.Equal(t, originalZcap.Controller, zCapResp.Controller)
+		require.Equal(t, originalZcap.ID, zCapResp.ID)
+		require.Equal(t, originalZcap.Parent, zCapResp.Parent)
 	})
 
 	t.Run("err badrequest if cannot open cookies", func(t *testing.T) {
@@ -975,9 +1031,15 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 				},
 			},
 		}
-		o.store.tempBootstrapData = &mockstore.MockStore{
-			ErrGet: errors.New("test"),
+		o.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusInternalServerError,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+				}, nil
+			},
 		}
+
 		result := httptest.NewRecorder()
 		o.userProfileHandler(result, newUserProfileRequest())
 		require.Equal(t, http.StatusInternalServerError, result.Code)

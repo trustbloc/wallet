@@ -49,15 +49,15 @@ const (
 
 // Stores.
 const (
-	transientStoreName      = "edgeagent_oidc_trx"
-	stateCookieName         = "oauth2_state"
-	userSubCookieName       = "user_sub"
-	todoDeleteThisStoreName = "todo_delete"
+	transientStoreName = "edgeagent_oidc_trx"
+	stateCookieName    = "oauth2_state"
+	userSubCookieName  = "user_sub"
 )
 
 // external url paths.
 const (
 	hubAuthSecretPath        = "/secret"
+	hubAuthBootstrapDataPath = "/bootstrap"
 	hubKMSCreateKeyStorePath = "/kms/keystores"
 	keysEndpoint             = "/kms/keystores/%s/keys"
 	exportKeyEndpoint        = "/kms/keystores/%s/keys/%s/export"
@@ -111,11 +111,10 @@ type edvClient interface {
 }
 
 type stores struct {
-	users             *user.Store
-	tokens            *tokens.Store
-	transient         storage.Store
-	cookies           cookie.Store
-	tempBootstrapData storage.Store
+	users     *user.Store
+	tokens    *tokens.Store
+	transient storage.Store
+	cookies   cookie.Store
 }
 
 // Operation implements OIDC operations.
@@ -166,11 +165,6 @@ func New(config *Config) (*Operation, error) {
 	op.store.tokens, err = tokens.NewStore(config.Storage.Storage)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open tokens store: %w", err)
-	}
-
-	op.store.tempBootstrapData, err = store.Open(config.Storage.Storage, todoDeleteThisStoreName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open '%s': %w", todoDeleteThisStoreName, err)
 	}
 
 	if config.UserEDVURL != "" {
@@ -453,7 +447,7 @@ func (o *Operation) fetchUserData(w http.ResponseWriter, r *http.Request, sub st
 		return nil, false
 	}
 
-	data["bootstrap"], err = o.fetchBootstrapData(sub)
+	userData, err := o.fetchBootstrapData(tokns.Access)
 	if err != nil {
 		common.WriteErrorResponsef(w, logger, http.StatusInternalServerError,
 			"failed to fetch bootstrap data: %s", err.Error())
@@ -461,18 +455,27 @@ func (o *Operation) fetchUserData(w http.ResponseWriter, r *http.Request, sub st
 		return nil, false
 	}
 
+	data["bootstrap"] = userData.Data
+
 	return data, true
 }
 
-func (o *Operation) fetchBootstrapData(sub string) (*todoDeleteThisModel, error) {
-	rawBootstrapData, err := o.store.tempBootstrapData.Get(sub)
+func (o *Operation) fetchBootstrapData(accessToken string) (*userBootstrapData, error) {
+	req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, o.hubAuthURL+hubAuthBootstrapDataPath, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch bootstrap data: %w", err)
+		return nil, err
 	}
 
-	bootstrapData := &todoDeleteThisModel{}
+	addAccessToken(req, accessToken)
 
-	return bootstrapData, json.Unmarshal(rawBootstrapData, bootstrapData)
+	data, _, err := sendHTTPRequest(req, o.httpClient, http.StatusOK)
+	if err != nil {
+		return nil, fmt.Errorf("get bootstrap data : %w", err)
+	}
+
+	bootstrapData := &userBootstrapData{}
+
+	return bootstrapData, json.Unmarshal(data, bootstrapData)
 }
 
 func (o *Operation) userLogoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -576,21 +579,17 @@ func (o *Operation) onboardUser(sub, accessToken string) error { // nolint:funle
 		}
 	}
 
-	// TODO https://github.com/trustbloc/edge-agent/issues/489 send keystore/vault ids to hub-auth instead of saving
-	bits, err := json.Marshal(&todoDeleteThisModel{
+	data := &BootstrapData{
 		UserEDVVaultURL:   userEDVVaultURL,
 		OpsEDVVaultURL:    opsEDVVaultURL,
 		AuthzKeyStoreURL:  authzKeyStoreURL,
 		OpsKeyStoreURL:    opsKeyStoreURL,
 		UserEDVCapability: userEDVCapability,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to marshal temporary bootstrap data model: %w", err)
 	}
 
-	err = o.store.tempBootstrapData.Put(sub, bits)
+	err = postUserBootstrapData(o.hubAuthURL, accessToken, data, o.httpClient)
 	if err != nil {
-		return fmt.Errorf("failed to store temporary bootstrap data model: %w", err)
+		return fmt.Errorf("update user bootstrap data : %w", err)
 	}
 
 	return nil
@@ -606,6 +605,30 @@ func postSecret(baseURL, accessToken string, secret []byte, httpClient httpClien
 
 	req, err := http.NewRequestWithContext(context.TODO(),
 		http.MethodPost, baseURL+hubAuthSecretPath, bytes.NewBuffer(reqBytes))
+	if err != nil {
+		return err
+	}
+
+	addAccessToken(req, accessToken)
+
+	_, _, err = sendHTTPRequest(req, httpClient, http.StatusOK)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func postUserBootstrapData(baseURL, accessToken string, data *BootstrapData, httpClient httpClient) error {
+	reqBytes, err := json.Marshal(userBootstrapData{
+		Data: data,
+	})
+	if err != nil {
+		return fmt.Errorf("marshal boostrap data : %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(context.TODO(),
+		http.MethodPost, baseURL+hubAuthBootstrapDataPath, bytes.NewBuffer(reqBytes))
 	if err != nil {
 		return err
 	}
