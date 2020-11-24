@@ -22,10 +22,10 @@ You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following 
     127.0.0.1 testnet.trustbloc.local
     127.0.0.1 stakeholder.one
     127.0.0.1 sidetree-mock
-    127.0.0.1 user.ui.agent.example.com
-    127.0.0.1 user.agent.example.com
-    127.0.0.1 second.ui.user.agent.example.com
-    127.0.0.1 second.user.agent.example.com
+    127.0.0.1 user-ui-agent.example.com
+    127.0.0.1 user-agent.example.com
+    127.0.0.1 second-ui-user-agent.example.com
+    127.0.0.1 second-user-agent.example.com
     127.0.0.1 edge.router.agent.example.com
     127.0.0.1 uni-resolver-web.example.com
     127.0.0.1 demo-hub-auth.trustbloc.local
@@ -75,8 +75,8 @@ make wallet-web-start
 
 ## Agents
 
-- To access user agent wasm open [user home page](https://user.ui.agent.example.com:8091/dashboard).
-- To access second user agent wasm open [user home page](https://second.ui.user.agent.example.com:8071/dashboard).
+- To access user agent wasm open [user home page](https://user-ui-agent.example.com:8091/dashboard).
+- To access second user agent wasm open [user home page](https://second-ui-user-agent.example.com:8071/dashboard).
 
 Click on the login button on both agents. You will land on a mock login form. Any credentials will work.
 
