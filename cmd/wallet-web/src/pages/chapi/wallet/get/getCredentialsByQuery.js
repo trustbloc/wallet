@@ -11,7 +11,6 @@ import {WalletManager} from "../register/walletManager";
 import {getCredentialType} from '../common/util'
 import {DIDExchange} from '../common/didExchange'
 import {Messenger} from '../common/messaging'
-import {AgentMediator} from '../didcomm/mediator'
 import {BlindedRouter} from '../didcomm/blindedRouter'
 import {DIDManager} from '../didmgmt/didManager'
 
@@ -52,7 +51,6 @@ export class WalletGetByQuery extends WalletGet {
         this.govnVC = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="DIDConnect")].credentials[?(@.type[0]=="GovernanceCredential" || @.type[1]=="GovernanceCredential")]');
 
         this.walletManager = new WalletManager()
-        this.mediator = new AgentMediator(agent)
         this.blindedRouter = new BlindedRouter(agent, opts)
         this.didManager = new DIDManager(agent, opts)
         this.didExchange = new DIDExchange(agent)
@@ -65,7 +63,7 @@ export class WalletGetByQuery extends WalletGet {
 
     async connect() {
         // make sure mediator is connected
-        await this.mediator.reconnect()
+        await  this.agent.mediator.reconnectAll()
     }
 
     async getPresentationSubmission() {
@@ -136,6 +134,8 @@ export class WalletGetByQuery extends WalletGet {
         await this.blindedRouter.sharePeerDID(rpConn.result)
 
         // request new peer DID from RP
+        // TODO listen state-complete message instead of retry
+        // TODO use messaging with reply
         let didDocRes = await this.messenger.send(rpConn.result.ConnectionID, {
             "@id": uuid(),
             "@type": didDocReqMsgType,

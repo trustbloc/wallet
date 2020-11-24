@@ -4,8 +4,8 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import {getMediatorConnections} from "../../../../../cmd/wallet-web/src/pages/chapi/wallet/didcomm/mediator";
-import {waitForEvent} from "../../../../../cmd/wallet-web/src/events";
+import {getMediatorConnections, createInvitationFromRouter} from "../../../../../cmd/wallet-web/src/pages/chapi/wallet/didcomm/mediator";
+import {POST_STATE, waitForEvent} from "../../../../../cmd/wallet-web/src/events";
 
 const msgServices = [
     {name: 'request-for-diddoc', type: 'https://trustbloc.dev/blinded-routing/1.0/diddoc-req'},
@@ -14,6 +14,11 @@ const msgServices = [
 ]
 
 var uuid = require('uuid/v4')
+
+const routerCreateInvitationPath = `/didcomm/invitation`
+const stateCompleted = 'completed'
+const topicDidExchangeStates = 'didexchange_states'
+
 
 /**
  * Adapter mocks common adapter features
@@ -38,11 +43,63 @@ class Adapter {
         }
     }
 
+    async connectToMediator(endpoint) {
+        let invitation = await createInvitationFromRouter(endpoint)
+        let conn = await this.agent.outofband.acceptInvitation({
+            my_label: 'agent-default-label',
+            invitation: invitation,
+        })
+
+        let connID = conn['connection_id']
+
+        await waitForEvent(this.agent, {
+            type: POST_STATE,
+            stateID: stateCompleted,
+            connectionID: connID,
+            topic: topicDidExchangeStates,
+        })
+
+
+        const retries = 10;
+        for (let i = 1; i <= retries; i++) {
+            try {
+                await this.agent.mediator.register({connectionID: connID})
+            } catch (e) {
+                if (!e.message.includes("router registration : get grant: store: data not found") || i === retries) {
+                    throw e
+                }
+                await sleep(500);
+                continue
+            }
+            break
+        }
+
+        let res = await this.agent.mediator.getConnections()
+
+        if (res.connections.includes(connID)) {
+            console.log("router registered successfully!", connID)
+        } else {
+            console.log("router was not registered!", connID)
+        }
+
+        // return handle for disconnect
+        return () => this.agent.mediator.unregister({connectionID: connID})
+    }
+
+    async createInvitation() {
+        let response = await this.agent.mediatorclient.createInvitation({
+            label: 'mockadapter-label'
+        })
+
+        return response.invitation
+    }
+
+
     /**
      * acceptExchangeRequest waits for did-exchange event and approves did connection request from adapter
      */
     async acceptExchangeRequest() {
-        let res = await waitForEvent(this.agent, {topic: 'didexchange_actions'})
+        let res = await waitForEvent(this.agent, {topic: 'didexchange_actions', id: '{issuer/rp adapter}'})
 
         await this.agent.didexchange.acceptExchangeRequest({
             id: res.Properties.connectionID,

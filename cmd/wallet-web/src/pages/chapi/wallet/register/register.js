@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import {WalletManager} from './walletManager'
-import {AgentMediator} from "../didcomm/mediator";
+import {connectToMediator} from "../didcomm/mediator";
 import {DIDManager} from "../didmgmt/didManager";
 
 
@@ -24,10 +24,10 @@ export class RegisterWallet extends WalletManager {
     constructor(polyfill, wcredHandler, agent, opts) {
         super()
 
+        this.agent = agent
         this.polyfill = polyfill
         this.wcredHandler = wcredHandler
         this.didManager = new DIDManager(agent, opts)
-        this.mediator = new AgentMediator(agent)
         this.mediatorEndpoint = opts.walletMediatorURL
         this.credentialMediator = opts.credentialMediatorURL
     }
@@ -37,14 +37,16 @@ export class RegisterWallet extends WalletManager {
         // register mediator
         let invitation
         if (this.mediatorEndpoint) {
-            //TODO read router endpoint from config
             try {
-                let connected = await this.mediator.isAlreadyConnected()
-                if (!connected) {
-                    await this.mediator.connect(this.mediatorEndpoint)
+                let resp = await this.agent.mediator.getConnections()
+                if (!resp.connections || resp.connections.length == 0) {
+                    await connectToMediator(this.agent, this.mediatorEndpoint)
                 }
 
-                invitation = await this.mediator.createInvitation()
+                let response = await this.agent.mediatorclient.createInvitation({
+                    label: 'agent-label'
+                })
+                invitation = response.invitation
 
                 console.debug(`registered with mediator successfully for user ${user}`)
             } catch (e) {

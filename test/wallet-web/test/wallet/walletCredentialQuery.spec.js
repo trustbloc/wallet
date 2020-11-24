@@ -215,20 +215,12 @@ describe('issuer connected to wallet with manifest using DID connect ', () => {
     before(async function () {
         // start issuer, register router and create invitation
         await loadFrameworks({name: 'issuer'}).then(async opts => {
-            let mediator = new AgentMediator(opts.agent)
-
-            await mediator.connect('https://localhost:10063').then(ur => {
-                console.log("issuer mediator registered successfully")
-            }).catch(err => {
-                console.error('failed to register mediator for issuer agent: errMsg=', err)
-            })
-
-            event.credentialRequestOptions.web.VerifiablePresentation.invitation = await mediator.createInvitation()
-
-            // initialize issuer
+            // start issuer, register router and create invitation
             issuer = new IssuerAdapter(opts.agent)
-            await issuer.init()
+            await issuer.connectToMediator('https://localhost:10063')
+            event.credentialRequestOptions.web.VerifiablePresentation.invitation = await issuer.createInvitation()
 
+            await issuer.init()
         }).catch(err => {
             console.error('error starting issuer agent: errMsg=', err)
         })
@@ -298,22 +290,12 @@ describe('verifier queries credentials - DIDComm Flow', () => {
     before(async function () {
         // start verifier, register router and create invitation
         await loadFrameworks({name: 'verifier'}).then(async opts => {
-            let mediator = new AgentMediator(opts.agent)
-
-            await mediator.connect('https://localhost:10063').then(ur => {
-                console.log("verifier mediator registered successfully")
-            }).catch(err => {
-                console.error('failed to register mediator for verifier agent: errMsg=', err)
-            })
-
-            event.credentialRequestOptions.web.VerifiablePresentation.query[1].invitation = await mediator.createInvitation()
-
-            // initialize issuer & verifier adapter
-            // issuer = new IssuerAdapter(opts.agent)
+            // initialize verifier adapter
             verifier = new RPAdapter(opts.agent)
+            await verifier.connectToMediator('https://localhost:10063')
+            event.credentialRequestOptions.web.VerifiablePresentation.query[1].invitation = await verifier.createInvitation()
 
             await verifier.init()
-
         }).catch(err => {
             console.error('error starting verifier agent: errMsg=', err)
         })

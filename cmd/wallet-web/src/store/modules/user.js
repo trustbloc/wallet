@@ -10,9 +10,6 @@ import * as Agent from "@trustbloc/agent-sdk";
 // TODO message type domain needs to be finalized
 const msgServices = [
     {name: 'request-peer-did', type: 'https://didcomm.org/peerdidrequest/1.0/message'},
-    {name: 'create-conn-resp', type: 'https://trustbloc.dev/blinded-routing/1.0/create-conn-resp'},
-    {name: 'diddoc-resp', type: 'https://trustbloc.dev/blinded-routing/1.0/diddoc-resp'},
-    {name: 'register-route-res', type: 'https://trustbloc.dev/blinded-routing/1.0/register-route-resp'},
     {name: 'diddoc-res', type: 'https://trustbloc.dev/adapter/1.0/diddoc-resp'},
 ]
 
@@ -66,9 +63,9 @@ export default {
             )
         },
         async loadOIDCUser({commit, dispatch, getters}) {
+            console.log("getting from server URL", getters, getters.serverURL)
             let userInfo = await fetch(getters.serverURL+"/oidc/userinfo",{
-                method: 'GET',
-                credentials: 'include'
+                method: 'GET',credentials: 'include'
             })
 
             if (userInfo.ok) {
