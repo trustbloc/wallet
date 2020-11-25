@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "tests for wallet-web vue components",
   "dependencies": {
-    "@trustbloc-cicd/agent-sdk": "0.1.5-snapshot-864ad12",
+    "@trustbloc-cicd/agent-sdk": "0.1.5-snapshot-74e839f",
     "@trustbloc/wallet-web": "file:../../cmd/wallet-web",
     "jsonpath": "^1.0.2",
     "vue": "^2.6.11",

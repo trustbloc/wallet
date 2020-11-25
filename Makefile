@@ -38,7 +38,7 @@ wallet-web:
 	@scripts/build_wallet_web.sh
 
 .PHONY: wallet-web-docker
-wallet-web-docker: clean wallet-web
+wallet-web-docker: wallet-web
 	@echo "Building wallet-web docker image"
 	@docker build -f ./images/wallet-web/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(REPO_IMAGE_NAME)/wallet-web:latest .
 

@@ -27,7 +27,9 @@ let defaultAgentStartupOpts = {
     credentialMediatorURL: '',
     storageType: `edv`,
     edvServerURL: '',
-    edvVaultID: ''
+    edvVaultID: '',
+    edvCapability: '',
+    authzKeyStoreURL: '',
 }
 
 export default {
@@ -72,6 +74,8 @@ export default {
                             console.log("User EDV Vault ID is: " + edvVaultID)
 
                             agentOpts.edvVaultID = edvVaultID
+                            agentOpts.edvCapability=resp.data.bootstrap.edvCapability
+                            agentOpts.authzKeyStoreURL=resp.data.bootstrap.authzKeyStoreURL
                         })
                         .catch(err => {
                             console.log("error fetching user info: errMsg=", err);
@@ -98,7 +102,9 @@ export default {
                 blindedRouting: ('blindedRouting' in agentOpts) ? agentOpts['blindedRouting'] : defaultAgentStartupOpts['blindedRouting'],
                 storageType: ('storageType' in agentOpts) ? agentOpts['storageType'] : defaultAgentStartupOpts['storageType'],
                 edvServerURL: ('edvServerURL' in agentOpts) ? agentOpts['edvServerURL'] : defaultAgentStartupOpts['edvServerURL'],
-                edvVaultID: ('edvVaultID' in agentOpts) ? agentOpts['edvVaultID'] : defaultAgentStartupOpts['edvVaultID']
+                edvVaultID: ('edvVaultID' in agentOpts) ? agentOpts['edvVaultID'] : defaultAgentStartupOpts['edvVaultID'],
+                edvCapability: ('edvCapability' in agentOpts) ? agentOpts['edvCapability'] : defaultAgentStartupOpts['edvCapability'],
+                authzKeyStoreURL: ('authzKeyStoreURL' in agentOpts) ? agentOpts['authzKeyStoreURL'] : defaultAgentStartupOpts['authzKeyStoreURL'],
             })
         },
     },

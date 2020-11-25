@@ -838,7 +838,7 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 			OpsKeyStoreURL:    "http://localhost/ops/kms/" + uuid.New().String(),
 			UserEDVVaultURL:   "http://localhost/user/vault/" + uuid.New().String(),
 			OpsEDVVaultURL:    "http://localhost/ops/vault/" + uuid.New().String(),
-			UserEDVCapability: originalZcapBytes,
+			UserEDVCapability: string(originalZcapBytes),
 		}
 		o.httpClient = &mockHTTPClient{
 			DoFunc: func(req *http.Request) (*http.Response, error) {
@@ -880,7 +880,7 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 
 		zCapResp := &zcapld.Capability{}
 
-		err = json.Unmarshal(respData.UserEDVCapability, zCapResp)
+		err = json.Unmarshal([]byte(respData.UserEDVCapability), zCapResp)
 		require.NoError(t, err)
 
 		require.Equal(t, originalZcap.Controller, zCapResp.Controller)
