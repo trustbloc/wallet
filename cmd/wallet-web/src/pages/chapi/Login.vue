@@ -20,8 +20,11 @@ SPDX-License-Identifier: Apache-2.0
                 <form>
                   <md-card-content>
                     <md-button v-on:click="beginOIDCLogin" class="md-raised md-success" id="loginBtn">
-                      Login
+                      Login with Credentials
                     </md-button>
+                      <md-button v-on:click="loginDevice" class="md-raised md-success" id="loginDeviceBtn">
+                          Login with TouchID
+                      </md-button>
                   </md-card-content>
                 </form>
             </md-card-content>
@@ -31,11 +34,12 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-    import {RegisterWallet} from "./wallet"
+    import {DeviceLogin, RegisterWallet} from "./wallet"
     import {mapActions, mapGetters} from 'vuex'
 
     export default {
         created: async function () {
+            this.deviceLogin = new DeviceLogin(this.getAgentOpts());
             let redirect = this.$route.params['redirect']
             this.redirect = redirect ? {name: redirect} : `${__webpack_public_path__}`
 
@@ -90,7 +94,11 @@ SPDX-License-Identifier: Apache-2.0
             handleFailure(e) {
                 console.error("login failure: ", e)
                 this.statusMsg = e.toString()
-            }
+            },
+            loginDevice: async function () {
+                await this.deviceLogin.login();
+            },
+
         }
     }
 

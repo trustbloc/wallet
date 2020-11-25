@@ -35,16 +35,18 @@ const (
 const (
 	deviceStoreName   = "edgeagent_device_trx"
 	userSubCookieName = "user_sub"
+	deviceCookieName  = "device_user"
 )
 
 var logger = log.New("edge-agent/device-registration")
 
 // Config holds all configuration for an Operation.
 type Config struct {
-	Storage   *StorageConfig
-	TLSConfig *tls.Config
-	Keys      *KeyConfig
-	Webauthn  *webauthn.WebAuthn
+	Storage         *StorageConfig
+	WalletDashboard string
+	TLSConfig       *tls.Config
+	Keys            *KeyConfig
+	Webauthn        *webauthn.WebAuthn
 }
 
 // KeyConfig holds configuration for cryptographic keys.
@@ -68,9 +70,10 @@ type stores struct {
 
 // Operation implements OIDC operations.
 type Operation struct {
-	store     *stores
-	tlsConfig *tls.Config
-	webauthn  *webauthn.WebAuthn
+	store           *stores
+	walletDashboard string
+	tlsConfig       *tls.Config
+	webauthn        *webauthn.WebAuthn
 }
 
 // New returns a new Operation.
@@ -79,8 +82,9 @@ func New(config *Config) (*Operation, error) {
 		store: &stores{
 			cookies: cookie.NewStore(config.Keys.Auth, config.Keys.Enc),
 		},
-		tlsConfig: config.TLSConfig,
-		webauthn:  config.Webauthn,
+		tlsConfig:       config.TLSConfig,
+		webauthn:        config.Webauthn,
+		walletDashboard: config.WalletDashboard,
 	}
 
 	var err error
@@ -116,7 +120,7 @@ func (o *Operation) GetRESTHandlers() []common.Handler {
 func (o *Operation) beginRegistration(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("handling device registration: %s", r.URL.String())
 
-	userData, canProceed := o.getUserData(w, r)
+	userData, canProceed := o.getUserData(w, r, userSubCookieName)
 	if !canProceed {
 		return
 	}
@@ -158,13 +162,13 @@ func (o *Operation) beginRegistration(w http.ResponseWriter, r *http.Request) {
 
 	jsonResponse(w, protocolCredential, http.StatusOK)
 
-	logger.Infof("Registration begins")
+	logger.Debugf("Registration begins")
 }
 
 func (o *Operation) finishRegistration(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("handling finish device registration: %s", r.URL.String())
 
-	userData, canProceed := o.getUserData(w, r)
+	userData, canProceed := o.getUserData(w, r, userSubCookieName)
 	if !canProceed {
 		return
 	}
@@ -197,16 +201,18 @@ func (o *Operation) finishRegistration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	o.saveCookie(w, r, userData.Sub, deviceCookieName)
+
 	jsonResponse(w, credential, http.StatusOK)
 
-	logger.Infof("Registration success")
+	logger.Debugf("Registration success")
 }
 
 func (o *Operation) beginLogin(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("handling begin device login: %s", r.URL.String())
 
 	// get username
-	userData, canProceed := o.getUserData(w, r)
+	userData, canProceed := o.getUserData(w, r, deviceCookieName)
 	if !canProceed {
 		return
 	}
@@ -237,12 +243,14 @@ func (o *Operation) beginLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logger.Debugf("Login begin success")
 	jsonResponse(w, options, http.StatusOK)
 }
 
 func (o *Operation) finishLogin(w http.ResponseWriter, r *http.Request) {
+	logger.Debugf("handling finish device login: %s", r.URL.String())
 	// get username
-	userData, canProceed := o.getUserData(w, r)
+	userData, canProceed := o.getUserData(w, r, deviceCookieName)
 	if !canProceed {
 		return
 	}
@@ -254,6 +262,9 @@ func (o *Operation) finishLogin(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	o.saveCookie(w, r, userData.Sub, userSubCookieName)
+
 	// load the session data
 	sessionData, err := o.store.session.GetWebauthnSession(deviceData.ID, r)
 	if err != nil {
@@ -270,12 +281,13 @@ func (o *Operation) finishLogin(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-
 	// handle successful login
-	jsonResponse(w, "Login Success", http.StatusOK)
+	http.Redirect(w, r, o.walletDashboard, http.StatusFound)
+	logger.Debugf("Login finish success")
 }
 
-func (o *Operation) getUserData(w http.ResponseWriter, r *http.Request) (userData *user.User, proceed bool) {
+func (o *Operation) getUserData(w http.ResponseWriter, r *http.Request, cookieName string) (userData *user.User,
+	proceed bool) {
 	cookieSession, err := o.store.cookies.Open(r)
 	if err != nil {
 		common.WriteErrorResponsef(w, logger,
@@ -284,7 +296,7 @@ func (o *Operation) getUserData(w http.ResponseWriter, r *http.Request) (userDat
 		return nil, false
 	}
 
-	userSub, found := cookieSession.Get(userSubCookieName)
+	userSub, found := cookieSession.Get(cookieName)
 	if !found {
 		common.WriteErrorResponsef(w, logger, http.StatusNotFound, "missing device user session cookie")
 
@@ -304,6 +316,28 @@ func (o *Operation) getUserData(w http.ResponseWriter, r *http.Request) (userDat
 	userData.FamilyName = displayName
 
 	return userData, true
+}
+
+func (o *Operation) saveCookie(w http.ResponseWriter, r *http.Request, usr, cookieName string) {
+	logger.Debugf("device cookie begin %s", usr)
+
+	deviceSession, err := o.store.cookies.Open(r)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "failed to read user session cookie: %s", err.Error())
+
+		return
+	}
+
+	deviceSession.Set(cookieName, usr)
+	err = deviceSession.Save(r, w)
+
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "failed to save device cookie: %s", err.Error())
+
+		return
+	}
 }
 
 func (o *Operation) saveDeviceInfo(device *Device) error {

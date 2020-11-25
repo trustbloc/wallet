@@ -110,7 +110,7 @@ func Test_GetUserData(t *testing.T) {
 		err = o.store.users.Save(&usr)
 		require.NoError(t, err)
 
-		userData, proceed := o.getUserData(w, newDeviceRegistrationRequest())
+		userData, proceed := o.getUserData(w, newDeviceRegistrationRequest(), userSubCookieName)
 		require.NotNil(t, userData)
 		require.True(t, proceed)
 		require.Equal(t, http.StatusOK, w.Code)
@@ -119,7 +119,7 @@ func Test_GetUserData(t *testing.T) {
 		o, err := New(config(t))
 		require.NoError(t, err)
 		w := httptest.NewRecorder()
-		userData, proceed := o.getUserData(w, newDeviceRegistrationRequest())
+		userData, proceed := o.getUserData(w, newDeviceRegistrationRequest(), "")
 		require.Nil(t, userData)
 		require.False(t, proceed)
 		require.Equal(t, http.StatusNotFound, w.Code)
@@ -136,7 +136,7 @@ func Test_GetUserData(t *testing.T) {
 				},
 			},
 		}
-		userData, proceed := o.getUserData(w, newDeviceRegistrationRequest())
+		userData, proceed := o.getUserData(w, newDeviceRegistrationRequest(), userSubCookieName)
 		require.Nil(t, userData)
 		require.False(t, proceed)
 		require.Equal(t, http.StatusInternalServerError, w.Code)
@@ -148,7 +148,7 @@ func Test_GetUserData(t *testing.T) {
 			OpenErr: errors.New("test"),
 		}
 		w := httptest.NewRecorder()
-		o.getUserData(w, newDeviceRegistrationRequest())
+		o.getUserData(w, newDeviceRegistrationRequest(), "")
 		require.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
@@ -344,6 +344,7 @@ func TestBeginLogin(t *testing.T) {
 		Jar: &cookie.MockJar{
 			Cookies: map[interface{}]interface{}{
 				userSubCookieName: userSub,
+				deviceCookieName:  userSub,
 			},
 		},
 	}
@@ -381,6 +382,7 @@ func TestBeginLogin(t *testing.T) {
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
 					userSubCookieName: userSub,
+					deviceCookieName:  userSub,
 				},
 			},
 		}
@@ -394,7 +396,7 @@ func TestBeginLogin(t *testing.T) {
 		require.Equal(t, http.StatusBadRequest, w.Code)
 		require.Contains(t, w.Body.String(), "failed to get device data")
 	})
-	t.Run("finish login - failed to get user data", func(t *testing.T) {
+	t.Run("begin login - failed to get user data", func(t *testing.T) {
 		o, err := New(config(t))
 		require.NoError(t, err)
 		w := httptest.NewRecorder()
@@ -423,6 +425,7 @@ func TestFinishLogin(t *testing.T) {
 		Jar: &cookie.MockJar{
 			Cookies: map[interface{}]interface{}{
 				userSubCookieName: userSub,
+				deviceCookieName:  userSub,
 			},
 		},
 	}
@@ -461,11 +464,12 @@ func TestFinishLogin(t *testing.T) {
 		err = o.store.session.SaveWebauthnSession(userSub, sessionData, r, w)
 		require.NoError(t, err)
 		r.Body = ioutil.NopCloser(bytes.NewReader([]byte(testCredentialResponseBody)))
+		o.saveCookie(w, r, userSub, deviceCookieName)
 
 		o.finishLogin(w, r)
-		require.Equal(t, http.StatusOK, w.Code)
+		require.Equal(t, http.StatusFound, w.Code)
 	})
-	t.Run("finish login - failed to get web auth login sessionr", func(t *testing.T) {
+	t.Run("finish login - failed to get web auth login session", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		deviceInfo := NewDevice(&usr)
 
@@ -483,6 +487,7 @@ func TestFinishLogin(t *testing.T) {
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
 					userSubCookieName: userSub,
+					deviceCookieName:  userSub,
 				},
 			},
 		}

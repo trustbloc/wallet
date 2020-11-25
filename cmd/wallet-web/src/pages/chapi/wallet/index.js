@@ -18,3 +18,4 @@ export {WalletManager} from './register/walletManager.js';
 export * from './didcomm/mediator.js';
 export {BlindedRouter} from './didcomm/blindedRouter.js';
 export {DeviceRegister} from './device/register.js';
+export {DeviceLogin} from './device/login.js';
