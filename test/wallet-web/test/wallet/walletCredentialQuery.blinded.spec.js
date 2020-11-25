@@ -11,7 +11,7 @@ import Store from '../../../../cmd/wallet-web/src/pages/chapi/Store.vue'
 import Get from '../../../../cmd/wallet-web/src/pages/chapi/Get.vue'
 import PresentationDefQuery from '../../../../cmd/wallet-web/src/pages/chapi/PresentationDefQuery.vue'
 import DIDConnect from '../../../../cmd/wallet-web/src/pages/chapi/DIDConnect.vue'
-import {AgentMediator, RegisterWallet} from '../../../../cmd/wallet-web/src/pages/chapi/wallet'
+import {RegisterWallet} from '../../../../cmd/wallet-web/src/pages/chapi/wallet'
 import {loadFrameworks, localVue, mockStore, promiseWhen, wcredHandler} from '../common.js'
 import * as polyfill from 'credential-handler-polyfill'
 import {issue_credential, manifest, presentationDefQuery2} from './testdata.js'
@@ -99,20 +99,11 @@ describe('issuer with manifest connected to wallet over blinded routing', () => 
     before(async function () {
         await loadFrameworks({name: 'issuer-blinded'}).then(async opts => {
             // start issuer, register router and create invitation
-            let mediator = new AgentMediator(opts.agent)
-
-            await mediator.connect('https://localhost:10063').then(ur => {
-                console.log("issuer mediator registered successfully")
-            }).catch(err => {
-                console.error('failed to register mediator for issuer agent: errMsg=', err)
-            })
-
-            event.credentialRequestOptions.web.VerifiablePresentation.invitation = await mediator.createInvitation()
-
-            // initialize issuer
             issuer = new IssuerAdapter(opts.agent)
-            await issuer.init()
+            await issuer.connectToMediator('https://localhost:10063')
+            event.credentialRequestOptions.web.VerifiablePresentation.invitation = await issuer.createInvitation()
 
+            await issuer.init()
         }).catch(err => {
             console.error('error starting issuer agent: errMsg=', err)
         })
@@ -188,19 +179,10 @@ describe('verifier queries credentials - DIDComm Flow using blinded routing', ()
     before(async function () {
         // start verifier, register router and create invitation
         await loadFrameworks({name: 'verifier-blinded'}).then(async opts => {
-            let mediator = new AgentMediator(opts.agent)
-
-            await mediator.connect('https://localhost:10063').then(ur => {
-                console.log("verifier mediator registered successfully")
-            }).catch(err => {
-                console.error('failed to register mediator for verifier agent: errMsg=', err)
-            })
-
-            event.credentialRequestOptions.web.VerifiablePresentation.query[1].invitation = await mediator.createInvitation()
-
-            // initialize issuer & verifier adapter
-            // issuer = new IssuerAdapter(opts.agent)
+            // initialize verifier adapter
             verifier = new RPAdapter(opts.agent)
+            await verifier.connectToMediator('https://localhost:10063')
+            event.credentialRequestOptions.web.VerifiablePresentation.query[1].invitation = await verifier.createInvitation()
 
             await verifier.init()
 
