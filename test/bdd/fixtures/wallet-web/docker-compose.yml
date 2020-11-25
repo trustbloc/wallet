@@ -226,7 +226,6 @@ services:
       - EDV_DATABASE_TYPE=${EDV_DATABASE_TYPE}
       - EDV_DATABASE_URL=${EDV_DATABASE_URL}
       - EDV_DATABASE_PREFIX=${EDV_DATABASE_PREFIX}
-      - EDV_LOG_LEVEL=debug
       - EDV_TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
       - EDV_TLS_KEY_FILE=/etc/tls/ec-key.pem
       # TODO enable EDV_AUTH_ENABLE

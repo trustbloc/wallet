@@ -34,11 +34,11 @@ type signResp struct {
 
 // BootstrapData user bootsrap data.
 type BootstrapData struct {
-	UserEDVVaultURL   string          `json:"edvVaultURL,omitempty"`
-	OpsEDVVaultURL    string          `json:"opsVaultURL,omitempty"`
-	AuthzKeyStoreURL  string          `json:"authKeyStoreURL,omitempty"`
-	OpsKeyStoreURL    string          `json:"opsKeyStoreURL,omitempty"`
-	UserEDVCapability json.RawMessage `json:"uerEDVCapability,omitempty"`
+	UserEDVVaultURL   string `json:"edvVaultURL,omitempty"`
+	OpsEDVVaultURL    string `json:"opsVaultURL,omitempty"`
+	AuthzKeyStoreURL  string `json:"authzKeyStoreURL,omitempty"`
+	OpsKeyStoreURL    string `json:"opsKeyStoreURL,omitempty"`
+	UserEDVCapability string `json:"edvCapability,omitempty"`
 }
 
 type userBootstrapData struct {

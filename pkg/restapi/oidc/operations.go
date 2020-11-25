@@ -584,7 +584,7 @@ func (o *Operation) onboardUser(sub, accessToken string) error { // nolint:funle
 		OpsEDVVaultURL:    opsEDVVaultURL,
 		AuthzKeyStoreURL:  authzKeyStoreURL,
 		OpsKeyStoreURL:    opsKeyStoreURL,
-		UserEDVCapability: userEDVCapability,
+		UserEDVCapability: string(userEDVCapability),
 	}
 
 	err = postUserBootstrapData(o.hubAuthURL, accessToken, data, o.httpClient)
