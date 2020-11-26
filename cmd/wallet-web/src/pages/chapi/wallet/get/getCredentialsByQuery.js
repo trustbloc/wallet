@@ -237,7 +237,7 @@ function retainOnlySelected(presentationSubmission, selectedIndexes) {
 async function waitForCredentials(agent, pool) {
     let processed = 0
     return new Promise(async (resolve, reject) => {
-        setTimeout(() => reject(new Error("timout waiting for incoming credentials")), 20000)
+        setTimeout(() => reject(new Error("timeout waiting for incoming credentials")), 600000) // TODO (#531): Reduce timeout once EDV storage speed is improved.
 
         for (; ;) {
             let resp = await agent.issuecredential.actions()
