@@ -47,7 +47,7 @@ export class BlindedRouter {
                         "@type": didDocReqMsgType,
                         "sent_time": new Date().toJSON(),
                     },
-                    "await_reply": {messageType: didDocReqRespType, timeout: 2000000000},
+                    "await_reply": {messageType: didDocReqRespType, timeout: 20000000000}, //TODO (#531): Reduce timeout once EDV storage speed is improved. Note: this value used to be 2 seconds (now it's 20).
                 })
             } catch (e) {
                 if (!e.message.includes("failed to get reply") || i === retries) {
@@ -86,7 +86,7 @@ export class BlindedRouter {
                 "sent_time": new Date().toJSON(),
             },
             "start_new_thread": true,
-            "await_reply": {messageType: registerRouteRespType, timeout: 2000000000}
+            "await_reply": {messageType: registerRouteRespType, timeout: 20000000000} //TODO (#531): Reduce timeout once EDV storage speed is improved. Note: this value used to be 2 seconds (now it's 20).
         })
 
     }
