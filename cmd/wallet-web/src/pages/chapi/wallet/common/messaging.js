@@ -94,7 +94,7 @@ export class Messenger {
      *
      */
     async waitForReply(action, msgID, topic, timeout, retry) {
-        timeout = timeout ? timeout : 30000
+        timeout = timeout ? timeout : 120000 // TODO (#531): Reduce timeout once EDV storage speed is improved.
         retry = retry ? retry : {attempts: 0}
 
         let incomingMsg
