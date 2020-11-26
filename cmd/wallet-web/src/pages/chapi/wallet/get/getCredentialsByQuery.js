@@ -274,7 +274,7 @@ async function waitForCredentials(agent, pool) {
 
 
 async function getCredentialMetadata(agent, name) {
-    const retries = 10;
+    const retries = 30; // TODO (#531): Reduce number of retries once EDV storage speed is improved.
     for (let i = 0; i < retries; i++) {
         try {
             return await agent.verifiable.getCredentialByName({
