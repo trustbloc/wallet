@@ -35,6 +35,7 @@ You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following 
     127.0.0.1 bdd-hydra.trustbloc.local
     127.0.0.1 bddtest-wallet-web.trustbloc.local
     127.0.0.1 edv.example.com
+    127.0.0.1 authz-kms.trustbloc.local
 
 ## Running BDD tests
 
