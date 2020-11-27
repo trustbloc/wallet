@@ -154,7 +154,7 @@ func TestOperation_OIDCLoginHandler(t *testing.T) {
 
 func TestKmsSigner_Sign(t *testing.T) {
 	t.Run("failed to sign", func(t *testing.T) {
-		_, err := newKMSSigner("", "", "",
+		_, err := newKMSSigner("", "", "", &hubKMSHeader{},
 			&mockHTTPClient{
 				DoFunc: func(req *http.Request) (*http.Response, error) {
 					return &http.Response{
@@ -167,7 +167,7 @@ func TestKmsSigner_Sign(t *testing.T) {
 	})
 
 	t.Run("failed to unmarshal sign resp", func(t *testing.T) {
-		_, err := newKMSSigner("", "", "",
+		_, err := newKMSSigner("", "", "", &hubKMSHeader{},
 			&mockHTTPClient{
 				DoFunc: func(req *http.Request) (*http.Response, error) {
 					return &http.Response{
@@ -180,7 +180,7 @@ func TestKmsSigner_Sign(t *testing.T) {
 	})
 
 	t.Run("failed to unmarshal sign resp", func(t *testing.T) {
-		_, err := newKMSSigner("", "", "",
+		_, err := newKMSSigner("", "", "", &hubKMSHeader{},
 			&mockHTTPClient{
 				DoFunc: func(req *http.Request) (*http.Response, error) {
 					return &http.Response{

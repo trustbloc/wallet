@@ -247,13 +247,15 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if errors.Is(err, storage.ErrValueNotFound) {
-		err = o.onboardUser(usr.Sub, oauthToken.AccessToken)
-		if err != nil {
+		walletSecretShare, onboardErr := o.onboardUser(usr.Sub, oauthToken.AccessToken)
+		if onboardErr != nil {
 			common.WriteErrorResponsef(w, logger,
-				http.StatusInternalServerError, "failed to onboard the user: %s", err.Error())
+				http.StatusInternalServerError, "failed to onboard the user: %s", onboardErr.Error())
 
 			return
 		}
+
+		usr.SecretShare = walletSecretShare
 
 		err = o.store.users.Save(usr)
 		if err != nil {
@@ -447,7 +449,7 @@ func (o *Operation) fetchUserData(w http.ResponseWriter, r *http.Request, sub st
 		return nil, false
 	}
 
-	userData, err := o.fetchBootstrapData(tokns.Access)
+	walletUserData, err := o.store.users.Get(sub)
 	if err != nil {
 		common.WriteErrorResponsef(w, logger, http.StatusInternalServerError,
 			"failed to fetch bootstrap data: %s", err.Error())
@@ -455,7 +457,19 @@ func (o *Operation) fetchUserData(w http.ResponseWriter, r *http.Request, sub st
 		return nil, false
 	}
 
-	data["bootstrap"] = userData.Data
+	userBootStrapData, err := o.fetchBootstrapData(tokns.Access)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger, http.StatusInternalServerError,
+			"failed to fetch bootstrap data: %s", err.Error())
+
+		return nil, false
+	}
+
+	data["bootstrap"] = userBootStrapData.Data
+	data["userConfig"] = &userConfig{
+		Sub:         sub,
+		SecretShare: walletUserData.SecretShare,
+	}
 
 	return data, true
 }
@@ -507,64 +521,70 @@ func (o *Operation) userLogoutHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("finished handling logout request")
 }
 
-func (o *Operation) onboardUser(sub, accessToken string) error { // nolint:funlen,gocyclo // not much logic
+func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // nolint:funlen,gocyclo // not much logic
 	b := make([]byte, 32)
 
 	_, err := rand.Read(b)
 	if err != nil {
-		return fmt.Errorf("create user secret key : %w", err)
+		return "", fmt.Errorf("create user secret key : %w", err)
 	}
 
 	secrets, err := o.secretSplitter.Split(b, 2, 2)
 	if err != nil {
-		return fmt.Errorf("split user secret key : %w", err)
+		return "", fmt.Errorf("split user secret key : %w", err)
 	}
 
-	// TODO https://github.com/trustbloc/edge-agent/issues/488 send half secret key to hub-kms and remove logger
-	logger.Infof(string(secrets[1]))
+	walletSecretShare := base64.StdEncoding.EncodeToString(secrets[0])
+	hubAuthSecretShare := secrets[1]
 
-	err = postSecret(o.hubAuthURL, accessToken, secrets[0], o.httpClient)
+	err = postSecret(o.hubAuthURL, accessToken, hubAuthSecretShare, o.httpClient)
 	if err != nil {
-		return fmt.Errorf("post half secret to hub-auth : %w", err)
+		return "", fmt.Errorf("post half secret to hub-auth : %w", err)
 	}
 
-	authzKeyStoreURL, _, err := createKeyStore(o.keyServer.AuthzKMSURL, sub, "", o.httpClient)
+	h := &hubKMSHeader{
+		userSub:     sub,
+		accessToken: accessToken,
+		secretShare: walletSecretShare,
+	}
+
+	authzKeyStoreURL, _, err := createKeyStore(o.keyServer.AuthzKMSURL, sub, "", h, o.httpClient)
 	if err != nil {
-		return fmt.Errorf("create authz keystore : %w", err)
+		return "", fmt.Errorf("create authz keystore : %w", err)
 	}
 
 	authzKeyStoreID := getKeystoreID(authzKeyStoreURL)
 
-	keyID, err := createKey(o.keyServer.AuthzKMSURL, authzKeyStoreID, "ED25519", o.httpClient)
+	keyID, err := createKey(o.keyServer.AuthzKMSURL, authzKeyStoreID, "ED25519", h, o.httpClient)
 	if err != nil {
-		return fmt.Errorf("failed create authz key : %w", err)
+		return "", fmt.Errorf("failed create authz key : %w", err)
 	}
 
-	pkBytes, err := exportPublicKey(o.keyServer.AuthzKMSURL, authzKeyStoreID, keyID, o.httpClient)
+	pkBytes, err := exportPublicKey(o.keyServer.AuthzKMSURL, authzKeyStoreID, keyID, h, o.httpClient)
 	if err != nil {
-		return fmt.Errorf("failed export public key: %w", err)
+		return "", fmt.Errorf("failed export public key: %w", err)
 	}
 
 	_, controller := fingerprint.CreateDIDKey(pkBytes)
 
 	opsEDVVaultURL, opsEDVCapability, err := createEDVDataVault(o.keyEDVClient, controller)
 	if err != nil {
-		return fmt.Errorf("create edv vault : %w", err)
+		return "", fmt.Errorf("create edv vault : %w", err)
 	}
 
 	opsEDVVaultID := getVaultID(opsEDVVaultURL)
 
 	opsKeyStoreURL, opsKeyStoreEDVDIDKey, err := createKeyStore(o.keyServer.OpsKMSURL, controller,
-		opsEDVVaultID, o.httpClient)
+		opsEDVVaultID, &hubKMSHeader{accessToken: accessToken}, o.httpClient)
 	if err != nil {
-		return fmt.Errorf("create operational keystore : %w", err)
+		return "", fmt.Errorf("create operational keystore : %w", err)
 	}
 
 	if len(opsEDVCapability) != 0 {
 		if errUpdate := updateEDVCapabilityInKeyStore(o.keyServer.OpsKMSURL, getKeystoreID(opsKeyStoreURL), controller,
 			opsEDVVaultID, opsEDVCapability, opsKeyStoreEDVDIDKey, newKMSSigner(o.keyServer.AuthzKMSURL,
-				authzKeyStoreID, keyID, o.httpClient), o.httpClient); errUpdate != nil {
-			return errUpdate
+				authzKeyStoreID, keyID, h, o.httpClient), o.httpClient); errUpdate != nil {
+			return "", errUpdate
 		}
 	}
 
@@ -575,7 +595,7 @@ func (o *Operation) onboardUser(sub, accessToken string) error { // nolint:funle
 	if o.userEDVClient != nil {
 		userEDVVaultURL, userEDVCapability, err = createEDVDataVault(o.userEDVClient, controller)
 		if err != nil {
-			return fmt.Errorf("create user edv vault : %w", err)
+			return "", fmt.Errorf("create user edv vault : %w", err)
 		}
 	}
 
@@ -589,10 +609,10 @@ func (o *Operation) onboardUser(sub, accessToken string) error { // nolint:funle
 
 	err = postUserBootstrapData(o.hubAuthURL, accessToken, data, o.httpClient)
 	if err != nil {
-		return fmt.Errorf("update user bootstrap data : %w", err)
+		return "", fmt.Errorf("update user bootstrap data : %w", err)
 	}
 
-	return nil
+	return walletSecretShare, nil
 }
 
 func postSecret(baseURL, accessToken string, secret []byte, httpClient httpClient) error {
@@ -643,7 +663,8 @@ func postUserBootstrapData(baseURL, accessToken string, data *BootstrapData, htt
 	return nil
 }
 
-func createKeyStore(baseURL, controller, vaultID string, httpClient httpClient) (string, string, error) {
+func createKeyStore(baseURL, controller, vaultID string, h *hubKMSHeader,
+	httpClient httpClient) (string, string, error) {
 	reqBytes, err := json.Marshal(createKeystoreReq{
 		Controller: controller,
 		VaultID:    vaultID,
@@ -658,7 +679,8 @@ func createKeyStore(baseURL, controller, vaultID string, httpClient httpClient) 
 		return "", "", err
 	}
 
-	// TODO https://github.com/trustbloc/edge-agent/issues/488 pass half secret and oauth token to hub-kms
+	addAuthZKMSHeaders(req, h)
+
 	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
 	if err != nil {
 		return "", "", fmt.Errorf("create authz keystore : %w", err)
@@ -715,7 +737,7 @@ func updateEDVCapabilityInKeyStore(baseURL, keystoreID, controller, vaultID stri
 	return nil
 }
 
-func createKey(baseURL, keystoreID, keyType string, httpClient httpClient) (string, error) {
+func createKey(baseURL, keystoreID, keyType string, h *hubKMSHeader, httpClient httpClient) (string, error) {
 	reqBytes, err := json.Marshal(createKeyReq{
 		KeyType: keyType,
 	})
@@ -729,8 +751,7 @@ func createKey(baseURL, keystoreID, keyType string, httpClient httpClient) (stri
 		return "", err
 	}
 
-	// TODO change it
-	req.Header.Add("Hub-Kms-Secret", "changeme")
+	addAuthZKMSHeaders(req, h)
 
 	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
 	if err != nil {
@@ -740,15 +761,14 @@ func createKey(baseURL, keystoreID, keyType string, httpClient httpClient) (stri
 	return getKeyID(headers.Get("Location")), nil
 }
 
-func exportPublicKey(baseURL, keystoreID, keyID string, httpClient httpClient) ([]byte, error) {
+func exportPublicKey(baseURL, keystoreID, keyID string, h *hubKMSHeader, httpClient httpClient) ([]byte, error) {
 	req, err := http.NewRequestWithContext(context.TODO(),
 		http.MethodGet, baseURL+fmt.Sprintf(exportKeyEndpoint, keystoreID, keyID), nil)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO change it
-	req.Header.Add("Hub-Kms-Secret", "changeme")
+	addAuthZKMSHeaders(req, h)
 
 	resp, _, err := sendHTTPRequest(req, httpClient, http.StatusOK)
 	if err != nil {
@@ -845,6 +865,15 @@ func sendHTTPRequest(req *http.Request, httpClient httpClient, status int) ([]by
 	}
 
 	return body, resp.Header, nil
+}
+
+func addAuthZKMSHeaders(r *http.Request, h *hubKMSHeader) {
+	r.Header.Add("Hub-Kms-Secret", h.secretShare)
+	r.Header.Add("Hub-Kms-User", h.userSub)
+	logger.Errorf(h.secretShare)
+	logger.Errorf(h.userSub)
+
+	addAccessToken(r, h.accessToken)
 }
 
 func addAccessToken(r *http.Request, token string) {

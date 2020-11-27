@@ -24,11 +24,12 @@ const (
 // The user attributes are based on standard OIDC claims:
 // https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims.
 type User struct {
-	Sub        string `json:"sub"`
-	Name       string `json:"name"`
-	GivenName  string `json:"given_name"`
-	FamilyName string `json:"family_name"`
-	Email      string `json:"email"`
+	Sub         string `json:"sub"`
+	Name        string `json:"name"`
+	GivenName   string `json:"given_name"`
+	FamilyName  string `json:"family_name"`
+	Email       string `json:"email"`
+	SecretShare string `json:"secretShare"`
 }
 
 // ParseIDToken parses a User from an IDToken.

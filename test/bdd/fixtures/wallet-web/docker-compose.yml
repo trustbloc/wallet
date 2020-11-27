@@ -551,7 +551,8 @@ services:
     image: ${HUB_KMS_IMAGE}:${HUB_KMS_IMAGE_TAG}
     environment:
       - KMS_HOST_URL=${HUB_KMS_HOST}:${AUTHZ_HUB_KMS_PORT}
-      - KMS_CACERTS=/etc/tls/ec-cacert.pem
+      - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - KMS_TLS_SYSTEMCERTPOOL=true
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
       - KMS_DATABASE_TYPE=couchdb
@@ -560,10 +561,13 @@ services:
       - KMS_SECRETS_DATABASE_TYPE=couchdb
       - KMS_SECRETS_DATABASE_URL=${EDV_DATABASE_URL}
       - KMS_SECRETS_DATABASE_PREFIX=authzkms
-      - KMS_SECRETS_MASTER_KEY_PATH=/etc/tls/service-lock.key
       - KMS_KEY_MANAGER_STORAGE_TYPE=couchdb
       - KMS_KEY_MANAGER_STORAGE_URL=${EDV_DATABASE_URL}
       - KMS_KEY_MANAGER_STORAGE_PREFIX=ops
+      - KMS_MASTER_KEY_PATH=/etc/tls/service-lock.key
+      # TODO #488 enable this
+      # - KMS_HUB_AUTH_URL=https://demo-hub-auth.trustbloc.local:8044
+      # - KMS_HUB_AUTH_API_TOKEN=test_token
     ports:
       - ${AUTHZ_HUB_KMS_PORT}:${AUTHZ_HUB_KMS_PORT}
     entrypoint: ""
@@ -578,9 +582,10 @@ services:
     image: ${HUB_KMS_IMAGE}:${HUB_KMS_IMAGE_TAG}
     environment:
       - KMS_HOST_URL=${HUB_KMS_HOST}:${OPS_HUB_KMS_PORT}
-      - KMS_CACERTS=/etc/tls/ec-cacert.pem
+      - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
+      - KMS_MASTER_KEY_PATH=/etc/tls/service-lock.key
       - KMS_DATABASE_TYPE=mem
       - KMS_SECRETS_DATABASE_TYPE=mem
       - KMS_KEY_MANAGER_STORAGE_TYPE=edv

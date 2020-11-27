@@ -23,10 +23,17 @@ type kmsSigner struct {
 	httpClient httpClient
 	keystoreID string
 	keyID      string
+	header     *hubKMSHeader
 }
 
-func newKMSSigner(baseURL, keystoreID, keyID string, httpClient httpClient) *kmsSigner {
-	return &kmsSigner{baseURL: baseURL, httpClient: httpClient, keystoreID: keystoreID, keyID: keyID}
+func newKMSSigner(baseURL, keystoreID, keyID string, h *hubKMSHeader, httpClient httpClient) *kmsSigner {
+	return &kmsSigner{
+		baseURL:    baseURL,
+		httpClient: httpClient,
+		keystoreID: keystoreID,
+		keyID:      keyID,
+		header:     h,
+	}
 }
 
 func (a *kmsSigner) Sign(data []byte) ([]byte, error) {
@@ -43,8 +50,7 @@ func (a *kmsSigner) Sign(data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	// TODO change it
-	req.Header.Add("Hub-Kms-Secret", "changeme")
+	addAuthZKMSHeaders(req, a.header)
 
 	resp, _, err := sendHTTPRequest(req, a.httpClient, http.StatusOK)
 	if err != nil {
