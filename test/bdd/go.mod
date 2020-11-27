@@ -14,7 +14,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/tidwall/gjson v1.6.3
 	github.com/trustbloc/edge-agent v0.0.0
-	github.com/trustbloc/edge-core v0.1.5-0.20201121214029-0646e96dbdcf
+	github.com/trustbloc/edge-core v0.1.5-0.20201126210935-53388acb41fc
 	gotest.tools/v3 v3.0.2 // indirect
 )
 
