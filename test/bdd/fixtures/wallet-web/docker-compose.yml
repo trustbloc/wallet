@@ -590,6 +590,7 @@ services:
       - KMS_SECRETS_DATABASE_TYPE=mem
       - KMS_KEY_MANAGER_STORAGE_TYPE=edv
       - KMS_KEY_MANAGER_STORAGE_URL=https://edv.example.com:${EDV_PORT}
+      - KMS_ZCAP_ENABLE=false # default is false anyway
     ports:
       - ${OPS_HUB_KMS_PORT}:${OPS_HUB_KMS_PORT}
     entrypoint: ""
