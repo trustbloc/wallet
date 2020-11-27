@@ -48,3 +48,14 @@ type userBootstrapData struct {
 type secretRequest struct {
 	Secret []byte `json:"secret,omitempty"`
 }
+
+type hubKMSHeader struct {
+	secretShare string
+	userSub     string
+	accessToken string
+}
+
+type userConfig struct {
+	Sub         string `json:"sub,omitempty"`
+	SecretShare string `json:"walletSecretShare,omitempty"`
+}

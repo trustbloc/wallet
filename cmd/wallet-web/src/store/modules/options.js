@@ -76,6 +76,7 @@ export default {
                             agentOpts.edvVaultID = edvVaultID
                             agentOpts.edvCapability=resp.data.bootstrap.edvCapability
                             agentOpts.authzKeyStoreURL=resp.data.bootstrap.authzKeyStoreURL
+                            agentOpts.userConfig=resp.data.userConfig
                         })
                         .catch(err => {
                             console.log("error fetching user info: errMsg=", err);
@@ -105,6 +106,7 @@ export default {
                 edvVaultID: ('edvVaultID' in agentOpts) ? agentOpts['edvVaultID'] : defaultAgentStartupOpts['edvVaultID'],
                 edvCapability: ('edvCapability' in agentOpts) ? agentOpts['edvCapability'] : defaultAgentStartupOpts['edvCapability'],
                 authzKeyStoreURL: ('authzKeyStoreURL' in agentOpts) ? agentOpts['authzKeyStoreURL'] : defaultAgentStartupOpts['authzKeyStoreURL'],
+                userConfig: ('userConfig' in agentOpts) ? agentOpts['userConfig'] : defaultAgentStartupOpts['userConfig'],
             })
         },
     },
