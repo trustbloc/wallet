@@ -40,7 +40,9 @@ server {
             "blindedRouting":"${BLINDED_ROUTING}",
             "storageType":"${STORAGE_TYPE}",
             "edvServerURL":"${EDV_SERVER_URL}",
-            "edge-agent-server":"${EDGE_AGENT_SERVER}"
+            "edge-agent-server":"${EDGE_AGENT_SERVER}",
+            "useEDVCache":${USE_EDV_CACHE},
+            "clearCache": "${CLEAR_CACHE}"
         }';
     }
 }

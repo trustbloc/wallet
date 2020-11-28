@@ -30,6 +30,8 @@ let defaultAgentStartupOpts = {
     edvVaultID: '',
     edvCapability: '',
     authzKeyStoreURL: '',
+    useEDVCache: false,
+    clearCache: ''
 }
 
 export default {
@@ -107,6 +109,8 @@ export default {
                 edvCapability: ('edvCapability' in agentOpts) ? agentOpts['edvCapability'] : defaultAgentStartupOpts['edvCapability'],
                 authzKeyStoreURL: ('authzKeyStoreURL' in agentOpts) ? agentOpts['authzKeyStoreURL'] : defaultAgentStartupOpts['authzKeyStoreURL'],
                 userConfig: ('userConfig' in agentOpts) ? agentOpts['userConfig'] : defaultAgentStartupOpts['userConfig'],
+                useEDVCache: ('useEDVCache' in agentOpts) ? agentOpts['useEDVCache'] : defaultAgentStartupOpts['useEDVCache'],
+                clearCache: ('clearCache' in agentOpts) ? agentOpts['clearCache'] : defaultAgentStartupOpts['clearCache'],
             })
         },
     },

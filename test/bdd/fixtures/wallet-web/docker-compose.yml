@@ -23,6 +23,8 @@ services:
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv.example.com:8072/encrypted-data-vaults
       - STORAGE_TYPE=edv
+      - USE_EDV_CACHE=true
+      - CLEAR_CACHE=60s
 
   second-ui-user-agent.example.com:
     container_name: second-ui-user-agent.example.com
@@ -41,6 +43,7 @@ services:
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv.example.com:8072/encrypted-data-vaults
       - STORAGE_TYPE=edv
+      - USE_EDV_CACHE=true
 
   edge.router.agent.example.com:
     container_name: edge.router.agent.example.com
@@ -171,6 +174,7 @@ services:
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv.example.com:8072/encrypted-data-vaults
       - STORAGE_TYPE=edv
+      - USE_EDV_CACHE=true
 
   bddtest-wallet-web.trustbloc.local:
     container_name: bddtest-wallet-web.trustbloc.local
@@ -307,7 +311,6 @@ services:
       - "9080:8080"
     volumes:
       - ./config.json:/opt/uni-resolver-java/uni-resolver-web/config.json
-      - ./run-uni-resolver-web.sh:/opt/uni-resolver-java/uni-resolver-web/docker/run-uni-resolver-web.sh
 
   uni-resolver-did-v1-driver:
     image: veresone/uni-resolver-did-v1-driver:latest
