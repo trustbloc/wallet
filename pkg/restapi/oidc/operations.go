@@ -98,9 +98,10 @@ type StorageConfig struct {
 
 // KeyServerConfig holds configuration for key management server.
 type KeyServerConfig struct {
-	AuthzKMSURL string
-	OpsKMSURL   string
-	KeyEDVURL   string
+	AuthzKMSURL  string
+	OpsKMSURL    string
+	KeyEDVURL    string
+	UseRemoteKMS bool
 }
 
 type httpClient interface {
@@ -471,6 +472,8 @@ func (o *Operation) fetchUserData(w http.ResponseWriter, r *http.Request, sub st
 		Sub:         sub,
 		SecretShare: walletUserData.SecretShare,
 	}
+
+	data["keyServer"] = o.keyServer
 
 	return data, true
 }

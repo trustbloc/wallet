@@ -307,6 +307,14 @@ func (s *Steps) userRetrievesProfile() error { // nolint:gocyclo,funlen // not m
 		return errors.New("ops kms keystore url can't be empty")
 	}
 
+	if respData.EDVOpsKIDURL == "" {
+		return errors.New("ops main edv KID url can't be empty")
+	}
+
+	if respData.EDVHMACKIDURL == "" {
+		return errors.New("hmac main edv KID url can't be empty")
+	}
+
 	if respData.OpsEDVVaultURL == "" {
 		return errors.New("ops edv vault url can't be empty")
 	}

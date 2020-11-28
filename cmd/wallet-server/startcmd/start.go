@@ -93,6 +93,10 @@ const (
 	keyEDVURLFlagName  = "key-edv-url"
 	keyEDVURLFlagUsage = "Operational key EDV Server URL"
 	keyEDVURLEnvKey    = "HTTP_SERVER_KEY_EDV_URL"
+
+	useRemoteKMSFlagName  = "use-remote-kms"
+	useRemoteKMSFlagUsage = "Use Remote KMS? (t/f)"
+	useRemoteKMSEnvKey    = "USE_REMOTE_KMS"
 )
 
 // EDV config.
@@ -222,9 +226,10 @@ type keyParameters struct {
 }
 
 type keyServerParameters struct {
-	authzKMSURL string
-	opsKMSURL   string
-	keyEDVURL   string
+	authzKMSURL  string
+	opsKMSURL    string
+	keyEDVURL    string
+	useRemoteKMS bool
 }
 
 // GetStartCmd returns the Cobra start command.
@@ -330,6 +335,7 @@ func createFlags(startCmd *cobra.Command) {
 	startCmd.Flags().StringP(keyEDVURLFlagName, "", "", keyEDVURLFlagUsage)
 	startCmd.Flags().StringP(userEDVURLFlagName, "", "", userEDVURLFlagUsage)
 	startCmd.Flags().StringP(hubAuthURLFlagName, "", "", hubAuthURLFlagUsage)
+	startCmd.Flags().StringP(useRemoteKMSFlagName, "", "", useRemoteKMSFlagUsage)
 	createOIDCFlags(startCmd)
 	createTLSFlags(startCmd)
 	createKeyFlags(startCmd)
@@ -522,10 +528,26 @@ func getKeyServerParams(cmd *cobra.Command) (*keyServerParameters, error) {
 		return nil, fmt.Errorf("ops key server url : %w", err)
 	}
 
+	useRemoteKMSStr, err := cmdutils.GetUserSetVarFromString(
+		cmd, useRemoteKMSFlagName, useRemoteKMSEnvKey, true)
+	if err != nil {
+		return nil, fmt.Errorf("get use remote kms param : %w", err)
+	}
+
+	var useRemoteKMS bool
+
+	if useRemoteKMSStr != "" {
+		useRemoteKMS, err = strconv.ParseBool(useRemoteKMSStr)
+		if err != nil {
+			return nil, fmt.Errorf("use remote kms param to bool : %w", err)
+		}
+	}
+
 	return &keyServerParameters{
-		authzKMSURL: authzKMSURL,
-		keyEDVURL:   keyEDVURL,
-		opsKMSURL:   opsKMSURL,
+		authzKMSURL:  authzKMSURL,
+		keyEDVURL:    keyEDVURL,
+		opsKMSURL:    opsKMSURL,
+		useRemoteKMS: useRemoteKMS,
 	}, nil
 }
 
@@ -660,9 +682,10 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store sto
 			Enc:  config.keys.sessionCookieEncKey,
 		},
 		KeyServer: &oidc.KeyServerConfig{
-			AuthzKMSURL: config.keyServer.authzKMSURL,
-			OpsKMSURL:   config.keyServer.opsKMSURL,
-			KeyEDVURL:   config.keyServer.keyEDVURL,
+			AuthzKMSURL:  config.keyServer.authzKMSURL,
+			OpsKMSURL:    config.keyServer.opsKMSURL,
+			KeyEDVURL:    config.keyServer.keyEDVURL,
+			UseRemoteKMS: config.keyServer.useRemoteKMS,
 		},
 		UserEDVURL: config.userEDVURL,
 		HubAuthURL: config.hubAuthURL,

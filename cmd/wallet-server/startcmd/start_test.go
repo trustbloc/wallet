@@ -519,6 +519,61 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		require.Contains(t, err.Error(),
 			"Neither hub-auth-url (command line flag) nor HTTP_SERVER_HUB_AUTH_URL (environment variable) have been set.")
 	})
+
+	t.Run("invalid use Remote KMS value - must be t/f", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + agentUIURLFlagName, "ui",
+			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + tlsCACertsFlagName, cert(t),
+			"--" + sessionCookieAuthKeyFlagName, key(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
+			"--" + authzKMSURLFlagName, "http://localhost",
+			"--" + keyEDVURLFlagName, "http://localhost",
+			"--" + opsKMSURLFlagName, "http://localhost",
+			"--" + hubAuthURLFlagName, "http://localhost",
+			"--" + useRemoteKMSFlagName, "xyz",
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+
+		require.EqualError(t, err, "use remote kms param to bool : strconv.ParseBool: parsing \"xyz\": "+
+			"invalid syntax")
+	})
+
+	t.Run("empty use Remote KMS value - must be t/f", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
+			"--" + tlsKeyFileFlagName, "key",
+			"--" + agentUIURLFlagName, "ui",
+			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + tlsCACertsFlagName, cert(t),
+			"--" + sessionCookieAuthKeyFlagName, key(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
+			"--" + authzKMSURLFlagName, "http://localhost",
+			"--" + keyEDVURLFlagName, "http://localhost",
+			"--" + opsKMSURLFlagName, "http://localhost",
+			"--" + hubAuthURLFlagName, "http://localhost",
+			"--" + useRemoteKMSFlagName, "",
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+
+		require.EqualError(t, err, "get use remote kms param : use-remote-kms value is empty")
+	})
 }
 
 func TestStartCmdValidArgs(t *testing.T) {

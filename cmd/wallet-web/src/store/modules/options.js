@@ -30,6 +30,10 @@ let defaultAgentStartupOpts = {
     edvVaultID: '',
     edvCapability: '',
     authzKeyStoreURL: '',
+    opsKeyStoreURL: '',
+    edvOpsKIDURL: '',
+    edvHMACKIDURL: '',
+    keyServer: {authzKMSURL: '', opsKMSURL: '', keyEDVURL:'', useRemoteKMS: true},
     useEDVCache: false,
     clearCache: ''
 }
@@ -78,7 +82,11 @@ export default {
                             agentOpts.edvVaultID = edvVaultID
                             agentOpts.edvCapability=resp.data.bootstrap.edvCapability
                             agentOpts.authzKeyStoreURL=resp.data.bootstrap.authzKeyStoreURL
+                            agentOpts.opsKeyStoreURL=resp.data.bootstrap.opsKeyStoreURL
                             agentOpts.userConfig=resp.data.userConfig
+                            agentOpts.edvOpsKIDURL=resp.data.bootstrap.edvOpsKIDURL
+                            agentOpts.edvHMACKIDURL=resp.data.bootstrap.edvHMACKIDURL
+                            agentOpts.keyServer=resp.data.keyServer
                         })
                         .catch(err => {
                             console.log("error fetching user info: errMsg=", err);
@@ -107,8 +115,12 @@ export default {
                 edvServerURL: ('edvServerURL' in agentOpts) ? agentOpts['edvServerURL'] : defaultAgentStartupOpts['edvServerURL'],
                 edvVaultID: ('edvVaultID' in agentOpts) ? agentOpts['edvVaultID'] : defaultAgentStartupOpts['edvVaultID'],
                 edvCapability: ('edvCapability' in agentOpts) ? agentOpts['edvCapability'] : defaultAgentStartupOpts['edvCapability'],
-                authzKeyStoreURL: ('authzKeyStoreURL' in agentOpts) ? agentOpts['authzKeyStoreURL'] : defaultAgentStartupOpts['authzKeyStoreURL'],
                 userConfig: ('userConfig' in agentOpts) ? agentOpts['userConfig'] : defaultAgentStartupOpts['userConfig'],
+                authzKeyStoreURL: ('authzKeyStoreURL' in agentOpts) ? agentOpts['authzKeyStoreURL'] : defaultAgentStartupOpts['authzKeyStoreURL'],
+                opsKeyStoreURL: ('opsKeyStoreURL' in agentOpts) ? agentOpts['opsKeyStoreURL'] : defaultAgentStartupOpts['opsKeyStoreURL'],
+                edvOpsKIDURL: ('edvOpsKIDURL' in agentOpts) ? agentOpts['edvOpsKIDURL'] : defaultAgentStartupOpts['edvOpsKIDURL'],
+                edvHMACKIDURL: ('edvHMACKIDURL' in agentOpts) ? agentOpts['edvHMACKIDURL'] : defaultAgentStartupOpts['edvHMACKIDURL'],
+                keyServer: ('keyServer' in agentOpts) ? agentOpts['keyServer'] : defaultAgentStartupOpts['keyServer'],
                 useEDVCache: ('useEDVCache' in agentOpts) ? agentOpts['useEDVCache'] : defaultAgentStartupOpts['useEDVCache'],
                 clearCache: ('clearCache' in agentOpts) ? agentOpts['clearCache'] : defaultAgentStartupOpts['clearCache'],
             })

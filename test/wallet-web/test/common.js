@@ -63,7 +63,12 @@ const agentStartupOpts = {
     blocDomain: 'testnet.trustbloc.local',
     walletMediatorURL: 'https://localhost:10093',
     storageType: `indexedDB`, 	// TODO (#475): Allow the storage type to be configurable.
-    edvServerURL: ''
+    edvServerURL: '',
+    authzKeyStoreURL: '',
+    opsKeyStoreURL: '',
+    edvOpsKIDURL: '',
+    edvHMACKIDURL: '',
+    keyServer: {authzKMSURL: '', opsKMSURL: '', keyEDVURL:'', useRemoteKMS: true}
 }
 
 const msgServices = [

@@ -21,7 +21,7 @@ services:
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
-      - EDV_SERVER_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+      - EDV_SERVER_URL=https://edv-oathkeeper-proxy:${EDV_OATH_PROXY_PORT}/encrypted-data-vaults
       - STORAGE_TYPE=edv
       - USE_EDV_CACHE=true
       - CLEAR_CACHE=60s
@@ -41,7 +41,7 @@ services:
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
-      - EDV_SERVER_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+      - EDV_SERVER_URL=https://edv-oathkeeper-proxy:${EDV_OATH_PROXY_PORT}/encrypted-data-vaults
       - STORAGE_TYPE=edv
       - USE_EDV_CACHE=true
 
@@ -116,8 +116,9 @@ services:
       - HTTP_SERVER_RP_ID=user-ui-agent.example.com
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
-      - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
-      - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+      - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:${EDV_OATH_PROXY_PORT}/encrypted-data-vaults
+      - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:${EDV_OATH_PROXY_PORT}/encrypted-data-vaults
+      - USE_REMOTE_KMS=true
     ports:
       - 8090:8090
     volumes:
@@ -147,8 +148,9 @@ services:
       - HTTP_SERVER_RP_ID=second-ui-user-agent.example.com
       - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
       - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
-      - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
-      - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+      - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:${EDV_OATH_PROXY_PORT}/encrypted-data-vaults
+      - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:${EDV_OATH_PROXY_PORT}/encrypted-data-vaults
+      - USE_REMOTE_KMS=true
     ports:
       - 8070:8070
     volumes:
@@ -571,6 +573,7 @@ services:
       # TODO #488 enable this
       # - KMS_HUB_AUTH_URL=https://demo-hub-auth.trustbloc.local:8044
       # - KMS_HUB_AUTH_API_TOKEN=test_token
+      - KMS_LOG_LEVEL=debug
     ports:
       - ${AUTHZ_HUB_KMS_PORT}:${AUTHZ_HUB_KMS_PORT}
     entrypoint: ""
@@ -592,8 +595,9 @@ services:
       - KMS_DATABASE_TYPE=mem
       - KMS_SECRETS_DATABASE_TYPE=mem
       - KMS_KEY_MANAGER_STORAGE_TYPE=edv
-      - KMS_KEY_MANAGER_STORAGE_URL=https://edv.example.com:${EDV_PORT}
+      - KMS_KEY_MANAGER_STORAGE_URL=https://edv.example.com:${EDV_OATH_PROXY_PORT}
       - KMS_ZCAP_ENABLE=false # default is false anyway
+      - KMS_LOG_LEVEL=debug
     ports:
       - ${OPS_HUB_KMS_PORT}:${OPS_HUB_KMS_PORT}
     entrypoint: ""
@@ -606,7 +610,7 @@ services:
   edv-oathkeeper-proxy:
     image: oryd/oathkeeper:v0.38.4-alpine
     ports:
-      - "4455:4455"
+      - "${EDV_OATH_PROXY_PORT}:${EDV_OATH_PROXY_PORT}"
     # will add self-signed certificate to the “trusted list” because oathkeeper doesn't trust self-signed certificate
     # https://github.com/ory/oathkeeper/issues/181
     # remove it when using real certificate
@@ -615,8 +619,8 @@ services:
     entrypoint: ""
     environment:
       - LOG_LEVEL=debug
-      - PORT=4455
-      - ISSUER_URL=https://edv-oathkeeper-proxy:4455
+      - PORT=${EDV_OATH_PROXY_PORT}
+      - ISSUER_URL=https://edv-oathkeeper-proxy:${EDV_OATH_PROXY_PORT}
       - SERVE_PROXY_TLS_KEY_PATH=/etc/tls/ec-key.pem
       - SERVE_PROXY_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
       - SERVE_PROXY_CORS_ENABLED=true

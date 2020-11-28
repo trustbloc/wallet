@@ -42,7 +42,13 @@ server {
             "edvServerURL":"${EDV_SERVER_URL}",
             "edge-agent-server":"${EDGE_AGENT_SERVER}",
             "useEDVCache":${USE_EDV_CACHE},
-            "clearCache": "${CLEAR_CACHE}"
+            "clearCache": "${CLEAR_CACHE}",
+            "keyServer": {
+                "authzKMSURL": "https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}",
+                "opsKMSURL":"https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}",
+                "keyEDVURL":"https://edv.example.com:${EDV_OATH_PROXY_PORT}",
+                "useRemoteKMS":${USE_REMOTE_KMS}
+            }
         }';
     }
 }
