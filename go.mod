@@ -15,7 +15,7 @@ require (
 	github.com/hyperledger/aries-framework-go v0.1.5-0.20201124194436-a37f1c10fd4e
 	github.com/stretchr/testify v1.6.1
 	github.com/trustbloc/edge-core v0.1.5-0.20201126210935-53388acb41fc
-	github.com/trustbloc/edv v0.1.5-0.20201122203913-1dae4015cad6
+	github.com/trustbloc/edv v0.1.5-0.20201129165709-60c7f39d8096
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 )
 

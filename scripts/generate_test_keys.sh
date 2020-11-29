@@ -30,7 +30,9 @@ DNS.8 = user-agent.example.com
 DNS.9 = second-ui-user-agent.example.com
 DNS.10 = second-user-agent.example.com
 DNS.11 = edge.router.agent.example.com
-DNS.12 = uni-resolver-web.example.com" >> "$tmp"
+DNS.12 = uni-resolver-web.example.com
+DNS.13 = edv-oathkeeper-proxy
+DNS.14 = bdd-edv-oathkeeper-proxy" >> "$tmp"
 
 CERT_CA="test/bdd/fixtures/keys/tls/ec-cacert.pem"
 if [ ! -f "$CERT_CA" ]; then

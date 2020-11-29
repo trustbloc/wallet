@@ -567,7 +567,7 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 
 	_, controller := fingerprint.CreateDIDKey(pkBytes)
 
-	opsEDVVaultURL, opsEDVCapability, err := createEDVDataVault(o.keyEDVClient, controller)
+	opsEDVVaultURL, opsEDVCapability, err := createEDVDataVault(o.keyEDVClient, controller, accessToken)
 	if err != nil {
 		return "", fmt.Errorf("create edv vault : %w", err)
 	}
@@ -593,7 +593,7 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 	var userEDVCapability []byte
 
 	if o.userEDVClient != nil {
-		userEDVVaultURL, userEDVCapability, err = createEDVDataVault(o.userEDVClient, controller)
+		userEDVVaultURL, userEDVCapability, err = createEDVDataVault(o.userEDVClient, controller, accessToken)
 		if err != nil {
 			return "", fmt.Errorf("create user edv vault : %w", err)
 		}
@@ -825,7 +825,7 @@ func getVaultID(vaultURL string) string {
 	return parts[len(parts)-1]
 }
 
-func createEDVDataVault(edvClient edvClient, controller string) (string, []byte, error) {
+func createEDVDataVault(edvClient edvClient, controller, accessToken string) (string, []byte, error) {
 	config := models.DataVaultConfiguration{
 		Sequence:    0,
 		Controller:  controller,
@@ -834,7 +834,12 @@ func createEDVDataVault(edvClient edvClient, controller string) (string, []byte,
 		HMAC:        models.IDTypePair{ID: uuid.New().URN(), Type: "Sha256HmacKey2019"},
 	}
 
-	vaultURL, capability, err := edvClient.CreateDataVault(&config)
+	vaultURL, capability, err := edvClient.CreateDataVault(&config,
+		client.WithRequestHeader(func(req *http.Request) (*http.Header, error) {
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
+			return &req.Header, nil
+		}))
 	if err != nil {
 		return "", nil, fmt.Errorf("create data vault : %w", err)
 	}
