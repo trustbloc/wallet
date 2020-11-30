@@ -22,6 +22,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
+	"github.com/hyperledger/aries-framework-go/pkg/kms"
 	"github.com/hyperledger/aries-framework-go/pkg/vdr/fingerprint"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
@@ -555,7 +556,7 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 
 	authzKeyStoreID := getKeystoreID(authzKeyStoreURL)
 
-	keyID, err := createKey(o.keyServer.AuthzKMSURL, authzKeyStoreID, "ED25519", h, o.httpClient)
+	keyID, err := createKey(o.keyServer.AuthzKMSURL, authzKeyStoreID, kms.ED25519, h, o.httpClient)
 	if err != nil {
 		return "", fmt.Errorf("failed create authz key : %w", err)
 	}
@@ -599,11 +600,29 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 		}
 	}
 
+	edvOpsKID, err := createKey(o.keyServer.OpsKMSURL, getKeystoreID(opsKeyStoreURL), kms.ECDH256KWAES256GCM, h,
+		o.httpClient)
+	if err != nil {
+		return "", fmt.Errorf("create edv operational key : %w", err)
+	}
+
+	edvOpsKIDURL := fmt.Sprintf("%s/keys/%s", opsKeyStoreURL, edvOpsKID)
+
+	hmacEDVKID, err := createKey(o.keyServer.OpsKMSURL, getKeystoreID(opsKeyStoreURL), kms.HMACSHA256Tag256, h,
+		o.httpClient)
+	if err != nil {
+		return "", fmt.Errorf("create edv hmac key : %w", err)
+	}
+
+	hmacEDVKIDURL := fmt.Sprintf("%s/keys/%s", opsKeyStoreURL, hmacEDVKID)
+
 	data := &BootstrapData{
 		UserEDVVaultURL:   userEDVVaultURL,
 		OpsEDVVaultURL:    opsEDVVaultURL,
 		AuthzKeyStoreURL:  authzKeyStoreURL,
 		OpsKeyStoreURL:    opsKeyStoreURL,
+		EDVOpsKIDURL:      edvOpsKIDURL,
+		EDVHMACKIDURL:     hmacEDVKIDURL,
 		UserEDVCapability: string(userEDVCapability),
 	}
 
