@@ -258,7 +258,7 @@ func (s *Steps) userRedirectedToWallet() error {
 	return nil
 }
 
-func (s *Steps) userRetrievesProfile() error { // nolint:gocyclo // not much logic
+func (s *Steps) userRetrievesProfile() error { // nolint:gocyclo,funlen // not much logic
 	response, err := s.browser.Get(userProfilePath) // nolint:noctx // ignoring rule since these are bdd tests
 	if err != nil {
 		return fmt.Errorf("user failed to fetch their profile: %w", err)
@@ -313,6 +313,14 @@ func (s *Steps) userRetrievesProfile() error { // nolint:gocyclo // not much log
 
 	if respData.UserEDVVaultURL == "" {
 		return errors.New("user edv vault url can't be empty")
+	}
+
+	if respData.EDVOpsKIDURL == "" {
+		return errors.New("ops edv KID url can't be empty")
+	}
+
+	if respData.EDVHMACKIDURL == "" {
+		return errors.New("hmac edv KID url can't be empty")
 	}
 
 	return nil

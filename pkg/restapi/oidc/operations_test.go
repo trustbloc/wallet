@@ -21,6 +21,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
+	"github.com/hyperledger/aries-framework-go/pkg/kms"
 	"github.com/stretchr/testify/require"
 	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
@@ -755,6 +756,108 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 		require.Contains(t, w.Body.String(), "failed to update edv capability keystore")
 	})
 
+	t.Run("create edv ops key failure", func(t *testing.T) {
+		state := uuid.New().String()
+		ops := setupOnboardingTest(t, state)
+		ops.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				fmt.Println(req.URL.Path)
+
+				if req.URL.Path == hubAuthSecretPath {
+					return &http.Response{
+						StatusCode: http.StatusOK, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
+				}
+
+				statusCode := http.StatusCreated
+
+				if strings.Contains(req.URL.Path, "/export") ||
+					strings.Contains(req.URL.Path, "/sign") ||
+					strings.Contains(req.URL.Path, "/capability") {
+					statusCode = http.StatusOK
+				}
+
+				if req.URL.Path == "/kms/keystores//keys" {
+					var request createKeyReq
+
+					err := json.NewDecoder(req.Body).Decode(&request)
+					require.NoError(t, err)
+
+					if request.KeyType == kms.ECDH256KWAES256GCM {
+						return &http.Response{
+							StatusCode: http.StatusInternalServerError,
+							Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+						}, nil
+					}
+				}
+
+				return &http.Response{
+					StatusCode: statusCode,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+				}, nil
+			},
+		}
+		ops.keyEDVClient = &mockEDVClient{}
+		ops.userEDVClient = &mockEDVClient{}
+
+		w := httptest.NewRecorder()
+		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Contains(t, w.Body.String(), "create edv operational key")
+	})
+
+	t.Run("create edv hmac key failure", func(t *testing.T) {
+		state := uuid.New().String()
+		ops := setupOnboardingTest(t, state)
+		ops.httpClient = &mockHTTPClient{
+			DoFunc: func(req *http.Request) (*http.Response, error) {
+				fmt.Println(req.URL.Path)
+
+				if req.URL.Path == hubAuthSecretPath {
+					return &http.Response{
+						StatusCode: http.StatusOK, Body: ioutil.NopCloser(bytes.NewReader([]byte(""))),
+					}, nil
+				}
+
+				statusCode := http.StatusCreated
+
+				if strings.Contains(req.URL.Path, "/export") ||
+					strings.Contains(req.URL.Path, "/sign") ||
+					strings.Contains(req.URL.Path, "/capability") {
+					statusCode = http.StatusOK
+				}
+
+				if req.URL.Path == "/kms/keystores//keys" {
+					var request createKeyReq
+
+					err := json.NewDecoder(req.Body).Decode(&request)
+					require.NoError(t, err)
+
+					if request.KeyType == kms.HMACSHA256Tag256 {
+						return &http.Response{
+							StatusCode: http.StatusInternalServerError,
+							Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
+						}, nil
+					}
+				}
+
+				return &http.Response{
+					StatusCode: statusCode,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+				}, nil
+			},
+		}
+		ops.keyEDVClient = &mockEDVClient{}
+		ops.userEDVClient = &mockEDVClient{}
+
+		w := httptest.NewRecorder()
+		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+		require.Contains(t, w.Body.String(), "create edv hmac key")
+	})
+
 	t.Run("failure to post bootstrap data", func(t *testing.T) {
 		state := uuid.New().String()
 		ops := setupOnboardingTest(t, state)
@@ -838,6 +941,8 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 			OpsKeyStoreURL:    "http://localhost/ops/kms/" + uuid.New().String(),
 			UserEDVVaultURL:   "http://localhost/user/vault/" + uuid.New().String(),
 			OpsEDVVaultURL:    "http://localhost/ops/vault/" + uuid.New().String(),
+			EDVOpsKIDURL:      "http://localhost/ops/kms/" + uuid.New().String() + "/keys/" + uuid.New().String(),
+			EDVHMACKIDURL:     "http://localhost/ops/kms/" + uuid.New().String() + "/keys/" + uuid.New().String(),
 			UserEDVCapability: string(originalZcapBytes),
 		}
 		o.httpClient = &mockHTTPClient{
@@ -877,6 +982,8 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 		require.Equal(t, d.OpsEDVVaultURL, respData.OpsEDVVaultURL)
 		require.Equal(t, d.OpsKeyStoreURL, respData.OpsKeyStoreURL)
 		require.Equal(t, d.UserEDVVaultURL, respData.UserEDVVaultURL)
+		require.Equal(t, d.EDVOpsKIDURL, respData.EDVOpsKIDURL)
+		require.Equal(t, d.EDVHMACKIDURL, respData.EDVHMACKIDURL)
 
 		zCapResp := &zcapld.Capability{}
 

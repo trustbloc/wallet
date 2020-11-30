@@ -38,6 +38,8 @@ type BootstrapData struct {
 	OpsEDVVaultURL    string `json:"opsVaultURL,omitempty"`
 	AuthzKeyStoreURL  string `json:"authzKeyStoreURL,omitempty"`
 	OpsKeyStoreURL    string `json:"opsKeyStoreURL,omitempty"`
+	EDVOpsKIDURL      string `json:"edvOpsKIDURL,omitempty"`
+	EDVHMACKIDURL     string `json:"edvHMACKIDURL,omitempty"`
 	UserEDVCapability string `json:"edvCapability,omitempty"`
 }
 
