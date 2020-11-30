@@ -41,6 +41,7 @@ server {
             "storageType":"${STORAGE_TYPE}",
             "edvServerURL":"${EDV_SERVER_URL}",
             "edge-agent-server":"${EDGE_AGENT_SERVER}",
+            "kmsType":"${KMS_TYPE}",
             "useEDVCache":${USE_EDV_CACHE},
             "clearCache": "${CLEAR_CACHE}"
         }';

@@ -30,6 +30,7 @@ let defaultAgentStartupOpts = {
     edvVaultID: '',
     edvCapability: '',
     authzKeyStoreURL: '',
+    kmsType: `local`,
     useEDVCache: false,
     clearCache: ''
 }
@@ -48,7 +49,7 @@ export default {
                 await axios.get(agentOptsLocation(location))
                     .then(resp => {
                         agentOpts = resp.data
-                        console.log("successfully fetched agent start up options");
+                        console.log("successfully fetched agent start up options: ", agentOpts);
                     })
                     .catch(err => {
                         console.log("error fetching start up options - using default options : errMsg=", err);
@@ -56,7 +57,7 @@ export default {
 
                 agentOpts['http-resolver-url'] = agentOpts['http-resolver-url'].split(',')
 
-                if (agentOpts.storageType === 'edv') {
+                if (agentOpts.storageType === 'edv' || agentOpts.kmsType === 'webkms') {
                     const userInfoURL = agentOpts["edge-agent-server"] + "/oidc/userinfo"
 
                     console.log("User info URL is: " + userInfoURL)
@@ -67,19 +68,32 @@ export default {
 
                     await client.get(userInfoURL)
                         .then(resp => {
-                            const edvVaultURL = resp.data.bootstrap.edvVaultURL
+                            if (agentOpts.storageType === 'edv') {
+                                const edvVaultURL = resp.data.bootstrap.edvVaultURL
 
-                            console.log("User EDV Vault URL is: " + edvVaultURL)
+                                console.log("User EDV Vault URL is: " + edvVaultURL)
 
-                            const edvVaultID = edvVaultURL.substring(edvVaultURL.lastIndexOf('/')+1)
+                                const edvVaultID = edvVaultURL.substring(edvVaultURL.lastIndexOf('/') + 1)
 
-                            console.log("User EDV Vault ID is: " + edvVaultID)
+                                console.log("User EDV Vault ID is: " + edvVaultID)
 
-                            agentOpts.edvVaultID = edvVaultID
-                            agentOpts.edvCapability=resp.data.bootstrap.edvCapability
-                            agentOpts.authzKeyStoreURL=resp.data.bootstrap.authzKeyStoreURL
-                            agentOpts.userConfig=resp.data.userConfig
-                        })
+                                agentOpts.edvVaultID = edvVaultID
+                                agentOpts.edvCapability = resp.data.bootstrap.edvCapability
+                            }
+
+                            if (agentOpts.kmsType === 'webkms') {
+                                agentOpts.opsKeyStoreURL =  resp.data.bootstrap.opsKeyStoreURL
+                                agentOpts.edvOpsKIDURL =  resp.data.bootstrap.edvOpsKIDURL
+                                agentOpts.edvHMACKIDURL =  resp.data.bootstrap.edvHMACKIDURL
+
+                                console.log("ops key store url : " + agentOpts.opsKeyStoreURL)
+                                console.log("edv ops key url : " + agentOpts.edvOpsKIDURL)
+                                console.log("edv ops key url : " + agentOpts.edvHMACKIDURL)
+                            }
+
+                            agentOpts.authzKeyStoreURL = resp.data.bootstrap.authzKeyStoreURL
+                            agentOpts.userConfig = resp.data.userConfig
+                       })
                         .catch(err => {
                             console.log("error fetching user info: errMsg=", err);
                             console.log("Note: If you haven't logged in yet and you just got a 403 error, then it's expected")
@@ -111,6 +125,10 @@ export default {
                 userConfig: ('userConfig' in agentOpts) ? agentOpts['userConfig'] : defaultAgentStartupOpts['userConfig'],
                 useEDVCache: ('useEDVCache' in agentOpts) ? agentOpts['useEDVCache'] : defaultAgentStartupOpts['useEDVCache'],
                 clearCache: ('clearCache' in agentOpts) ? agentOpts['clearCache'] : defaultAgentStartupOpts['clearCache'],
+                kmsType: ('kmsType' in agentOpts) ? agentOpts['kmsType'] : defaultAgentStartupOpts['kmsType'],
+                opsKeyStoreURL: ('opsKeyStoreURL' in agentOpts) ? agentOpts['opsKeyStoreURL'] : defaultAgentStartupOpts['opsKeyStoreURL'],
+                edvOpsKIDURL: ('edvOpsKIDURL' in agentOpts) ? agentOpts['edvOpsKIDURL'] : defaultAgentStartupOpts['edvOpsKIDURL'],
+                edvHMACKIDURL: ('edvHMACKIDURL' in agentOpts) ? agentOpts['edvHMACKIDURL'] : defaultAgentStartupOpts['edvHMACKIDURL'],
             })
         },
     },
