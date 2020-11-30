@@ -1,0 +1,59 @@
+[
+  {
+    "id": "edv-vault-resource-server-rule",
+    "upstream": {
+      "url": "https://edv.example.com:8072"
+    },
+    "match": {
+      "url": "https://edv-oathkeeper-proxy:4455/encrypted-data-vaults",
+      "methods": [
+        "POST"
+      ]
+    },
+    "authenticators": [
+      {
+        "handler": "oauth2_introspection"
+      }
+    ],
+    "mutators": [
+      {
+        "handler": "header",
+        "config": {
+          "headers": {
+            "X-User": "{{ print .Subject }}"
+          }
+        }
+      }
+    ],
+    "authorizer": {
+      "handler": "allow"
+    }
+  },
+  {
+    "id": "edv-operation-resource-server-rule",
+    "upstream": {
+      "url": "https://edv.example.com:8072"
+    },
+    "match": {
+      "url": "https://edv-oathkeeper-proxy:4455/encrypted-data-vaults/<.*>",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ]
+    },
+    "authenticators": [
+      {
+        "handler": "noop"
+      }
+    ],
+    "mutators": [
+      {
+        "handler": "noop"
+      }
+    ],
+    "authorizer": {
+      "handler": "allow"
+    }
+  }
+]

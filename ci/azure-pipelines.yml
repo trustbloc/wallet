@@ -62,6 +62,7 @@ jobs:
           echo '127.0.0.1 bdd-hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bddtest-wallet-web.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 bdd-edv-oathkeeper-proxy' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
@@ -91,6 +92,7 @@ jobs:
           echo '127.0.0.1 bdd-hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bddtest-wallet-web.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 bdd-edv-oathkeeper-proxy' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
