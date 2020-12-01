@@ -21,7 +21,8 @@ export class DeviceRegister {
     async register() {
      //   let alertMessage;
         const serverURL = this.agent['edge-agent-server'];
-        client.get(serverURL+'/device/register/begin',null,
+        var registerSuccess = 'none';
+        await client.get(serverURL+'/device/register/begin',null,
             function (data) {
                 return data
             },
@@ -64,14 +65,14 @@ export class DeviceRegister {
             })
             // eslint-disable-next-line no-unused-vars
             .then((success) => {
-                //TODO: Create the proper alert
-                alert("Success !! Device successfully registered");
+                registerSuccess = 'success';
                 return
             })
             .catch((error) => {
                 console.log(error);
-                alert("Oops !! Device failed to register");
+                registerSuccess = 'failure';
             })
+        return registerSuccess;
     }
 }
 
