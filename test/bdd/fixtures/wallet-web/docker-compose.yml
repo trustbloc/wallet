@@ -200,8 +200,8 @@ services:
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
       - HTTP_SERVER_RP_ORIGIN_NAME=https://bddtest-wallet-web.trustbloc.local:8077/
       - HTTP_SERVER_RP_ID=localhost
-      - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
-      - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
+      - HTTP_SERVER_AUTHZ_KMS_URL=https://bdd-oathkeeper-auth-keyserver.trustbloc.local:4459
+      - HTTP_SERVER_OPS_KMS_URL=https://bdd-oathkeeper-ops-keyserver.trustbloc.local:4460
       - HTTP_SERVER_KEY_EDV_URL=https://bdd-edv-oathkeeper-proxy:4457/encrypted-data-vaults
       - HTTP_SERVER_USER_EDV_URL=https://bdd-edv-oathkeeper-proxy:4457/encrypted-data-vaults
       - ARIESD_LOG_LEVEL=DEBUG
@@ -665,4 +665,40 @@ services:
     restart: on-failure
     volumes:
       - ../bdd-edv-oathkeeper:/oathkeeper
+      - ../keys/tls:/etc/tls
+
+  bdd-oathkeeper-auth-keyserver.trustbloc.local:
+    container_name: bdd-oathkeeper-auth-keyserver.trustbloc.local
+    image: oryd/oathkeeper:v0.38.4-alpine
+    ports:
+      - 4459:4459
+    command: /bin/sh -c "cp /etc/tls/ec-cacert.pem /usr/local/share/ca-certificates/;update-ca-certificates;oathkeeper serve proxy --config /oathkeeper/config.yaml"
+    user: root
+    entrypoint: ""
+    environment:
+      - LOG_LEVEL=debug
+      - PORT=4459
+      - ISSUER_URL=https://bdd-oathkeeper-auth-keyserver:4459
+      - SERVE_PROXY_TLS_KEY_PATH=/etc/tls/ec-key.pem
+      - SERVE_PROXY_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
+    volumes:
+      - ./oathkeeper-config/auth-keyserver:/oathkeeper
+      - ../keys/tls:/etc/tls
+
+  bdd-oathkeeper-ops-keyserver.trustbloc.local:
+    container_name: bdd-oathkeeper-ops-keyserver.trustbloc.local
+    image: oryd/oathkeeper:v0.38.4-alpine
+    ports:
+      - 4460:4460
+    command: /bin/sh -c "cp /etc/tls/ec-cacert.pem /usr/local/share/ca-certificates/;update-ca-certificates;oathkeeper serve proxy --config /oathkeeper/config.yaml"
+    user: root
+    entrypoint: ""
+    environment:
+      - LOG_LEVEL=debug
+      - PORT=4460
+      - ISSUER_URL=https://bdd-oathkeeper-ops-keyserver:4460
+      - SERVE_PROXY_TLS_KEY_PATH=/etc/tls/ec-key.pem
+      - SERVE_PROXY_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
+    volumes:
+      - ./oathkeeper-config/ops-keyserver:/oathkeeper
       - ../keys/tls:/etc/tls

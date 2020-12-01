@@ -600,6 +600,7 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 		}
 	}
 
+	// TODO should not have to add access_token to create key at ops key server
 	edvOpsKID, err := createKey(o.keyServer.OpsKMSURL, getKeystoreID(opsKeyStoreURL), kms.ECDH256KWAES256GCM, h,
 		o.httpClient)
 	if err != nil {
@@ -702,7 +703,7 @@ func createKeyStore(baseURL, controller, vaultID string, h *hubKMSHeader,
 
 	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
 	if err != nil {
-		return "", "", fmt.Errorf("create authz keystore : %w", err)
+		return "", "", fmt.Errorf("create keystore : %w", err)
 	}
 
 	keystoreURL := headers.Get("Location")
@@ -893,16 +894,26 @@ func sendHTTPRequest(req *http.Request, httpClient httpClient, status int) ([]by
 
 func addAuthZKMSHeaders(r *http.Request, h *hubKMSHeader) {
 	r.Header.Add("Hub-Kms-Secret", h.secretShare)
-	r.Header.Add("Hub-Kms-User", h.userSub)
-	logger.Errorf(h.secretShare)
-	logger.Errorf(h.userSub)
+	logger.Debugf(h.secretShare)
+	logger.Debugf(h.userSub)
 
-	addAccessToken(r, h.accessToken)
+	addHubKMSAccessTokenHeader(r, h.accessToken)
 }
 
 func addAccessToken(r *http.Request, token string) {
 	r.Header.Set(
 		"authorization",
 		fmt.Sprintf("Bearer %s", base64.StdEncoding.EncodeToString([]byte(token))),
+	)
+}
+
+// TODO oathkeeper expects the token in plain form, not base64-encoded:
+//  https://github.com/ory/oathkeeper/issues/597.
+//  OAuth2 Bearer Token Usage specifies it must be base64-encoded:
+//  https://tools.ietf.org/html/rfc6750#section-2.1.
+func addHubKMSAccessTokenHeader(r *http.Request, token string) {
+	r.Header.Set(
+		"authorization",
+		fmt.Sprintf("Bearer %s", token),
 	)
 }
