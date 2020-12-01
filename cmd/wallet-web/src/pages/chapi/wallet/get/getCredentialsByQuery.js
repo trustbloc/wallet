@@ -155,7 +155,6 @@ export class WalletGetByQuery extends WalletGet {
 
         let peerDID = (await this.didManager.createPeerDID()).DID
         let agent = this.agent
-        let walletManager = this.walletManager
         let acceptCredPool = new Map()
 
         await Promise.all(presentationSubmission.verifiableCredential.map(async (vc, index) => {
@@ -163,7 +162,8 @@ export class WalletGetByQuery extends WalletGet {
                 return
             }
 
-            let connection = await walletManager.getConnectionByID(vc.connection)
+            let conn = await agent.didexchange.queryConnectionByID({id: vc.connection})
+            let connection = conn.result;
             // TODO `request_credential.requests~attach.data.json.subjectDID` to be removed once adapters are updated
             let resp = await agent.issuecredential.sendRequest({
                 my_did: connection.MyDID,
