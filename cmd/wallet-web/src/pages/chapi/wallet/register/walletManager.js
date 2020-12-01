@@ -11,7 +11,6 @@ var uuid = require('uuid/v4')
 const dbName = "wallet"
 const metadataStore = "metadata"
 const manifestStore = "manifest"
-const connectionsStore = "connections"
 
 /**
  * WalletManager manages create/store/query features for wallet metadata
@@ -24,11 +23,6 @@ export class WalletManager extends KeyValueStore {
 
         // TODO EDV will be used in future for these stores #268
         this.manifestStore = new KeyValueStore(`${dbName}-${manifestStore}`, manifestStore)
-        this.connectionStore = new KeyValueStore(`${dbName}-${connectionsStore}`, connectionsStore)
-    }
-
-    async getAllWalletMetadata() {
-        return this.getAll()
     }
 
     async getWalletMetadata(user) {
@@ -49,21 +43,8 @@ export class WalletManager extends KeyValueStore {
         return this.manifestStore.getAll()
     }
 
-    async storeConnection(connectionID, connection) {
-        return this.connectionStore.store(connectionID, connection)
-    }
-
-    async getAllConnections() {
-        return this.connectionStore.getAll()
-    }
-
-    async getConnectionByID(id) {
-        return this.connectionStore.get(id)
-    }
-
     async clear() {
         await super.clear()
-        await this.connectionStore.clear()
         await this.manifestStore.clear()
     }
 }

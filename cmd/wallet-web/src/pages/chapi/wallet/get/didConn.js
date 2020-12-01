@@ -70,9 +70,6 @@ export class DIDConn {
         walletMetadata.connections.push(connection.result.ConnectionID)
         await this.walletManager.storeWalletMetadata(walletMetadata, walletMetadata)
 
-        // save connection
-        await this.walletManager.storeConnection(connection.result.ConnectionID, connection.result)
-
         // save credentials
         if (this.credentials) {
             for (let credential of this.credentials) {
