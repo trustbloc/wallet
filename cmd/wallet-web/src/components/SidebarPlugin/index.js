@@ -16,21 +16,20 @@ const SidebarStore = {
 
 const SidebarPlugin = {
   install(Vue) {
-    Vue.mixin({
-      data() {
-        return {
-          sidebarStore: SidebarStore
-        };
-      }
-    });
-
+      Vue.mixin({
+        created: function () {
+          return{
+            SidebarStore
+          }
+        }
+      });
     Object.defineProperty(Vue.prototype, "$sidebar", {
       get() {
-        return this.$root.sidebarStore;
+        return SidebarStore;
       }
     });
-    Vue.component("side-bar", Sidebar);
-    Vue.component("sidebar-link", SidebarLink);
+    Vue.component("side-bar", Sidebar),
+    Vue.component("sidebar-link", SidebarLink)
   }
 };
 
