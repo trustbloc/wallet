@@ -23,6 +23,7 @@ services:
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - STORAGE_TYPE=edv
+      - KMS_TYPE=webkms
       - USE_EDV_CACHE=true
       - CLEAR_CACHE=60s
 
@@ -43,6 +44,7 @@ services:
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - STORAGE_TYPE=edv
+      - KMS_TYPE=webkms
       - USE_EDV_CACHE=true
 
   edge.router.agent.example.com:
@@ -175,6 +177,7 @@ services:
       - EDV_SERVER_URL=https://bdd-edv-oathkeeper-proxy:4457/encrypted-data-vaults
       - STORAGE_TYPE=edv
       - USE_EDV_CACHE=true
+      - KMS_TYPE=webkms
 
   bddtest-wallet-web.trustbloc.local:
     container_name: bddtest-wallet-web.trustbloc.local

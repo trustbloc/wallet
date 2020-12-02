@@ -19,7 +19,7 @@ let defaultAgentStartupOpts = {
     'auto-accept': true,
     'log-level': 'debug',
     'indexedDB-namespace': 'agent',
-    'edge-agent-server':'',
+    'edge-agent-server': '',
 
     blocDomain: 'testnet.trustbloc.local',
     walletMediatorURL: 'https://localhost:10063',
@@ -82,9 +82,10 @@ export default {
                             }
 
                             if (agentOpts.kmsType === 'webkms') {
-                                agentOpts.opsKeyStoreURL =  resp.data.bootstrap.opsKeyStoreURL
-                                agentOpts.edvOpsKIDURL =  resp.data.bootstrap.edvOpsKIDURL
-                                agentOpts.edvHMACKIDURL =  resp.data.bootstrap.edvHMACKIDURL
+                                // TODO revist https prefix; server should send this
+                                agentOpts.opsKeyStoreURL = 'https://' + resp.data.bootstrap.opsKeyStoreURL
+                                agentOpts.edvOpsKIDURL = 'https://' + resp.data.bootstrap.edvOpsKIDURL
+                                agentOpts.edvHMACKIDURL = 'https://' + resp.data.bootstrap.edvHMACKIDURL
 
                                 console.log("ops key store url : " + agentOpts.opsKeyStoreURL)
                                 console.log("edv ops key url : " + agentOpts.edvOpsKIDURL)
@@ -93,7 +94,7 @@ export default {
 
                             agentOpts.authzKeyStoreURL = resp.data.bootstrap.authzKeyStoreURL
                             agentOpts.userConfig = resp.data.userConfig
-                       })
+                        })
                         .catch(err => {
                             console.log("error fetching user info: errMsg=", err);
                             console.log("Note: If you haven't logged in yet and you just got a 403 error, then it's expected")
