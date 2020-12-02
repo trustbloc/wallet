@@ -48,6 +48,8 @@ services:
       - STORAGE_TYPE=edv
       - KMS_TYPE=webkms
       - USE_EDV_CACHE=true
+      - EDV_BATCH_LIMIT=10
+      - EDV_BATCH_TIME=5s
 
   edge.router.agent.example.com:
     container_name: edge.router.agent.example.com
@@ -179,6 +181,8 @@ services:
       - EDV_SERVER_URL=https://bdd-edv-oathkeeper-proxy:4457/encrypted-data-vaults
       - STORAGE_TYPE=edv
       - USE_EDV_CACHE=true
+      - EDV_BATCH_LIMIT=10
+      - EDV_BATCH_TIME=5s
       - KMS_TYPE=webkms
 
   bddtest-wallet-web.trustbloc.local:
