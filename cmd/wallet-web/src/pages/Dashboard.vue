@@ -62,7 +62,15 @@ SPDX-License-Identifier: Apache-2.0
             await this.refreshUserMetadata()
 
             this.username = this.getCurrentUser().username
-            this.showOfflineWarning = this.getAgentOpts().walletMediatorURL && !JSON.parse(this.getCurrentUser().metadata).invitation
+
+            if(this.getCurrentUser().metadata !== undefined){
+                try{
+                    this.showOfflineWarning = this.getAgentOpts().walletMediatorURL && !JSON.parse(this.getCurrentUser().metadata).invitation
+                }
+                catch(error){
+                    console.error("current user is undefined")
+                }
+            }
         },
         methods: {
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
