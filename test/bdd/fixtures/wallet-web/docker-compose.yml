@@ -25,7 +25,9 @@ services:
       - STORAGE_TYPE=edv
       - KMS_TYPE=webkms
       - USE_EDV_CACHE=true
-      - CLEAR_CACHE=60s
+      - EDV_CLEAR_CACHE=60s
+      - EDV_BATCH_LIMIT=10
+      - EDV_BATCH_TIME=5s
 
   second-ui-user-agent.example.com:
     container_name: second-ui-user-agent.example.com

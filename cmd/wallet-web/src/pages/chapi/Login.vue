@@ -36,6 +36,7 @@ SPDX-License-Identifier: Apache-2.0
 <script>
     import {DeviceLogin, RegisterWallet} from "./wallet"
     import {mapActions, mapGetters} from 'vuex'
+    import parse from 'parse-duration'
 
     export default {
         created: async function () {
@@ -53,7 +54,13 @@ SPDX-License-Identifier: Apache-2.0
             if (this.getCurrentUser()) {
                 await this.finishOIDCLogin()
                 this.handleSuccess()
-                return
+                 if (this.getAgentOpts().edvBatchTime !== '') {
+                      // TODO need to call store flush
+                      console.log("need to wait for store flush:",this.getAgentOpts().edvBatchTime)
+                      let ms = parse(this.getAgentOpts().edvBatchTime)
+                      await this.sleep(ms+2000);
+                    }
+              return
             }
 
             this.loading = false
@@ -71,7 +78,10 @@ SPDX-License-Identifier: Apache-2.0
             beginOIDCLogin: async function() {
                 window.location.href = this.serverURL() + "/oidc/login"
             },
-            finishOIDCLogin: async function() {
+           sleep(ms) {
+               return new Promise(resolve => setTimeout(resolve, ms));
+             },
+          finishOIDCLogin: async function() {
                 let user = this.getCurrentUser()
 
                 let registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, this.getAgentInstance(),
@@ -89,7 +99,7 @@ SPDX-License-Identifier: Apache-2.0
                 }
             },
             handleSuccess() {
-                this.$router.push(this.redirect);
+              this.$router.push(this.redirect);
             },
             handleFailure(e) {
                 console.error("login failure: ", e)

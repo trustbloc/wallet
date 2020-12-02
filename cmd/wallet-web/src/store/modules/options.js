@@ -32,7 +32,9 @@ let defaultAgentStartupOpts = {
     authzKeyStoreURL: '',
     kmsType: `local`,
     useEDVCache: false,
-    clearCache: ''
+    edvClearCache: '',
+    edvBatchLimit: 0,
+    edvBatchTime: '',
 }
 
 export default {
@@ -125,11 +127,13 @@ export default {
                 authzKeyStoreURL: ('authzKeyStoreURL' in agentOpts) ? agentOpts['authzKeyStoreURL'] : defaultAgentStartupOpts['authzKeyStoreURL'],
                 userConfig: ('userConfig' in agentOpts) ? agentOpts['userConfig'] : defaultAgentStartupOpts['userConfig'],
                 useEDVCache: ('useEDVCache' in agentOpts) ? agentOpts['useEDVCache'] : defaultAgentStartupOpts['useEDVCache'],
-                clearCache: ('clearCache' in agentOpts) ? agentOpts['clearCache'] : defaultAgentStartupOpts['clearCache'],
+                edvClearCache: ('edvClearCache' in agentOpts) ? agentOpts['edvClearCache'] : defaultAgentStartupOpts['edvClearCache'],
                 kmsType: ('kmsType' in agentOpts) ? agentOpts['kmsType'] : defaultAgentStartupOpts['kmsType'],
                 opsKeyStoreURL: ('opsKeyStoreURL' in agentOpts) ? agentOpts['opsKeyStoreURL'] : defaultAgentStartupOpts['opsKeyStoreURL'],
                 edvOpsKIDURL: ('edvOpsKIDURL' in agentOpts) ? agentOpts['edvOpsKIDURL'] : defaultAgentStartupOpts['edvOpsKIDURL'],
                 edvHMACKIDURL: ('edvHMACKIDURL' in agentOpts) ? agentOpts['edvHMACKIDURL'] : defaultAgentStartupOpts['edvHMACKIDURL'],
+                edvBatchLimit: ('edvBatchLimit' in agentOpts) ? agentOpts['edvBatchLimit'] : defaultAgentStartupOpts['edvBatchLimit'],
+                edvBatchTime: ('edvBatchTime' in agentOpts) ? agentOpts['edvBatchTime'] : defaultAgentStartupOpts['edvBatchTime'],
             })
         },
     },
