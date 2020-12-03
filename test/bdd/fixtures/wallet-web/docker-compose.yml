@@ -559,7 +559,9 @@ services:
     container_name: authz-kms.trustbloc.local
     image: ${HUB_KMS_IMAGE}:${HUB_KMS_IMAGE_TAG}
     environment:
-      - KMS_HOST_URL=${HUB_KMS_HOST}:${AUTHZ_HUB_KMS_PORT}
+      - KMS_HOST_URL=${HUB_KMS_HOST}:${DEMO_AUTHZ_HUB_KMS_PORT}
+      # TODO use oathkeeper url once its switched
+      - KMS_BASE_URL=https://authz-kms.trustbloc.local:${DEMO_AUTHZ_HUB_KMS_PORT}
       - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
       - KMS_TLS_SYSTEMCERTPOOL=true
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
@@ -580,7 +582,7 @@ services:
       - KMS_HUB_AUTH_URL=https://demo-hub-auth.trustbloc.local:8044
       - KMS_HUB_AUTH_API_TOKEN=test_token
     ports:
-      - ${AUTHZ_HUB_KMS_PORT}:${AUTHZ_HUB_KMS_PORT}
+      - ${DEMO_AUTHZ_HUB_KMS_PORT}:${DEMO_AUTHZ_HUB_KMS_PORT}
     entrypoint: ""
     command: /bin/sh -c "sleep 30;kms-rest start"
     volumes:
@@ -592,7 +594,9 @@ services:
     container_name: ops-kms.trustbloc.local
     image: ${HUB_KMS_IMAGE}:${HUB_KMS_IMAGE_TAG}
     environment:
-      - KMS_HOST_URL=${HUB_KMS_HOST}:${OPS_HUB_KMS_PORT}
+      - KMS_HOST_URL=${HUB_KMS_HOST}:${DEMO_OPS_HUB_KMS_PORT}
+      # TODO use oathkeeper url once its switched
+      - KMS_BASE_URL=https://ops-kms.trustbloc.local:${DEMO_OPS_HUB_KMS_PORT}
       - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
@@ -610,7 +614,72 @@ services:
       - KMS_KEY_MANAGER_STORAGE_URL=https://edv.example.com:${EDV_PORT}
       - KMS_ZCAP_ENABLE=false # default is false anyway
     ports:
-      - ${OPS_HUB_KMS_PORT}:${OPS_HUB_KMS_PORT}
+      - ${DEMO_OPS_HUB_KMS_PORT}:${DEMO_OPS_HUB_KMS_PORT}
+    entrypoint: ""
+    command: /bin/sh -c "sleep 30;kms-rest start"
+    volumes:
+      - ../keys/tls:/etc/tls
+    depends_on:
+      - couchdb.example.com
+
+  bdd-authz-kms.example.com:
+    container_name: bdd-authz-kms.trustbloc.local
+    image: ${HUB_KMS_IMAGE}:${HUB_KMS_IMAGE_TAG}
+    environment:
+      - KMS_HOST_URL=${HUB_KMS_HOST}:${BDD_AUTHZ_HUB_KMS_PORT}
+      - KMS_BASE_URL=https://bdd-oathkeeper-auth-keyserver.trustbloc.local:4459
+      - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - KMS_TLS_SYSTEMCERTPOOL=true
+      - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
+      - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
+      - KMS_DATABASE_TYPE=couchdb
+      - KMS_DATABASE_URL=${EDV_DATABASE_URL}
+      - KMS_DATABASE_PREFIX=bddauthzkeystore
+      - KMS_SECRET_LOCK_KEY_PATH=/etc/tls/service-lock.key
+      - KMS_PRIMARY_KEY_DATABASE_TYPE=couchdb
+      - KMS_PRIMARY_KEY_DATABASE_URL=${EDV_DATABASE_URL}
+      - KMS_PRIMARY_KEY_DATABASE_PREFIX=bddauthzkmspk
+      - KMS_LOCAL_KMS_DATABASE_TYPE=couchdb
+      - KMS_LOCAL_KMS_DATABASE_URL=${EDV_DATABASE_URL}
+      - KMS_LOCAL_KMS_DATABASE_PREFIX=bddauthzkmslocal
+      - KMS_KEY_MANAGER_STORAGE_TYPE=couchdb
+      - KMS_KEY_MANAGER_STORAGE_URL=${EDV_DATABASE_URL}
+      - KMS_KEY_MANAGER_STORAGE_PREFIX=bddauthzkmskm
+      - KMS_HUB_AUTH_URL=https://demo-hub-auth.trustbloc.local:8044
+      - KMS_HUB_AUTH_API_TOKEN=test_token
+    ports:
+      - ${BDD_AUTHZ_HUB_KMS_PORT}:${BDD_AUTHZ_HUB_KMS_PORT}
+    entrypoint: ""
+    command: /bin/sh -c "sleep 30;kms-rest start"
+    volumes:
+      - ../keys/tls:/etc/tls
+    depends_on:
+      - couchdb.example.com
+
+  bdd-ops-kms.example.com:
+    container_name: bdd-ops-kms.trustbloc.local
+    image: ${HUB_KMS_IMAGE}:${HUB_KMS_IMAGE_TAG}
+    environment:
+      - KMS_HOST_URL=${HUB_KMS_HOST}:${BDD_OPS_HUB_KMS_PORT}
+      - KMS_BASE_URL=https://bdd-oathkeeper-ops-keyserver.trustbloc.local:4460
+      - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
+      - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
+      - KMS_DATABASE_TYPE=couchdb
+      - KMS_DATABASE_URL=${EDV_DATABASE_URL}
+      - KMS_DATABASE_PREFIX=bddkeystore
+      - KMS_SECRET_LOCK_KEY_PATH=/etc/tls/service-lock.key
+      - KMS_PRIMARY_KEY_DATABASE_TYPE=couchdb
+      - KMS_PRIMARY_KEY_DATABASE_URL=${EDV_DATABASE_URL}
+      - KMS_PRIMARY_KEY_DATABASE_PREFIX=bddkmspk
+      - KMS_LOCAL_KMS_DATABASE_TYPE=couchdb
+      - KMS_LOCAL_KMS_DATABASE_URL=${EDV_DATABASE_URL}
+      - KMS_LOCAL_KMS_DATABASE_PREFIX=bddkmslocal
+      - KMS_KEY_MANAGER_STORAGE_TYPE=edv
+      - KMS_KEY_MANAGER_STORAGE_URL=https://edv.example.com:${EDV_PORT}
+      - KMS_ZCAP_ENABLE=false # default is false anyway
+    ports:
+      - ${BDD_OPS_HUB_KMS_PORT}:${BDD_OPS_HUB_KMS_PORT}
     entrypoint: ""
     command: /bin/sh -c "sleep 30;kms-rest start"
     volumes:

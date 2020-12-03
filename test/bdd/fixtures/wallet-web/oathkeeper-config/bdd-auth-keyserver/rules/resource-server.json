@@ -2,7 +2,7 @@
   {
     "id": "auth-kms-create-keystore",
     "upstream": {
-      "url": "https://authz-kms.trustbloc.local:8076"
+      "url": "https://bdd-authz-kms.trustbloc.local:8066"
     },
     "match": {
       "url": "https://bdd-oathkeeper-auth-keyserver.trustbloc.local:4459/kms/keystores",
@@ -28,7 +28,7 @@
   {
     "id": "auth-kms-keystore-ops",
     "upstream": {
-      "url": "https://authz-kms.trustbloc.local:8076"
+      "url": "https://bdd-authz-kms.trustbloc.local:8066"
     },
     "match": {
       "url": "https://bdd-oathkeeper-auth-keyserver.trustbloc.local:4459/kms/keystores/<*>",
@@ -54,7 +54,7 @@
   {
     "id": "ops-kms-health",
     "upstream": {
-      "url": "https://authz-kms.trustbloc.local:8076"
+      "url": "https://bdd-authz-kms.trustbloc.local:8066"
     },
     "match": {
       "url": "http://bdd-oathkeeper-auth-keyserver.trustbloc.local:4459/healthcheck",
