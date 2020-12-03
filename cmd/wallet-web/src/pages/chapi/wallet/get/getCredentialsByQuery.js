@@ -110,6 +110,8 @@ export class WalletGetByQuery extends WalletGet {
                 }
             )
 
+            // need to flush
+            await this.agent.store.flush()
             this.sendResponse(responseType, data)
         } catch (e) {
             console.error('sending response error', e)

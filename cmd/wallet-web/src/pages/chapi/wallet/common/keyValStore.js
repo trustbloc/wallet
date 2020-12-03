@@ -60,10 +60,14 @@ export class KeyValueStore {
     }
 
     async store(id, value) {
-        return this.agent.store.put({
+        let resp = this.agent.store.put({
             key: this.dbName + this.storeName + id,
             value: btoa(JSON.stringify(value)),
         })
+        // need to flush
+        await this.agent.store.flush()
+
+        return resp
     }
 
     async clear() {

@@ -43,6 +43,7 @@ export class WalletStore {
             status = e.toString()
         }
 
+        await this.agent.store.flush()
         console.log(`sending status response with status ${status}`)
 
         // Call Credential Handler callback

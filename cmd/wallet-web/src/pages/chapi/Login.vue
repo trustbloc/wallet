@@ -36,7 +36,6 @@ SPDX-License-Identifier: Apache-2.0
 <script>
     import {DeviceLogin, RegisterWallet} from "./wallet"
     import {mapActions, mapGetters} from 'vuex'
-    import parse from 'parse-duration'
 
     export default {
         created: async function () {
@@ -46,20 +45,16 @@ SPDX-License-Identifier: Apache-2.0
 
             this.loadUser()
             if (this.getCurrentUser()) {
-                this.handleSuccess()
+              await this.getAgentInstance().store.flush()
+              this.handleSuccess()
                 return
             }
 
             await this.loadOIDCUser()
             if (this.getCurrentUser()) {
-                await this.finishOIDCLogin()
-                this.handleSuccess()
-                 if (this.getAgentOpts().edvBatchTime !== '') {
-                      // TODO need to call store flush
-                      console.log("need to wait for store flush:",this.getAgentOpts().edvBatchTime)
-                      let ms = parse(this.getAgentOpts().edvBatchTime)
-                      await this.sleep(ms+2000);
-                    }
+              await this.finishOIDCLogin()
+              await this.getAgentInstance().store.flush()
+              this.handleSuccess()
               return
             }
 
