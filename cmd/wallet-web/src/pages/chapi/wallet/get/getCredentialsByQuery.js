@@ -50,7 +50,7 @@ export class WalletGetByQuery extends WalletGet {
          */
         this.govnVC = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="DIDConnect")].credentials[?(@.type[0]=="GovernanceCredential" || @.type[1]=="GovernanceCredential")]');
 
-        this.walletManager = new WalletManager()
+        this.walletManager = new WalletManager(agent)
         this.blindedRouter = new BlindedRouter(agent, opts)
         this.didManager = new DIDManager(agent, opts)
         this.didExchange = new DIDExchange(agent)

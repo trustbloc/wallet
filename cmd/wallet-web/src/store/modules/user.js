@@ -40,23 +40,12 @@ export default {
         }
     },
     actions: {
-        async login({commit, dispatch}, username) {
-            commit('setUser', username)
-
-            await new WalletManager().getWalletMetadata(username).then(
-                async resp => {
-                    commit('setUserMetadata', JSON.stringify(resp))
-                    await dispatch('agent/init')
-                }
-            )
-
-        },
-        async refreshUserMetadata({commit, state}) {
+        async refreshUserMetadata({commit, state, rootGetters}) {
             if (!state.username) {
                 throw 'invalid operation, user not logged in'
             }
 
-            await new WalletManager().getWalletMetadata(state.username).then(
+            await new WalletManager(rootGetters['agent/getInstance']).getWalletMetadata(state.username).then(
                 async resp => {
                     commit('setUserMetadata', JSON.stringify(resp))
                 }
@@ -64,8 +53,8 @@ export default {
         },
         async loadOIDCUser({commit, dispatch, getters}) {
             console.log("getting from server URL", getters, getters.serverURL)
-            let userInfo = await fetch(getters.serverURL+"/oidc/userinfo",{
-                method: 'GET',credentials: 'include'
+            let userInfo = await fetch(getters.serverURL + "/oidc/userinfo", {
+                method: 'GET', credentials: 'include'
             })
 
             if (userInfo.ok) {
@@ -74,12 +63,7 @@ export default {
 
                 commit('setUser', profile.sub)
 
-                await new WalletManager().getWalletMetadata(profile.sub).then(
-                    async resp => {
-                        commit('setUserMetadata', JSON.stringify(resp))
-                        await dispatch('agent/init')
-                    }
-                )
+                await dispatch('agent/init')
             }
         },
         async logout({commit, dispatch,getters}) {
@@ -149,6 +133,12 @@ export default {
                     })
 
                     let agent = await new Agent.Framework(opts)
+                    await new WalletManager(agent).getWalletMetadata(rootState.user.username).then(
+                        async resp => {
+                            commit('setUserMetadata', JSON.stringify(resp))
+                        }
+                    )
+
                     let messenger = new Messenger(agent)
 
                     for (const {name, purpose, type} of msgServices) {

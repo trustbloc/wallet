@@ -10,125 +10,62 @@ SPDX-License-Identifier: Apache-2.0
  * @class
  */
 export class KeyValueStore {
-    constructor(dbName, storeName) {
+    constructor(agent, dbName, storeName) {
         if (!dbName || !storeName) {
             throw "db name and store name is mandatory"
         }
 
+        this.agent = agent
         this.dbName = dbName
         this.storeName = storeName
     }
 
     async getAll() {
-        const dbName = this.dbName
-        const storeName = this.storeName
+        let data = await this.agent.store.iterator({
+            start_key: this.dbName + this.storeName,
+            end_key: this.dbName + this.storeName + "!!",
+        })
 
-        return new Promise(function (resolve) {
-            let openDB = indexedDB.open(dbName, 1);
+        let results = [];
 
-            openDB.onupgradeneeded = function () {
-                var db = {}
-                db.result = openDB.result;
-                db.store = db.result.createObjectStore(storeName, {keyPath: "id"});
-            };
+        if (!data.results) {
+            return results
+        }
 
-            openDB.onsuccess = function () {
-                let db = {};
-                db.result = openDB.result;
-                db.tx = db.result.transaction(storeName, "readonly");
-                db.store = db.tx.objectStore(storeName);
-                let request = db.store.getAll();
-                request.onsuccess = function () {
-                    resolve(request.result)
-                };
-            }
-        });
+        for (const val of data.results) {
+            results.push(JSON.parse(atob(val)))
+        }
+
+        return results
     }
 
     async get(id) {
-        const dbName = this.dbName
-        const storeName = this.storeName
+        let _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.agent.store.get({
+                key: _this.dbName + _this.storeName + id,
+            }).then(data => {
+                resolve(JSON.parse(atob(data.result)))
+            }).catch(err => {
+                if (err.message.includes("data not found")) {
+                    resolve({})
+                    console.warn(err)
 
-        return new Promise(function (resolve) {
-            var openDB = indexedDB.open(dbName, 1);
+                    return
+                }
 
-            openDB.onupgradeneeded = function () {
-                var db = {}
-                db.result = openDB.result;
-                db.store = db.result.createObjectStore(storeName, {keyPath: "id"});
-            };
-
-            openDB.onsuccess = function () {
-                var db = {};
-                db.result = openDB.result;
-                db.tx = db.result.transaction(storeName, "readonly");
-                db.store = db.tx.objectStore(storeName);
-                let getData = db.store.get(id);
-                getData.onsuccess = function () {
-                    resolve(getData.result);
-                };
-
-                db.tx.oncomplete = function () {
-                    db.result.close();
-                };
-            }
+                reject(err)
+            })
         });
     }
 
     async store(id, value) {
-        const dbName = this.dbName
-        const storeName = this.storeName
-
-        return new Promise(function (resolve){
-            var openDB = indexedDB.open(dbName, 1);
-
-            openDB.onupgradeneeded = function () {
-                var db = {}
-                db.result = openDB.result;
-                db.store = db.result.createObjectStore(storeName, {keyPath: "id"});
-            };
-
-            if (!value.id) {
-                value.id = id
-            }
-
-            openDB.onsuccess = function () {
-                console.log("save on success")
-                var db = {};
-                db.result = openDB.result;
-                db.tx = db.result.transaction(storeName, "readwrite");
-                db.store = db.tx.objectStore(storeName);
-                db.store.put(value);
-                resolve()
-            }
-        });
+        return this.agent.store.put({
+            key: this.dbName + this.storeName + id,
+            value: btoa(JSON.stringify(value)),
+        })
     }
 
     async clear() {
-        const dbName = this.dbName
-        const storeName = this.storeName
-
-        return new Promise(function (resolve) {
-            let openDB = indexedDB.open(dbName, 1);
-
-            openDB.onupgradeneeded = function () {
-                var db = {}
-                db.result = openDB.result;
-                db.store = db.result.createObjectStore(storeName, {keyPath: "id"});
-            };
-
-            openDB.onsuccess = function () {
-                let db = {};
-                db.result = openDB.result;
-                db.tx = db.result.transaction(storeName, "readwrite");
-                db.store = db.tx.objectStore(storeName);
-                let request = db.store.clear();
-                request.onsuccess = function () {
-                    resolve()
-                };
-            }
-        });
     }
-
-
 }
