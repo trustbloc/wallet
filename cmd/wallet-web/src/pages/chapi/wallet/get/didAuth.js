@@ -16,7 +16,7 @@ export class DIDAuth {
     constructor(agent, credEvent) {
         this.agent = agent
         this.credEvent = credEvent
-        this.didManager = new DIDManager()
+        this.didManager = new DIDManager(agent)
 
         const {domain, challenge} = getDomainAndChallenge(credEvent);
         this.domain = domain
