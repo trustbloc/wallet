@@ -24,10 +24,8 @@ services:
       - EDV_SERVER_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - STORAGE_TYPE=edv
       - KMS_TYPE=webkms
-      - USE_EDV_CACHE=true
-      - EDV_CLEAR_CACHE=60s
-      - EDV_BATCH_LIMIT=10
-      - EDV_BATCH_TIME=5s
+      - USE_EDV_CACHE=false
+      - EDV_BATCH_LIMIT=0
 
   second-ui-user-agent.example.com:
     container_name: second-ui-user-agent.example.com
@@ -47,9 +45,8 @@ services:
       - EDV_SERVER_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - STORAGE_TYPE=edv
       - KMS_TYPE=webkms
-      - USE_EDV_CACHE=true
-      - EDV_BATCH_LIMIT=10
-      - EDV_BATCH_TIME=5s
+      - USE_EDV_CACHE=false
+      - EDV_BATCH_LIMIT=0
 
   edge.router.agent.example.com:
     container_name: edge.router.agent.example.com
@@ -180,9 +177,8 @@ services:
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://bdd-edv-oathkeeper-proxy:4457/encrypted-data-vaults
       - STORAGE_TYPE=edv
-      - USE_EDV_CACHE=true
-      - EDV_BATCH_LIMIT=10
-      - EDV_BATCH_TIME=5s
+      - USE_EDV_CACHE=false
+      - EDV_BATCH_LIMIT=0
       - KMS_TYPE=webkms
 
   bddtest-wallet-web.trustbloc.local:
