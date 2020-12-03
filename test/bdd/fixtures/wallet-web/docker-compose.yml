@@ -117,8 +117,8 @@ services:
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
       - HTTP_SERVER_RP_ORIGIN_NAME=https://user-ui-agent.example.com:8091/
       - HTTP_SERVER_RP_ID=user-ui-agent.example.com
-      - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
-      - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
+      - HTTP_SERVER_AUTHZ_KMS_URL=https://demo-oathkeeper-auth-keyserver.trustbloc.local:4461
+      - HTTP_SERVER_OPS_KMS_URL=https://demo-oathkeeper-ops-keyserver.trustbloc.local:4462
       - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
     ports:
@@ -148,8 +148,8 @@ services:
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
       - HTTP_SERVER_RP_ORIGIN_NAME=https://second-ui-user-agent.example.com:8071/
       - HTTP_SERVER_RP_ID=second-ui-user-agent.example.com
-      - HTTP_SERVER_AUTHZ_KMS_URL=https://authz-kms.trustbloc.local:${AUTHZ_HUB_KMS_PORT}
-      - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:${OPS_HUB_KMS_PORT}
+      - HTTP_SERVER_AUTHZ_KMS_URL=https://demo-oathkeeper-auth-keyserver.trustbloc.local:4461
+      - HTTP_SERVER_OPS_KMS_URL=https://demo-oathkeeper-ops-keyserver.trustbloc.local:4462
       - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
     ports:
@@ -682,7 +682,7 @@ services:
       - SERVE_PROXY_TLS_KEY_PATH=/etc/tls/ec-key.pem
       - SERVE_PROXY_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
     volumes:
-      - ./oathkeeper-config/auth-keyserver:/oathkeeper
+      - ./oathkeeper-config/bdd-auth-keyserver:/oathkeeper
       - ../keys/tls:/etc/tls
 
   bdd-oathkeeper-ops-keyserver.trustbloc.local:
@@ -700,5 +700,41 @@ services:
       - SERVE_PROXY_TLS_KEY_PATH=/etc/tls/ec-key.pem
       - SERVE_PROXY_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
     volumes:
-      - ./oathkeeper-config/ops-keyserver:/oathkeeper
+      - ./oathkeeper-config/bdd-ops-keyserver:/oathkeeper
+      - ../keys/tls:/etc/tls
+
+  demo-oathkeeper-auth-keyserver.trustbloc.local:
+    container_name: demo-oathkeeper-auth-keyserver.trustbloc.local
+    image: oryd/oathkeeper:v0.38.4-alpine
+    ports:
+      - 4461:4461
+    command: /bin/sh -c "cp /etc/tls/ec-cacert.pem /usr/local/share/ca-certificates/;update-ca-certificates;oathkeeper serve proxy --config /oathkeeper/config.yaml"
+    user: root
+    entrypoint: ""
+    environment:
+      - LOG_LEVEL=debug
+      - PORT=4461
+      - ISSUER_URL=https://bdd-oathkeeper-auth-keyserver:4459
+      - SERVE_PROXY_TLS_KEY_PATH=/etc/tls/ec-key.pem
+      - SERVE_PROXY_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
+    volumes:
+      - ./oathkeeper-config/demo-auth-keyserver:/oathkeeper
+      - ../keys/tls:/etc/tls
+
+  demo-oathkeeper-ops-keyserver.trustbloc.local:
+    container_name: demo-oathkeeper-ops-keyserver.trustbloc.local
+    image: oryd/oathkeeper:v0.38.4-alpine
+    ports:
+      - 4462:4462
+    command: /bin/sh -c "cp /etc/tls/ec-cacert.pem /usr/local/share/ca-certificates/;update-ca-certificates;oathkeeper serve proxy --config /oathkeeper/config.yaml"
+    user: root
+    entrypoint: ""
+    environment:
+      - LOG_LEVEL=debug
+      - PORT=4462
+      - ISSUER_URL=https://bdd-oathkeeper-ops-keyserver:4460
+      - SERVE_PROXY_TLS_KEY_PATH=/etc/tls/ec-key.pem
+      - SERVE_PROXY_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
+    volumes:
+      - ./oathkeeper-config/demo-ops-keyserver:/oathkeeper
       - ../keys/tls:/etc/tls
