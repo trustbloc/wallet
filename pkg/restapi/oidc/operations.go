@@ -811,7 +811,7 @@ func exportPublicKey(baseURL, keystoreID, keyID string, h *hubKMSHeader, httpCli
 
 func getKeystoreID(location string) string {
 	const (
-		keystoreIDPos = 3
+		keystoreIDPos = 5
 	)
 
 	s := strings.Split(location, "/")
@@ -826,7 +826,7 @@ func getKeystoreID(location string) string {
 
 func getKeyID(location string) string {
 	const (
-		keyIDPos = 5
+		keyIDPos = 7
 	)
 
 	s := strings.Split(location, "/")

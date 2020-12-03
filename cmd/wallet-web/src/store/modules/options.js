@@ -84,10 +84,9 @@ export default {
                             }
 
                             if (agentOpts.kmsType === 'webkms') {
-                                // TODO revist https prefix; server should send this
-                                agentOpts.opsKeyStoreURL = 'https://' + resp.data.bootstrap.opsKeyStoreURL
-                                agentOpts.edvOpsKIDURL = 'https://' + resp.data.bootstrap.edvOpsKIDURL
-                                agentOpts.edvHMACKIDURL = 'https://' + resp.data.bootstrap.edvHMACKIDURL
+                                agentOpts.opsKeyStoreURL = resp.data.bootstrap.opsKeyStoreURL
+                                agentOpts.edvOpsKIDURL = resp.data.bootstrap.edvOpsKIDURL
+                                agentOpts.edvHMACKIDURL = resp.data.bootstrap.edvHMACKIDURL
 
                                 console.log("ops key store url : " + agentOpts.opsKeyStoreURL)
                                 console.log("edv ops key url : " + agentOpts.edvOpsKIDURL)
