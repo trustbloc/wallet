@@ -560,8 +560,6 @@ services:
     image: ${HUB_KMS_IMAGE}:${HUB_KMS_IMAGE_TAG}
     environment:
       - KMS_HOST_URL=${HUB_KMS_HOST}:${DEMO_AUTHZ_HUB_KMS_PORT}
-      # TODO use oathkeeper url once its switched
-      - KMS_BASE_URL=https://authz-kms.trustbloc.local:${DEMO_AUTHZ_HUB_KMS_PORT}
       - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
       - KMS_TLS_SYSTEMCERTPOOL=true
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
@@ -581,6 +579,8 @@ services:
       - KMS_KEY_MANAGER_STORAGE_PREFIX=authzkmskm
       - KMS_HUB_AUTH_URL=https://demo-hub-auth.trustbloc.local:8044
       - KMS_HUB_AUTH_API_TOKEN=test_token
+      - KMS_BASE_URL=https://demo-oathkeeper-auth-keyserver.trustbloc.local:4461
+      - KMS_LOG_LEVEL=debug
     ports:
       - ${DEMO_AUTHZ_HUB_KMS_PORT}:${DEMO_AUTHZ_HUB_KMS_PORT}
     entrypoint: ""
@@ -595,8 +595,6 @@ services:
     image: ${HUB_KMS_IMAGE}:${HUB_KMS_IMAGE_TAG}
     environment:
       - KMS_HOST_URL=${HUB_KMS_HOST}:${DEMO_OPS_HUB_KMS_PORT}
-      # TODO use oathkeeper url once its switched
-      - KMS_BASE_URL=https://ops-kms.trustbloc.local:${DEMO_OPS_HUB_KMS_PORT}
       - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
@@ -612,7 +610,9 @@ services:
       - KMS_LOCAL_KMS_DATABASE_PREFIX=kmslocal
       - KMS_KEY_MANAGER_STORAGE_TYPE=edv
       - KMS_KEY_MANAGER_STORAGE_URL=https://edv.example.com:${EDV_PORT}
-      - KMS_ZCAP_ENABLE=false # default is false anyway
+      - KMS_ZCAP_ENABLE=true
+      - KMS_BASE_URL=https://demo-oathkeeper-ops-keyserver.trustbloc.local:4462
+      - KMS_LOG_LEVEL=debug
     ports:
       - ${DEMO_OPS_HUB_KMS_PORT}:${DEMO_OPS_HUB_KMS_PORT}
     entrypoint: ""

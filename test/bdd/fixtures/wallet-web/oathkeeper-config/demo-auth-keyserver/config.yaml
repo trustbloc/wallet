@@ -7,6 +7,16 @@
 serve:
   proxy:
     port: 4461
+    cors:
+      enabled: true
+      allowed_headers:
+        - Content-Type
+        - Authorization
+        - Hub-Kms-Secret
+      allowed_origins:
+        - https://user-ui-agent.example.com:8091
+      allow_credentials: true
+      debug: true
   api:
     port: 4458
 

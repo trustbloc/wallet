@@ -41,6 +41,7 @@ type BootstrapData struct {
 	EDVOpsKIDURL      string `json:"edvOpsKIDURL,omitempty"`
 	EDVHMACKIDURL     string `json:"edvHMACKIDURL,omitempty"`
 	UserEDVCapability string `json:"edvCapability,omitempty"`
+	OPSKMSCapability  string `json:"opsKMSCapability,omitempty"` // TODO remove this
 }
 
 type userBootstrapData struct {
@@ -58,6 +59,6 @@ type hubKMSHeader struct {
 }
 
 type userConfig struct {
-	Sub         string `json:"sub,omitempty"`
+	AccessToken string `json:"accessToken,omitempty"`
 	SecretShare string `json:"walletSecretShare,omitempty"`
 }

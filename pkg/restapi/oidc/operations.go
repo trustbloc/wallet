@@ -24,6 +24,7 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
 	"github.com/hyperledger/aries-framework-go/pkg/kms"
 	"github.com/hyperledger/aries-framework-go/pkg/vdr/fingerprint"
+	"github.com/igor-pavlenko/httpsignatures-go"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
@@ -37,6 +38,7 @@ import (
 	"github.com/trustbloc/edge-core/pkg/zcapld"
 	"github.com/trustbloc/edv/pkg/client"
 	"github.com/trustbloc/edv/pkg/restapi/models"
+	"github.com/trustbloc/hub-kms/pkg/restapi/kms/operation"
 	"golang.org/x/oauth2"
 )
 
@@ -468,7 +470,7 @@ func (o *Operation) fetchUserData(w http.ResponseWriter, r *http.Request, sub st
 
 	data["bootstrap"] = userBootStrapData.Data
 	data["userConfig"] = &userConfig{
-		Sub:         sub,
+		AccessToken: tokns.Access,
 		SecretShare: walletUserData.SecretShare,
 	}
 
@@ -549,7 +551,7 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 		secretShare: walletSecretShare,
 	}
 
-	authzKeyStoreURL, _, err := createKeyStore(o.keyServer.AuthzKMSURL, sub, "", h, o.httpClient)
+	authzKeyStoreURL, _, _, err := createKeyStore(o.keyServer.AuthzKMSURL, sub, "", h, o.httpClient)
 	if err != nil {
 		return "", fmt.Errorf("create authz keystore : %w", err)
 	}
@@ -575,7 +577,8 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 
 	opsEDVVaultID := getVaultID(opsEDVVaultURL)
 
-	opsKeyStoreURL, opsKeyStoreEDVDIDKey, err := createKeyStore(o.keyServer.OpsKMSURL, controller,
+	opsKeyStoreURL, opsKeyStoreEDVDIDKey, compressedOPSKMSCapability, err := createKeyStore(
+		o.keyServer.OpsKMSURL, controller,
 		opsEDVVaultID, &hubKMSHeader{accessToken: accessToken}, o.httpClient)
 	if err != nil {
 		return "", fmt.Errorf("create operational keystore : %w", err)
@@ -583,9 +586,10 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 
 	if len(opsEDVCapability) != 0 {
 		if errUpdate := updateEDVCapabilityInKeyStore(o.keyServer.OpsKMSURL, getKeystoreID(opsKeyStoreURL), controller,
-			opsEDVVaultID, opsEDVCapability, opsKeyStoreEDVDIDKey, newKMSSigner(o.keyServer.AuthzKMSURL,
+			opsEDVVaultID, compressedOPSKMSCapability, opsEDVCapability, opsKeyStoreEDVDIDKey,
+			newKMSSigner(o.keyServer.AuthzKMSURL,
 				authzKeyStoreID, keyID, h, o.httpClient), o.httpClient); errUpdate != nil {
-			return "", errUpdate
+			return "", fmt.Errorf("failed to update EDV capability in ops key server: %w", errUpdate)
 		}
 	}
 
@@ -600,8 +604,14 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 		}
 	}
 
-	// TODO should not have to add access_token to create key at ops key server
-	edvOpsKID, err := createKey(o.keyServer.OpsKMSURL, getKeystoreID(opsKeyStoreURL), kms.ECDH256KWAES256GCM, h,
+	edvOpsKID, err := createOPSKey(
+		o.keyServer.OpsKMSURL,
+		getKeystoreID(opsKeyStoreURL),
+		kms.ECDH256KWAES256GCM,
+		controller,
+		compressedOPSKMSCapability,
+		newKMSSigner(o.keyServer.AuthzKMSURL, authzKeyStoreID, keyID, h, o.httpClient),
+		h,
 		o.httpClient)
 	if err != nil {
 		return "", fmt.Errorf("create edv operational key : %w", err)
@@ -609,14 +619,23 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 
 	edvOpsKIDURL := fmt.Sprintf("%s/keys/%s", opsKeyStoreURL, edvOpsKID)
 
-	hmacEDVKID, err := createKey(o.keyServer.OpsKMSURL, getKeystoreID(opsKeyStoreURL), kms.HMACSHA256Tag256, h,
-		o.httpClient)
+	hmacEDVKID, err := createOPSKey(
+		o.keyServer.OpsKMSURL,
+		getKeystoreID(opsKeyStoreURL),
+		kms.HMACSHA256Tag256,
+		controller,
+		compressedOPSKMSCapability,
+		newKMSSigner(o.keyServer.AuthzKMSURL, authzKeyStoreID, keyID, h, o.httpClient),
+		h,
+		o.httpClient,
+	)
 	if err != nil {
 		return "", fmt.Errorf("create edv hmac key : %w", err)
 	}
 
 	hmacEDVKIDURL := fmt.Sprintf("%s/keys/%s", opsKeyStoreURL, hmacEDVKID)
 
+	// TODO remove OPSKMSCapability: https://github.com/trustbloc/edge-agent/issues/583.
 	data := &BootstrapData{
 		UserEDVVaultURL:   userEDVVaultURL,
 		OpsEDVVaultURL:    opsEDVVaultURL,
@@ -625,6 +644,7 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 		EDVOpsKIDURL:      edvOpsKIDURL,
 		EDVHMACKIDURL:     hmacEDVKIDURL,
 		UserEDVCapability: string(userEDVCapability),
+		OPSKMSCapability:  compressedOPSKMSCapability,
 	}
 
 	err = postUserBootstrapData(o.hubAuthURL, accessToken, data, o.httpClient)
@@ -684,36 +704,37 @@ func postUserBootstrapData(baseURL, accessToken string, data *BootstrapData, htt
 }
 
 func createKeyStore(baseURL, controller, vaultID string, h *hubKMSHeader,
-	httpClient httpClient) (string, string, error) {
+	httpClient httpClient) (string, string, string, error) {
 	reqBytes, err := json.Marshal(createKeystoreReq{
 		Controller: controller,
 		VaultID:    vaultID,
 	})
 	if err != nil {
-		return "", "", fmt.Errorf("marshal create keystore req : %w", err)
+		return "", "", "", fmt.Errorf("marshal create keystore req : %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(context.TODO(),
 		http.MethodPost, baseURL+hubKMSCreateKeyStorePath, bytes.NewBuffer(reqBytes))
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	addAuthZKMSHeaders(req, h)
 
 	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
 	if err != nil {
-		return "", "", fmt.Errorf("create keystore : %w", err)
+		return "", "", "", fmt.Errorf("create keystore : %w", err)
 	}
 
 	keystoreURL := headers.Get("Location")
 	edvDIDKey := headers.Get("Edvdidkey")
+	kmsCapability := headers.Get("X-ROOTCAPABILITY")
 
-	return keystoreURL, edvDIDKey, nil
+	return keystoreURL, edvDIDKey, kmsCapability, nil
 }
 
-func updateEDVCapabilityInKeyStore(baseURL, keystoreID, controller, vaultID string, edvCapability []byte,
-	kmsDIDKey string, s signer, httpClient httpClient) error {
+func updateEDVCapabilityInKeyStore(baseURL, keystoreID, controller, vaultID, compressedKMSCapability string,
+	edvCapability []byte, kmsDIDKey string, s signer, httpClient httpClient) error {
 	capability, err := zcapld.ParseCapability(edvCapability)
 	if err != nil {
 		return err
@@ -749,9 +770,39 @@ func updateEDVCapabilityInKeyStore(baseURL, keystoreID, controller, vaultID stri
 		return err
 	}
 
+	err = sign(req, controller, compressedKMSCapability, s)
+	if err != nil {
+		return fmt.Errorf("failed to sign request: %w", err)
+	}
+
 	_, _, err = sendHTTPRequest(req, httpClient, http.StatusOK)
 	if err != nil {
 		return fmt.Errorf("failed to update edv capability keystore : %w", err)
+	}
+
+	return nil
+}
+
+func sign(r *http.Request, controller, compressedKMSCapability string, s signer) error {
+	action, err := operation.CapabilityInvocationAction(r)
+	if err != nil {
+		return fmt.Errorf("failed to determine webkms capability invocation action: %w", err)
+	}
+
+	r.Header.Set(
+		zcapld.CapabilityInvocationHTTPHeader,
+		fmt.Sprintf(`zcap capability="%s",action="%s"`, compressedKMSCapability, action),
+	)
+
+	hs := httpsignatures.NewHTTPSignatures(&zcapld.AriesDIDKeySecrets{})
+	hs.SetSignatureHashAlgorithm(&zcapld.AriesDIDKeySignatureHashAlgorithm{
+		KMS:    &zcapRemoteKMS{},
+		Crypto: &zcapRemoteCrypto{signer: s},
+	})
+
+	err = hs.Sign(controller, r)
+	if err != nil {
+		return fmt.Errorf("failed to sign http request: %w", err)
 	}
 
 	return nil
@@ -776,6 +827,37 @@ func createKey(baseURL, keystoreID, keyType string, h *hubKMSHeader, httpClient 
 	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
 	if err != nil {
 		return "", fmt.Errorf("create authz key : %w", err)
+	}
+
+	return getKeyID(headers.Get("Location")), nil
+}
+
+func createOPSKey(baseURL, keystoreID, keyType, controller, compressedKMSCapability string,
+	s signer, h *hubKMSHeader, httpClient httpClient) (string, error) {
+	reqBytes, err := json.Marshal(createKeyReq{
+		KeyType: keyType,
+	})
+	if err != nil {
+		return "", fmt.Errorf("marshal create key req : %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(context.TODO(),
+		http.MethodPost, baseURL+fmt.Sprintf(keysEndpoint, keystoreID), bytes.NewBuffer(reqBytes))
+	if err != nil {
+		return "", err
+	}
+
+	// TODO this secret should be signed over below
+	req.Header.Add("Hub-Kms-Secret", h.secretShare)
+
+	err = sign(req, controller, compressedKMSCapability, s)
+	if err != nil {
+		return "", fmt.Errorf("failed to sign request: %w", err)
+	}
+
+	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
+	if err != nil {
+		return "", fmt.Errorf("create ops key : %w", err)
 	}
 
 	return getKeyID(headers.Get("Location")), nil
