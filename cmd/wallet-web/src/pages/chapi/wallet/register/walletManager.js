@@ -18,11 +18,11 @@ const manifestStore = "manifest"
  */
 // TODO multiuser support, no need to clear wallet metadata data after logout
 export class WalletManager extends KeyValueStore {
-    constructor() {
-        super(`${dbName}-${metadataStore}`, metadataStore)
+    constructor(agent) {
+        super(agent, `${dbName}-${metadataStore}`, metadataStore)
 
         // TODO EDV will be used in future for these stores #268
-        this.manifestStore = new KeyValueStore(`${dbName}-${manifestStore}`, manifestStore)
+        this.manifestStore = new KeyValueStore(agent, `${dbName}-${manifestStore}`, manifestStore)
     }
 
     async getWalletMetadata(user) {

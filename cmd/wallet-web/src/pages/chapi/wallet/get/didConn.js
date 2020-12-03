@@ -24,7 +24,7 @@ export class DIDConn {
     constructor(agent, startupOpts, credEvent, walletUser) {
         this.agent = agent
         this.walletUser = walletUser
-        this.walletManager = new WalletManager()
+        this.walletManager = new WalletManager(agent)
         this.walletStore = new WalletStore(agent, startupOpts, credEvent, walletUser)
         this.exchange = new DIDExchange(agent)
         this.blindedRouter = new BlindedRouter(agent, startupOpts)

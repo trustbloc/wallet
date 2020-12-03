@@ -22,7 +22,7 @@ var allowedTypes = ['VerifiablePresentation', 'VerifiableCredential']
  */
 export class RegisterWallet extends WalletManager {
     constructor(polyfill, wcredHandler, agent, opts) {
-        super()
+        super(agent)
 
         this.agent = agent
         this.polyfill = polyfill

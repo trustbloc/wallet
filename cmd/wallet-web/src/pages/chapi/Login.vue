@@ -72,7 +72,7 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
-            ...mapActions({loginUser: 'login', loadUser: 'loadUser', loadOIDCUser: 'loadOIDCUser'}),
+            ...mapActions({loadUser: 'loadUser', loadOIDCUser: 'loadOIDCUser'}),
             ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL']),
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
             beginOIDCLogin: async function() {

@@ -18,7 +18,7 @@ const keyTypeIndex = new Map([["Ed25519", "ED25519"], ["P256", "ECDSAP256IEEEP13
  */
 export class DIDManager extends KeyValueStore {
     constructor(agent, opts) {
-        super(dbName, storeName)
+        super(agent, dbName, storeName)
 
         // params needed for create DID operation
         this.agent = agent
