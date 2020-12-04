@@ -34,7 +34,7 @@ let defaultAgentStartupOpts = {
     useEDVCache: false,
     edvClearCache: '',
     opsKMSCapability: '',
-    edvBatchThreadLimit: '',
+    useEDVBatch: false,
 }
 
 export default {
@@ -133,7 +133,7 @@ export default {
                 edvOpsKIDURL: ('edvOpsKIDURL' in agentOpts) ? agentOpts['edvOpsKIDURL'] : defaultAgentStartupOpts['edvOpsKIDURL'],
                 edvHMACKIDURL: ('edvHMACKIDURL' in agentOpts) ? agentOpts['edvHMACKIDURL'] : defaultAgentStartupOpts['edvHMACKIDURL'],
                 opsKMSCapability: ('opsKMSCapability' in agentOpts) ? agentOpts['opsKMSCapability'] : defaultAgentStartupOpts['opsKMSCapability'],
-                edvBatchThreadLimit: ('edvBatchThreadLimit' in agentOpts) ? agentOpts['edvBatchThreadLimit'] : defaultAgentStartupOpts['edvBatchThreadLimit'],
+                useEDVBatch: ('useEDVBatch' in agentOpts) ? agentOpts['useEDVBatch'] : defaultAgentStartupOpts['useEDVBatch'],
             })
         },
     },
