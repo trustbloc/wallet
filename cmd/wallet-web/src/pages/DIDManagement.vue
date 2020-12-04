@@ -11,14 +11,14 @@ SPDX-License-Identifier: Apache-2.0
                 <md-card class="md-card-plain">
                     <md-card-content>
                         <md-tabs class="md-success" md-alignment="left">
-                            <md-tab id="tab-home" md-label="DID Dashboard" md-icon="contact_mail">
+                            <md-tab id="tab-home" md-label="Digital Identity Dashboard" md-icon="contact_mail">
                                 <div class="md-layout-item md-layout md-gutter">
                                     <div class="md-layout-item md-medium-size-75 md-xsmall-size-75 md-size-75">
                                         <md-card-content>
                                             <md-table v-model="searched" class="md-scrollbar" md-sort-order="asc">
                                                 <md-table-toolbar>
                                                     <div class="md-toolbar-section-start">
-                                                        <h1 class="md-title"><b>DID Table</b></h1>
+                                                        <h1 class="md-title"><b>Digital Identity Table</b></h1>
 
                                                         <md-field md-clearable class="md-toolbar-section-end">
                                                             <md-input placeholder="Search by name..."
@@ -30,7 +30,7 @@ SPDX-License-Identifier: Apache-2.0
                                                 </md-table-toolbar>
                                                 <md-table-row>
                                                     <md-table-head><b>Name</b></md-table-head>
-                                                    <md-table-head><b>DID</b></md-table-head>
+                                                    <md-table-head><b>Digital Identity</b></md-table-head>
                                                     <md-table-head><b>Signature Type</b></md-table-head>
                                                 </md-table-row>
                                                 <md-table-row v-for="(data) in resultQuery" :key="data.id">
@@ -46,7 +46,7 @@ SPDX-License-Identifier: Apache-2.0
                                     <div class="md-layout-item">
                                         <md-card>
                                             <md-card-header data-background-color="green">
-                                                <h4 class="title"><b>Create New Trustbloc DID</b></h4>
+                                                <h4 class="title"><b>Create New Trustbloc Digital Identity</b></h4>
                                             </md-card-header>
                                             <md-card-content>
                                                 <md-field>
@@ -69,7 +69,7 @@ SPDX-License-Identifier: Apache-2.0
                                                 </md-field>
                                                 <div class="md-layout-item md-size-100">
                                                     <md-field maxlength="5">
-                                                        <label class="md-helper-text">Type DID friendly name
+                                                        <label class="md-helper-text">Type Digital Identity friendly name
                                                             here</label>
                                                         <md-input v-model="friendlyName" id="friendlyName"
                                                                   required></md-input>
@@ -79,7 +79,7 @@ SPDX-License-Identifier: Apache-2.0
                                                 <md-button
                                                         class="md-button md-info md-square  md-large-size-100 md-size-100"
                                                         id='createDIDBtn' v-on:click="createDID"><b>Create and Save
-                                                    DID</b>
+                                                    Digital Identity</b>
                                                 </md-button>
                                                 <div v-if="errors.length">
                                                     <b>Please correct the following error(s):</b>
@@ -105,15 +105,15 @@ SPDX-License-Identifier: Apache-2.0
                                     </div>
                                 </div>
                             </md-tab>
-                            <md-tab id="tab-pages" md-label="Save Any DID" md-icon="contacts">
+                            <md-tab id="tab-pages" md-label="Save Any Digital Identity" md-icon="contacts">
                                 <md-card class="md-card-plain">
                                     <md-card-header data-background-color="green">
-                                        <h4 class="title">Save Any DID</h4>
+                                        <h4 class="title">Save Any Digital Identity</h4>
                                     </md-card-header>
                                     <md-card-content>
                                         <div class="md-layout-item md-size-100">
                                             <md-icon>line_style</md-icon>
-                                            <label class="md-helper-text">Enter DID</label>
+                                            <label class="md-helper-text">Enter Digital Identity</label>
                                             <md-field maxlength="5">
                                                 <md-input v-model="didID" id="did" required></md-input>
                                             </md-field>
@@ -148,14 +148,14 @@ SPDX-License-Identifier: Apache-2.0
                                         </div>
                                         <div class="md-layout-item md-size-100">
                                             <md-field maxlength="5">
-                                                <label class="md-helper-text">Type DID friendly name here</label>
+                                                <label class="md-helper-text">Type Digital Identity friendly name here</label>
                                                 <md-input v-model="anyDIDFriendlyName" id="anyDIDFriendlyName"
                                                           required></md-input>
                                             </md-field>
                                         </div>
                                         <md-button
                                                 class="md-button md-success md-square md-theme-default md-large-size-100 md-size-100"
-                                                id='saveDIDBtn' v-on:click="saveAnyDID">Resolve and Save DID
+                                                id='saveDIDBtn' v-on:click="saveAnyDID">Resolve and Save Digital Identity
                                         </md-button>
                                         <div v-if="saveErrors.length">
                                             <b>Please correct the following error(s):</b>
