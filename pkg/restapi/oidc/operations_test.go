@@ -8,7 +8,9 @@ package oidc // nolint:testpackage // changing to different package requires exp
 
 import (
 	"bytes"
+	"crypto/ed25519"
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -236,6 +238,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 				}
 
 				statusCode := http.StatusCreated
+				body := ioutil.NopCloser(bytes.NewReader([]byte("{}")))
 
 				if strings.Contains(req.URL.Path, "/export") ||
 					strings.Contains(req.URL.Path, "/sign") ||
@@ -243,8 +246,14 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 					statusCode = http.StatusOK
 				}
 
+				if strings.Contains(req.URL.Path, "/export") {
+					body = ioutil.NopCloser(bytes.NewReader(marshal(t, exportKeyResp{
+						PublicKey: base64.URLEncoding.EncodeToString(pubEd25519Key(t)),
+					})))
+				}
+
 				return &http.Response{
-					StatusCode: statusCode, Body: ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+					StatusCode: statusCode, Body: body,
 				}, nil
 			},
 		}
@@ -702,9 +711,17 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 					statusCode = http.StatusOK
 				}
 
+				body := ioutil.NopCloser(bytes.NewReader([]byte("{}")))
+
+				if strings.Contains(req.URL.Path, "/export") {
+					body = ioutil.NopCloser(bytes.NewReader(marshal(t, exportKeyResp{
+						PublicKey: base64.URLEncoding.EncodeToString(pubEd25519Key(t)),
+					})))
+				}
+
 				return &http.Response{
 					StatusCode: statusCode,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+					Body:       body,
 				}, nil
 			},
 		}
@@ -740,9 +757,17 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 					statusCode = http.StatusInternalServerError
 				}
 
+				body := ioutil.NopCloser(bytes.NewReader([]byte("{}")))
+
+				if strings.Contains(req.URL.Path, "/export") {
+					body = ioutil.NopCloser(bytes.NewReader(marshal(t, exportKeyResp{
+						PublicKey: base64.URLEncoding.EncodeToString(pubEd25519Key(t)),
+					})))
+				}
+
 				return &http.Response{
 					StatusCode: statusCode,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+					Body:       body,
 				}, nil
 			},
 		}
@@ -791,9 +816,17 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 					}
 				}
 
+				body := ioutil.NopCloser(bytes.NewReader([]byte("{}")))
+
+				if strings.Contains(req.URL.Path, "/export") {
+					body = ioutil.NopCloser(bytes.NewReader(marshal(t, exportKeyResp{
+						PublicKey: base64.URLEncoding.EncodeToString(pubEd25519Key(t)),
+					})))
+				}
+
 				return &http.Response{
 					StatusCode: statusCode,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+					Body:       body,
 				}, nil
 			},
 		}
@@ -842,9 +875,17 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 					}
 				}
 
+				body := ioutil.NopCloser(bytes.NewReader([]byte("{}")))
+
+				if strings.Contains(req.URL.Path, "/export") {
+					body = ioutil.NopCloser(bytes.NewReader(marshal(t, exportKeyResp{
+						PublicKey: base64.URLEncoding.EncodeToString(pubEd25519Key(t)),
+					})))
+				}
+
 				return &http.Response{
 					StatusCode: statusCode,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+					Body:       body,
 				}, nil
 			},
 		}
@@ -877,9 +918,17 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 					statusCode = http.StatusOK
 				}
 
+				body := ioutil.NopCloser(bytes.NewReader([]byte("{}")))
+
+				if strings.Contains(req.URL.Path, "/export") {
+					body = ioutil.NopCloser(bytes.NewReader(marshal(t, exportKeyResp{
+						PublicKey: base64.URLEncoding.EncodeToString(pubEd25519Key(t)),
+					})))
+				}
+
 				return &http.Response{
 					StatusCode: statusCode,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+					Body:       body,
 				}, nil
 			},
 		}
@@ -1256,6 +1305,15 @@ func key(t *testing.T) []byte {
 	require.Equal(t, 32, n)
 
 	return key
+}
+
+func pubEd25519Key(t *testing.T) []byte {
+	t.Helper()
+
+	pub, _, err := ed25519.GenerateKey(rand.Reader)
+	require.NoError(t, err)
+
+	return pub
 }
 
 func marshal(t *testing.T, v interface{}) []byte {

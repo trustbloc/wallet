@@ -39,6 +39,8 @@ You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following 
     127.0.0.1 edv-oathkeeper-proxy
     127.0.0.1 bdd-edv-oathkeeper-proxy
     127.0.0.1 ops-kms.trustbloc.local
+    127.0.0.1 demo-oathkeeper-auth-keyserver.trustbloc.local
+    127.0.0.1 demo-oathkeeper-ops-keyserver.trustbloc.local
 
 ## Running BDD tests
 

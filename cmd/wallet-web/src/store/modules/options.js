@@ -35,6 +35,7 @@ let defaultAgentStartupOpts = {
     edvClearCache: '',
     edvBatchLimit: 0,
     edvBatchTime: '',
+    opsKMSCapability: '',
 }
 
 export default {
@@ -95,6 +96,7 @@ export default {
 
                             agentOpts.authzKeyStoreURL = resp.data.bootstrap.authzKeyStoreURL
                             agentOpts.userConfig = resp.data.userConfig
+                            agentOpts.opsKMSCapability = resp.data.bootstrap.opsKMSCapability
                         })
                         .catch(err => {
                             console.log("error fetching user info: errMsg=", err);
@@ -133,6 +135,7 @@ export default {
                 edvHMACKIDURL: ('edvHMACKIDURL' in agentOpts) ? agentOpts['edvHMACKIDURL'] : defaultAgentStartupOpts['edvHMACKIDURL'],
                 edvBatchLimit: ('edvBatchLimit' in agentOpts) ? agentOpts['edvBatchLimit'] : defaultAgentStartupOpts['edvBatchLimit'],
                 edvBatchTime: ('edvBatchTime' in agentOpts) ? agentOpts['edvBatchTime'] : defaultAgentStartupOpts['edvBatchTime'],
+                opsKMSCapability: ('opsKMSCapability' in agentOpts) ? agentOpts['opsKMSCapability'] : defaultAgentStartupOpts['opsKMSCapability'],
             })
         },
     },
