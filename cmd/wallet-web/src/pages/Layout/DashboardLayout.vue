@@ -26,7 +26,7 @@ SPDX-License-Identifier: Apache-2.0
       </sidebar-link>
       <sidebar-link to="/DIDManagement">
         <md-icon>flip_to_back</md-icon>
-        <p>DID Management</p>
+        <p>Digital Identity Management</p>
       </sidebar-link>
       <sidebar-link to="/relationships">
         <md-icon>compare_arrows</md-icon>
