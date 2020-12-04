@@ -51,6 +51,13 @@ SPDX-License-Identifier: Apache-2.0
             }
 
             await this.loadOIDCUser()
+
+            try {
+              await this.refreshUserMetadata()
+            } catch (e) {
+              console.warn("first time login: ignore", e)
+            }
+
             if (this.getCurrentUser()) {
               await this.finishOIDCLogin()
               await this.getAgentInstance().store.flush()
@@ -67,12 +74,13 @@ SPDX-License-Identifier: Apache-2.0
             };
         },
         methods: {
-            ...mapActions({loadUser: 'loadUser', loadOIDCUser: 'loadOIDCUser'}),
+            ...mapActions({loadUser: 'loadUser', loadOIDCUser: 'loadOIDCUser', refreshUserMetadata: 'refreshUserMetadata'}),
             ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL']),
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
             beginOIDCLogin: async function() {
                 window.location.href = this.serverURL() + "/oidc/login"
             },
+
            sleep(ms) {
                return new Promise(resolve => setTimeout(resolve, ms));
              },
