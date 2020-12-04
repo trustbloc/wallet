@@ -237,8 +237,9 @@ SPDX-License-Identifier: Apache-2.0
 
                 // saving did metadata
                 await this.didManager.storeDIDMetadata(did.id, {
-                    signatureType: this.signType,
-                    friendlyName: this.friendlyName
+                  signatureType: this.signType,
+                  friendlyName: this.friendlyName,
+                  id: did.id,
                 })
 
                 this.loading = false;
@@ -296,9 +297,10 @@ SPDX-License-Identifier: Apache-2.0
                 }
 
                 await this.didManager.storeDIDMetadata(resp.did.id, {
-                    signatureType: this.selectSignKey,
-                    keyID: this.keyID,
-                    friendlyName: this.anyDIDFriendlyName
+                  signatureType: this.selectSignKey,
+                  keyID: this.keyID,
+                  friendlyName: this.anyDIDFriendlyName,
+                  id: resp.did.id,
                 })
                 this.anyDidDocTextArea = JSON.stringify(resp.did, undefined, 2);
             },
