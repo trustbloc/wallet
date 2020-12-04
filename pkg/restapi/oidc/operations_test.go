@@ -1408,8 +1408,10 @@ func (m *mockEDVClient) CreateDataVault(_ *models.DataVaultConfiguration,
 }
 
 type mockSigner struct {
+	signVal []byte
+	signErr error
 }
 
 func (m *mockSigner) Sign(data []byte) ([]byte, error) {
-	return nil, nil
+	return m.signVal, m.signErr
 }
