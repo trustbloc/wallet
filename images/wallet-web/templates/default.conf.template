@@ -44,8 +44,7 @@ server {
             "kmsType":"${KMS_TYPE}",
             "useEDVCache":${USE_EDV_CACHE},
             "edvClearCache": "${EDV_CLEAR_CACHE}",
-            "edvBatchLimit": ${EDV_BATCH_LIMIT},
-            "edvBatchTime": "${EDV_BATCH_TIME}"
+            "edvBatchThreadLimit": "${EDV_BATCH_THREAD_LIMIT}"
         }';
     }
 }

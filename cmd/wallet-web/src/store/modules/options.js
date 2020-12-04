@@ -33,9 +33,8 @@ let defaultAgentStartupOpts = {
     kmsType: `local`,
     useEDVCache: false,
     edvClearCache: '',
-    edvBatchLimit: 0,
-    edvBatchTime: '',
     opsKMSCapability: '',
+    edvBatchThreadLimit: '',
 }
 
 export default {
@@ -133,9 +132,8 @@ export default {
                 opsKeyStoreURL: ('opsKeyStoreURL' in agentOpts) ? agentOpts['opsKeyStoreURL'] : defaultAgentStartupOpts['opsKeyStoreURL'],
                 edvOpsKIDURL: ('edvOpsKIDURL' in agentOpts) ? agentOpts['edvOpsKIDURL'] : defaultAgentStartupOpts['edvOpsKIDURL'],
                 edvHMACKIDURL: ('edvHMACKIDURL' in agentOpts) ? agentOpts['edvHMACKIDURL'] : defaultAgentStartupOpts['edvHMACKIDURL'],
-                edvBatchLimit: ('edvBatchLimit' in agentOpts) ? agentOpts['edvBatchLimit'] : defaultAgentStartupOpts['edvBatchLimit'],
-                edvBatchTime: ('edvBatchTime' in agentOpts) ? agentOpts['edvBatchTime'] : defaultAgentStartupOpts['edvBatchTime'],
                 opsKMSCapability: ('opsKMSCapability' in agentOpts) ? agentOpts['opsKMSCapability'] : defaultAgentStartupOpts['opsKMSCapability'],
+                edvBatchThreadLimit: ('edvBatchThreadLimit' in agentOpts) ? agentOpts['edvBatchThreadLimit'] : defaultAgentStartupOpts['edvBatchThreadLimit'],
             })
         },
     },

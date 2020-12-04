@@ -82,6 +82,8 @@ export class DIDConn {
         }
 
         let responseData = await this._didConnResponse(walletMetadata, connection.result)
+        // need to flush
+        await this.agent.store.flush()
         this.sendResponse("VerifiablePresentation", responseData)
     }
 
