@@ -34,6 +34,8 @@ export class RegisterWallet extends WalletManager {
 
     // wallet user registration and setup process
     async register(user) {
+        var start = new Date().getTime();
+
         // register mediator
         let invitation
         if (this.mediatorEndpoint) {
@@ -72,6 +74,10 @@ export class RegisterWallet extends WalletManager {
         await this.didManager.saveDID(user, `${user}_${uuid()}`, signType, did)
 
         console.debug(`created DID ${did.id} successfully for user ${user}`)
+
+        var end = new Date().getTime();
+        var time = end - start;
+        console.info('time taken to register the user : ' + time)
     }
 
     // install credential handler polyfill handlers

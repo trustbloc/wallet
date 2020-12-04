@@ -48,7 +48,7 @@ export class KeyValueStore {
                 resolve(JSON.parse(atob(data.result)))
             }).catch(err => {
                 if (err.message.includes("data not found")) {
-                    resolve({})
+                    resolve()
                     console.warn(err)
 
                     return
