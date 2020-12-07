@@ -105,7 +105,9 @@ SPDX-License-Identifier: Apache-2.0
                         await registrar.register(user.username)
                     }
 
-                    await registrar.installHandlers(user.username)
+                  await this.getAgentInstance().store.flush()
+
+                  await registrar.installHandlers(user.username)
                 } catch (e) {
                     this.handleFailure(e)
                 }

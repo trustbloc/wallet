@@ -59,8 +59,14 @@ export class RegisterWallet extends WalletManager {
             console.warn("unable to find to mediator wallet URL, registered wallet may not support DID Exchange")
         }
 
+        console.info('time taken to register mediator : ' + (new Date().getTime() - start))
+        var startTime = new Date().getTime();
+
         // create DID
         let did = await this.didManager.createTrustBlocDID(keyType, signType)
+
+        console.info('time taken to create trustbloc did : ' + (new Date().getTime() - startTime))
+        startTime = new Date().getTime();
 
         // save wallet metadata
         // TODO wallet metadata to be saved after saveDID [ #332]
@@ -70,8 +76,13 @@ export class RegisterWallet extends WalletManager {
             invitation: invitation
         })
 
+        console.info('time taken to store wallet metadata : ' + (new Date().getTime() - startTime))
+        startTime = new Date().getTime();
+
         // save DID
         await this.didManager.saveDID(user, `${user}_${uuid()}`, signType, did)
+
+        console.info('time taken to save did : ' + (new Date().getTime() - startTime))
 
         console.debug(`created DID ${did.id} successfully for user ${user}`)
 
