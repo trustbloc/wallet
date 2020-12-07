@@ -12,7 +12,7 @@ require (
 	github.com/duo-labs/webauthn.io v0.0.0-20200929144140-c031a3e0f95d
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/sessions v1.2.1
-	github.com/hyperledger/aries-framework-go v0.1.5-0.20201204175718-47143e0eada8
+	github.com/hyperledger/aries-framework-go v0.1.5-0.20201207085548-50be5de657ef
 	github.com/igor-pavlenko/httpsignatures-go v0.0.21
 	github.com/stretchr/testify v1.6.1
 	github.com/trustbloc/edge-core v0.1.5-0.20201126210935-53388acb41fc
