@@ -583,6 +583,7 @@ services:
       - KMS_HUB_AUTH_URL=https://demo-hub-auth.trustbloc.local:8044
       - KMS_HUB_AUTH_API_TOKEN=test_token
       - KMS_BASE_URL=https://demo-oathkeeper-auth-keyserver.trustbloc.local:4461
+      - KMS_CACHE_EXPIRATION=10m
       - KMS_LOG_LEVEL=debug
     ports:
       - ${DEMO_AUTHZ_HUB_KMS_PORT}:${DEMO_AUTHZ_HUB_KMS_PORT}
@@ -615,6 +616,7 @@ services:
       - KMS_KEY_MANAGER_STORAGE_URL=https://edv.example.com:${EDV_PORT}
       - KMS_ZCAP_ENABLE=true
       - KMS_BASE_URL=https://demo-oathkeeper-ops-keyserver.trustbloc.local:4462
+      - KMS_CACHE_EXPIRATION=10m
       - KMS_LOG_LEVEL=debug
     ports:
       - ${DEMO_OPS_HUB_KMS_PORT}:${DEMO_OPS_HUB_KMS_PORT}
@@ -650,6 +652,7 @@ services:
       - KMS_KEY_MANAGER_STORAGE_PREFIX=bddauthzkmskm
       - KMS_HUB_AUTH_URL=https://demo-hub-auth.trustbloc.local:8044
       - KMS_HUB_AUTH_API_TOKEN=test_token
+      - KMS_CACHE_EXPIRATION=10m
     ports:
       - ${BDD_AUTHZ_HUB_KMS_PORT}:${BDD_AUTHZ_HUB_KMS_PORT}
     entrypoint: ""
@@ -681,6 +684,7 @@ services:
       - KMS_KEY_MANAGER_STORAGE_TYPE=edv
       - KMS_KEY_MANAGER_STORAGE_URL=https://edv.example.com:${EDV_PORT}
       - KMS_ZCAP_ENABLE=false # default is false anyway
+      - KMS_CACHE_EXPIRATION=10m
     ports:
       - ${BDD_OPS_HUB_KMS_PORT}:${BDD_OPS_HUB_KMS_PORT}
     entrypoint: ""
