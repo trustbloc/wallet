@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
     <div style="display: flex;">
         <md-ripple>
             <md-button :md-ripple="false" v-on:click="registerDevice" class="md-primary"
-                       style="background-color: #4f424c !important; font-size: 16px; " v-if="register !== 'success'">Register Device
+                       style="background-color: #4f424c !important; font-size: 16px; " v-if="!registered">Register Device
             </md-button>
         </md-ripple>
         <div v-if="register === 'success'">
@@ -30,10 +30,14 @@ SPDX-License-Identifier: Apache-2.0
     export default {
         created: async function () {
             this.deviceRegister = new DeviceRegister(this.getAgentOpts())
+            if (this.$cookies.isKey('registerSuccess')) {
+                this.registered = true;
+            }
         },
         data() {
             return {
                 register: 'none',
+                registered: false,
             }
         },
         methods: {
@@ -42,6 +46,10 @@ SPDX-License-Identifier: Apache-2.0
             ...mapGetters(['getAgentOpts']),
             registerDevice: async function () {
                 this.register = await this.deviceRegister.register();
+                if(this.register == "success") {
+                    this.$cookies.set('registerSuccess','success');
+                    this.registered = true;
+                }
             },
         },
     }

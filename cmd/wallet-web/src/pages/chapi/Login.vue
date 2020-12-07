@@ -22,7 +22,7 @@ SPDX-License-Identifier: Apache-2.0
                     <md-button v-on:click="beginOIDCLogin" class="md-raised md-success" id="loginBtn">
                       Login with Credentials
                     </md-button>
-                      <md-button v-on:click="loginDevice" class="md-raised md-success" id="loginDeviceBtn">
+                      <md-button v-if="registered" v-on:click="loginDevice" class="md-raised md-success" id="loginDeviceBtn">
                           Login with TouchID
                       </md-button>
                   </md-card-content>
@@ -65,12 +65,17 @@ SPDX-License-Identifier: Apache-2.0
               return
             }
 
+            if (this.$cookies.isKey('registerSuccess')) {
+                this.registered = true;
+            }
+
             this.loading = false
         },
         data() {
             return {
                 statusMsg: '',
                 loading: true,
+                registered: false,
             };
         },
         methods: {

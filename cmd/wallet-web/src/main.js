@@ -13,6 +13,7 @@ import * as polyfill from "credential-handler-polyfill";
 import * as webCredentialHandler from "web-credential-handler";
 import MaterialDashboard from "./material-dashboard";
 import {mapActions, mapGetters} from "vuex";
+import VueCookies from 'vue-cookies';
 
 Vue.config.productionTip = false
 
@@ -54,6 +55,8 @@ router.beforeEach((to, from, next) => {
 
 Vue.use(VueRouter);
 Vue.use(MaterialDashboard);
+Vue.use(VueCookies);
+Vue.$cookies.config('7d')
 
 new Vue({
     store,
