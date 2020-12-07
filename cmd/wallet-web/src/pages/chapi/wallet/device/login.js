@@ -29,7 +29,7 @@ export class DeviceLogin {
             },
             'json')
             .then((credentialRequestOptions) => {
-                console.log("what is here", credentialRequestOptions);
+                console.log(credentialRequestOptions);
                 credentialRequestOptions.data.publicKey.challenge = bufferDecode(credentialRequestOptions.data.publicKey.challenge);
                 credentialRequestOptions.data.publicKey.allowCredentials.forEach(function (listItem) {
                     listItem.id = bufferDecode(listItem.id)
@@ -40,7 +40,7 @@ export class DeviceLogin {
                 })
             })
             .then((assertion) => {
-                console.log("what is assertion", assertion);
+                console.log(assertion);
                 let authData = assertion.response.authenticatorData;
                 let clientDataJSON = assertion.response.clientDataJSON;
                 let rawId = assertion.rawId;
@@ -67,11 +67,10 @@ export class DeviceLogin {
             })
             // eslint-disable-next-line no-unused-vars
             .then((success) => {
-                    window.location.href = "/dashboard";
+                window.location.href = "/dashboard";
             })
             .catch((error) => {
-                console.log(error)
-                alert("failed to login");
+                console.log(error);
             })
     }
 }
