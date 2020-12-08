@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "setup:assets": "bash scripts/setup_assets.sh",
-    "serve": "npm run setup:assets && vue-cli-service serve",
+    "serve": "npm run setup:assets && vue-cli-service serve --port 9098",
     "build": " npm run setup:assets && vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
