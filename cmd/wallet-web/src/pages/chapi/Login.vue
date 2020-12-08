@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-    <div class="viewport">
+    <div class="login-viewport">
         <md-card class="md-layout-item md-size-50 md-small-size-100">
             <md-card-header data-background-color="green">
                 <div class="md-title text-center">Web Wallet Login</div>
@@ -136,7 +136,7 @@ SPDX-License-Identifier: Apache-2.0
            position:absolute;
 
     }
-    .viewport {
+    .login-viewport {
         width: 40%;
         max-width: 100%;
         display: inline-flex;
