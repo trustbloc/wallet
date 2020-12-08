@@ -22,10 +22,10 @@ SPDX-License-Identifier: Apache-2.0
             <md-card-content v-else>
                 <form>
                     <md-card-content>
-                        <md-button v-on:click="beginOIDCLogin" class="md-dense md-raised md-success" id="loginBtn">
+                        <md-button v-on:click="beginOIDCLogin" class="md-dense md-raised md-success login-button" id="loginBtn">
                             Sign-In Partner Login/Register
                         </md-button>
-                            <md-button  v-if="registered" v-on:click="loginDevice" class="md-dense md-raised md-success" id="loginDeviceBtn">
+                            <md-button v-if="registered" v-on:click="loginDevice" class="md-dense md-raised md-success login-button" id="loginDeviceBtn">
                                 Sign-In Touch/Face ID
                             </md-button>
                     </md-card-content>
@@ -127,14 +127,11 @@ SPDX-License-Identifier: Apache-2.0
     }
 
 </script>
-<style lang="css">
-    .md-button {
+<style scoped>
+    .login-button {
           text-transform: none !important; /*For Lower case use lowercase*/
           font-size: 16px !important;
-           width: 100%;
-           max-width: 100%;
-           position:absolute;
-
+          width: 100%;
     }
     .login-viewport {
         width: 40%;

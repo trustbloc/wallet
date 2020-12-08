@@ -19,7 +19,8 @@ let defaultAgentStartupOpts = {
     'auto-accept': true,
     'log-level': 'debug',
     'indexedDB-namespace': 'agent',
-    'edge-agent-server': '',
+    // default backend server url
+    'edge-agent-server': 'https://localhost:8090',
 
     blocDomain: 'testnet.trustbloc.local',
     walletMediatorURL: 'https://localhost:10063',
