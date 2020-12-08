@@ -24,6 +24,7 @@ jobs:
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make checks
         env:
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)
@@ -66,6 +67,7 @@ jobs:
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make bdd-test-wallet-web
         env:
           DOCKER_USER: $(DOCKER_USER)
@@ -96,6 +98,7 @@ jobs:
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make bdd-test-wallet-server
         env:
           DOCKER_USER: $(DOCKER_USER)
@@ -127,6 +130,7 @@ jobs:
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make wallet-web-docker
           docker tag docker.pkg.github.com/trustbloc/edge-agent/wallet-web:latest ${WALLET_WEB_PKG}:${WALLET_WEB_TAG}
           docker push ${WALLET_WEB_PKG}:${WALLET_WEB_TAG}

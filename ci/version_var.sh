@@ -8,7 +8,7 @@
 
 # Release Parameters
 BASE_VERSION=0.1.5
-IS_RELEASE=false
+IS_RELEASE=true
 
 SOURCE_REPO=edge-agent
 BASE_WALLET_WEB_PKG_NAME=wallet-web
