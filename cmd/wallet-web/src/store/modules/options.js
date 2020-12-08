@@ -20,13 +20,13 @@ let defaultAgentStartupOpts = {
     'log-level': 'debug',
     'indexedDB-namespace': 'agent',
     // default backend server url
-    'edge-agent-server': 'https://localhost:8090',
+    'edge-agent-server': 'https://localhost:9099',
 
     blocDomain: 'testnet.trustbloc.local',
     walletMediatorURL: 'https://localhost:10063',
     blindedRouting: false,
     credentialMediatorURL: '',
-    storageType: `edv`,
+    storageType: `indexedDB`,
     edvServerURL: '',
     edvVaultID: '',
     edvCapability: '',

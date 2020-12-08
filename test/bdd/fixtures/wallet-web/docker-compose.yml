@@ -131,6 +131,37 @@ services:
     depends_on:
       - edv.example.com
 
+  user-local-agent.example.com:
+    container_name: user-local-agent.example.com
+    image: ${WALLET_SERVER_IMAGE}:latest
+    environment:
+      - AGENT_UI_URL=https://localhost:9098
+      - HTTP_SERVER_HOST_URL=0.0.0.0:9099
+      - TLS_CERT_FILE=/etc/keys/tls/ec-pubCert.pem
+      - TLS_KEY_FILE=/etc/keys/tls/ec-key.pem
+      - TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
+      - HTTP_SERVER_HUB_AUTH_URL=https://demo-hub-auth.trustbloc.local:8044
+      - HTTP_SERVER_OIDC_OPURL=https://demo-hub-auth-hydra.trustbloc.local:5555/
+      - HTTP_SERVER_OIDC_CLIENTID=client-id
+      - HTTP_SERVER_OIDC_CLIENTSECRET=client-secret
+      - HTTP_SERVER_OIDC_CALLBACK=https://localhost:9099/oidc/callback
+      - HTTP_SERVER_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
+      - HTTP_SERVER_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
+      - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
+      - HTTP_SERVER_RP_ORIGIN_NAME=https://localhost:9098/
+      - HTTP_SERVER_RP_ID=localhost
+      - HTTP_SERVER_AUTHZ_KMS_URL=https://demo-oathkeeper-auth-keyserver.trustbloc.local:4461
+      - HTTP_SERVER_OPS_KMS_URL=https://demo-oathkeeper-ops-keyserver.trustbloc.local:4462
+      - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+      - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+    ports:
+      - 9099:9099
+    volumes:
+      - ../keys:/etc/keys
+    command: start
+    depends_on:
+      - edv.example.com
+
   second-user-agent.example.com:
     container_name: second-user-agent.example.com
     image: ${WALLET_SERVER_IMAGE}:latest
