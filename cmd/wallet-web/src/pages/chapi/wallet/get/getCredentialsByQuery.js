@@ -63,7 +63,7 @@ export class WalletGetByQuery extends WalletGet {
 
     async connect() {
         // make sure mediator is connected
-        await  this.agent.mediator.reconnectAll()
+        await this.agent.mediator.reconnectAll()
     }
 
     async getPresentationSubmission() {
@@ -130,7 +130,7 @@ export class WalletGetByQuery extends WalletGet {
 
 
     async _getAuthorizationCredentials(presentationSubmission) {
-        let rpConn = await this.didExchange.connect(this.invitation[0])
+        let rpConn = await this.didExchange.connect(this.invitation[0], {waitForCompletion: true})
 
         // share peer DID with RP for blinded routing
         await this.blindedRouter.sharePeerDID(rpConn.result)
