@@ -34,9 +34,10 @@ export class RegisterWallet extends WalletManager {
 
     // wallet user registration and setup process
     async register(user) {
-        var start = new Date().getTime();
+        console.time('register user time');
 
         // register mediator
+        console.time('register mediator time');
         let invitation
         if (this.mediatorEndpoint) {
             try {
@@ -58,37 +59,31 @@ export class RegisterWallet extends WalletManager {
         } else {
             console.warn("unable to find to mediator wallet URL, registered wallet may not support DID Exchange")
         }
-
-        console.info('time taken to register mediator : ' + (new Date().getTime() - start))
-        var startTime = new Date().getTime();
+        console.timeEnd('register mediator time');
 
         // create DID
+        console.time('create trustbloc did time');
         let did = await this.didManager.createTrustBlocDID(keyType, signType)
-
-        console.info('time taken to create trustbloc did : ' + (new Date().getTime() - startTime))
-        startTime = new Date().getTime();
+        console.timeEnd('create trustbloc did time');
 
         // save wallet metadata
         // TODO wallet metadata to be saved after saveDID [ #332]
+        console.time('store wallet metadata time');
         await this.storeWalletMetadata(user, {
             signatureType: signType,
             did: did.id,
             invitation: invitation
         })
-
-        console.info('time taken to store wallet metadata : ' + (new Date().getTime() - startTime))
-        startTime = new Date().getTime();
+        console.timeEnd('store wallet metadata time');
 
         // save DID
+        console.time('save did time');
         await this.didManager.saveDID(user, `${user}_${uuid()}`, signType, did)
-
-        console.info('time taken to save did : ' + (new Date().getTime() - startTime))
+        console.timeEnd('save did time');
 
         console.debug(`created DID ${did.id} successfully for user ${user}`)
 
-        var end = new Date().getTime();
-        var time = end - start;
-        console.info('time taken to register the user : ' + time)
+        console.timeEnd('register user time');
     }
 
     // install credential handler polyfill handlers
