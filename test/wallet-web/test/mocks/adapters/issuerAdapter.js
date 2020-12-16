@@ -105,6 +105,18 @@ class Adapter {
             id: res.Properties.connectionID,
             router_connections: await getMediatorConnections(this.agent, true),
         })
+
+        await waitForEvent(this.agent, {
+            type: POST_STATE,
+            stateID: stateCompleted,
+            connectionID: res.Properties.connectionID,
+            topic: topicDidExchangeStates,
+        })
+
+        this.agent.messaging.send({"connection_ID": `${res.Properties.connectionID}`, "message_body": {
+                "@id": uuid(),
+                "@type": 'https://trustbloc.dev/didexchange/1.0/state-complete',
+            }})
     }
 
     /**

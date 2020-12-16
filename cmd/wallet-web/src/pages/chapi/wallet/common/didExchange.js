@@ -10,6 +10,8 @@ import {getMediatorConnections} from "../../../../pages/chapi/wallet/didcomm/med
 
 const stateCompleted = 'completed'
 const topicDidExchangeStates = 'didexchange_states'
+const stateCompleteMessageTopic = 'didexchange-state-complete'
+const stateCompleteMessageType = 'https://trustbloc.dev/didexchange/1.0/state-complete'
 
 /**
  * DIDExchange provides exchange features
@@ -21,7 +23,7 @@ export class DIDExchange {
         this.agent = agent
     }
 
-    async connect(invitation) {
+    async connect(invitation, {waitForCompletion = ''} = {}) {
         let conn = await this.agent.outofband.acceptInvitation({
             my_label: 'agent-default-label',
             invitation: invitation,
@@ -36,7 +38,32 @@ export class DIDExchange {
             topic: topicDidExchangeStates,
         })
 
-        return await this.agent.didexchange.queryConnectionByID({id: connID})
+        const record = await this.agent.didexchange.queryConnectionByID({id: connID})
+
+        if (waitForCompletion) {
+            this.agent.messaging.registerService({
+                "name": `${stateCompleteMessageTopic}`,
+                "type": `${stateCompleteMessageType}`,
+            })
+
+            try {
+                await new Promise((resolve, reject) => {
+                    setTimeout(() => reject(new Error("time out waiting for state complete message")), 15000)
+                    const stop = this.agent.startNotifier(msg => {
+                        if (record.result.MyDID == msg.payload.mydid && record.result.TheirDID == msg.payload.theirdid) {
+                            stop()
+                            console.debug('received state complete msg received !!!!')
+                            resolve(msg.payload.message)
+                        }
+                    }, [stateCompleteMessageTopic])
+                })
+
+            } catch (e) {
+                console.warn('error while waiting for state complete msg !!', e)
+            }
+        }
+
+        return record
     }
 
     cancel() {

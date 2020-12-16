@@ -35,31 +35,17 @@ export class BlindedRouter {
 
         console.debug('Sending DID Doc request')
         // request peer DID from other party
-        let payload
-        const retries = 5;
-        // TODO this retry logic to be removed once integration issue with did-exchange state complete update delay is resolved
-        for (let i = 1; i <= retries; i++) {
-            try {
-                payload = await this.agent.messaging.send({
-                    "connection_ID": ConnectionID,
-                    "message_body": {
-                        "@id": uuid(),
-                        "@type": didDocReqMsgType,
-                        "sent_time": new Date().toJSON(),
-                    },
-                    "await_reply": {messageType: didDocReqRespType, timeout: 20000000000}, //TODO (#531): Reduce timeout once EDV storage speed is improved. Note: this value used to be 2 seconds (now it's 20).
-                })
-            } catch (e) {
-                if (!e.message.includes("failed to get reply") || i === retries) {
-                    throw e
-                }
-                await sleep(3000);
-                continue
-            }
-            break
-        }
+        let payload = await this.agent.messaging.send({
+            "connection_ID": ConnectionID,
+            "message_body": {
+                "@id": uuid(),
+                "@type": didDocReqMsgType,
+                "sent_time": new Date().toJSON(),
+            },
+            "await_reply": {messageType: didDocReqRespType, timeout: 20000000000}, //TODO (#531): Reduce timeout once EDV storage speed is improved. Note: this value used to be 2 seconds (now it's 20).
+        })
 
-        if(!payload.response) {
+        if (!payload.response) {
             throw 'no response DID found in did doc response'
         }
 
@@ -110,8 +96,3 @@ async function requestDIDFromMediator(agent, reqDoc) {
     console.error('failed to request DID from router, failed to get connection response')
     throw 'failed to request DID from router, failed to get connection response'
 }
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
