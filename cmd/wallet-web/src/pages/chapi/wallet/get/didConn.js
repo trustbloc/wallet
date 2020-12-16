@@ -56,27 +56,43 @@ export class DIDConn {
     }
 
     async connect() {
+        console.time('wallet connect time');
+
         // perform did exchange
+        console.time('did connect time');
         let connection = await this.exchange.connect(this.invitation)
+        console.timeEnd('did connect time');
 
         // share peer DID with inviter for blinded routing
+        console.time('blinded routing time');
         await this.blindedRouter.sharePeerDID(connection.result)
+        console.timeEnd('blinded routing time');
 
         // save wallet metadata
+        console.time('get wallet metadata time');
         let walletMetadata = await this.walletManager.getWalletMetadata(this.walletUser)
+        console.timeEnd('get wallet metadata time');
+
         if (!walletMetadata.connections) {
             walletMetadata.connections = []
         }
         walletMetadata.connections.push(connection.result.ConnectionID)
+
+        console.time('store wallet metadata time');
         await this.walletManager.storeWalletMetadata(walletMetadata, walletMetadata)
+        console.timeEnd('store wallet metadata time');
 
         // save credentials
         if (this.credentials) {
             for (let credential of this.credentials) {
                 if (getCredentialType(credential.type) == manifestCredType) {
+                    console.time('store manifest time');
                     await this.walletManager.storeManifest(connection.result.ConnectionID, credential)
+                    console.timeEnd('store manifest time');
                 } else {
+                    console.time('save vc time');
                     await this.walletStore.save(uuid(), credential)
+                    console.timeEnd('save vc time');
                 }
             }
         }
@@ -85,6 +101,7 @@ export class DIDConn {
         // need to flush
         await this.agent.store.flush()
         this.sendResponse("VerifiablePresentation", responseData)
+        console.timeEnd('wallet connect time');
     }
 
 
