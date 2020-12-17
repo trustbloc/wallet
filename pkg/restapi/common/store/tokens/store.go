@@ -10,8 +10,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
-	"github.com/trustbloc/edge-core/pkg/storage"
 )
 
 const (
@@ -27,7 +27,7 @@ type UserTokens struct {
 }
 
 // NewStore returns a new token Store.
-func NewStore(p storage.Provider) (*Store, error) {
+func NewStore(p ariesstorage.Provider) (*Store, error) {
 	s, err := store.Open(p, StoreName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open tokens store: %w", err)
@@ -38,7 +38,7 @@ func NewStore(p storage.Provider) (*Store, error) {
 
 // Store holds UserTokens.
 type Store struct {
-	s storage.Store
+	s ariesstorage.Store
 }
 
 // Save the UserTokens to the store.

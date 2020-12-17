@@ -19,11 +19,11 @@ import (
 	"github.com/duo-labs/webauthn/protocol"
 	"github.com/duo-labs/webauthn/webauthn"
 	"github.com/google/uuid"
+	mockstore "github.com/hyperledger/aries-framework-go/pkg/mock/storage"
+	ariesmem "github.com/hyperledger/aries-framework-go/pkg/storage/mem"
 	"github.com/stretchr/testify/require"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
-	"github.com/trustbloc/edge-core/pkg/storage/memstore"
-	"github.com/trustbloc/edge-core/pkg/storage/mockstore"
 )
 
 // The mock request body that will be passed by navigator.Credentials.create({publicKey: makeCredentialOptions.publicKey
@@ -67,8 +67,8 @@ func TestNew(t *testing.T) {
 
 	t.Run("error if cannot open user store", func(t *testing.T) {
 		config := config(t)
-		config.Storage.Storage = &mockstore.Provider{
-			FailNameSpace: user.StoreName,
+		config.Storage.Storage = &mockstore.MockStoreProvider{
+			FailNamespace: user.StoreName,
 		}
 		_, err := New(config)
 		require.Error(t, err)
@@ -76,7 +76,7 @@ func TestNew(t *testing.T) {
 	t.Run("error if cannot open permanent store", func(t *testing.T) {
 		expected := errors.New("test")
 		config := config(t)
-		config.Storage.Storage = &mockstore.Provider{
+		config.Storage.Storage = &mockstore.MockStoreProvider{
 			ErrOpenStoreHandle: expected,
 		}
 		_, err := New(config)
@@ -516,10 +516,8 @@ func Test_GetDeviceInfo(t *testing.T) {
 	o, err := New(config(t))
 	require.NoError(t, err)
 	config := config(t)
-	config.Storage.Storage = &mockstore.Provider{
-		Store: &mockstore.MockStore{
-			ErrGet: errors.New("test"),
-		},
+	config.Storage.Storage = &mockstore.MockStoreProvider{
+		Store: &mockstore.MockStore{},
 	}
 
 	userSub := uuid.New().String()
@@ -542,7 +540,7 @@ func Test_GetDeviceInfo(t *testing.T) {
 
 func Test_SaveDeviceInfo(t *testing.T) {
 	config := config(t)
-	config.Storage.Storage = &mockstore.Provider{
+	config.Storage.Storage = &mockstore.MockStoreProvider{
 		Store: &mockstore.MockStore{
 			Store: make(map[string][]byte),
 		},
@@ -604,8 +602,8 @@ func config(t *testing.T) *Config {
 
 	return &Config{
 		Storage: &StorageConfig{
-			Storage:      memstore.NewProvider(),
-			SessionStore: memstore.NewProvider(),
+			Storage:      ariesmem.NewProvider(),
+			SessionStore: ariesmem.NewProvider(),
 		},
 		Keys: &KeyConfig{
 			Auth: key(t),
