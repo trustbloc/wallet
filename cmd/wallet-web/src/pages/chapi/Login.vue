@@ -15,8 +15,10 @@ SPDX-License-Identifier: Apache-2.0
             </md-card-content>
             <div class="md-body-1 center-header">Log in or register with the same sign-in information you use for other online services (for example, online banking).</div>
             <md-card-content v-if="loading" style="margin: 10% 22% 10% 30%">
-                <md-progress-spinner :md-diameter="100" class="md-accent" :md-stroke="10"
-                                     md-mode="indeterminate"></md-progress-spinner>
+                    <beat-loader :color="'black'" :size="20"></beat-loader>
+                    <transition name="fade" mode="out-in">
+                        <div style="padding-top: 10px;" :key="messageNum">{{messages[messageNum]}}</div>
+                    </transition>
             </md-card-content>
 
             <md-card-content v-else>
@@ -39,12 +41,12 @@ SPDX-License-Identifier: Apache-2.0
 <script>
     import {DeviceLogin, RegisterWallet} from "./wallet"
     import {mapActions, mapGetters} from 'vuex'
-    import Vue from 'vue';
+    import { BeatLoader } from "@saeris/vue-spinners";
 
     export default {
         created: async function () {
+            this.startLoading()
             //TODO: issue-601 Implement cookie logic with information from the backend.
-           this.registerSuccess = Vue.$cookies.get("device");
             this.deviceLogin = new DeviceLogin(this.getAgentOpts());
             let redirect = this.$route.params['redirect']
             this.redirect = redirect ? {name: redirect} : `${__webpack_public_path__}`
@@ -73,6 +75,7 @@ SPDX-License-Identifier: Apache-2.0
                 this.registered = true;
             }
 
+            this.stopLoading()
             this.loading = false
         },
         data() {
@@ -80,7 +83,17 @@ SPDX-License-Identifier: Apache-2.0
                 statusMsg: '',
                 loading: true,
                 registered: false,
+                messageNum: 0,
+                messages: [
+                    "Signing you in.",
+                    "This could take a minute.",
+                    "Please do not refresh the page.",
+                    "Please wait...",
+                ]
             };
+        },
+        components: {
+            BeatLoader,
         },
         methods: {
             ...mapActions({loadUser: 'loadUser', loadOIDCUser: 'loadOIDCUser', refreshUserMetadata: 'refreshUserMetadata'}),
@@ -90,10 +103,10 @@ SPDX-License-Identifier: Apache-2.0
                 window.location.href = this.serverURL() + "/oidc/login"
             },
 
-           sleep(ms) {
+            sleep(ms) {
                return new Promise(resolve => setTimeout(resolve, ms));
              },
-          finishOIDCLogin: async function() {
+            finishOIDCLogin: async function() {
                 let user = this.getCurrentUser()
 
                 let registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, this.getAgentInstance(),
@@ -121,6 +134,15 @@ SPDX-License-Identifier: Apache-2.0
             },
             loginDevice: async function () {
                 await this.deviceLogin.login();
+            },
+            startLoading() {
+                this.intervalID = setInterval(() => {
+                    this.messageNum ++;
+                    this.messageNum %= this.messages.length;
+                }, 3000);
+            },
+            stopLoading() {
+                clearInterval(this.intervalID);
             },
 
         }
