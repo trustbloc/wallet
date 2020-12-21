@@ -34,49 +34,11 @@ export class RegisterWallet extends WalletManager {
 
     // wallet user registration and setup process
     async register(user) {
-        console.time('register user time');
-
         // register mediator
-        console.time('register mediator time');
-        if (this.mediatorEndpoint) {
-            try {
-                let resp = await this.agent.mediator.getConnections()
-                if (!resp.connections || resp.connections.length == 0) {
-                    await connectToMediator(this.agent, this.mediatorEndpoint)
-                }
+        this._connectToMediator()
 
-                console.debug(`registered with mediator successfully for user ${user}`)
-            } catch (e) {
-                // mediator registration isn't mandatory, so handle errors
-                console.warn("unable to connect to mediator, registered wallet may not support DID Exchange, cause:", e.toString())
-            }
-        } else {
-            console.warn("unable to find to mediator wallet URL, registered wallet may not support DID Exchange")
-        }
-        console.timeEnd('register mediator time');
-
-        // create DID
-        console.time('create trustbloc did time');
-        let did = await this.didManager.createTrustBlocDID(keyType, signType)
-        console.timeEnd('create trustbloc did time');
-
-        // save wallet metadata
-        // TODO wallet metadata to be saved after saveDID [ #332]
-        console.time('store wallet metadata time');
-        await this.storeWalletMetadata(user, {
-            signatureType: signType,
-            did: did.id
-        })
-        console.timeEnd('store wallet metadata time');
-
-        // save DID
-        console.time('save did time');
-        await this.didManager.saveDID(user, `${user}_${uuid()}`, signType, did)
-        console.timeEnd('save did time');
-
-        console.debug(`created DID ${did.id} successfully for user ${user}`)
-
-        console.timeEnd('register user time');
+        // create and assign DID to this user & save
+        this._assignDID(user)
     }
 
     // install credential handler polyfill handlers
@@ -109,5 +71,49 @@ export class RegisterWallet extends WalletManager {
         }
 
         await this.wcredHandler.uninstallHandler({url: `${__webpack_public_path__}worker`})
+    }
+
+    async _connectToMediator() {
+        console.time('time tracking: register mediator time');
+        if (this.mediatorEndpoint) {
+            try {
+                let resp = await this.agent.mediator.getConnections()
+                if (!resp.connections || resp.connections.length == 0) {
+                    await connectToMediator(this.agent, this.mediatorEndpoint)
+                }
+
+                console.debug(`registered with mediator successfully for user`)
+            } catch (e) {
+                // mediator registration isn't mandatory, so handle errors
+                console.warn("unable to connect to mediator, registered wallet may not support DID Exchange, cause:", e.toString())
+            }
+        } else {
+            console.warn("unable to find to mediator wallet URL, registered wallet may not support DID Exchange")
+        }
+        console.timeEnd('time tracking: register mediator time');
+    }
+    
+    async _assignDID(user){
+        console.time('time tracking: create and save DID');
+
+        console.time('time tracking: create trustbloc did time');
+        let did = await this.didManager.createTrustBlocDID(keyType, signType)
+        console.timeEnd('time tracking: create trustbloc did time');
+
+        console.time('time tracking: store wallet metadata time');
+        await this.storeWalletMetadata(user, {
+            signatureType: signType,
+            did: did.id
+        })
+        console.timeEnd('time tracking: store wallet metadata time');
+
+        // save DID
+        console.time('time tracking: save did time');
+        await this.didManager.saveDID(user, `${user}_${uuid()}`, signType, did)
+        console.timeEnd('time tracking: save did time');
+
+        console.debug(`created DID ${did.id} successfully for user ${user}`)
+
+        console.timeEnd('time tracking: create and save DID');
     }
 }

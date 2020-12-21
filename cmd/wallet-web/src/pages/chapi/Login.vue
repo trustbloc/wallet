@@ -13,23 +13,27 @@ SPDX-License-Identifier: Apache-2.0
             <md-card-content>
                 <img src="@/assets/img/wallet.jpg">
             </md-card-content>
-            <div class="md-body-1 center-header">Log in or register with the same sign-in information you use for other online services (for example, online banking).</div>
+            <div class="md-body-1 center-header">Log in or register with the same sign-in information you use for other
+                online services (for example, online banking).
+            </div>
             <md-card-content v-if="loading" style="margin: 10% 22% 10% 30%">
-                    <beat-loader :color="'black'" :size="20"></beat-loader>
-                    <transition name="fade" mode="out-in">
-                        <div style="padding-top: 10px;" :key="messageNum">{{messages[messageNum]}}</div>
-                    </transition>
+                <beat-loader :color="'black'" :size="20"></beat-loader>
+                <transition name="fade" mode="out-in">
+                    <div style="padding-top: 10px;" :key="messageNum">{{messages[messageNum]}}</div>
+                </transition>
             </md-card-content>
 
             <md-card-content v-else>
                 <form>
                     <md-card-content>
-                        <md-button v-on:click="beginOIDCLogin" class="md-dense md-raised md-success login-button" id="loginBtn">
+                        <md-button v-on:click="beginOIDCLogin" class="md-dense md-raised md-success login-button"
+                                   id="loginBtn">
                             Sign-In Partner Login/Register
                         </md-button>
-                            <md-button v-if="registered" v-on:click="loginDevice" class="md-dense md-raised md-success login-button" id="loginDeviceBtn">
-                                Sign-In Touch/Face ID
-                            </md-button>
+                        <md-button v-if="registered" v-on:click="loginDevice"
+                                   class="md-dense md-raised md-success login-button" id="loginDeviceBtn">
+                            Sign-In Touch/Face ID
+                        </md-button>
                     </md-card-content>
                 </form>
             </md-card-content>
@@ -41,7 +45,7 @@ SPDX-License-Identifier: Apache-2.0
 <script>
     import {DeviceLogin, RegisterWallet} from "./wallet"
     import {mapActions, mapGetters} from 'vuex'
-    import { BeatLoader } from "@saeris/vue-spinners";
+    import {BeatLoader} from "@saeris/vue-spinners";
 
     export default {
         created: async function () {
@@ -52,24 +56,24 @@ SPDX-License-Identifier: Apache-2.0
             this.redirect = redirect ? {name: redirect} : `${__webpack_public_path__}`
             this.loadUser()
             if (this.getCurrentUser()) {
-              await this.getAgentInstance().store.flush()
-              this.handleSuccess()
+                await this.getAgentInstance().store.flush()
+                this.handleSuccess()
                 return
             }
 
             await this.loadOIDCUser()
 
             try {
-              await this.refreshUserMetadata()
+                await this.refreshUserMetadata()
             } catch (e) {
-              console.warn("first time login: ignore", e)
+                console.warn("first time login: ignore", e)
             }
 
             if (this.getCurrentUser()) {
-              await this.finishOIDCLogin()
-              await this.getAgentInstance().store.flush()
-              this.handleSuccess()
-              return
+                await this.finishOIDCLogin()
+                await this.getAgentInstance().store.flush()
+                this.handleSuccess()
+                return
             }
             if (this.$cookies.isKey('registerSuccess')) {
                 this.registered = true;
@@ -96,17 +100,21 @@ SPDX-License-Identifier: Apache-2.0
             BeatLoader,
         },
         methods: {
-            ...mapActions({loadUser: 'loadUser', loadOIDCUser: 'loadOIDCUser', refreshUserMetadata: 'refreshUserMetadata'}),
+            ...mapActions({
+                loadUser: 'loadUser',
+                loadOIDCUser: 'loadOIDCUser',
+                refreshUserMetadata: 'refreshUserMetadata'
+            }),
             ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL']),
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
-            beginOIDCLogin: async function() {
+            beginOIDCLogin: async function () {
                 window.location.href = this.serverURL() + "/oidc/login"
             },
 
             sleep(ms) {
-               return new Promise(resolve => setTimeout(resolve, ms));
-             },
-            finishOIDCLogin: async function() {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            },
+            finishOIDCLogin: async function () {
                 let user = this.getCurrentUser()
 
                 let registrar = new RegisterWallet(this.$polyfill, this.$webCredentialHandler, this.getAgentInstance(),
@@ -115,18 +123,18 @@ SPDX-License-Identifier: Apache-2.0
                 try {
                     if (!user.metadata) {
                         // first time login, register this user
-                        await registrar.register(user.username)
+                        registrar.register(user.username)
                     }
 
-                  await this.getAgentInstance().store.flush()
+                    await this.getAgentInstance().store.flush()
 
-                  await registrar.installHandlers(user.username)
+                    await registrar.installHandlers(user.username)
                 } catch (e) {
                     this.handleFailure(e)
                 }
             },
             handleSuccess() {
-              this.$router.push(this.redirect);
+                this.$router.push(this.redirect);
             },
             handleFailure(e) {
                 console.error("login failure: ", e)
@@ -137,7 +145,7 @@ SPDX-License-Identifier: Apache-2.0
             },
             startLoading() {
                 this.intervalID = setInterval(() => {
-                    this.messageNum ++;
+                    this.messageNum++;
                     this.messageNum %= this.messages.length;
                 }, 3000);
             },
@@ -151,20 +159,21 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 <style scoped>
     .login-button {
-          text-transform: none !important; /*For Lower case use lowercase*/
-          font-size: 16px !important;
-          width: 100%;
+        text-transform: none !important; /*For Lower case use lowercase*/
+        font-size: 16px !important;
+        width: 100%;
     }
+
     .login-viewport {
         width: 40%;
         max-width: 100%;
         display: inline-flex;
         justify-content: center;
         align-content: center;
-        top:25%;
+        top: 25%;
         left: 30%;
-        position:absolute;
-        margin-left:auto;
-        margin-right:auto
+        position: absolute;
+        margin-left: auto;
+        margin-right: auto
     }
 </style>
