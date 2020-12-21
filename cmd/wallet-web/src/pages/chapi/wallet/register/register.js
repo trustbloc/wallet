@@ -38,18 +38,12 @@ export class RegisterWallet extends WalletManager {
 
         // register mediator
         console.time('register mediator time');
-        let invitation
         if (this.mediatorEndpoint) {
             try {
                 let resp = await this.agent.mediator.getConnections()
                 if (!resp.connections || resp.connections.length == 0) {
                     await connectToMediator(this.agent, this.mediatorEndpoint)
                 }
-
-                let response = await this.agent.mediatorclient.createInvitation({
-                    label: 'agent-label'
-                })
-                invitation = response.invitation
 
                 console.debug(`registered with mediator successfully for user ${user}`)
             } catch (e) {
@@ -71,8 +65,7 @@ export class RegisterWallet extends WalletManager {
         console.time('store wallet metadata time');
         await this.storeWalletMetadata(user, {
             signatureType: signType,
-            did: did.id,
-            invitation: invitation
+            did: did.id
         })
         console.timeEnd('store wallet metadata time');
 
