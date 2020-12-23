@@ -9,9 +9,18 @@ SPDX-License-Identifier: Apache-2.0
         <div class="content">
             <div class="md-layout">
                 <div>
-                    <md-label v-if="showOfflineWarning" style="color: #1B5E20; font-size: 16px; margin: 10px">
-                        <md-icon>warning</md-icon>
-                        <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured communication.
+                    <md-label style="color: #1B5E20; font-size: 16px; margin: 5px">
+                        <span v-if="loadingStatus === 'inprogress'">
+                            <pulse-loader :color="'green'" :size="5"
+                                          style="float: left; margin-right: 5px"></pulse-loader> Setting up your user for secured communication.
+                        </span>
+                        <span v-else-if="loadingStatus === 'success'">
+                             <md-icon style="color: green">check_circle_outline</md-icon> Successfully setup your user for secured communication.
+                        </span>
+                        <span v-else-if="loadingStatus === 'failed'">
+                            <md-icon style="color: red;">warning</md-icon>
+                            <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured communication.
+                        </span>
                     </md-label>
                     <md-card md-with-hover v-if="verifiableCredentials.length">
                         <md-card-header data-background-color="green">
@@ -47,6 +56,7 @@ SPDX-License-Identifier: Apache-2.0
     import {SimpleTable} from "@/components";
     import {filterCredentialsByType, getCredentialType} from "@/pages/chapi/wallet";
     import {mapActions, mapGetters} from 'vuex'
+    import {PulseLoader} from "@saeris/vue-spinners";
 
     const manifestCredType = "IssuerManifestCredential"
     const governanceCredType = "GovernanceCredential"
@@ -54,6 +64,7 @@ SPDX-License-Identifier: Apache-2.0
     export default {
         components: {
             SimpleTable,
+            PulseLoader,
         },
         created: async function () {
             // Load the Credentials
@@ -62,15 +73,6 @@ SPDX-License-Identifier: Apache-2.0
             await this.refreshUserMetadata()
 
             this.username = this.getCurrentUser().username
-
-            if(this.getCurrentUser().metadata !== undefined){
-                try{
-                    this.showOfflineWarning = this.getAgentOpts().walletMediatorURL && !JSON.parse(this.getCurrentUser().metadata).invitation
-                }
-                catch(error){
-                    console.error("current user is undefined")
-                }
-            }
         },
         methods: {
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
@@ -96,13 +98,17 @@ SPDX-License-Identifier: Apache-2.0
                 return vc.name ? vc.name : getCredentialType(vc.type)
             }
         },
+        computed: {
+            loadingStatus() {
+                return this.getCurrentUser().setupStatus
+            }
+        },
         data() {
             return {
                 verifiableCredentials: [],
                 username: '',
                 agent: null,
                 icon: 'perm_identity',
-                showOfflineWarning: false,
                 error: 'No stored credentials',
                 errorDescription: 'Your wallet is empty, there aren\'t any stored credentials to show.',
             }
