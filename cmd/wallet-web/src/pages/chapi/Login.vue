@@ -103,7 +103,9 @@ SPDX-License-Identifier: Apache-2.0
             ...mapActions({
                 loadUser: 'loadUser',
                 loadOIDCUser: 'loadOIDCUser',
-                refreshUserMetadata: 'refreshUserMetadata'
+                refreshUserMetadata: 'refreshUserMetadata',
+                startUserSetup: 'startUserSetup',
+                completeUserSetup: 'completeUserSetup'
             }),
             ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL']),
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
@@ -122,8 +124,10 @@ SPDX-License-Identifier: Apache-2.0
 
                 try {
                     if (!user.metadata) {
+                        this.startUserSetup()
+
                         // first time login, register this user
-                        registrar.register(user.username)
+                        registrar.register(user.username, this.completeUserSetup)
                     }
 
                     await this.getAgentInstance().store.flush()

@@ -17,6 +17,7 @@ export default {
     state: {
         username: null,
         metadata: null,
+        setupStatus: null,
     },
     mutations: {
         setUser(state, val) {
@@ -27,16 +28,23 @@ export default {
             state.metadata = val
             localStorage.setItem('metadata', val)
         },
+        setUserSetupStatus(state, val){
+            state.setupStatus = val
+            localStorage.setItem('setupStatus', val)
+        },
         clearUser(state) {
             state.username = null
             state.metadata = null
+            state.setupStatus= null
 
             localStorage.removeItem('user')
             localStorage.removeItem('metadata')
+            localStorage.removeItem('setupStatus')
         },
         loadUser(state) {
             state.username = localStorage.getItem('user');
             state.metadata = localStorage.getItem('metadata');
+            state.setupStatus = localStorage.getItem('setupStatus');
         }
     },
     actions: {
@@ -76,12 +84,18 @@ export default {
         },
         loadUser({commit}) {
             commit('loadUser')
+        },
+        startUserSetup({commit}){
+            commit('setUserSetupStatus', 'inprogress')
+        },
+        completeUserSetup({commit}, failure){
+            commit('setUserSetupStatus', failure ? 'failed': 'success')
         }
     },
     getters: {
         getCurrentUser(state) {
-            return state.username ? {username: state.username, metadata: state.metadata} : undefined
-        }
+            return state.username ? {username: state.username, metadata: state.metadata, setupStatus: state.setupStatus} : undefined
+        },
     },
     modules: {
         agent: {
@@ -89,7 +103,7 @@ export default {
             state: {
                 instance: null,
                 notifiers: null,
-                agentName: null,
+                agentName: null
             },
             mutations: {
                 setInstance(state, {instance, user}) {

@@ -33,12 +33,19 @@ export class RegisterWallet extends WalletManager {
     }
 
     // wallet user registration and setup process
-    async register(user) {
-        // register mediator
-        this._connectToMediator()
+    async register(user, callback) {
+        // register mediator, create and save DID
+        let failure
+        try {
+            await Promise.all([this._connectToMediator(), this._assignDID(user)])
+        } catch (e) {
+            console.error('failed to setup wallet user', e)
+            failure = e
+        }
 
-        // create and assign DID to this user & save
-        this._assignDID(user)
+        if (callback) {
+            callback(failure)
+        }
     }
 
     // install credential handler polyfill handlers
@@ -77,23 +84,21 @@ export class RegisterWallet extends WalletManager {
         console.time('time tracking: register mediator time');
         if (this.mediatorEndpoint) {
             try {
-                let resp = await this.agent.mediator.getConnections()
-                if (!resp.connections || resp.connections.length == 0) {
-                    await connectToMediator(this.agent, this.mediatorEndpoint)
-                }
+                await connectToMediator(this.agent, this.mediatorEndpoint)
 
                 console.debug(`registered with mediator successfully for user`)
             } catch (e) {
                 // mediator registration isn't mandatory, so handle errors
                 console.warn("unable to connect to mediator, registered wallet may not support DID Exchange, cause:", e.toString())
+                throw e
             }
         } else {
             console.warn("unable to find to mediator wallet URL, registered wallet may not support DID Exchange")
         }
         console.timeEnd('time tracking: register mediator time');
     }
-    
-    async _assignDID(user){
+
+    async _assignDID(user) {
         console.time('time tracking: create and save DID');
 
         console.time('time tracking: create trustbloc did time');
