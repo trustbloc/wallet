@@ -24,14 +24,13 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
 	"github.com/hyperledger/aries-framework-go/pkg/kms"
+	mockstore "github.com/hyperledger/aries-framework-go/pkg/mock/storage"
+	ariesmem "github.com/hyperledger/aries-framework-go/pkg/storage/mem"
 	"github.com/stretchr/testify/require"
 	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/tokens"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
-	"github.com/trustbloc/edge-core/pkg/storage"
-	"github.com/trustbloc/edge-core/pkg/storage/memstore"
-	"github.com/trustbloc/edge-core/pkg/storage/mockstore"
 	"github.com/trustbloc/edge-core/pkg/zcapld"
 	"github.com/trustbloc/edv/pkg/client"
 	"github.com/trustbloc/edv/pkg/restapi/models"
@@ -45,21 +44,11 @@ func TestNew(t *testing.T) {
 		require.NotNil(t, o)
 	})
 
-	t.Run("can init if transient store already exists", func(t *testing.T) {
-		config := config(t)
-		config.Storage.TransientStorage = &mockstore.Provider{
-			ErrCreateStore: storage.ErrDuplicateStore,
-		}
-		o, err := New(config)
-		require.NoError(t, err)
-		require.NotNil(t, o)
-	})
-
 	t.Run("error if cannot create transient store", func(t *testing.T) {
 		expected := errors.New("test")
 		config := config(t)
-		config.Storage.TransientStorage = &mockstore.Provider{
-			ErrCreateStore: expected,
+		config.Storage.TransientStorage = &mockstore.MockStoreProvider{
+			ErrOpenStoreHandle: expected,
 		}
 		_, err := New(config)
 		require.Error(t, err)
@@ -69,7 +58,7 @@ func TestNew(t *testing.T) {
 	t.Run("error if cannot open transient store", func(t *testing.T) {
 		expected := errors.New("test")
 		config := config(t)
-		config.Storage.TransientStorage = &mockstore.Provider{
+		config.Storage.TransientStorage = &mockstore.MockStoreProvider{
 			ErrOpenStoreHandle: expected,
 		}
 		_, err := New(config)
@@ -79,8 +68,8 @@ func TestNew(t *testing.T) {
 
 	t.Run("error if cannot open user store", func(t *testing.T) {
 		config := config(t)
-		config.Storage.Storage = &mockstore.Provider{
-			FailNameSpace: user.StoreName,
+		config.Storage.Storage = &mockstore.MockStoreProvider{
+			FailNamespace: user.StoreName,
 		}
 		_, err := New(config)
 		require.Error(t, err)
@@ -88,8 +77,8 @@ func TestNew(t *testing.T) {
 
 	t.Run("error if cannot open token store", func(t *testing.T) {
 		config := config(t)
-		config.Storage.Storage = &mockstore.Provider{
-			FailNameSpace: tokens.StoreName,
+		config.Storage.Storage = &mockstore.MockStoreProvider{
+			FailNamespace: tokens.StoreName,
 		}
 		_, err := New(config)
 		require.Error(t, err)
@@ -436,7 +425,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 		userSub := uuid.New().String()
 		state := uuid.New().String()
 		config := config(t)
-		config.Storage.Storage = &mockstore.Provider{
+		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
 				Store: map[string][]byte{
 					userSub: []byte(userSub),
@@ -476,7 +465,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 	t.Run("error internal server error if cannot save to user store", func(t *testing.T) {
 		state := uuid.New().String()
 		config := config(t)
-		config.Storage.Storage = &mockstore.Provider{
+		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
 				Store:  make(map[string][]byte),
 				ErrPut: errors.New("test"),
@@ -947,7 +936,7 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 	t.Run("returns the user profile", func(t *testing.T) {
 		sub := uuid.New().String()
 		config := config(t)
-		config.Storage.Storage = &mockstore.Provider{
+		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
 				Store: map[string][]byte{
 					sub: marshal(t, &tokens.UserTokens{}),
@@ -1083,7 +1072,7 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 
 	t.Run("err internal server error if cannot fetch user tokens from storage", func(t *testing.T) {
 		config := config(t)
-		config.Storage.Storage = &mockstore.Provider{
+		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
 				ErrGet: errors.New("test"),
 			},
@@ -1107,7 +1096,7 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 		sub := uuid.New().String()
 		config := config(t)
 		config.OIDCClient = &oidc2.MockClient{UserInfoErr: errors.New("test")}
-		config.Storage.Storage = &mockstore.Provider{
+		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
 				Store: map[string][]byte{
 					sub: marshal(t, &tokens.UserTokens{}),
@@ -1135,7 +1124,7 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 		config.OIDCClient = &oidc2.MockClient{UserInfoVal: &oidc2.MockClaimer{
 			ClaimsErr: errors.New("test"),
 		}}
-		config.Storage.Storage = &mockstore.Provider{
+		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
 				Store: map[string][]byte{
 					sub: marshal(t, &tokens.UserTokens{}),
@@ -1160,7 +1149,7 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 	t.Run("err internalserver error if cannot fetch temporary bootstrap data", func(t *testing.T) {
 		sub := uuid.New().String()
 		config := config(t)
-		config.Storage.Storage = &mockstore.Provider{
+		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
 				Store: map[string][]byte{
 					sub: marshal(t, &tokens.UserTokens{}),
@@ -1204,8 +1193,10 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 }
 
 func TestOperation_UserLogoutHandler(t *testing.T) {
+	o, err := New(config(t))
+	require.NoError(t, err)
 	t.Run("logs out user", func(t *testing.T) {
-		o, err := New(config(t))
+		o, err = New(config(t))
 		require.NoError(t, err)
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
@@ -1220,8 +1211,6 @@ func TestOperation_UserLogoutHandler(t *testing.T) {
 	})
 
 	t.Run("err badrequest if cannot open cookies", func(t *testing.T) {
-		o, err := New(config(t))
-		require.NoError(t, err)
 		o.store.cookies = &cookie.MockStore{
 			OpenErr: errors.New("test"),
 		}
@@ -1230,18 +1219,7 @@ func TestOperation_UserLogoutHandler(t *testing.T) {
 		require.Equal(t, http.StatusBadRequest, result.Code)
 		require.Contains(t, result.Body.String(), "cannot open cookies")
 	})
-
-	t.Run("no-op if user sub cookie is not found", func(t *testing.T) {
-		o, err := New(config(t))
-		require.NoError(t, err)
-		result := httptest.NewRecorder()
-		o.userLogoutHandler(result, newUserLogoutRequest())
-		require.Equal(t, http.StatusOK, result.Code)
-	})
-
 	t.Run("err internal server error if cannot delete cookie", func(t *testing.T) {
-		o, err := New(config(t))
-		require.NoError(t, err)
 		o.store.cookies = &cookie.MockStore{
 			Jar: &cookie.MockJar{
 				Cookies: map[interface{}]interface{}{
@@ -1254,6 +1232,11 @@ func TestOperation_UserLogoutHandler(t *testing.T) {
 		o.userLogoutHandler(result, newUserLogoutRequest())
 		require.Equal(t, http.StatusInternalServerError, result.Code)
 		require.Contains(t, result.Body.String(), "failed to delete user sub cookie")
+	})
+	t.Run("no-op if user sub cookie is not found", func(t *testing.T) {
+		result := httptest.NewRecorder()
+		o.userLogoutHandler(result, newUserLogoutRequest())
+		require.Equal(t, http.StatusOK, result.Code)
 	})
 }
 
@@ -1279,8 +1262,8 @@ func config(t *testing.T) *Config {
 	return &Config{
 		OIDCClient: &oidc2.MockClient{},
 		Storage: &StorageConfig{
-			Storage:          memstore.NewProvider(),
-			TransientStorage: memstore.NewProvider(),
+			Storage:          ariesmem.NewProvider(),
+			TransientStorage: ariesmem.NewProvider(),
 		},
 		Keys: &KeyConfig{
 			Auth: key(t),

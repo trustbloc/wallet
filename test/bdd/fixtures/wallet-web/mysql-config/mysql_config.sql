@@ -52,3 +52,9 @@ bd auth rest hydra
 CREATE USER 'bddauthresthydra'@'%' IDENTIFIED BY 'bddauthresthydra-secret-pw';
 CREATE DATABASE bddauthresthydra;
 GRANT ALL PRIVILEGES ON bddauthresthydra.* TO 'bddauthresthydra'@'%';
+
+/*
+edge agent rest
+*/
+CREATE USER 'edgeagent'@'%' IDENTIFIED BY 'edgeagent-secret-pw';
+GRANT ALL PRIVILEGES ON `edgeagent\_%`.* TO 'edgeagent'@'%';

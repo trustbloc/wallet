@@ -7,11 +7,13 @@ module github.com/trustbloc/edge-agent/cmd/wallet-server
 go 1.15
 
 require (
-	github.com/cenkalti/backoff/v4 v4.0.2
+	github.com/cenkalti/backoff/v4 v4.1.0
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/duo-labs/webauthn v0.0.0-20200714211715-1daaee874e43
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.8.0
+	github.com/hyperledger/aries-framework-go v0.1.5
+	github.com/hyperledger/aries-framework-go-ext/component/storage/mysql v0.0.0-20201210203117-e17b615af85d
 	github.com/pquerna/cachecontrol v0.0.0-20200819021114-67c6ae64274f // indirect
 	github.com/rs/cors v1.7.0
 	github.com/spf13/cobra v0.0.6

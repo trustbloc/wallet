@@ -23,6 +23,7 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
 	"github.com/hyperledger/aries-framework-go/pkg/kms"
+	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
 	"github.com/hyperledger/aries-framework-go/pkg/vdr/fingerprint"
 	"github.com/igor-pavlenko/httpsignatures-go"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common"
@@ -34,7 +35,6 @@ import (
 	"github.com/trustbloc/edge-core/pkg/log"
 	"github.com/trustbloc/edge-core/pkg/sss"
 	"github.com/trustbloc/edge-core/pkg/sss/base"
-	"github.com/trustbloc/edge-core/pkg/storage"
 	"github.com/trustbloc/edge-core/pkg/zcapld"
 	"github.com/trustbloc/edv/pkg/client"
 	"github.com/trustbloc/edv/pkg/restapi/models"
@@ -94,8 +94,8 @@ type KeyConfig struct {
 
 // StorageConfig holds storage config.
 type StorageConfig struct {
-	Storage          storage.Provider
-	TransientStorage storage.Provider
+	Storage          ariesstorage.Provider
+	TransientStorage ariesstorage.Provider
 }
 
 // KeyServerConfig holds configuration for key management server.
@@ -116,7 +116,7 @@ type edvClient interface {
 type stores struct {
 	users     *user.Store
 	tokens    *tokens.Store
-	transient storage.Store
+	transient ariesstorage.Store
 	cookies   cookie.Store
 }
 
@@ -242,14 +242,14 @@ func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	_, err = o.store.users.Get(usr.Sub)
-	if err != nil && !errors.Is(err, storage.ErrValueNotFound) {
+	if err != nil && !errors.Is(err, ariesstorage.ErrDataNotFound) {
 		common.WriteErrorResponsef(w, logger,
 			http.StatusInternalServerError, "failed to query user data: %s", err.Error())
 
 		return
 	}
 
-	if errors.Is(err, storage.ErrValueNotFound) {
+	if errors.Is(err, ariesstorage.ErrDataNotFound) {
 		walletSecretShare, onboardErr := o.onboardUser(usr.Sub, oauthToken.AccessToken)
 		if onboardErr != nil {
 			common.WriteErrorResponsef(w, logger,

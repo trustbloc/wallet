@@ -15,12 +15,12 @@ import (
 	"github.com/duo-labs/webauthn.io/session"
 	"github.com/duo-labs/webauthn/protocol"
 	"github.com/duo-labs/webauthn/webauthn"
+	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
 	"github.com/trustbloc/edge-core/pkg/log"
-	"github.com/trustbloc/edge-core/pkg/storage"
 )
 
 // Endpoints.
@@ -57,14 +57,14 @@ type KeyConfig struct {
 
 // StorageConfig holds storage config.
 type StorageConfig struct {
-	Storage      storage.Provider
-	SessionStore storage.Provider
+	Storage      ariesstorage.Provider
+	SessionStore ariesstorage.Provider
 }
 
 type stores struct {
 	users   *user.Store
 	cookies cookie.Store
-	storage storage.Store
+	storage ariesstorage.Store
 	session *session.Store
 }
 

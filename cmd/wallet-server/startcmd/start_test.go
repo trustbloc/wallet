@@ -50,6 +50,9 @@ func TestListenAndServe(t *testing.T) {
 		keyServer: &keyServerParameters{
 			authzKMSURL: "http://localhost",
 		},
+		datasourceParams: &datasourceParams{
+			persistentURL: "mem://tests",
+		},
 	})
 	require.NoError(t, err)
 
@@ -58,6 +61,31 @@ func TestListenAndServe(t *testing.T) {
 	err = h.ListenAndServe("localhost:8080", "test.key", "test.cert", router)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "open test.key: no such file or directory")
+}
+
+func TestSupportedDatabases(t *testing.T) {
+	t.Run("aries store", func(t *testing.T) {
+		tests := []struct {
+			dbURL          string
+			isErr          bool
+			expectedErrMsg string
+		}{
+			{dbURL: "mem://test", isErr: false},
+			{dbURL: "mysql://test", isErr: true, expectedErrMsg: "ariesstore init - connect to storage at test"},
+			{dbURL: "random", isErr: true, expectedErrMsg: "invalid dbURL random"},
+		}
+
+		for _, test := range tests {
+			_, err := initAriesStore(test.dbURL, "hr-store", 1)
+
+			if !test.isErr {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), test.expectedErrMsg)
+			}
+		}
+	})
 }
 
 func TestStartCmdContents(t *testing.T) {
@@ -78,6 +106,7 @@ func TestStartCmdWithBlankArg(t *testing.T) {
 			"--" + hostURLFlagName, "",
 			"--" + tlsCertFileFlagName, "cert",
 			"--" + tlsKeyFileFlagName, "key",
+			"--" + datasourcePersistentFlagName, "mem://tests",
 		}
 		startCmd.SetArgs(args)
 
@@ -150,12 +179,71 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + opsKMSURLFlagName, "http://localhost",
 			"--" + keyEDVURLFlagName, "http://localhost",
 			"--" + hubAuthURLFlagName, "http://localhost",
+			"--" + datasourcePersistentFlagName, "mem://tests",
+			"--" + datasourceTimeoutFlagName, "1",
 		}
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "error starting the server")
+	})
+
+	t.Run("missing persistent dsn arg", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080",
+			"--" + agentUIURLFlagName, "ui",
+			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + sessionCookieAuthKeyFlagName, key(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
+			"--" + authzKMSURLFlagName, "http://localhost",
+			"--" + opsKMSURLFlagName, "http://localhost",
+			"--" + keyEDVURLFlagName, "http://localhost",
+			"--" + hubAuthURLFlagName, "http://localhost",
+			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
+			"--" + webAuthRPIDFlagName, "localhost",
+			"--" + webAuthRPOriginFlagName, "http://localhost",
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t,
+			"Neither dsn-p (command line flag) nor EDGE_AGENT_DSN_PERSISTENT (environment variable) have been set.", err.Error())
+	})
+
+	t.Run("invalid dsn timeout", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		args := []string{
+			"--" + hostURLFlagName, "localhost:8080",
+			"--" + agentUIURLFlagName, "ui",
+			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
+			"--" + oidcClientIDFlagName, uuid.New().String(),
+			"--" + oidcClientSecretFlagName, uuid.New().String(),
+			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
+			"--" + sessionCookieAuthKeyFlagName, key(t),
+			"--" + sessionCookieEncKeyFlagName, key(t),
+			"--" + authzKMSURLFlagName, "http://localhost",
+			"--" + opsKMSURLFlagName, "http://localhost",
+			"--" + keyEDVURLFlagName, "http://localhost",
+			"--" + hubAuthURLFlagName, "http://localhost",
+			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
+			"--" + webAuthRPIDFlagName, "localhost",
+			"--" + webAuthRPOriginFlagName, "http://localhost",
+			"--" + datasourcePersistentFlagName, "mem://tests",
+			"--" + datasourceTimeoutFlagName, "invalid",
+		}
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "failed to parse dsn timeout")
 	})
 
 	t.Run("test invalid tls-cacerts", func(t *testing.T) {
@@ -221,6 +309,8 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + opsKMSURLFlagName, "http://localhost",
 			"--" + keyEDVURLFlagName, "http://localhost",
 			"--" + hubAuthURLFlagName, "http://localhost",
+			"--" + datasourcePersistentFlagName, "mem://tests",
+			"--" + datasourceTimeoutFlagName, "1",
 		}
 		startCmd.SetArgs(args)
 
@@ -408,6 +498,8 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 			"--" + opsKMSURLFlagName, "http://localhost",
 			"--" + keyEDVURLFlagName, "http://localhost",
 			"--" + hubAuthURLFlagName, "http://localhost",
+			"--" + datasourcePersistentFlagName, "mem://tests",
+			"--" + datasourceTimeoutFlagName, "1",
 		}
 		startCmd.SetArgs(args)
 
@@ -542,6 +634,8 @@ func TestStartCmdValidArgs(t *testing.T) {
 		"--" + opsKMSURLFlagName, "http://localhost",
 		"--" + keyEDVURLFlagName, "http://localhost",
 		"--" + hubAuthURLFlagName, "http://localhost",
+		"--" + datasourcePersistentFlagName, "mem://tests",
+		"--" + datasourceTimeoutFlagName, "1",
 	}
 	startCmd.SetArgs(args)
 
@@ -602,6 +696,9 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	require.NoError(t, err)
 
 	err = os.Setenv(hubAuthURLEnvKey, "localhost")
+	require.NoError(t, err)
+
+	err = os.Setenv(datasourcePersistentEnvKey, "mem://tests")
 	require.NoError(t, err)
 
 	err = startCmd.Execute()

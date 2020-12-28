@@ -10,9 +10,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
-	"github.com/trustbloc/edge-core/pkg/storage"
 )
 
 const (
@@ -59,7 +59,7 @@ func evaluateClaims(u *User) error {
 }
 
 // NewStore returns a new user Store.
-func NewStore(p storage.Provider) (*Store, error) {
+func NewStore(p ariesstorage.Provider) (*Store, error) {
 	s, err := store.Open(p, StoreName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open users store: %w", err)
@@ -70,7 +70,7 @@ func NewStore(p storage.Provider) (*Store, error) {
 
 // Store stores Users.
 type Store struct {
-	s storage.Store
+	s ariesstorage.Store
 }
 
 // Save this user with the user's 'sub' as the key.

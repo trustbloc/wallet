@@ -123,6 +123,9 @@ services:
       - HTTP_SERVER_OPS_KMS_URL=https://demo-oathkeeper-ops-keyserver.trustbloc.local:4462
       - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+      - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
+      - EDGE_AGENT_DSN_TIMEOUT=45
+
     ports:
       - 8090:8090
     volumes:
@@ -130,6 +133,7 @@ services:
     command: start
     depends_on:
       - edv.example.com
+      - mysql
 
   user-local-agent.example.com:
     container_name: user-local-agent.example.com
@@ -239,6 +243,8 @@ services:
       - HTTP_SERVER_KEY_EDV_URL=https://bdd-edv-oathkeeper-proxy:4457/encrypted-data-vaults
       - HTTP_SERVER_USER_EDV_URL=https://bdd-edv-oathkeeper-proxy:4457/encrypted-data-vaults
       - ARIESD_LOG_LEVEL=DEBUG
+      - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
+      - EDGE_AGENT_DSN_TIMEOUT=45
     ports:
       - 8077:8077
     volumes:
@@ -247,6 +253,7 @@ services:
     depends_on:
       - edv.example.com
       - bdd-hub-auth-rest.trustbloc.local
+      - mysql
 
   couchdb.example.com:
     container_name: couchdb.example.com
@@ -487,6 +494,8 @@ services:
       - AUTH_REST_API_TOKEN=test_token
       - AUTH_REST_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - AUTH_REST_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
+      - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
+      - EDGE_AGENT_DSN_TIMEOUT=45
     ports:
       - 8045:8045
     entrypoint: ""
