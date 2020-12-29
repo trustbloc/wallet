@@ -10,7 +10,6 @@ import {PresentationExchange} from '../common/presentationExchange'
 import {WalletManager} from "../register/walletManager";
 import {getCredentialType} from '../common/util'
 import {DIDExchange} from '../common/didExchange'
-import {Messenger} from '../common/messaging'
 import {BlindedRouter} from '../didcomm/blindedRouter'
 import {DIDManager} from '../didmgmt/didManager'
 
@@ -19,7 +18,7 @@ var uuid = require('uuid/v4')
 const responseType = 'VerifiablePresentation'
 const manifestType = 'IssuerManifestCredential'
 const didDocReqMsgType = 'https://trustbloc.dev/adapter/1.0/diddoc-req'
-const didDocResTopic = 'diddoc-res'
+const didDocResMsgType = 'https://trustbloc.dev/adapter/1.0/diddoc-resp'
 
 /**
  * WalletGetByQuery provides CHAPI get vp features
@@ -54,7 +53,6 @@ export class WalletGetByQuery extends WalletGet {
         this.blindedRouter = new BlindedRouter(agent, opts)
         this.didManager = new DIDManager(agent, opts)
         this.didExchange = new DIDExchange(agent)
-        this.messenger = new Messenger(agent)
     }
 
     requirementDetails() {
@@ -136,24 +134,19 @@ export class WalletGetByQuery extends WalletGet {
         await this.blindedRouter.sharePeerDID(rpConn.result)
 
         // request new peer DID from RP
-        // TODO listen state-complete message instead of retry
-        // TODO use messaging with reply
-        let didDocRes = await this.messenger.send(rpConn.result.ConnectionID, {
-            "@id": uuid(),
-            "@type": didDocReqMsgType,
-            "sent_time": new Date().toJSON(),
-        }, {
-            replyTopic: didDocResTopic,
-            timeout: 5000,
-            retry: {
-                attempts: 5,
-                err: 'time out waiting reply for topic'
-            }
+        let didDocRes = await this.agent.messaging.send({
+            "connection_ID": rpConn.result.ConnectionID,
+            "message_body": {
+                "@id": uuid(),
+                "@type": didDocReqMsgType,
+                "sent_time": new Date().toJSON(),
+            },
+            "await_reply": {messageType: didDocResMsgType, timeout: 20000000000}, //TODO (#531): Reduce timeout once EDV storage speed is improved. Note: this value used to be 2 seconds (now it's 20).
         })
 
         // response could be byte array from RP
-        let rpDIDDoc = Array.isArray(didDocRes.data.didDoc) ?
-            JSON.parse(String.fromCharCode.apply(String, didDocRes.data.didDoc)) : didDocRes.data.didDoc
+        let rpDIDDoc = Array.isArray(didDocRes.response.message.data.didDoc) ?
+            JSON.parse(String.fromCharCode.apply(String, didDocRes.response.message.data.didDoc)) : didDocRes.response.message.data.didDoc
 
         let peerDID = (await this.didManager.createPeerDID()).DID
         let agent = this.agent
