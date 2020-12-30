@@ -4,14 +4,8 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import {Messenger, WalletManager} from "../../pages/chapi/wallet";
+import {WalletManager} from "../../pages/chapi/wallet";
 import * as Agent from "@trustbloc/agent-sdk";
-
-// TODO message type domain needs to be finalized
-const msgServices = [
-    {name: 'request-peer-did', type: 'https://didcomm.org/peerdidrequest/1.0/message'},
-    {name: 'diddoc-res', type: 'https://trustbloc.dev/adapter/1.0/diddoc-resp'},
-]
 
 export default {
     state: {
@@ -152,12 +146,6 @@ export default {
                             commit('setUserMetadata', JSON.stringify(resp))
                         }
                     )
-
-                    let messenger = new Messenger(agent)
-
-                    for (const {name, purpose, type} of msgServices) {
-                        await messenger.register(name, purpose, type)
-                    }
 
                     commit('setInstance', {instance: agent, user: rootState.user.username})
                     commit('startAllNotifiers')

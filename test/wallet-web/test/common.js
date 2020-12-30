@@ -66,11 +66,6 @@ const agentStartupOpts = {
     edvServerURL: ''
 }
 
-const msgServices = [
-    {name: 'request-peer-did', type: 'https://didcomm.org/peerdidrequest/1.0/message'},
-    {name: 'diddoc-res', type: 'https://trustbloc.dev/adapter/1.0/diddoc-resp'},
-]
-
 export async function loadFrameworks({name = '', loadAgent = true, loadStartupOpts = false, blinded = false}) {
     let agentOpts = agentStartupOpts
     let opts = {}
@@ -83,9 +78,6 @@ export async function loadFrameworks({name = '', loadAgent = true, loadStartupOp
 
     if (loadAgent) {
         opts.agent = await new Agent.Framework(agentOpts)
-        for (const svc of msgServices) {
-            await opts.agent.messaging.registerService(svc)
-        }
     }
 
     if (loadStartupOpts) {

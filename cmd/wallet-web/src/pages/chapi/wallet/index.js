@@ -6,7 +6,6 @@ SPDX-License-Identifier: Apache-2.0
 
 export * from './common/util.js';
 export {PresentationExchange} from './common/presentationExchange.js'
-export {Messenger} from './common/messaging.js';
 export {DIDManager} from './didmgmt/didManager.js';
 export {WalletStore} from './store/saveCredential.js';
 export {WalletGet} from './get/getCredentials.js';
