@@ -4,13 +4,6 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-var uuid = require('uuid/v4')
-
-const didDocReqMsgType = 'https://trustbloc.dev/blinded-routing/1.0/diddoc-req'
-const didDocReqRespType = 'https://trustbloc.dev/blinded-routing/1.0/diddoc-resp'
-const registerRouteReqType = 'https://trustbloc.dev/blinded-routing/1.0/register-route-req'
-const registerRouteRespType = 'https://trustbloc.dev/blinded-routing/1.0/register-route-resp'
-
 /**
  * BlindedRouter provides blinded routing features
  * @param agent instance
@@ -33,25 +26,15 @@ export class BlindedRouter {
 
         let {ConnectionID} = connection
 
-        console.debug('Sending DID Doc request')
         // request peer DID from other party
-        let payload = await this.agent.messaging.send({
-            "connection_ID": ConnectionID,
-            "message_body": {
-                "@id": uuid(),
-                "@type": didDocReqMsgType,
-                "sent_time": new Date().toJSON(),
-            },
-            "await_reply": {messageType: didDocReqRespType, timeout: 20000000000}, //TODO (#531): Reduce timeout once EDV storage speed is improved. Note: this value used to be 2 seconds (now it's 20).
-        })
-
-        if (!payload.response) {
+        console.debug('Sending DID Doc request')
+        let response = await this.agent.blindedrouting.sendDIDDocRequest({connectionID: ConnectionID})
+        console.log("payload from did doc request ", JSON.stringify(response, null ,2))
+        if (!response.payload) {
             throw 'no response DID found in did doc response'
         }
 
-        console.debug('requesting peer DID from wallet')
-
-        let {message} = payload.response
+        let {message} = response.payload
         let peerDID = _parseResponseDID(message)
         if (!peerDID) {
             console.error('failed to get peerDID from inviter, could not find peer DID in response message.')
@@ -59,22 +42,15 @@ export class BlindedRouter {
         }
 
         // request wallet peer DID from router by sending peer DID from other party
+        console.debug('requesting peer DID from wallet')
         let walletDID = await requestDIDFromMediator(this.agent, peerDID)
 
         console.log('sharing wallet peer DID to inviter')
         // share wallet peer DID to other party
-        await this.agent.messaging.reply({
-            "message_ID": message['@id'],
-            "message_body": {
-                "@id": uuid(),
-                "@type": registerRouteReqType,
-                data: {didDoc: walletDID},
-                "sent_time": new Date().toJSON(),
-            },
-            "start_new_thread": true,
-            "await_reply": {messageType: registerRouteRespType, timeout: 20000000000} //TODO (#531): Reduce timeout once EDV storage speed is improved. Note: this value used to be 2 seconds (now it's 20).
+        await this.agent.blindedrouting.sendRegisterRouteRequest({
+            messageID: message['@id'],
+            didDoc: walletDID,
         })
-
     }
 }
 
