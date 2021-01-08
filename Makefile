@@ -11,8 +11,8 @@ GO_TAGS    ?=
 GO_VER     ?= 1.15.2
 
 # Namespace for the images
-DOCKER_OUTPUT_NS         ?= docker.pkg.github.com
-REPO_IMAGE_NAME          ?= trustbloc/edge-agent
+DOCKER_OUTPUT_NS         ?= ghcr.io
+REPO_IMAGE_NAME          ?= trustbloc
 
 
 .PHONY: all

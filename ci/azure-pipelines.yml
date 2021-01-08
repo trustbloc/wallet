@@ -52,11 +52,6 @@ jobs:
       - template: azp-dependencies.yml
       - checkout: self
       - bash: |
-          function logout {
-            docker logout
-          }
-          trap logout EXIT
-          echo $DOCKER_PASSWORD | docker login docker.pkg.github.com --username $DOCKER_USER --password-stdin
           echo '127.0.0.1 testnet.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 stakeholder.one' | sudo tee -a /etc/hosts
           echo '127.0.0.1 sidetree-mock' | sudo tee -a /etc/hosts
@@ -70,7 +65,6 @@ jobs:
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make bdd-test-wallet-web
         env:
-          DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)
         displayName: Run BDD tests in JS
 
@@ -82,11 +76,6 @@ jobs:
       - template: azp-dependencies.yml
       - checkout: self
       - bash: |
-          function logout {
-            docker logout
-          }
-          trap logout EXIT
-          echo $DOCKER_PASSWORD | docker login docker.pkg.github.com --username $DOCKER_USER --password-stdin
           echo '127.0.0.1 testnet.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 stakeholder.one' | sudo tee -a /etc/hosts
@@ -101,7 +90,6 @@ jobs:
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make bdd-test-wallet-server
         env:
-          DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)
         displayName: Run HTTP Server (wallet-server)
 
@@ -126,16 +114,16 @@ jobs:
           git lfs install
           git lfs pull
           source ci/version_var.sh
-          echo $DOCKER_PASSWORD | docker login docker.pkg.github.com --username $DOCKER_USER --password-stdin
+          echo $DOCKER_PASSWORD | docker login ghcr.io --username $DOCKER_USER --password-stdin
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make wallet-web-docker
-          docker tag docker.pkg.github.com/trustbloc/edge-agent/wallet-web:latest ${WALLET_WEB_PKG}:${WALLET_WEB_TAG}
+          docker tag ghcr.io/trustbloc/wallet-web:latest ${WALLET_WEB_PKG}:${WALLET_WEB_TAG}
           docker push ${WALLET_WEB_PKG}:${WALLET_WEB_TAG}
           make wallet-server-docker
-          docker tag docker.pkg.github.com/trustbloc/edge-agent/wallet-server:latest ${WALLET_SERVER_PKG}:${WALLET_SERVER_TAG}
+          docker tag ghcr.io/trustbloc/wallet-server:latest ${WALLET_SERVER_PKG}:${WALLET_SERVER_TAG}
           docker push ${WALLET_SERVER_PKG}:${WALLET_SERVER_TAG}
         env:
           DOCKER_USER: $(DOCKER_USER)
