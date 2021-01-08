@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 FROM nginx:latest
+LABEL org.opencontainers.image.source https://github.com/trustbloc/edge-agent
 
 COPY build/bin/wallet-web/ /usr/share/nginx/www/
 COPY images/wallet-web/templates/ /etc/nginx/templates/
