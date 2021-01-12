@@ -27,14 +27,15 @@ import (
 	mockstore "github.com/hyperledger/aries-framework-go/pkg/mock/storage"
 	ariesmem "github.com/hyperledger/aries-framework-go/pkg/storage/mem"
 	"github.com/stretchr/testify/require"
-	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/tokens"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
 	"github.com/trustbloc/edge-core/pkg/zcapld"
 	"github.com/trustbloc/edv/pkg/client"
 	"github.com/trustbloc/edv/pkg/restapi/models"
 	"golang.org/x/oauth2"
+
+	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/tokens"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
 )
 
 func TestNew(t *testing.T) {

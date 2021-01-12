@@ -9,14 +9,20 @@ package common_test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common"
+	"github.com/trustbloc/edge-core/pkg/log"
 	"github.com/trustbloc/edge-core/pkg/log/mocklogger"
+
+	"github.com/trustbloc/edge-agent/pkg/restapi/common"
 )
 
 func TestWriteErrorResponsef(t *testing.T) {
@@ -82,3 +88,116 @@ func (m *mockHTTPResponseWriter) Write(b []byte) (int, error) {
 }
 
 func (m *mockHTTPResponseWriter) WriteHeader(_ int) {}
+
+func TestSendHTTPRequest(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		body, header, err := common.SendHTTPRequest(
+			httptest.NewRequest(http.MethodGet, "http://example.com", nil),
+			MockHTTPClient{
+				response: &http.Response{
+					StatusCode: http.StatusOK,
+					Header:     http.Header{"Cat": {"dog"}},
+					Body:       ioutil.NopCloser(strings.NewReader("hello there")),
+				},
+				returnErr: nil,
+			}, http.StatusOK, nil)
+
+		require.NoError(t, err)
+		require.NotNil(t, body)
+		require.Contains(t, string(body), "hello there")
+		require.NotNil(t, header)
+		require.Contains(t, header.Values("cat"), "dog")
+	})
+
+	t.Run("wrong status code", func(t *testing.T) {
+		body, header, err := common.SendHTTPRequest(
+			httptest.NewRequest(http.MethodGet, "http://example.com", nil),
+			MockHTTPClient{
+				response: &http.Response{
+					StatusCode: http.StatusNotFound,
+					Header:     http.Header{"Cat": {"dog"}},
+					Body:       ioutil.NopCloser(strings.NewReader("hello there")),
+				},
+				returnErr: nil,
+			}, http.StatusOK, nil)
+
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "expected=200 actual=404")
+		require.Nil(t, body)
+		require.Nil(t, header)
+	})
+
+	t.Run("response body errors on closing", func(t *testing.T) {
+		var mockLog mocklogger.MockLogger
+
+		log.Initialize(&mocklogger.Provider{MockLogger: &mockLog})
+
+		_, _, err := common.SendHTTPRequest(
+			httptest.NewRequest(http.MethodGet, "http://example.com", nil),
+			MockHTTPClient{
+				response: &http.Response{
+					StatusCode: http.StatusOK,
+					Header:     http.Header{"Cat": {"dog"}},
+					Body:       &brokenReadCloser{readErr: io.EOF, closeErr: fmt.Errorf("oh no")},
+				},
+				returnErr: nil,
+			}, http.StatusOK, log.New("mock"))
+
+		require.NoError(t, err)
+
+		require.Contains(t, mockLog.AllLogContents, "failed to close response body")
+	})
+
+	t.Run("response body errors on read", func(t *testing.T) {
+		body, header, err := common.SendHTTPRequest(
+			httptest.NewRequest(http.MethodGet, "http://example.com", nil),
+			MockHTTPClient{
+				response: &http.Response{
+					StatusCode: http.StatusOK,
+					Header:     http.Header{"Cat": {"dog"}},
+					Body:       &brokenReadCloser{readErr: fmt.Errorf("oh no"), closeErr: nil},
+				},
+				returnErr: nil,
+			}, http.StatusOK, nil)
+
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "failed to read resp body")
+		require.Nil(t, body)
+		require.Nil(t, header)
+	})
+
+	t.Run("client errors on invocation", func(t *testing.T) {
+		body, header, err := common.SendHTTPRequest(
+			httptest.NewRequest(http.MethodGet, "http://example.com", nil),
+			MockHTTPClient{
+				returnErr: fmt.Errorf("oh no"),
+			}, http.StatusOK, nil)
+
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "http request")
+		require.Nil(t, body)
+		require.Nil(t, header)
+	})
+}
+
+type MockHTTPClient struct {
+	response  *http.Response
+	returnErr error
+}
+
+func (m MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
+	return m.response, m.returnErr
+}
+
+type brokenReadCloser struct {
+	readErr  error
+	closeErr error
+}
+
+func (bc *brokenReadCloser) Read(p []byte) (int, error) {
+	return 0, bc.readErr
+}
+
+func (bc *brokenReadCloser) Close() error {
+	return bc.closeErr
+}

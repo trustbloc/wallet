@@ -17,8 +17,12 @@ import (
 	"strings"
 
 	"github.com/cucumber/godog"
+	"github.com/duo-labs/webauthn/protocol"
+	"github.com/duo-labs/webauthn/webauthn"
 	"github.com/google/uuid"
+
 	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
+	"github.com/trustbloc/edge-agent/test/bdd/mock/authenticator"
 	"github.com/trustbloc/edge-agent/test/bdd/pkg/bddcontext"
 )
 
@@ -33,6 +37,14 @@ const (
 	hubAuthSelectOIDCProviderURL = hubAuthHost + "/oauth2/login"
 	mockLoginURL                 = "https://localhost:8099/mock/login"
 	mockOIDCProviderName         = "mockbank" // providers.yaml
+)
+
+// device login endpoints.
+const (
+	registerBeginPath     = host + "/device/register/begin"
+	registerFinishPath    = host + "/device/register/finish"
+	deviceloginBeginPath  = host + "/device/login/begin"
+	deviceloginFinishPath = host + "/device/login/finish"
 )
 
 // Mock Login Consent App.
@@ -71,7 +83,10 @@ type httpResponse struct {
 
 // NewSteps returns login BDD test steps.
 func NewSteps(ctx *bddcontext.BDDContext) *Steps {
-	return &Steps{ctx: ctx}
+	return &Steps{
+		ctx:               ctx,
+		mockAuthenticator: authenticator.New(),
+	}
 }
 
 // Steps are the login BDD test steps.
@@ -82,6 +97,7 @@ type Steps struct {
 	expectedUserClaims  *UserClaims
 	authNResult         *httpResponse
 	authZResult         *httpResponse
+	mockAuthenticator   *authenticator.MockAuthenticator
 }
 
 // Register the login BDD test steps in the godog suite.
@@ -95,6 +111,8 @@ func (s *Steps) Register(gs *godog.Suite) {
 	gs.Step("the user is logged in", s.userIsLoggedIn)
 	gs.Step("the user logs out", s.userLogout)
 	gs.Step("the user cannot access their profile", s.userCannotAccessProfile)
+	gs.Step("^the user registers a device$", s.registerDevice)
+	gs.Step("^the user logs in through their device$", s.loginDevice)
 }
 
 func (s *Steps) userClicksLoginButton() error {
@@ -392,6 +410,126 @@ func (s *Steps) userCannotAccessProfile() error {
 	err = response.Body.Close()
 	if err != nil {
 		return fmt.Errorf("failed to close body: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Steps) loginDevice() error {
+	resp, err := s.browser.Get(deviceloginBeginPath) // nolint:noctx // no need to set context
+	if err != nil {
+		return fmt.Errorf("failed to invoke http server login endpoint %s: %w", deviceloginBeginPath, err)
+	}
+
+	defer func() {
+		_ = resp.Body.Close() // nolint:errcheck // no need
+	}()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf(
+			"unexpected status code at /device/login/begin; expected %d got %d, body: %s",
+			http.StatusOK, resp.StatusCode, string(data),
+		)
+	}
+
+	var credAssert protocol.CredentialAssertion
+
+	err = json.Unmarshal(data, &credAssert)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal cred request: %v", err)
+	}
+
+	authBytes, err := s.mockAuthenticator.Assert(host, &credAssert.Response)
+	if err != nil {
+		return fmt.Errorf("failed to generate credential assertion: %v", err)
+	}
+
+	resp2, err := s.browser.Post(deviceloginFinishPath, "application/json", bytes.NewReader(authBytes)) // nolint:noctx,lll // don't need in bdd test
+	if err != nil {
+		return fmt.Errorf("failed to invoke http server device finish login endpoint %s: %w", registerBeginPath, err)
+	}
+
+	defer func() {
+		_ = resp2.Body.Close() // nolint:errcheck // no need
+	}()
+
+	data, err = ioutil.ReadAll(resp2.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if resp2.StatusCode != http.StatusOK {
+		return fmt.Errorf(
+			"unexpected status code at /device/login/finish; expected %d got %d, body: %s",
+			http.StatusOK, resp.StatusCode, string(data),
+		)
+	}
+
+	return nil
+}
+
+func (s *Steps) registerDevice() error {
+	// first we call registerBeginPath
+	resp, err := s.browser.Get(registerBeginPath) // nolint:noctx // no need to set context
+	if err != nil {
+		return fmt.Errorf("failed to invoke http server register device endpoint %s: %w", registerBeginPath, err)
+	}
+
+	defer func() {
+		_ = resp.Body.Close() // nolint:errcheck // no need
+	}()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	var credParams protocol.CredentialCreation
+
+	err = json.Unmarshal(data, &credParams)
+	if err != nil {
+		return fmt.Errorf("failed to parse credential creation parameters: %w", err)
+	}
+
+	authData, err := s.mockAuthenticator.Authenticate(
+		"fixtures/keys/device/ec-cacert.pem",
+		"fixtures/keys/device/ec-cakey.pem",
+		host, &credParams)
+	if err != nil {
+		return fmt.Errorf("failed to generate mock authenticator response: %w", err)
+	}
+
+	resp2, err := s.browser.Post(registerFinishPath, "application/json", bytes.NewReader(authData)) // nolint:noctx,lll // don't need in bdd test
+	if err != nil {
+		return fmt.Errorf("failed to invoke http server register device endpoint %s: %w", registerBeginPath, err)
+	}
+
+	defer func() {
+		_ = resp2.Body.Close() // nolint:errcheck // no need
+	}()
+
+	data, err = ioutil.ReadAll(resp2.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if resp2.StatusCode != http.StatusOK {
+		return fmt.Errorf(
+			"unexpected status code at /device/register/finish; expected %d got %d, body: %s",
+			http.StatusOK, resp.StatusCode, string(data),
+		)
+	}
+
+	var cred webauthn.Credential
+
+	err = json.Unmarshal(data, &cred)
+	if err != nil || cred.ID == nil {
+		return fmt.Errorf("failed to parse credential: %w", err)
 	}
 
 	return nil

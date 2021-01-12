@@ -18,5 +18,12 @@ Feature: Login
 
   Scenario: User logout
     When the user is logged in
-     And the user logs out
+    And the user logs out
     Then the user cannot access their profile
+
+  Scenario: Device registration and login through device
+    When the user is logged in
+    And the user registers a device
+    And the user logs out
+    Then the user logs in through their device
+    And the user can retrieve their profile

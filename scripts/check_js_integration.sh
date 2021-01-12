@@ -32,4 +32,5 @@ npm run test
 
 echo "stopping containers..."
 cd $ROOT/test/bdd/fixtures/wallet-web
-(source .env && docker-compose down --remove-orphans)
+
+(source .env && docker-compose logs > docker-compose.log && docker-compose down --remove-orphans)

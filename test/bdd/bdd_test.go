@@ -17,6 +17,7 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/google/uuid"
+
 	"github.com/trustbloc/edge-agent/test/bdd/dockerutil"
 	"github.com/trustbloc/edge-agent/test/bdd/pkg/bddcontext"
 	"github.com/trustbloc/edge-agent/test/bdd/pkg/healthcheck"

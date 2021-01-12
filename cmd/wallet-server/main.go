@@ -8,8 +8,9 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/trustbloc/edge-agent/cmd/wallet-server/startcmd"
 	"github.com/trustbloc/edge-core/pkg/log"
+
+	"github.com/trustbloc/edge-agent/cmd/wallet-server/startcmd"
 )
 
 var logger = log.New("wallet-server")

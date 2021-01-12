@@ -98,16 +98,51 @@ func TestStartCmdContents(t *testing.T) {
 	checkFlagPropertiesCorrect(t, startCmd, hostURLFlagName, hostURLFlagShorthand, hostURLFlagUsage)
 }
 
+const invalidArgString = "INVALID"
+
+func validArgs(t *testing.T) map[string]string {
+	return map[string]string{ // create a fresh map every time, so it can be edited by the test
+		hostURLFlagName:              "localhost:8080",
+		tlsCertFileFlagName:          "cert",
+		tlsKeyFileFlagName:           "key",
+		agentUIURLFlagName:           "ui",
+		oidcProviderURLFlagName:      mockOIDCProvider(t),
+		oidcClientIDFlagName:         uuid.New().String(),
+		oidcClientSecretFlagName:     uuid.New().String(),
+		oidcCallbackURLFlagName:      "http://test.com/callback",
+		tlsCACertsFlagName:           cert(t),
+		sessionCookieAuthKeyFlagName: key(t),
+		sessionCookieEncKeyFlagName:  key(t),
+		webAuthRPDisplayFlagName:     "Foobar Corp.",
+		webAuthRPIDFlagName:          "localhost",
+		webAuthRPOriginFlagName:      "http://localhost",
+		authzKMSURLFlagName:          "http://localhost",
+		opsKMSURLFlagName:            "http://localhost",
+		keyEDVURLFlagName:            "http://localhost",
+		hubAuthURLFlagName:           "http://localhost",
+		datasourcePersistentFlagName: "mem://tests",
+		datasourceTimeoutFlagName:    "1",
+	}
+}
+
+func argArray(argMap map[string]string) []string {
+	args := []string{}
+
+	for k, v := range argMap {
+		args = append(args, "--"+k, v)
+	}
+
+	return args
+}
+
 func TestStartCmdWithBlankArg(t *testing.T) {
 	t.Run("test blank host arg", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "",
-			"--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + datasourcePersistentFlagName, "mem://tests",
-		}
+		argMap := validArgs(t)
+		argMap[hostURLFlagName] = ""
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -118,12 +153,10 @@ func TestStartCmdWithBlankArg(t *testing.T) {
 	t.Run("test blank tls cert arg", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + tlsCertFileFlagName, "",
-			"--" + tlsKeyFileFlagName, "key",
-		}
+		argMap := validArgs(t)
+		argMap[tlsCertFileFlagName] = ""
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -131,15 +164,13 @@ func TestStartCmdWithBlankArg(t *testing.T) {
 		require.Equal(t, "failed to configure tls cert file: tls-cert-file value is empty", err.Error())
 	})
 
-	t.Run("test blank tls cert arg", func(t *testing.T) {
+	t.Run("test blank tls key arg", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "",
-		}
+		argMap := validArgs(t)
+		argMap[tlsKeyFileFlagName] = ""
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -162,26 +193,8 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("test invalid auto accept flag", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{Err: errors.New("error starting the server")})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + sessionCookieAuthKeyFlagName, key(t),
-			"--" + sessionCookieEncKeyFlagName, key(t),
-			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
-			"--" + webAuthRPIDFlagName, "localhost",
-			"--" + webAuthRPOriginFlagName, "http://localhost",
-			"--" + authzKMSURLFlagName, "http://localhost",
-			"--" + opsKMSURLFlagName, "http://localhost",
-			"--" + keyEDVURLFlagName, "http://localhost",
-			"--" + hubAuthURLFlagName, "http://localhost",
-			"--" + datasourcePersistentFlagName, "mem://tests",
-			"--" + datasourceTimeoutFlagName, "1",
-		}
+		args := argArray(validArgs(t))
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -192,23 +205,11 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("missing persistent dsn arg", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + sessionCookieAuthKeyFlagName, key(t),
-			"--" + sessionCookieEncKeyFlagName, key(t),
-			"--" + authzKMSURLFlagName, "http://localhost",
-			"--" + opsKMSURLFlagName, "http://localhost",
-			"--" + keyEDVURLFlagName, "http://localhost",
-			"--" + hubAuthURLFlagName, "http://localhost",
-			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
-			"--" + webAuthRPIDFlagName, "localhost",
-			"--" + webAuthRPOriginFlagName, "http://localhost",
-		}
+		argMap := validArgs(t)
+		delete(argMap, datasourcePersistentFlagName)
+		delete(argMap, datasourceTimeoutFlagName)
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -220,25 +221,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("invalid dsn timeout", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + sessionCookieAuthKeyFlagName, key(t),
-			"--" + sessionCookieEncKeyFlagName, key(t),
-			"--" + authzKMSURLFlagName, "http://localhost",
-			"--" + opsKMSURLFlagName, "http://localhost",
-			"--" + keyEDVURLFlagName, "http://localhost",
-			"--" + hubAuthURLFlagName, "http://localhost",
-			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
-			"--" + webAuthRPIDFlagName, "localhost",
-			"--" + webAuthRPOriginFlagName, "http://localhost",
-			"--" + datasourcePersistentFlagName, "mem://tests",
-			"--" + datasourceTimeoutFlagName, "invalid",
-		}
+		argMap := validArgs(t)
+		argMap[datasourceTimeoutFlagName] = invalidArgString
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -249,16 +235,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("test invalid tls-cacerts", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, "INVALID",
-		}
+		argMap := validArgs(t)
+		argMap[tlsCACertsFlagName] = invalidArgString
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -270,15 +250,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("missing oidc provider URL", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-		}
+		argMap := validArgs(t)
+		delete(argMap, oidcProviderURLFlagName)
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -290,28 +265,11 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("invalid oidc provider URL", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + dependencyMaxRetriesFlagName, "1",
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, "INVALID",
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-			"--" + sessionCookieAuthKeyFlagName, key(t),
-			"--" + sessionCookieEncKeyFlagName, key(t),
-			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
-			"--" + webAuthRPIDFlagName, "localhost",
-			"--" + webAuthRPOriginFlagName, "http://localhost",
-			"--" + authzKMSURLFlagName, "http://localhost",
-			"--" + opsKMSURLFlagName, "http://localhost",
-			"--" + keyEDVURLFlagName, "http://localhost",
-			"--" + hubAuthURLFlagName, "http://localhost",
-			"--" + datasourcePersistentFlagName, "mem://tests",
-			"--" + datasourceTimeoutFlagName, "1",
-		}
+		argMap := validArgs(t)
+		argMap[oidcProviderURLFlagName] = invalidArgString
+		argMap[dependencyMaxRetriesFlagName] = "1"
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -322,19 +280,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("missing oidc client ID", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-			"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
-			"--" + webAuthRPIDFlagName, "localhost",
-			"--" + webAuthRPOriginFlagName, "http://localhost",
-			"--" + authzKMSURLFlagName, "http://localhost",
-		}
+		argMap := validArgs(t)
+		delete(argMap, oidcClientIDFlagName)
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -346,15 +295,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("missing oidc client secret", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-		}
+		argMap := validArgs(t)
+		delete(argMap, oidcClientSecretFlagName)
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -366,15 +310,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("missing oidc callback", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + tlsCACertsFlagName, cert(t),
-		}
+		argMap := validArgs(t)
+		delete(argMap, oidcCallbackURLFlagName)
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -386,18 +325,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("missing session cookie auth key", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + dependencyMaxRetriesFlagName, "1",
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, "INVALID",
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-			"--" + sessionCookieEncKeyFlagName, key(t),
-		}
+		argMap := validArgs(t)
+		delete(argMap, sessionCookieAuthKeyFlagName)
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -410,19 +341,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("invalid session cookie auth key path", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + dependencyMaxRetriesFlagName, "1",
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, "INVALID",
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-			"--" + sessionCookieAuthKeyFlagName, "INVALID",
-			"--" + sessionCookieEncKeyFlagName, key(t),
-		}
+		argMap := validArgs(t)
+		argMap[sessionCookieAuthKeyFlagName] = invalidArgString
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -435,19 +357,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("invalid session cookie auth key length", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + dependencyMaxRetriesFlagName, "1",
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, "INVALID",
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-			"--" + sessionCookieAuthKeyFlagName, invalidKey(t),
-			"--" + sessionCookieEncKeyFlagName, key(t),
-		}
+		argMap := validArgs(t)
+		argMap[sessionCookieAuthKeyFlagName] = invalidKey(t)
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -455,21 +368,27 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		require.Contains(t, err.Error(), "failed to configure session cookie auth key")
 	})
 
+	t.Run("invalid session cookie enc key length", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[sessionCookieEncKeyFlagName] = invalidKey(t)
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "failed to configure session cookie enc key")
+	})
+
 	t.Run("missing session cookie enc key", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + dependencyMaxRetriesFlagName, "1",
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, "INVALID",
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-			"--" + sessionCookieAuthKeyFlagName, key(t),
-		}
+		argMap := validArgs(t)
+		delete(argMap, sessionCookieEncKeyFlagName)
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -482,25 +401,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("invalid log level", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-			"--" + sessionCookieAuthKeyFlagName, key(t),
-			"--" + sessionCookieEncKeyFlagName, key(t),
-			"--" + agentLogLevelFlagName, "INVALID",
-			"--" + authzKMSURLFlagName, "http://localhost",
-			"--" + opsKMSURLFlagName, "http://localhost",
-			"--" + keyEDVURLFlagName, "http://localhost",
-			"--" + hubAuthURLFlagName, "http://localhost",
-			"--" + datasourcePersistentFlagName, "mem://tests",
-			"--" + datasourceTimeoutFlagName, "1",
-		}
+		argMap := validArgs(t)
+		argMap[agentLogLevelFlagName] = invalidArgString
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -513,18 +417,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("missing authz key server url", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-			"--" + sessionCookieAuthKeyFlagName, key(t),
-			"--" + sessionCookieEncKeyFlagName, key(t),
-		}
+		argMap := validArgs(t)
+		delete(argMap, authzKMSURLFlagName)
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -537,19 +433,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("missing ops edv server url", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-			"--" + sessionCookieAuthKeyFlagName, key(t),
-			"--" + sessionCookieEncKeyFlagName, key(t),
-			"--" + authzKMSURLFlagName, "http://localhost",
-		}
+		argMap := validArgs(t)
+		delete(argMap, keyEDVURLFlagName)
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -562,20 +449,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("missing ops key server url", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-			"--" + sessionCookieAuthKeyFlagName, key(t),
-			"--" + sessionCookieEncKeyFlagName, key(t),
-			"--" + authzKMSURLFlagName, "http://localhost",
-			"--" + keyEDVURLFlagName, "http://localhost",
-		}
+		argMap := validArgs(t)
+		delete(argMap, opsKMSURLFlagName)
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -588,21 +465,10 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("missing hub-auth server url", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
-		args := []string{
-			"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-			"--" + tlsKeyFileFlagName, "key",
-			"--" + agentUIURLFlagName, "ui",
-			"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-			"--" + oidcClientIDFlagName, uuid.New().String(),
-			"--" + oidcClientSecretFlagName, uuid.New().String(),
-			"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-			"--" + tlsCACertsFlagName, cert(t),
-			"--" + sessionCookieAuthKeyFlagName, key(t),
-			"--" + sessionCookieEncKeyFlagName, key(t),
-			"--" + authzKMSURLFlagName, "http://localhost",
-			"--" + keyEDVURLFlagName, "http://localhost",
-			"--" + opsKMSURLFlagName, "http://localhost",
-		}
+		argMap := validArgs(t)
+		delete(argMap, hubAuthURLFlagName)
+		args := argArray(argMap)
+
 		startCmd.SetArgs(args)
 
 		err := startCmd.Execute()
@@ -616,27 +482,8 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 func TestStartCmdValidArgs(t *testing.T) {
 	startCmd := GetStartCmd(&mockServer{})
 
-	args := []string{
-		"--" + hostURLFlagName, "localhost:8080", "--" + tlsCertFileFlagName, "cert",
-		"--" + tlsKeyFileFlagName, "key",
-		"--" + agentUIURLFlagName, "ui",
-		"--" + oidcProviderURLFlagName, mockOIDCProvider(t),
-		"--" + oidcClientIDFlagName, uuid.New().String(),
-		"--" + oidcClientSecretFlagName, uuid.New().String(),
-		"--" + oidcCallbackURLFlagName, "http://test.com/callback",
-		"--" + tlsCACertsFlagName, cert(t),
-		"--" + sessionCookieAuthKeyFlagName, key(t),
-		"--" + sessionCookieEncKeyFlagName, key(t),
-		"--" + webAuthRPDisplayFlagName, "Foobar Corp.",
-		"--" + webAuthRPIDFlagName, "localhost",
-		"--" + webAuthRPOriginFlagName, "http://localhost",
-		"--" + authzKMSURLFlagName, "http://localhost",
-		"--" + opsKMSURLFlagName, "http://localhost",
-		"--" + keyEDVURLFlagName, "http://localhost",
-		"--" + hubAuthURLFlagName, "http://localhost",
-		"--" + datasourcePersistentFlagName, "mem://tests",
-		"--" + datasourceTimeoutFlagName, "1",
-	}
+	args := argArray(validArgs(t))
+
 	startCmd.SetArgs(args)
 
 	err := startCmd.Execute()

@@ -125,7 +125,6 @@ services:
       - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
       - EDGE_AGENT_DSN_TIMEOUT=45
-
     ports:
       - 8090:8090
     volumes:
@@ -158,6 +157,9 @@ services:
       - HTTP_SERVER_OPS_KMS_URL=https://demo-oathkeeper-ops-keyserver.trustbloc.local:4462
       - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+      - VALIDATE_DEVICE_CREDENTIALS=true
+      - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
+      - EDGE_AGENT_DSN_TIMEOUT=45
     ports:
       - 9099:9099
     volumes:
@@ -189,6 +191,9 @@ services:
       - HTTP_SERVER_OPS_KMS_URL=https://demo-oathkeeper-ops-keyserver.trustbloc.local:4462
       - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+      - VALIDATE_DEVICE_CREDENTIALS=true
+      - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
+      - EDGE_AGENT_DSN_TIMEOUT=45
     ports:
       - 8070:8070
     volumes:
@@ -245,6 +250,7 @@ services:
       - ARIESD_LOG_LEVEL=DEBUG
       - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
       - EDGE_AGENT_DSN_TIMEOUT=45
+      - VALIDATE_DEVICE_CREDENTIALS=true
     ports:
       - 8077:8077
     volumes:
@@ -387,6 +393,7 @@ services:
     environment:
       - AUTH_REST_HOST_URL=0.0.0.0:8044
       - AUTH_REST_TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
+      - AUTH_REST_DEVICE_CACERTS=/etc/keys/device/ec-cacert.pem
       - AUTH_REST_TLS_SYSTEMCERTPOOL=true
       - AUTH_REST_TLS_SERVE_CERT=/etc/keys/tls/ec-pubCert.pem
       - AUTH_REST_TLS_SERVE_KEY=/etc/keys/tls/ec-key.pem
@@ -477,6 +484,7 @@ services:
     environment:
       - AUTH_REST_HOST_URL=0.0.0.0:8045
       - AUTH_REST_TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
+      - AUTH_REST_DEVICE_CACERTS=/etc/keys/device/ec-cacert.pem
       - AUTH_REST_TLS_SYSTEMCERTPOOL=true
       - AUTH_REST_TLS_SERVE_CERT=/etc/keys/tls/ec-pubCert.pem
       - AUTH_REST_TLS_SERVE_KEY=/etc/keys/tls/ec-key.pem
