@@ -34,6 +34,7 @@ import (
 	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/device"
 	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
+	"github.com/trustbloc/edge-agent/pkg/restapi/wallet"
 )
 
 const (
@@ -97,6 +98,7 @@ const (
 	oidcBasePath    = "/oidc/"
 	healthCheckPath = "/healthcheck"
 	deviceBasePath  = "/device/"
+	walletBasePath  = "/wallet/"
 )
 
 const (
@@ -711,6 +713,18 @@ func router(config *httpServerParameters) (http.Handler, error) {
 	err = addDeviceHandlers(deviceRouter, config, store)
 	if err != nil {
 		return nil, fmt.Errorf("failed to add device handlers: %w", err)
+	}
+
+	// TODO init aries agent here [Issue#637]
+	walletHandlers, err := wallet.GetRESTHandlers(nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load wallet handlers: %w", err)
+	}
+
+	walletRouter := root.PathPrefix(walletBasePath).Subrouter()
+
+	for _, handler := range walletHandlers {
+		walletRouter.HandleFunc(handler.Path(), handler.Handle()).Methods(handler.Method())
 	}
 
 	return root, nil

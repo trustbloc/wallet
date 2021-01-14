@@ -10,6 +10,11 @@ ALPINE_VER ?= 3.12
 GO_TAGS    ?=
 GO_VER     ?= 1.15.2
 
+# open API configuration
+OPENAPI_SPEC_PATH=build/rest/openapi/spec
+OPENAPI_DOCKER_IMG=quay.io/goswagger/swagger
+OPENAPI_DOCKER_IMG_VERSION=v0.23.0
+
 # Namespace for the images
 DOCKER_OUTPUT_NS         ?= ghcr.io
 REPO_IMAGE_NAME          ?= trustbloc
@@ -19,7 +24,7 @@ REPO_IMAGE_NAME          ?= trustbloc
 all: clean checks unit-test
 
 .PHONY: checks
-checks: license lint
+checks: license lint generate-openapi-spec
 
 .PHONY: lint
 lint:
@@ -62,6 +67,27 @@ generate-test-keys:
 		-v $(abspath .):/opt/workspace/edge-agent \
 		--entrypoint "/opt/workspace/edge-agent/scripts/generate_test_keys.sh" \
 		frapsoft/openssl
+
+.PHONY: generate-openapi-spec
+generate-openapi-spec:
+	@echo "Generating and validating controller API specifications using Open API"
+	@mkdir -p build/rest/openapi/spec
+	@SPEC_LOC=${OPENAPI_SPEC_PATH}  \
+	DOCKER_IMAGE=$(OPENAPI_DOCKER_IMG) DOCKER_IMAGE_VERSION=$(OPENAPI_DOCKER_IMG_VERSION)  \
+	scripts/generate-openapi-spec.sh
+
+.PHONY: generate-openapi-demo-specs
+generate-openapi-demo-specs: generate-openapi-spec
+	@echo "Generate demo wallet server rest controller API specifications using Open API"
+	@SPEC_PATH=${OPENAPI_SPEC_PATH} OPENAPI_DEMO_PATH=test/bdd/fixtures/demo/openapi \
+    	DOCKER_IMAGE=$(OPENAPI_DOCKER_IMG) DOCKER_IMAGE_VERSION=$(OPENAPI_DOCKER_IMG_VERSION)  \
+    	scripts/generate-openapi-demo-specs.sh
+
+.PHONY: run-openapi-demo
+run-openapi-demo: generate-openapi-demo-specs wallet-web-docker wallet-server-docker generate-test-config generate-test-keys mock-images
+	@echo "Starting demo wallet server rest containers ..."
+	@DEMO_COMPOSE_PATH=test/bdd/fixtures/wallet-web scripts/run-openapi-demo.sh
+
 
 .PHONY: wallet-web-start
 wallet-web-start: clean wallet-web-docker wallet-server-docker generate-test-config generate-test-keys mock-images

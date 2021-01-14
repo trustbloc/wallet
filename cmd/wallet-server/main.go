@@ -4,6 +4,23 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
+// Package wallet-server (Wallet Server REST API) of trustbloc/edge-agent.
+//
+//
+// Terms Of Service:
+//
+//
+//     Schemes: https
+//     Version: 0.1.0
+//     License: SPDX-License-Identifier: Apache-2.0
+//
+//     Consumes:
+//     - application/json
+//
+//     Produces:
+//     - application/json
+//
+// swagger:meta
 package main
 
 import (
