@@ -12,6 +12,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/trustbloc/edge-agent/pkg/restapi/common"
 )
 
 type signer interface {
@@ -20,13 +22,13 @@ type signer interface {
 
 type kmsSigner struct {
 	baseURL    string
-	httpClient httpClient
+	httpClient common.HTTPClient
 	keystoreID string
 	keyID      string
 	header     *hubKMSHeader
 }
 
-func newKMSSigner(baseURL, keystoreID, keyID string, h *hubKMSHeader, httpClient httpClient) *kmsSigner {
+func newKMSSigner(baseURL, keystoreID, keyID string, h *hubKMSHeader, httpClient common.HTTPClient) *kmsSigner {
 	return &kmsSigner{
 		baseURL:    baseURL,
 		httpClient: httpClient,
@@ -52,7 +54,7 @@ func (a *kmsSigner) Sign(data []byte) ([]byte, error) {
 
 	addAuthZKMSHeaders(req, a.header)
 
-	resp, _, err := sendHTTPRequest(req, a.httpClient, http.StatusOK)
+	resp, _, err := common.SendHTTPRequest(req, a.httpClient, http.StatusOK, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to sign from kms: %w", err)
 	}

@@ -13,7 +13,7 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.8.0
 	github.com/hyperledger/aries-framework-go v0.1.5
-	github.com/hyperledger/aries-framework-go-ext/component/storage/mysql v0.0.0-20201210203117-e17b615af85d
+	github.com/hyperledger/aries-framework-go-ext/component/storage/mysql v0.0.0-20210105175634-a0737dbb3570
 	github.com/pquerna/cachecontrol v0.0.0-20200819021114-67c6ae64274f // indirect
 	github.com/rs/cors v1.7.0
 	github.com/spf13/cobra v0.0.6

@@ -11,6 +11,7 @@ import (
 	"fmt"
 
 	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
+
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
 )

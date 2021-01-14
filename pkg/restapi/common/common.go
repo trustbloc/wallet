@@ -10,7 +10,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
+
+	"github.com/trustbloc/edge-core/pkg/log"
 )
 
 // Handler http handler for each controller API endpoint.
@@ -49,4 +52,38 @@ func WriteResponse(rw io.Writer, l logger, v interface{}) {
 	if err != nil {
 		l.Errorf("Unable to send error response, %s", err.Error())
 	}
+}
+
+// HTTPClient http client interface.
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+// SendHTTPRequest sends an http request to the client, expecting a given status, and returning the result.
+func SendHTTPRequest(req *http.Request, httpClient HTTPClient, status int,
+	logger *log.Log) ([]byte, http.Header, error) {
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, nil, fmt.Errorf("http request : %w", err)
+	}
+
+	defer func() {
+		err = resp.Body.Close()
+		if err != nil {
+			if logger != nil {
+				logger.Errorf("failed to close response body")
+			}
+		}
+	}()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, nil, fmt.Errorf("http request: failed to read resp body %d : %w", resp.StatusCode, err)
+	}
+
+	if resp.StatusCode != status {
+		return nil, nil, fmt.Errorf("http request: expected=%d actual=%d body=%s", status, resp.StatusCode, string(body))
+	}
+
+	return body, resp.Header, nil
 }

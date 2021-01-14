@@ -15,8 +15,9 @@ import (
 	"github.com/cucumber/godog"
 	"github.com/pkg/errors"
 	"github.com/tidwall/gjson"
-	"github.com/trustbloc/edge-agent/test/bdd/pkg/bddcontext"
 	"github.com/trustbloc/edge-core/pkg/log"
+
+	"github.com/trustbloc/edge-agent/test/bdd/pkg/bddcontext"
 )
 
 var logger = log.New("bdd-test-healthcheck")

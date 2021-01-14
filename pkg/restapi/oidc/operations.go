@@ -15,7 +15,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -26,12 +25,6 @@ import (
 	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
 	"github.com/hyperledger/aries-framework-go/pkg/vdr/fingerprint"
 	"github.com/igor-pavlenko/httpsignatures-go"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/tokens"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
 	"github.com/trustbloc/edge-core/pkg/log"
 	"github.com/trustbloc/edge-core/pkg/sss"
 	"github.com/trustbloc/edge-core/pkg/sss/base"
@@ -40,6 +33,13 @@ import (
 	"github.com/trustbloc/edv/pkg/restapi/models"
 	"github.com/trustbloc/hub-kms/pkg/restapi/kms/operation"
 	"golang.org/x/oauth2"
+
+	"github.com/trustbloc/edge-agent/pkg/restapi/common"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/tokens"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
 )
 
 // Endpoints.
@@ -105,10 +105,6 @@ type KeyServerConfig struct {
 	KeyEDVURL   string
 }
 
-type httpClient interface {
-	Do(req *http.Request) (*http.Response, error)
-}
-
 type edvClient interface {
 	CreateDataVault(config *models.DataVaultConfiguration, opts ...client.ReqOption) (string, []byte, error)
 }
@@ -127,7 +123,7 @@ type Operation struct {
 	walletDashboard string
 	tlsConfig       *tls.Config
 	secretSplitter  sss.SecretSplitter
-	httpClient      httpClient
+	httpClient      common.HTTPClient
 	keyEDVClient    edvClient
 	keyServer       *KeyServerConfig
 	userEDVClient   edvClient
@@ -485,7 +481,7 @@ func (o *Operation) fetchBootstrapData(accessToken string) (*userBootstrapData, 
 
 	addAccessToken(req, accessToken)
 
-	data, _, err := sendHTTPRequest(req, o.httpClient, http.StatusOK)
+	data, _, err := common.SendHTTPRequest(req, o.httpClient, http.StatusOK, logger)
 	if err != nil {
 		return nil, fmt.Errorf("get bootstrap data : %w", err)
 	}
@@ -655,7 +651,7 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 	return walletSecretShare, nil
 }
 
-func postSecret(baseURL, accessToken string, secret []byte, httpClient httpClient) error {
+func postSecret(baseURL, accessToken string, secret []byte, httpClient common.HTTPClient) error {
 	reqBytes, err := json.Marshal(secretRequest{
 		Secret: secret,
 	})
@@ -671,7 +667,7 @@ func postSecret(baseURL, accessToken string, secret []byte, httpClient httpClien
 
 	addAccessToken(req, accessToken)
 
-	_, _, err = sendHTTPRequest(req, httpClient, http.StatusOK)
+	_, _, err = common.SendHTTPRequest(req, httpClient, http.StatusOK, logger)
 	if err != nil {
 		return err
 	}
@@ -679,7 +675,7 @@ func postSecret(baseURL, accessToken string, secret []byte, httpClient httpClien
 	return nil
 }
 
-func postUserBootstrapData(baseURL, accessToken string, data *BootstrapData, httpClient httpClient) error {
+func postUserBootstrapData(baseURL, accessToken string, data *BootstrapData, httpClient common.HTTPClient) error {
 	reqBytes, err := json.Marshal(userBootstrapData{
 		Data: data,
 	})
@@ -695,7 +691,7 @@ func postUserBootstrapData(baseURL, accessToken string, data *BootstrapData, htt
 
 	addAccessToken(req, accessToken)
 
-	_, _, err = sendHTTPRequest(req, httpClient, http.StatusOK)
+	_, _, err = common.SendHTTPRequest(req, httpClient, http.StatusOK, logger)
 	if err != nil {
 		return err
 	}
@@ -704,7 +700,7 @@ func postUserBootstrapData(baseURL, accessToken string, data *BootstrapData, htt
 }
 
 func createKeyStore(baseURL, controller, vaultID string, h *hubKMSHeader,
-	httpClient httpClient) (string, string, string, error) {
+	httpClient common.HTTPClient) (string, string, string, error) {
 	reqBytes, err := json.Marshal(createKeystoreReq{
 		Controller: controller,
 		VaultID:    vaultID,
@@ -721,7 +717,7 @@ func createKeyStore(baseURL, controller, vaultID string, h *hubKMSHeader,
 
 	addAuthZKMSHeaders(req, h)
 
-	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
+	_, headers, err := common.SendHTTPRequest(req, httpClient, http.StatusCreated, logger)
 	if err != nil {
 		return "", "", "", fmt.Errorf("create keystore : %w", err)
 	}
@@ -734,7 +730,7 @@ func createKeyStore(baseURL, controller, vaultID string, h *hubKMSHeader,
 }
 
 func updateEDVCapabilityInKeyStore(baseURL, keystoreID, controller, vaultID, compressedKMSCapability string,
-	edvCapability []byte, kmsDIDKey string, s signer, httpClient httpClient) error {
+	edvCapability []byte, kmsDIDKey string, s signer, httpClient common.HTTPClient) error {
 	capability, err := zcapld.ParseCapability(edvCapability)
 	if err != nil {
 		return err
@@ -775,7 +771,7 @@ func updateEDVCapabilityInKeyStore(baseURL, keystoreID, controller, vaultID, com
 		return fmt.Errorf("failed to sign request: %w", err)
 	}
 
-	_, _, err = sendHTTPRequest(req, httpClient, http.StatusOK)
+	_, _, err = common.SendHTTPRequest(req, httpClient, http.StatusOK, logger)
 	if err != nil {
 		return fmt.Errorf("failed to update edv capability keystore : %w", err)
 	}
@@ -808,7 +804,7 @@ func sign(r *http.Request, controller, compressedKMSCapability string, s signer)
 	return nil
 }
 
-func createKey(baseURL, keystoreID, keyType string, h *hubKMSHeader, httpClient httpClient) (string, error) {
+func createKey(baseURL, keystoreID, keyType string, h *hubKMSHeader, httpClient common.HTTPClient) (string, error) {
 	reqBytes, err := json.Marshal(createKeyReq{
 		KeyType: keyType,
 	})
@@ -824,7 +820,7 @@ func createKey(baseURL, keystoreID, keyType string, h *hubKMSHeader, httpClient 
 
 	addAuthZKMSHeaders(req, h)
 
-	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
+	_, headers, err := common.SendHTTPRequest(req, httpClient, http.StatusCreated, logger)
 	if err != nil {
 		return "", fmt.Errorf("create authz key : %w", err)
 	}
@@ -833,7 +829,7 @@ func createKey(baseURL, keystoreID, keyType string, h *hubKMSHeader, httpClient 
 }
 
 func createOPSKey(baseURL, keystoreID, keyType, controller, compressedKMSCapability string,
-	s signer, h *hubKMSHeader, httpClient httpClient) (string, error) {
+	s signer, h *hubKMSHeader, httpClient common.HTTPClient) (string, error) {
 	reqBytes, err := json.Marshal(createKeyReq{
 		KeyType: keyType,
 	})
@@ -855,7 +851,7 @@ func createOPSKey(baseURL, keystoreID, keyType, controller, compressedKMSCapabil
 		return "", fmt.Errorf("failed to sign request: %w", err)
 	}
 
-	_, headers, err := sendHTTPRequest(req, httpClient, http.StatusCreated)
+	_, headers, err := common.SendHTTPRequest(req, httpClient, http.StatusCreated, logger)
 	if err != nil {
 		return "", fmt.Errorf("create ops key : %w", err)
 	}
@@ -863,7 +859,7 @@ func createOPSKey(baseURL, keystoreID, keyType, controller, compressedKMSCapabil
 	return getKeyID(headers.Get("Location")), nil
 }
 
-func exportPublicKey(baseURL, keystoreID, keyID string, h *hubKMSHeader, httpClient httpClient) ([]byte, error) {
+func exportPublicKey(baseURL, keystoreID, keyID string, h *hubKMSHeader, httpClient common.HTTPClient) ([]byte, error) {
 	req, err := http.NewRequestWithContext(context.TODO(),
 		http.MethodGet, baseURL+fmt.Sprintf(exportKeyEndpoint, keystoreID, keyID), nil)
 	if err != nil {
@@ -872,7 +868,7 @@ func exportPublicKey(baseURL, keystoreID, keyID string, h *hubKMSHeader, httpCli
 
 	addAuthZKMSHeaders(req, h)
 
-	resp, _, err := sendHTTPRequest(req, httpClient, http.StatusOK)
+	resp, _, err := common.SendHTTPRequest(req, httpClient, http.StatusOK, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to export authz key : %w", err)
 	}
@@ -947,31 +943,6 @@ func createEDVDataVault(edvClient edvClient, controller, accessToken string) (st
 	}
 
 	return vaultURL, capability, nil
-}
-
-func sendHTTPRequest(req *http.Request, httpClient httpClient, status int) ([]byte, http.Header, error) {
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return nil, nil, fmt.Errorf("http request : %w", err)
-	}
-
-	defer func() {
-		err = resp.Body.Close()
-		if err != nil {
-			logger.Errorf("failed to close response body")
-		}
-	}()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, nil, fmt.Errorf("http request: failed to read resp body %d : %w", resp.StatusCode, err)
-	}
-
-	if resp.StatusCode != status {
-		return nil, nil, fmt.Errorf("http request: expected=%d actual=%d body=%s", status, resp.StatusCode, string(body))
-	}
-
-	return body, resp.Header, nil
 }
 
 func addAuthZKMSHeaders(r *http.Request, h *hubKMSHeader) {

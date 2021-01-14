@@ -54,4 +54,8 @@ openssl rand -out test/bdd/fixtures/keys/session_cookies/auth.key 32
 openssl rand -out test/bdd/fixtures/keys/session_cookies/enc.key 32
 openssl rand 32 | base64 | sed 's/+/-/g; s/\//_/g' > test/bdd/fixtures/keys/tls/service-lock.key
 
+mkdir -p test/bdd/fixtures/keys/device
+openssl ecparam -name prime256v1 -genkey -noout -out test/bdd/fixtures/keys/device/ec-cakey.pem
+openssl req -new -x509 -key test/bdd/fixtures/keys/device/ec-cakey.pem -subj "/C=CA/ST=ON/O=Example Auth Device Inc.:CA Sec/OU=CA Sec" -out test/bdd/fixtures/keys/device/ec-cacert.pem
+
 echo "done generating edge-agent PKI"

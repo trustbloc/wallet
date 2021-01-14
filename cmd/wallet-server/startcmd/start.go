@@ -27,12 +27,13 @@ import (
 	ariesmem "github.com/hyperledger/aries-framework-go/pkg/storage/mem"
 	"github.com/rs/cors"
 	"github.com/spf13/cobra"
-	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
-	"github.com/trustbloc/edge-agent/pkg/restapi/device"
-	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
 	"github.com/trustbloc/edge-core/pkg/log"
 	cmdutils "github.com/trustbloc/edge-core/pkg/utils/cmd"
 	tlsutils "github.com/trustbloc/edge-core/pkg/utils/tls"
+
+	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
+	"github.com/trustbloc/edge-agent/pkg/restapi/device"
+	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
 )
 
 const (
@@ -574,7 +575,7 @@ func getKeyParams(cmd *cobra.Command) (*keyParameters, error) {
 
 	params.sessionCookieEncKey, err = parseKey(sessionCookieEncKeyPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to configure session cooie enc key: %w", err)
+		return nil, fmt.Errorf("failed to configure session cookie enc key: %w", err)
 	}
 
 	return params, nil
@@ -780,7 +781,8 @@ func addDeviceHandlers(router *mux.Router, config *httpServerParameters, store a
 			Auth: config.keys.sessionCookieAuthKey,
 			Enc:  config.keys.sessionCookieEncKey,
 		},
-		Webauthn: webAuthn,
+		Webauthn:   webAuthn,
+		HubAuthURL: config.hubAuthURL,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to init device ops: %w", err)

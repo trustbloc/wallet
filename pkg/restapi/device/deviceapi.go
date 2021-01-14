@@ -8,6 +8,7 @@ package device
 import (
 	"github.com/duo-labs/webauthn/protocol"
 	"github.com/duo-labs/webauthn/webauthn"
+
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
 )
 

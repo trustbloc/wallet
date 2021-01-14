@@ -6,8 +6,11 @@ SPDX-License-Identifier: Apache-2.0
 package device
 
 import (
+	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"net/http"
 	"strings"
@@ -16,11 +19,12 @@ import (
 	"github.com/duo-labs/webauthn/protocol"
 	"github.com/duo-labs/webauthn/webauthn"
 	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
+	"github.com/trustbloc/edge-core/pkg/log"
+
 	"github.com/trustbloc/edge-agent/pkg/restapi/common"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
-	"github.com/trustbloc/edge-core/pkg/log"
 )
 
 // Endpoints.
@@ -47,6 +51,7 @@ type Config struct {
 	TLSConfig       *tls.Config
 	Keys            *KeyConfig
 	Webauthn        *webauthn.WebAuthn
+	HubAuthURL      string
 }
 
 // KeyConfig holds configuration for cryptographic keys.
@@ -68,12 +73,18 @@ type stores struct {
 	session *session.Store
 }
 
+type httpClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 // Operation implements OIDC operations.
 type Operation struct {
 	store           *stores
 	walletDashboard string
 	tlsConfig       *tls.Config
+	httpClient      httpClient
 	webauthn        *webauthn.WebAuthn
+	hubAuthURL      string
 }
 
 // New returns a new Operation.
@@ -83,8 +94,10 @@ func New(config *Config) (*Operation, error) {
 			cookies: cookie.NewStore(config.Keys.Auth, config.Keys.Enc),
 		},
 		tlsConfig:       config.TLSConfig,
+		httpClient:      &http.Client{Transport: &http.Transport{TLSClientConfig: config.TLSConfig}},
 		webauthn:        config.Webauthn,
 		walletDashboard: config.WalletDashboard,
+		hubAuthURL:      config.HubAuthURL,
 	}
 
 	var err error
@@ -138,10 +151,11 @@ func (o *Operation) beginRegistration(w http.ResponseWriter, r *http.Request) {
 	registerOptions := func(credCreationOpts *protocol.PublicKeyCredentialCreationOptions) {
 		credCreationOpts.User = webAuthnUser
 		credCreationOpts.CredentialExcludeList = device.CredentialExcludeList()
+		credCreationOpts.Attestation = protocol.PreferDirectAttestation
 	}
 
 	// generate PublicKeyCredentialCreationOptions, session data
-	protocolCredential, sessionData, err := o.webauthn.BeginRegistration(
+	credentialParams, sessionData, err := o.webauthn.BeginRegistration(
 		device,
 		registerOptions,
 	)
@@ -160,12 +174,12 @@ func (o *Operation) beginRegistration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, protocolCredential, http.StatusOK)
+	jsonResponse(w, credentialParams, http.StatusOK)
 
 	logger.Debugf("Registration begins")
 }
 
-func (o *Operation) finishRegistration(w http.ResponseWriter, r *http.Request) {
+func (o *Operation) finishRegistration(w http.ResponseWriter, r *http.Request) { // nolint:funlen // not clean to split
 	logger.Debugf("handling finish device registration: %s", r.URL.String())
 
 	userData, canProceed := o.getUserData(w, r, userSubCookieName)
@@ -183,10 +197,35 @@ func (o *Operation) finishRegistration(w http.ResponseWriter, r *http.Request) {
 
 	device := NewDevice(userData)
 
-	credential, err := o.webauthn.FinishRegistration(device, sessionData, r)
+	// unfold webauthn.FinishRegistration, to access parsedResponse
+	parsedResponse, err := protocol.ParseCredentialCreationResponse(r)
 	if err != nil {
 		common.WriteErrorResponsef(w, logger,
-			http.StatusInternalServerError, "failed to finish registration: %+v", err.Error())
+			http.StatusInternalServerError, "failed to finish registration: parsing ccr: %#v", err)
+
+		return
+	}
+
+	credential, err := o.webauthn.CreateCredential(device, sessionData, parsedResponse)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "failed to finish registration: cred: %#v", err)
+
+		return
+	}
+
+	deviceCerts, ok := parsedResponse.Response.AttestationObject.AttStatement["x5c"].([]interface{})
+	if !ok || len(deviceCerts) == 0 {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "failed to finish registration: device certificate missing")
+
+		return
+	}
+
+	err = o.requestDeviceValidation(r.Context(), userData.Sub, string(credential.Authenticator.AAGUID), deviceCerts)
+	if err != nil {
+		common.WriteErrorResponsef(w, logger,
+			http.StatusInternalServerError, "failed to finish registration: %#v", err)
 
 		return
 	}
@@ -206,6 +245,50 @@ func (o *Operation) finishRegistration(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, credential, http.StatusOK)
 
 	logger.Debugf("Registration success")
+}
+
+func (o *Operation) requestDeviceValidation(ctx context.Context, userSub, aaguid string, certs []interface{}) error {
+	if len(certs) == 0 {
+		return fmt.Errorf("missing certs")
+	}
+
+	var certPemList []string
+
+	for _, certInterface := range certs {
+		cert, ok := certInterface.([]byte)
+		if !ok {
+			return fmt.Errorf("can't cast certificate data to []byte")
+		}
+
+		certPemList = append(certPemList, string(pem.EncodeToMemory(
+			&pem.Block{Bytes: cert, Type: "CERTIFICATE"},
+		)))
+	}
+
+	postData, err := json.Marshal(&struct {
+		X5c    []string `json:"x5c"`
+		Sub    string   `json:"sub"`
+		Aaguid string   `json:"aaguid"`
+	}{
+		X5c:    certPemList,
+		Sub:    userSub,
+		Aaguid: aaguid,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to marshal cert data: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, o.hubAuthURL+"/device", bytes.NewBuffer(postData))
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	_, _, err = common.SendHTTPRequest(req, o.httpClient, http.StatusOK, nil)
+	if err != nil {
+		return fmt.Errorf("failed response from hub-auth/device endpoint: %w", err)
+	}
+
+	return nil
 }
 
 func (o *Operation) beginLogin(w http.ResponseWriter, r *http.Request) {
