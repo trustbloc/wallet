@@ -15,4 +15,4 @@ set -o allexport
 set +o allexport
 
 cd $DEMO_PATH
-docker-compose -f docker-compose-openapi.yml -f docker-compose.yml ${DEMO_COMPOSE_OP}
+docker-compose -f docker-compose-openapi.yml -f docker-compose-server.yml ${DEMO_COMPOSE_OP}

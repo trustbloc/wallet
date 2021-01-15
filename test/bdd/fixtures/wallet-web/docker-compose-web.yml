@@ -1,0 +1,204 @@
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+services:
+  user-ui-agent.example.com:
+    container_name: user-ui-agent.example.com
+    image: ${WALLET_WEB_IMAGE}:latest
+    volumes:
+      - ../keys/tls:/etc/nginx/certs
+    ports:
+      - 8091:443
+    environment:
+      - HTTP_RESOLVER_URL=${HTTP_RESOLVER}
+      - AGENT_DEFAULT_LABEL=wallet-web
+      - BLOC_DOMAIN=testnet.trustbloc.local
+      - EDGE_AGENT_SERVER=https://user-agent.example.com:8090
+      - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
+      - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
+      - TLS_KEY=/etc/nginx/certs/ec-key.pem
+      - EDV_SERVER_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+      - STORAGE_TYPE=edv
+      - KMS_TYPE=webkms
+      - USE_EDV_CACHE=true
+      - EDV_CLEAR_CACHE=10m
+      - USE_EDV_BATCH=true
+
+  second-ui-user-agent.example.com:
+    container_name: second-ui-user-agent.example.com
+    image: ${WALLET_WEB_IMAGE}:latest
+    volumes:
+      - ../keys/tls:/etc/nginx/certs
+    ports:
+      - 8071:443
+    environment:
+      - HTTP_RESOLVER_URL=${HTTP_RESOLVER}
+      - AGENT_DEFAULT_LABEL=second-wallet-web
+      - BLOC_DOMAIN=testnet.trustbloc.local
+      - EDGE_AGENT_SERVER=https://second-user-agent.example.com:8070
+      - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
+      - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
+      - TLS_KEY=/etc/nginx/certs/ec-key.pem
+      - EDV_SERVER_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+      - STORAGE_TYPE=edv
+      - KMS_TYPE=webkms
+      - USE_EDV_CACHE=true
+      - EDV_CLEAR_CACHE=10m
+      - USE_EDV_BATCH=true
+
+  edge.router.agent.example.com:
+    container_name: edge.router.agent.example.com
+    image: ${HUB_ROUTER_IMAGE}:${HUB_ROUTER_IMAGE_TAG}
+    environment:
+      - HUB_ROUTER_HOST_URL=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_API_PORT}
+      - HUB_ROUTER_TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - HUB_ROUTER_TLS_SYSTEMCERTPOOL=true
+      - HUB_ROUTER_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
+      - HUB_ROUTER_TLS_SERVE_KEY=/etc/tls/ec-key.pem
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://localhost:${EDGE_ROUTER_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_WS_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${EDGE_ROUTER_WS_INBOUND_PORT}
+      - HUB_ROUTER_DSN_PERSISTENT=mem://tests
+      - HUB_ROUTER_DSN_TRANSIENT=mem://tests
+      - HUB_ROUTER_DSN_TIMEOUT=45
+    ports:
+      - ${EDGE_ROUTER_API_PORT}:${EDGE_ROUTER_API_PORT}
+      - ${EDGE_ROUTER_HTTP_INBOUND_PORT}:${EDGE_ROUTER_HTTP_INBOUND_PORT}
+      - ${EDGE_ROUTER_WS_INBOUND_PORT}:${EDGE_ROUTER_WS_INBOUND_PORT}
+    entrypoint: ""
+    command: /bin/sh -c "hub-router start"
+    volumes:
+      - ../keys/tls:/etc/tls
+
+  edge.router.agent2.example.com:
+    container_name: edge.router.agent2.example.com
+    image: ${HUB_ROUTER_IMAGE}:${HUB_ROUTER_IMAGE_TAG}
+    environment:
+      - HUB_ROUTER_HOST_URL=${EDGE_ROUTER2_HOST}:${EDGE_ROUTER2_API_PORT}
+      - HUB_ROUTER_TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - HUB_ROUTER_TLS_SYSTEMCERTPOOL=true
+      - HUB_ROUTER_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
+      - HUB_ROUTER_TLS_SERVE_KEY=/etc/tls/ec-key.pem
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST=${EDGE_ROUTER2_HOST}:${EDGE_ROUTER2_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://localhost:${EDGE_ROUTER2_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST=${EDGE_ROUTER2_HOST}:${EDGE_ROUTER2_WS_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${EDGE_ROUTER2_WS_INBOUND_PORT}
+      - HUB_ROUTER_DSN_PERSISTENT=mem://tests
+      - HUB_ROUTER_DSN_TRANSIENT=mem://tests
+      - HUB_ROUTER_DSN_TIMEOUT=45
+    ports:
+      - ${EDGE_ROUTER2_API_PORT}:${EDGE_ROUTER2_API_PORT}
+      - ${EDGE_ROUTER2_HTTP_INBOUND_PORT}:${EDGE_ROUTER2_HTTP_INBOUND_PORT}
+      - ${EDGE_ROUTER2_WS_INBOUND_PORT}:${EDGE_ROUTER2_WS_INBOUND_PORT}
+    entrypoint: ""
+    command: /bin/sh -c "hub-router start"
+    volumes:
+      - ../keys/tls:/etc/tls
+
+
+  bddtest.ui.user-agent.example.com:
+    container_name: bddtest.ui.user-agent.example.com
+    image: ${WALLET_WEB_IMAGE}:latest
+    volumes:
+      - ../keys/tls:/etc/nginx/certs
+    ports:
+      - 8078:443
+    environment:
+      - ARIESD_HTTP_RESOLVER=${HTTP_RESOLVER}
+      - AGENT_DEFAULT_LABEL=wallet-web
+      - BLOC_DOMAIN=testnet.trustbloc.local
+      - EDGE_AGENT_SERVER=https://localhost:8077
+      - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
+      - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
+      - TLS_KEY=/etc/nginx/certs/ec-key.pem
+      - EDV_SERVER_URL=https://bdd-edv-oathkeeper-proxy:4457/encrypted-data-vaults
+      - STORAGE_TYPE=edv
+      - USE_EDV_CACHE=true
+      - EDV_CLEAR_CACHE=10m
+      - USE_EDV_BATCH=true
+      - KMS_TYPE=webkms
+
+  sidetree:
+    container_name: sidetree-mock
+    hostname: sidetree-mock
+    image: ${SIDETREE_MOCK_IMAGE}:${SIDETREE_MOCK_IMAGE_TAG}
+    environment:
+      - SIDETREE_MOCK_TLS_CERTIFICATE=/etc/sidetree/tls/ec-pubCert.pem
+      - SIDETREE_MOCK_TLS_KEY=/etc/sidetree/tls/ec-key.pem
+      - SIDETREE_MOCK_HOST=0.0.0.0
+      - SIDETREE_MOCK_PORT=48326
+      - SIDETREE_MOCK_DID_NAMESPACE=did:trustbloc:2M5ym
+      - SIDETREE_MOCK_DID_ALIASES=did:trustbloc:testnet.trustbloc.local
+    ports:
+      - 48326:48326
+    volumes:
+      - ../keys/tls:/etc/sidetree/tls
+
+
+  testnet.trustbloc.local:
+    container_name: testnet.trustbloc.local
+    hostname: testnet.trustbloc.local
+    image: halverneus/static-file-server:v1.7.2
+    environment:
+      - PORT=443
+      - FOLDER=/web
+      - CORS=true
+      - DEBUG=true
+      - TLS_CERT=/etc/tls/ec-pubCert.pem
+      - TLS_KEY=/etc/tls/ec-key.pem
+    ports:
+      - "443:443"
+    volumes:
+      - ./config:/web/.well-known/did-trustbloc
+      - ../keys/tls:/etc/tls
+
+  stakeholder.one:
+    container_name: stakeholder.one
+    hostname: stakeholder.one
+    image: halverneus/static-file-server:v1.7.2
+    environment:
+      - PORT=8088
+      - FOLDER=/web
+      - CORS=true
+      - TLS_CERT=/etc/tls/ec-pubCert.pem
+      - TLS_KEY=/etc/tls/ec-key.pem
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./config:/web/.well-known/did-trustbloc
+      - ../keys/tls:/etc/tls
+
+  uni-resolver-web.example.com:
+    container_name: uni-resolver-web.example.com
+    image: universalresolver/uni-resolver-web:latest
+    ports:
+      - "9080:8080"
+    volumes:
+      - ./config.json:/opt/uni-resolver-java/uni-resolver-web/config.json
+
+  uni-resolver-did-v1-driver:
+    image: veresone/uni-resolver-did-v1-driver:latest
+    ports:
+      - "8084:8080"
+
+  trustbloc.did.method.example.com:
+    container_name: trustbloc.did.method.example.com
+    image: ${BLOC_DID_METHOD_IMAGE}:${BLOC_DID_METHOD_IMAGE_TAG}
+    environment:
+      - DID_METHOD_HOST_URL=0.0.0.0:8060
+      - DID_METHOD_TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - DID_METHOD_DOMAIN=testnet.trustbloc.local
+      - ENABLE_SIGNATURES=false
+      - DID_METHOD_DATABASE_TYPE=mem
+      - DID_METHOD_DATABASE_PREFIX=driver
+    ports:
+      - 8060:8060
+    entrypoint: ""
+    command:  /bin/sh -c "sleep 10;did-method start"
+    volumes:
+      - ../keys/tls:/etc/tls

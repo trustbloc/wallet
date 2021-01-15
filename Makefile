@@ -84,7 +84,7 @@ generate-openapi-demo-specs: generate-openapi-spec
     	scripts/generate-openapi-demo-specs.sh
 
 .PHONY: run-openapi-demo
-run-openapi-demo: generate-openapi-demo-specs wallet-web-docker wallet-server-docker generate-test-config generate-test-keys mock-images
+run-openapi-demo: generate-openapi-demo-specs wallet-server-docker generate-test-config generate-test-keys mock-images
 	@echo "Starting demo wallet server rest containers ..."
 	@DEMO_COMPOSE_PATH=test/bdd/fixtures/wallet-web scripts/run-openapi-demo.sh
 

@@ -9,4 +9,4 @@ set -e
 echo "Running $0"
 
 cd test/bdd/fixtures/wallet-web
-(source .env && docker-compose down && docker-compose up --force-recreate)
+(source .env && docker-compose -f docker-compose-server.yml -f docker-compose-web.yml down && docker-compose -f docker-compose-server.yml -f docker-compose-web.yml up --force-recreate)
