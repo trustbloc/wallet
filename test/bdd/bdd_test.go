@@ -55,8 +55,9 @@ func TestMain(m *testing.M) {
 func runBDDTests(tags, format string) int {
 	return godog.RunWithOptions("godogs", func(s *godog.Suite) {
 		var composition []*dockerutil.Composition
-		composeFiles := []string{"./fixtures/wallet-web"}
-		s.BeforeSuite(beforeSuite(composition, composeFiles))
+		composeFiles := []string{"docker-compose-server.yml", "docker-compose-web.yml"}
+		composeDir := "./fixtures/wallet-web"
+		s.BeforeSuite(beforeSuite(composition, composeDir, composeFiles))
 		s.AfterSuite(afterSuite(composition))
 		featureContext(s)
 	}, godog.Options{
@@ -69,13 +70,13 @@ func runBDDTests(tags, format string) int {
 	})
 }
 
-func beforeSuite(composition []*dockerutil.Composition, composeFiles []string) func() {
+func beforeSuite(composition []*dockerutil.Composition, composeDir string, composeFiles []string) func() {
 	return func() {
 		if os.Getenv("DISABLE_COMPOSITION") != "true" {
 			composeProjectName := strings.ReplaceAll(uuid.New().String(), "-", "")
 
-			for _, v := range composeFiles {
-				newComposition, err := dockerutil.NewComposition(composeProjectName, "docker-compose.yml", v)
+			for _, composeFile := range composeFiles {
+				newComposition, err := dockerutil.NewComposition(composeProjectName, composeFile, composeDir)
 				if err != nil {
 					panic(fmt.Sprintf("Error composing system in BDD context: %s", err))
 				}
