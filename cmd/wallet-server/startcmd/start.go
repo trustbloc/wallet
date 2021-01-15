@@ -461,7 +461,7 @@ func getTLSParams(cmd *cobra.Command) (*tlsParameters, error) {
 
 		params.config = &tls.Config{
 			RootCAs:    certPool,
-			MinVersion: tls.VersionTLS13,
+			MinVersion: tls.VersionTLS12,
 		}
 	}
 
