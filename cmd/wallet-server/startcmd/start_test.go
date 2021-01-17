@@ -50,8 +50,12 @@ func TestListenAndServe(t *testing.T) {
 		keyServer: &keyServerParameters{
 			authzKMSURL: "http://localhost",
 		},
-		datasourceParams: &datasourceParams{
-			persistentURL: "mem://tests",
+		agent: &agentParameters{
+			dbParam: &dbParam{
+				url:    "example.dsn",
+				prefix: "sample",
+				dbType: "mem",
+			},
 		},
 	})
 	require.NoError(t, err)
@@ -67,16 +71,28 @@ func TestSupportedDatabases(t *testing.T) {
 	t.Run("aries store", func(t *testing.T) {
 		tests := []struct {
 			dbURL          string
+			dbType         string
 			isErr          bool
 			expectedErrMsg string
 		}{
-			{dbURL: "mem://test", isErr: false},
-			{dbURL: "mysql://test", isErr: true, expectedErrMsg: "ariesstore init - connect to storage at test"},
-			{dbURL: "random", isErr: true, expectedErrMsg: "invalid dbURL random"},
+			{dbURL: "test", dbType: "mem", isErr: false},
+			{
+				dbURL: "test:test@test/", dbType: "mysql", isErr: true,
+				expectedErrMsg: "failed to connect to storage at test:test@test/",
+			},
+			{
+				dbURL: "random", dbType: "random", isErr: true,
+				expectedErrMsg: "key database type not set to a valid type",
+			},
 		}
 
 		for _, test := range tests {
-			_, err := initAriesStore(test.dbURL, "hr-store", 1)
+			_, err := createStoreProviders(&dbParam{
+				dbType:  test.dbType,
+				prefix:  "hr-store",
+				url:     test.dbURL,
+				timeout: 1,
+			})
 
 			if !test.isErr {
 				require.NoError(t, err)
@@ -102,26 +118,26 @@ const invalidArgString = "INVALID"
 
 func validArgs(t *testing.T) map[string]string {
 	return map[string]string{ // create a fresh map every time, so it can be edited by the test
-		hostURLFlagName:              "localhost:8080",
-		tlsCertFileFlagName:          "cert",
-		tlsKeyFileFlagName:           "key",
-		agentUIURLFlagName:           "ui",
-		oidcProviderURLFlagName:      mockOIDCProvider(t),
-		oidcClientIDFlagName:         uuid.New().String(),
-		oidcClientSecretFlagName:     uuid.New().String(),
-		oidcCallbackURLFlagName:      "http://test.com/callback",
-		tlsCACertsFlagName:           cert(t),
-		sessionCookieAuthKeyFlagName: key(t),
-		sessionCookieEncKeyFlagName:  key(t),
-		webAuthRPDisplayFlagName:     "Foobar Corp.",
-		webAuthRPIDFlagName:          "localhost",
-		webAuthRPOriginFlagName:      "http://localhost",
-		authzKMSURLFlagName:          "http://localhost",
-		opsKMSURLFlagName:            "http://localhost",
-		keyEDVURLFlagName:            "http://localhost",
-		hubAuthURLFlagName:           "http://localhost",
-		datasourcePersistentFlagName: "mem://tests",
-		datasourceTimeoutFlagName:    "1",
+		hostURLFlagName:                   "localhost:8080",
+		tlsCertFileFlagName:               "cert",
+		tlsKeyFileFlagName:                "key",
+		agentUIURLFlagName:                "ui",
+		oidcProviderURLFlagName:           mockOIDCProvider(t),
+		oidcClientIDFlagName:              uuid.New().String(),
+		oidcClientSecretFlagName:          uuid.New().String(),
+		oidcCallbackURLFlagName:           "http://test.com/callback",
+		tlsCACertsFlagName:                cert(t),
+		sessionCookieAuthKeyFlagName:      key(t),
+		sessionCookieEncKeyFlagName:       key(t),
+		webAuthRPDisplayFlagName:          "Foobar Corp.",
+		webAuthRPIDFlagName:               "localhost",
+		webAuthRPOriginFlagName:           "http://localhost",
+		authzKMSURLFlagName:               "http://localhost",
+		opsKMSURLFlagName:                 "http://localhost",
+		keyEDVURLFlagName:                 "http://localhost",
+		hubAuthURLFlagName:                "http://localhost",
+		databaseTypeFlagName:              "mem",
+		agentTransportReturnRouteFlagName: "all",
 	}
 }
 
@@ -179,6 +195,202 @@ func TestStartCmdWithBlankArg(t *testing.T) {
 	})
 }
 
+func TestStartCmdWithInvalidAgentArgs(t *testing.T) {
+	t.Run("test blank dbtype", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[databaseTypeFlagName] = ""
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Equal(t, "database-type value is empty", err.Error())
+	})
+
+	t.Run("test invalid db timeout", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[databaseTimeoutFlagName] = "test123"
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "failed to parse db timeout")
+	})
+
+	t.Run("test invalid auto accept", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[agentAutoAcceptFlagName] = "-%"
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "auto accept not set to a valid type")
+	})
+
+	t.Run("test invalid http resolver", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[agentHTTPResolverFlagName] = "-"
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "http-resolver-url flag not found")
+	})
+
+	t.Run("test invalid inbound transport", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[agentInboundHostFlagName] = "xys"
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "inbound-host flag not found")
+	})
+
+	t.Run("test invalid inbound external", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[agentInboundHostExternalFlagName] = "xys"
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "inbound-host-external flag not found")
+	})
+
+	t.Run("test invalid transport return", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[agentTransportReturnRouteFlagName] = "test123"
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "failed to configure router")
+	})
+
+	t.Run("test invalid webhook URL", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[agentWebhookFlagName] = "testURL"
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "webhook-url flag not found")
+	})
+
+	t.Run("test invalid outbound transport return", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[agentOutboundTransportFlagName] = "testReturn"
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "outbound-transport flag not found")
+	})
+}
+
+func TestCreateAriesAgent(t *testing.T) {
+	t.Run("invalid inbound internal host option", func(t *testing.T) {
+		_, err := createAriesAgent(&httpServerParameters{agent: &agentParameters{
+			dbParam:              &dbParam{dbType: "leveldb"},
+			inboundHostInternals: []string{"1@2@3"},
+		}, tls: &tlsParameters{}})
+		require.Contains(t, err.Error(), "invalid inbound host option")
+	})
+
+	t.Run("invalid inbound external host option", func(t *testing.T) {
+		_, err := createAriesAgent(&httpServerParameters{agent: &agentParameters{
+			dbParam:              &dbParam{dbType: "leveldb"},
+			inboundHostExternals: []string{"1@2@3"},
+		}, tls: &tlsParameters{}})
+		require.Contains(t, err.Error(), "invalid inbound host option")
+	})
+}
+
+func TestInboundTransportOpts(t *testing.T) {
+	t.Run("test agent inbound transport opts", func(t *testing.T) {
+		tests := []struct {
+			internal []string
+			external []string
+			error    string
+		}{
+			{
+				internal: []string{"http@localhost", "ws@localhost", "xys@localhost"},
+				external: []string{"http@test", "ws@test", "xys@test"},
+				error:    "inbound transport [xys] not supported",
+			},
+			{
+				internal: []string{"http@localhost", "ws:localhost"},
+				external: []string{"http@test", "ws@test"},
+				error:    "inbound internal host : invalid inbound host option: Use scheme@url to pass the option",
+			},
+			{
+				internal: []string{"http@localhost", "ws@localhost"},
+				external: []string{"http@test", "ws:test"},
+				error:    "inbound external host : invalid inbound host option: Use scheme@url to pass the option",
+			},
+			{
+				internal: []string{"http@localhost", "ws@localhost"},
+				external: []string{"http@test", "ws@test"},
+			},
+		}
+
+		for _, test := range tests {
+			_, err := getInboundTransportOpts(test.internal, test.external, "", "")
+
+			if test.error != "" {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), test.error)
+			} else {
+				require.NoError(t, err)
+			}
+		}
+	})
+}
+
+func TestGetOutboundTransportOpts(t *testing.T) {
+	_, err := getOutboundTransportOpts([]string{"ws", "http"})
+	require.NoError(t, err)
+
+	_, err = getOutboundTransportOpts([]string{"xyz", "http"})
+	require.Error(t, err)
+	require.Equal(t, err.Error(), "outbound transport [xyz] not supported")
+}
+
 func TestStartCmdWithMissingArg(t *testing.T) {
 	t.Run("test missing host arg", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
@@ -200,36 +412,6 @@ func TestStartCmdWithMissingArg(t *testing.T) {
 		err := startCmd.Execute()
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "error starting the server")
-	})
-
-	t.Run("missing persistent dsn arg", func(t *testing.T) {
-		startCmd := GetStartCmd(&mockServer{})
-
-		argMap := validArgs(t)
-		delete(argMap, datasourcePersistentFlagName)
-		delete(argMap, datasourceTimeoutFlagName)
-		args := argArray(argMap)
-
-		startCmd.SetArgs(args)
-
-		err := startCmd.Execute()
-		require.Error(t, err)
-		require.Equal(t,
-			"Neither dsn-p (command line flag) nor EDGE_AGENT_DSN_PERSISTENT (environment variable) have been set.", err.Error())
-	})
-
-	t.Run("invalid dsn timeout", func(t *testing.T) {
-		startCmd := GetStartCmd(&mockServer{})
-
-		argMap := validArgs(t)
-		argMap[datasourceTimeoutFlagName] = invalidArgString
-		args := argArray(argMap)
-
-		startCmd.SetArgs(args)
-
-		err := startCmd.Execute()
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "failed to parse dsn timeout")
 	})
 
 	t.Run("test invalid tls-cacerts", func(t *testing.T) {
@@ -545,7 +727,7 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	err = os.Setenv(hubAuthURLEnvKey, "localhost")
 	require.NoError(t, err)
 
-	err = os.Setenv(datasourcePersistentEnvKey, "mem://tests")
+	err = os.Setenv(databaseTypeEnvKey, "mem")
 	require.NoError(t, err)
 
 	err = startCmd.Execute()
@@ -576,6 +758,47 @@ func TestHealthCheckHandler(t *testing.T) {
 	result := httptest.NewRecorder()
 	healthCheckHandler(result, nil)
 	require.Equal(t, http.StatusOK, result.Code)
+}
+
+func TestCreateVDRs(t *testing.T) {
+	tests := []struct {
+		name              string
+		resolvers         []string
+		blocDomain        string
+		trustblocResolver string
+		expected          int
+		accept            map[int][]string
+	}{{
+		name: "Empty data",
+		// expects default trustbloc resolver
+		accept:   map[int][]string{0: {"trustbloc"}},
+		expected: 1,
+	}, {
+		name:      "Groups methods by resolver",
+		resolvers: []string{"trustbloc@http://resolver.com", "v1@http://resolver.com"},
+		accept:    map[int][]string{0: {"trustbloc", "v1"}, 1: {"trustbloc"}},
+		// expects resolver.com that supports trustbloc,v1 methods and default trustbloc resolver
+		expected: 2,
+	}, {
+		name:      "Two different resolvers",
+		resolvers: []string{"trustbloc@http://resolver1.com", "v1@http://resolver2.com"},
+		accept:    map[int][]string{0: {"trustbloc"}, 1: {"v1"}, 2: {"trustbloc"}},
+		// expects resolver1.com and resolver2.com that supports trustbloc and v1 methods and default trustbloc resolver
+		expected: 3,
+	}}
+
+	for _, test := range tests {
+		res, err := createVDRs(test.resolvers, test.blocDomain, test.trustblocResolver)
+
+		for i, methods := range test.accept {
+			for _, method := range methods {
+				require.True(t, res[i].Accept(method))
+			}
+		}
+
+		require.NoError(t, err)
+		require.Equal(t, test.expected, len(res))
+	}
 }
 
 func checkFlagPropertiesCorrect(t *testing.T, cmd *cobra.Command, flagName, flagShorthand, flagUsage string) {
@@ -673,9 +896,8 @@ func key(t *testing.T) string {
 
 	key := make([]byte, 32)
 
-	n, err := rand.Reader.Read(key)
+	_, err := rand.Reader.Read(key)
 	require.NoError(t, err)
-	require.Equal(t, 32, n)
 
 	file, err := ioutil.TempFile("", "test_*.key")
 	require.NoError(t, err)
