@@ -79,12 +79,12 @@ generate-openapi-spec:
 .PHONY: generate-openapi-demo-specs
 generate-openapi-demo-specs: generate-openapi-spec
 	@echo "Generate demo wallet server rest controller API specifications using Open API"
-	@SPEC_PATH=${OPENAPI_SPEC_PATH} OPENAPI_DEMO_PATH=test/bdd/fixtures/demo/openapi \
+	@SPEC_PATH=${OPENAPI_SPEC_PATH} OPENAPI_DEMO_PATH=test/bdd/fixtures/wallet-web \
     	DOCKER_IMAGE=$(OPENAPI_DOCKER_IMG) DOCKER_IMAGE_VERSION=$(OPENAPI_DOCKER_IMG_VERSION)  \
     	scripts/generate-openapi-demo-specs.sh
 
 .PHONY: run-openapi-demo
-run-openapi-demo: generate-openapi-demo-specs wallet-server-docker generate-test-config generate-test-keys mock-images
+run-openapi-demo: generate-openapi-demo-specs wallet-web-docker wallet-server-docker generate-test-config generate-test-keys mock-images
 	@echo "Starting demo wallet server rest containers ..."
 	@DEMO_COMPOSE_PATH=test/bdd/fixtures/wallet-web scripts/run-openapi-demo.sh
 

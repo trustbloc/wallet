@@ -8,16 +8,77 @@ SPDX-License-Identifier: Apache-2.0
 package wallet
 
 import (
+	"github.com/hyperledger/aries-framework-go/pkg/controller/command"
 	"github.com/hyperledger/aries-framework-go/pkg/controller/rest"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/context"
 
 	"github.com/trustbloc/edge-agent/pkg/restapi/wallet/chapibridge"
 )
 
+type allOpts struct {
+	webhookURLs  []string
+	defaultLabel string
+	autoAccept   bool
+	msgHandler   command.MessageHandler
+	notifier     command.Notifier
+	walletAppURL string
+}
+
+// Opt represents a controller option.
+type Opt func(opts *allOpts)
+
+// WithWebhookURLs is an option for setting up a webhook dispatcher which will notify clients of events.
+func WithWebhookURLs(webhookURLs ...string) Opt {
+	return func(opts *allOpts) {
+		opts.webhookURLs = webhookURLs
+	}
+}
+
+// WithNotifier is an option for setting up a notifier which will notify clients of events.
+func WithNotifier(notifier command.Notifier) Opt {
+	return func(opts *allOpts) {
+		opts.notifier = notifier
+	}
+}
+
+// WithDefaultLabel is an option allowing for the defaultLabel to be set.
+func WithDefaultLabel(defaultLabel string) Opt {
+	return func(opts *allOpts) {
+		opts.defaultLabel = defaultLabel
+	}
+}
+
+// WithAutoAccept is an option allowing for the auto accept to be set.
+func WithAutoAccept(autoAccept bool) Opt {
+	return func(opts *allOpts) {
+		opts.autoAccept = autoAccept
+	}
+}
+
+// WithMessageHandler is an option allowing for the message handler to be set.
+func WithMessageHandler(handler command.MessageHandler) Opt {
+	return func(opts *allOpts) {
+		opts.msgHandler = handler
+	}
+}
+
+// WithWalletAppURL is an option for setting up wallet APP URL for wallet server.
+func WithWalletAppURL(walletApp string) Opt {
+	return func(opts *allOpts) {
+		opts.walletAppURL = walletApp
+	}
+}
+
 // GetRESTHandlers gets all REST handlers provided by wallet controller.
-func GetRESTHandlers(ctx *context.Provider) ([]rest.Handler, error) { //nolint:interfacer,gocritic
+func GetRESTHandlers(ctx *context.Provider, opts ...Opt) ([]rest.Handler, error) { //nolint:interfacer,gocritic
+	restAPIOpts := &allOpts{}
+	// Apply options
+	for _, opt := range opts {
+		opt(restAPIOpts)
+	}
+
 	// chapiBridge REST controller operations,
-	chapiBridge, err := chapibridge.New(ctx)
+	chapiBridge, err := chapibridge.New(ctx, restAPIOpts.defaultLabel, restAPIOpts.walletAppURL)
 	if err != nil {
 		return nil, err
 	}

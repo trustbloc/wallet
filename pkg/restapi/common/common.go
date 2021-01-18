@@ -9,7 +9,6 @@ package common
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -47,7 +46,9 @@ func WriteErrorResponsef(rw http.ResponseWriter, logger logger, status int, msg 
 }
 
 // WriteResponse writes interface value to response.
-func WriteResponse(rw io.Writer, l logger, v interface{}) {
+func WriteResponse(rw http.ResponseWriter, l logger, v interface{}) {
+	rw.Header().Set("Content-Type", "application/json")
+
 	err := json.NewEncoder(rw).Encode(v)
 	if err != nil {
 		l.Errorf("Unable to send error response, %s", err.Error())

@@ -24,6 +24,7 @@ import (
 	ariescouchdb "github.com/hyperledger/aries-framework-go-ext/component/storage/couchdb"
 	ariesmysql "github.com/hyperledger/aries-framework-go-ext/component/storage/mysql"
 	ariesleveldb "github.com/hyperledger/aries-framework-go/component/storage/leveldb"
+	"github.com/hyperledger/aries-framework-go/pkg/didcomm/messaging/msghandler"
 	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
 	ariesmem "github.com/hyperledger/aries-framework-go/pkg/storage/mem"
 	"github.com/rs/cors"
@@ -79,6 +80,11 @@ const (
 		" external dependencies on startup. Default is 120. Delay between retries is 1s." +
 		" Alternatively, this can be set with the following environment variable: " + dependencyMaxRetriesFlagEnvKey
 	dependencyMaxRetriesDefault = uint64(120) // nolint:gomnd // false positive ("magic number")
+
+	walletAppURLFlagName  = "wallet-app-url"
+	walletAppURLFlagUsage = "Wallet App URL." +
+		" Alternatively, this can be set with the following environment variable: " + walletAppURLEnvKey
+	walletAppURLEnvKey = "WALLET_APP_URL"
 
 	oidcBasePath    = "/oidc/"
 	healthCheckPath = "/healthcheck"
@@ -219,6 +225,7 @@ type httpServerParameters struct {
 	hubAuthURL           string
 	agentUIURL           string
 	logLevel             string
+	walletAppURL         string
 	agent                *agentParameters
 }
 
@@ -327,6 +334,11 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				return err
 			}
 
+			walletAppURL, err := cmdutils.GetUserSetVarFromString(cmd, walletAppURLFlagName, walletAppURLEnvKey, true)
+			if err != nil {
+				return err
+			}
+
 			parameters := &httpServerParameters{
 				dependencyMaxRetries: retries,
 				srv:                  srv,
@@ -340,6 +352,7 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				hubAuthURL:           hubAuthURL,
 				agentUIURL:           agentUIURL,
 				logLevel:             logLevel,
+				walletAppURL:         walletAppURL,
 				agent:                agentParams,
 			}
 
@@ -361,6 +374,7 @@ func createFlags(startCmd *cobra.Command) {
 	startCmd.Flags().StringP(keyEDVURLFlagName, "", "", keyEDVURLFlagUsage)
 	startCmd.Flags().StringP(userEDVURLFlagName, "", "", userEDVURLFlagUsage)
 	startCmd.Flags().StringP(hubAuthURLFlagName, "", "", hubAuthURLFlagUsage)
+	startCmd.Flags().StringP(walletAppURLFlagName, "", "", walletAppURLFlagUsage)
 
 	createOIDCFlags(startCmd)
 	createTLSFlags(startCmd)
@@ -648,6 +662,9 @@ func router(config *httpServerParameters) (http.Handler, error) {
 
 	root.HandleFunc(healthCheckPath, healthCheckHandler).Methods(http.MethodGet)
 
+	// set message handler
+	config.agent.msgHandler = msghandler.NewRegistrar()
+
 	// start agent and get context
 	ctx, err := createAriesAgent(config)
 	if err != nil {
@@ -671,7 +688,9 @@ func router(config *httpServerParameters) (http.Handler, error) {
 	}
 
 	// wallet agent router
-	walletHandlers, err := wallet.GetRESTHandlers(ctx)
+	walletHandlers, err := wallet.GetRESTHandlers(ctx, wallet.WithWebhookURLs(config.agent.webhookURLs...),
+		wallet.WithDefaultLabel(config.agent.defaultLabel), wallet.WithAutoAccept(config.agent.autoAccept),
+		wallet.WithMessageHandler(config.agent.msgHandler), wallet.WithWalletAppURL(config.walletAppURL))
 	if err != nil {
 		return nil, fmt.Errorf("failed to load wallet handlers: %w", err)
 	}

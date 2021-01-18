@@ -13,7 +13,7 @@ import "encoding/json"
 //  Response of out-of-band invitation from wallet server.
 //
 // swagger:response createInvitationResponse
-type createInvitationResponse struct { //nolint: unused,deadcode,gocritic // for open API only
+type createInvitationResponse struct {
 	// in: body
 	URL string `json:"url"`
 }
