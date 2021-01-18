@@ -30,8 +30,13 @@ services:
       - HTTP_SERVER_OPS_KMS_URL=https://demo-oathkeeper-ops-keyserver.trustbloc.local:4462
       - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
-      - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
-      - EDGE_AGENT_DSN_TIMEOUT=45
+      - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${INBOUND_HOST}:8092
+      - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://user-agent.example.com:8092
+      - ARIESD_DEFAULT_LABEL=user-agent
+      - ARIESD_DATABASE_TYPE=mysql
+      - ARIESD_DATABASE_PREFIX=edgeagent_usragdb
+      - ARIESD_DATABASE_TIMEOUT=60
+      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
     ports:
       - 8090:8090
     volumes:
@@ -65,8 +70,13 @@ services:
       - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - VALIDATE_DEVICE_CREDENTIALS=true
-      - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
-      - EDGE_AGENT_DSN_TIMEOUT=45
+      - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${INBOUND_HOST}:9100
+      - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://user-local-agent.example.com:9100
+      - ARIESD_DEFAULT_LABEL=user-local-agent
+      - ARIESD_DATABASE_TYPE=mysql
+      - ARIESD_DATABASE_PREFIX=edgeagent_usrlagdb
+      - ARIESD_DATABASE_TIMEOUT=60
+      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
     ports:
       - 9099:9099
     volumes:
@@ -74,6 +84,7 @@ services:
     command: start
     depends_on:
       - edv.example.com
+      - mysql
 
   second-user-agent.example.com:
     container_name: second-user-agent.example.com
@@ -99,8 +110,13 @@ services:
       - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
       - VALIDATE_DEVICE_CREDENTIALS=true
-      - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
-      - EDGE_AGENT_DSN_TIMEOUT=45
+      - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${INBOUND_HOST}:8072
+      - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://second-user-agent.example.com:8072
+      - ARIESD_DEFAULT_LABEL=second-user-agent
+      - ARIESD_DATABASE_TYPE=mysql
+      - ARIESD_DATABASE_PREFIX=edgeagent_scusragdb
+      - ARIESD_DATABASE_TIMEOUT=60
+      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
     ports:
       - 8070:8070
     volumes:
@@ -108,6 +124,8 @@ services:
     command: start
     depends_on:
       - edv.example.com
+      - mysql
+
 
   bddtest-wallet-web.trustbloc.local:
     container_name: bddtest-wallet-web.trustbloc.local
@@ -133,9 +151,14 @@ services:
       - HTTP_SERVER_KEY_EDV_URL=https://bdd-edv-oathkeeper-proxy:4457/encrypted-data-vaults
       - HTTP_SERVER_USER_EDV_URL=https://bdd-edv-oathkeeper-proxy:4457/encrypted-data-vaults
       - ARIESD_LOG_LEVEL=DEBUG
-      - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
-      - EDGE_AGENT_DSN_TIMEOUT=45
       - VALIDATE_DEVICE_CREDENTIALS=true
+      - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${INBOUND_HOST}:8079
+      - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://bddtest-wallet-web.trustbloc.local:8079
+      - ARIESD_DEFAULT_LABEL=bddtest-wallet-web
+      - ARIESD_DATABASE_TYPE=mysql
+      - ARIESD_DATABASE_PREFIX=edgeagent_bddusragdb
+      - ARIESD_DATABASE_TIMEOUT=60
+      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
     ports:
       - 8077:8077
     volumes:

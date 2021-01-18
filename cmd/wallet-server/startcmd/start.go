@@ -15,14 +15,15 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
 	oidcp "github.com/coreos/go-oidc"
 	"github.com/duo-labs/webauthn/webauthn"
 	"github.com/gorilla/mux"
+	ariescouchdb "github.com/hyperledger/aries-framework-go-ext/component/storage/couchdb"
 	ariesmysql "github.com/hyperledger/aries-framework-go-ext/component/storage/mysql"
+	ariesleveldb "github.com/hyperledger/aries-framework-go/component/storage/leveldb"
 	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
 	ariesmem "github.com/hyperledger/aries-framework-go/pkg/storage/mem"
 	"github.com/rs/cors"
@@ -38,7 +39,6 @@ import (
 )
 
 const (
-	storagePrefix        = "edgeagent"
 	hostURLFlagName      = "host-url"
 	hostURLFlagShorthand = "u"
 	hostURLFlagUsage     = "Host Name:Port." +
@@ -80,29 +80,10 @@ const (
 		" Alternatively, this can be set with the following environment variable: " + dependencyMaxRetriesFlagEnvKey
 	dependencyMaxRetriesDefault = uint64(120) // nolint:gomnd // false positive ("magic number")
 
-	datasourcePersistentFlagName  = "dsn-p"
-	datasourcePersistentFlagUsage = "Persistent datasource Name with credentials if required." +
-		" Format must be <driver>:[//]<driver-specific-dsn>." +
-		" Examples: 'mysql://root:secret@tcp(localhost:3306)/edgeagent', 'mem://test'." +
-		" Supported drivers are [mem, mysql]." +
-		" Alternatively, this can be set with the following environment variable: " + datasourcePersistentEnvKey
-	datasourcePersistentEnvKey = "EDGE_AGENT_DSN_PERSISTENT"
-
-	datasourceTimeoutFlagName  = "dsn-timeout"
-	datasourceTimeoutFlagUsage = "Total time in seconds to wait until the datasource is available before giving up." +
-		" Default: " + string(rune(datasourceTimeoutDefault)) + " seconds." +
-		" Alternatively, this can be set with the following environment variable: " + datasourceTimeoutEnvKey
-	datasourceTimeoutEnvKey  = "EDGE_AGENT_DSN_TIMEOUT"
-	datasourceTimeoutDefault = 30
-
 	oidcBasePath    = "/oidc/"
 	healthCheckPath = "/healthcheck"
 	deviceBasePath  = "/device/"
 	walletBasePath  = "/wallet/"
-)
-
-const (
-	sleep = 1 * time.Second
 )
 
 // Key management config.
@@ -191,13 +172,21 @@ const (
 
 var logger = log.New("edge-agent/wallet-server")
 
-// nolint:gochecknoglobals // we map the <driver> portion of datasource URLs to this map's keys
-var supportedAriesStorageProviders = map[string]func(string, string) (ariesstorage.Provider, error){
-	"mysql": func(dsn, prefix string) (ariesstorage.Provider, error) {
-		return ariesmysql.NewProvider(dsn, ariesmysql.WithDBPrefix(prefix))
-	},
-	"mem": func(_, _ string) (ariesstorage.Provider, error) { // nolint:unparam // memstorage provider never returns error
+// nolint:gochecknoglobals // this is constant map used only for internal purpose.
+var supportedStorageProviders = map[string]func(string, string) (ariesstorage.Provider, error){
+	// nolint:unparam // memstorage provider never returns error
+	databaseTypeMemOption: func(_, _ string) (ariesstorage.Provider, error) {
 		return ariesmem.NewProvider(), nil
+	},
+	// nolint:unparam // leveldb provider never returns error
+	databaseTypeLevelDBOption: func(_, path string) (ariesstorage.Provider, error) {
+		return ariesleveldb.NewProvider(path), nil
+	},
+	databaseTypeCouchDBOption: func(url, prefix string) (ariesstorage.Provider, error) {
+		return ariescouchdb.NewProvider(url, ariescouchdb.WithDBPrefix(prefix))
+	},
+	databaseTypeMYSQLDBOption: func(url, prefix string) (ariesstorage.Provider, error) {
+		return ariesmysql.NewProvider(url, ariesmysql.WithDBPrefix(prefix))
 	},
 }
 
@@ -230,12 +219,7 @@ type httpServerParameters struct {
 	hubAuthURL           string
 	agentUIURL           string
 	logLevel             string
-	datasourceParams     *datasourceParams
-}
-
-type datasourceParams struct {
-	persistentURL string
-	timeout       uint64
+	agent                *agentParameters
 }
 
 type tlsParameters struct {
@@ -338,7 +322,7 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				return fmt.Errorf("hub-auth url : %w", err)
 			}
 
-			dsParams, err := getDatasourceParams(cmd)
+			agentParams, err := getAgentParams(cmd)
 			if err != nil {
 				return err
 			}
@@ -356,7 +340,7 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				hubAuthURL:           hubAuthURL,
 				agentUIURL:           agentUIURL,
 				logLevel:             logLevel,
-				datasourceParams:     dsParams,
+				agent:                agentParams,
 			}
 
 			return startHTTPServer(parameters)
@@ -377,13 +361,12 @@ func createFlags(startCmd *cobra.Command) {
 	startCmd.Flags().StringP(keyEDVURLFlagName, "", "", keyEDVURLFlagUsage)
 	startCmd.Flags().StringP(userEDVURLFlagName, "", "", userEDVURLFlagUsage)
 	startCmd.Flags().StringP(hubAuthURLFlagName, "", "", hubAuthURLFlagUsage)
-	startCmd.Flags().StringP(datasourcePersistentFlagName, "", "", datasourcePersistentFlagUsage)
-	startCmd.Flags().StringP(datasourceTimeoutFlagName, "", "", datasourceTimeoutFlagUsage)
 
 	createOIDCFlags(startCmd)
 	createTLSFlags(startCmd)
 	createKeyFlags(startCmd)
 	createWebAuthFlags(startCmd)
+	createAgentFlags(startCmd)
 }
 
 func createTLSFlags(cmd *cobra.Command) {
@@ -497,36 +480,6 @@ func getOIDCParams(cmd *cobra.Command) (*oidcParameters, error) {
 	}
 
 	return params, nil
-}
-
-func getDatasourceParams(cmd *cobra.Command) (*datasourceParams, error) {
-	params := &datasourceParams{}
-
-	var err error
-
-	params.persistentURL, err = cmdutils.GetUserSetVarFromString(cmd,
-		datasourcePersistentFlagName, datasourcePersistentEnvKey, false)
-	if err != nil {
-		return nil, err
-	}
-
-	timeout, err := cmdutils.GetUserSetVarFromString(cmd, datasourceTimeoutFlagName, datasourceTimeoutEnvKey, true)
-	if err != nil && !strings.Contains(err.Error(), "value is empty") {
-		return nil, fmt.Errorf("failed to configure dsn timeout: %w", err)
-	}
-
-	t := datasourceTimeoutDefault
-
-	if timeout != "" {
-		t, err = strconv.Atoi(timeout)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse dsn timeout %s: %w", timeout, err)
-		}
-	}
-
-	params.timeout = uint64(t)
-
-	return params, err
 }
 
 func getWebAuthParams(cmd *cobra.Command) (*webauthParameters, error) {
@@ -695,28 +648,30 @@ func router(config *httpServerParameters) (http.Handler, error) {
 
 	root.HandleFunc(healthCheckPath, healthCheckHandler).Methods(http.MethodGet)
 
-	oidcRouter := root.PathPrefix(oidcBasePath).Subrouter()
-
-	store, err := initAriesStore(config.datasourceParams.persistentURL, storagePrefix+"_aries",
-		config.datasourceParams.timeout)
+	// start agent and get context
+	ctx, err := createAriesAgent(config)
 	if err != nil {
-		return nil, fmt.Errorf("init aries persistent storage: url %s,  %w", config.datasourceParams.persistentURL, err)
+		return nil, fmt.Errorf("failed to create aries agent: %w", err)
 	}
 
-	err = addOIDCHandlers(oidcRouter, config, store)
+	// OIDC router
+	oidcRouter := root.PathPrefix(oidcBasePath).Subrouter()
+
+	err = addOIDCHandlers(oidcRouter, config, ctx.StorageProvider())
 	if err != nil {
 		return nil, fmt.Errorf("failed to add OIDC handlers: %w", err)
 	}
 
+	// device router
 	deviceRouter := root.PathPrefix(deviceBasePath).Subrouter()
 
-	err = addDeviceHandlers(deviceRouter, config, store)
+	err = addDeviceHandlers(deviceRouter, config, ctx.StorageProvider())
 	if err != nil {
 		return nil, fmt.Errorf("failed to add device handlers: %w", err)
 	}
 
-	// TODO init aries agent here [Issue#637]
-	walletHandlers, err := wallet.GetRESTHandlers(nil)
+	// wallet agent router
+	walletHandlers, err := wallet.GetRESTHandlers(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load wallet handlers: %w", err)
 	}
@@ -809,34 +764,6 @@ func addDeviceHandlers(router *mux.Router, config *httpServerParameters, store a
 	return nil
 }
 
-func initAriesStore(dbURL, prefix string, timeout uint64) (ariesstorage.Provider, error) {
-	driver, dsn, err := getDBParams(dbURL)
-	if err != nil {
-		return nil, err
-	}
-
-	providerFunc, supported := supportedAriesStorageProviders[driver]
-	if !supported {
-		return nil, fmt.Errorf("unsupported storage driver: %s", driver)
-	}
-
-	var store ariesstorage.Provider
-
-	err = retry(func() error {
-		var openErr error
-		store, openErr = providerFunc(dsn, prefix)
-
-		return openErr
-	}, timeout)
-	if err != nil {
-		return nil, fmt.Errorf("ariesstore init - connect to storage at %s pre %s: %w", dsn, prefix, err)
-	}
-
-	logger.Infof("ariesstore init - connected to storage at %s", dsn)
-
-	return store, nil
-}
-
 type healthCheckResp struct {
 	Status      string    `json:"status"`
 	CurrentTime time.Time `json:"currentTime"`
@@ -871,39 +798,4 @@ func setEdgeCoreLogLevel(logLevel string) error {
 	log.SetLevel("", level)
 
 	return nil
-}
-
-func getDBParams(dbURL string) (driver, dsn string, err error) {
-	const (
-		urlParts = 2
-	)
-
-	parsed := strings.SplitN(dbURL, ":", urlParts)
-
-	if len(parsed) != urlParts {
-		return "", "", fmt.Errorf("invalid dbURL %s", dbURL)
-	}
-
-	driver = parsed[0]
-	dsn = strings.TrimPrefix(parsed[1], "//")
-
-	return driver, dsn, nil
-}
-
-func retry(fn func() error, timeout uint64) error {
-	numRetries := uint64(datasourceTimeoutDefault)
-
-	if timeout != 0 {
-		numRetries = timeout
-	}
-
-	return backoff.RetryNotify(
-		fn,
-		backoff.WithMaxRetries(backoff.NewConstantBackOff(sleep), numRetries),
-		func(retryErr error, t time.Duration) {
-			logger.Warnf(
-				"failed to connect to storage, will sleep for %s before trying again : %s\n",
-				t, retryErr)
-		},
-	)
 }
