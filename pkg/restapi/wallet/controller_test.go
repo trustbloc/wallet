@@ -8,6 +8,9 @@ package wallet_test
 import (
 	"testing"
 
+	"github.com/hyperledger/aries-framework-go/pkg/framework/aries"
+	"github.com/hyperledger/aries-framework-go/pkg/framework/aries/api"
+	"github.com/hyperledger/aries-framework-go/pkg/framework/aries/defaults"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/context"
 	"github.com/stretchr/testify/require"
 
@@ -15,8 +18,45 @@ import (
 )
 
 func TestGetRESTHandlers(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
-		_, err := wallet.GetRESTHandlers(&context.Provider{})
+	t.Run("test failure", func(t *testing.T) {
+		ctrl, err := wallet.GetRESTHandlers(&context.Provider{})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), api.ErrSvcNotFound.Error())
+		require.Nil(t, ctrl)
+	})
+
+	t.Run("success", func(t *testing.T) {
+		framework, err := aries.New(defaults.WithInboundHTTPAddr(":26508", "", "", ""))
 		require.NoError(t, err)
+		require.NotNil(t, framework)
+
+		defer func() { require.NoError(t, framework.Close()) }()
+
+		ctx, err := framework.Context()
+		require.NoError(t, err)
+		require.NotNil(t, ctx)
+
+		handlers, err := wallet.GetRESTHandlers(ctx)
+		require.NoError(t, err)
+		require.NotEmpty(t, handlers)
+	})
+
+	t.Run("with options", func(t *testing.T) {
+		framework, err := aries.New(defaults.WithInboundHTTPAddr(":26508", "", "", ""))
+		require.NoError(t, err)
+		require.NotNil(t, framework)
+
+		defer func() { require.NoError(t, framework.Close()) }()
+
+		ctx, err := framework.Context()
+		require.NoError(t, err)
+		require.NotNil(t, ctx)
+
+		handlers, err := wallet.GetRESTHandlers(ctx, wallet.WithWalletAppURL("demoapp"),
+			wallet.WithWebhookURLs("demoURL"), wallet.WithNotifier(nil),
+			wallet.WithMessageHandler(nil), wallet.WithDefaultLabel("test"),
+			wallet.WithAutoAccept(true))
+		require.NoError(t, err)
+		require.NotEmpty(t, handlers)
 	})
 }

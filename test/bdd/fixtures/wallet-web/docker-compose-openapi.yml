@@ -15,4 +15,4 @@ services:
     ports:
       - 8089:8080
     volumes:
-      - ../demo/openapi/specs:/specs
+      - ./demo/openapi/specs:/specs

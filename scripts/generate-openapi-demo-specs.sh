@@ -10,7 +10,7 @@ BASE_SPEC_LOC="${SPEC_PATH}/openAPI.yml"
 DEMO_PATH="${OPENAPI_DEMO_PATH}"
 IMAGE="${DOCKER_IMAGE:-quay.io/goswagger/swagger}"
 IMAGE_VERSION="${DOCKER_IMAGE_VERSION:-latest}"
-OUTPUT_PATH="$DEMO_PATH/specs"
+OUTPUT_PATH="$DEMO_PATH/demo/openapi/specs"
 
 if [ ! -f "$BASE_SPEC_LOC" ]; then
     echo "'$BASE_SPEC_LOC' doesn't exists"
