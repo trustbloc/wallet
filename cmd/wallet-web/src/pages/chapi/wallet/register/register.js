@@ -43,6 +43,8 @@ export class RegisterWallet extends WalletManager {
             failure = e
         }
 
+        await this.agent.store.flush()
+
         if (callback) {
             callback(failure)
         }
