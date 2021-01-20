@@ -10,15 +10,17 @@ package wallet
 import (
 	"github.com/hyperledger/aries-framework-go/pkg/controller/command"
 	"github.com/hyperledger/aries-framework-go/pkg/controller/rest"
+	"github.com/hyperledger/aries-framework-go/pkg/controller/webnotifier"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/context"
 
 	"github.com/trustbloc/edge-agent/pkg/restapi/wallet/chapibridge"
 )
 
+const wsPath = "/ws"
+
 type allOpts struct {
 	webhookURLs  []string
 	defaultLabel string
-	autoAccept   bool
 	msgHandler   command.MessageHandler
 	notifier     command.Notifier
 	walletAppURL string
@@ -48,13 +50,6 @@ func WithDefaultLabel(defaultLabel string) Opt {
 	}
 }
 
-// WithAutoAccept is an option allowing for the auto accept to be set.
-func WithAutoAccept(autoAccept bool) Opt {
-	return func(opts *allOpts) {
-		opts.autoAccept = autoAccept
-	}
-}
-
 // WithMessageHandler is an option allowing for the message handler to be set.
 func WithMessageHandler(handler command.MessageHandler) Opt {
 	return func(opts *allOpts) {
@@ -77,8 +72,13 @@ func GetRESTHandlers(ctx *context.Provider, opts ...Opt) ([]rest.Handler, error)
 		opt(restAPIOpts)
 	}
 
+	notifier := restAPIOpts.notifier
+	if notifier == nil {
+		notifier = webnotifier.New(wsPath, restAPIOpts.webhookURLs)
+	}
+
 	// chapiBridge REST controller operations,
-	chapiBridge, err := chapibridge.New(ctx, restAPIOpts.defaultLabel, restAPIOpts.walletAppURL)
+	chapiBridge, err := chapibridge.New(ctx, notifier, restAPIOpts.defaultLabel, restAPIOpts.walletAppURL)
 	if err != nil {
 		return nil, err
 	}

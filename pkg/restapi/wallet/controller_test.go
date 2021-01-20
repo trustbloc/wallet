@@ -12,6 +12,7 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/framework/aries/api"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/aries/defaults"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/context"
+	mockstorage "github.com/hyperledger/aries-framework-go/pkg/mock/storage"
 	"github.com/stretchr/testify/require"
 
 	"github.com/trustbloc/edge-agent/pkg/restapi/wallet"
@@ -19,7 +20,10 @@ import (
 
 func TestGetRESTHandlers(t *testing.T) {
 	t.Run("test failure", func(t *testing.T) {
-		ctrl, err := wallet.GetRESTHandlers(&context.Provider{})
+		ctx, err := context.New(context.WithStorageProvider(mockstorage.NewMockStoreProvider()))
+		require.NoError(t, err)
+
+		ctrl, err := wallet.GetRESTHandlers(ctx)
 		require.Error(t, err)
 		require.Contains(t, err.Error(), api.ErrSvcNotFound.Error())
 		require.Nil(t, ctrl)
@@ -54,8 +58,7 @@ func TestGetRESTHandlers(t *testing.T) {
 
 		handlers, err := wallet.GetRESTHandlers(ctx, wallet.WithWalletAppURL("demoapp"),
 			wallet.WithWebhookURLs("demoURL"), wallet.WithNotifier(nil),
-			wallet.WithMessageHandler(nil), wallet.WithDefaultLabel("test"),
-			wallet.WithAutoAccept(true))
+			wallet.WithMessageHandler(nil), wallet.WithDefaultLabel("test"))
 		require.NoError(t, err)
 		require.NotEmpty(t, handlers)
 	})

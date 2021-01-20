@@ -14,6 +14,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.2.0
 	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/google/uuid v1.1.2
+	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/sessions v1.2.1
 	github.com/hyperledger/aries-framework-go v0.1.6-0.20201222220949-494657120ff6
 	github.com/igor-pavlenko/httpsignatures-go v0.0.21
