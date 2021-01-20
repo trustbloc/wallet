@@ -24,7 +24,7 @@ REPO_IMAGE_NAME          ?= trustbloc
 all: clean checks unit-test
 
 .PHONY: checks
-checks: license lint generate-openapi-spec
+checks: license lint
 
 .PHONY: lint
 lint:
