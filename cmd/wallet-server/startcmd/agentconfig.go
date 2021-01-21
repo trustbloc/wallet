@@ -131,13 +131,6 @@ const (
 		" This flag can be repeated, allowing to configure multiple inbound transports." +
 		" Alternatively, this can be set with the following environment variable: " + agentInboundHostExternalEnvKey
 
-	// auto accept flag.
-	agentAutoAcceptFlagName  = "auto-accept"
-	agentAutoAcceptEnvKey    = "ARIESD_AUTO_ACCEPT"
-	agentAutoAcceptFlagUsage = "Auto accept requests." +
-		" Possible values [true] [false]. Defaults to false if not set." +
-		" Alternatively, this can be set with the following environment variable: " + agentAutoAcceptEnvKey
-
 	// transport return route option flag.
 	agentTransportReturnRouteFlagName  = "transport-return-route"
 	agentTransportReturnRouteEnvKey    = "ARIESD_TRANSPORT_RETURN_ROUTE"
@@ -167,7 +160,6 @@ type agentParameters struct {
 	outboundTransports   []string
 	inboundHostInternals []string
 	inboundHostExternals []string
-	autoAccept           bool
 	msgHandler           command.MessageHandler
 	dbParam              *dbParam
 }
@@ -206,12 +198,6 @@ func getAgentParams(cmd *cobra.Command) (*agentParameters, error) {
 		agentDefaultLabelEnvKey, true)
 	if err != nil {
 		return nil, err
-	}
-
-	autoAccept, err := getAutoAcceptValue(cmd)
-	if err != nil {
-		return nil, fmt.Errorf("auto accept not set to a valid type." +
-			" run start --help to see the available options")
 	}
 
 	webhookURLs, err := cmdutils.GetUserSetVarFromArrayString(cmd, agentWebhookFlagName,
@@ -261,7 +247,6 @@ func getAgentParams(cmd *cobra.Command) (*agentParameters, error) {
 		trustblocDomain:      trustblocDomain,
 		trustblocResolver:    trustblocResolver,
 		outboundTransports:   outboundTransports,
-		autoAccept:           autoAccept,
 		transportReturnRoute: transportReturnRoute,
 	}, nil
 }
@@ -303,19 +288,6 @@ func getDBParam(cmd *cobra.Command) (*dbParam, error) {
 	dbParam.timeout = uint64(t)
 
 	return dbParam, nil
-}
-
-func getAutoAcceptValue(cmd *cobra.Command) (bool, error) {
-	v, err := cmdutils.GetUserSetVarFromString(cmd, agentAutoAcceptFlagName, agentAutoAcceptEnvKey, true)
-	if err != nil {
-		return false, err
-	}
-
-	if v == "" {
-		return false, nil
-	}
-
-	return strconv.ParseBool(v)
 }
 
 func createAgentFlags(cmd *cobra.Command) {
@@ -360,9 +332,6 @@ func createAgentFlags(cmd *cobra.Command) {
 	// agent outbound transport flag
 	cmd.Flags().StringSliceP(agentOutboundTransportFlagName, agentOutboundTransportFlagShorthand, []string{},
 		agentOutboundTransportFlagUsage)
-
-	// auto accept flag
-	cmd.Flags().StringP(agentAutoAcceptFlagName, "", "", agentAutoAcceptFlagUsage)
 
 	// transport return route option flag
 	cmd.Flags().StringP(agentTransportReturnRouteFlagName, "", "", agentTransportReturnRouteFlagUsage)

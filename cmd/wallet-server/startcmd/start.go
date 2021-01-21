@@ -689,8 +689,8 @@ func router(config *httpServerParameters) (http.Handler, error) {
 
 	// wallet agent router
 	walletHandlers, err := wallet.GetRESTHandlers(ctx, wallet.WithWebhookURLs(config.agent.webhookURLs...),
-		wallet.WithDefaultLabel(config.agent.defaultLabel), wallet.WithAutoAccept(config.agent.autoAccept),
-		wallet.WithMessageHandler(config.agent.msgHandler), wallet.WithWalletAppURL(config.walletAppURL))
+		wallet.WithDefaultLabel(config.agent.defaultLabel), wallet.WithMessageHandler(config.agent.msgHandler),
+		wallet.WithWalletAppURL(config.walletAppURL))
 	if err != nil {
 		return nil, fmt.Errorf("failed to load wallet handlers: %w", err)
 	}

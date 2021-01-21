@@ -8,6 +8,19 @@ package chapibridge
 
 import "encoding/json"
 
+// createInvitationRequest model
+//
+// Request for creating wallet server invitation.
+//
+// swagger:parameters createInvitation
+type createInvitationRequest struct {
+	// in: body
+	Body struct {
+		// required: true
+		UserID string `json:"userID"`
+	}
+}
+
 // createInvitationResponse model
 //
 //  Response of out-of-band invitation from wallet server.
@@ -18,14 +31,13 @@ type createInvitationResponse struct {
 	URL string `json:"url"`
 }
 
-// requestApplicationProfile model
+// applicationProfileRequest model
 //
 // Request for querying wallet application profile ID for given user from wallet server.
 //
-// swagger:parameters requestAppProfile
-type requestApplicationProfile struct { //nolint: unused,deadcode,gocritic // for open API only
-	// in: body
-	// required: true
+// swagger:parameters applicationProfileRequest
+type applicationProfileRequest struct { //nolint: unused,deadcode,gocritic // for open API only
+	// in: path
 	ID string `json:"id"`
 }
 
@@ -34,11 +46,14 @@ type requestApplicationProfile struct { //nolint: unused,deadcode,gocritic // fo
 // Response containing wallet application profile of user requested.
 //
 // swagger:response appProfileResponse
-type applicationProfileResponse struct { //nolint: unused,deadcode,gocritic // for open API only
+type applicationProfileResponse struct {
+	// InvitationID of invitation used to create profile.
 	// in: body
-	ProfileID string `json:"profile_id"`
+	InvitationID string `json:"invitationID"`
 
-	// TODO: add more wallet application profile details [#633]
+	// ConnectionStatus is DIDComm connection status of the profile.
+	// in: body
+	ConnectionStatus string `json:"status"`
 }
 
 // chapiRequest model
@@ -50,8 +65,8 @@ type chapiRequest struct { //nolint: unused,deadcode,gocritic // for open API on
 	// required: true
 	// in: body
 	Body struct {
-		ProfileID string          `json:"profile_id"`
-		Request   json.RawMessage `json:"chapi_request"`
+		ProfileID string          `json:"profileID"`
+		Request   json.RawMessage `json:"chapiRequest"`
 	}
 }
 
@@ -63,8 +78,8 @@ type chapiRequest struct { //nolint: unused,deadcode,gocritic // for open API on
 type chapiResponse struct { //nolint: unused,deadcode,gocritic // for open API only
 	// in: body
 	Body struct {
-		ProfileID string `json:"profile_id"`
+		ProfileID string `json:"profileID"`
 
-		Response json.RawMessage `json:"chapi_response"`
+		Response json.RawMessage `json:"chapiResponse"`
 	}
 }

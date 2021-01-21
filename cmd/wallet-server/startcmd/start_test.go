@@ -224,20 +224,6 @@ func TestStartCmdWithInvalidAgentArgs(t *testing.T) {
 		require.Contains(t, err.Error(), "failed to parse db timeout")
 	})
 
-	t.Run("test invalid auto accept", func(t *testing.T) {
-		startCmd := GetStartCmd(&mockServer{})
-
-		argMap := validArgs(t)
-		argMap[agentAutoAcceptFlagName] = "-%"
-		args := argArray(argMap)
-
-		startCmd.SetArgs(args)
-
-		err := startCmd.Execute()
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "auto accept not set to a valid type")
-	})
-
 	t.Run("test invalid http resolver", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
