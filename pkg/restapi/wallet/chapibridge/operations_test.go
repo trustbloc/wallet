@@ -18,10 +18,12 @@ import (
 	didexchangesvc "github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/didexchange"
 	mediatorsvc "github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/mediator"
 	outofbandsvc "github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/outofband"
+	mockmsghandler "github.com/hyperledger/aries-framework-go/pkg/mock/didcomm/msghandler"
 	mockdidexchange "github.com/hyperledger/aries-framework-go/pkg/mock/didcomm/protocol/didexchange"
 	mockmediator "github.com/hyperledger/aries-framework-go/pkg/mock/didcomm/protocol/mediator"
 	mockkms "github.com/hyperledger/aries-framework-go/pkg/mock/kms"
 	mockstorage "github.com/hyperledger/aries-framework-go/pkg/mock/storage"
+	"github.com/hyperledger/aries-framework-go/pkg/store/connection"
 	"github.com/stretchr/testify/require"
 
 	"github.com/trustbloc/edge-agent/pkg/restapi/internal/mocks"
@@ -35,7 +37,8 @@ const (
 
 func TestNew(t *testing.T) {
 	t.Run("create new instance - success", func(t *testing.T) {
-		op, err := New(newMockProvider(), mocks.NewMockNotifier(), "test", "demo")
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
 
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
@@ -46,7 +49,8 @@ func TestNew(t *testing.T) {
 		prov := newMockProvider()
 		delete(prov.ServiceMap, outofbandsvc.Name)
 
-		op, err := New(prov, mocks.NewMockNotifier(), "test", "demo")
+		op, err := New(prov, mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
 
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "failed to create out-of-band client")
@@ -57,7 +61,8 @@ func TestNew(t *testing.T) {
 		prov := newMockProvider()
 		delete(prov.ServiceMap, didexchangesvc.DIDExchange)
 
-		op, err := New(prov, mocks.NewMockNotifier(), "test", "demo")
+		op, err := New(prov, mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
 
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "failed to create did-exchange client")
@@ -70,7 +75,8 @@ func TestNew(t *testing.T) {
 		storageProv.ErrOpenStoreHandle = fmt.Errorf(sampleErr)
 		prov.StoreProvider = storageProv
 
-		op, err := New(prov, mocks.NewMockNotifier(), "test", "demo")
+		op, err := New(prov, mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
 
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "failed to open wallet profile store")
@@ -84,7 +90,8 @@ func TestNew(t *testing.T) {
 		didexSvc.RegisterActionEventErr = fmt.Errorf(sampleErr)
 		prov.ServiceMap[didexchangesvc.DIDExchange] = didexSvc
 
-		op, err := New(prov, mocks.NewMockNotifier(), "test", "demo")
+		op, err := New(prov, mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
 
 		require.Error(t, err)
 		require.Empty(t, op)
@@ -97,11 +104,26 @@ func TestNew(t *testing.T) {
 		didexSvc.RegisterMsgEventErr = fmt.Errorf(sampleErr)
 		prov.ServiceMap[didexchangesvc.DIDExchange] = didexSvc
 
-		op, err := New(prov, mocks.NewMockNotifier(), "test", "demo")
+		op, err := New(prov, mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
 
 		require.Error(t, err)
 		require.Empty(t, op)
 		require.Contains(t, err.Error(), "failed to register events")
+	})
+
+	t.Run("create new instance - init messenger failure", func(t *testing.T) {
+		prov := newMockProvider()
+		prov.StoreProvider = &mockstorage.MockStoreProvider{
+			FailNamespace: "didexchange",
+		}
+
+		op, err := New(prov, mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
+
+		require.Error(t, err)
+		require.Empty(t, op)
+		require.Contains(t, err.Error(), "failed to create messenger client")
 	})
 }
 
@@ -111,7 +133,8 @@ func TestOperation_CreateInvitation(t *testing.T) {
 	const sampleInvalidRequest = `{"userID": ""}`
 
 	t.Run("create new invitation - success", func(t *testing.T) {
-		op, err := New(newMockProvider(), mocks.NewMockNotifier(), "sample-agent", sampleAppURL)
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
 
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
@@ -132,7 +155,8 @@ func TestOperation_CreateInvitation(t *testing.T) {
 			SaveInvitationErr: fmt.Errorf(sampleErr),
 		}
 
-		op, err := New(prov, mocks.NewMockNotifier(), "sample-agent", sampleAppURL)
+		op, err := New(prov, mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
 
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
@@ -148,7 +172,8 @@ func TestOperation_CreateInvitation(t *testing.T) {
 	})
 
 	t.Run("create new invitation - failure - validation error", func(t *testing.T) {
-		op, err := New(newMockProvider(), mocks.NewMockNotifier(), "sample-agent", sampleAppURL)
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
 
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
@@ -164,7 +189,8 @@ func TestOperation_CreateInvitation(t *testing.T) {
 	})
 
 	t.Run("create new invitation - failure - invalid request", func(t *testing.T) {
-		op, err := New(newMockProvider(), mocks.NewMockNotifier(), "sample-agent", sampleAppURL)
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
 
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
@@ -185,7 +211,8 @@ func TestOperation_CreateInvitation(t *testing.T) {
 		storageProv.Store.ErrPut = fmt.Errorf(sampleErr)
 		prov.StoreProvider = storageProv
 
-		op, err := New(prov, mocks.NewMockNotifier(), "sample-agent", sampleAppURL)
+		op, err := New(prov, mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
 
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
@@ -205,7 +232,8 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 	const pathFmt = "/wallet/%s/request-app-profile"
 
 	t.Run("create application profile - success", func(t *testing.T) {
-		op, err := New(newMockProvider(), mocks.NewMockNotifier(), "sample-agent", sampleAppURL)
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
 
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
@@ -232,7 +260,8 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 	})
 
 	t.Run("create application profile - success but status not completed", func(t *testing.T) {
-		op, err := New(newMockProvider(), mocks.NewMockNotifier(), "sample-agent", sampleAppURL)
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
 
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
@@ -259,7 +288,8 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 	})
 
 	t.Run("create application profile - invalid id", func(t *testing.T) {
-		op, err := New(newMockProvider(), mocks.NewMockNotifier(), "sample-agent", sampleAppURL)
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
 
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
@@ -278,7 +308,8 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 	})
 
 	t.Run("create application profile - profile not found", func(t *testing.T) {
-		op, err := New(newMockProvider(), mocks.NewMockNotifier(), "sample-agent", sampleAppURL)
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
 
@@ -295,7 +326,8 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 	})
 
 	t.Run("test didexchange completed", func(t *testing.T) {
-		op, err := New(newMockProvider(), mocks.NewMockNotifier(), "sample-agent", sampleAppURL)
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
 
@@ -339,7 +371,8 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 		storageProv.Store.ErrPut = fmt.Errorf(sampleErr)
 		prov.StoreProvider = storageProv
 
-		op, err := New(prov, mocks.NewMockNotifier(), "sample-agent", sampleAppURL)
+		op, err := New(prov, mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
 
@@ -362,7 +395,8 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 	})
 
 	t.Run("test didexchange not completed", func(t *testing.T) {
-		op, err := New(newMockProvider(), mocks.NewMockNotifier(), "sample-agent", sampleAppURL)
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
 		require.NoError(t, err)
 		require.NotEmpty(t, op)
 
@@ -407,16 +441,192 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 }
 
 func TestOperation_SendCHAPIRequest(t *testing.T) {
-	op, err := New(newMockProvider(), mocks.NewMockNotifier(), "test", "demo")
+	const chapiRequestSample = `{
+			"userID": "userID-001",
+			"chapiRequest" : {
+				"web": {
+        			"VerifiablePresentation": {
+            			"query": {
+                			"type": "DIDAuth"
+            			}
+        			}
+    			}
+			}
+		}`
 
-	require.NoError(t, err)
-	require.NotEmpty(t, op)
+	const chapiResponseSample = `{
+  	"@context": [
+    	"https://www.w3.org/2018/credentials/v1"
+  	],
+  	"holder": "did:trustbloc:4vSjd:EiCpyXBU6bBluyIBkDGLFEIJ5wqqfcSIXgqSLSV19f-e2g",
+  	"proof": {
+    		"challenge": "487c6f9b-b2c5-4c64-be01-eac663797ea9",
+    		"created": "2021-01-21T17:56:35.838-05:00",
+    		"domain": "example.com",
+    		"jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiLMNik59d8p4MsdpaBA",
+			"proofPurpose": "authentication",
+    		"type": "Ed25519Signature2018",
+    		"verificationMethod": "did:trustbloc:4vSjd:EiCpyXBU6bBluyIBk1HM"
+		},
+	"type": "VerifiablePresentation"
+	}`
 
-	rw := httptest.NewRecorder()
-	rq := httptest.NewRequest(http.MethodGet, commandName+SendCHAPIRequest, nil)
-	op.SendCHAPIRequest(rw, rq)
-	require.Contains(t, rw.Body.String(), `{"errMessage":"To be implemented !"}`)
-	require.Equal(t, rw.Code, http.StatusNotImplemented)
+	const responseMsg = `
+						{
+							"@id": "EiCpyXBU6bBluy",
+							"@type": "%s",
+							"data": %s,
+							"~thread" : {"thid": "%s"}
+						}
+					`
+
+	t.Run("test send CHAPI request - validation errors", func(t *testing.T) {
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
+
+		require.NoError(t, err)
+		require.NotEmpty(t, op)
+
+		// test missing user ID
+		rw := httptest.NewRecorder()
+		rq := httptest.NewRequest(http.MethodPost, commandName+SendCHAPIRequest, bytes.NewBufferString(`{}`))
+		op.SendCHAPIRequest(rw, rq)
+
+		require.Equal(t, rw.Code, http.StatusBadRequest)
+		require.Contains(t, rw.Body.String(), invalidIDErr)
+
+		// test missing CHAPI request
+		rw = httptest.NewRecorder()
+		rq = httptest.NewRequest(http.MethodPost, commandName+SendCHAPIRequest, bytes.NewBufferString(`{
+			"userID": "sample-001"
+		}`))
+		op.SendCHAPIRequest(rw, rq)
+
+		require.Equal(t, rw.Code, http.StatusBadRequest)
+		require.Contains(t, rw.Body.String(), invalidCHAPIRequestErr)
+
+		// test invalid request
+		rw = httptest.NewRecorder()
+		rq = httptest.NewRequest(http.MethodPost, commandName+SendCHAPIRequest, bytes.NewBufferString(`---`))
+		op.SendCHAPIRequest(rw, rq)
+
+		require.Equal(t, rw.Code, http.StatusBadRequest)
+		require.Contains(t, rw.Body.String(), "invalid character")
+	})
+
+	t.Run("test send CHAPI request - missing profile", func(t *testing.T) {
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
+
+		require.NoError(t, err)
+		require.NotEmpty(t, op)
+
+		rw := httptest.NewRecorder()
+		rq := httptest.NewRequest(http.MethodPost, commandName+SendCHAPIRequest, bytes.NewBufferString(chapiRequestSample))
+		op.SendCHAPIRequest(rw, rq)
+
+		require.Equal(t, rw.Code, http.StatusBadRequest)
+		require.Contains(t, rw.Body.String(), "failed to get wallet application profile by user ID")
+	})
+
+	t.Run("test send CHAPI request - connection not found", func(t *testing.T) {
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
+
+		require.NoError(t, err)
+		require.NotEmpty(t, op)
+
+		err = op.store.SaveProfile(sampleUserID, &walletAppProfile{InvitationID: sampleInvID})
+		require.NoError(t, err)
+
+		rw := httptest.NewRecorder()
+		rq := httptest.NewRequest(http.MethodPost, commandName+SendCHAPIRequest, bytes.NewBufferString(chapiRequestSample))
+		op.SendCHAPIRequest(rw, rq)
+
+		require.Equal(t, rw.Code, http.StatusInternalServerError)
+		require.Contains(t, rw.Body.String(), "failed to find connection with existing wallet profile")
+	})
+
+	t.Run("test send CHAPI request - message send error", func(t *testing.T) {
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
+
+		require.NoError(t, err)
+		require.NotEmpty(t, op)
+
+		err = op.store.SaveProfile(sampleUserID, &walletAppProfile{InvitationID: sampleInvID, ConnectionID: sampleConnID})
+		require.NoError(t, err)
+
+		rw := httptest.NewRecorder()
+		rq := httptest.NewRequest(http.MethodPost, commandName+SendCHAPIRequest, bytes.NewBufferString(chapiRequestSample))
+		op.SendCHAPIRequest(rw, rq)
+
+		require.Equal(t, rw.Code, http.StatusInternalServerError)
+		require.Contains(t, rw.Body.String(), fmt.Sprintf(failedToSendCHAPIRequestErr, "data not found"))
+	})
+
+	t.Run("test send CHAPI request - success", func(t *testing.T) {
+		prov := newMockProvider()
+
+		connBytes, err := json.Marshal(&connection.Record{
+			ConnectionID: sampleConnID,
+			State:        "completed", MyDID: "mydid", TheirDID: "theirDID-001",
+		})
+		require.NoError(t, err)
+
+		mockStore := &mockstorage.MockStore{Store: make(map[string][]byte)}
+		require.NoError(t, mockStore.Put("conn_"+sampleConnID, connBytes))
+		prov.StoreProvider = mockstorage.NewCustomMockStoreProvider(mockStore)
+
+		registrar := mockmsghandler.NewMockMsgServiceProvider()
+		mockMessenger := mockprotocol.NewMockMessenger()
+		prov.CustomMessenger = mockMessenger
+
+		go func() {
+			for {
+				if len(registrar.Services()) > 0 && mockMessenger.GetLastID() != "" { //nolint: gocritic
+					replyMsg, e := service.ParseDIDCommMsgMap([]byte(
+						fmt.Sprintf(responseMsg, chapiRespDIDCommMsgType, chapiResponseSample, mockMessenger.GetLastID()),
+					))
+					require.NoError(t, e)
+
+					_, e = registrar.Services()[0].HandleInbound(replyMsg, "sampleDID", "sampleTheirDID")
+					require.NoError(t, e)
+
+					break
+				}
+			}
+		}()
+
+		op, err := New(prov, mocks.NewMockNotifier(), registrar, "test", "demo")
+
+		require.NoError(t, err)
+		require.NotEmpty(t, op)
+
+		err = op.store.SaveProfile(sampleUserID, &walletAppProfile{InvitationID: sampleInvID, ConnectionID: sampleConnID})
+		require.NoError(t, err)
+
+		rw := httptest.NewRecorder()
+		rq := httptest.NewRequest(http.MethodPost, commandName+SendCHAPIRequest, bytes.NewBufferString(`{
+			"userID": "userID-001",
+			"chapiRequest" : {
+				"web": {
+        			"VerifiablePresentation": {
+            			"query": {
+                			"type": "DIDAuth"
+            			}
+        			}
+    			}
+			}
+		}`))
+		op.SendCHAPIRequest(rw, rq)
+
+		require.Equal(t, rw.Code, http.StatusOK)
+
+		var response chapiResponse
+		require.NoError(t, json.Unmarshal(rw.Body.Bytes(), &response))
+		require.JSONEq(t, string(response.Body.Response), chapiResponseSample, "")
+	})
 }
 
 func newMockProvider() *mockprotocol.MockProvider {

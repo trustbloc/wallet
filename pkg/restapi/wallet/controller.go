@@ -78,7 +78,8 @@ func GetRESTHandlers(ctx *context.Provider, opts ...Opt) ([]rest.Handler, error)
 	}
 
 	// chapiBridge REST controller operations,
-	chapiBridge, err := chapibridge.New(ctx, notifier, restAPIOpts.defaultLabel, restAPIOpts.walletAppURL)
+	chapiBridge, err := chapibridge.New(ctx, notifier, restAPIOpts.msgHandler,
+		restAPIOpts.defaultLabel, restAPIOpts.walletAppURL)
 	if err != nil {
 		return nil, err
 	}
