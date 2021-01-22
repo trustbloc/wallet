@@ -6,7 +6,10 @@ SPDX-License-Identifier: Apache-2.0
 
 package chapibridge
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"time"
+)
 
 // createInvitationRequest model
 //
@@ -61,12 +64,16 @@ type applicationProfileResponse struct {
 // CHAPI request to be sent to given wallet application.
 //
 // swagger:parameters chapiRequest
-type chapiRequest struct { //nolint: unused,deadcode,gocritic // for open API only
+type chapiRequest struct {
 	// required: true
 	// in: body
 	Body struct {
-		ProfileID string          `json:"profileID"`
-		Request   json.RawMessage `json:"chapiRequest"`
+		// UserID of wallet application profile.
+		UserID string `json:"userID"`
+		// Request is credential handler request to be sent out.
+		Request json.RawMessage `json:"chapiRequest"`
+		// Timeout (in milliseconds) waiting for reply.
+		Timeout time.Duration `json:"timeout,omitempty"`
 	}
 }
 
@@ -75,11 +82,9 @@ type chapiRequest struct { //nolint: unused,deadcode,gocritic // for open API on
 // CHAPI response from requested wallet application.
 //
 // swagger:response chapiResponse
-type chapiResponse struct { //nolint: unused,deadcode,gocritic // for open API only
+type chapiResponse struct {
 	// in: body
 	Body struct {
-		ProfileID string `json:"profileID"`
-
 		Response json.RawMessage `json:"chapiResponse"`
 	}
 }

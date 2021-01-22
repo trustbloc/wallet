@@ -8,19 +8,25 @@ SPDX-License-Identifier: Apache-2.0
 package chapibridge
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/hyperledger/aries-framework-go/pkg/client/didexchange"
+	"github.com/hyperledger/aries-framework-go/pkg/client/messaging"
 	"github.com/hyperledger/aries-framework-go/pkg/client/outofband"
 	"github.com/hyperledger/aries-framework-go/pkg/controller/command"
 	"github.com/hyperledger/aries-framework-go/pkg/controller/rest"
 	"github.com/hyperledger/aries-framework-go/pkg/controller/webnotifier"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/common/service"
 	didexchangesvc "github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/didexchange"
+	"github.com/hyperledger/aries-framework-go/pkg/framework/aries/api/vdr"
 	"github.com/hyperledger/aries-framework-go/pkg/kms"
 	"github.com/hyperledger/aries-framework-go/pkg/storage"
 	"github.com/trustbloc/edge-core/pkg/log"
@@ -38,10 +44,18 @@ const (
 	RequestCHAPIAppProfile = "/{id}/request-app-profile"
 	SendCHAPIRequest       = "/send-chapi-request"
 
-	invalidIDErr = "invalid ID"
+	invalidIDErr                = "invalid ID"
+	invalidCHAPIRequestErr      = "invalid CHAPI request"
+	failedToSendCHAPIRequestErr = "failed to send CHAPI request: %s"
+	noConnectionFoundErr        = "failed to find connection with existing wallet profile"
 
 	_actions = "_actions"
 	_states  = "_states"
+
+	chapiRqstDIDCommMsgType = "https://trustbloc.dev/chapi/1.0/request"
+	chapiRespDIDCommMsgType = "https://trustbloc.dev/chapi/1.0/response"
+
+	defaultSendMsgTimeout = 20 * time.Second
 )
 
 // Operation is REST service operation controller for CHAPI bridge features.
@@ -52,22 +66,31 @@ type Operation struct {
 	store        *walletAppProfileStore
 	outOfBand    *outofband.Client
 	didExchange  *didexchange.Client
+	messenger    *messaging.Client
 }
 
 // Provider describes dependencies for this command.
 type Provider interface {
 	ServiceEndpoint() string
 	Service(id string) (interface{}, error)
+	VDRegistry() vdr.Registry
+	Messenger() service.Messenger
 	KMS() kms.KeyManager
 	StorageProvider() storage.Provider
 	ProtocolStateStorageProvider() storage.Provider
 }
 
 // New returns new CHAPI bridge REST controller instance.
-func New(p Provider, notifier command.Notifier, defaultLabel, walletAppURL string) (*Operation, error) {
+func New(p Provider, notifier command.Notifier, msgHandler command.MessageHandler,
+	defaultLabel, walletAppURL string) (*Operation, error) {
 	store, err := newWalletAppProfileStore(p.StorageProvider())
 	if err != nil {
 		return nil, fmt.Errorf("failed to open wallet profile store : %w", err)
+	}
+
+	messengerClient, err := messaging.New(p, msgHandler, notifier)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create messenger client : %w", err)
 	}
 
 	outOfBandClient, err := outofband.New(p)
@@ -86,6 +109,7 @@ func New(p Provider, notifier command.Notifier, defaultLabel, walletAppURL strin
 		store:        store,
 		outOfBand:    outOfBandClient,
 		didExchange:  didExchangeClient,
+		messenger:    messengerClient,
 	}
 
 	err = o.setupEventHandlers(notifier)
@@ -215,9 +239,70 @@ func (o *Operation) RequestApplicationProfile(rw http.ResponseWriter, req *http.
 // Responses:
 //    default: genericError
 //    200: chapiResponse
-func (o *Operation) SendCHAPIRequest(rw http.ResponseWriter, req *http.Request) {
-	// TODO : to be implemented [#633]
-	common.WriteErrorResponsef(rw, logger, http.StatusNotImplemented, "To be implemented !")
+func (o *Operation) SendCHAPIRequest(rw http.ResponseWriter, req *http.Request) { // nolint: funlen,gocritic
+	request, err := prepareCHAPIRequest(req.Body)
+	if err != nil {
+		logutil.LogError(logger, commandName, SendCHAPIRequest, err.Error())
+		common.WriteErrorResponsef(rw, logger, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	profile, err := o.store.GetProfileByUserID(request.Body.UserID)
+	if err != nil {
+		logutil.LogError(logger, commandName, SendCHAPIRequest, err.Error())
+		common.WriteErrorResponsef(rw, logger, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	if profile.ConnectionID == "" {
+		logutil.LogError(logger, commandName, SendCHAPIRequest, noConnectionFoundErr)
+		common.WriteErrorResponsef(rw, logger, http.StatusInternalServerError, noConnectionFoundErr)
+
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), request.Body.Timeout)
+	defer cancel()
+
+	msgBytes, err := json.Marshal(map[string]interface{}{
+		"@id":   uuid.New().String(),
+		"@type": chapiRqstDIDCommMsgType,
+		"data":  request.Body.Request,
+	})
+	if err != nil {
+		logutil.LogError(logger, commandName, SendCHAPIRequest, err.Error())
+		common.WriteErrorResponsef(rw, logger, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	responseBytes, err := o.messenger.Send(msgBytes,
+		messaging.SendByConnectionID(profile.ConnectionID),
+		messaging.WaitForResponse(ctx, chapiRespDIDCommMsgType))
+	if err != nil {
+		logutil.LogError(logger, commandName, SendCHAPIRequest, fmt.Sprintf(failedToSendCHAPIRequestErr, err))
+		common.WriteErrorResponsef(rw, logger, http.StatusInternalServerError, fmt.Sprintf(failedToSendCHAPIRequestErr, err))
+
+		return
+	}
+
+	response, err := extractCHAPIResponse(responseBytes)
+	if err != nil {
+		logutil.LogError(logger, commandName, SendCHAPIRequest, err.Error())
+		common.WriteErrorResponsef(rw, logger, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	common.WriteResponse(rw, logger, &chapiResponse{
+		Body: struct {
+			Response json.RawMessage `json:"chapiResponse"`
+		}{Response: response},
+	})
+
+	logutil.LogInfo(logger, commandName, CreateInvitationPath, "handled CHAPI request successfully")
 }
 
 func (o *Operation) setupEventHandlers(notifier command.Notifier) error {
@@ -292,4 +377,42 @@ func (o *Operation) stateMsgListener(ch <-chan service.StateMsg) {
 			logger.Warnf("Failed to update wallet application profile: %w", err)
 		}
 	}
+}
+
+func prepareCHAPIRequest(r io.Reader) (*chapiRequest, error) {
+	var request chapiRequest
+
+	err := json.NewDecoder(r).Decode(&request.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if request.Body.UserID == "" {
+		return nil, fmt.Errorf(invalidIDErr)
+	}
+
+	if len(request.Body.Request) == 0 {
+		return nil, fmt.Errorf(invalidCHAPIRequestErr)
+	}
+
+	if request.Body.Timeout == 0 {
+		request.Body.Timeout = defaultSendMsgTimeout
+	}
+
+	return &request, nil
+}
+
+func extractCHAPIResponse(msgBytes []byte) (json.RawMessage, error) {
+	var response struct {
+		Message struct {
+			Data json.RawMessage
+		}
+	}
+
+	err := json.Unmarshal(msgBytes, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response.Message.Data, nil
 }

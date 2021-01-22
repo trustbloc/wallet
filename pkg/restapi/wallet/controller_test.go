@@ -20,7 +20,8 @@ import (
 
 func TestGetRESTHandlers(t *testing.T) {
 	t.Run("test failure", func(t *testing.T) {
-		ctx, err := context.New(context.WithStorageProvider(mockstorage.NewMockStoreProvider()))
+		ctx, err := context.New(context.WithStorageProvider(mockstorage.NewMockStoreProvider()),
+			context.WithProtocolStateStorageProvider(mockstorage.NewMockStoreProvider()))
 		require.NoError(t, err)
 
 		ctrl, err := wallet.GetRESTHandlers(ctx)
