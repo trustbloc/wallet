@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 	"github.com/hyperledger/aries-framework-go/pkg/client/didexchange"
 	"github.com/hyperledger/aries-framework-go/pkg/client/messaging"
 	"github.com/hyperledger/aries-framework-go/pkg/client/outofband"
@@ -39,10 +38,10 @@ var logger = log.New("wallet/chapi-bridge")
 
 // constants for endpoints of wallet server CHAPI bridge controller.
 const (
-	commandName            = "/wallet"
-	CreateInvitationPath   = "/create-invitation"
-	RequestCHAPIAppProfile = "/{id}/request-app-profile"
-	SendCHAPIRequest       = "/send-chapi-request"
+	commandName          = "/wallet"
+	CreateInvitationPath = "/create-invitation"
+	RequestAppProfile    = "/request-app-profile"
+	SendCHAPIRequest     = "/send-chapi-request"
 
 	invalidIDErr                = "invalid ID"
 	invalidCHAPIRequestErr      = "invalid CHAPI request"
@@ -132,7 +131,7 @@ func (o *Operation) registerHandler() {
 	// Add more protocol endpoints here to expose them as REST controller endpoints
 	o.handlers = []rest.Handler{
 		common.NewHTTPHandler(CreateInvitationPath, http.MethodPost, o.CreateInvitation),
-		common.NewHTTPHandler(RequestCHAPIAppProfile, http.MethodGet, o.RequestApplicationProfile),
+		common.NewHTTPHandler(RequestAppProfile, http.MethodPost, o.RequestApplicationProfile),
 		common.NewHTTPHandler(SendCHAPIRequest, http.MethodPost, o.SendCHAPIRequest),
 	}
 }
@@ -196,7 +195,7 @@ func (o *Operation) CreateInvitation(rw http.ResponseWriter, req *http.Request) 
 	logutil.LogInfo(logger, commandName, CreateInvitationPath, "created oob invitation successfully")
 }
 
-// RequestApplicationProfile swagger:route GET /wallet/{id}/request-app-profile chapi-bridge applicationProfileRequest
+// RequestApplicationProfile swagger:route POST /wallet/request-app-profile chapi-bridge applicationProfileRequest
 //
 // Requests wallet application profile of given user.
 // Response contains wallet application profile of given user.
@@ -205,24 +204,38 @@ func (o *Operation) CreateInvitation(rw http.ResponseWriter, req *http.Request) 
 //    default: genericError
 //    200: appProfileResponse
 func (o *Operation) RequestApplicationProfile(rw http.ResponseWriter, req *http.Request) {
-	userID := mux.Vars(req)["id"]
-	if userID == "" {
-		logutil.LogError(logger, commandName, RequestCHAPIAppProfile, invalidIDErr)
-		common.WriteErrorResponsef(rw, logger, http.StatusBadRequest, invalidIDErr)
+	request, err := prepareAppProfileRequest(req.Body)
+	if err != nil {
+		logutil.LogError(logger, commandName, SendCHAPIRequest, err.Error())
+		common.WriteErrorResponsef(rw, logger, http.StatusBadRequest, err.Error())
 
 		return
 	}
 
-	profile, err := o.store.GetProfileByUserID(userID)
+	profile, err := o.store.GetProfileByUserID(request.Body.UserID)
 	if err != nil {
-		logutil.LogError(logger, commandName, RequestCHAPIAppProfile, err.Error())
+		logutil.LogError(logger, commandName, RequestAppProfile, err.Error())
 		common.WriteErrorResponsef(rw, logger, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
+	// if status is not completed, then wait for completion if 'WaitForConnection=true'
 	var status string
 	if profile.ConnectionID != "" {
+		status = didexchangesvc.StateIDCompleted
+	} else if request.Body.WaitForConnection {
+		ctx, cancel := context.WithTimeout(context.Background(), request.Body.Timeout)
+		defer cancel()
+
+		err = o.waitForConnectionCompletion(ctx, profile)
+		if err != nil {
+			logutil.LogError(logger, commandName, RequestAppProfile, err.Error())
+			common.WriteErrorResponsef(rw, logger, http.StatusInternalServerError, err.Error())
+
+			return
+		}
+
 		status = didexchangesvc.StateIDCompleted
 	}
 
@@ -377,6 +390,70 @@ func (o *Operation) stateMsgListener(ch <-chan service.StateMsg) {
 			logger.Warnf("Failed to update wallet application profile: %w", err)
 		}
 	}
+}
+
+//nolint:gocyclo //can't split function further and maintain readability.
+func (o *Operation) waitForConnectionCompletion(ctx context.Context, profile *walletAppProfile) error {
+	stateCh := make(chan service.StateMsg)
+
+	if err := o.didExchange.RegisterMsgEvent(stateCh); err != nil {
+		return fmt.Errorf("register msg event: %w", err)
+	}
+
+	defer func() {
+		e := o.didExchange.UnregisterMsgEvent(stateCh)
+		if e != nil {
+			logger.Warnf("Failed to unregister msg event registered to wait for profile connection completion: %w", e)
+		}
+	}()
+
+	for {
+		select {
+		case msg := <-stateCh:
+			if msg.Type != service.PostState || msg.StateID != didexchangesvc.StateIDCompleted {
+				continue
+			}
+
+			var event didexchange.Event
+
+			switch p := msg.Properties.(type) {
+			case didexchange.Event:
+				event = p
+			default:
+				logger.Warnf("failed to cast didexchange event properties")
+
+				continue
+			}
+
+			if event.InvitationID() == profile.InvitationID {
+				logger.Debugf(
+					"Received connection complete event for invitationID=%s", event.InvitationID())
+
+				return nil
+			}
+		case <-ctx.Done():
+			return fmt.Errorf("time out waiting for state 'completed'")
+		}
+	}
+}
+
+func prepareAppProfileRequest(r io.Reader) (*applicationProfileRequest, error) {
+	var request applicationProfileRequest
+
+	err := json.NewDecoder(r).Decode(&request.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if request.Body.UserID == "" {
+		return nil, fmt.Errorf(invalidIDErr)
+	}
+
+	if request.Body.WaitForConnection && request.Body.Timeout == 0 {
+		request.Body.Timeout = defaultSendMsgTimeout
+	}
+
+	return &request, nil
 }
 
 func prepareCHAPIRequest(r io.Reader) (*chapiRequest, error) {

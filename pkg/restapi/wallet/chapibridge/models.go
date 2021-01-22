@@ -39,9 +39,21 @@ type createInvitationResponse struct {
 // Request for querying wallet application profile ID for given user from wallet server.
 //
 // swagger:parameters applicationProfileRequest
-type applicationProfileRequest struct { //nolint: unused,deadcode,gocritic // for open API only
-	// in: path
-	ID string `json:"id"`
+type applicationProfileRequest struct {
+	// in: body
+	Body struct {
+		// UserID of wallet application profile.
+		// required: true
+		UserID string `json:"userID"`
+
+		// Wait for connection to be completed before returning wallet application profile.
+		// in: body
+		WaitForConnection bool `json:"waitForConnection"`
+
+		// Timeout (in nanoseconds) waiting for connection completed.
+		// in: body
+		Timeout time.Duration `json:"timeout"`
+	}
 }
 
 // applicationProfileResponse model
@@ -72,7 +84,7 @@ type chapiRequest struct {
 		UserID string `json:"userID"`
 		// Request is credential handler request to be sent out.
 		Request json.RawMessage `json:"chapiRequest"`
-		// Timeout (in milliseconds) waiting for reply.
+		// Timeout (in nanoseconds) waiting for reply.
 		Timeout time.Duration `json:"timeout,omitempty"`
 	}
 }
