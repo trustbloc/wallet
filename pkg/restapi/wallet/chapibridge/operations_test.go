@@ -7,11 +7,14 @@ package chapibridge // nolint:testpackage // changing to different package requi
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/common/service"
@@ -229,7 +232,9 @@ func TestOperation_CreateInvitation(t *testing.T) {
 }
 
 func TestOperation_RequestApplicationProfile(t *testing.T) {
-	const pathFmt = "/wallet/%s/request-app-profile"
+	sampleReq := fmt.Sprintf(`{"userID":"%s"}`, sampleUserID)
+	sampleReq2 := fmt.Sprintf(`{"userID":"%s", "waitForConnection":true, "timeout":1}`, sampleUserID)
+	sampleReq3 := `{"userID":"invalid-001", "waitForConnection":true}`
 
 	t.Run("create application profile - success", func(t *testing.T) {
 		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
@@ -243,10 +248,7 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 		require.NoError(t, err)
 
 		rw := httptest.NewRecorder()
-		rq := httptest.NewRequest(http.MethodGet, fmt.Sprintf(pathFmt, sampleUserID), nil)
-		rq = mux.SetURLVars(rq, map[string]string{
-			"id": sampleUserID,
-		})
+		rq := httptest.NewRequest(http.MethodGet, commandName+RequestAppProfile, bytes.NewBufferString(sampleReq))
 
 		op.RequestApplicationProfile(rw, rq)
 
@@ -271,7 +273,7 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 		require.NoError(t, err)
 
 		rw := httptest.NewRecorder()
-		rq := httptest.NewRequest(http.MethodGet, fmt.Sprintf(pathFmt, sampleUserID), nil)
+		rq := httptest.NewRequest(http.MethodGet, commandName+RequestAppProfile, bytes.NewBufferString(sampleReq))
 		rq = mux.SetURLVars(rq, map[string]string{
 			"id": sampleUserID,
 		})
@@ -287,7 +289,7 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 		require.Empty(t, response.ConnectionStatus)
 	})
 
-	t.Run("create application profile - invalid id", func(t *testing.T) {
+	t.Run("create application profile - invalid request", func(t *testing.T) {
 		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
 			"sample-agent", sampleAppURL)
 
@@ -299,12 +301,20 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 		require.NoError(t, err)
 
 		rw := httptest.NewRecorder()
-		rq := httptest.NewRequest(http.MethodGet, fmt.Sprintf(pathFmt, sampleUserID), nil)
+		rq := httptest.NewRequest(http.MethodGet, commandName+RequestAppProfile, bytes.NewBufferString(`{}`))
 
 		op.RequestApplicationProfile(rw, rq)
 
 		require.Equal(t, rw.Code, http.StatusBadRequest)
 		require.Contains(t, rw.Body.String(), invalidIDErr)
+
+		rw = httptest.NewRecorder()
+		rq = httptest.NewRequest(http.MethodGet, commandName+RequestAppProfile, bytes.NewBufferString(`===`))
+
+		op.RequestApplicationProfile(rw, rq)
+
+		require.Equal(t, rw.Code, http.StatusBadRequest)
+		require.Contains(t, rw.Body.String(), "invalid character")
 	})
 
 	t.Run("create application profile - profile not found", func(t *testing.T) {
@@ -314,7 +324,7 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 		require.NotEmpty(t, op)
 
 		rw := httptest.NewRecorder()
-		rq := httptest.NewRequest(http.MethodGet, fmt.Sprintf(pathFmt, sampleUserID), nil)
+		rq := httptest.NewRequest(http.MethodGet, commandName+RequestAppProfile, bytes.NewBufferString(sampleReq3))
 		rq = mux.SetURLVars(rq, map[string]string{
 			"id": sampleUserID,
 		})
@@ -349,7 +359,7 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 		}
 
 		rw := httptest.NewRecorder()
-		rq := httptest.NewRequest(http.MethodGet, fmt.Sprintf(pathFmt, sampleUserID), nil)
+		rq := httptest.NewRequest(http.MethodGet, commandName+RequestAppProfile, bytes.NewBufferString(sampleReq))
 		rq = mux.SetURLVars(rq, map[string]string{
 			"id": sampleUserID,
 		})
@@ -423,7 +433,7 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 		}
 
 		rw := httptest.NewRecorder()
-		rq := httptest.NewRequest(http.MethodGet, fmt.Sprintf(pathFmt, sampleUserID), nil)
+		rq := httptest.NewRequest(http.MethodGet, commandName+RequestAppProfile, bytes.NewBufferString(sampleReq))
 		rq = mux.SetURLVars(rq, map[string]string{
 			"id": sampleUserID,
 		})
@@ -437,6 +447,25 @@ func TestOperation_RequestApplicationProfile(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, response.InvitationID, sampleProfile.InvitationID)
 		require.Empty(t, response.ConnectionStatus)
+	})
+
+	t.Run("create application profile - failure wait for completion", func(t *testing.T) {
+		op, err := New(newMockProvider(), mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"sample-agent", sampleAppURL)
+
+		require.NoError(t, err)
+		require.NotEmpty(t, op)
+
+		sampleProfile := &walletAppProfile{InvitationID: sampleInvID}
+		err = op.store.SaveProfile(sampleUserID, sampleProfile)
+		require.NoError(t, err)
+
+		rw := httptest.NewRecorder()
+		rq := httptest.NewRequest(http.MethodGet, commandName+RequestAppProfile, bytes.NewBufferString(sampleReq2))
+
+		op.RequestApplicationProfile(rw, rq)
+		require.Equal(t, rw.Code, http.StatusInternalServerError)
+		require.Contains(t, rw.Body.String(), "time out waiting for state 'completed'")
 	})
 }
 
@@ -629,6 +658,89 @@ func TestOperation_SendCHAPIRequest(t *testing.T) {
 	})
 }
 
+func TestOperation_WaitForStateCompletion(t *testing.T) {
+	t.Run("test wait for state completion - success", func(t *testing.T) {
+		prov := newMockProvider()
+		mockDIDExSvc := &mockDIDExchangeSvc{MockDIDExchangeSvc: &mockdidexchange.MockDIDExchangeSvc{}}
+		prov.ServiceMap[didexchangesvc.DIDExchange] = mockDIDExSvc
+
+		op, err := New(prov, mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
+
+		require.NoError(t, err)
+		require.NotEmpty(t, op)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+		defer cancel()
+
+		go func() {
+			for {
+				mockDIDExSvc.pushEvent(service.StateMsg{
+					Type:    service.PostState,
+					StateID: didexchangesvc.StateIDRequested,
+					Properties: &mockdidexchange.MockEventProperties{
+						InvID:  sampleInvID,
+						ConnID: sampleConnID,
+					},
+				}, 2)
+
+				mockDIDExSvc.pushEvent(service.StateMsg{
+					Type:    service.PostState,
+					StateID: didexchangesvc.StateIDCompleted,
+					Properties: &mockdidexchange.MockEventProperties{
+						InvID:  sampleInvID,
+						ConnID: sampleConnID,
+					},
+				}, 2)
+			}
+		}()
+
+		err = op.waitForConnectionCompletion(ctx, &walletAppProfile{InvitationID: sampleInvID})
+		require.NoError(t, err)
+	})
+
+	t.Run("test wait for state completion - timeout error & unregister error", func(t *testing.T) {
+		prov := newMockProvider()
+		prov.ServiceMap[didexchangesvc.DIDExchange] = &mockdidexchange.MockDIDExchangeSvc{
+			UnregisterMsgEventErr: fmt.Errorf(sampleErr),
+		}
+
+		op, err := New(prov, mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
+
+		require.NoError(t, err)
+		require.NotEmpty(t, op)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Nanosecond)
+		defer cancel()
+
+		err = op.waitForConnectionCompletion(ctx, &walletAppProfile{InvitationID: sampleInvID})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "time out waiting for state 'completed'")
+	})
+
+	t.Run("test wait for state completion - register msg event error", func(t *testing.T) {
+		prov := newMockProvider()
+		mockDIDExSvc := &mockdidexchange.MockDIDExchangeSvc{}
+		prov.ServiceMap[didexchangesvc.DIDExchange] = mockDIDExSvc
+
+		op, err := New(prov, mocks.NewMockNotifier(), mockmsghandler.NewMockMsgServiceProvider(),
+			"test", "demo")
+
+		require.NoError(t, err)
+		require.NotEmpty(t, op)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Nanosecond)
+		defer cancel()
+
+		mockDIDExSvc.RegisterMsgEventErr = fmt.Errorf(sampleErr)
+
+		err = op.waitForConnectionCompletion(ctx, &walletAppProfile{InvitationID: sampleInvID})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), sampleErr)
+	})
+}
+
 func newMockProvider() *mockprotocol.MockProvider {
 	prov := mockprotocol.NewMockProvider()
 	prov.ServiceMap = map[string]interface{}{
@@ -642,4 +754,28 @@ func newMockProvider() *mockprotocol.MockProvider {
 	prov.CustomKMS = &mockkms.KeyManager{}
 
 	return prov
+}
+
+type mockDIDExchangeSvc struct {
+	*mockdidexchange.MockDIDExchangeSvc
+	lock   sync.RWMutex
+	events []chan<- service.StateMsg
+}
+
+func (m *mockDIDExchangeSvc) RegisterMsgEvent(ch chan<- service.StateMsg) error {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+
+	m.events = append(m.events, ch)
+
+	return nil
+}
+
+func (m *mockDIDExchangeSvc) pushEvent(msg service.StateMsg, index int) {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+
+	if index < len(m.events) {
+		m.events[index] <- msg
+	}
 }
