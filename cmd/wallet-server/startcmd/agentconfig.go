@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
+	"github.com/hyperledger/aries-framework-go-ext/component/vdr/trustbloc"
 	"github.com/hyperledger/aries-framework-go/pkg/controller/command"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/transport"
 	arieshttp "github.com/hyperledger/aries-framework-go/pkg/didcomm/transport/http"
@@ -26,7 +27,6 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/vdr/httpbinding"
 	"github.com/spf13/cobra"
 	cmdutils "github.com/trustbloc/edge-core/pkg/utils/cmd"
-	"github.com/trustbloc/trustbloc-did-method/pkg/vdri/trustbloc"
 )
 
 const (
@@ -519,7 +519,7 @@ func createVDRs(resolvers []string, trustblocDomain, trustblocResolver string) (
 		VDRs[order[url]] = resolverVDR
 	}
 
-	VDRs = append(VDRs, trustbloc.New(
+	VDRs = append(VDRs, trustbloc.New(nil,
 		trustbloc.WithDomain(trustblocDomain),
 		trustbloc.WithResolverURL(trustblocResolver),
 	))
