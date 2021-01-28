@@ -716,9 +716,6 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	err = os.Setenv(databaseTypeEnvKey, "mem")
 	require.NoError(t, err)
 
-	err = os.Setenv(walletAppURLFlagName, "http://demoapp/home")
-	require.NoError(t, err)
-
 	err = startCmd.Execute()
 
 	require.NoError(t, err)

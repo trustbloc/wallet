@@ -16,7 +16,6 @@ services:
       - TLS_CERT_FILE=/etc/keys/tls/ec-pubCert.pem
       - TLS_KEY_FILE=/etc/keys/tls/ec-key.pem
       - TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
-      - WALLET_APP_URL=https://demo.walletmobile.app/load
       - HTTP_SERVER_HUB_AUTH_URL=https://demo-hub-auth.trustbloc.local:8044
       - HTTP_SERVER_OIDC_OPURL=https://demo-hub-auth-hydra.trustbloc.local:5555/
       - HTTP_SERVER_OIDC_CLIENTID=client-id
