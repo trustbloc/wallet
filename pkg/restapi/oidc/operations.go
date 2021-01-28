@@ -603,7 +603,7 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 	edvOpsKID, err := createOPSKey(
 		o.keyServer.OpsKMSURL,
 		getKeystoreID(opsKeyStoreURL),
-		kms.ECDH256KWAES256GCM,
+		kms.NISTP256ECDHKW, // TODO make default key type configurable.
 		controller,
 		compressedOPSKMSCapability,
 		newKMSSigner(o.keyServer.AuthzKMSURL, authzKeyStoreID, keyID, h, o.httpClient),

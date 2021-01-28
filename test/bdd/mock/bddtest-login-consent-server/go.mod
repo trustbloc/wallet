@@ -9,5 +9,5 @@ go 1.15
 require (
 	github.com/gorilla/mux v1.8.0
 	github.com/ory/hydra-client-go v1.8.5
-	github.com/trustbloc/edge-core v0.1.4
+	github.com/trustbloc/edge-core v0.1.6-0.20210127161542-9e174750f523
 )
