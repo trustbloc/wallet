@@ -13,7 +13,7 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/controller/webnotifier"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/context"
 
-	"github.com/trustbloc/edge-agent/pkg/restapi/wallet/chapibridge"
+	"github.com/trustbloc/edge-agent/pkg/restapi/wallet/operation"
 )
 
 const wsPath = "/ws"
@@ -77,16 +77,15 @@ func GetRESTHandlers(ctx *context.Provider, opts ...Opt) ([]rest.Handler, error)
 		notifier = webnotifier.New(wsPath, restAPIOpts.webhookURLs)
 	}
 
-	// chapiBridge REST controller operations,
-	chapiBridge, err := chapibridge.New(ctx, notifier, restAPIOpts.msgHandler,
-		restAPIOpts.defaultLabel, restAPIOpts.walletAppURL)
+	// VC wallet REST controller operations,
+	walletOpts, err := operation.New(ctx, notifier, restAPIOpts.msgHandler)
 	if err != nil {
 		return nil, err
 	}
 
 	// create handlers from all REST operations.
 	var allHandlers []rest.Handler
-	allHandlers = append(allHandlers, chapiBridge.GetRESTHandlers()...)
+	allHandlers = append(allHandlers, walletOpts.GetRESTHandlers()...)
 
 	return allHandlers, nil
 }
