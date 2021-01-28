@@ -7,22 +7,21 @@ module github.com/trustbloc/edge-agent
 go 1.15
 
 require (
-	github.com/cenkalti/backoff/v4 v4.1.0 // indirect
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/duo-labs/webauthn v0.0.0-20200714211715-1daaee874e43
 	github.com/duo-labs/webauthn.io v0.0.0-20200929144140-c031a3e0f95d
 	github.com/fxamacker/cbor/v2 v2.2.0
-	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/sessions v1.2.1
-	github.com/hyperledger/aries-framework-go v0.1.6-0.20210122151214-1a54003224a0
+	github.com/hyperledger/aries-framework-go v0.1.6-0.20210127113808-f60b9683e266
 	github.com/igor-pavlenko/httpsignatures-go v0.0.21
+	github.com/multiformats/go-multihash v0.0.14 // indirect
 	github.com/sirupsen/logrus v1.7.0 // indirect
 	github.com/stretchr/testify v1.6.1
-	github.com/trustbloc/edge-core v0.1.6-0.20210125173139-4ae148a35ae5
+	github.com/trustbloc/edge-core v0.1.6-0.20210127161542-9e174750f523
 	github.com/trustbloc/edv v0.1.5
-	github.com/trustbloc/hub-kms v0.1.5
+	github.com/trustbloc/hub-kms v0.1.6-0.20210127173547-78bf334410aa
 	github.com/urfave/cli v1.22.2 // indirect
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 )
