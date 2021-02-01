@@ -21,8 +21,10 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/jsonld"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 	"github.com/hyperledger/aries-framework-go/pkg/kms"
 	mockstore "github.com/hyperledger/aries-framework-go/pkg/mock/storage"
 	ariesmem "github.com/hyperledger/aries-framework-go/pkg/storage/mem"
@@ -969,6 +971,7 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 			SignatureSuite:     ed25519signature2018.New(suite.WithSigner(&mockSigner{})),
 			SuiteType:          ed25519signature2018.SignatureType,
 			VerificationMethod: "test:123",
+			ProcessorOpts:      []jsonld.ProcessorOpts{jsonld.WithDocumentLoader(verifiable.CachingJSONLDLoader())},
 		}, zcapld.WithParent(uuid.New().URN()))
 		require.NoError(t, err)
 
