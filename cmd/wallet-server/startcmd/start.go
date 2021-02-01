@@ -25,6 +25,7 @@ import (
 	ariesmysql "github.com/hyperledger/aries-framework-go-ext/component/storage/mysql"
 	ariesleveldb "github.com/hyperledger/aries-framework-go/component/storage/leveldb"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/messaging/msghandler"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
 	ariesmem "github.com/hyperledger/aries-framework-go/pkg/storage/mem"
 	"github.com/rs/cors"
@@ -720,8 +721,9 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store ari
 			OpsKMSURL:   config.keyServer.opsKMSURL,
 			KeyEDVURL:   config.keyServer.keyEDVURL,
 		},
-		UserEDVURL: config.userEDVURL,
-		HubAuthURL: config.hubAuthURL,
+		UserEDVURL:   config.userEDVURL,
+		HubAuthURL:   config.hubAuthURL,
+		JSONLDLoader: verifiable.CachingJSONLDLoader(),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to init oidc ops: %w", err)

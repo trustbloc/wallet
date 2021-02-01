@@ -12,11 +12,11 @@ require (
 	github.com/duo-labs/webauthn.io v0.0.0-20200929144140-c031a3e0f95d
 	github.com/fxamacker/cbor/v2 v2.2.0
 	github.com/google/uuid v1.1.2
-	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/sessions v1.2.1
 	github.com/hyperledger/aries-framework-go v0.1.6-0.20210127113808-f60b9683e266
 	github.com/igor-pavlenko/httpsignatures-go v0.0.21
 	github.com/multiformats/go-multihash v0.0.14 // indirect
+	github.com/piprate/json-gold v0.3.1-0.20201222165305-f4ce31c02ca3
 	github.com/sirupsen/logrus v1.7.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/trustbloc/edge-core v0.1.6-0.20210127161542-9e174750f523

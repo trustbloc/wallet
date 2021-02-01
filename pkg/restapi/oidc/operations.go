@@ -19,12 +19,14 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/jsonld"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
 	"github.com/hyperledger/aries-framework-go/pkg/kms"
 	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
 	"github.com/hyperledger/aries-framework-go/pkg/vdr/fingerprint"
 	"github.com/igor-pavlenko/httpsignatures-go"
+	"github.com/piprate/json-gold/ld"
 	"github.com/trustbloc/edge-core/pkg/log"
 	"github.com/trustbloc/edge-core/pkg/sss"
 	"github.com/trustbloc/edge-core/pkg/sss/base"
@@ -84,6 +86,7 @@ type Config struct {
 	KeyServer       *KeyServerConfig
 	UserEDVURL      string
 	HubAuthURL      string
+	JSONLDLoader    ld.DocumentLoader
 }
 
 // KeyConfig holds configuration for cryptographic keys.
@@ -128,6 +131,7 @@ type Operation struct {
 	keyServer       *KeyServerConfig
 	userEDVClient   edvClient
 	hubAuthURL      string
+	jsonLDLoader    ld.DocumentLoader
 }
 
 // New returns a new Operation.
@@ -145,8 +149,9 @@ func New(config *Config) (*Operation, error) {
 			config.KeyServer.KeyEDVURL,
 			client.WithTLSConfig(config.TLSConfig),
 		),
-		keyServer:  config.KeyServer,
-		hubAuthURL: config.HubAuthURL,
+		keyServer:    config.KeyServer,
+		hubAuthURL:   config.HubAuthURL,
+		jsonLDLoader: config.JSONLDLoader,
 	}
 
 	var err error
@@ -584,7 +589,7 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 		if errUpdate := updateEDVCapabilityInKeyStore(o.keyServer.OpsKMSURL, getKeystoreID(opsKeyStoreURL), controller,
 			opsEDVVaultID, compressedOPSKMSCapability, opsEDVCapability, opsKeyStoreEDVDIDKey,
 			newKMSSigner(o.keyServer.AuthzKMSURL,
-				authzKeyStoreID, keyID, h, o.httpClient), o.httpClient); errUpdate != nil {
+				authzKeyStoreID, keyID, h, o.httpClient), o.httpClient, o.jsonLDLoader); errUpdate != nil {
 			return "", fmt.Errorf("failed to update EDV capability in ops key server: %w", errUpdate)
 		}
 	}
@@ -730,7 +735,8 @@ func createKeyStore(baseURL, controller, vaultID string, h *hubKMSHeader,
 }
 
 func updateEDVCapabilityInKeyStore(baseURL, keystoreID, controller, vaultID, compressedKMSCapability string,
-	edvCapability []byte, kmsDIDKey string, s signer, httpClient common.HTTPClient) error {
+	edvCapability []byte, kmsDIDKey string, s signer, httpClient common.HTTPClient,
+	jsonLDLoader ld.DocumentLoader) error {
 	capability, err := zcapld.ParseCapability(edvCapability)
 	if err != nil {
 		return err
@@ -740,6 +746,7 @@ func updateEDVCapabilityInKeyStore(baseURL, keystoreID, controller, vaultID, com
 		SignatureSuite:     ed25519signature2018.New(suite.WithSigner(s)),
 		SuiteType:          ed25519signature2018.SignatureType,
 		VerificationMethod: controller,
+		ProcessorOpts:      []jsonld.ProcessorOpts{jsonld.WithDocumentLoader(jsonLDLoader)},
 	}, zcapld.WithParent(capability.ID), zcapld.WithInvoker(kmsDIDKey),
 		zcapld.WithAllowedActions("read", "write"),
 		zcapld.WithInvocationTarget(vaultID, edvResource),
