@@ -13,7 +13,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.2.0
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/sessions v1.2.1
-	github.com/hyperledger/aries-framework-go v0.1.6-0.20210210013602-d14c77b2e8a9
+	github.com/hyperledger/aries-framework-go v0.1.6-0.20210211154552-224e2e53596e
 	github.com/igor-pavlenko/httpsignatures-go v0.0.21
 	github.com/multiformats/go-multihash v0.0.14 // indirect
 	github.com/piprate/json-gold v0.3.1-0.20201222165305-f4ce31c02ca3
