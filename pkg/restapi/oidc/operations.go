@@ -33,7 +33,7 @@ import (
 	"github.com/trustbloc/edge-core/pkg/zcapld"
 	"github.com/trustbloc/edv/pkg/client"
 	"github.com/trustbloc/edv/pkg/restapi/models"
-	"github.com/trustbloc/hub-kms/pkg/restapi/kms/operation"
+	"github.com/trustbloc/kms/pkg/restapi/kms/operation"
 	"golang.org/x/oauth2"
 
 	"github.com/trustbloc/edge-agent/pkg/restapi/common"

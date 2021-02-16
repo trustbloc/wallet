@@ -151,7 +151,7 @@ const samplePresentation = {
 
 const invitation = {
     "@id": "f39d825f-c647-434d-893f-8c76dd6906a9",
-    "@type": "https://didcomm.org/oob-invitation/1.0/invitation",
+    "@type": "https://didcomm.org/out-of-band/1.0/invitation",
     "label": "wallet-web",
     "protocols": [
         "https://didcomm.org/didexchange/1.0"

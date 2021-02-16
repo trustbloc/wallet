@@ -277,7 +277,7 @@ let didConnectQuery = {
             },
             "invitation": {
                 "@id": "0d72ebac-6210-46b4-a736-43a3bf90f976",
-                "@type": "https://didcomm.org/oob-invitation/1.0/invitation",
+                "@type": "https://didcomm.org/out-of-band/1.0/invitation",
                 "label": "ewr",
                 "protocols": [
                     "https://didcomm.org/didexchange/1.0"
@@ -328,7 +328,7 @@ let presentationExchangeDIDCommQuery = {
                                                            "type": "DIDConnect",
                                                            "invitation": {
                                                                "@id": "0d72ebac-6210-46b4-a736-43a3bf90f976",
-                                                               "@type": "https://didcomm.org/oob-invitation/1.0/invitation",
+                                                               "@type": "https://didcomm.org/out-of-band/1.0/invitation",
                                                                "label": "ewr",
                                                                "protocols": [
                                                                    "https://didcomm.org/didexchange/1.0"
