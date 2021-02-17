@@ -33,9 +33,11 @@ export class DIDManager extends KeyValueStore {
 
         let generateKeyType = keyTypeIndex.get(keyType)
 
-        const keySet = await this.agent.kms.createKeySet({keyType: generateKeyType})
-        const recoveryKeySet = await this.agent.kms.createKeySet({keyType: generateKeyType})
-        const updateKeySet = await this.agent.kms.createKeySet({keyType: generateKeyType})
+        const [keySet, recoveryKeySet, updateKeySet] = await Promise.all([
+            this.agent.kms.createKeySet({keyType: generateKeyType}),
+            this.agent.kms.createKeySet({keyType: generateKeyType}),
+            this.agent.kms.createKeySet({keyType: generateKeyType})
+        ])
 
         const createDIDRequest = {
             "publicKeys": [{
