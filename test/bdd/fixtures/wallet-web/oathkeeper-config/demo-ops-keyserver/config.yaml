@@ -18,6 +18,7 @@ serve:
         - Signature
       allowed_origins:
         - https://user-ui-agent.example.com:8091
+        - https://second-ui-user-agent.example.com:8071
         - https://localhost:9098
       allow_credentials: true
       debug: true

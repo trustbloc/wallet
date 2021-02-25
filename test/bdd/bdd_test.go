@@ -109,7 +109,8 @@ func afterSuite(composition []*dockerutil.Composition) func() {
 		for _, c := range composition {
 			if c != nil {
 				if err := c.GenerateLogs(c.Dir, "docker-compose.log"); err != nil {
-					panic(err)
+					// panic(err) TODO: https://github.com/trustbloc/edge-agent/issues/667
+					fmt.Println(err)
 				}
 
 				if _, err := c.Decompose(c.Dir); err != nil {
