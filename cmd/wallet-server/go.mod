@@ -12,7 +12,7 @@ require (
 	github.com/duo-labs/webauthn v0.0.0-20200714211715-1daaee874e43
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.8.0
-	github.com/hyperledger/aries-framework-go v0.1.6-0.20210212132055-b94cce120dda
+	github.com/hyperledger/aries-framework-go v0.1.6-0.20210224230531-58e1368e5661
 	github.com/hyperledger/aries-framework-go-ext/component/storage/couchdb v0.0.0-20201113155502-c4ba5d2c7c0a
 	github.com/hyperledger/aries-framework-go-ext/component/storage/mysql v0.0.0-20201113155502-c4ba5d2c7c0a
 	github.com/hyperledger/aries-framework-go-ext/component/vdr/trustbloc v0.0.0-20210125133828-10c25f5d6d37
@@ -22,7 +22,7 @@ require (
 	github.com/spf13/cobra v0.0.6
 	github.com/stretchr/testify v1.6.1
 	github.com/trustbloc/edge-agent v0.0.0-00010101000000-000000000000
-	github.com/trustbloc/edge-core v0.1.6-0.20210212172534-81ab3a5abf5b
+	github.com/trustbloc/edge-core v0.1.6-0.20210218132256-ea94ce52be69
 )
 
 replace github.com/trustbloc/edge-agent => ../..
