@@ -14,7 +14,7 @@ SPDX-License-Identifier: Apache-2.0
                             <pulse-loader :color="'green'" :size="5"
                                           style="float: left; margin-right: 5px"></pulse-loader> Setting up your user for secured communication.
                         </span>
-                        <span v-else-if="loadingStatus === 'success'">
+                        <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg">
                              <md-icon style="color: green">check_circle_outline</md-icon> Successfully setup your user for secured communication.
                         </span>
                         <span v-else-if="loadingStatus === 'failed'">

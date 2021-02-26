@@ -95,6 +95,11 @@ SPDX-License-Identifier: Apache-2.0
                                                                              md-mode="indeterminate"></md-progress-spinner>
                                                     </div>
                                                 </div>
+                                                <div v-if="createDIDSuccess">
+                                                    <div class="md-layout-item md-size-100" style="color: green">
+                                                        <label class="md-helper-text" id="create-did-success">Saved your DID successfully.</label>
+                                                    </div>
+                                                </div>
                                                 <md-field>
                                                     <md-textarea v-model="didDocTextArea" readonly
                                                                  style="min-height:300px;">
@@ -163,6 +168,13 @@ SPDX-License-Identifier: Apache-2.0
                                                 <li v-for="error in saveErrors" :key="error">{{ error }}</li>
                                             </ul>
                                         </div>
+
+                                        <div v-if="saveAnyDIDSuccess">
+                                            <div class="md-layout-item md-size-100" style="color: green">
+                                                <label class="md-helper-text" id="save-anydid-success">Saved your DID successfully.</label>
+                                            </div>
+                                        </div>
+
                                         <md-field>
                                             <md-textarea v-model="anyDidDocTextArea" readonly style="min-height:360px;">
                                             </md-textarea>
@@ -199,6 +211,8 @@ SPDX-License-Identifier: Apache-2.0
             ...mapGetters(['getCurrentUser', 'getAgentOpts']),
             createDID: async function () {
                 this.errors.length = 0
+                this.createDIDSuccess = false
+
                 if (this.friendlyName.length == 0) {
                     this.errors.push("friendly name required.")
                     return
@@ -243,12 +257,16 @@ SPDX-License-Identifier: Apache-2.0
                 })
 
                 await this.loadDIDMetadata()
-                this.loading = false;
 
+                this.createDIDSuccess = true
+                this.loading = false;
             },
 
             saveAnyDID: async function () {
                 this.saveErrors.length = 0
+                this.saveAnyDIDSuccess = false
+                this.anyDidDocTextArea = ""
+
                 if (this.didID.length == 0) {
                     this.saveErrors.push("did id required.")
                     return
@@ -304,6 +322,7 @@ SPDX-License-Identifier: Apache-2.0
                   id: resp.did.id,
                 })
                 this.anyDidDocTextArea = JSON.stringify(resp.did, undefined, 2);
+                this.saveAnyDIDSuccess = true
             },
             loadDIDMetadata: async function () {
                try {
@@ -344,6 +363,8 @@ SPDX-License-Identifier: Apache-2.0
                 searchQuery: null,
                 searched: [],
                 loading: false,
+                createDIDSuccess: false,
+                saveAnyDIDSuccess: false,
             };
         }
 

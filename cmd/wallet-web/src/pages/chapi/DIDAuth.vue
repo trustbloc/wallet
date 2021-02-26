@@ -36,8 +36,8 @@ SPDX-License-Identifier: Apache-2.0
                         <label>
                             <md-icon>how_to_reg</md-icon>
                             Select a Subject DID: </label>
-                        <md-select v-model="selectedIssuer">
-                            <md-option v-for="{id, name} in issuers" :key="id" :value="id">
+                        <md-select v-model="selectedIssuer" id="select-did">
+                            <md-option v-for="{id, name} in issuers" :key="id" :value="id" :id="name">
                                 {{name}}
                             </md-option>
                         </md-select>

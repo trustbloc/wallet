@@ -186,6 +186,11 @@ services:
     ports:
       - "8084:8080"
 
+  driver-did-key:
+    image: universalresolver/driver-did-key:latest
+    ports:
+      - "8098:8080"
+
   trustbloc.did.method.example.com:
     container_name: trustbloc.did.method.example.com
     image: ${BLOC_DID_METHOD_IMAGE}:${BLOC_DID_METHOD_IMAGE_TAG}

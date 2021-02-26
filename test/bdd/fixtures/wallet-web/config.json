@@ -28,8 +28,8 @@
     },
     {
       "pattern": "^(did:key:.+)$",
-      "url": "https://did-key.web.app/api/dids/$1",
-      "testIdentifiers": [ "did:key:z6MksQ35B5bwZDQq4QKuhQW2Sv6dcqwg4PqcSFf67pdgrtjB" ]
+      "image": "universalresolver/driver-did-key",
+      "tag": "latest"
     }
   ]
 }
