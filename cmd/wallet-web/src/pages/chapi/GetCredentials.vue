@@ -38,7 +38,7 @@ SPDX-License-Identifier: Apache-2.0
                             <md-icon>how_to_reg</md-icon>
                             Select Identity: </label>
                         <md-select v-model="selectedIssuer" @md-selected="searchOnTable">
-                            <md-option v-for="{id, name} in issuers" :key="id" :value="id">
+                            <md-option v-for="{id, name} in issuers" :key="id" :value="id" :id="name">
                                 {{name}}
                             </md-option>
                         </md-select>
@@ -57,7 +57,7 @@ SPDX-License-Identifier: Apache-2.0
                                 :md-description="`No credentials found for this '${search}' type. Try a different type search or add a new credential.`">
                         </md-table-empty-state>
 
-                        <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="multiple" md-auto-select>
+                        <md-table-row slot="md-table-row" slot-scope="{ item, index }" md-selectable="multiple" :id="'cred-result-'+index" md-auto-select>
                             <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
                             <md-table-cell id="cred-type" md-label="Credential Type" md-sort-by="type">{{ item.type }}
                             </md-table-cell>
