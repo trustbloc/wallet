@@ -9,12 +9,12 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/trustbloc/edge-core/pkg/storage/memstore"
 	"net/http"
 	"net/url"
 	"os"
 
-	"github.com/trustbloc/edge-core/pkg/storage"
+	memstore "github.com/hyperledger/aries-framework-go/component/storageutil/mem"
+	"github.com/hyperledger/aries-framework-go/spi/storage"
 
 	"github.com/trustbloc/edge-core/pkg/log"
 	tlsutils "github.com/trustbloc/edge-core/pkg/utils/tls"
@@ -84,11 +84,6 @@ func loadConfig() (*config, error) {
 	}
 
 	prov := memstore.NewProvider()
-
-	err = prov.CreateStore("bdd_tests")
-	if err != nil {
-		return nil, fmt.Errorf("could not create memory store for some reason: %w", err)
-	}
 
 	store, err := prov.OpenStore("bdd_tests")
 	if err != nil {

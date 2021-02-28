@@ -23,11 +23,10 @@ import (
 	"github.com/gorilla/mux"
 	ariescouchdb "github.com/hyperledger/aries-framework-go-ext/component/storage/couchdb"
 	ariesmysql "github.com/hyperledger/aries-framework-go-ext/component/storage/mysql"
-	ariesleveldb "github.com/hyperledger/aries-framework-go/component/storage/leveldb"
+	ariesmem "github.com/hyperledger/aries-framework-go/component/storageutil/mem"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/messaging/msghandler"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
-	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
-	ariesmem "github.com/hyperledger/aries-framework-go/pkg/storage/mem"
+	ariesstorage "github.com/hyperledger/aries-framework-go/spi/storage"
 	"github.com/rs/cors"
 	"github.com/spf13/cobra"
 	"github.com/trustbloc/edge-core/pkg/log"
@@ -179,10 +178,6 @@ var supportedStorageProviders = map[string]func(string, string) (ariesstorage.Pr
 	// nolint:unparam // memstorage provider never returns error
 	databaseTypeMemOption: func(_, _ string) (ariesstorage.Provider, error) {
 		return ariesmem.NewProvider(), nil
-	},
-	// nolint:unparam // leveldb provider never returns error
-	databaseTypeLevelDBOption: func(_, path string) (ariesstorage.Provider, error) {
-		return ariesleveldb.NewProvider(path), nil
 	},
 	databaseTypeCouchDBOption: func(url, prefix string) (ariesstorage.Provider, error) {
 		return ariescouchdb.NewProvider(url, ariescouchdb.WithDBPrefix(prefix))

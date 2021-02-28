@@ -12,10 +12,10 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/hyperledger/aries-framework-go/spi/storage"
 	"github.com/ory/hydra-client-go/client"
 	"github.com/ory/hydra-client-go/client/admin"
 	"github.com/ory/hydra-client-go/models"
-	"github.com/trustbloc/edge-core/pkg/storage"
 )
 
 const (
@@ -61,17 +61,17 @@ type server struct {
 }
 
 type testConfig struct {
-	Request          *AuthConfigRequest
+	Request *AuthConfigRequest
 }
 
 type AuthConfigRequest struct {
-	Sub        string  	`json:"sub"`
-	Fail       bool        `json:"fail,omitempty"`
+	Sub  string `json:"sub"`
+	Fail bool   `json:"fail,omitempty"`
 }
 
 type ConsentConfigRequest struct {
 	UserClaims *UserClaims `json:"user_claims,omitempty"`
-	Fail bool `json:"fail,omitempty"`
+	Fail       bool        `json:"fail,omitempty"`
 }
 
 // BDD tests can configure
@@ -198,8 +198,8 @@ func (s *server) consentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    consentChallengeCookieName,
-		Value:   challenge,
+		Name:  consentChallengeCookieName,
+		Value: challenge,
 	})
 
 	_, err := w.Write([]byte("mock UI"))
@@ -211,7 +211,6 @@ func (s *server) consentHandler(w http.ResponseWriter, r *http.Request) {
 
 	logger.Infof("rendered mock UI in response to request %s", r.URL.String())
 }
-
 
 func (s *server) userAuthZHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(consentChallengeCookieName)

@@ -312,16 +312,8 @@ func TestStartCmdWithInvalidAgentArgs(t *testing.T) {
 func TestCreateAriesAgent(t *testing.T) {
 	t.Run("invalid inbound internal host option", func(t *testing.T) {
 		_, err := createAriesAgent(&httpServerParameters{agent: &agentParameters{
-			dbParam:              &dbParam{dbType: "leveldb"},
+			dbParam:              &dbParam{dbType: "mem"},
 			inboundHostInternals: []string{"1@2@3"},
-		}, tls: &tlsParameters{}})
-		require.Contains(t, err.Error(), "invalid inbound host option")
-	})
-
-	t.Run("invalid inbound external host option", func(t *testing.T) {
-		_, err := createAriesAgent(&httpServerParameters{agent: &agentParameters{
-			dbParam:              &dbParam{dbType: "leveldb"},
-			inboundHostExternals: []string{"1@2@3"},
 		}, tls: &tlsParameters{}})
 		require.Contains(t, err.Error(), "invalid inbound host option")
 	})
