@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
+	ariesstorage "github.com/hyperledger/aries-framework-go/spi/storage"
 
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
 )

@@ -30,8 +30,8 @@ import (
 	"github.com/duo-labs/webauthn/webauthn"
 	"github.com/fxamacker/cbor/v2"
 	"github.com/google/uuid"
+	ariesmem "github.com/hyperledger/aries-framework-go/component/storageutil/mem"
 	mockstore "github.com/hyperledger/aries-framework-go/pkg/mock/storage"
-	ariesmem "github.com/hyperledger/aries-framework-go/pkg/storage/mem"
 	"github.com/stretchr/testify/require"
 
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
@@ -709,7 +709,7 @@ func Test_SaveDeviceInfo(t *testing.T) {
 	config := config(t)
 	config.Storage.Storage = &mockstore.MockStoreProvider{
 		Store: &mockstore.MockStore{
-			Store: make(map[string][]byte),
+			Store: make(map[string]mockstore.DBEntry),
 		},
 	}
 	o, err := New(config)

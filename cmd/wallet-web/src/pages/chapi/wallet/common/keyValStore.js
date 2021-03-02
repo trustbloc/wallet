@@ -21,9 +21,8 @@ export class KeyValueStore {
     }
 
     async getAll() {
-        let data = await this.agent.store.iterator({
-            start_key: this.dbName + this.storeName,
-            end_key: this.dbName + this.storeName + "!!",
+        let data = await this.agent.store.query({
+            expression: this.dbName + this.storeName
         })
 
         let results = [];
@@ -63,6 +62,11 @@ export class KeyValueStore {
         let resp = this.agent.store.put({
             key: this.dbName + this.storeName + id,
             value: btoa(JSON.stringify(value)),
+            tags: [
+                {
+                    name: this.dbName + this.storeName
+                }
+            ]
         })
         // need to flush
         await this.agent.store.flush()

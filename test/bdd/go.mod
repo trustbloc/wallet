@@ -12,12 +12,12 @@ require (
 	github.com/fsouza/go-dockerclient v1.7.0
 	github.com/fxamacker/cbor/v2 v2.2.0
 	github.com/gofrs/uuid v3.3.0+incompatible // indirect
-	github.com/google/uuid v1.1.2
+	github.com/google/uuid v1.2.0
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.6.7
 	github.com/trustbloc/edge-agent v0.0.0
-	github.com/trustbloc/edge-core v0.1.6-0.20210218132256-ea94ce52be69
+	github.com/trustbloc/edge-core v0.1.6-0.20210224175343-275d0e0370c4
 )
 
 replace (

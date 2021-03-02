@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	ariesstorage "github.com/hyperledger/aries-framework-go/pkg/storage"
+	ariesstorage "github.com/hyperledger/aries-framework-go/spi/storage"
 )
 
 // Open the store with the given name. The store will be created if it does not exist.

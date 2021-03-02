@@ -21,13 +21,13 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	ariesmem "github.com/hyperledger/aries-framework-go/component/storageutil/mem"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/jsonld"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 	"github.com/hyperledger/aries-framework-go/pkg/kms"
 	mockstore "github.com/hyperledger/aries-framework-go/pkg/mock/storage"
-	ariesmem "github.com/hyperledger/aries-framework-go/pkg/storage/mem"
 	"github.com/stretchr/testify/require"
 	"github.com/trustbloc/edge-core/pkg/zcapld"
 	"github.com/trustbloc/edv/pkg/client"
@@ -430,8 +430,8 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 		config := config(t)
 		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
-				Store: map[string][]byte{
-					userSub: []byte(userSub),
+				Store: map[string]mockstore.DBEntry{
+					userSub: {Value: []byte(userSub)},
 				},
 				ErrGet: errors.New("test"),
 			},
@@ -470,7 +470,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 		config := config(t)
 		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
-				Store:  make(map[string][]byte),
+				Store:  make(map[string]mockstore.DBEntry),
 				ErrPut: errors.New("test"),
 			},
 		}
@@ -941,8 +941,8 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 		config := config(t)
 		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
-				Store: map[string][]byte{
-					sub: marshal(t, &tokens.UserTokens{}),
+				Store: map[string]mockstore.DBEntry{
+					sub: {Value: marshal(t, &tokens.UserTokens{})},
 				},
 			},
 		}
@@ -1102,8 +1102,8 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 		config.OIDCClient = &oidc2.MockClient{UserInfoErr: errors.New("test")}
 		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
-				Store: map[string][]byte{
-					sub: marshal(t, &tokens.UserTokens{}),
+				Store: map[string]mockstore.DBEntry{
+					sub: {Value: marshal(t, &tokens.UserTokens{})},
 				},
 			},
 		}
@@ -1130,8 +1130,8 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 		}}
 		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
-				Store: map[string][]byte{
-					sub: marshal(t, &tokens.UserTokens{}),
+				Store: map[string]mockstore.DBEntry{
+					sub: {Value: marshal(t, &tokens.UserTokens{})},
 				},
 			},
 		}
@@ -1155,8 +1155,8 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 		config := config(t)
 		config.Storage.Storage = &mockstore.MockStoreProvider{
 			Store: &mockstore.MockStore{
-				Store: map[string][]byte{
-					sub: marshal(t, &tokens.UserTokens{}),
+				Store: map[string]mockstore.DBEntry{
+					sub: {Value: marshal(t, &tokens.UserTokens{})},
 				},
 			},
 		}
