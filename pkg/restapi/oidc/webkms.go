@@ -86,3 +86,20 @@ func (r *zcapRemoteCrypto) WrapKey(_, _, _ []byte,
 func (r *zcapRemoteCrypto) UnwrapKey(*crypto.RecipientWrappedKey, interface{}, ...crypto.WrapKeyOpts) ([]byte, error) {
 	return nil, errors.New("zcapRemoteCrypto: UnwrapKey() not implemented")
 }
+
+func (r *zcapRemoteCrypto) SignMulti(messages [][]byte, kh interface{}) ([]byte, error) {
+	return nil, errors.New("zcapRemoteCrypto: SignMulti() not implemented")
+}
+
+func (r *zcapRemoteCrypto) VerifyMulti(messages [][]byte, signature []byte, kh interface{}) error {
+	return errors.New("zcapRemoteCrypto: VerifyMulti() not implemented")
+}
+
+func (r *zcapRemoteCrypto) VerifyProof(revealedMessages [][]byte, proof, nonce []byte, kh interface{}) error {
+	return errors.New("zcapRemoteCrypto: VerifyProof() not implemented")
+}
+
+func (r *zcapRemoteCrypto) DeriveProof(messages [][]byte, bbsSignature, nonce []byte, revealedIndexes []int,
+	kh interface{}) ([]byte, error) {
+	return nil, errors.New("zcapRemoteCrypto: DeriveProof() not implemented")
+}
