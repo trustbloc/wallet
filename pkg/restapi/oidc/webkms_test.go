@@ -120,4 +120,28 @@ func TestZcapRemoteCrypto(t *testing.T) {
 		_, err := r.UnwrapKey(nil, nil)
 		require.EqualError(t, err, "zcapRemoteCrypto: UnwrapKey() not implemented")
 	})
+
+	t.Run("SignMulti", func(t *testing.T) {
+		r := &zcapRemoteCrypto{}
+		_, err := r.SignMulti(nil, nil)
+		require.EqualError(t, err, "zcapRemoteCrypto: SignMulti() not implemented")
+	})
+
+	t.Run("VerifyMulti", func(t *testing.T) {
+		r := &zcapRemoteCrypto{}
+		err := r.VerifyMulti(nil, nil, nil)
+		require.EqualError(t, err, "zcapRemoteCrypto: VerifyMulti() not implemented")
+	})
+
+	t.Run("VerifyProof", func(t *testing.T) {
+		r := &zcapRemoteCrypto{}
+		err := r.VerifyProof(nil, nil, nil, nil)
+		require.EqualError(t, err, "zcapRemoteCrypto: VerifyProof() not implemented")
+	})
+
+	t.Run("DeriveProof", func(t *testing.T) {
+		r := &zcapRemoteCrypto{}
+		_, err := r.DeriveProof(nil, nil, nil, nil, nil)
+		require.EqualError(t, err, "zcapRemoteCrypto: DeriveProof() not implemented")
+	})
 }
