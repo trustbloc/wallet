@@ -15,6 +15,7 @@
     "core-js": "^3.4.3",
     "credential-handler-polyfill": "^2.1.0",
     "es6-promise": "^4.2.8",
+    "jsonld": "^4.0.1",
     "jsonpath": "^1.0.2",
     "minimist": "^1.2.5",
     "parse-duration": "^0.4.4",

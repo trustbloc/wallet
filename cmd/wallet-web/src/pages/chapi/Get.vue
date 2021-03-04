@@ -15,17 +15,19 @@ SPDX-License-Identifier: Apache-2.0
     import DIDConnectForm from "./DIDConnect.vue";
     import GetCredentialsForm from "./GetCredentials.vue";
     import PresentationDefQueryForm from "./PresentationDefQuery.vue";
+    import QueryByFrameForm from "./QueryByFrame.vue";
     import jp from 'jsonpath';
 
-    const types = [
+    const QUERY_TYPES = [
         {id:'PresentationDefinitionQuery', component:PresentationDefQueryForm},
         {id:'DIDAuth', component:DIDAuthForm},
-        {id:'DIDConnect', component:DIDConnectForm}
+        {id:'DIDConnect', component:DIDConnectForm},
+        {id:'QueryByFrame', component:QueryByFrameForm},
     ]
 
     function getComponent(credEvent){
-        for (let i in types) {
-            let type = types[i]
+        for (let i in QUERY_TYPES) {
+            let type = QUERY_TYPES[i]
 
             let found = jp.query(credEvent, `$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="${type.id}")]`);
             if (found.length  > 0){
