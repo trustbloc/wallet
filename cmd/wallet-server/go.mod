@@ -17,7 +17,7 @@ require (
 	github.com/hyperledger/aries-framework-go v0.1.6-0.20210303180208-4bb3ae8b32c9
 	github.com/hyperledger/aries-framework-go-ext/component/storage/couchdb v0.0.0-20210301183320-85351acdb748
 	github.com/hyperledger/aries-framework-go-ext/component/storage/mysql v0.0.0-20210301183320-85351acdb748
-	github.com/hyperledger/aries-framework-go-ext/component/vdr/trustbloc v0.0.0-20210125133828-10c25f5d6d37
+	github.com/hyperledger/aries-framework-go-ext/component/vdr/trustbloc v0.0.0-20210303194824-a55a12f8d063
 	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210228202323-ef13bb35c2f4
 	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210303162231-46716728d6eb
 	github.com/pquerna/cachecontrol v0.0.0-20200819021114-67c6ae64274f // indirect

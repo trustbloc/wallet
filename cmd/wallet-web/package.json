@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@saeris/vue-spinners": "^1.0.8",
-    "@trustbloc-cicd/agent-sdk": "^0.1.6-snapshot-6af61f8",
+    "@trustbloc-cicd/agent-sdk": "^0.1.6-snapshot-7dfda11",
     "ajv": "^6.12.2",
     "core-js": "^3.4.3",
     "credential-handler-polyfill": "^2.1.0",
@@ -37,18 +37,18 @@
     "@vue/cli-service": "^4.1.0",
     "axios": "^0.21.1",
     "babel-eslint": "^10.0.3",
+    "dot-prop": ">=4.2.1",
     "eslint": "^5.16.0",
     "eslint-plugin-prettier": "3.1.2",
     "eslint-plugin-vue": "^5.0.0",
+    "highlight.js": ">=10.4.1",
+    "node-forge": ">=0.10.0",
     "prettier": "1.19.1",
     "sass": "1.26.2",
     "sass-loader": "8.0.2",
-    "vue-template-compiler": "^2.6.10",
-    "node-forge": ">=0.10.0",
-    "yargs-parser": ">=18.1.2",
-    "dot-prop": ">=4.2.1",
     "serialize-javascript": ">=3.1.0",
-    "highlight.js": ">=10.4.1"
+    "vue-template-compiler": "^2.6.10",
+    "yargs-parser": ">=18.1.2"
   },
   "eslintConfig": {
     "root": true,
