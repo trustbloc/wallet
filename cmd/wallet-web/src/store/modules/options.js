@@ -13,7 +13,7 @@ let defaultAgentStartupOpts = {
     assetsPath: `${__webpack_public_path__}agent-js-worker/assets`,
     'outbound-transport': ['ws', 'http'],
     'transport-return-route': 'all',
-    'http-resolver-url': ["trustbloc:testnet.trustbloc.local@http://localhost:9080/1.0/identifiers", "web@http://localhost:9080/1.0/identifiers", "key@http://localhost:9080/1.0/identifiers"],
+    'http-resolver-url': ["trustbloc:testnet.trustbloc.local@http://localhost:9080/1.0/identifiers", "web@http://localhost:9080/1.0/identifiers"],
 
     'agent-default-label': 'demo-wallet-web',
     'auto-accept': true,

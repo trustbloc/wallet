@@ -27,6 +27,8 @@ SPDX-License-Identifier: Apache-2.0
                                 </md-chip>
                                 <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('getvp', 'get')">Request Presentation
                                 </md-chip>
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('bbs', 'get')">Selective Disclosure
+                                </md-chip>
                                 <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('pexq', 'get')">Presentation Exchange
                                     Query
                                 </md-chip>

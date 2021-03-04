@@ -14,6 +14,8 @@ export function getSample(v) {
             return samplePresentation
         case "getvp":
             return requestVP
+        case "bbs":
+            return selectiveDisclosure
         case "pexq":
             return presExchange
         case "pexq-didcomm":
@@ -78,6 +80,39 @@ const prc = {
         "proofPurpose": "assertionMethod",
         "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..SeUoIpwN_1Zrwc9zcl5NuvI88eJh6mWcxUMROHLrRg9Ubrz1YBhprPjcIZVE9JikK2DOO75pwC06fEwmu4GUAw"
     }
+}
+
+const prcbbs = {
+    "@context": ["https://www.w3.org/2018/credentials/v1", "https://w3id.org/citizenship/v1", "https://w3id.org/security/bbs/v1"],
+    "credentialSubject": {
+        "birthCountry": "Bahamas",
+        "birthDate": "1958-07-17",
+        "commuterClassification": "C1",
+        "familyName": "SMITH",
+        "gender": "Male",
+        "givenName": "JOHN",
+        "id": "did:example:b34ca6cd37bbf23",
+        "image": "data:image/png;base64,iVBORw0KGgokJggg==",
+        "lprCategory": "C09",
+        "lprNumber": "999-999-999",
+        "residentSince": "2015-01-01",
+        "type": ["PermanentResident", "Person"]
+    },
+    "description": "Government of Example Permanent Resident Card.",
+    "expirationDate": "2029-12-03T12:19:52Z",
+    "id": "https://issuer.oidp.uscis.gov/credentials/83627465",
+    "identifier": "83627465",
+    "issuanceDate": "2019-12-03T12:19:52Z",
+    "issuer": "did:example:489398593",
+    "name": "Permanent Resident Card",
+    "proof": {
+        "created": "2021-03-04T12:14:10.701064-05:00",
+        "proofPurpose": "assertionMethod",
+        "proofValue": "qneWWNXCrqyKN2SRT-DTY_ebLKFl2qsDCDDb-Msc3KNdmn3Mj4cwROaW4SsBE9hiLC3TKgS4LgXyg9_-94ar_jKPGrX_WMnACP5SABXjDxMG0MKm-5Dj-5To7tIZ0e1sR_jlUHYQxnz_djfKg0q3Zg",
+        "type": "BbsBlsSignature2020",
+        "verificationMethod": "did:key:zUC75qvjjmARUiHF6E9DSbmrg6jPcMh4kc4jTiqacvgr4kyLMbhbzFTtGk6SyH13JJ5BFDxntP3hJVCrQUJ1gEULnAH1h9dyNdf5HnihdKoAqq3ShCViWPg2PRxiE2gRhVkA6Qe#zUC75qvjjmARUiHF6E9DSbmrg6jPcMh4kc4jTiqacvgr4kyLMbhbzFTtGk6SyH13JJ5BFDxntP3hJVCrQUJ1gEULnAH1h9dyNdf5HnihdKoAqq3ShCViWPg2PRxiE2gRhVkA6Qe"
+    },
+    "type": ["VerifiableCredential", "PermanentResidentCard"]
 }
 
 const udc = {
@@ -146,7 +181,7 @@ const samplePresentation = {
         "https://www.w3.org/2018/credentials/v1"
     ],
     type: "VerifiablePresentation",
-    verifiableCredential: [prc, udc]
+    verifiableCredential: [prcbbs, udc]
 }
 
 const invitation = {
@@ -368,6 +403,53 @@ const requestVP = {
                             "@context": ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1"],
                             type: ["UniversityDegreeCredential"]
                         }
+                    }
+                }
+            ],
+            challenge: uuid(),
+            domain: "example.com"
+        }
+    }
+}
+
+const selectiveDisclosure = {
+    web: {
+        VerifiablePresentation: {
+            query: [
+                {
+                    type: "QueryByFrame",
+                    credentialQuery: {
+                        reason: "We need you to prove your eligibility to work.",
+                        frame: {
+                            "@context": [
+                                "https://www.w3.org/2018/credentials/v1",
+                                "https://w3id.org/citizenship/v1",
+                                "https://w3id.org/security/bbs/v1"
+                            ],
+                            "type": ["VerifiableCredential", "PermanentResidentCard"],
+                            "@explicit": true,
+                            "identifier": {},
+                            "issuer": {},
+                            "issuanceDate": {},
+                            "credentialSubject": {
+                                "@explicit": true,
+                                "type": ["PermanentResident", "Person"],
+                                "givenName": {},
+                                "familyName": {},
+                                "gender": {}
+                            }
+                        },
+                        example: {
+                            "@context": ["https://www.w3.org/2018/credentials/v1", "https://w3id.org/citizenship/v1"],
+                            type: ["PermanentResidentCard"]
+                        },
+                        trustedIssuer: [
+                            {
+                                "issuer": "did:web:example.world",
+                                "required": true
+                            }
+                        ],
+                        required: true
                     }
                 }
             ],
