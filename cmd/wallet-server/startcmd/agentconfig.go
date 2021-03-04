@@ -518,10 +518,14 @@ func createVDRs(resolvers []string, trustblocDomain, trustblocResolver string) (
 		VDRs[order[url]] = resolverVDR
 	}
 
-	VDRs = append(VDRs, trustbloc.New(nil,
+	blocVDR, err := trustbloc.New(nil,
 		trustbloc.WithDomain(trustblocDomain),
-		trustbloc.WithResolverURL(trustblocResolver),
-	))
+		trustbloc.WithResolverURL(trustblocResolver))
+	if err != nil {
+		return nil, err
+	}
+
+	VDRs = append(VDRs, blocVDR)
 
 	return VDRs, nil
 }
