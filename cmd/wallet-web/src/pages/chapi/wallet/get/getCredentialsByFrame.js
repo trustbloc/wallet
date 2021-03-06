@@ -9,6 +9,7 @@ import {getDomainAndChallenge} from "../common/util";
 import {WalletManager} from "../register/walletManager";
 
 const jsonld = require('jsonld');
+var uuid = require('uuid/v4')
 
 const QUERY_TYPE = "QueryByFrame"
 const CHAPI_RESPONSE_TYPE = 'VerifiablePresentation'
@@ -60,13 +61,13 @@ export class SelectiveDisclosure {
     async generatePresentation(user, selections) {
         try {
             const _getProof = async ({frame, credential}) => {
-                return await this.agent.verifiable.deriveCredential({credential, frame, skipVerify: true,})
+                return await this.agent.verifiable.deriveCredential({credential, frame, skipVerify: true, nonce:uuid()})
             }
 
             const allProofs = await Promise.all(selections.map(_getProof));
             let walletMetadata = this.walletManager.getWalletMetadata(user)
 
-            let vcs = allProofs.reduce((acc, val) => acc.concat(val.verifiableCredential), [])
+            let vcs = allProofs.reduce((acc, val) => acc.concat(JSON.parse(val.verifiableCredential)), [])
             const {did, signatureType} = await walletMetadata
 
             let resp = await this.agent.verifiable.generatePresentation({

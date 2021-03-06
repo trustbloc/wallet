@@ -681,13 +681,15 @@ github.com/huaweicloud/golangsdk v0.0.0-20200304081349-45ec0797f2a4/go.mod h1:WQ
 github.com/hyperledger/aries-framework-go v0.1.6-0.20210212132055-b94cce120dda/go.mod h1:jWpvVjYk1wETWfVJBII71ta6LusGKbzOkha8TOxeBRM=
 github.com/hyperledger/aries-framework-go v0.1.6-0.20210226235232-298aa129d822/go.mod h1:uzv9LEnmNwl+3KDTns5H9hoa31dpKdZeEDijoRQQDpM=
 github.com/hyperledger/aries-framework-go v0.1.6-0.20210303144045-5a969e20816b/go.mod h1:uzv9LEnmNwl+3KDTns5H9hoa31dpKdZeEDijoRQQDpM=
-github.com/hyperledger/aries-framework-go v0.1.6-0.20210303180208-4bb3ae8b32c9 h1:CfSyssneWVjtGfjmQwVJ+z3kZh9rKD4pnFz3BLG4Aj0=
-github.com/hyperledger/aries-framework-go v0.1.6-0.20210303180208-4bb3ae8b32c9/go.mod h1:uzv9LEnmNwl+3KDTns5H9hoa31dpKdZeEDijoRQQDpM=
+github.com/hyperledger/aries-framework-go v0.1.6-0.20210306141947-8094fee88506 h1:rAZgnkTQOc/qysglCs4W4t3s288Anius0Ac65ljGqx0=
+github.com/hyperledger/aries-framework-go v0.1.6-0.20210306141947-8094fee88506/go.mod h1:9y5nXHe7XLoyah/VdnC9hYqo3nDisnbGNq17CE69Az0=
 github.com/hyperledger/aries-framework-go/component/storage/edv v0.0.0-20210303162231-46716728d6eb h1:PnlxTnDajIaWnnzlkM8Crse1axijYghg3vV+k6IV9mU=
 github.com/hyperledger/aries-framework-go/component/storage/edv v0.0.0-20210303162231-46716728d6eb/go.mod h1:naziJOKqyuYjToExWoc10a1KbAxqLfkHrGQ/BOyAQYU=
 github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210224230531-58e1368e5661/go.mod h1:XaPVDJcbQT8BKmThfQdWPc+hgicHFAQzSOavHw2gn/4=
 github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210226235232-298aa129d822 h1:YXFq8OCvSznyCDU4KPu6ysr8DuwBCDhv4HWOdmwIzBI=
 github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210226235232-298aa129d822/go.mod h1:fY0WvoaJjwnUilPLQww96UqOhYa08gs3xIfOv6j1CR8=
+github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210306141947-8094fee88506 h1:8QF++KOO6hHq7BMhJRWvOnJ6yEELFzGTRfvBW1wZDDk=
+github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210306141947-8094fee88506/go.mod h1:zOolL2VqWj6+SPe13nrK0oo5QUOfQZQKB0j1iQsje0k=
 github.com/hyperledger/aries-framework-go/spi v0.0.0-20210205153949-f852f978a0d6/go.mod h1:fDr9wW00GJJl1lR1SFHmJW8utIocdvjO5RNhAYS05EY=
 github.com/hyperledger/aries-framework-go/spi v0.0.0-20210208194322-89066ddae325/go.mod h1:fDr9wW00GJJl1lR1SFHmJW8utIocdvjO5RNhAYS05EY=
 github.com/hyperledger/aries-framework-go/spi v0.0.0-20210210184327-0b9d0fd4c34e/go.mod h1:fDr9wW00GJJl1lR1SFHmJW8utIocdvjO5RNhAYS05EY=
@@ -695,6 +697,8 @@ github.com/hyperledger/aries-framework-go/spi v0.0.0-20210224230531-58e1368e5661
 github.com/hyperledger/aries-framework-go/spi v0.0.0-20210226235232-298aa129d822/go.mod h1:fDr9wW00GJJl1lR1SFHmJW8utIocdvjO5RNhAYS05EY=
 github.com/hyperledger/aries-framework-go/spi v0.0.0-20210303162231-46716728d6eb h1:chGfxsU7SLMHmZbC7RDuiNIqYERvXEwsAoj3k9YgtgA=
 github.com/hyperledger/aries-framework-go/spi v0.0.0-20210303162231-46716728d6eb/go.mod h1:fDr9wW00GJJl1lR1SFHmJW8utIocdvjO5RNhAYS05EY=
+github.com/hyperledger/aries-framework-go/spi v0.0.0-20210306141947-8094fee88506 h1:wqbkK/bmCYGC0aBCuKwGGtloSPp8a92cjvJtL0qxWKI=
+github.com/hyperledger/aries-framework-go/spi v0.0.0-20210306141947-8094fee88506/go.mod h1:fDr9wW00GJJl1lR1SFHmJW8utIocdvjO5RNhAYS05EY=
 github.com/hyperledger/aries-framework-go/test/component v0.0.0-20210219073333-c46e84ce678f/go.mod h1:/ljIFCu5iDIziwuvObF0vEc3fJ5dgDpT8RYAhQdNeHI=
 github.com/hyperledger/aries-framework-go/test/component v0.0.0-20210225210554-4f581697f7ec/go.mod h1:6Za6hvu+eZDPerePXIlMuBWbQZDKqTgOrKV56WZMtcI=
 github.com/hyperledger/aries-framework-go/test/component v0.0.0-20210226235232-298aa129d822 h1:mB8V4lnFZT1cL2lA8C0aVL7C1xPFgtyUXYrdPGg1cZ4=
@@ -962,6 +966,8 @@ github.com/pierrec/lz4 v2.2.6+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi
 github.com/pierrec/lz4 v2.5.2+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
 github.com/piprate/json-gold v0.3.1-0.20201222165305-f4ce31c02ca3 h1:XZ5wU47zEb+01GyzcDuNFPAZMU8YNwcObKZ5wu/9DgE=
 github.com/piprate/json-gold v0.3.1-0.20201222165305-f4ce31c02ca3/go.mod h1:OK1z7UgtBZk06n2cDE2OSq1kffmjFFp5/2yhLLCz9UM=
+github.com/piprate/json-gold v0.4.0 h1:XQ6ZMLCjuXhtvqr60IrGl2uNYojl64B/dIUmI2iqThs=
+github.com/piprate/json-gold v0.4.0/go.mod h1:OK1z7UgtBZk06n2cDE2OSq1kffmjFFp5/2yhLLCz9UM=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1-0.20171018195549-f15c970de5b7/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

@@ -13,12 +13,12 @@ require (
 	github.com/fxamacker/cbor/v2 v2.2.0
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/sessions v1.2.1
-	github.com/hyperledger/aries-framework-go v0.1.6-0.20210303180208-4bb3ae8b32c9
-	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210226235232-298aa129d822
-	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210303162231-46716728d6eb
+	github.com/hyperledger/aries-framework-go v0.1.6-0.20210306141947-8094fee88506
+	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210306141947-8094fee88506
+	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210306141947-8094fee88506
 	github.com/igor-pavlenko/httpsignatures-go v0.0.21
 	github.com/multiformats/go-multihash v0.0.14 // indirect
-	github.com/piprate/json-gold v0.3.1-0.20201222165305-f4ce31c02ca3
+	github.com/piprate/json-gold v0.4.0
 	github.com/sirupsen/logrus v1.7.0 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/trustbloc/edge-core v0.1.6-0.20210224175343-275d0e0370c4

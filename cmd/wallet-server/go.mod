@@ -14,13 +14,13 @@ require (
 	github.com/duo-labs/webauthn v0.0.0-20200714211715-1daaee874e43
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
-	github.com/hyperledger/aries-framework-go v0.1.6-0.20210304193329-f56b2cebc386
+	github.com/hyperledger/aries-framework-go v0.1.6-0.20210306141947-8094fee88506
 	github.com/hyperledger/aries-framework-go-ext/component/storage/couchdb v0.0.0-20210305233053-d3d22c802c12
 	github.com/hyperledger/aries-framework-go-ext/component/storage/mysql v0.0.0-20210305233053-d3d22c802c12
-	github.com/hyperledger/aries-framework-go-ext/component/vdr/trustbloc v0.0.0-20210303194824-a55a12f8d063
-	github.com/hyperledger/aries-framework-go/component/storage/leveldb v0.0.0-20210305152013-b276ca413681
-	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210228202323-ef13bb35c2f4
-	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210304193329-f56b2cebc386
+	github.com/hyperledger/aries-framework-go-ext/component/vdr/trustbloc v0.0.0-20210305233053-d3d22c802c12
+	github.com/hyperledger/aries-framework-go/component/storage/leveldb v0.0.0-20210306141947-8094fee88506
+	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210306141947-8094fee88506
+	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210306141947-8094fee88506
 	github.com/pquerna/cachecontrol v0.0.0-20200819021114-67c6ae64274f // indirect
 	github.com/rs/cors v1.7.0
 	github.com/spf13/cobra v0.0.6
