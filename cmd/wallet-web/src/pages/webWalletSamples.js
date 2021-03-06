@@ -87,30 +87,30 @@ const prcbbs = {
     "credentialSubject": {
         "birthCountry": "Bahamas",
         "birthDate": "1958-07-17",
-        "commuterClassification": "C1",
         "familyName": "SMITH",
         "gender": "Male",
         "givenName": "JOHN",
-        "id": "did:example:b34ca6cd37bbf23",
-        "image": "data:image/png;base64,iVBORw0KGgokJggg==",
+        "id": "did:trustbloc:AiMP4:EiDZGbGKGpfHo0NreApVT6Kqq6vyecYBmRBFXXRwSWYXcg",
+        "image": "data:image/png;base64,iVBORw0KGgo...kJggg==",
         "lprCategory": "C09",
         "lprNumber": "999-999-999",
         "residentSince": "2015-01-01",
-        "type": ["PermanentResident", "Person"]
+        "type": ["Person", "PermanentResident"]
     },
-    "description": "Government of Example Permanent Resident Card.",
-    "expirationDate": "2029-12-03T12:19:52Z",
-    "id": "https://issuer.oidp.uscis.gov/credentials/83627465",
-    "identifier": "83627465",
-    "issuanceDate": "2019-12-03T12:19:52Z",
-    "issuer": "did:example:489398593",
+    "description": "Permanent Resident Card of Mr.John Smith",
+    "id": "http://example.com/3cebaa25-6495-4af5-b6bc-f40af4578733",
+    "issuanceDate": "2021-03-05T21:31:19.684229048Z",
+    "issuer": {
+        "id": "did:key:zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ",
+        "name": "didkey-bbsblssignature2020-bls12381g2"
+    },
     "name": "Permanent Resident Card",
     "proof": {
-        "created": "2021-03-04T12:14:10.701064-05:00",
+        "created": "2021-03-05T21:31:46.735633361Z",
         "proofPurpose": "assertionMethod",
-        "proofValue": "qneWWNXCrqyKN2SRT-DTY_ebLKFl2qsDCDDb-Msc3KNdmn3Mj4cwROaW4SsBE9hiLC3TKgS4LgXyg9_-94ar_jKPGrX_WMnACP5SABXjDxMG0MKm-5Dj-5To7tIZ0e1sR_jlUHYQxnz_djfKg0q3Zg",
+        "proofValue": "mHbDa0eKZT98SUyQ4YePH4zuaAdfb6gTYiVH0t1Z7Z_ZdH79W2hMQxCECCTLbBcvUDik4IOz392kpz2wDdf5OhVy0kyYwnH85JzjmNyn-8Rprs_ayOe0a5i-XwqZNmcBBnWmhSMkeTTGnmpxHZjWiw",
         "type": "BbsBlsSignature2020",
-        "verificationMethod": "did:key:zUC75qvjjmARUiHF6E9DSbmrg6jPcMh4kc4jTiqacvgr4kyLMbhbzFTtGk6SyH13JJ5BFDxntP3hJVCrQUJ1gEULnAH1h9dyNdf5HnihdKoAqq3ShCViWPg2PRxiE2gRhVkA6Qe#zUC75qvjjmARUiHF6E9DSbmrg6jPcMh4kc4jTiqacvgr4kyLMbhbzFTtGk6SyH13JJ5BFDxntP3hJVCrQUJ1gEULnAH1h9dyNdf5HnihdKoAqq3ShCViWPg2PRxiE2gRhVkA6Qe"
+        "verificationMethod": "did:key:zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ#zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ"
     },
     "type": ["VerifiableCredential", "PermanentResidentCard"]
 }
@@ -428,7 +428,6 @@ const selectiveDisclosure = {
                             ],
                             "type": ["VerifiableCredential", "PermanentResidentCard"],
                             "@explicit": true,
-                            "identifier": {},
                             "issuer": {},
                             "issuanceDate": {},
                             "credentialSubject": {
@@ -442,19 +441,10 @@ const selectiveDisclosure = {
                         example: {
                             "@context": ["https://www.w3.org/2018/credentials/v1", "https://w3id.org/citizenship/v1"],
                             type: ["PermanentResidentCard"]
-                        },
-                        trustedIssuer: [
-                            {
-                                "issuer": "did:web:example.world",
-                                "required": true
-                            }
-                        ],
-                        required: true
+                        }
                     }
                 }
-            ],
-            challenge: uuid(),
-            domain: "example.com"
+            ]
         }
     }
 }
