@@ -9,6 +9,6 @@ go 1.15
 require (
 	github.com/go-openapi/strfmt v0.19.5
 	github.com/ory/hydra-client-go v1.3.2
-	github.com/stretchr/testify v1.6.1
-	github.com/trustbloc/edge-core v0.1.6-0.20210212172534-81ab3a5abf5b
+	github.com/stretchr/testify v1.7.0
+	github.com/trustbloc/edge-core v0.1.6
 )

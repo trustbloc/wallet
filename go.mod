@@ -13,19 +13,18 @@ require (
 	github.com/fxamacker/cbor/v2 v2.2.0
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/sessions v1.2.1
-	github.com/hyperledger/aries-framework-go v0.1.6-0.20210306141947-8094fee88506
-	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210306141947-8094fee88506
-	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210306141947-8094fee88506
-	github.com/igor-pavlenko/httpsignatures-go v0.0.21
+	github.com/hyperledger/aries-framework-go v0.1.6
+	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210306162754-1a1e0c4a378e
+	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210306162754-1a1e0c4a378e
+	github.com/igor-pavlenko/httpsignatures-go v0.0.23
 	github.com/multiformats/go-multihash v0.0.14 // indirect
 	github.com/piprate/json-gold v0.4.0
 	github.com/sirupsen/logrus v1.7.0 // indirect
 	github.com/stretchr/testify v1.7.0
-	github.com/trustbloc/edge-core v0.1.6-0.20210224175343-275d0e0370c4
-	github.com/trustbloc/edv v0.1.6-0.20210212224738-ec2041a015c9
-	github.com/trustbloc/kms v0.1.6-0.20210303174118-b6417502cd6b
+	github.com/trustbloc/edge-core v0.1.6
+	github.com/trustbloc/edv v0.1.6
+	github.com/trustbloc/kms v0.1.6
 	github.com/urfave/cli v1.22.2 // indirect
-	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 )
 
