@@ -11,6 +11,7 @@ export {WalletStore} from './store/saveCredential.js';
 export {WalletGet} from './get/getCredentials.js';
 export {WalletGetByQuery} from './get/getCredentialsByQuery.js';
 export {SelectiveDisclosure} from './get/getCredentialsByFrame.js';
+export {MultipleQuery} from './get/multiQuery.js';
 export {DIDAuth} from './get/didAuth.js';
 export {DIDConn} from './get/didConn.js';
 export {RegisterWallet} from './register/register.js';

@@ -16,31 +16,29 @@ SPDX-License-Identifier: Apache-2.0
     import GetCredentialsForm from "./GetCredentials.vue";
     import PresentationDefQueryForm from "./PresentationDefQuery.vue";
     import QueryByFrameForm from "./QueryByFrame.vue";
-    import jp from 'jsonpath';
+    import MultipleQueryForm from "./MultipleQuery.vue";
 
     const QUERY_TYPES = [
-        {id:'PresentationDefinitionQuery', component:PresentationDefQueryForm},
-        {id:'DIDAuth', component:DIDAuthForm},
-        {id:'DIDConnect', component:DIDConnectForm},
-        {id:'QueryByFrame', component:QueryByFrameForm},
+        {id:'MultiQuery', component:MultipleQueryForm, find: (type, ql) => ql > 1 && ['QueryByFrame', 'QueryByExample'].includes(type)},
+        {id:'PresentationDefinitionQuery', component:PresentationDefQueryForm, find: (type) => 'PresentationDefinitionQuery' == type},
+        {id:'DIDAuth', component:DIDAuthForm, find: (type) => 'DIDAuth' == type},
+        {id:'DIDConnect', component:DIDConnectForm, find: (type) => 'DIDConnect' == type},
+        {id:'QueryByFrame', component:QueryByFrameForm, find: (type) => 'QueryByFrame' == type},
     ]
 
     function getComponent(credEvent){
-        for (let i in QUERY_TYPES) {
-            let type = QUERY_TYPES[i]
+        let {query} = credEvent.credentialRequestOptions.web.VerifiablePresentation
+        query =  Array.isArray(query) ? query : [query]
 
-            let found = jp.query(credEvent, `$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="${type.id}")]`);
-            if (found.length  > 0){
-                return type.component
-            }
-
-            found = jp.query(credEvent, `$..credentialRequestOptions.web.VerifiablePresentation.query`);
-            if (found.length  > 0 && found[0].type == type.id){
-                return type.component
+        for (let queryType of QUERY_TYPES) {
+            let result = query.filter(({type}) => queryType.find(type, query.length) > 0)
+            if (result.length > 0) {
+                return queryType.component
             }
         }
 
-        // default form
+        console.debug('no matching query type handler found, switching to default QueryByExample')
+        // default form 'GetCredentialsForm'
         return GetCredentialsForm
     }
 
