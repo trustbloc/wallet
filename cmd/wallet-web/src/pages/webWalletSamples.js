@@ -16,6 +16,8 @@ export function getSample(v) {
             return requestVP
         case "bbs":
             return selectiveDisclosure
+        case "multiQ":
+            return multipleQuery
         case "pexq":
             return presExchange
         case "pexq-didcomm":
@@ -416,6 +418,56 @@ const selectiveDisclosure = {
     web: {
         VerifiablePresentation: {
             query: [
+                {
+                    type: "QueryByFrame",
+                    credentialQuery: {
+                        reason: "We need you to prove your eligibility to work.",
+                        frame: {
+                            "@context": [
+                                "https://www.w3.org/2018/credentials/v1",
+                                "https://w3id.org/citizenship/v1",
+                                "https://w3id.org/security/bbs/v1"
+                            ],
+                            "type": ["VerifiableCredential", "PermanentResidentCard"],
+                            "@explicit": true,
+                            "issuer": {},
+                            "issuanceDate": {},
+                            "credentialSubject": {
+                                "@explicit": true,
+                                "type": ["PermanentResident", "Person"],
+                                "givenName": {},
+                                "familyName": {},
+                                "gender": {}
+                            }
+                        },
+                        example: {
+                            "@context": ["https://www.w3.org/2018/credentials/v1", "https://w3id.org/citizenship/v1"],
+                            type: ["PermanentResidentCard"]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
+
+const multipleQuery = {
+    web: {
+        VerifiablePresentation: {
+            query: [
+                {
+                    type: "QueryByExample",
+                    credentialQuery: {
+                        reason: "Please present a credential for JaneDoe.",
+                        example: {
+                            "@context": [
+                                "https://www.w3.org/2018/credentials/v1",
+                                "https://www.w3.org/2018/credentials/examples/v1"
+                            ],
+                            type: ["UniversityDegreeCredential"]
+                        }
+                    }
+                },
                 {
                     type: "QueryByFrame",
                     credentialQuery: {
