@@ -49,15 +49,9 @@ type Config struct {
 	Storage         *StorageConfig
 	WalletDashboard string
 	TLSConfig       *tls.Config
-	Keys            *KeyConfig
+	Cookie          *cookie.Config
 	Webauthn        *webauthn.WebAuthn
 	HubAuthURL      string
-}
-
-// KeyConfig holds configuration for cryptographic keys.
-type KeyConfig struct {
-	Auth []byte
-	Enc  []byte
 }
 
 // StorageConfig holds storage config.
@@ -91,7 +85,7 @@ type Operation struct {
 func New(config *Config) (*Operation, error) {
 	op := &Operation{
 		store: &stores{
-			cookies: cookie.NewStore(config.Keys.Auth, config.Keys.Enc),
+			cookies: cookie.NewStore(config.Cookie),
 		},
 		tlsConfig:       config.TLSConfig,
 		httpClient:      &http.Client{Transport: &http.Transport{TLSClientConfig: config.TLSConfig}},
