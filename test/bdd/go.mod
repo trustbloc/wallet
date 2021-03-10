@@ -11,13 +11,12 @@ require (
 	github.com/duo-labs/webauthn v0.0.0-20200714211715-1daaee874e43
 	github.com/fsouza/go-dockerclient v1.7.0
 	github.com/fxamacker/cbor/v2 v2.2.0
-	github.com/gofrs/uuid v3.3.0+incompatible // indirect
 	github.com/google/uuid v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.6.7
 	github.com/trustbloc/edge-agent v0.0.0
-	github.com/trustbloc/edge-core v0.1.6
+	github.com/trustbloc/edge-core v0.1.7-0.20210310142750-7eb11997c4a9
 )
 
 replace (
