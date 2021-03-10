@@ -35,6 +35,7 @@ import (
 	tlsutils "github.com/trustbloc/edge-core/pkg/utils/tls"
 
 	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
 	"github.com/trustbloc/edge-agent/pkg/restapi/device"
 	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/wallet"
@@ -152,6 +153,12 @@ const (
 	sessionCookieEncKeyFlagUsage = "Path to the pem-encoded 32-byte key to use to encrypt session cookies." +
 		" Alternatively, this can be set with the following environment variable: " + sessionCookieEncKeyEnvKey
 	sessionCookieEncKeyEnvKey = "HTTP_SERVER_COOKIE_ENC_KEY"
+
+	sessionCookieMaxAgeFlagName  = "cookie-maxage"
+	sessionCookieMaxAgeFlagUsage = "Maximum duration (in seconds) for user session cookies." +
+		" Default is 900 (15 minutes)." +
+		" Alternatively, this can be set with the following environment variable: " + sessionCookieMaxAgeEnvKey
+	sessionCookieMaxAgeEnvKey = "HTTP_SERVER_COOKIE_MAXAGE"
 )
 
 // WebAuth Config.
@@ -214,7 +221,7 @@ type httpServerParameters struct {
 	hostURL              string
 	tls                  *tlsParameters
 	oidc                 *oidcParameters
-	keys                 *keyParameters
+	cookie               *cookie.Config
 	webAuth              *webauthParameters
 	keyServer            *keyServerParameters
 	userEDVURL           string
@@ -241,11 +248,6 @@ type webauthParameters struct {
 	rpDisplayName string
 	rpID          string
 	rpOrigin      string
-}
-
-type keyParameters struct {
-	sessionCookieAuthKey []byte
-	sessionCookieEncKey  []byte
 }
 
 type keyServerParameters struct {
@@ -299,7 +301,7 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				return err
 			}
 
-			keys, err := getKeyParams(cmd)
+			cookies, err := getCookieParams(cmd)
 			if err != nil {
 				return err
 			}
@@ -336,7 +338,7 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				tls:                  tlsParams,
 				oidc:                 oidcParams,
 				webAuth:              webAuthParams,
-				keys:                 keys,
+				cookie:               cookies,
 				keyServer:            keyServer,
 				userEDVURL:           userEDVURL,
 				hubAuthURL:           hubAuthURL,
@@ -366,7 +368,7 @@ func createFlags(startCmd *cobra.Command) {
 
 	createOIDCFlags(startCmd)
 	createTLSFlags(startCmd)
-	createKeyFlags(startCmd)
+	createCookieFlags(startCmd)
 	createWebAuthFlags(startCmd)
 	createAgentFlags(startCmd)
 }
@@ -384,9 +386,10 @@ func createOIDCFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP(oidcCallbackURLFlagName, "", "", oidcCallbackURLFlagUsage)
 }
 
-func createKeyFlags(cmd *cobra.Command) {
+func createCookieFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP(sessionCookieAuthKeyFlagName, "", "", sessionCookieAuthKeyFlagUsage)
 	cmd.Flags().StringP(sessionCookieEncKeyFlagName, "", "", sessionCookieEncKeyFlagUsage)
+	cmd.Flags().StringP(sessionCookieMaxAgeFlagName, "", "", sessionCookieMaxAgeFlagUsage)
 }
 
 func createWebAuthFlags(cmd *cobra.Command) {
@@ -510,8 +513,10 @@ func getWebAuthParams(cmd *cobra.Command) (*webauthParameters, error) {
 	return params, nil
 }
 
-func getKeyParams(cmd *cobra.Command) (*keyParameters, error) {
-	params := &keyParameters{}
+func getCookieParams(cmd *cobra.Command) (*cookie.Config, error) {
+	const defaultMaxAge = 900
+
+	params := &cookie.Config{MaxAge: defaultMaxAge}
 
 	sessionCookieAuthKeyPath, err := cmdutils.GetUserSetVarFromString(cmd,
 		sessionCookieAuthKeyFlagName, sessionCookieAuthKeyEnvKey, false)
@@ -519,7 +524,7 @@ func getKeyParams(cmd *cobra.Command) (*keyParameters, error) {
 		return nil, fmt.Errorf("failed to configure session cookie auth key: %w", err)
 	}
 
-	params.sessionCookieAuthKey, err = parseKey(sessionCookieAuthKeyPath)
+	params.AuthKey, err = parseKey(sessionCookieAuthKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to configure session cookie auth key: %w", err)
 	}
@@ -530,9 +535,22 @@ func getKeyParams(cmd *cobra.Command) (*keyParameters, error) {
 		return nil, fmt.Errorf("failed to configure session cookie enc key: %w", err)
 	}
 
-	params.sessionCookieEncKey, err = parseKey(sessionCookieEncKeyPath)
+	params.EncKey, err = parseKey(sessionCookieEncKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to configure session cookie enc key: %w", err)
+	}
+
+	timeout, err := cmdutils.GetUserSetVarFromString(cmd,
+		sessionCookieMaxAgeFlagName, sessionCookieMaxAgeEnvKey, true)
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure session cookie max age: %w", err)
+	}
+
+	if timeout != "" {
+		params.MaxAge, err = strconv.Atoi(timeout)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse session cookie max age [%s]: %w", timeout, err)
+		}
 	}
 
 	return params, nil
@@ -712,10 +730,7 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store ari
 			Storage:          store,
 			TransientStorage: ariesmem.NewProvider(),
 		},
-		Keys: &oidc.KeyConfig{
-			Auth: config.keys.sessionCookieAuthKey,
-			Enc:  config.keys.sessionCookieEncKey,
-		},
+		Cookie: config.cookie,
 		KeyServer: &oidc.KeyServerConfig{
 			AuthzKMSURL: config.keyServer.authzKMSURL,
 			OpsKMSURL:   config.keyServer.opsKMSURL,
@@ -753,10 +768,7 @@ func addDeviceHandlers(router *mux.Router, config *httpServerParameters, store a
 			Storage:      store,
 			SessionStore: ariesmem.NewProvider(),
 		},
-		Keys: &device.KeyConfig{
-			Auth: config.keys.sessionCookieAuthKey,
-			Enc:  config.keys.sessionCookieEncKey,
-		},
+		Cookie:     config.cookie,
 		Webauthn:   webAuthn,
 		HubAuthURL: config.hubAuthURL,
 	})

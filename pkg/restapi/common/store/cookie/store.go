@@ -16,14 +16,19 @@ import (
 const (
 	// StoreName is the name of the cookie store.
 	StoreName = "edgeagent_wallet"
-	// TODO make session cookies max age configurable: https://github.com/trustbloc/edge-agent/issues/388
-	storeMaxAge = 900 // 15 mins
 )
 
+// Config the cookie store.
+type Config struct {
+	AuthKey []byte
+	EncKey  []byte
+	MaxAge  int
+}
+
 // NewStore returns a new CookieStore.
-func NewStore(authKey, encKey []byte) *Jars {
-	cs := sessions.NewCookieStore(authKey, encKey)
-	cs.MaxAge(storeMaxAge)
+func NewStore(config *Config) *Jars {
+	cs := sessions.NewCookieStore(config.AuthKey, config.EncKey)
+	cs.MaxAge(config.MaxAge)
 
 	return &Jars{cs: cs}
 }

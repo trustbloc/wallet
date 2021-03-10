@@ -1269,9 +1269,10 @@ func config(t *testing.T) *Config {
 			Storage:          ariesmem.NewProvider(),
 			TransientStorage: ariesmem.NewProvider(),
 		},
-		Keys: &KeyConfig{
-			Auth: key(t),
-			Enc:  key(t),
+		Cookie: &cookie.Config{
+			AuthKey: key(t),
+			EncKey:  key(t),
+			MaxAge:  900,
 		},
 		KeyServer: &KeyServerConfig{
 			AuthzKMSURL: "",

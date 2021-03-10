@@ -27,6 +27,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
+
+	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
 )
 
 type mockServer struct {
@@ -39,9 +41,9 @@ func (s *mockServer) ListenAndServe(host, certFile, keyFile string, handler http
 
 func TestListenAndServe(t *testing.T) {
 	router, err := router(&httpServerParameters{
-		oidc: &oidcParameters{providerURL: mockOIDCProvider(t)},
-		tls:  &tlsParameters{},
-		keys: &keyParameters{},
+		oidc:   &oidcParameters{providerURL: mockOIDCProvider(t)},
+		tls:    &tlsParameters{},
+		cookie: &cookie.Config{},
 		webAuth: &webauthParameters{
 			rpDisplayName: "Foobar Corp.",
 			rpID:          "localhost",
@@ -138,6 +140,7 @@ func validArgs(t *testing.T) map[string]string {
 		hubAuthURLFlagName:                "http://localhost",
 		databaseTypeFlagName:              "mem",
 		agentTransportReturnRouteFlagName: "all",
+		sessionCookieMaxAgeFlagName:       "100",
 	}
 }
 
@@ -306,6 +309,20 @@ func TestStartCmdWithInvalidAgentArgs(t *testing.T) {
 		err := startCmd.Execute()
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "outbound-transport flag not found")
+	})
+
+	t.Run("invalid session cookie max age value", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[sessionCookieMaxAgeFlagName] = "INVALID"
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "failed to parse session cookie max age")
 	})
 }
 
