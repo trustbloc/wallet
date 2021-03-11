@@ -10,6 +10,7 @@ import {fetchCredentials, filterCred} from "./getCredentialsByFrame";
 
 const jsonld = require('jsonld');
 var uuid = require('uuid/v4')
+var flatten = require('flat')
 
 const QUERY_TYPES = ["QueryByFrame", "QueryByExample"]
 const CHAPI_RESPONSE_TYPE = 'VerifiablePresentation'
@@ -56,7 +57,12 @@ export class MultipleQuery {
         try {
             const _getProof = async ({frame, credential}) => {
                 if (frame) {
-                    let response = await this.agent.verifiable.deriveCredential({credential, frame, skipVerify: true, nonce:uuid()})
+                    let response = await this.agent.verifiable.deriveCredential({
+                        credential,
+                        frame,
+                        skipVerify: true,
+                        nonce: uuid()
+                    })
                     return JSON.parse(response.verifiableCredential)
                 }
 
@@ -116,7 +122,8 @@ async function _mixedQuery(agent, vcs, query) {
         // query by frame.
         const _getByFrame = async (credential) => {
             // if no frame, then show all credential details
-            let output = frame ? await jsonld.frame(credential, frame) : credential
+            let framed = frame ? await jsonld.frame(credential, frame) : credential
+            let output = flatCredentialSubject(framed.credentialSubject);
             return {credential, reason, frame, output}
         };
 
@@ -128,4 +135,13 @@ async function _mixedQuery(agent, vcs, query) {
     // flatten results
     return requiredResults
         .reduce((acc, val) => acc.concat(val), []);
+}
+
+function flatCredentialSubject(subj) {
+    return flatten(subj, {
+        transformKey: function (key) {
+            let parts = key.split('#')
+            return parts[parts.length - 1]
+        }
+    })
 }

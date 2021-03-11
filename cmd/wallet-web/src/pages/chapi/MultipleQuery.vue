@@ -66,9 +66,9 @@ SPDX-License-Identifier: Apache-2.0
                     <div v-if="record.output" class="md-caption" >
                         The verifier will only access below information from your <span class="md-body-1">{{record.credential.name ? record.credential.name  : getCredentialType(record.credential.type)}}</span>
                         <div style="margin: 10px"></div>
-                        <div v-for="(subj, skey) in record.output.credentialSubject" :key="skey">
+                        <div v-for="(subj, skey) in record.output" :key="skey">
                             <div class="md-caption" style="padding-left: 35%" v-if="displayContent(skey)">
-                                {{skey}} : {{subj}}
+                                <b>{{skey.replace('.', ' ')}} </b>: {{subj}}
                             </div>
                         </div>
                     </div>
@@ -102,12 +102,11 @@ SPDX-License-Identifier: Apache-2.0
     const vcIcons = {
         PermanentResidentCard:'perm_identity',
         UniversityDegreeCredential:'school',
-        FlightBookingRef: 'flight',
+        BookingReferenceCredential: 'flight',
         VaccinationCertificate: 'health_and_safety',
     }
 
     const getIcon = (type) =>  vcIcons[type] ? vcIcons[type] : allIcons[Math.floor(Math.random() * Math.floor(allIcons.length))]
-
 
     export default {
         errorCaptured(error) {
@@ -174,7 +173,8 @@ SPDX-License-Identifier: Apache-2.0
                 return types.filter(type => type != "VerifiableCredential")[0]
             },
             displayContent(k) {
-                return !nonDisplayContent.includes(k)
+                let parts = k.split('.')
+                return !nonDisplayContent.includes(parts[parts.length -1])
             },
         },
         computed: {
