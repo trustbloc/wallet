@@ -9,10 +9,10 @@ rm -rf public/agent-js-worker/
 mkdir -p public/agent-js-worker/assets
 npm install
 
-if [[ $(grep "@trustbloc-cicd/agent-sdk" "package.json") ]] ; then
-   cp -Rp node_modules/@trustbloc-cicd/agent-sdk/dist/assets/* public/agent-js-worker/assets
+if [[ $(grep "@trustbloc-cicd/agent-sdk-web" "package.json") ]] ; then
+   cp -Rp node_modules/@trustbloc-cicd/agent-sdk-web/dist/assets/* public/agent-js-worker/assets
 else
-   cp -Rp node_modules/@trustbloc/agent-sdk/dist/assets/* public/agent-js-worker/assets
+   cp -Rp node_modules/@trustbloc/agent-sdk-web/dist/assets/* public/agent-js-worker/assets
 fi
 
 cp public/agent-js-worker/assets/agent-js-worker.wasm.gz public/agent-js-worker/assets/agent-js-worker.wasm.gz.bak

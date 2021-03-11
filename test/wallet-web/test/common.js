@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import * as Agent from "@trustbloc/agent-sdk"
+import * as Agent from "@trustbloc/agent-sdk-web"
 import {createLocalVue} from "@vue/test-utils";
 import Vuex from "vuex";
 
