@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import {WalletManager} from "../../pages/chapi/wallet";
-import * as Agent from "@trustbloc/agent-sdk";
+import * as Agent from "@trustbloc/agent-sdk-web";
 
 export default {
     state: {
