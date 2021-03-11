@@ -23,13 +23,17 @@ SPDX-License-Identifier: Apache-2.0
                             <br>
                             <div>
                                 <b>Sample requests:</b>
-                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('vp', 'store')">Store Presentation
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('vp', 'store')">Store Presentation (Sample 1)
+                                </md-chip>
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('vp2', 'store')">Store Presentation (Sample 2)
                                 </md-chip>
                                 <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('getvp', 'get')">Request Presentation
                                 </md-chip>
                                 <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('bbs', 'get')">Selective Disclosure
                                 </md-chip>
-                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('multiQ', 'get')">Mulitple Query
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('multiQ1', 'get')">Multiple Query - 1
+                                </md-chip>
+                                <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('multiQ2', 'get')">Multiple Query - 2
                                 </md-chip>
                                 <md-chip class="request-sample" md-clickable v-on:click="prefillRequest('pexq', 'get')">Presentation Exchange
                                     Query
