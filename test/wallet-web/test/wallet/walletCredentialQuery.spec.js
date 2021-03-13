@@ -144,10 +144,9 @@ describe('get credentials by presentation definition query', () => {
 
     it('launched get credentials by query and found VCs passing exchange query', async () => {
         let presDef = wrapper.findComponent(PresentationDefQuery)
-        await promiseWhen(() => presDef.vm.vcsFound.length > 0, 10000)
+        await promiseWhen(() => !presDef.vm.loading, 10000)
 
         expect(presDef.vm.vcsFound).to.have.lengthOf(2)
-        expect(presDef.vm.loading).to.be.false
 
         let btn = presDef.find("#share-credentials")
         expect(btn.attributes('disabled')).to.be.equal('true')

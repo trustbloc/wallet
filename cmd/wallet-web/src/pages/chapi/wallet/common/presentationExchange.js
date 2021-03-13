@@ -13,7 +13,7 @@ import {getCredentialType} from './util'
 const presentationSubmissionTemplate = `{
     "@context": [
         "https://www.w3.org/2018/credentials/v1",
-        "https://trustbloc.github.io/context/vp/presentation-exchange-submission-v1.jsonld"
+        "https://identity.foundation/presentation-exchange/submission/v1"
     ],
     "type": ["VerifiablePresentation", "PresentationSubmission"],
     "presentation_submission": {
@@ -53,7 +53,7 @@ export class PresentationExchange {
 
     _filterDescriptors() {
         // validate groups defined in 'submission_requirements'
-        var requiredRules = jp.query(this.requirementObjs, '$..from[*]');
+        var requiredRules = jp.query(this.requirementObjs, '$..from');
         var availableRules = jp.query(this.descriptors, '$..group[*]');
         if (!requiredRules.every(v => availableRules.includes(v))) {
             throw [{message: "Couldn't find matching group in descriptors for 'submission_requirements'"}]
@@ -97,10 +97,8 @@ export class PresentationExchange {
                 r.rule = countDetails(obj)
                 r.descriptors = []
 
-                from.forEach(function (grp) {
-                    descrsByGroup[grp].forEach(function (d) {
-                        r.descriptors.push(getNameAndPurpose(d))
-                    })
+                descrsByGroup[from].forEach(function (d) {
+                    r.descriptors.push(getNameAndPurpose(d))
                 })
 
                 result.push(r)
@@ -126,8 +124,8 @@ export class PresentationExchange {
 
 
 function getNameAndPurpose(descriptor) {
-    let name = jp.query(descriptor, "$.schema.name")
-    let purpose = jp.query(descriptor, "$.schema.purpose")
+    let name = jp.query(descriptor, "$.name")
+    let purpose = jp.query(descriptor, "$.purpose")
     let constraints = jp.query(descriptor, "$.constraints.fields[*].purpose")
 
     return {
@@ -155,7 +153,7 @@ function match(credential, descriptor) {
     }
 
     // match schema
-    let schemas = Array.isArray(descriptor.schema.uri) ? descriptor.schema.uri : [descriptor.schema.uri]
+    let schemas = descriptor.schema.map(s => s.uri)
     let contexts = Array.isArray(credential["@context"]) ? credential["@context"] : [credential["@context"]]
     let schemaMatched = contexts.some(v => schemas.includes(v))
 
@@ -208,7 +206,7 @@ function match(credential, descriptor) {
 // TODO: manifests to have credential previews so that complete constraint checks can be run
 function matchManifest(manifest, descriptor) {
 
-    let schemas = Array.isArray(descriptor.schema.uri) ? descriptor.schema.uri : [descriptor.schema.uri]
+    let schemas = descriptor.schema.map(s => s.uri)
 
     if (descriptor.constraints && descriptor.constraints.fields) {
         descriptor.constraints.fields.filter(f => f.filter).filter(f => f.filter.const).forEach(f => {
@@ -270,35 +268,31 @@ function evaluateByRules(credentials, manifests, descrsByGroup, submissions) {
     let result = []
 
     submissions.forEach(function (submission) {
+        let descriptors = descrsByGroup[submission.from]
+        let pick = countMatcher(submission, descriptors.length)
+        let matched = false
 
-        submission.from.forEach(function (rule) {
-            let descriptors = descrsByGroup[rule]
-            let pick = countMatcher(submission, descriptors.length)
-            let matched = false
-
-            credentials.forEach(function (credential) {
-                let matches = descriptors.filter(d => match(credential, d))
-                if (pick(matches.length)) {
-                    matched = true
-                    matches.forEach(function (match) {
-                        result.push({credential, id: match.id})
-                    })
-                }
-            })
-
-            // none of the credential matched, check for manifest credential matches
-            if (!matched && manifests) {
-                manifests.forEach(function (credential) {
-                    let matches = descriptors.filter(d => matchManifest(credential, d))
-                    if (pick(matches.length)) {
-                        matches.forEach(function (match) {
-                            result.push({credential, id: match.id, manifest: true})
-                        })
-                    }
+        credentials.forEach(function (credential) {
+            let matches = descriptors.filter(d => match(credential, d))
+            if (pick(matches.length)) {
+                matched = true
+                matches.forEach(function (match) {
+                    result.push({credential, id: match.id})
                 })
             }
         })
 
+        // none of the credential matched, check for manifest credential matches
+        if (!matched && manifests) {
+            manifests.forEach(function (credential) {
+                let matches = descriptors.filter(d => matchManifest(credential, d))
+                if (pick(matches.length)) {
+                    matches.forEach(function (match) {
+                        result.push({credential, id: match.id, manifest: true})
+                    })
+                }
+            })
+        }
     })
 
     return result
