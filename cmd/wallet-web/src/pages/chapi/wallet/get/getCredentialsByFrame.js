@@ -103,8 +103,8 @@ async function _queryByFrame(agent, vcs, credentialQuery) {
     let query = Array.isArray(credentialQuery) ? credentialQuery : [credentialQuery]
 
     const _query = async ({example, frame}) => {
-        // filter cred records by query by example
-        let records = filterCred(vcs, {types: example.type, contexts: example['@context']});
+        // filter cred records by example 'type & context' if provided, or else filter by frame 'type & context'
+        let records = filterCred(vcs, example ? {types: example.type, contexts: example['@context']} : {types: frame.type, contexts: frame['@context']});
 
         // fetch VCs
         let creds = await fetchCredentials(agent, records)
