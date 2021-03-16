@@ -217,33 +217,36 @@ export const prcAndUdcVP = {
 }
 
 export const presentationDefQuery1 = {
+    id: "b8f45535-023f-4faf-87af-f44fa1d465f4",
     submission_requirements: [
         {
             "name": "Education Qualification",
             "purpose": "We need to know if you are qualified for this job",
             "rule": "pick",
             "count": 1,
-            "from": ["E"]
+            "from": "E"
         },
         {
             "name": "Citizenship Information",
             "purpose": "You must be legally allowed to work in United States",
             "rule": "all",
-            "from": ["C"]
+            "from": "C"
         }
     ],
 
     input_descriptors: [
         {
             "id": "citizenship_input_1",
+            "name": "US Permanent resident card",
             "group": ["C"],
-            "schema": {
-                "uri": [
-                    "https://w3id.org/citizenship/v1",
-                    "https://w3id.org/citizenship/v2"
-                ],
-                "name": "US Permanent resident card"
-            },
+            "schema": [
+                {
+                    "uri": "https://w3id.org/citizenship/v1"
+                },
+                {
+                    "uri": "https://w3id.org/citizenship/v2"
+                }
+            ],
             "constraints": {
                 "fields": [
                     {
@@ -258,14 +261,12 @@ export const presentationDefQuery1 = {
         },
         {
             "id": "degree_input_1",
+            "name": "University degree certificate",
+            "purpose": "We need your education qualification details.",
             "group": ["E"],
-            "schema": {
-                "uri": [
-                    "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
-                ],
-                "name": "University degree certificate",
-                "purpose": "We need your education qualification details."
-            },
+            "schema": [{
+                "uri": "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
+            }],
             "constraints": {
                 "fields": [
                     {
@@ -281,14 +282,12 @@ export const presentationDefQuery1 = {
         },
         {
             "id": "degree_input_2",
+            "name": "Diploma certificate",
+            "purpose": "We need your education qualification details.",
             "group": ["E"],
-            "schema": {
-                "uri": [
-                    "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
-                ],
-                "name": "Diploma certificate",
-                "purpose": "We need your education qualification details."
-            },
+            "schema": [{
+                "uri": "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
+            }],
             "constraints": {
                 "fields": [
                     {
@@ -314,29 +313,30 @@ export const presentationDefQuery1 = {
 }
 
 export const presentationDefQuery2 = {
+    "id": "8f054d98-40d3-47cf-add8-906e4cdb0ea3",
     "submission_requirements": [
         {
             "name": "Citizenship Information",
             "purpose": "You must be legally allowed to work in United States",
             "rule": "all",
-            "from": [
-                "C"
-            ]
+            "from": "C"
         }
     ],
     "input_descriptors": [
         {
             "id": "citizenship_input_1",
+            "name": "US Permanent resident card",
             "group": [
                 "C"
             ],
-            "schema": {
-                "uri": [
-                    "https://w3id.org/citizenship/v3",
-                    "https://w3id.org/citizenship/v4"
-                ],
-                "name": "US Permanent resident card"
-            },
+            "schema": [
+                {
+                    "uri": "https://w3id.org/citizenship/v3"
+                },
+                {
+                    "uri": "https://w3id.org/citizenship/v4"
+                }
+            ],
             "constraints": {
                 "fields": [
                     {

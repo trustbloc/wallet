@@ -5,36 +5,37 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 export const samplePresentationDefQuery = {
+    "id": "9e45948a-a9b8-464a-9ca9-e8b5101535ce",
     "submission_requirements": [
         {
             "name": "Banking Information",
             "purpose": "We need to know if you have an established banking history.",
             "rule": "pick",
             "count": 1,
-            "from": ["A"]
+            "from": "A"
         },
         {
             "name": "Employment Information",
             "purpose": "We need to know that you are currently employed.",
             "rule": "all",
-            "from": ["B"]
+            "from": "B"
         },
         {
             "name": "Citizenship Information",
             "rule": "pick",
             "count": 1,
-            "from": ["C"]
+            "from": "C"
         }
     ],
     "input_descriptors": [
         {
             "id": "banking_input_1",
+            "name": "Bank Account Information",
+            "purpose": "We need your bank and account information.",
             "group": ["A"],
-            "schema": {
+            "schema": [{
                 "uri": "https://bank-standards.com/customer.json",
-                "name": "Bank Account Information",
-                "purpose": "We need your bank and account information."
-            },
+            }],
             "constraints": {
                 "fields": [
                     {
@@ -67,15 +68,17 @@ export const samplePresentationDefQuery = {
         },
         {
             "id": "banking_input_2",
+            "name": "Bank Account Information",
+            "purpose": "We need your bank and account information.",
             "group": ["A"],
-            "schema": {
-                "uri": [
-                    "https://bank-schemas.org/1.0.0/accounts.json",
-                    "https://bank-schemas.org/2.0.0/accounts.json"
-                ],
-                "name": "Bank Account Information",
-                "purpose": "We need your bank and account information."
-            },
+            "schema": [
+                {
+                    "uri": "https://bank-schemas.org/1.0.0/accounts.json"
+                },
+                {
+                    "uri": "https://bank-schemas.org/2.0.0/accounts.json"
+                }
+            ],
             "constraints": {
                 "fields": [
                     {
@@ -108,12 +111,12 @@ export const samplePresentationDefQuery = {
         },
         {
             "id": "employment_input",
+            "name": "Employment History",
+            "purpose": "We need your bank and account information.",
             "group": ["B"],
-            "schema": {
+            "schema": [{
                 "uri": "https://business-standards.org/schemas/employment-history.json",
-                "name": "Employment History",
-                "purpose": "We need your bank and account information."
-            },
+            }],
             "constraints": {
                 "fields": [
                     {
@@ -128,11 +131,11 @@ export const samplePresentationDefQuery = {
         },
         {
             "id": "citizenship_input_1",
+            "name": "EU Driver's License",
             "group": ["C"],
-            "schema": {
+            "schema": [{
                 "uri": "https://eu.com/claims/DriversLicense.json",
-                "name": "EU Driver's License"
-            },
+            }],
             "constraints": {
                 "fields": [
                     {
@@ -155,13 +158,12 @@ export const samplePresentationDefQuery = {
         },
         {
             "id": "citizenship_input_2",
+            "name": "US Passport",
             "group": ["C"],
-            "schema": {
-                "uri": "hub://did:foo:123/Collections/schema.us.gov/passport.json",
-                "name": "US Passport"
-            },
+            "schema": [{
+                "uri": "hub://did:foo:123/Collections/schema.us.gov/passport.json"
+            }],
             "constraints": {
-                "issuers": ["did:foo:gov3"],
                 "fields": [
                     {
                         "path": ["$.birth_date"],
@@ -367,31 +369,34 @@ export const driversLicenseEvidenceManifestVC = {
 }
 
 export const samplePresentationDefQuery1 = {
+    id: "e9ff28a6-f31d-427e-8bb7-88d763577007",
     submission_requirements: [
         {
             "name": "Degree Information",
             "purpose": "We need to know if you are qualified for this job",
             "rule": "pick",
             "count": 1,
-            "from": ["D"]
+            "from": "D"
         },
         {
             "name": "Citizenship Information",
             "rule": "all",
-            "from": ["C"]
+            "from": "C"
         }
     ],
     input_descriptors: [
         {
             "id": "citizenship_input_1",
+            "name": "US Permanent resident card",
             "group": ["C"],
-            "schema": {
-                "uri": [
-                    "https://w3id.org/citizenship/v1",
-                    "https://w3id.org/citizenship/v2"
-                ],
-                "name": "US Permanent resident card"
-            },
+            "schema": [
+                {
+                    "uri": "https://w3id.org/citizenship/v1"
+                },
+                {
+                    "uri": "https://w3id.org/citizenship/v2"
+                }
+            ],
             "constraints": {
                 "fields": [
                     {
@@ -414,13 +419,11 @@ export const samplePresentationDefQuery1 = {
         },
         {
             "id": "degree_input_1",
+            "name": "University degree certificate",
             "group": ["D"],
-            "schema": {
-                "uri": [
-                    "https://www.example.com/2020/udc-example/v1"
-                ],
-                "name": "University degree certificate"
-            },
+            "schema": [{
+                "uri": "https://www.example.com/2020/udc-example/v1"
+            }],
             "constraints": {
                 "fields": [
                     {
@@ -444,13 +447,11 @@ export const samplePresentationDefQuery1 = {
         },
         {
             "id": "degree_input_2",
+            "name": "University degree certificate",
             "group": ["D"],
-            "schema": {
-                "uri": [
-                    "https://www.example.com/2020/udc-example/v1"
-                ],
-                "name": "University degree certificate"
-            },
+            "schema": [{
+                "uri": "https://www.example.com/2020/udc-example/v1"
+            }],
             "constraints": {
                 "fields": [
                     {
@@ -474,13 +475,11 @@ export const samplePresentationDefQuery1 = {
         },
         {
             "id": "degree_input_3",
+            "name": "University degree certificate",
             "group": ["D"],
-            "schema": {
-                "uri": [
-                    "https://www.example.com/2020/udc-example/v1"
-                ],
-                "name": "University degree certificate"
-            },
+            "schema": [{
+                "uri": "https://www.example.com/2020/udc-example/v1"
+            }],
             "constraints": {
                 "fields": [
                     {
