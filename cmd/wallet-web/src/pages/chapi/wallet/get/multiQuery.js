@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 import {getDomainAndChallenge} from "../common/util";
 import {WalletManager} from "../register/walletManager";
 import {fetchCredentials, filterCred} from "./getCredentialsByFrame";
+import {DIDManager} from "..";
 
 const jsonld = require('jsonld');
 var uuid = require('uuid/v4')
@@ -40,6 +41,7 @@ export class MultipleQuery {
         this.challenge = challenge
 
         this.walletManager = new WalletManager(agent)
+        this.didManager = new DIDManager(agent)
     }
 
     async queryCredentials() {
@@ -70,10 +72,12 @@ export class MultipleQuery {
             }
 
             const allProofs = await Promise.all(selections.map(_getProof));
-            let walletMetadata = this.walletManager.getWalletMetadata(user)
+            // temp fix, should find metadata from user preference
+            let walletMetadata = this._getDIDForSigning(user, selections[0].credential)
 
             let vcs = allProofs.reduce((acc, val) => acc.concat(val), [])
             const {did, signatureType} = await walletMetadata
+            console.log(`presenting with ${did}`)
 
             let resp = await this.agent.verifiable.generatePresentation({
                 verifiableCredential: vcs,
@@ -88,6 +92,23 @@ export class MultipleQuery {
             console.error('sending response error', e)
             this.sendResponse("error", e)
         }
+    }
+
+    // TODO temp fix, should always read DID from user preference settings
+    async _getDIDForSigning(user, credential) {
+        try {
+            if (credential.credentialSubject.id) {
+                let metadata = await this.didManager.getDIDMetadata(credential.credentialSubject.id)
+                let {id, signatureType} = metadata
+                return {did: id, signatureType}
+            }
+        } catch (e) {
+            console.error('failed to get did from credential subject ID, switching to default DID', e)
+        }
+
+        let walletMetadata = await this.walletManager.getWalletMetadata(user)
+        let {signatureType, did} = walletMetadata
+        return {did, signatureType}
     }
 
     cancel() {
@@ -109,7 +130,10 @@ async function _mixedQuery(agent, vcs, query) {
     const _query = async ({type: queryType, credentialQuery}) => {
         const {example, frame, reason} = credentialQuery
         // filter cred records by example 'type & context' if provided, or else filter by frame 'type & context'
-        let records = filterCred(vcs, example ? {types: example.type, contexts: example['@context']} : {types: frame.type, contexts: frame['@context']});
+        let records = filterCred(vcs, example ? {
+            types: example.type,
+            contexts: example['@context']
+        } : {types: frame.type, contexts: frame['@context']});
 
         // fetch VCs
         let creds = await fetchCredentials(agent, records)

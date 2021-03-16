@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 // import {getCredentialType} from '../common/util.js';
 import {getDomainAndChallenge} from "../common/util";
 import {WalletManager} from "../register/walletManager";
+import {DIDManager} from "..";
 
 const jsonld = require('jsonld');
 var uuid = require('uuid/v4')
@@ -39,6 +40,7 @@ export class SelectiveDisclosure {
         this.challenge = challenge
 
         this.walletManager = new WalletManager(agent)
+        this.didManager = new DIDManager(agent)
     }
 
     async queryByFrame() {
@@ -61,14 +63,21 @@ export class SelectiveDisclosure {
     async generatePresentation(user, selections) {
         try {
             const _getProof = async ({frame, credential}) => {
-                return await this.agent.verifiable.deriveCredential({credential, frame, skipVerify: true, nonce:uuid()})
+                return await this.agent.verifiable.deriveCredential({
+                    credential,
+                    frame,
+                    skipVerify: true,
+                    nonce: uuid()
+                })
             }
 
             const allProofs = await Promise.all(selections.map(_getProof));
-            let walletMetadata = this.walletManager.getWalletMetadata(user)
+            // temp fix, should find metadata from user preference
+            let walletMetadata = this._getDIDForSigning(user, selections[0].credential)
 
             let vcs = allProofs.reduce((acc, val) => acc.concat(JSON.parse(val.verifiableCredential)), [])
             const {did, signatureType} = await walletMetadata
+            console.log(`presenting with ${did}`)
 
             let resp = await this.agent.verifiable.generatePresentation({
                 verifiableCredential: vcs,
@@ -83,6 +92,23 @@ export class SelectiveDisclosure {
             console.error('sending response error', e)
             this.sendResponse("error", e)
         }
+    }
+
+    // TODO temp fix, should always read DID from user preference settings
+    async _getDIDForSigning(user, credential) {
+        try {
+            if (credential.credentialSubject.id) {
+                let metadata = await this.didManager.getDIDMetadata(credential.credentialSubject.id)
+                let {id, signatureType} = metadata
+                return {did: id, signatureType}
+            }
+        } catch (e) {
+            console.error('failed to get did from credential subject ID, switching to default DID', e)
+        }
+
+        let walletMetadata = await this.walletManager.getWalletMetadata(user)
+        let {signatureType, did} = walletMetadata
+        return {did, signatureType}
     }
 
     cancel() {
@@ -104,7 +130,10 @@ async function _queryByFrame(agent, vcs, credentialQuery) {
 
     const _query = async ({example, frame}) => {
         // filter cred records by example 'type & context' if provided, or else filter by frame 'type & context'
-        let records = filterCred(vcs, example ? {types: example.type, contexts: example['@context']} : {types: frame.type, contexts: frame['@context']});
+        let records = filterCred(vcs, example ? {
+            types: example.type,
+            contexts: example['@context']
+        } : {types: frame.type, contexts: frame['@context']});
 
         // fetch VCs
         let creds = await fetchCredentials(agent, records)
