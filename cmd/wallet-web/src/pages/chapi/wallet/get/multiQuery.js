@@ -108,8 +108,8 @@ export class MultipleQuery {
 async function _mixedQuery(agent, vcs, query) {
     const _query = async ({type: queryType, credentialQuery}) => {
         const {example, frame, reason} = credentialQuery
-        // filter cred records by query by example
-        let records = filterCred(vcs, {types: example.type, contexts: example['@context']});
+        // filter cred records by example 'type & context' if provided, or else filter by frame 'type & context'
+        let records = filterCred(vcs, example ? {types: example.type, contexts: example['@context']} : {types: frame.type, contexts: frame['@context']});
 
         // fetch VCs
         let creds = await fetchCredentials(agent, records)
