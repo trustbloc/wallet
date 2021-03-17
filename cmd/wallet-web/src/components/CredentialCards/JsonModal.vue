@@ -8,10 +8,10 @@ SPDX-License-Identifier: Apache-2.0
     <div>
         <md-dialog :md-active.sync="showDialog" style="max-width: 75% !important;">
             <md-dialog-title
-                    style="text-align: center; margin-top: 20px;">
+                    style="background-color: #00bcd4">
                 {{credDisplayName(item)}}
             </md-dialog-title>
-            <md-content style="width:90%; margin:auto;">
+            <md-content class="md-dialog-container">
                 <vue-json-pretty
                         :data="item">
                 </vue-json-pretty>
@@ -20,8 +20,7 @@ SPDX-License-Identifier: Apache-2.0
             <md-dialog-actions style="float: right; padding: 20px;">
                 <md-button
                         class="md-primary"
-                        @click="showDialog = false"
-                >
+                        @click="showDialog = false">
                     Close
                 </md-button>
             </md-dialog-actions>
@@ -65,6 +64,10 @@ SPDX-License-Identifier: Apache-2.0
         opacity: 1;
     }
     .md-dialog-container {
-        width: 100% !important;
+        max-width:1000px !important;
+        max-height:100% !important;
+        overflow-y:scroll !important;
+        overflow-x:scroll !important;
+        word-wrap: break-word !important;
     }
 </style>
