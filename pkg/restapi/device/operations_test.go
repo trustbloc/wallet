@@ -53,6 +53,28 @@ const testCredentialRequestBody = `{
 		"type": "public-key"
 	}`
 
+//nolint:lll //lines are too long
+const testCredReqReal = `{
+	"id":"AdTb0CC_J1vMOVywiVlOXalH-ZxohB5Z6_pNZh-eOaObbCBX_dN6pd-dxyddLHDJ7bkhkwcE9dsG5dnN_265nqvs",
+	"rawId":"AdTb0CC_J1vMOVywiVlOXalH-ZxohB5Z6_pNZh-eOaObbCBX_dN6pd-dxyddLHDJ7bkhkwcE9dsG5dnN_265nqvs",
+	"type":"public-key",
+	"response":{
+		"attestationObject":"o2NmbXRmcGFja2VkZ2F0dFN0bXSiY2FsZyZjc2lnWEgwRgIhAJ7qQwHFYvXMBu0T-7O_Y5Cx-OACw46p5mNmgcQAUUFKAiEA83FFc5Dwysa8bthsoWHps-Itdj2G2ijV4tHw-u2clFdoYXV0aERhdGFYxkmWDeWIDoxodDQXD2R2YFuP5K65ooYyx5lc87qDHZdjRWBTctitzgACNbzGCmSLCyXx8FUDAEIB1NvQIL8nW8w5XLCJWU5dqUf5nGiEHlnr-k1mH545o5tsIFf903ql353HJ10scMntuSGTBwT12wbl2c3_brmeq-ylAQIDJiABIVggw5JvLjCxCBS7AHFfnTWPFMxrwaSUZ4VxbWN4ayMU_zoiWCBYvaFdqTTOiF3lZlgjNAlB_oi2eRVq67PmMsdtJyCkZA",
+		"clientDataJSON":"eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiOXhYNk1VcGFtQVk0N29hbXNHYlVOOHBJR1dIOHI1d3B4WEFaUHF6Q0pOOCIsIm9yaWdpbiI6Imh0dHBzOi8vbG9jYWxob3N0OjkwOTgiLCJjcm9zc09yaWdpbiI6ZmFsc2V9"
+	}
+}`
+
+//nolint:lll //lines are too long
+const testCredReqApple = `{
+	"id":"FOxcmsqPLNCHtyILvbNkrtHMdKAeqSJXYZDbeFd0kc5Enm8Kl6a0Jp0szgLilDw1S4CjZhe9Z2611EUGbjyEmg",
+	"type":"public-key",
+	"rawId":"FOxcmsqPLNCHtyILvbNkrtHMdKAeqSJXYZDbeFd0kc5Enm8Kl6a0Jp0szgLilDw1S4CjZhe9Z2611EUGbjyEmg",
+	"response":{
+		"clientDataJSON":"eyJjaGFsbGVuZ2UiOiItUmk1TlpUeko4YjZtdlczVFZTY0xvdEVvQUxmZ0JhMkJuNFlTYUlPYkhjIiwib3JpZ2luIjoiaHR0cHM6Ly93ZWJhdXRobi5pbyIsInR5cGUiOiJ3ZWJhdXRobi5jcmVhdGUifQ",
+		"attestationObject":"pGhBdXRoRGF0YaVkcnBpZFggdKbqkhPJnC90siSSsyDPQCYqlMGpUKA5fyklC2CEHvBlZmxhZ3MYQWpzaWduX2NvdW50AGhhdHRfZGF0YaNmYWFndWlkUAAAAAAAAAAAAAAAAAAAAABtY3JlZGVudGlhbF9pZFhAFOxcmsqPLNCHtyILvbNkrtHMdKAeqSJXYZDbeFd0kc5Enm8Kl6a0Jp0szgLilDw1S4CjZhe9Z2611EUGbjyEmmpwdWJsaWNfa2V5WE2lAQIDJiABIVgg_2qd0Pc1PDrBnveu7ePL8kcap_DXxU5N9O5gtVrB9iEiWCCHKgLltzMYVNLg7Wkl_PhbX_83jSS3QjhI2SRh7Ky8R2hleHRfZGF0YfZoYXV0aERhdGFYxHSm6pITyZwvdLIkkrMgz0AmKpTBqVCgOX8pJQtghB7wQQAAAAAAAAAAAAAAAAAAAAAAAAAAAEAU7Fyayo8s0Ie3Igu9s2Su0cx0oB6pIldhkNt4V3SRzkSebwqXprQmnSzOAuKUPDVLgKNmF71nbrXURQZuPISapQECAyYgASFYIP9qndD3NTw6wZ73ru3jy_JHGqfw18VOTfTuYLVawfYhIlgghyoC5bczGFTS4O1pJfz4W1__N40kt0I4SNkkYeysvEdjZm10ZWFwcGxlZ2F0dFN0bXSiY3NpZ1hGMEQCIH8iIcGY_n5BFck9RjivHIQxyUdnIVwS0kYOm0wozg5sAiBx-hlyPwUK3Efhh4OSX2sylUHXs6ev0FiBX0-JbUwjtmN4NWOBWQJTMIICTzCCATegAwIBAgIEEjbRfzANBgkqhkiG9w0BAQsFADAuMSwwKgYDVQQDEyNZdWJpY28gVTJGIFJvb3QgQ0EgU2VyaWFsIDQ1NzIwMDYzMTAgFw0xNDA4MDEwMDAwMDBaGA8yMDUwMDkwNDAwMDAwMFowMTEvMC0GA1UEAwwmWXViaWNvIFUyRiBFRSBTZXJpYWwgMjM5MjU3MzQxMDMyNDEwODcwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATTZakeXpng1bQ5wNmvu4f0BY5H3RKxRO2xTSsz-NNcFRPkDXnw-Zmr4jZxlZOBydwrB4WLgqxjR2IEzPc01q4hozswOTAiBgkrBgEEAYLECgIEFTEuMy42LjEuNC4xLjQxNDgyLjEuNTATBgsrBgEEAYLlHAIBAQQEAwIFIDANBgkqhkiG9w0BAQsFAAOCAQEAIhubs7JyJPE-vqMi8DUer0ZJZqNvcmmFfI4j-eUFtVJ13U5BIj5_JhEJFGnPkp-lJj5sx3aBskhtqvQfsc-r6FUI8T9nUPbIGyneYBtecgi7-mR25WSpHX1kq1JK0E67Ws4hixUm8XH4fN71I5joQyxQub8VeBl6tuu-MqvRdpM4OJwkuMl6zuPxvGFkdsr0LxNn3yko0CZVxjudPNCrabaZb-VzeIuZUvgCq0-UEVWxCdweIOxtJUIXWFfuq-GbR4pfJheGDTGdPkWmD8QGmDVpBWHczmQmiHUG10WXn4Bn2zFIgAtoMFje34jx1fXrvNjWMqRlN9jooxvQY4Rrfw"
+	}
+}`
+
 // The example from https://github.com/duo-labs/webauthn/blob/master/protocol/assertion_test.go
 
 //nolint:lll //lines are too long
@@ -225,43 +247,90 @@ func TestRegistration_BeginRegistration(t *testing.T) {
 
 func TestRegistration_FinishRegistration(t *testing.T) {
 	t.Run("finish registration", func(t *testing.T) {
-		o, err := New(config(t))
-		require.NoError(t, err)
-		userSub := uuid.New().String()
-		w := httptest.NewRecorder()
-		o.store.cookies = &cookie.MockStore{
-			Jar: &cookie.MockJar{
-				Cookies: map[interface{}]interface{}{
-					userSubCookieName: userSub,
+		testCases := []struct {
+			name           string
+			challenge      string
+			webAuthNConfig *webauthn.Config
+			requestBody    []byte
+			expectedStatus int
+		}{
+			{
+				"success - direct self attestation",
+				challenge,
+				&webauthn.Config{
+					RPDisplayName: "https://webauthn.io",
+					RPID:          "webauthn.io",
+					RPOrigin:      "https://webauthn.io",
 				},
+				[]byte(testCredentialRequestBody),
+				http.StatusOK,
+			},
+			{
+				"success - 'apple' credential",
+				challenge,
+				&webauthn.Config{
+					RPDisplayName: "https://webauthn.io",
+					RPID:          "webauthn.io",
+					RPOrigin:      "https://webauthn.io",
+				},
+				[]byte(testCredReqApple),
+				http.StatusOK,
+			},
+			{
+				"success - real data",
+				"9xX6MUpamAY47oamsGbUN8pIGWH8r5wpxXAZPqzCJN8", &webauthn.Config{
+					RPDisplayName: "trustbloc",
+					RPID:          "localhost",
+					RPOrigin:      "https://localhost:9098",
+				},
+				[]byte(testCredReqReal),
+				http.StatusOK,
 			},
 		}
-		r := newDeviceRegistrationRequest()
 
-		o, sessionData := prepareRequest(t, userSub, o)
+		for _, testCase := range testCases {
+			testCase := testCase // pin
 
-		dummyServer := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
-			writer.WriteHeader(http.StatusOK)
-		}))
+			t.Run(testCase.name, func(t *testing.T) {
+				o, err := New(config(t))
+				require.NoError(t, err)
+				userSub := uuid.New().String()
+				w := httptest.NewRecorder()
+				o.store.cookies = &cookie.MockStore{
+					Jar: &cookie.MockJar{
+						Cookies: map[interface{}]interface{}{
+							userSubCookieName: userSub,
+						},
+					},
+				}
+				r := newDeviceRegistrationRequest()
 
-		defer func() { dummyServer.Close() }()
+				o, sessionData := prepareRequest(t, userSub, testCase.challenge, testCase.webAuthNConfig, o)
 
-		mockHubAuth := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
-			http.Redirect(writer, req, dummyServer.URL, http.StatusFound)
-		}))
+				dummyServer := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
+					writer.WriteHeader(http.StatusOK)
+				}))
 
-		defer func() { mockHubAuth.Close() }()
+				defer func() { dummyServer.Close() }()
 
-		o.hubAuthURL = mockHubAuth.URL
+				mockHubAuth := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
+					http.Redirect(writer, req, dummyServer.URL, http.StatusFound)
+				}))
 
-		err = o.store.session.SaveWebauthnSession(userSub, sessionData, r, w)
-		require.NoError(t, err)
+				defer func() { mockHubAuth.Close() }()
 
-		r.Header = w.Header()
-		r.Body = ioutil.NopCloser(bytes.NewReader([]byte(testCredentialRequestBody)))
+				o.hubAuthURL = mockHubAuth.URL
 
-		o.finishRegistration(w, r)
-		require.Equal(t, http.StatusOK, w.Code)
+				err = o.store.session.SaveWebauthnSession(userSub, sessionData, r, w)
+				require.NoError(t, err)
+
+				r.Header = w.Header()
+				r.Body = ioutil.NopCloser(bytes.NewReader(testCase.requestBody))
+
+				o.finishRegistration(w, r)
+				require.Equal(t, http.StatusOK, w.Code)
+			})
+		}
 	})
 
 	t.Run("finish registration - failed to create credential", func(t *testing.T) {
@@ -279,12 +348,10 @@ func TestRegistration_FinishRegistration(t *testing.T) {
 		}
 		r := newDeviceRegistrationRequest()
 
-		o, sessionData := prepareRequest(t, userSub, o)
-		config := &webauthn.Config{
+		o, sessionData := prepareRequest(t, userSub, challenge, &webauthn.Config{
 			RPDisplayName: "https://webauthn.io",
 			RPID:          "webauthn.io",
-		}
-		o.webauthn.Config = config
+		}, o)
 
 		err = o.store.session.SaveWebauthnSession(userSub, sessionData, r, w)
 		require.NoError(t, err)
@@ -367,7 +434,7 @@ func TestRegistration_FinishRegistration(t *testing.T) {
 		}
 		r := newDeviceRegistrationRequest()
 
-		o, sessionData := prepareRequest(t, userSub, o)
+		o, sessionData := prepareRequestWithDefaults(t, userSub, o)
 
 		mockHubAuth := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
 			writer.WriteHeader(http.StatusInternalServerError)
@@ -387,7 +454,7 @@ func TestRegistration_FinishRegistration(t *testing.T) {
 		require.Equal(t, http.StatusInternalServerError, w.Code)
 		require.Contains(t, w.Body.String(), "failed response from hub-auth")
 	})
-	t.Run("finish registration - failed direct attestation, no certs", func(t *testing.T) {
+	t.Run("finish registration - failed direct attestation, invalid cert", func(t *testing.T) {
 		o, err := New(config(t))
 		require.NoError(t, err)
 		userSub := uuid.New().String()
@@ -401,7 +468,7 @@ func TestRegistration_FinishRegistration(t *testing.T) {
 		}
 		r := newDeviceRegistrationRequest()
 
-		o, sessionData := prepareRequest(t, userSub, o)
+		o, sessionData := prepareRequestWithDefaults(t, userSub, o)
 
 		err = o.store.session.SaveWebauthnSession(userSub, sessionData, r, w)
 		require.NoError(t, err)
@@ -738,7 +805,16 @@ func newDeviceLoginRequest(username string) *http.Request {
 	return httptest.NewRequest(http.MethodGet, fmt.Sprintf("/login/begin?username=%s", username), nil)
 }
 
-func prepareRequest(t *testing.T, userSub string, o *Operation) (*Operation, *webauthn.SessionData) {
+func prepareRequestWithDefaults(t *testing.T, userSub string, o *Operation) (*Operation, *webauthn.SessionData) {
+	return prepareRequest(t, userSub, challenge, &webauthn.Config{
+		RPDisplayName: "https://webauthn.io",
+		RPID:          "webauthn.io",
+		RPOrigin:      "https://webauthn.io",
+	}, o)
+}
+
+func prepareRequest(t *testing.T, userSub, challenge string, webauthnConf *webauthn.Config, o *Operation,
+) (*Operation, *webauthn.SessionData) {
 	usr := user.User{Sub: userSub}
 	err := o.store.users.Save(&usr)
 	require.NoError(t, err)
@@ -751,14 +827,9 @@ func prepareRequest(t *testing.T, userSub string, o *Operation) (*Operation, *we
 		UserVerification: protocol.VerificationDiscouraged,
 	}
 	o.webauthn = &webauthn.WebAuthn{}
-	config := &webauthn.Config{
-		RPDisplayName: "https://webauthn.io",
-		RPID:          "webauthn.io",
-		RPOrigin:      "https://webauthn.io",
-	}
 
 	o.webauthn = &webauthn.WebAuthn{
-		Config: config,
+		Config: webauthnConf,
 	}
 
 	return o, sessionData
@@ -818,11 +889,50 @@ func makeCert(t *testing.T) []byte {
 	return certASN
 }
 
+func Test_generateTestData(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/register/finish", bytes.NewReader([]byte(testCredentialRequestBody)))
+
+	parsedResponse, err := protocol.ParseCredentialCreationResponse(r)
+	require.NoError(t, err)
+
+	parsedResponse.Response.AttestationObject.Format = "apple"
+
+	data := marshalCCR(t, &parsedResponse.Raw, &parsedResponse.Response.AttestationObject)
+
+	fmt.Printf("%s\n", string(data))
+}
+
+func marshalCCR(t *testing.T, out *protocol.CredentialCreationResponse, att *protocol.AttestationObject) []byte {
+	attObjBytes, err := cbor.Marshal(att)
+	require.NoError(t, err)
+
+	out.AttestationResponse.AttestationObject = attObjBytes
+
+	outBytes, err := json.Marshal(out)
+	require.NoError(t, err)
+
+	return outBytes
+}
+
 // generates a credential creation response without any x509 certificates.
 func generateBadCredentialResponse(t *testing.T) []byte {
 	wrongCertASN := makeCert(t)
 
-	attObj := protocol.AttestationObject{
+	return marshalCCR(t, &protocol.CredentialCreationResponse{
+		PublicKeyCredential: protocol.PublicKeyCredential{
+			Credential: protocol.Credential{
+				ID:   "FOxcmsqPLNCHtyILvbNkrtHMdKAeqSJXYZDbeFd0kc5Enm8Kl6a0Jp0szgLilDw1S4CjZhe9Z2611EUGbjyEmg",
+				Type: "public-key",
+			},
+			RawID:      fromb64("FOxcmsqPLNCHtyILvbNkrtHMdKAeqSJXYZDbeFd0kc5Enm8Kl6a0Jp0szgLilDw1S4CjZhe9Z2611EUGbjyEmg=="), // nolint:lll // test data
+			Extensions: nil,
+		},
+		AttestationResponse: protocol.AuthenticatorAttestationResponse{
+			AuthenticatorResponse: protocol.AuthenticatorResponse{
+				ClientDataJSON: fromb64("eyJjaGFsbGVuZ2UiOiItUmk1TlpUeko4YjZtdlczVFZTY0xvdEVvQUxmZ0JhMkJuNFlTYUlPYkhjIiwib3JpZ2luIjoiaHR0cHM6Ly93ZWJhdXRobi5pbyIsInR5cGUiOiJ3ZWJhdXRobi5jcmVhdGUifQ=="), // nolint:lll // test data
+			},
+		},
+	}, &protocol.AttestationObject{
 		AuthData: protocol.AuthenticatorData{
 			RPIDHash: fromb64("dKbqkhPJnC90siSSsyDPQCYqlMGpUKA5fyklC2CEHvA="),
 			Flags:    0x41,
@@ -840,33 +950,7 @@ func generateBadCredentialResponse(t *testing.T) []byte {
 			"sig": fromb64("MEQCIH8iIcGY/n5BFck9RjivHIQxyUdnIVwS0kYOm0wozg5sAiBx+hlyPwUK3Efhh4OSX2sylUHXs6ev0FiBX0+JbUwjtg=="), // nolint:lll // test data
 			"x5c": []interface{}{wrongCertASN},
 		},
-	}
-
-	attObjBytes, err := cbor.Marshal(attObj)
-	require.NoError(t, err)
-
-	rawResponse := protocol.CredentialCreationResponse{
-		PublicKeyCredential: protocol.PublicKeyCredential{
-			Credential: protocol.Credential{
-				ID:   "FOxcmsqPLNCHtyILvbNkrtHMdKAeqSJXYZDbeFd0kc5Enm8Kl6a0Jp0szgLilDw1S4CjZhe9Z2611EUGbjyEmg",
-				Type: "public-key",
-			},
-			RawID:      fromb64("FOxcmsqPLNCHtyILvbNkrtHMdKAeqSJXYZDbeFd0kc5Enm8Kl6a0Jp0szgLilDw1S4CjZhe9Z2611EUGbjyEmg=="), // nolint:lll // test data
-			Extensions: nil,
-		},
-		AttestationResponse: protocol.AuthenticatorAttestationResponse{
-			AuthenticatorResponse: protocol.AuthenticatorResponse{
-				ClientDataJSON: fromb64("eyJjaGFsbGVuZ2UiOiItUmk1TlpUeko4YjZtdlczVFZTY0xvdEVvQUxmZ0JhMkJuNFlTYUlPYkhjIiwib3JpZ2luIjoiaHR0cHM6Ly93ZWJhdXRobi5pbyIsInR5cGUiOiJ3ZWJhdXRobi5jcmVhdGUifQ=="), // nolint:lll // test data
-			},
-		},
-	}
-
-	rawResponse.AttestationResponse.AttestationObject = attObjBytes
-
-	rawResponseBytes, err := json.Marshal(rawResponse)
-	require.NoError(t, err)
-
-	return rawResponseBytes
+	})
 }
 
 func fromb64(s string) []byte {

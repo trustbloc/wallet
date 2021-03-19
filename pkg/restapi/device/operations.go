@@ -96,6 +96,8 @@ func New(config *Config) (*Operation, error) {
 
 	var err error
 
+	protocol.RegisterAttestationFormat("apple", ValidateAppleAttestation)
+
 	op.store.storage, err = store.Open(config.Storage.Storage, deviceStoreName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open store: %w", err)
@@ -209,19 +211,17 @@ func (o *Operation) finishRegistration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	deviceCerts, ok := parsedResponse.Response.AttestationObject.AttStatement["x5c"].([]interface{})
-	if !ok || len(deviceCerts) == 0 {
-		common.WriteErrorResponsef(w, logger,
-			http.StatusInternalServerError, "failed to finish registration: device certificate missing")
+	if ok && len(deviceCerts) > 0 {
+		err = o.requestDeviceValidation(r.Context(), userData.Sub, string(credential.Authenticator.AAGUID), deviceCerts)
+		if err != nil {
+			common.WriteErrorResponsef(w, logger,
+				http.StatusInternalServerError, "failed to finish registration: %#v", err)
 
-		return
-	}
-
-	err = o.requestDeviceValidation(r.Context(), userData.Sub, string(credential.Authenticator.AAGUID), deviceCerts)
-	if err != nil {
-		common.WriteErrorResponsef(w, logger,
-			http.StatusInternalServerError, "failed to finish registration: %#v", err)
-
-		return
+			return
+		}
+	} else {
+		logger.Warnf("credential attestation of format '%s' has no certificates",
+			parsedResponse.Response.AttestationObject.Format)
 	}
 
 	device.AddCredential(*credential)
