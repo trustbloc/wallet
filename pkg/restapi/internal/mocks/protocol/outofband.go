@@ -25,11 +25,6 @@ func (m *MockOobService) AcceptInvitation(arg0 *outofband.Invitation, arg1 strin
 	return "", nil
 }
 
-// AcceptRequest mock implementation.
-func (m *MockOobService) AcceptRequest(arg0 *outofband.Request, arg1 string, arg2 []string) (string, error) {
-	return "", nil
-}
-
 // ActionContinue mock implementation.
 func (m *MockOobService) ActionContinue(arg0 string, arg1 outofband.Options) error {
 	return nil
@@ -61,11 +56,6 @@ func (m *MockOobService) SaveInvitation(arg0 *outofband.Invitation) error {
 		return m.SaveInvitationErr
 	}
 
-	return nil
-}
-
-// SaveRequest mock implementation.
-func (m *MockOobService) SaveRequest(arg0 *outofband.Request) error {
 	return nil
 }
 
