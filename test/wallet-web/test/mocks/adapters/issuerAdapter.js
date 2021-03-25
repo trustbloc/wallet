@@ -129,8 +129,13 @@ class Adapter {
         let reqForDID = await waitForEvent(this.agent, {topic: 'request-for-diddoc',
             timeoutError: 'timeout waiting for peer DID request'})
 
+        console.debug(`adapter.sharePeerDID: reqForDIDL ${JSON.stringify(reqForDID, null, 2)}`)
+
         // send any sample peer DID to wallet
         let sampleRes = await this.agent.vdr.resolveDID({id: reqForDID.mydid})
+
+        console.debug(`adapter.sharePeerDID: sampleRes: ${JSON.stringify(sampleRes, null, 2)}`)
+
         this.agent.messaging.reply({
             "message_ID": reqForDID.message['@id'],
             "message_body": {
@@ -143,6 +148,9 @@ class Adapter {
         // wait for did shared by other party
         let sharedDID = await waitForEvent(this.agent, {topic: 'register-route-req',
             timeoutError: 'timeout waiting for register route request'})
+
+        console.debug(`adapter.sharePeerDID: sharedDID: ${JSON.stringify(sharedDID, null, 2)}`)
+
         // send acknowledgement to wallet
         this.agent.messaging.reply({
             "message_ID": sharedDID.message['@id'],
@@ -196,7 +204,11 @@ export class RPAdapter extends Adapter {
         let request = await waitForEvent(this.agent, {topic: 'diddoc-req',
             timeoutError: 'timeout waiting request for new peer DID'})
 
+        console.debug(`rpAdapter.shareNewPeerDID: request: ${JSON.stringify(request, null, 2)}`)
+
         let sampleRes = await this.agent.vdr.resolveDID({id: request.mydid})
+
+        console.debug(`rpAdapter.shareNewPeerDID: sampleRes: ${JSON.stringify(sampleRes, null, 2)}`)
 
         // send new peer DID to wallet
         this.agent.messaging.reply({

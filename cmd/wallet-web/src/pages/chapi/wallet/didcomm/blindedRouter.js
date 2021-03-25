@@ -44,6 +44,7 @@ export class BlindedRouter {
         // request wallet peer DID from router by sending peer DID from other party
         console.debug('requesting peer DID from wallet')
         let walletDID = await requestDIDFromMediator(this.agent, peerDID)
+        console.debug(`walletDID: ${JSON.stringify(walletDID, null, 2)}`)
 
         console.log('sharing wallet peer DID to inviter')
         // share wallet peer DID to other party
