@@ -650,6 +650,9 @@ github.com/hyperledger/aries-framework-go v0.1.7-0.20210310014234-cfa8c6d6e2f4/g
 github.com/hyperledger/aries-framework-go v0.1.7-0.20210323102127-50be9f1bad08/go.mod h1:RjMLdnDZz0P+xC0Cg6q+SYvS9ll3tGakO93B07qZIyI=
 github.com/hyperledger/aries-framework-go v0.1.7-0.20210323132929-a0e436ad8e81 h1:BWkpuP2yZK93Edv3leS6L7qba2igAnBheSlO1f2nwQs=
 github.com/hyperledger/aries-framework-go v0.1.7-0.20210323132929-a0e436ad8e81/go.mod h1:RjMLdnDZz0P+xC0Cg6q+SYvS9ll3tGakO93B07qZIyI=
+github.com/hyperledger/aries-framework-go v0.1.7-0.20210323172704-85f422879bf1/go.mod h1:RjMLdnDZz0P+xC0Cg6q+SYvS9ll3tGakO93B07qZIyI=
+github.com/hyperledger/aries-framework-go v0.1.7-0.20210324213044-074644c18933 h1:avc2/fELU8MtooQ55e36bFojIw+1FOwFKAFzMGS//Nw=
+github.com/hyperledger/aries-framework-go v0.1.7-0.20210324213044-074644c18933/go.mod h1:RjMLdnDZz0P+xC0Cg6q+SYvS9ll3tGakO93B07qZIyI=
 github.com/hyperledger/aries-framework-go-ext/component/storage/couchdb v0.0.0-20210306170115-156a24580a5c/go.mod h1:9YYW1iug2Xla634TLcrjDZcun2cXk44C4I1IyILfvT4=
 github.com/hyperledger/aries-framework-go/component/storage/edv v0.0.0-20210310014234-cfa8c6d6e2f4 h1:yDRkwmgK/5S12Ciy8pkzLHaVJkIxo5jkS6PMnNkxueQ=
 github.com/hyperledger/aries-framework-go/component/storage/edv v0.0.0-20210310014234-cfa8c6d6e2f4/go.mod h1:naziJOKqyuYjToExWoc10a1KbAxqLfkHrGQ/BOyAQYU=
@@ -1112,6 +1115,8 @@ github.com/trustbloc/bls12-381 v0.0.0-20201104214312-31de2a204df8 h1:VtbBrpzy6rg
 github.com/trustbloc/bls12-381 v0.0.0-20201104214312-31de2a204df8/go.mod h1:gcwDl9YLyNc3H3wmPXamu+8evD8TYUa6BjTsWnvdn7A=
 github.com/trustbloc/edge-core v0.1.7-0.20210310142750-7eb11997c4a9 h1:JCWLY91Vp1qf19IFDSYUmHyPSfnYWZ5/fN6I5s+jq0M=
 github.com/trustbloc/edge-core v0.1.7-0.20210310142750-7eb11997c4a9/go.mod h1:BpCeNH2fEH3RX7+C5XfnVIXFQbk7LzBdWdBdgnEb284=
+github.com/trustbloc/edge-core v0.1.7-0.20210324113338-e0047bbbfdff h1:2g1Zun4PD/AAfP8XRL6ZyvInE9V/aL3eR+9+qU8EkhM=
+github.com/trustbloc/edge-core v0.1.7-0.20210324113338-e0047bbbfdff/go.mod h1:Hfn+9gY8TeoyH8a4e4UAe3mER0RwhkTdLSMEreKWwvE=
 github.com/trustbloc/edv v0.1.7-0.20210310153759-93231203a6e5 h1:yEs8IZ6MWw52vI9mhRVrhIxXIHGITYtw/BoHQoPe+Ro=
 github.com/trustbloc/edv v0.1.7-0.20210310153759-93231203a6e5/go.mod h1:tK3M0Z/6hkPPsYAkOMPOQuKTRz5Q23Pbsbusar7jfq0=
 github.com/trustbloc/kms v0.1.7-0.20210323140543-8c8c56dac24b h1:Cnf1eUgtQQ5qXXbftlJ8zVNnGa2940bWCuHzBdKi2GI=
