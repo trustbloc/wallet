@@ -12,18 +12,18 @@ require (
 	github.com/duo-labs/webauthn v0.0.0-20200714211715-1daaee874e43
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
-	github.com/hyperledger/aries-framework-go v0.1.7-0.20210324213044-074644c18933
+	github.com/hyperledger/aries-framework-go v0.1.7-0.20210330153939-7ec3a2c4697c
 	github.com/hyperledger/aries-framework-go-ext/component/storage/couchdb v0.0.0-20210306194409-6e4c5d622fbc
 	github.com/hyperledger/aries-framework-go-ext/component/storage/mysql v0.0.0-20210306194409-6e4c5d622fbc
-	github.com/hyperledger/aries-framework-go-ext/component/vdr/trustbloc v0.0.0-20210325134531-84a30b2ecacb
+	github.com/hyperledger/aries-framework-go-ext/component/vdr/trustbloc v0.0.0-20210331105523-60637a465684
 	github.com/hyperledger/aries-framework-go/component/storage/leveldb v0.0.0-20210310014234-cfa8c6d6e2f4
-	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210320144851-40976de98ccf
-	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210320144851-40976de98ccf
+	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210330153939-7ec3a2c4697c
+	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210330153939-7ec3a2c4697c
 	github.com/rs/cors v1.7.0
 	github.com/spf13/cobra v0.0.6
 	github.com/stretchr/testify v1.7.0
 	github.com/trustbloc/edge-agent v0.0.0-00010101000000-000000000000
-	github.com/trustbloc/edge-core v0.1.7-0.20210324113338-e0047bbbfdff
+	github.com/trustbloc/edge-core v0.1.7-0.20210331113925-b13dedfe75eb
 )
 
 replace github.com/trustbloc/edge-agent => ../..
