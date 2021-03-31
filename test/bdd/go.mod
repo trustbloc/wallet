@@ -16,7 +16,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.6.7
 	github.com/trustbloc/edge-agent v0.0.0
-	github.com/trustbloc/edge-core v0.1.7-0.20210324113338-e0047bbbfdff
+	github.com/trustbloc/edge-core v0.1.7-0.20210331113925-b13dedfe75eb
 )
 
 replace (
