@@ -25,6 +25,16 @@ server {
         }
     }
 
+    location /healthcheck {
+        access_log off;
+        add_header 'Content-Type' 'application/json charset=UTF-8';
+
+        return 200 '{
+            "status": "success",
+            "currentTime": $time_iso8601
+        }';
+    }
+
     location /walletconfig/agent {
         add_header 'Content-Type' 'application/json charset=UTF-8';
 
