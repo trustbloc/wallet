@@ -9,3 +9,5 @@ providers:
     url: https://demo-hydra.trustbloc.local:7777/
     clientID: client-id
     clientSecret: client-secret
+    name: Universal Bank
+    logoURL: https://upload.wikimedia.org/wikipedia/en/a/a4/Universal_Bank.svg
