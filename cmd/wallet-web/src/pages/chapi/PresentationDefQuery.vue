@@ -76,6 +76,7 @@ SPDX-License-Identifier: Apache-2.0
 
                     <md-list class="md-triple-line" style="margin-top: -10px">
                         <div v-for="(vc, key) in vcsFound" :key="key">
+                          <div v-bind:id="'vc-' + key">
                             <md-list-item v-if="!isManifest(vc)">
                                 <md-icon class="md-primary md-size-2x">perm_identity</md-icon>
 
@@ -86,6 +87,7 @@ SPDX-License-Identifier: Apache-2.0
 
                                 <md-checkbox v-model="selectedVCs[key]" v-bind:id="'select-vc-' + key"></md-checkbox>
                             </md-list-item>
+                          </div>
                         </div>
                     </md-list>
                 </div>
@@ -102,6 +104,7 @@ SPDX-License-Identifier: Apache-2.0
 
                     <md-list class="md-triple-line" style="margin-top: -10px">
                         <div v-for="(vc, key) in vcsFound" :key="key">
+                          <div v-bind:id="'vc-' + key">
                             <md-list-item v-if="isManifest(vc)">
                                 <md-icon class="md-primary md-size-2x">security</md-icon>
 
@@ -112,6 +115,7 @@ SPDX-License-Identifier: Apache-2.0
 
                                 <md-checkbox v-model="selectedVCs[key]" v-bind:id="'select-vc-' + key"></md-checkbox>
                             </md-list-item>
+                          </div>
                         </div>
                     </md-list>
                 </div>
