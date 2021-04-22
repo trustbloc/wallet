@@ -19,9 +19,7 @@ Run (`make generate-test-keys`) to generate tls keys and import ec-cacert.pem in
 
 You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following lines, to allow few of the bdd test containers to be connected to externally. 
 
-    127.0.0.1 testnet.trustbloc.local
-    127.0.0.1 stakeholder.one
-    127.0.0.1 sidetree-mock
+    127.0.0.1 testnet.orb.local
     127.0.0.1 user-ui-agent.example.com
     127.0.0.1 user-agent.example.com
     127.0.0.1 second-ui-user-agent.example.com

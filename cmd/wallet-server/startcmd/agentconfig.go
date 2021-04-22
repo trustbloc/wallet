@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
-	"github.com/hyperledger/aries-framework-go-ext/component/vdr/trustbloc"
+	"github.com/hyperledger/aries-framework-go-ext/component/vdr/orb"
 	"github.com/hyperledger/aries-framework-go/pkg/controller/command"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/transport"
 	arieshttp "github.com/hyperledger/aries-framework-go/pkg/didcomm/transport/http"
@@ -397,7 +397,7 @@ func createAriesAgent(parameters *httpServerParameters) (*context.Provider, erro
 
 	opts = append(opts, inboundTransportOpt...)
 
-	VDRs, err := createVDRs(agentParams.httpResolvers, agentParams.trustblocDomain, agentParams.trustblocResolver)
+	VDRs, err := createVDRs(agentParams.httpResolvers, agentParams.trustblocDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -475,7 +475,7 @@ func getInboundSchemeToURLMap(schemeHostStr []string) (map[string]string, error)
 	return schemeHostMap, nil
 }
 
-func createVDRs(resolvers []string, trustblocDomain, trustblocResolver string) ([]vdr.VDR, error) {
+func createVDRs(resolvers []string, trustblocDomain string) ([]vdr.VDR, error) {
 	const numPartsResolverOption = 2
 	// set maps resolver to its methods
 	// e.g the set of ["trustbloc@http://resolver.com", "v1@http://resolver.com"] will be
@@ -519,9 +519,8 @@ func createVDRs(resolvers []string, trustblocDomain, trustblocResolver string) (
 		VDRs[order[url]] = resolverVDR
 	}
 
-	blocVDR, err := trustbloc.New(nil,
-		trustbloc.WithDomain(trustblocDomain),
-		trustbloc.WithResolverURL(trustblocResolver))
+	blocVDR, err := orb.New(nil,
+		orb.WithDomain(trustblocDomain))
 	if err != nil {
 		return nil, err
 	}

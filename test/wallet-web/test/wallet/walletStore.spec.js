@@ -61,7 +61,7 @@ describe('store a credential in wallet', () => {
 
     it('all credential store metadata are pre-populated in wallet', async () => {
         expect(wrapper.vm.subject).to.equal("StudentCard")
-        expect(wrapper.vm.issuer).to.equal("did:trustbloc:testnet.trustbloc.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw")
+        expect(wrapper.vm.issuer).to.equal("did:orb:testnet.orb.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw")
         expect(wrapper.vm.issuance).to.deep.equal(new Date("2020-05-27T20:36:05.301Z"))
         expect(wrapper.vm.friendlyName).to.include(wrapper.vm.subject)
         expect(wrapper.vm.credData).to.equal(studentCardToStore)
@@ -114,7 +114,7 @@ describe('store a credential in wallet with existing friendly name', () => {
 
     it('all credential store metadata are pre-populated in wallet', async () => {
         expect(wrapper.vm.subject).to.equal("StudentCard")
-        expect(wrapper.vm.issuer).to.equal("did:trustbloc:testnet.trustbloc.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw")
+        expect(wrapper.vm.issuer).to.equal("did:orb:testnet.orb.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw")
         expect(wrapper.vm.issuance).to.deep.equal(new Date("2020-05-27T20:36:05.301Z"))
         expect(wrapper.vm.friendlyName).to.include(wrapper.vm.subject)
         expect(wrapper.vm.credData).to.equal(studentCardToStore)
@@ -157,7 +157,7 @@ describe('store multiple credentials in wallet', () => {
 
     it('all combined credential store metadata are pre-populated in wallet', async () => {
         expect(wrapper.vm.subject).to.equal("StudentCard,UniversityDegreeCredential")
-        expect(wrapper.vm.issuer).to.equal("did:trustbloc:testnet.trustbloc.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw,did:trustbloc:testnet.trustbloc.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw")
+        expect(wrapper.vm.issuer).to.equal("did:orb:testnet.orb.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw,did:orb:testnet.orb.dev:EiC_G_44Xq0hj_JmxLScbtMBjOouSgBNI_HuqPm40-t_Uw")
         expect(wrapper.vm.issuance).to.deep.equal(new Date("2020-05-28T21:16:57.780923246Z"))
         expect(wrapper.vm.friendlyName).to.include(wrapper.vm.subject)
         expect(wrapper.vm.credData).to.equal(studentCardAndDegreeToStore)

@@ -52,9 +52,7 @@ jobs:
       - template: azp-dependencies.yml
       - checkout: self
       - bash: |
-          echo '127.0.0.1 testnet.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 stakeholder.one' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 sidetree-mock' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bddtest-wallet-web.trustbloc.local' | sudo tee -a /etc/hosts
@@ -76,7 +74,7 @@ jobs:
       - template: azp-dependencies.yml
       - checkout: self
       - bash: |
-          echo '127.0.0.1 testnet.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 stakeholder.one' | sudo tee -a /etc/hosts
           echo '127.0.0.1 sidetree-mock' | sudo tee -a /etc/hosts

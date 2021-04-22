@@ -13,7 +13,7 @@ let defaultAgentStartupOpts = {
     assetsPath: `${__webpack_public_path__}agent-js-worker/assets`,
     'outbound-transport': ['ws', 'http'],
     'transport-return-route': 'all',
-    'http-resolver-url': ["trustbloc:testnet.trustbloc.local@http://localhost:9080/1.0/identifiers", "web@http://localhost:9080/1.0/identifiers"],
+    'http-resolver-url': ["web@http://localhost:9080/1.0/identifiers"],
 
     'agent-default-label': 'demo-wallet-web',
     'auto-accept': true,
@@ -22,7 +22,7 @@ let defaultAgentStartupOpts = {
     // default backend server url
     'edge-agent-server': 'https://localhost:9099',
 
-    blocDomain: 'testnet.trustbloc.local',
+    blocDomain: 'testnet.orb.local',
     walletMediatorURL: 'https://localhost:10063',
     blindedRouting: false,
     credentialMediatorURL: '',
@@ -38,6 +38,7 @@ let defaultAgentStartupOpts = {
     useEDVBatch: false,
     cacheSize: 100,
     edvBatchSize: 0,
+    didAnchorOrigin: 'origin',
 }
 
 export default {
@@ -139,6 +140,7 @@ export default {
                 useEDVBatch: ('useEDVBatch' in agentOpts) ? agentOpts['useEDVBatch'] : defaultAgentStartupOpts['useEDVBatch'],
                 edvBatchSize: ('edvBatchSize' in agentOpts) ? agentOpts['edvBatchSize'] : defaultAgentStartupOpts['edvBatchSize'],
                 useEDVBcacheSizeatch: ('cacheSize' in agentOpts) ? agentOpts['cacheSize'] : defaultAgentStartupOpts['cacheSize'],
+                didAnchorOrigin: ('didAnchorOrigin' in agentOpts) ? agentOpts['didAnchorOrigin'] : defaultAgentStartupOpts['didAnchorOrigin'],
             })
         },
     },

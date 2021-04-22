@@ -60,10 +60,11 @@ const agentStartupOpts = {
     'log-level': 'debug',
     'indexedDB-namespace': 'agent',
 
-    blocDomain: 'testnet.trustbloc.local',
+    blocDomain: 'testnet.orb.local',
     walletMediatorURL: 'https://localhost:10093',
     storageType: `indexedDB`, 	// TODO (#475): Allow the storage type to be configurable.
-    edvServerURL: ''
+    edvServerURL: '',
+    didAnchorOrigin: 'origin'
 }
 
 export async function loadFrameworks({name = '', loadAgent = true, loadStartupOpts = false, blinded = false}) {
