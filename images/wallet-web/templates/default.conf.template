@@ -56,7 +56,8 @@ server {
             "edvClearCache": "${EDV_CLEAR_CACHE}",
             "useEDVBatch": ${USE_EDV_BATCH},
             "edvBatchSize": ${EDV_BATCH_SIZE},
-            "cacheSize": ${CACHE_SIZE}
+            "cacheSize": ${CACHE_SIZE},
+            "didAnchorOrigin":"${DID_ANCHOR_ORIGIN}"
         }';
     }
 }

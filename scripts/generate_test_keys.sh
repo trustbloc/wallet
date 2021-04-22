@@ -21,18 +21,17 @@ subjectAltName = @alt_names
 [alt_names]
 DNS.1 = localhost
 DNS.2 = *.trustbloc.local
-DNS.3 = stakeholder.one
-DNS.4 = sidetree-mock
-DNS.5 = hydra
-DNS.6 = *.example.com
-DNS.7 = user-ui-agent.example.com
-DNS.8 = user-agent.example.com
-DNS.9 = second-ui-user-agent.example.com
-DNS.10 = second-user-agent.example.com
-DNS.11 = edge.router.agent.example.com
-DNS.12 = uni-resolver-web.example.com
-DNS.13 = edv-oathkeeper-proxy
-DNS.14 = bdd-edv-oathkeeper-proxy" >> "$tmp"
+DNS.3 = testnet.orb.local
+DNS.4 = hydra
+DNS.5 = *.example.com
+DNS.6 = user-ui-agent.example.com
+DNS.7 = user-agent.example.com
+DNS.8 = second-ui-user-agent.example.com
+DNS.9 = second-user-agent.example.com
+DNS.10 = edge.router.agent.example.com
+DNS.11 = uni-resolver-web.example.com
+DNS.12 = edv-oathkeeper-proxy
+DNS.13 = bdd-edv-oathkeeper-proxy" >> "$tmp"
 
 CERT_CA="test/bdd/fixtures/keys/tls/ec-cacert.pem"
 if [ ! -f "$CERT_CA" ]; then

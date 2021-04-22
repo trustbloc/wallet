@@ -84,13 +84,13 @@ generate-openapi-demo-specs: generate-openapi-spec
     	scripts/generate-openapi-demo-specs.sh
 
 .PHONY: run-openapi-demo
-run-openapi-demo: generate-openapi-demo-specs wallet-server-docker generate-test-config generate-test-keys mock-images
+run-openapi-demo: generate-openapi-demo-specs wallet-server-docker generate-test-keys mock-images
 	@echo "Starting demo wallet server rest containers ..."
 	@DEMO_COMPOSE_PATH=test/bdd/fixtures/wallet-web scripts/run-openapi-demo.sh
 
 
 .PHONY: wallet-web-start
-wallet-web-start: clean wallet-web-docker wallet-server-docker generate-test-config generate-test-keys mock-images
+wallet-web-start: clean wallet-web-docker wallet-server-docker generate-test-keys mock-images
 	@scripts/wallet_web_start.sh
 
 # starting wallet-web in dev mode for hot deployment
@@ -98,19 +98,16 @@ wallet-web-start: clean wallet-web-docker wallet-server-docker generate-test-con
 wallet-web-dev-start:
 	@scripts/wallet_web_dev_start.sh
 
-.PHONY: generate-test-config
-generate-test-config:
-	@/bin/bash scripts/generate_test_config.sh
 
 .PHONY: bdd-test
 bdd-test: bdd-test-wallet-web bdd-test-wallet-server
 
 .PHONY: bdd-test-wallet-web
-bdd-test-wallet-web: clean wallet-web-docker wallet-server-docker generate-test-config generate-test-keys mock-images
+bdd-test-wallet-web: clean wallet-web-docker wallet-server-docker generate-test-keys mock-images
 	@scripts/check_js_integration.sh
 
 .PHONY: bdd-test-wallet-server
-bdd-test-wallet-server: clean wallet-web-docker wallet-server-docker generate-test-config generate-test-keys mock-images
+bdd-test-wallet-server: clean wallet-web-docker wallet-server-docker generate-test-keys mock-images
 	@scripts/check_wallet_server_integration.sh
 
 .PHONY: mock-bddtest-login-consent-docker
