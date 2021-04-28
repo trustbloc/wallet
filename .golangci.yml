@@ -70,6 +70,17 @@ linters:
     - maligned
     - prealloc
     - goerr113 # not good: https://github.com/Djarvur/go-err113/issues/10
+    - paralleltest
+    - exhaustivestruct
+#    - tparallel
+    - interfacer # deprecated by the author https://github.com/mvdan/interfacer#interfacer
+    - scopelint # deprecated by the author https://github.com/kyoh86/scopelint#obsoleted
+    - maligned # deprecated by the author https://github.com/mdempsky/maligned
+    - cyclop # TODO consider replacing gocyclo with cyclop
+#    - ifshort # TODO enable
+    - wrapcheck # TODO enable
+    - forbidigo # TODO enable
+    - gomoddirectives
 
 issues:
   exclude-use-default: false
@@ -82,6 +93,7 @@ issues:
   exclude:
     # Allow package logger variables (for now)
     - \`logger\` is a global variable
+    - logger is a global variable
     -  Line contains TODO/BUG/FIXME
     # Add comments for package
     -  at least one file in a package should have a package comment

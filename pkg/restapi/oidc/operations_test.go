@@ -1314,6 +1314,8 @@ func marshal(t *testing.T, v interface{}) []byte {
 }
 
 func setupOnboardingTest(t *testing.T, state string) *Operation {
+	t.Helper()
+
 	config := config(t)
 	config.WalletDashboard = "http://test.com/dashboard"
 	config.OIDCClient = &oidc2.MockClient{

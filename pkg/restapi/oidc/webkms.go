@@ -14,8 +14,7 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/kms"
 )
 
-type zcapRemoteKMS struct {
-}
+type zcapRemoteKMS struct{}
 
 func (r *zcapRemoteKMS) Create(kms.KeyType) (string, interface{}, error) {
 	return "", nil, errors.New("zcapRemoteKMS: Create() not implemented")

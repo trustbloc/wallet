@@ -4,7 +4,7 @@
 
 module github.com/trustbloc/edge-agent
 
-go 1.15
+go 1.16
 
 require (
 	github.com/coreos/go-oidc v2.2.1+incompatible
@@ -13,13 +13,13 @@ require (
 	github.com/fxamacker/cbor/v2 v2.2.0
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/sessions v1.2.1
-	github.com/hyperledger/aries-framework-go v0.1.7-0.20210330153939-7ec3a2c4697c
-	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210330153939-7ec3a2c4697c
-	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210330153939-7ec3a2c4697c
+	github.com/hyperledger/aries-framework-go v0.1.7-0.20210421205521-3974f6708723
+	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210409151411-eeeb8508bd87
+	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210412201938-efffe3eafcd1
 	github.com/igor-pavlenko/httpsignatures-go v0.0.23
 	github.com/piprate/json-gold v0.4.0
 	github.com/stretchr/testify v1.7.0
-	github.com/trustbloc/edge-core v0.1.7-0.20210331113925-b13dedfe75eb
+	github.com/trustbloc/edge-core v0.1.7-0.20210426154540-f9c761ec6943
 	github.com/trustbloc/edv v0.1.7-0.20210310153759-93231203a6e5
 	github.com/trustbloc/kms v0.1.7-0.20210331122255-0fc8b8988221
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43

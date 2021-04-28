@@ -16,12 +16,10 @@ import (
 const ()
 
 // Operation is REST service operation controller for wallet  features.
-type Operation struct {
-}
+type Operation struct{}
 
 // Provider describes dependencies for this command.
-type Provider interface {
-}
+type Provider interface{}
 
 // New returns new wallet  REST controller instance.
 func New(p Provider, notifier command.Notifier, msgHandler command.MessageHandler) (*Operation, error) {
