@@ -119,6 +119,8 @@ func TestStartCmdContents(t *testing.T) {
 const invalidArgString = "INVALID"
 
 func validArgs(t *testing.T) map[string]string {
+	t.Helper()
+
 	return map[string]string{ // create a fresh map every time, so it can be edited by the test
 		hostURLFlagName:                   "localhost:8080",
 		tlsCertFileFlagName:               "cert",
@@ -805,6 +807,8 @@ func TestCreateVDRs(t *testing.T) {
 }
 
 func checkFlagPropertiesCorrect(t *testing.T, cmd *cobra.Command, flagName, flagShorthand, flagUsage string) {
+	t.Helper()
+
 	flag := cmd.Flag(flagName)
 
 	require.NotNil(t, flag)
@@ -818,6 +822,8 @@ func checkFlagPropertiesCorrect(t *testing.T, cmd *cobra.Command, flagName, flag
 }
 
 func mockOIDCProvider(t *testing.T) string {
+	t.Helper()
+
 	h := &testOIDCProvider{}
 	srv := httptest.NewServer(h)
 	h.baseURL = srv.URL
@@ -860,6 +866,8 @@ func (t *testOIDCProvider) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 }
 
 func cert(t *testing.T) string {
+	t.Helper()
+
 	file, err := ioutil.TempFile("", "*.pem")
 	require.NoError(t, err)
 

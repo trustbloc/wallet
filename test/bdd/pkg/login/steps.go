@@ -441,12 +441,12 @@ func (s *Steps) loginDevice() error {
 
 	err = json.Unmarshal(data, &credAssert)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal cred request: %v", err)
+		return fmt.Errorf("failed to unmarshal cred request: %w", err)
 	}
 
 	authBytes, err := s.mockAuthenticator.Assert(host, &credAssert.Response)
 	if err != nil {
-		return fmt.Errorf("failed to generate credential assertion: %v", err)
+		return fmt.Errorf("failed to generate credential assertion: %w", err)
 	}
 
 	resp2, err := s.browser.Post(deviceloginFinishPath, "application/json", bytes.NewReader(authBytes)) // nolint:noctx,lll // don't need in bdd test

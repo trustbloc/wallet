@@ -806,6 +806,8 @@ func newDeviceLoginRequest(username string) *http.Request {
 }
 
 func prepareRequestWithDefaults(t *testing.T, userSub string, o *Operation) (*Operation, *webauthn.SessionData) {
+	t.Helper()
+
 	return prepareRequest(t, userSub, challenge, &webauthn.Config{
 		RPDisplayName: "https://webauthn.io",
 		RPID:          "webauthn.io",
@@ -815,6 +817,8 @@ func prepareRequestWithDefaults(t *testing.T, userSub string, o *Operation) (*Op
 
 func prepareRequest(t *testing.T, userSub, challenge string, webauthnConf *webauthn.Config, o *Operation,
 ) (*Operation, *webauthn.SessionData) {
+	t.Helper()
+
 	usr := user.User{Sub: userSub}
 	err := o.store.users.Save(&usr)
 	require.NoError(t, err)
@@ -864,6 +868,8 @@ func key(t *testing.T) []byte {
 }
 
 func makeCert(t *testing.T) []byte {
+	t.Helper()
+
 	template := x509.Certificate{
 		SerialNumber: big.NewInt(1),
 		Subject: pkix.Name{
@@ -903,6 +909,8 @@ func Test_generateTestData(t *testing.T) {
 }
 
 func marshalCCR(t *testing.T, out *protocol.CredentialCreationResponse, att *protocol.AttestationObject) []byte {
+	t.Helper()
+
 	attObjBytes, err := cbor.Marshal(att)
 	require.NoError(t, err)
 
@@ -916,6 +924,8 @@ func marshalCCR(t *testing.T, out *protocol.CredentialCreationResponse, att *pro
 
 // generates a credential creation response without any x509 certificates.
 func generateBadCredentialResponse(t *testing.T) []byte {
+	t.Helper()
+
 	wrongCertASN := makeCert(t)
 
 	return marshalCCR(t, &protocol.CredentialCreationResponse{

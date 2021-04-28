@@ -657,7 +657,7 @@ func startHTTPServer(parameters *httpServerParameters) error {
 		parameters.hostURL, parameters.tls.certFile, parameters.tls.keyFile,
 		handler)
 	if err != nil {
-		return fmt.Errorf("http server closed unexpectedly: %s", err)
+		return fmt.Errorf("http server closed unexpectedly: %w", err)
 	}
 
 	return err

@@ -420,13 +420,13 @@ func (o *Operation) saveCookie(w http.ResponseWriter, r *http.Request, usr, cook
 func (o *Operation) saveDeviceInfo(device *Device) error {
 	deviceBytes, err := json.Marshal(device)
 	if err != nil {
-		return fmt.Errorf("failed to marshall the device data: %s", err)
+		return fmt.Errorf("failed to marshall the device data: %w", err)
 	}
 
 	err = o.store.storage.Put(device.ID, deviceBytes)
 
 	if err != nil {
-		return fmt.Errorf("failed to save the device data: %s", err)
+		return fmt.Errorf("failed to save the device data: %w", err)
 	}
 
 	return nil
@@ -436,19 +436,19 @@ func (o *Operation) getDeviceInfo(username string) (*Device, error) {
 	// fetch user and check if user doesn't exist
 	userData, err := o.store.users.Get(username)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user: %s", err.Error())
+		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	deviceDataBytes, err := o.store.storage.Get(userData.Sub)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch device data: %s", err.Error())
+		return nil, fmt.Errorf("failed to fetch device data: %w", err)
 	}
 
 	deviceData := &Device{}
 
 	err = json.Unmarshal(deviceDataBytes, deviceData)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshall device data: %s", err.Error())
+		return nil, fmt.Errorf("failed to unmarshall device data: %w", err)
 	}
 
 	return deviceData, nil

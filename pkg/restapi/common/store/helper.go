@@ -22,7 +22,7 @@ func Open(p ariesstorage.Provider, name string) (ariesstorage.Store, error) {
 func Save(s ariesstorage.Store, k string, v interface{}) error {
 	bits, err := json.Marshal(v)
 	if err != nil {
-		return fmt.Errorf("failed to marshal value: %s", err)
+		return fmt.Errorf("failed to marshal value: %w", err)
 	}
 
 	return s.Put(k, bits)
