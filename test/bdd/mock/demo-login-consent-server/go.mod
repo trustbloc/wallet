@@ -4,11 +4,11 @@
 
 module github.com/trustbloc/edge-agent/test/bdd/mock/demo-login-consent-server
 
-go 1.15
+go 1.16
 
 require (
 	github.com/go-openapi/strfmt v0.19.5
 	github.com/ory/hydra-client-go v1.3.2
 	github.com/stretchr/testify v1.7.0
-	github.com/trustbloc/edge-core v0.1.7-0.20210310142750-7eb11997c4a9
+	github.com/trustbloc/edge-core v0.1.7-0.20210429084532-c385778b4d8b
 )

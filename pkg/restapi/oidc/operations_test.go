@@ -22,10 +22,10 @@ import (
 
 	"github.com/google/uuid"
 	ariesmem "github.com/hyperledger/aries-framework-go/component/storageutil/mem"
+	jld "github.com/hyperledger/aries-framework-go/pkg/doc/jsonld"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/jsonld"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
-	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
 	"github.com/hyperledger/aries-framework-go/pkg/kms"
 	mockstore "github.com/hyperledger/aries-framework-go/pkg/mock/storage"
 	"github.com/stretchr/testify/require"
@@ -213,6 +213,7 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 				},
 			},
 		}
+		config.JSONLDLoader = createTestDocumentLoader(t)
 
 		o, err := New(config)
 		require.NoError(t, err)
@@ -967,11 +968,14 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 			},
 		}
 
+		loader, err := jld.NewDocumentLoader(mockstore.NewMockStoreProvider())
+		require.NoError(t, err)
+
 		originalZcap, err := zcapld.NewCapability(&zcapld.Signer{
 			SignatureSuite:     ed25519signature2018.New(suite.WithSigner(&mockSigner{})),
 			SuiteType:          ed25519signature2018.SignatureType,
 			VerificationMethod: "test:123",
-			ProcessorOpts:      []jsonld.ProcessorOpts{jsonld.WithDocumentLoader(verifiable.CachingJSONLDLoader())},
+			ProcessorOpts:      []jsonld.ProcessorOpts{jsonld.WithDocumentLoader(loader)},
 		}, zcapld.WithParent(uuid.New().URN()))
 		require.NoError(t, err)
 
@@ -1288,9 +1292,8 @@ func key(t *testing.T) []byte {
 
 	key := make([]byte, 32)
 
-	n, err := rand.Reader.Read(key)
+	_, err := rand.Reader.Read(key)
 	require.NoError(t, err)
-	require.Equal(t, 32, n)
 
 	return key
 }
@@ -1334,6 +1337,7 @@ func setupOnboardingTest(t *testing.T, state string) *Operation {
 			},
 		},
 	}
+	config.JSONLDLoader = createTestDocumentLoader(t)
 
 	ops, err := New(config)
 	require.NoError(t, err)
@@ -1347,6 +1351,15 @@ func setupOnboardingTest(t *testing.T, state string) *Operation {
 	}
 
 	return ops
+}
+
+func createTestDocumentLoader(t *testing.T) *jld.DocumentLoader {
+	t.Helper()
+
+	loader, err := jld.NewDocumentLoader(mockstore.NewMockStoreProvider())
+	require.NoError(t, err)
+
+	return loader
 }
 
 type mockHTTPClient struct {
@@ -1380,10 +1393,16 @@ func (m *mockEDVClient) CreateDataVault(_ *models.DataVaultConfiguration,
 		return "", nil, m.CreateErr
 	}
 
+	loader, err := jld.NewDocumentLoader(mockstore.NewMockStoreProvider())
+	if err != nil {
+		return "", nil, fmt.Errorf("create document loader: %w", err)
+	}
+
 	c, err := zcapld.NewCapability(&zcapld.Signer{
 		SignatureSuite:     ed25519signature2018.New(suite.WithSigner(&mockSigner{})),
 		SuiteType:          ed25519signature2018.SignatureType,
 		VerificationMethod: "test:123",
+		ProcessorOpts:      []jsonld.ProcessorOpts{jsonld.WithDocumentLoader(loader)},
 	}, zcapld.WithParent(uuid.New().URN()))
 	if err != nil {
 		return "", nil, err
