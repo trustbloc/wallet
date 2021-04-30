@@ -26,7 +26,7 @@ import (
 	ariesleveldb "github.com/hyperledger/aries-framework-go/component/storage/leveldb"
 	ariesmem "github.com/hyperledger/aries-framework-go/component/storageutil/mem"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/messaging/msghandler"
-	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/jsonld"
 	ariesstorage "github.com/hyperledger/aries-framework-go/spi/storage"
 	"github.com/rs/cors"
 	"github.com/spf13/cobra"
@@ -715,6 +715,11 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store ari
 		return fmt.Errorf("failed to init OIDC provider: %w", err)
 	}
 
+	loader, err := jsonld.NewDocumentLoader(store)
+	if err != nil {
+		return fmt.Errorf("create document loader: %w", err)
+	}
+
 	oidcOps, err := oidc.New(&oidc.Config{
 		WalletDashboard: config.agentUIURL + "/dashboard",
 		TLSConfig:       config.tls.config,
@@ -738,7 +743,7 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store ari
 		},
 		UserEDVURL:   config.userEDVURL,
 		HubAuthURL:   config.hubAuthURL,
-		JSONLDLoader: verifiable.CachingJSONLDLoader(),
+		JSONLDLoader: loader,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to init oidc ops: %w", err)

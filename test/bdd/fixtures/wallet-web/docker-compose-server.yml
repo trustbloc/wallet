@@ -158,7 +158,7 @@ services:
       - ARIESD_DATABASE_TYPE=mysql
       - ARIESD_DATABASE_PREFIX=edgeagent_bddusragdb
       - ARIESD_DATABASE_TIMEOUT=60
-      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
+      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/?interpolateParams=true&multiStatements=true
     ports:
       - 8077:8077
     volumes:
