@@ -459,7 +459,7 @@ describe('generate presentation submission  with no submission requirements', ()
                     "name": "US Permanent resident card",
                     "group": ["C"],
                     "schema": [{
-                        "uri": "https://w3id.org/citizenship/v1",
+                        "uri": "https://w3id.org/citizenship/v1#PermanentResidentCard",
                     }],
                 }
             ]
@@ -489,10 +489,10 @@ describe('generate presentation submission  with no submission requirements', ()
                     "group": ["C"],
                     "schema": [
                         {
-                            "uri": "https://w3id.org/citizenship/v1"
+                            "uri": "https://w3id.org/citizenship/v1#PermanentResidentCard"
                         },
                         {
-                            "uri": "https://w3id.org/citizenship/v2"
+                            "uri": "https://w3id.org/citizenship/v2#PermanentResidentCard"
                         }
                     ],
                 }
@@ -522,10 +522,10 @@ describe('generate presentation submission  with no submission requirements', ()
                     "group": ["C"],
                     "schema": [
                         {
-                            "uri": "https://w3id.org/citizenship/v1"
+                            "uri": "https://w3id.org/citizenship/v1#PermanentResidentCard"
                         },
                         {
-                            "uri": "https://w3id.org/citizenship/v2"
+                            "uri": "https://w3id.org/citizenship/v2#PermanentResidentCard"
                         }
                     ],
                 },
@@ -534,7 +534,7 @@ describe('generate presentation submission  with no submission requirements', ()
                     "name": "University degree certificate",
                     "group": ["C"],
                     "schema": [{
-                        "uri": "https://www.example.com/2020/udc-example/v1"
+                        "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
                     }],
                 }
             ]
@@ -565,10 +565,10 @@ describe('generate presentation submission  with no submission requirements', ()
                     "group": ["C"],
                     "schema": [
                         {
-                            "uri": "https://www.example.com/driving-license/v1"
+                            "uri": "https://www.example.com/driving-license/v1#mDL"
                         },
                         {
-                            "uri": "https://www.example.com/driving-license/v2"
+                            "uri": "https://www.example.com/driving-license/v2#mDL"
                         }
                     ],
                 }
@@ -604,10 +604,10 @@ describe('generate presentation submission  with no submission requirements', ()
                     "group": ["C"],
                     "schema": [
                         {
-                            "uri": "https://w3id.org/citizenship/v1"
+                            "uri": "https://w3id.org/citizenship/v1#PermanentResidentCard"
                         },
                         {
-                            "uri": "https://w3id.org/citizenship/v2"
+                            "uri": "https://w3id.org/citizenship/v2#PermanentResidentCard"
                         }
                     ],
                     "constraints": {
@@ -668,10 +668,10 @@ describe('generate presentation submission  with no submission requirements', ()
                     "group": ["C"],
                     "schema": [
                         {
-                            "uri": "https://w3id.org/citizenship/v1"
+                            "uri": "https://w3id.org/citizenship/v1#PermanentResidentCard"
                         },
                         {
-                            "uri": "https://w3id.org/citizenship/v2"
+                            "uri": "https://w3id.org/citizenship/v2#PermanentResidentCard"
                         }
                     ],
                     "constraints": {
@@ -699,7 +699,7 @@ describe('generate presentation submission  with no submission requirements', ()
                     "name": "University degree certificate",
                     "group": ["D"],
                     "schema": [{
-                        "uri": "https://www.example.com/2020/udc-example/v1"
+                        "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
                     }],
                     "constraints": {
                         "fields": [
@@ -784,10 +784,10 @@ describe('generate presentation submission with submission requirements', () => 
                     "group": ["C"],
                     "schema": [
                         {
-                            "uri": "https://w3id.org/citizenship/v1"
+                            "uri": "https://w3id.org/citizenship/v1#PermanentResidentCard"
                         },
                         {
-                            "uri": "https://w3id.org/citizenship/v2"
+                            "uri": "https://w3id.org/citizenship/v2#PermanentResidentCard"
                         }
                     ],
                     "constraints": {
@@ -815,7 +815,7 @@ describe('generate presentation submission with submission requirements', () => 
                     "name": "University degree certificate",
                     "group": ["D"],
                     "schema": [{
-                        "uri": "https://www.example.com/2020/udc-example/v1"
+                        "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
                     }],
                     "constraints": {
                         "fields": [
@@ -843,7 +843,7 @@ describe('generate presentation submission with submission requirements', () => 
                     "name": "University degree certificate",
                     "group": ["D"],
                     "schema": [{
-                        "uri": "https://www.example.com/2020/udc-example/v1"
+                        "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
                     }],
                     "constraints": {
                         "fields": [
@@ -927,10 +927,10 @@ describe('generate presentation submission with submission requirements', () => 
                     "group": ["C"],
                     "schema": [
                         {
-                            "uri": "https://w3id.org/citizenship/v1"
+                            "uri": "https://w3id.org/citizenship/v1#PermanentResidentCard"
                         },
                         {
-                            "uri": "https://w3id.org/citizenship/v2"
+                            "uri": "https://w3id.org/citizenship/v2#PermanentResidentCard"
                         }
                     ],
                     "constraints": {
@@ -958,7 +958,7 @@ describe('generate presentation submission with submission requirements', () => 
                     "name": "University degree certificate",
                     "group": ["D"],
                     "schema": [{
-                        "uri": "https://www.example.com/2020/udc-example/v1"
+                        "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
                     }],
                     "constraints": {
                         "fields": [
@@ -986,7 +986,7 @@ describe('generate presentation submission with submission requirements', () => 
                     "name": "University degree certificate",
                     "group": ["D"],
                     "schema": [{
-                        "uri": "https://www.example.com/2020/udc-example/v1"
+                        "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
                     }],
                     "constraints": {
                         "fields": [
@@ -1061,10 +1061,10 @@ describe('generate presentation submission with submission requirements', () => 
                     "group": ["C"],
                     "schema": [
                         {
-                            "uri": "https://w3id.org/citizenship/v3"
+                            "uri": "https://w3id.org/citizenship/v3#PermanentResidentCard"
                         },
                         {
-                            "uri": "https://w3id.org/citizenship/v4"
+                            "uri": "https://w3id.org/citizenship/v4#PermanentResidentCard"
                         }
                     ],
                     "constraints": {
@@ -1092,7 +1092,7 @@ describe('generate presentation submission with submission requirements', () => 
                     "name": "University degree certificate",
                     "group": ["D"],
                     "schema": [{
-                        "uri": "https://www.example.com/2020/udc-example/v1"
+                        "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
                     }],
                     "constraints": {
                         "fields": [
@@ -1120,7 +1120,7 @@ describe('generate presentation submission with submission requirements', () => 
                     "name": "University degree certificate",
                     "group": ["D"],
                     "schema": [{
-                        "uri": "https://www.example.com/2020/udc-example/v1"
+                        "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
                     }],
                     "constraints": {
                         "fields": [
@@ -1166,14 +1166,14 @@ describe('generate presentation submission with submission requirements', () => 
                     "id": "driver_license_1",
                     "name": "Your driver's license.",
                     "schema": [{
-                        "uri": "https://trustbloc.github.io/context/vc/examples/mdl-v1.jsonld",
+                        "uri": "https://trustbloc.github.io/context/vc/examples/mdl-v1.jsonld#mDL",
                     }]
                 },
                 {
                     "id": "driver_license_evidence_1",
                     "name": "Supporting evidence of your driver's license.",
                     "schema": [{
-                        "uri": "https://trustbloc.github.io/context/vc/authorization-credential-v1.jsonld",
+                        "uri": "https://trustbloc.github.io/context/vc/authorization-credential-v1.jsonld#AuthorizationCredential",
                     }],
                     "constraints": {
                         "fields": [
@@ -1408,7 +1408,7 @@ describe('generate presentation submission with submission requirements', () => 
             "name": "University degree certificate",
             "group": ["D"],
             "schema": [{
-                "uri": "https://www.example.com/2020/udc-example/v1"
+                "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
             }],
             "constraints": {
                 "fields": [
@@ -1436,7 +1436,7 @@ describe('generate presentation submission with submission requirements', () => 
             "name": "University degree certificate",
             "group": ["D"],
             "schema": [{
-                "uri": "https://www.example.com/2020/udc-example/v1"
+                "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
             }],
             "constraints": {
                 "fields": [

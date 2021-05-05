@@ -155,7 +155,21 @@ function match(credential, descriptor) {
     // match schema
     let schemas = descriptor.schema.map(s => s.uri)
     let contexts = Array.isArray(credential["@context"]) ? credential["@context"] : [credential["@context"]]
-    let schemaMatched = contexts.some(v => schemas.includes(v))
+    let types = Array.isArray(credential["type"]) ? credential["type"] : [credential["type"]]
+    let schemaMatched = false
+
+    loop:
+    for (let i = 0; i < contexts.length; i++) {
+        for (let j = 0; j < types.length; j++) {
+            const c = `${contexts[i]}#${types[j]}`
+            for (let k = 0; k < schemas.length; k++) {
+                schemaMatched = schemas[k] === c
+                if (schemaMatched) {
+                    break loop
+                }
+            }
+        }
+    }
 
     if (!schemaMatched) {
         // schema not matched, skip this credential
@@ -205,8 +219,7 @@ function match(credential, descriptor) {
 // matchManifest matches if descriptor schema exists in manifest credential contexts list
 // TODO: manifests to have credential previews so that complete constraint checks can be run
 function matchManifest(manifest, descriptor) {
-
-    let schemas = descriptor.schema.map(s => s.uri)
+    let schemas = descriptor.schema.map(s => s.uri).map(uri => uri.substring(0, uri.indexOf("#")))
 
     if (descriptor.constraints && descriptor.constraints.fields) {
         descriptor.constraints.fields.filter(f => f.filter).filter(f => f.filter.const).forEach(f => {

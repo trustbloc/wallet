@@ -241,10 +241,10 @@ export const presentationDefQuery1 = {
             "group": ["C"],
             "schema": [
                 {
-                    "uri": "https://w3id.org/citizenship/v1"
+                    "uri": "https://w3id.org/citizenship/v1#PermanentResidentCard"
                 },
                 {
-                    "uri": "https://w3id.org/citizenship/v2"
+                    "uri": "https://w3id.org/citizenship/v2#PermanentResidentCard"
                 }
             ],
             "constraints": {
@@ -265,7 +265,7 @@ export const presentationDefQuery1 = {
             "purpose": "We need your education qualification details.",
             "group": ["E"],
             "schema": [{
-                "uri": "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
+                "uri": "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld#UniversityDegreeCredential"
             }],
             "constraints": {
                 "fields": [
@@ -286,7 +286,7 @@ export const presentationDefQuery1 = {
             "purpose": "We need your education qualification details.",
             "group": ["E"],
             "schema": [{
-                "uri": "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
+                "uri": "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld#StudentCard"
             }],
             "constraints": {
                 "fields": [
@@ -331,10 +331,10 @@ export const presentationDefQuery2 = {
             ],
             "schema": [
                 {
-                    "uri": "https://w3id.org/citizenship/v3"
+                    "uri": "https://w3id.org/citizenship/v3#PermanentResidentCard"
                 },
                 {
-                    "uri": "https://w3id.org/citizenship/v4"
+                    "uri": "https://w3id.org/citizenship/v4#PermanentResidentCard"
                 }
             ],
             "constraints": {

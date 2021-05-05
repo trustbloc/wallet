@@ -324,6 +324,7 @@ describe('verifier queries credentials - DIDComm Flow', () => {
 
     it('user authorizes sharing credential using DIDComm', async () => {
         let presDef = wrapper.findComponent(PresentationDefQuery)
+        await promiseWhen(() => !presDef.vm.loading, 10000)
 
         presDef.vm.selectedVCs = [true]
         let btn = presDef.find("#share-credentials")

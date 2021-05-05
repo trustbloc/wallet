@@ -391,10 +391,10 @@ export const samplePresentationDefQuery1 = {
             "group": ["C"],
             "schema": [
                 {
-                    "uri": "https://w3id.org/citizenship/v1"
+                    "uri": "https://w3id.org/citizenship/v1#PermanentResidentCard"
                 },
                 {
-                    "uri": "https://w3id.org/citizenship/v2"
+                    "uri": "https://w3id.org/citizenship/v2#PermanentResidentCard"
                 }
             ],
             "constraints": {
@@ -422,7 +422,7 @@ export const samplePresentationDefQuery1 = {
             "name": "University degree certificate",
             "group": ["D"],
             "schema": [{
-                "uri": "https://www.example.com/2020/udc-example/v1"
+                "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
             }],
             "constraints": {
                 "fields": [
@@ -450,7 +450,7 @@ export const samplePresentationDefQuery1 = {
             "name": "University degree certificate",
             "group": ["D"],
             "schema": [{
-                "uri": "https://www.example.com/2020/udc-example/v1"
+                "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
             }],
             "constraints": {
                 "fields": [
@@ -478,7 +478,7 @@ export const samplePresentationDefQuery1 = {
             "name": "University degree certificate",
             "group": ["D"],
             "schema": [{
-                "uri": "https://www.example.com/2020/udc-example/v1"
+                "uri": "https://www.example.com/2020/udc-example/v1#UniversityDegreeCredential"
             }],
             "constraints": {
                 "fields": [
