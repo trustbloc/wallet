@@ -11,9 +11,9 @@ import VueRouter from "vue-router";
 import routes from "./router/index";
 import * as polyfill from "credential-handler-polyfill";
 import * as webCredentialHandler from "web-credential-handler";
-import MaterialDashboard from "./material-dashboard";
 import {mapActions, mapGetters} from "vuex";
 import VueCookies from 'vue-cookies'
+import '@/assets/css/tailwind.css'
 
 Vue.config.productionTip = false
 
@@ -54,7 +54,6 @@ router.beforeEach((to, from, next) => {
 })
 
 Vue.use(VueRouter);
-Vue.use(MaterialDashboard);
 Vue.use(VueCookies);
 Vue.$cookies.config('7d');
 
