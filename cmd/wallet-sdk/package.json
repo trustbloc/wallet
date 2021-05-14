@@ -1,0 +1,40 @@
+{
+  "name": "@trustbloc/wallet-sdk",
+  "description": "SDK for user agent wallet features.",
+  "version": "0.1.0",
+  "main": "dist/wallet-sdk.min.js",
+  "browser": "dist/wallet-sdk.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack --config webpack.dev.js",
+    "build": "cp -p ../../LICENSE . && webpack --config webpack.prod.js",
+    "prepare": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "wallet",
+    "user agent wallet",
+    "universal wallet",
+    "trustbloc wallet",
+    "didcomm wallet"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/trustbloc/edge-agent/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/trustbloc/edge-agent.git"
+  },
+  "devDependencies": {
+    "html-webpack-plugin": "^5.3.1",
+    "terser-webpack-plugin": "^5.1.2",
+    "webpack": "^5.37.0",
+    "webpack-cli": "^4.7.0",
+    "webpack-dev-server": "^3.11.2",
+    "webpack-merge": "^5.7.3"
+  }
+}
