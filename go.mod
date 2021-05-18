@@ -13,7 +13,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.2.0
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/sessions v1.2.1
-	github.com/hyperledger/aries-framework-go v0.1.7-0.20210429013345-a595aa0b19c4
+	github.com/hyperledger/aries-framework-go v0.1.7-0.20210517160459-a72f856f36b8
 	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210427144858-06fb8b7d2d30
 	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210422133815-2ef2d99cb692
 	github.com/igor-pavlenko/httpsignatures-go v0.0.23

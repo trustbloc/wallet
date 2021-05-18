@@ -13,7 +13,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
-	github.com/hyperledger/aries-framework-go v0.1.7-0.20210429013345-a595aa0b19c4
+	github.com/hyperledger/aries-framework-go v0.1.7-0.20210517160459-a72f856f36b8
 	github.com/hyperledger/aries-framework-go-ext/component/storage/couchdb v0.0.0-20210326155331-14f4ca7d75cb
 	github.com/hyperledger/aries-framework-go-ext/component/storage/mysql v0.0.0-20210430083607-6d6ad7835767
 	github.com/hyperledger/aries-framework-go-ext/component/vdr/orb v0.0.0-20210422102350-1c5d6f027647

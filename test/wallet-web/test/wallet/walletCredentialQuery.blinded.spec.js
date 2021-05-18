@@ -135,7 +135,7 @@ describe('issuer with manifest connected to wallet over blinded routing', () => 
         let didFromWallet = await issuer.sharePeerDID()
 
         expect(didFromWallet).to.not.be.null
-        expect(didFromWallet['@context']).to.deep.equal(["https://w3id.org/did/v1"])
+        expect(didFromWallet['@context']).to.deep.equal(["https://www.w3.org/ns/did/v1"])
 
         const resp = await credResponse
         if (resp.dataType === 'VerifiablePresentation') {
@@ -229,7 +229,7 @@ describe('verifier queries credentials - DIDComm Flow using blinded routing', ()
         await verifier.shareNewPeerDID()
 
         expect(didFromWallet).to.not.be.null
-        expect(didFromWallet['@context']).to.deep.equal(["https://w3id.org/did/v1"])
+        expect(didFromWallet['@context']).to.deep.equal(["https://www.w3.org/ns/did/v1"])
 
         // issue credential from issuer
         await issuer.issueCredential(issue_credential)

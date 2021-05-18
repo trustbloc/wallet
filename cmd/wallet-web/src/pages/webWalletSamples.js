@@ -161,7 +161,7 @@ const govnVC = {
     "credentialSubject": {
         "data_uri": "https://example.com/data.json",
         "define": [{
-            "id": "did:orb:testnet.orb.local:EiDniKF0RDQVRuCSwi7N87O-x7axF7bUZ9tA12uq4qiWLQ",
+            "id": "did:orb:EiDniKF0RDQVRuCSwi7N87O-x7axF7bUZ9tA12uq4qiWLQ",
             "name": "DID"
         }],
         "description": "Governs accredited financial institutions, colleges and universities.",
@@ -176,13 +176,13 @@ const govnVC = {
         "topics": ["banking"],
         "version": "1.0"
     },
-    "issuer": "did:orb:testnet.orb.local:EiDdRGN4x2S4D0xYTPaJEHcD50Sq5fgv0sUfbdgY7x6lkQ",
+    "issuer": "did:orb:EiDdRGN4x2S4D0xYTPaJEHcD50Sq5fgv0sUfbdgY7x6lkQ",
     "proof": {
         "created": "2020-08-28T15:57:53.7002191Z",
         "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..oRWsB66_fgroRx2YQN1peaz7k636QOahd4etp8wyLCTR0WgEW1KzObgYxvz2AV0zJZHu0mvQi-9Uc5aXsWvBBA",
         "proofPurpose": "assertionMethod",
         "type": "Ed25519Signature2018",
-        "verificationMethod": "did:orb:testnet.orb.local:EiDdRGN4x2S4D0xYTPaJEHcD50Sq5fgv0sUfbdgY7x6lkQ#G0E1sRYZv4EQg5EkcNRo"
+        "verificationMethod": "did:orb:EiDdRGN4x2S4D0xYTPaJEHcD50Sq5fgv0sUfbdgY7x6lkQ#G0E1sRYZv4EQg5EkcNRo"
     },
     "type": ["VerifiableCredential", "GovernanceCredential"]
 }
