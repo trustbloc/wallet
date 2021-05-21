@@ -22,7 +22,7 @@ SPDX-License-Identifier: Apache-2.0
         </div>
 
         <div>
-          <div class="hidden md:block">
+          <div class="hidden md:block  text-lg">
             <a href="#" class="inline-block py-1 md:py-4 text-gray-100 mr-6 hover:text-gray-500 font-inline">Features</a>
             <a href="#" class="inline-block py-1 md:py-4 text-gray-100 font-inline hover:text-gray-500 mr-6">Security</a>
             <a href="#" class="inline-block py-1 md:py-4 text-gray-100 font-inline hover:text-gray-500">Technologies</a>
@@ -30,7 +30,7 @@ SPDX-License-Identifier: Apache-2.0
         </div>
         <div class="hidden md:block">
           <a href="#" class="inline-block py-1 md:py-4 text-gray-100 hover:text-gray-500 mr-6"></a>
-          <a href="#" class="inline-block py-1 px-6 border module-border-wrap text-gray-100 hover:bg-gray-100 hover:text-black rounded-xl">Get Started</a>
+          <a href="#" class="text-lg py-3 px-12 border module-border-wrap text-gray-100 hover:bg-gray-100 hover:text-black rounded-xl">Get Started</a>
         </div>
       </div>
     </div>
@@ -76,24 +76,7 @@ SPDX-License-Identifier: Apache-2.0
         </div>
       </div>
       <!-- component -->
-      <footer class="footer footer-gradient relative py-24 pt-1 border-b-2 border-blue-700">
-        <div class="container mx-auto px-6">
-
-          <div class="sm:flex sm:mt-8">
-            <div class="mt-8 sm:mt-0 sm:w-full sm:px-8 flex flex-col md:flex-row justify-between">
-            </div>
-          </div>
-        </div>
-        <div class="container mx-auto px-6">
-          <div class="border-gray-300 flex flex-col items-center">
-            <div class="sm:w-2/3 text-center py-16">
-              <p class="text-sm text-white font-semibold mb-2">
-                Copyright &copy; <a href="https://securekey.com/">SecureKey Technologies</a> and the TrustBloc Contributors.
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <ContentFooter></ContentFooter>
     </div>
   </div>
 </template>
@@ -101,6 +84,7 @@ SPDX-License-Identifier: Apache-2.0
 <script>
     import {DeviceLogin, RegisterWallet} from "./wallet"
     import {mapActions, mapGetters} from 'vuex'
+    import ContentFooter from "@/pages/Layout/ContentFooter";
     import {BeatLoader} from "@saeris/vue-spinners";
 
     export default {
@@ -154,6 +138,7 @@ SPDX-License-Identifier: Apache-2.0
         },
         components: {
             BeatLoader,
+            ContentFooter
         },
         methods: {
             ...mapActions({
@@ -233,5 +218,8 @@ SPDX-License-Identifier: Apache-2.0
       border: 1px solid;
       border-image-slice: 1;
       border-image-source: linear-gradient(to left,  #3F5FD3, #743ad5, #d53a9d, #CD3A67);
+    }
+    a {
+      color: white !important;
     }
 </style>

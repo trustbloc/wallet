@@ -11,10 +11,13 @@ import VueRouter from "vue-router";
 import routes from "./router/index";
 import * as polyfill from "credential-handler-polyfill";
 import * as webCredentialHandler from "web-credential-handler";
-import MaterialDashboard from "./material-dashboard";
 import {mapActions, mapGetters} from "vuex";
 import VueCookies from 'vue-cookies'
 import '@/assets/css/tailwind.css'
+import SideBar from "@/components/SidebarPlugin";
+import VueMaterial from "vue-material";
+import "vue-material/dist/vue-material.css";
+import "./assets/scss/material-dashboard.scss";
 
 Vue.config.productionTip = false
 
@@ -55,9 +58,10 @@ router.beforeEach((to, from, next) => {
 })
 
 Vue.use(VueRouter);
-Vue.use(MaterialDashboard);
+Vue.use(SideBar);
 Vue.use(VueCookies);
 Vue.$cookies.config('7d');
+Vue.use(VueMaterial);
 
 new Vue({
     store,
@@ -89,4 +93,5 @@ new Vue({
     render: h => h(App),
     router
 });
+
 
