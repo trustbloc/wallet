@@ -5,17 +5,15 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-    <md-toolbar md-elevation="0" class="md-transparent" :style="topNavStyle">
+    <md-toolbar class="footer-gradient">
         <div class="md-toolbar-row">
-            <register-device/>
             <div class="md-toolbar-section-end">
                 <div>
-                    <i class="md-title" style="font-size: 20px; color: white !important;">
-                        <md-icon style="color: white; margin: 10px;">person_outline</md-icon>
-                        logged in as {{$store.getters.getCurrentUser ? $store.getters.getCurrentUser.username : ''}}</i>
-
+                    <i class="md-title text-xl text-white">
+                      <md-icon  style="color: white; margin: 10px;">account_circle</md-icon>
+                        {{$store.getters.getCurrentUser ? $store.getters.getCurrentUser.username : ''}}</i>
                 </div>
-                <logout/>
+                <settings/>
                 <md-button
                         class="md-just-icon md-simple md-toolbar-toggle"
                         :class="{ toggled: $sidebar.showSidebar }"
@@ -30,10 +28,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-
-    import Logout from "@/pages/chapi/Logout.vue";
-    import RegisterDevice from "../chapi/RegisterDevice";
-
+    import Settings from "@/pages/chapi/Settings";
     export default {
         data() {
             return {}
@@ -44,19 +39,14 @@ SPDX-License-Identifier: Apache-2.0
             }
         },
         components: {
-            Logout,
-            RegisterDevice,
+          Settings,
         },
         computed: {
-            topNavStyle() {
-                return {
-                    backgroundImage: `url(${require("@/assets/img/topbar-2.jpg")})`,
-                    'background-size': 'cover',
-                    height: '70px'
-                };
-            }
         }
     };
 </script>
-
-<style lang="css"></style>
+<style scoped>
+.footer-gradient {
+  background: linear-gradient(to bottom ,#000000, #0c0116,#14061D, #261131);
+}
+</style>
