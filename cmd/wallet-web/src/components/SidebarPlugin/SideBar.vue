@@ -5,102 +5,58 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-  <div
-    class="sidebar"
-    :data-color="sidebarItemColor"
-    :data-image="sidebarBackgroundImage"
-    :style="sidebarStyle"
-  >
-    <div class="logo">
-      <a href="#" class="simple-text logo-mini">
-        <div class="logo-img">
-          <img :src="imgLogo" alt="" />
+    <div class="fixed inset-0 flex z-40">
+      <!-- Sidebar starts -->
+      <div class="w-2/12  absolute sm:relative gradient shadow md:h-auto flex-col justify-between hidden sm:flex">
+        <div class="px-16 py-8">
+          <div class="flex items-center">
+            <img class="h-10 w-10 mr-2 mt-2" src="@/assets/img/logo.png" alt="">
+            <h1 class="font-semibold text-white text-2xl lg:text-4xl tracking-tight">TrustBloc</h1>
+          </div>
+          <div class="sidebar-wrapper">
+            <slot name="content"></slot>
+                <slot>
+                  <ul class="mt-12">
+                    <li class="">
+                        <sidebar-link
+                          v-for="(link, index) in sidebarLinks"
+                          :key="link.name + index"
+                          :to="link.path"
+                          :link="link">
+                         </sidebar-link>
+                    </li>
+                  </ul>
+                </slot>
+              </div>
         </div>
-      </a>
-
-      <a
-        href="https://github.com/trustbloc/edge-agent"
-        class="simple-text" style="font-size: 16px"
-      >
-        {{ title }}
-      </a>
+      <!-- Sidebar ends -->
     </div>
-    <div class="sidebar-wrapper">
-      <slot name="content"></slot>
-      <md-list class="nav">
-        <!--By default vue-router adds an active class to each route link. This way the links are colored when clicked-->
-        <slot>
-          <sidebar-link
-            v-for="(link, index) in sidebarLinks"
-            :key="link.name + index"
-            :to="link.path"
-            :link="link"
-          >
-          </sidebar-link>
-        </slot>
-      </md-list>
-      <div class="dev-mode">
-        <div>
-          <md-checkbox :value="!isDevMode" @change="updateDevMode(!isDevMode)">Developer Mode
-          </md-checkbox>
-        </div>
-      </div>
     </div>
-  </div>
-</template>
-<script>
-import SidebarLink from "./SidebarLink.vue";
-import {mapGetters, mapMutations} from 'vuex'
+  </template>
+  <script>
+  import SidebarLink from "./SidebarLink.vue";
 
-export default {
-  components: {
-    SidebarLink
-  },
-  methods: mapMutations(['updateDevMode']),
-  props: {
-    title: {
-      type: String,
-      default: "User Agent Wallet"
-    },
-    sidebarBackgroundImage: {
-      type: String,
-      default: require("@/assets/img/sidebar-2.jpg")
-    },
-    imgLogo: {
-      type: String,
-      default: require("@/assets/img/logo.png")
-    },
-    sidebarItemColor: {
-      type: String,
-      default: "green",
-      validator: value => {
-        let acceptedValues = ["", "purple", "blue", "green", "orange", "red"];
-        return acceptedValues.indexOf(value) !== -1;
-      }
-    },
-    sidebarLinks: {
-      type: Array,
-      default: () => []
-    },
-    autoClose: {
-      type: Boolean,
-      default: true
-    }
-  },
-  provide() {
+    export default {
+      components: {
+        SidebarLink
+      },
+      props: {
+        sidebarLinks: {
+          type: Array,
+          default: () => []
+        },
+        autoClose: {
+          type: Boolean,
+          default: true
+        }
+      },
+    data() {
     return {
-      autoClose: this.autoClose
-    };
-  },
-  computed: {
-    ...mapGetters(['isDevMode']),
-    sidebarStyle() {
-      return {
-        backgroundImage: `url(${this.sidebarBackgroundImage})`
-      };
-    }
-  }
-};
+      moved: true,
+       };
+     },
+    methods: {},
+  };
 </script>
 <style>
 @media screen and (min-width: 995px) {
@@ -111,13 +67,7 @@ export default {
 </style>
 
 <style scoped>
-.dev-mode {
-  position: absolute;
-  bottom: 0;
-  width: 100%
-}
-
-.dev-mode > div {
-  text-align: center;
+.gradient {
+  background: linear-gradient(to bottom ,#14061D, #261131,#0c0116,#13113F,#1A0C22);
 }
 </style>

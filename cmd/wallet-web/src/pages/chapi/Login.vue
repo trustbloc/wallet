@@ -52,17 +52,16 @@ SPDX-License-Identifier: Apache-2.0
               <md-card-content v-else>
                 <form>
                   <md-card-content>
-                    <md-button v-on:click="beginOIDCLogin"
-                               class="mt-6 mb-12 md:mb-0 md:mt-10 inline-block py-3 px-12 text-white border border-white hover:bg-red-600
-                               module-border-wrap rounded-lg shadow"
+                    <button v-on:click="beginOIDCLogin"
+                               class="text-lg py-3 px-12 border module-border-wrap text-gray-100 hover:bg-gray-100 hover:text-black rounded-xl"
                                id="loginBtn">
                                Get Started
-                    </md-button>
+                    </button>
                     <!-- Todo remove this once the design is finalized -->
-                    <md-button v-if="registered" v-on:click="loginDevice"
+                    <button v-if="registered" v-on:click="loginDevice"
                                class="md-dense md-raised md-success login-button" id="loginDeviceBtn">
                       Sign-In Touch/Face ID
-                    </md-button>
+                    </button>
                   </md-card-content>
                 </form>
               </md-card-content>
@@ -76,7 +75,15 @@ SPDX-License-Identifier: Apache-2.0
         </div>
       </div>
       <!-- component -->
-      <ContentFooter></ContentFooter>
+      <footer class="footer footer-gradient relative py-24  border-b-2 border-blue-700">
+          <div class="container mx-auto px-6 border-gray-300 flex flex-col items-center">
+            <div class="sm:w-2/3 py-16">
+              <p class="text-sm text-white text-center font-semibold  mb-2">
+                Copyright &copy; <a href="https://securekey.com/">SecureKey Technologies</a> and the TrustBloc Contributors.
+              </p>
+            </div>
+          </div>
+      </footer>
     </div>
   </div>
 </template>
@@ -84,7 +91,6 @@ SPDX-License-Identifier: Apache-2.0
 <script>
     import {DeviceLogin, RegisterWallet} from "./wallet"
     import {mapActions, mapGetters} from 'vuex'
-    import ContentFooter from "@/pages/Layout/ContentFooter";
     import {BeatLoader} from "@saeris/vue-spinners";
 
     export default {
@@ -138,7 +144,6 @@ SPDX-License-Identifier: Apache-2.0
         },
         components: {
             BeatLoader,
-            ContentFooter
         },
         methods: {
             ...mapActions({

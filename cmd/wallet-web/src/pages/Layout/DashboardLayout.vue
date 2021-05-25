@@ -11,50 +11,22 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 
   <div v-else class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
-
     <!--
      TODO - base path for sidebar links should be configurable: https://github.com/trustbloc/edge-agent/issues/374
     -->
-
-    <side-bar
-        :sidebar-item-color="sidebarBackground"
-        :sidebar-background-image="sidebarBackgroundImage">
+    <side-bar>
       <mobile-menu slot="content"></mobile-menu>
       <sidebar-link to="/dashboard">
-        <md-icon>dashboard</md-icon>
-        <p>Dashboard</p>
-      </sidebar-link>
-      <sidebar-link to="/DIDManagement">
-        <md-icon>flip_to_back</md-icon>
-        <p>Digital Identity Management</p>
-      </sidebar-link>
-      <sidebar-link to="/relationships">
-        <md-icon>compare_arrows</md-icon>
-        <p>Relationships</p>
-        <md-badge v-if="pendingConnectionsCount" class="md-primary md-square" style="margin: 5px"
-                  :md-content="pendingConnectionsCount"/>
-      </sidebar-link>
-      <sidebar-link v-if="isDevMode" to="/MyVC">
-        <md-icon>border_outer</md-icon>
-        <p>Presentation</p>
-      </sidebar-link>
-      <sidebar-link v-if="isDevMode" to="/connections">
-        <md-icon>compare_arrows</md-icon>
-        <p>Connections</p>
-        <md-badge v-if="pendingConnectionsCount" class="md-primary md-square" style="margin: 5px"
-                  :md-content="pendingConnectionsCount"/>
-      </sidebar-link>
-      <sidebar-link v-if="isDevMode" to="/issue-credential">
-        <md-icon>note</md-icon>
-        <p>Issue Credential</p>
-      </sidebar-link>
-      <sidebar-link v-if="isDevMode" to="/present-proof">
-        <md-icon>security</md-icon>
-        <p>Present Proof</p>
+        <div class="py-8 text-lg rounded text-white">
+        <div class="flex items-center">
+          <img class="h-8 w-8 mr-2" src="@/assets/img/wallet.png" alt="">
+          <span class="normal-case px-4 mt-2 text-2xl font-sans">Wallet</span>
+        </div>
+        </div>
       </sidebar-link>
     </side-bar>
 
-    <div class="main-panel">
+    <div class="">
       <top-navbar></top-navbar>
 
       <dashboard-content></dashboard-content>
@@ -80,8 +52,6 @@ export default {
   },
   data() {
     return {
-      sidebarBackground: "green",
-      sidebarBackgroundImage: require("@/assets/img/sidebar-2.jpg")
     };
   },
   computed: mapGetters(['pendingConnectionsCount', "isDevMode"]),
