@@ -52,16 +52,16 @@ SPDX-License-Identifier: Apache-2.0
               <md-card-content v-else>
                 <form>
                   <md-card-content>
-                    <button v-on:click="beginOIDCLogin"
-                               class="text-lg py-3 px-12 border module-border-wrap text-gray-100 hover:bg-gray-100 hover:text-black rounded-xl"
+                    <md-button v-on:click="beginOIDCLogin"
+                               class="text-lg py-3 px-12 border module-border-wrap text-gray-100 hover:bg-gray-100 hover:text-black"
                                id="loginBtn">
                                Get Started
-                    </button>
+                    </md-button>
                     <!-- Todo remove this once the design is finalized -->
-                    <button v-if="registered" v-on:click="loginDevice"
+                    <md-button v-if="registered" v-on:click="loginDevice"
                                class="md-dense md-raised md-success login-button" id="loginDeviceBtn">
                       Sign-In Touch/Face ID
-                    </button>
+                    </md-button>
                   </md-card-content>
                 </form>
               </md-card-content>
