@@ -51,9 +51,8 @@ SPDX-License-Identifier: Apache-2.0
               </md-card-content>
               <md-card-content v-else>
                 <form>
-                  <md-card-content>
                     <md-button v-on:click="beginOIDCLogin"
-                               class="text-lg py-3 px-12 border module-border-wrap text-gray-100 hover:bg-gray-100 hover:text-black"
+                               class="text-lg py-3 px-12 border module-border-wrap text-gray-100 hover:bg-gray-100 hover:text-black rounded-xl"
                                id="loginBtn">
                                Get Started
                     </md-button>
@@ -62,7 +61,6 @@ SPDX-License-Identifier: Apache-2.0
                                class="md-dense md-raised md-success login-button" id="loginDeviceBtn">
                       Sign-In Touch/Face ID
                     </md-button>
-                  </md-card-content>
                 </form>
               </md-card-content>
             </div>
@@ -91,7 +89,7 @@ SPDX-License-Identifier: Apache-2.0
 <script>
     import {DeviceLogin, RegisterWallet} from "./wallet"
     import {mapActions, mapGetters} from 'vuex'
-    import {BeatLoader} from "@saeris/vue-spinners";
+    import BeatLoader from "@saeris/vue-spinners";
 
     export default {
         created: async function () {
@@ -226,5 +224,13 @@ SPDX-License-Identifier: Apache-2.0
     }
     a {
       color: white !important;
+    }
+    /*--Remove this once vue-material css is removed */
+    .md-button{
+      text-transform: none !important;
+      background:linear-gradient(to bottom ,#14061D, #261131,#0c0116,#13113F,#1A0C22);
+      font-size: large;
+      font-family: sans-serif;
+      padding: 6px 36px;
     }
 </style>
