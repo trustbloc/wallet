@@ -89,7 +89,7 @@ SPDX-License-Identifier: Apache-2.0
 <script>
     import {DeviceLogin, RegisterWallet} from "./wallet"
     import {mapActions, mapGetters} from 'vuex'
-    import BeatLoader from "@saeris/vue-spinners";
+    import {BeatLoader} from "@saeris/vue-spinners";
 
     export default {
         created: async function () {
