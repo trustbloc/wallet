@@ -30,7 +30,7 @@ SPDX-License-Identifier: Apache-2.0
         </div>
         <div class="hidden md:block">
           <a href="#" class="inline-block py-1 md:py-4 text-gray-100 hover:text-gray-500 mr-6"></a>
-          <a href="#" class="text-lg py-3 px-12 border module-border-wrap text-gray-100 hover:bg-gray-100 hover:text-black rounded-xl">Get Started</a>
+          <a href="#" class="text-lg py-3 px-12 border module-border-wrap text-gray-100 hover:shadow-lg hover:text-black">Get Started</a>
         </div>
       </div>
     </div>
@@ -52,7 +52,7 @@ SPDX-License-Identifier: Apache-2.0
               <md-card-content v-else>
                 <form>
                     <md-button v-on:click="beginOIDCLogin"
-                               class="text-lg py-3 px-12 border module-border-wrap text-gray-100 hover:bg-gray-100 hover:text-black rounded-xl"
+                               class="text-lg py-3 px-12 border module-border-wrap md-button"
                                id="loginBtn">
                                Get Started
                     </md-button>
@@ -232,5 +232,11 @@ SPDX-License-Identifier: Apache-2.0
       font-size: large;
       font-family: sans-serif;
       padding: 6px 36px;
+    }
+    .md-button:hover{
+      background:transparent !important;
+    }
+    .md-button:active:after{
+      background:transparent !important;
     }
 </style>
