@@ -228,7 +228,7 @@ SPDX-License-Identifier: Apache-2.0
     /*--Remove this once vue-material css is removed */
     .md-button{
       text-transform: none !important;
-      background:linear-gradient(to bottom ,#14061D, #261131,#0c0116,#13113F,#1A0C22);
+      background:transparent !important;
       font-size: large;
       font-family: sans-serif;
       padding: 6px 36px;
