@@ -5,9 +5,9 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-    <md-toolbar class="footer-gradient">
+    <div class="footer-gradient">
         <div class="md-toolbar-row">
-            <div class="md-toolbar-section-end">
+            <div class="px-6 md-toolbar-section-end">
                 <div>
                     <i class="md-title text-xl text-white">
                       <md-icon  style="color: white; margin: 10px;">account_circle</md-icon>
@@ -24,7 +24,7 @@ SPDX-License-Identifier: Apache-2.0
                 </md-button>
             </div>
         </div>
-    </md-toolbar>
+    </div>
 </template>
 
 <script>

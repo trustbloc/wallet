@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-    <div class="fixed inset-0 flex z-40">
+    <div class="sidebar fixed inset-0 flex z-40">
       <!-- Sidebar starts -->
       <div class="w-2/12  absolute sm:relative gradient shadow md:h-auto flex-col justify-between hidden sm:flex">
         <div class="px-16 py-8">
