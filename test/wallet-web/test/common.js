@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 import * as Agent from "@trustbloc/agent-sdk-web"
 import {createLocalVue} from "@vue/test-utils";
 import Vuex from "vuex";
+import {addJSONLDContexts} from "./jsonld_contexts";
 
 const createInvitationPath = `/connections/create-invitation`
 
@@ -79,6 +80,7 @@ export async function loadFrameworks({name = '', loadAgent = true, loadStartupOp
 
     if (loadAgent) {
         opts.agent = await new Agent.Framework(agentOpts)
+        await addJSONLDContexts(opts.agent)
     }
 
     if (loadStartupOpts) {
