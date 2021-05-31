@@ -39,6 +39,7 @@ let defaultAgentStartupOpts = {
     cacheSize: 100,
     edvBatchSize: 0,
     didAnchorOrigin: 'origin',
+    sidetreeToken: '',
 }
 
 export default {
@@ -141,6 +142,7 @@ export default {
                 edvBatchSize: ('edvBatchSize' in agentOpts) ? agentOpts['edvBatchSize'] : defaultAgentStartupOpts['edvBatchSize'],
                 useEDVBcacheSizeatch: ('cacheSize' in agentOpts) ? agentOpts['cacheSize'] : defaultAgentStartupOpts['cacheSize'],
                 didAnchorOrigin: ('didAnchorOrigin' in agentOpts) ? agentOpts['didAnchorOrigin'] : defaultAgentStartupOpts['didAnchorOrigin'],
+                sidetreeToken: ('sidetreeToken' in agentOpts) ? agentOpts['sidetreeToken'] : defaultAgentStartupOpts['sidetreeToken'],
             })
         },
     },

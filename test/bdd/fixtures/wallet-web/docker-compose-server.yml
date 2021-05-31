@@ -36,7 +36,7 @@ services:
       - ARIESD_DATABASE_TYPE=mysql
       - ARIESD_DATABASE_PREFIX=edgeagent_usragdb
       - ARIESD_DATABASE_TIMEOUT=60
-      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
+      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/?interpolateParams=true&multiStatements=true
     ports:
       - 8090:8090
     volumes:
@@ -76,7 +76,7 @@ services:
       - ARIESD_DATABASE_TYPE=mysql
       - ARIESD_DATABASE_PREFIX=edgeagent_usrlagdb
       - ARIESD_DATABASE_TIMEOUT=60
-      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
+      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/?interpolateParams=true&multiStatements=true
     ports:
       - 9099:9099
     volumes:
@@ -116,7 +116,7 @@ services:
       - ARIESD_DATABASE_TYPE=mysql
       - ARIESD_DATABASE_PREFIX=edgeagent_scusragdb
       - ARIESD_DATABASE_TIMEOUT=60
-      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
+      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/?interpolateParams=true&multiStatements=true
     ports:
       - 8070:8070
     volumes:
@@ -330,7 +330,7 @@ services:
       - AUTH_REST_API_TOKEN=test_token
       - AUTH_REST_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - AUTH_REST_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
-      - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/
+      - EDGE_AGENT_DSN_PERSISTENT=mysql://edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/?interpolateParams=true&multiStatements=true
       - EDGE_AGENT_DSN_TIMEOUT=45
     ports:
       - 8045:8045

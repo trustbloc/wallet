@@ -57,7 +57,8 @@ server {
             "useEDVBatch": ${USE_EDV_BATCH},
             "edvBatchSize": ${EDV_BATCH_SIZE},
             "cacheSize": ${CACHE_SIZE},
-            "didAnchorOrigin":"${DID_ANCHOR_ORIGIN}"
+            "didAnchorOrigin":"${DID_ANCHOR_ORIGIN}",
+            "sidetreeToken":"${SIDETREE_TOKEN}"
         }';
     }
 }
