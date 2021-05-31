@@ -65,7 +65,8 @@ const agentStartupOpts = {
     walletMediatorURL: 'https://localhost:10093',
     storageType: `indexedDB`, 	// TODO (#475): Allow the storage type to be configurable.
     edvServerURL: '',
-    didAnchorOrigin: 'origin'
+    didAnchorOrigin: 'origin',
+    sidetreeToken: ''
 }
 
 export async function loadFrameworks({name = '', loadAgent = true, loadStartupOpts = false, blinded = false}) {
