@@ -14,21 +14,15 @@ SPDX-License-Identifier: Apache-2.0
                             <pulse-loader :color="'green'" :size="5"
                                           style="float: left; margin-right: 5px"></pulse-loader> Setting up your user for secured communication.
                         </span>
-                        <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg">
-                             <md-icon style="color: green">check_circle_outline</md-icon> Successfully setup your user for secured communication.
+                        <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg" class="px-24">
+                             <md-icon style="color: green" class="px-4">check_circle_outline</md-icon> Successfully setup your user for secured communication.
                         </span>
                         <span v-else-if="loadingStatus === 'failed'">
                             <md-icon style="color: red;">warning</md-icon>
                             <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured communication.
                         </span>
                     </md-label>
-                    <md-card md-with-hover v-if="verifiableCredentials.length">
-                        <md-card-header data-background-color="green">
-                            <h4 class="title">
-                                <md-icon>content_paste</md-icon>
-                                Your Stored Credentials
-                            </h4>
-                        </md-card-header>
+                    <div class="md-card px-24" md-with-hover v-if="verifiableCredentials.length">
                         <md-card-content>
                             <ul class="credential-list">
                                 <li v-on:click="toggleCard(card)" v-for="(card, index) in cards" :key="index">
@@ -82,7 +76,7 @@ SPDX-License-Identifier: Apache-2.0
                             </li>
                             </ul>
                         </md-card-content>
-                    </md-card>
+                    </div>
                     <md-empty-state v-else
                                     md-icon="devices_other"
                                     :md-label=error
@@ -184,15 +178,15 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <style scoped>
-    .title {
-        text-transform: capitalize;
-    }
-
-    .md-content {
-        overflow: auto;
-        padding: 1px;
-        font-size: 6px;
-        line-height: 16px;
+    .md-card {
+      display: inline-block !important;
+      position: relative !important;
+      width: 100% !important;
+      margin: 25px 0 !important;
+      overflow: unset !important;
+      background: none !important;
+      box-shadow:none !important;
+      -webkit-box-shadow: none !important;
     }
     ul.credential-list {
         padding-left: 0;
@@ -211,7 +205,7 @@ SPDX-License-Identifier: Apache-2.0
         width: 360px;
         height: 233px;
         padding: 10px;
-        background-color: #e8e8e8 ;
+        background-color: #FFFFFF ;
         border-radius: 7px;
         margin: 5px;
         text-align: center;
