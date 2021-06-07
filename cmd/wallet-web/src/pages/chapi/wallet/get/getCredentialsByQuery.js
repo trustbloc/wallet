@@ -148,7 +148,7 @@ export class WalletGetByQuery extends WalletGet {
         let rpDIDDoc = Array.isArray(didDocRes.response.message.data.didDoc) ?
             JSON.parse(String.fromCharCode.apply(String, didDocRes.response.message.data.didDoc)) : didDocRes.response.message.data.didDoc
 
-        let peerDID = (await this.didManager.createPeerDID()).DID
+        let peerDID = (await this.didManager.createPeerDID()).DIDDocument
         let agent = this.agent
         let acceptCredPool = new Map()
 

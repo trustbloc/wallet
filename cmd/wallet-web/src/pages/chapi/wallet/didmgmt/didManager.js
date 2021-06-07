@@ -68,7 +68,7 @@ export class DIDManager extends KeyValueStore {
         // TODO generate public key from generic wasm and pass public key to createDID
         let resp = await this.agent.didclient.createTrustBlocDID(createDIDRequest)
 
-        return resp.DID
+        return resp.DIDDocument
     }
 
     async createPeerDID() {
