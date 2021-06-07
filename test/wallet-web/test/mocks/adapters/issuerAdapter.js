@@ -141,7 +141,7 @@ class Adapter {
             "message_body": {
                 "@id": uuid(),
                 "@type": 'https://trustbloc.dev/blinded-routing/1.0/diddoc-resp',
-                data: {didDoc: sampleRes.did},
+                data: {didDoc: sampleRes.DIDDocument},
             }
         })
 
@@ -216,7 +216,7 @@ export class RPAdapter extends Adapter {
             "message_body": {
                 "@id": uuid(),
                 "@type": 'https://trustbloc.dev/adapter/1.0/diddoc-resp',
-                data: {didDoc: sampleRes.did}
+                data: {didDoc: sampleRes.DIDDocument}
             }
         })
     }

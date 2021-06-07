@@ -309,19 +309,19 @@ SPDX-License-Identifier: Apache-2.0
 
                 // saving did
                 try {
-                    await this.didManager.saveDID(this.username, this.anyDIDFriendlyName, this.selectSignKey, resp.did)
+                    await this.didManager.saveDID(this.username, this.anyDIDFriendlyName, this.selectSignKey, resp.DIDDocument.id)
                 } catch (e) {
                     this.anyDidDocTextArea = `failed to save did : ${e.toString()}`
                     console.error("failed to save the did", e)
                 }
 
-                await this.didManager.storeDIDMetadata(resp.did.id, {
+                await this.didManager.storeDIDMetadata(resp.DIDDocument.id, {
                   signatureType: this.selectSignKey,
                   keyID: this.keyID,
                   friendlyName: this.anyDIDFriendlyName,
-                  id: resp.did.id,
+                  id: resp.DIDDocument.id,
                 })
-                this.anyDidDocTextArea = JSON.stringify(resp.did, undefined, 2);
+                this.anyDidDocTextArea = JSON.stringify(resp.DIDDocument, undefined, 2);
                 this.saveAnyDIDSuccess = true
             },
             loadDIDMetadata: async function () {
