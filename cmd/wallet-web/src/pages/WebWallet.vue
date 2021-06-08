@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
     <div class="content">
-        <div class="md-layout">
+        <div class="px-12 md-layout">
             <div class="md-layout-item">
                 <md-card>
                     <md-card-header style="background-color:#00bcd4">
