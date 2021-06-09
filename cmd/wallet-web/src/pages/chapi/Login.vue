@@ -38,7 +38,7 @@ SPDX-License-Identifier: Apache-2.0
     <div class="md:overflow-hidden">
       <div class="px-4 py-20 md:py-4">
         <div class="md:max-w-6xl md:mx-auto">
-          <div class="md:flex md:flex-wrap">
+          <div class="md:flex md:flex-wrap md:justify-center">
             <div class="md:w-1/2 text-center md:text-left md:pt-16">
               <h1 class="font-bold text-white text-2xl md:text-5xl leading-tight mb-4">
                 Secure Verified Credential Storage
