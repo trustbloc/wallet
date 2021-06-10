@@ -24,14 +24,6 @@ SPDX-License-Identifier: Apache-2.0
         </div>
         </div>
       </sidebar-link>
-      <sidebar-link to="/DIDManagement">
-        <div class="py-2 rounded text-white">
-          <div class="flex items-center">
-        <md-icon class="h-8 w-8 mr-2" style="color:white;">flip_to_back</md-icon>
-        <span class="normal-case inline-block px-4 mt-2 text-sm font-sans">Digital Identity Management</span>
-          </div>
-        </div>
-      </sidebar-link>
     </side-bar>
 
     <div class="main-panel">

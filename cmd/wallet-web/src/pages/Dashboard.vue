@@ -18,7 +18,7 @@ SPDX-License-Identifier: Apache-2.0
                              <md-icon style="color: green" class="px-4">check_circle_outline</md-icon> Successfully setup your user for secured communication.
                         </span>
                         <span v-else-if="loadingStatus === 'failed'">
-                            <md-icon style="color: red;">warning</md-icon>
+                            <md-icon style="color: red;" class="px-4">warning</md-icon>
                             <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured communication.
                         </span>
                     </md-label>
