@@ -5,48 +5,49 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-    <div class="footer-gradient">
-        <div class="md-toolbar-row">
-            <div class="px-6 md-toolbar-section-end">
-                <div>
-                    <i class="md-title text-xl text-white">
-                      <md-icon  style="color: white; margin: 10px;">account_circle</md-icon>
-                        {{$store.getters.getCurrentUser ? $store.getters.getCurrentUser.username : ''}}</i>
-                </div>
-                <settings/>
-                <md-button
-                        class="md-just-icon md-simple md-toolbar-toggle"
-                        :class="{ toggled: $sidebar.showSidebar }"
-                        @click="toggleSidebar">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </md-button>
+    <div class="gradient">
+      <div class="sticky top-0 z-40">
+        <div class="w-full h-20 px-6 flex items-center justify-between">
+          <!-- left navbar -->
+          <div class="flex">
+          </div>
+          <!-- right navbar -->
+          <div class="flex items-center relative">
+            <div>
+              <i class="md-title text-xl px-2 text-white">
+                <md-icon  style="color: white; margin: 10px;" class="px-2">account_circle</md-icon>
+                {{$store.getters.getCurrentUser ? $store.getters.getCurrentUser.username : ''}}</i>
             </div>
+            <img id="dashboardSettings" src="@/assets/img/settings.png"  style="color:white;"
+                 class="w-6 h-6 rounded-full shadow-lg" @click="dropDownOpen = !dropDownOpen">
+          </div>
         </div>
+        <!-- dropdown menu -->
+        <div class="absolute bg-gray-100 border border-t-0 shadow-xl text-gray-700 rounded-b-lg w-48 bottom-10 right-0 mr-6" :class="dropDownOpen ? '' : 'hidden'">
+          <a href="/DIDManagement" class="block px-4 py-2 hover:bg-gray-200">
+            <md-icon class="h-8 w-8 mr-2 px-4 hover:bg-gray-300 bg-indigo-100">flip_to_back</md-icon>DID Management</a>
+        </div>
+        <!-- dropdown menu end -->
+      </div>
     </div>
 </template>
 
 <script>
-    import Settings from "@/pages/chapi/Settings";
     export default {
-        data() {
-            return {}
-        },
         methods: {
             toggleSidebar() {
                 this.$sidebar.displaySidebar(!this.$sidebar.showSidebar);
             }
         },
-        components: {
-          Settings,
-        },
-        computed: {
+      data() {
+        return {
+          dropDownOpen: false
         }
+      },
     };
 </script>
 <style scoped>
-.footer-gradient {
+.gradient {
   background: linear-gradient(to bottom ,#000000, #0c0116,#14061D, #261131);
 }
 </style>
