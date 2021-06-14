@@ -1,4 +1,4 @@
-/*
+/* 
 Copyright SecureKey Technologies Inc. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
@@ -16,14 +16,17 @@ SPDX-License-Identifier: Apache-2.0
     -->
     <side-bar>
       <mobile-menu slot="content"></mobile-menu>
-      <sidebar-link to="/dashboard">
-        <div class="py-8 text-lg rounded text-white">
-        <div class="flex items-center">
-          <img class="h-8 w-8 mr-2" src="@/assets/img/wallet.png" alt="">
-          <span class="normal-case px-4 mt-2 text-2xl font-sans">Wallet</span>
-        </div>
-        </div>
-      </sidebar-link>
+      <div>
+        <sidebar-link to="/dashboard">
+          <div class="py-8 text-lg rounded text-white">
+            <div class="flex items-center">
+              <img class="h-8 w-8 mr-2" src="@/assets/img/wallet.png" alt="" />
+              <span class="normal-case px-4 mt-2 text-2xl font-sans">Wallet</span>
+            </div>
+          </div>
+        </sidebar-link>
+      </div>
+      <logout />
     </side-bar>
 
     <div class="main-panel">
@@ -41,19 +44,20 @@ import TopNavbar from "./TopNavbar.vue";
 import ContentFooter from "./ContentFooter.vue";
 import DashboardContent from "./Content.vue";
 import MobileMenu from "@/pages/Layout/MobileMenu.vue";
-import {mapGetters} from "vuex";
+import Logout from "@/pages/chapi/Logout.vue";
+import { mapGetters } from "vuex";
 
 export default {
   components: {
     TopNavbar,
     DashboardContent,
     ContentFooter,
-    MobileMenu
+    MobileMenu,
+    Logout,
   },
   data() {
-    return {
-    };
+    return {};
   },
-  computed: mapGetters(['pendingConnectionsCount', "isDevMode"]),
+  computed: mapGetters(["pendingConnectionsCount", "isDevMode"]),
 };
 </script>
