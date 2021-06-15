@@ -5,11 +5,11 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-  <div>
+  <div class="w-full flex justify-center">
     <button
       type="button"
       v-on:click="logout"
-      class="border-2 border-solid border-red-50 md-button logout-button"
+      class="w-full border-2 border-solid border-red-50 md-button logout-button"
     >
       Log Out
     </button>
@@ -44,7 +44,6 @@ SPDX-License-Identifier: Apache-2.0
 
 <style scoped>
   .logout-button {
-    width: 240px;
     height: 48px;
     font-size: 16px; /* remove once global styles for new designs are defined */
     font-weight: bold;
