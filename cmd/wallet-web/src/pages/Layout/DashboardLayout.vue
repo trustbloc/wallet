@@ -29,7 +29,7 @@ SPDX-License-Identifier: Apache-2.0
       <logout />
     </side-bar>
 
-    <div class="main-panel">
+    <div class="main-panel md:w-3/4 xl:w-4/5 2xl:w-5/6">
       <top-navbar></top-navbar>
 
       <dashboard-content></dashboard-content>
