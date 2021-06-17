@@ -5,27 +5,27 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-    <div v-if="loading" style="margin-left: 40%;margin-top: 20%;height: 200px;">
+    <div v-if="loading" class="w-screen" style="margin-left: 40%;margin-top: 20%;height: 200px;">
         <div class="md-layout">
             <md-progress-spinner :md-diameter="100" class="md-accent" :md-stroke="10"
                                  md-mode="indeterminate"></md-progress-spinner>
         </div>
     </div>
-    <div v-else class="md-layout">
-        <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
-            <div class="md-layout md-alignment-center-center" style="margin-top: 20px;">
+    <div v-else class="md-layout w-screen flex justify-center">
+        <div class="md-layout-item max-w-screen-sm">
+            <div class="md-layout flex flex-col items-start" style="margin-top: 20px;">
                 <div class="md-headline">Credential Presentation Requested</div>
                 <div class="md-subheading">A credential presentation is been requested:</div>
             </div>
 
             <div style="margin: 10px"></div>
 
-            <div class="md-layout md-alignment-center-center md-subheading">
-                <div>By</div>
-            </div>
-
-            <div class="md-layout md-alignment-center-center md-subheading" style="color: #025C8F;">
-                <div><md-icon style="color: #00cc66;" class="md-size-1x">verified_user</md-icon>{{ requestOrigin }}</div>
+            <div class="md-layout md-subheading flex flex-col">
+                <span class="md-layout md-subheading">By</span>
+                <div>
+                    <md-icon style="color: #00cc66;" class="md-size-1x">verified_user</md-icon>
+                    <span style="color: #025C8F;">{{ requestOrigin }}</span>
+                </div>
             </div>
 
             <div style="margin: 20px"></div>
@@ -38,7 +38,7 @@ SPDX-License-Identifier: Apache-2.0
                     </ul>
                 </md-field>
 
-                <md-button v-on:click="cancel" style="margin-left: 40%; background-color: #9d0006 !important;" class="md-cancel-text" id="cancelBtnNrc">
+                <md-button v-on:click="cancel" style="background-color: #9d0006 !important;" class="md-cancel-text" id="cancelBtnNrc">
                     Cancel
                 </md-button>
             </div>

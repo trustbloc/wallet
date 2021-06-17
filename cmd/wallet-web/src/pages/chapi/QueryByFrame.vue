@@ -11,16 +11,16 @@ SPDX-License-Identifier: Apache-2.0
                                  md-mode="indeterminate"></md-progress-spinner>
         </div>
     </div>
-    <div v-else class="md-layout">
-        <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
-            <div class="md-layout-item">
+    <div v-else class="md-layout w-screen flex flex-col items-center">
+        <div class="md-layout-item max-w-screen-md">
+            <div>
                 <h5 class="md-subheading">
                     This verifier would like you to share below information,
                 </h5>
-                <div class="md-layout-item md-alignment-center-center" style="padding-left: 25%;">
+                <div class="md-alignment-center-center">
                     <p class="md-body-1">
 
-                        <span class="md-subheading" style="color: #025C8F; padding-left: 5%">
+                        <span class="md-subheading" style="color: #025C8F;">
                             <md-icon style="color: #00cc66;" class="md-size-1x">verified_user</md-icon>
                             {{ requestOrigin }} </span> <br>
                         <span class="md-caption" v-if="reason.length">{{ reason }} </span>
@@ -37,7 +37,7 @@ SPDX-License-Identifier: Apache-2.0
                 </md-field>
             </div>
 
-            <div class="md-layout-item">
+            <div>
                 <md-card v-for="(record, key) in allRecords" :key="key">
                     <md-card-header>
                         <md-card-header-text>
@@ -56,7 +56,7 @@ SPDX-License-Identifier: Apache-2.0
                         The verifier would like to access below information from your <span class="md-subheading">{{record.credential.name ? record.credential.name  : getCredentialType(record.credential.type)}}</span>
                         <md-list>
                             <div v-for="(subj, skey) in record.output.credentialSubject" :key="skey">
-                                <p class="md-caption" style="padding-left:20%; " v-if="displayContent(skey)">
+                                <p class="md-caption" v-if="displayContent(skey)">
                                     {{skey}} : {{subj}}
                                 </p>
                             </div>
@@ -76,12 +76,12 @@ SPDX-License-Identifier: Apache-2.0
                     </md-card-actions>
                 </md-card>
 
-                <md-card-content style="padding-left: 30%">
+                <md-card-content class="flex flex-row justify-between" style="padding-left: 0; padding-right: 0;">
                     <md-button v-on:click="share"
                                class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
                                id="share-credentials" :disabled=isShareDisabled>Share
                     </md-button>
-                    <md-button v-on:click="cancel" style="margin-left: 5px" class="md-cancel-text" id="cancelBtn">
+                    <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn">
                         Decline
                     </md-button>
                 </md-card-content>

@@ -5,14 +5,14 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-    <div v-if="loading" style="margin-left: 40%;margin-top: 20%;height: 200px;">
+    <div v-if="loading" class="w-screen" style="margin-left: 40%;margin-top: 20%;height: 200px;">
         <div class="md-layout">
             <md-progress-spinner :md-diameter="100" class="md-accent" :md-stroke="10"
                                  md-mode="indeterminate"></md-progress-spinner>
         </div>
     </div>
-    <div v-else class="md-layout">
-        <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
+    <div v-else class="md-layout w-screen flex justify-center">
+        <div class="md-layout-item max-w-screen-md">
             <h4> {{ requestOrigin }} has requested a credential from you </h4>
             <h5 v-if="reason.length"><b>Reason:</b> {{ reason }} </h5>
             <md-card class="md-card-plain">

@@ -5,14 +5,14 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-    <div v-if="loading" style="margin-left: 40%;margin-top: 20%;height: 200px;">
-        <div class="md-layout">
+    <div v-if="loading" class="w-screen" style="margin-top: 20%; height: 200px;">
+        <div class="md-layout justify-center">
             <md-progress-spinner :md-diameter="100" class="md-accent" :md-stroke="10"
                                  md-mode="indeterminate"></md-progress-spinner>
         </div>
     </div>
-    <div v-else class="md-layout">
-        <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
+    <div v-else class="md-layout w-screen flex flex-col items-center">
+        <div class="md-layout-item">
             <div v-if="errors.length">
                 <b>Failed with following error(s):</b>
                 <md-field style="margin-top: -15px">
@@ -121,12 +121,12 @@ SPDX-License-Identifier: Apache-2.0
                 </div>
 
 
-                <div style="margin-left: 30%; margin-top: 5px">
+                <div class="flex justify-between">
                     <md-button v-on:click="createPresentation"
                                class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
                                id="share-credentials" :disabled=isShareDisabled>Share
                     </md-button>
-                    <md-button v-on:click="cancel" style="margin-left: 5px" class="md-cancel-text" id="cancelBtn">
+                    <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn">
                         Decline
                     </md-button>
                 </div>
