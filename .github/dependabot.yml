@@ -1,0 +1,25 @@
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+
+updates:
+  # Vue package.json
+  - package-ecosystem: 'npm'
+    directory: '/cmd/wallet-web'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      # Use Eastern Standard Time (UTC -05:00)
+      timezone: 'America/Toronto'
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: 'chore: '
+    labels:
+      - 'dependencies'
