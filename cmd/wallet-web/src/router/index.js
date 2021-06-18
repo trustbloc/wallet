@@ -8,6 +8,7 @@ import DashboardLayout from "@/pages/Layout/DashboardLayout.vue";
 
 import Dashboard from "@/pages/Dashboard.vue";
 import Login from "@/pages/chapi/Login.vue";
+import Signup from "@/pages/chapi/Signup.vue";
 import Logout from "@/pages/chapi/Logout.vue";
 import TablePresentation from "@/pages/TablePresentation.vue";
 import StoreInWallet from "@/pages/chapi/Store.vue";
@@ -100,10 +101,17 @@ const routes = [
             },
         ]
     },
+    // This will be deleted once Sign Up and Sign In pages are ready
     {
         path: "/login",
         name: "login",
         component: Login
+    },
+    // signUp page as per new designs
+    {
+        path: "/signup",
+        name: "signup",
+        component: Signup
     },
     {
         path: '*',
