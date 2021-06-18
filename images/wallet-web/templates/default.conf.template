@@ -58,7 +58,8 @@ server {
             "edvBatchSize": ${EDV_BATCH_SIZE},
             "cacheSize": ${CACHE_SIZE},
             "didAnchorOrigin":"${DID_ANCHOR_ORIGIN}",
-            "sidetreeToken":"${SIDETREE_TOKEN}"
+            "sidetreeToken":"${SIDETREE_TOKEN}",
+            "hubAuthURL":"${HTTP_SERVER_HUB_AUTH_URL}"
         }';
     }
 }

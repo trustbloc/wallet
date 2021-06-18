@@ -40,6 +40,7 @@ let defaultAgentStartupOpts = {
     edvBatchSize: 0,
     didAnchorOrigin: 'origin',
     sidetreeToken: '',
+    hubAuthURL: '',
 }
 
 export default {
@@ -143,6 +144,7 @@ export default {
                 useEDVBcacheSizeatch: ('cacheSize' in agentOpts) ? agentOpts['cacheSize'] : defaultAgentStartupOpts['cacheSize'],
                 didAnchorOrigin: ('didAnchorOrigin' in agentOpts) ? agentOpts['didAnchorOrigin'] : defaultAgentStartupOpts['didAnchorOrigin'],
                 sidetreeToken: ('sidetreeToken' in agentOpts) ? agentOpts['sidetreeToken'] : defaultAgentStartupOpts['sidetreeToken'],
+                hubAuthURL: ('hubAuthURL' in agentOpts) ? agentOpts['hubAuthURL'] : defaultAgentStartupOpts['hubAuthURL'],
             })
         },
     },
@@ -163,6 +165,9 @@ export default {
         },
         serverURL(state) {
             return state.agentOpts['edge-agent-server']
+        },
+        hubURL(state) {
+            return state.agentOpts['hubAuthURL']
         },
     }
 }
