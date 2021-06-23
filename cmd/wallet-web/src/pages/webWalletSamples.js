@@ -332,112 +332,61 @@ const manifest = {
 const presentationExchangeQuery = {
     "type": "PresentationDefinitionQuery",
     "presentationDefinitionQuery": {
-        "submission_requirements": [
-            {
-                "name": "Education Qualification",
-                "purpose": "We need to know if you are qualified for this job",
-                "rule": "pick",
-                "count": 1,
-                "from": [
-                    "E"
-                ]
-            },
-            {
-                "name": "Citizenship Information",
-                "purpose": "You must be legally allowed to work in United States",
-                "rule": "all",
-                "from": [
-                    "C"
-                ]
-            }
-        ],
+        "id": "32f54163-7166-48f1-93d8-ff217bdb0653",
+        "submission_requirements": [{
+            "name": "Citizenship Information",
+            "rule": "pick",
+            "count": 1,
+            "from": "A"
+        }],
         "input_descriptors": [
             {
                 "id": "citizenship_input_1",
-                "group": [
-                    "C"
+                "name": "EU Driver's License",
+                "group": ["A"],
+                "schema": [
+                    {
+                        "uri": "https://eu.com/claims/DriversLicense.json"
+                    }
                 ],
-                "schema": {
-                    "uri": [
-                        "https://w3id.org/citizenship/v1",
-                        "https://w3id.org/citizenship/v2",
-                        "https://w3id.org/citizenship/v3"
-                    ],
-                    "name": "US Permanent resident card"
-                },
                 "constraints": {
                     "fields": [
                         {
-                            "path": [
-                                "$.credentialSubject.lprCategory"
-                            ],
+                            "path": ["$.issuer", "$.vc.issuer", "$.iss"],
+                            "purpose": "We can only accept digital driver's licenses issued by national authorities of member states or trusted notarial auditors.",
                             "filter": {
                                 "type": "string",
-                                "pattern": "C09|C52|C57"
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                "id": "degree_input_1",
-                "group": [
-                    "E"
-                ],
-                "schema": {
-                    "uri": [
-                        "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
-                    ],
-                    "name": "University degree certificate",
-                    "purpose": "We need your education qualification details."
-                },
-                "constraints": {
-                    "fields": [
-                        {
-                            "path": [
-                                "$.credentialSubject.degree.type"
-                            ],
-                            "purpose": "Should be masters or bachelors degree",
-                            "filter": {
-                                "type": "string",
-                                "pattern": "BachelorDegree|MastersDegree"
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                "id": "degree_input_2",
-                "group": [
-                    "E"
-                ],
-                "schema": {
-                    "uri": [
-                        "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
-                    ],
-                    "name": "Diploma certificate",
-                    "purpose": "We need your education qualification details."
-                },
-                "constraints": {
-                    "fields": [
-                        {
-                            "path": [
-                                "$.credentialSubject.degree.type"
-                            ],
-                            "purpose": "Should have valid diploma",
-                            "filter": {
-                                "type": "string",
-                                "pattern": "Diploma"
+                                "pattern": "did:example:gov1|did:example:gov2"
                             }
                         },
                         {
-                            "path": [
-                                "$.credentialSubject.degree.coop"
-                            ],
-                            "purpose": "Should have co-op experience",
+                            "path": ["$.credentialSubject.dob", "$.vc.credentialSubject.dob", "$.dob"],
                             "filter": {
                                 "type": "string",
-                                "pattern": "Y"
+                                "format": "date",
+                                "maximum": "1999-06-15"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "citizenship_input_2",
+                "name": "US Passport",
+                "group": ["A"],
+                "schema": [
+                    {
+                        "uri": "hub://did:foo:123/Collections/schema.us.gov/passport.json"
+                    }
+                ],
+                "constraints": {
+                    "fields": [
+                        {
+                            "path": ["$.credentialSubject.birth_date", "$.vc.credentialSubject.birth_date", "$.birth_date"],
+                            "filter": {
+                                "type": "string",
+                                "format": "date",
+                                "maximum": "1999-05-16"
                             }
                         }
                     ]

@@ -6,15 +6,15 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
 
-    <div v-if="loading" style="margin-left: 40%;margin-top: 20%;height: 200px;">
+    <div v-if="loading" class="w-screen" style="margin-left: 40%;margin-top: 20%;height: 200px;">
         <div class="md-layout">
             <md-progress-spinner :md-diameter="100" class="md-accent" :md-stroke="10"
                                  md-mode="indeterminate"></md-progress-spinner>
         </div>
     </div>
 
-    <div v-else class="md-layout">
-        <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
+    <div v-else class="md-layout w-screen flex justify-center">
+        <div class="md-layout-item max-w-screen-md">
 
             <h4> {{ requestOrigin }} would like you to authenticate </h4>
 
@@ -43,14 +43,15 @@ SPDX-License-Identifier: Apache-2.0
                         </md-select>
                     </md-field>
 
-                    <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn" style="margin-right: 5px">
-                        Cancel
-                    </md-button>
-
-                    <md-button v-on:click="authorize" style="margin-left: 5px"
-                               class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
-                               id="authenticate">Authenticate
-                    </md-button>
+                    <div class="flex justify-between">
+                        <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn" style="margin-right: 10px">
+                            Cancel
+                        </md-button>
+                        <md-button v-on:click="authorize"
+                                class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
+                                id="authenticate">Authenticate
+                        </md-button>
+                    </div>
                 </md-card-content>
 
                 <md-card-content v-else style="background-color: white;">

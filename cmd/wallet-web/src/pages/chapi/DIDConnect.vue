@@ -6,15 +6,15 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
 
-    <div v-if="loading" style="margin-left: 40%;margin-top: 20%;height: 200px;">
+    <div v-if="loading" class="w-screen" style="margin-left: 40%;margin-top: 20%;height: 200px;">
         <div class="md-layout">
             <md-progress-spinner :md-diameter="100" class="md-accent" :md-stroke="10"
                                  md-mode="indeterminate"></md-progress-spinner>
         </div>
     </div>
 
-    <div v-else class="md-layout">
-        <div class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-100">
+    <div v-else class="md-layout w-screen flex justify-center">
+        <div class="md-layout-item max-w-screen-md">
 
             <md-card class="md-card-plain">
                 <md-card-header>
@@ -54,12 +54,13 @@ SPDX-License-Identifier: Apache-2.0
 
                     <md-divider></md-divider>
 
-                    <md-card-content class="center-span">
+                    <md-card-content class="center-span flex justify-between">
                         <md-button v-on:click="connect"
-                                   class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
-                                   id="didconnect">{{buttonLabel}}
+                                    style="margin-right: 5%" 
+                                    class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
+                                    id="didconnect">{{buttonLabel}}
                         </md-button>
-                        <md-button v-on:click="cancel" style="margin-left: 5%" class="md-cancel-text" id="cancelBtn">
+                        <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn">
                             Cancel
                         </md-button>
                     </md-card-content>
