@@ -24,13 +24,13 @@
         <div class="relative w-full mb-6 shadow-lg rounded-lg border-0">
           <div class="flex-auto px-4 lg:px-10 py-10 pt-0">
             <div class="flex items-center justify-center m-4" >
-              <a class="mx-auto w-full bg-gray-100 lg:mx-0 border hover:underline my-4 py-2 px-2
-                                      shadow-lg text-center" v-for="(provider, index) in providers" :key="index"
-                 :href="hubOauthProvider+'/oauth2/login?provider='+ provider.id">
+              <md-button class="text-lg py-3 px-12 border module-border-wrap md-button
+                   " v-for="(provider, index) in providers" :key="index"
+                 v-on:click="beginOIDCLogin(provider.id)">
                 <img class="object-scale-down h-8 w-16 text-black"
                      :src="provider.logoURL"/>
                 {{ provider.name }}
-              </a>
+              </md-button>
             </div>
           </div>
         </div>
@@ -110,8 +110,8 @@ export default {
     }),
     ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL']),
     ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
-    beginOIDCLogin: async function () {
-      window.location.href = this.serverURL() + "/oidc/login"
+    beginOIDCLogin: async function (providerID) {
+      window.location.href = this.serverURL() + "/oidc/login?provider=" + providerID
     },
 
     // Fetching the providers from hub-auth

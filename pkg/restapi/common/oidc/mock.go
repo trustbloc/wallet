@@ -24,7 +24,7 @@ type MockClient struct {
 }
 
 // FormatRequest formats the OIDC authorization request.
-func (m *MockClient) FormatRequest(_ string) string {
+func (m *MockClient) FormatRequest(_ string, options ...oauth2.AuthCodeOption) string {
 	return m.AuthRequest
 }
 

@@ -71,7 +71,8 @@ const (
 )
 
 const (
-	edvResource = "urn:edv:vault"
+	edvResource        = "urn:edv:vault"
+	providerQueryParam = "provider"
 )
 
 var logger = log.New("hub-auth/oidc")
@@ -188,6 +189,9 @@ func (o *Operation) GetRESTHandlers() []common.Handler {
 func (o *Operation) oidcLoginHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("handling login request: %s", r.URL.String())
 
+	// It is not mandatory parameter as we have to support login and signup flow for now Issue-785.
+	providerID := r.URL.Query().Get(providerQueryParam)
+
 	session, err := o.store.cookies.Open(r)
 	if err != nil {
 		common.WriteErrorResponsef(w, logger,
@@ -205,7 +209,6 @@ func (o *Operation) oidcLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	state := uuid.New().String()
 	session.Set(stateCookieName, state)
-	redirectURL := o.oidcClient.FormatRequest(state)
 
 	err = session.Save(r, w)
 	if err != nil {
@@ -214,6 +217,10 @@ func (o *Operation) oidcLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	authOption := oauth2.SetAuthURLParam(providerQueryParam, providerID)
+
+	redirectURL := o.oidcClient.FormatRequest(state, authOption)
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 	logger.Debugf("redirected to login url: %s", redirectURL)
