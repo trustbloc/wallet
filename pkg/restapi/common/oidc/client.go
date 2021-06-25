@@ -119,8 +119,8 @@ func NewClient(config *Config) *BasicClient {
 }
 
 // FormatRequest returns a correctly-formatted OIDC request.
-func (c *BasicClient) FormatRequest(state string) string {
-	return c.oauth2ConfigSupplier().AuthCodeURL(state)
+func (c *BasicClient) FormatRequest(state string, opts ...oauth2.AuthCodeOption) string {
+	return c.oauth2ConfigSupplier().AuthCodeURL(state, opts...)
 }
 
 // Exchange the auth code for the OAuth2 token.

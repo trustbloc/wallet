@@ -15,7 +15,7 @@ import (
 // Client is capable of formatting authorization requests, exchanging the token grant for an access_token
 // and id_token, and verifying id_tokens.
 type Client interface {
-	FormatRequest(state string) string
+	FormatRequest(state string, opts ...oauth2.AuthCodeOption) string
 	Exchange(c context.Context, code string) (*oauth2.Token, error)
 	VerifyIDToken(c context.Context, oauthToken OAuth2Token) (Claimer, error)
 	UserInfo(ctx context.Context, token *oauth2.Token) (Claimer, error)
