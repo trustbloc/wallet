@@ -21,6 +21,9 @@ module.exports = {
         pink: '#e74577',
         purple: '#8a35b7',
       },
+      gray:{
+        light: '#f4f1f5',
+      }
     },
     gradientColorStops: {
       apricot: '#ec857c',
@@ -52,7 +55,9 @@ module.exports = {
         'gradient-full': theme('gradients.full'),
         'gradient-pink': theme('gradients.pink'),
         'gradient-purple': theme('gradients.purple'),
-       }),
+        'onboarding': "url('~@/assets/img/onboarding-bg-lg.svg')",
+        'flare': "url('~@/assets/img/onboarding-flare-lg.png')",
+      }),
     },
   },
   variants: {
