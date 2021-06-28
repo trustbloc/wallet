@@ -1,42 +1,50 @@
 <template>
-  <div class="gradient">
+  <!-- Todo  Move this style to theme setup -->
+  <div class="bg-gray-light min-w-screen min-h-screen flex items-center justify-center px-5 py-5 bg-scroll bg-onboarding bg-no-repeat">
     <!-- This is an example component -->
-    <div class="px-4 py-24">
-      <div
-          class="md:max-w-6xl md:mx-auto md:flex md:items-center md:justify-between">
-        <div class="flex justify-between items-center">
-          <img class="h-8 w-8 mr-2" src="@/assets/img/logo.png" alt="">
-          <a class="font-semibold text-white text-2xl lg:text-4xl tracking-tight" href="javascript:history.back()">TrustBloc</a>
-          <div
-              class="inline-block cursor-pointer md:hidden">
+    <div class="bg-gradient-dark rounded-xl w-full overflow-hidden text-neutrals-softWhite" style="max-width:896px; max-height:467px;">
+      <div class="md:flex w-full bg-flare bg-no-repeat">
+        <div class="hidden md:block w-1/2 py-14 px-10">
+          <div class="flex items-center">
+            <img class="h-2 w-8 mr-2 mt-4 md-4 my-2 mx-4" src="@/assets/img/logo.png">
+            <h2 class="font-semibold text-xl lg:text-3xl">TrustBloc</h2>
           </div>
+          <ul class="list-none md:list-disc text-sm px-8 py-4">
+            <li class="py-2">Keep your digital identity safe</li>
+            <li class="py-2">Store digital IDs, certifications, and more—all in one secure wallet</li>
+            <li class="py-2">Verify your identity in person or online</li>
+          </ul>
         </div>
-      </div>
-    </div>
-    <md-card-content v-if="loading" style="margin: 10% 20% 10% 30%">
-      <beat-loader :color="'white'" :size="20"></beat-loader>
-      <transition name="fade" mode="out-in">
-        <div class="text-white" style="padding-top: 10px;" :key="messageNum">{{messages[messageNum]}}</div>
-      </transition>
-    </md-card-content>
-    <div class="container mx-auto h-full" v-else>
-      <div class="w-full lg:w-4/12">
-        <div class="relative w-full mb-6 shadow-lg rounded-lg border-0">
-          <div class="flex-auto px-4 lg:px-10 py-10 pt-0">
-            <div class="flex items-center justify-center m-4" >
-              <md-button class="text-lg py-3 px-12 border module-border-wrap md-button
+        <div class="w-full md:w-1/2 py-10 px-5 md:px-10">
+          <div class="text-center mb-10">
+            <h1 class="font-semibold text-2xl">Sign up. It's free</h1>
+          </div>
+          <div>
+            <md-card-content v-if="loading" style="margin: 10% 20% 10% 30%">
+              <beat-loader :color="'white'" :size="20"></beat-loader>
+              <transition name="fade" mode="out-in">
+                <div class="text-white" style="padding-top: 10px;" :key="messageNum">{{messages[messageNum]}}</div>
+              </transition>
+            </md-card-content>
+            <div class="flex -mx-3">
+              <div class="w-full px-3 mb-5">
+                <md-button class="text-lg py-3 px-12 border bg-white md-button
                    " v-for="(provider, index) in providers" :key="index"
-                 v-on:click="beginOIDCLogin(provider.id)">
-                <img class="object-scale-down h-8 w-16 text-black"
-                     :src="provider.logoURL"/>
-                {{ provider.name }}
-              </md-button>
+                           v-on:click="beginOIDCLogin(provider.id)">
+                  <img class="object-scale-down h-8 w-16 text-black"
+                       :src="provider.logoURL"/>
+                  {{ provider.name }}
+                </md-button>
+              </div>
             </div>
           </div>
+          <div class="text-center mb-10">
+            <p>Already have an account? Sign in</p>
+          </div>
         </div>
-      </div>
     </div>
   </div>
+    </div>
 </template>
 
 <script>
@@ -171,14 +179,6 @@ export default {
 
 </script>
 <style scoped>
-.login-button {
-  text-transform: none !important; /*For Lower case use lowercase*/
-  font-size: 16px !important;
-  width: 100%;
-}
-.gradient {
-  background: linear-gradient(to bottom ,#14061D, #261131,#0c0116,#13113F,#1A0C22);
-}
 .footer-gradient {
   background: linear-gradient(to bottom ,#000000, #0c0116,#14061D, #261131);
 }
@@ -186,9 +186,6 @@ export default {
   border: 1px solid;
   border-image-slice: 1;
   border-image-source: linear-gradient(to left,  #3F5FD3, #743ad5, #d53a9d, #CD3A67);
-}
-a {
-  color: white !important;
 }
 /*--Remove this once vue-material css is removed */
 .md-button{
