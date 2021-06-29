@@ -1,50 +1,71 @@
 <template>
-  <!-- Todo  Move this style to theme setup -->
-  <div class="bg-gray-light min-w-screen min-h-screen flex items-center justify-center px-5 py-5 bg-scroll bg-onboarding bg-no-repeat">
-    <!-- This is an example component -->
-    <div class="bg-gradient-dark rounded-xl w-full overflow-hidden text-neutrals-softWhite" style="max-width:896px; max-height:467px;">
-      <div class="md:flex w-full bg-flare bg-no-repeat">
-        <div class="hidden md:block w-1/2 py-14 px-10">
-          <div class="flex items-center">
-            <img class="h-2 w-8 mr-2 mt-4 md-4 my-2 mx-4" src="@/assets/img/logo.png">
-            <h2 class="font-semibold text-xl lg:text-3xl">TrustBloc</h2>
-          </div>
-          <ul class="list-none md:list-disc text-sm px-8 py-4">
-            <li class="py-2">Keep your digital identity safe</li>
-            <li class="py-2">Store digital IDs, certifications, and more—all in one secure wallet</li>
-            <li class="py-2">Verify your identity in person or online</li>
+  <div class="bg-gray-light min-w-screen min-h-screen flex items-center justify-center px-5 py-5
+              bg-scroll xl:bg-onboarding sm:bg-onboarding md:bg-onboarding bg-no-repeat">
+    <div class="bg-gradient-dark rounded-xl overflow-hidden text-neutrals-softWhite h-xl w-xl">
+      <!--Trustbloc Intro div  -->
+      <div class="grid grid-cols-2 bg-flare bg-no-repeat w-auto h-auto lg:divide-x divide-neutrals-medium divide-opacity-25">
+        <div class="col-span-1 hidden md:block py-14 px-8">
+          <ul class="list-none md:list-disc text-sm px-4 py-4">
+            <div class="flex items-center">
+              <img class="h-2 w-8 mr-2 mt-4 md-4 my-2 mx-4" src="@/assets/img/logo.png">
+              <h2 class="font-semibold text-xl lg:text-3xl">TrustBloc</h2>
+            </div>
+            <ul class="w-full rounded-lg mt-2 mb-3 font-normal">
+              <li class="pl-3 pr-4 py-3 text-sm">
+                <div class="flex-1 flex items-center overflow-y-auto max-w-full">
+                  <img class="flex w-8 h-full" src="@/assets/img/onboarding-icon-1.svg" />
+                  <span class="text-sm px-6 text-neutrals-softWhite align-middle">Keep your digital identity safe</span>
+                </div>
+              </li>
+              <li class="pl-3 pr-4 py-3 text-sm">
+                <div class="flex-1 flex items-center overflow-y-auto max-w-full">
+                  <img class="flex w-8 h-full" src="@/assets/img/onboarding-icon-2.svg" />
+                  <span class="text-sm px-6 text-neutrals-softWhite align-middle">Store digital IDs, certifications, and
+                    more—all in one secure wallet</span>
+                </div>
+              </li>
+              <li class="pl-3 pr-4 py-3 text-sm">
+                <div class="flex-1 flex items-center overflow-y-auto max-w-full">
+                  <img class="flex w-8 h-full" src="@/assets/img/onboarding-icon-3.svg" />
+                  <span class="text-sm px-6 text-neutrals-softWhite align-middle">Verify your identity in person or online</span>
+                </div>
+              </li>
+            </ul>
           </ul>
         </div>
-        <div class="w-full md:w-1/2 py-10 px-5 md:px-10">
-          <div class="text-center mb-10">
-            <h1 class="font-semibold text-2xl">Sign up. It's free</h1>
+        <!--Trustbloc Sign-up provider div -->
+        <div class="col-span-1 md:block py-14 px-4">
+          <div class="text-center mb-10 items-center">
+            <h1 class="font-semibold text-2xl text-neutrals-softWhite">Sign up. It's free
+            </h1>
           </div>
-          <div>
             <md-card-content v-if="loading" style="margin: 10% 20% 10% 30%">
               <beat-loader :color="'white'" :size="20"></beat-loader>
               <transition name="fade" mode="out-in">
                 <div class="text-white" style="padding-top: 10px;" :key="messageNum">{{messages[messageNum]}}</div>
               </transition>
             </md-card-content>
-            <div class="flex -mx-3">
-              <div class="w-full px-3 mb-5">
-                <md-button class="text-lg py-3 px-12 border bg-white md-button
-                   " v-for="(provider, index) in providers" :key="index"
+            <div class="flex mx-8">
+              <div class="w-full px-8 mb-8">
+                <button class="text-sm items-center flex py-2 px-6
+                        font-bold bg-neutrals-softWhite text-neutrals-dark rounded-sm align-center"
+                    v-for="(provider, index) in providers" :key="index"
                            v-on:click="beginOIDCLogin(provider.id)">
-                  <img class="object-scale-down h-8 w-16 text-black"
+                  <img class="object-contain md:object-scale-down max-h-4 max-w-2 mr-2"
                        :src="provider.logoURL"/>
-                  {{ provider.name }}
-                </md-button>
+                  Continue with {{ provider.name }}
+                </button>
               </div>
             </div>
-          </div>
-          <div class="text-center mb-10">
-            <p>Already have an account? Sign in</p>
-          </div>
+        <div class="text-center mb-10">
+          <p class="font-normal text-neutrals-softWhite">Already have an account?
+            <a class="text-primary-blue underline" href=""> Sign in </a>
+          </p>
         </div>
+      </div>
+     </div>
     </div>
   </div>
-    </div>
 </template>
 
 <script>
