@@ -76,6 +76,14 @@ module.exports = {
       56: '14rem',
       64: '16rem',
     },
+    height: {
+      lg: '46px',
+      xl: '468px',
+    },
+    width: {
+      lg: '550px',
+      xl: '896px',
+    },
     extend: {
       backgroundImage: theme => ({
         'gradient-dark': theme('gradients.dark'),
