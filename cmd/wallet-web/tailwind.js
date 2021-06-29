@@ -4,6 +4,8 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
   purge: [],
   darkMode: false, // or 'media' or 'class'
@@ -76,13 +78,24 @@ module.exports = {
       56: '14rem',
       64: '16rem',
     },
-    height: {
-      lg: '46px',
-      xl: '468px',
+    fontSize: {
+      xs: ['0.75rem', { lineHeight: '1.125rem' }],
+      sm: ['0.875rem', { lineHeight: '1.3125rem' }],
+      base: ['1rem', { lineHeight: '1.5rem' }],
+      lg: ['1.125rem', { lineHeight: '1.6875rem' }],
+      xl: ['1.25rem', { lineHeight: '1.875rem' }],
+      '2xl': ['1.375rem', { lineHeight: '2.0625rem' }],
+      '3xl': ['1.5rem', { lineHeight: '2.25rem' }],
+      '4xl': ['1.625rem', { lineHeight: '2.4375rem' }],
+      '5xl': ['1.75rem', { lineHeight: '2.625rem' }],
+      '6xl': ['1.875rem', { lineHeight: '2.8125rem' }],
+      '7xl': ['2rem', { lineHeight: '3rem' }],
+      '8xl': ['2.125rem', { lineHeight: '3rem' }],
+      '9xl': ['2.25rem', { lineHeight: '3.1875rem' }],
     },
-    width: {
-      lg: '550px',
-      xl: '896px',
+    fontWeight: {
+      normal: '400',
+      bold: '700',
     },
     extend: {
       backgroundImage: theme => ({
@@ -93,10 +106,29 @@ module.exports = {
         'onboarding': "url('~@/assets/img/onboarding-bg-lg.svg')",
         'flare': "url('~@/assets/img/onboarding-flare-lg.png')",
       }),
+      height: {
+        lg: '46px',
+        xl: '468px',
+      },
+      width: {
+        lg: '550px',
+        xl: '896px',
+      },
     },
   },
   variants: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    plugin(function({ addBase, theme }) {
+      addBase({
+        'h1': { fontSize: theme('fontSize.9xl'), fontWeight: theme('fontWeight.bold') },
+        'h2': { fontSize: theme('fontSize.8xl'), fontWeight: theme('fontWeight.bold') },
+        'h3': { fontSize: theme('fontSize.7xl'), fontWeight: theme('fontWeight.bold') },
+        'h4': { fontSize: theme('fontSize.6xl'), fontWeight: theme('fontWeight.bold') },
+        'h5': { fontSize: theme('fontSize.5xl'), fontWeight: theme('fontWeight.bold') },
+        'h6': { fontSize: theme('fontSize.4xl'), fontWeight: theme('fontWeight.bold') },
+      })
+    })
+  ],
 }
