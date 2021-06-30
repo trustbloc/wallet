@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 <template>
-  <div>
+  <div class="font-sans">
     <div class="loader" v-if="!$root.loaded">
       <md-progress-spinner :md-diameter="100" :md-stroke="10" md-mode="indeterminate"></md-progress-spinner>
       <div>Loading Agent...</div>
