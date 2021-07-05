@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import DashboardLayout from "@/pages/Layout/DashboardLayout.vue";
+import DashboardLayout from "@/pages/layout/DashboardLayout.vue";
 
 import Dashboard from "@/pages/Dashboard.vue";
 import Login from "@/pages/chapi/Login.vue";

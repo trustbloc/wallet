@@ -1,14 +1,16 @@
 <template>
-  <div class="bg-gray-light min-w-screen min-h-screen flex items-center justify-center px-5 py-5
-              bg-scroll xl:bg-onboarding sm:bg-onboarding md:bg-onboarding bg-no-repeat">
-    <div class="bg-gradient-dark rounded-xl overflow-hidden text-neutrals-softWhite h-xl w-xl">
+  <div class="bg-gray-light flex  min-w-screen min-h-screen items-center justify-center px-5 py-5
+              bg-scroll lg:bg-onboarding xl:bg-onboarding xs:bg-onboarding sm:bg-onboarding 2xl:bg-onboarding md:bg-onboarding bg-no-repeat">
+    <div class="bg-gradient-dark rounded-xl overflow-hidden text-neutrals-softWhite text-xl md:text-3xl
+    2xl:h-xl 2xl:w-xl xl:h-xl xl:w-xl sm:h-xl sm:w-xl md:h-xl md:w-xl h-fit-content w-full -mt-40 sm:-mt-56 xs:-mt-56 lg:mt-0 2xl:mt-0 xl:mt-0 md:mt-10">
       <!--Trustbloc Intro div  -->
-      <div class="grid grid-cols-2 bg-flare bg-no-repeat w-auto h-auto lg:divide-x divide-neutrals-medium divide-opacity-25">
-        <div class="col-span-1 hidden md:block py-14 px-8">
+      <div class="grid 2xl:grid-cols-2 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 xs:grid-cols-1
+           bg-flare bg-no-repeat w-auto h-auto lg:divide-x md:divide-x divide-neutrals-medium divide-opacity-25">
+        <div class="col-span-1 hidden xl:block 2xl:block lg:block md:block py-14 px-8">
           <ul class="list-none md:list-disc text-sm px-4 py-4">
             <div class="flex items-center">
               <img class="h-2 w-8 mr-2 mt-4 md-4 my-2 mx-4" src="@/assets/img/logo.png">
-              <h2 class="font-semibold text-xl lg:text-3xl">TrustBloc</h2>
+              <h2 class="font-bold text-4xl lg:text-3xl">TrustBloc</h2>
             </div>
             <ul class="w-full rounded-lg mt-2 mb-3 font-normal">
               <li class="pl-3 pr-4 py-3 text-sm">
@@ -34,42 +36,50 @@
           </ul>
         </div>
         <!--Trustbloc Sign-up provider div -->
-        <div class="col-span-1 md:block py-14 px-4">
-          <div class="text-center mb-10 items-center">
-            <h1 class="font-semibold text-2xl text-neutrals-softWhite">Sign up. It's free
+        <div class="col-span-1 md:block sm:object-none sm:object-center md:py-18 lg:px-4 xl:py-14 xl:px-4 lg:py-14 ">
+          <div class="flex justify-center items-center lg:hidden md:hidden xl:hidden xs:block sm:block ">
+            <img class="h-4 w-8 mr-1 mt-4 md-4 my-2" src="@/assets/img/logo.png">
+            <h2 class="font-bold text-8xl lg:text-2xl md:text-4xl sm:text-6xl xs:text-8xl">TrustBloc</h2>
+          </div>
+          <div class="text-center items-center mb-10">
+            <h1 class="font-bold text-3xl 2xl:text-lg lg:text-2xl md:text-4xl sm:text-6xl xs:text-8xl text-neutrals-softWhite">Sign up. It's free!
             </h1>
           </div>
-            <md-card-content v-if="loading" style="margin: 10% 20% 10% 30%">
+           <md-card-content v-if="loading" style="margin: 10% 20% 10% 30%">
               <beat-loader :color="'white'" :size="20"></beat-loader>
               <transition name="fade" mode="out-in">
                 <div class="text-white" style="padding-top: 10px;" :key="messageNum">{{messages[messageNum]}}</div>
               </transition>
             </md-card-content>
-            <div class="flex mx-8">
-              <div class="w-full px-8 mb-8">
-                <button class="text-sm items-center flex py-2 px-6
-                        font-bold bg-neutrals-softWhite text-neutrals-dark rounded-sm align-center"
+            <div class="flex 2xl:mx-8 xl:mx-8 lg:mx-4 md:mx-4 mx-4 -mt-6">
+              <div class="w-full px-8 mb-8 2xl:mr-8 xl:mr-8 lg:mr-8 md:mr-4 sm:mx-2 sm:mb-8 md:mb-8 items-center">
+                <button class="2xl:flex 2xl:flex-wrap lg:flex lg:flex-wrap md:flex md:flex-wrap text-xs 2xl:text-xs xl:text-xs lg:text-sm
+                md:text-xs sm:text-xl text-center content-center w-full py-2 mb-4 px-6
+                        font-bold bg-neutrals-softWhite text-neutrals-dark rounded-md"
                     v-for="(provider, index) in providers" :key="index"
                            v-on:click="beginOIDCLogin(provider.id)">
-                  <img class="object-contain md:object-scale-down max-h-4 max-w-2 mr-2"
+                  <img class="object-contain inline-block  max-h-4 max-w-2 mr-2"
                        :src="provider.logoURL"/>
                   Continue with {{ provider.name }}
                 </button>
               </div>
             </div>
-        <div class="text-center mb-10">
+        <div class="text-center text-xl xs:text-2xl mb-10">
           <p class="font-normal text-neutrals-softWhite">Already have an account?
-            <a class="text-primary-blue underline" href=""> Sign in </a>
+            <a class="text-primary-blue  underline" href=""> Sign in </a>
           </p>
         </div>
       </div>
      </div>
     </div>
-  </div>
+    <!-- Foooter -->
+    <ContentFooter></ContentFooter>
+      </div>
 </template>
 
 <script>
 import {DeviceLogin, RegisterWallet} from "./wallet"
+import ContentFooter from "@/pages/layout/ContentFooter.vue"
 import {mapActions, mapGetters} from 'vuex'
 import {BeatLoader} from "@saeris/vue-spinners";
 import axios from 'axios';
@@ -112,6 +122,7 @@ export default {
   },
   components: {
     BeatLoader,
+    ContentFooter,
   },
   data() {
     return {
@@ -199,27 +210,3 @@ export default {
 }
 
 </script>
-<style scoped>
-.footer-gradient {
-  background: linear-gradient(to bottom ,#000000, #0c0116,#14061D, #261131);
-}
-.module-border-wrap {
-  border: 1px solid;
-  border-image-slice: 1;
-  border-image-source: linear-gradient(to left,  #3F5FD3, #743ad5, #d53a9d, #CD3A67);
-}
-/*--Remove this once vue-material css is removed */
-.md-button{
-  text-transform: none !important;
-  background:transparent !important;
-  font-size: large;
-  font-family: sans-serif;
-  padding: 6px 36px;
-}
-.md-button:hover{
-  background:transparent !important;
-}
-.md-button:active:after{
-  background:transparent !important;
-}
-</style>
