@@ -11,7 +11,7 @@ SPDX-License-Identifier: Apache-2.0
       <div
           class="md:max-w-6xl md:mx-auto md:flex md:items-center md:justify-between">
         <div class="flex justify-between items-center">
-          <img class="h-8 w-8 mr-2" src="@/assets/img/logo.png" alt="">
+          <img class="h-8 w-8 mr-2" src="@/assets/img/logo.svg" alt="">
           <a class="font-semibold text-white text-2xl lg:text-4xl tracking-tight" href="javascript:history.back()">TrustBloc</a>
           <div
               class="inline-block cursor-pointer md:hidden">
