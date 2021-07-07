@@ -10,7 +10,7 @@ SPDX-License-Identifier: Apache-2.0
       <div class="md:w-1/4 xl:w-1/5 2xl:w-1/6 h-screen absolute sm:relative gradient shadow md:h-auto flex-col justify-between hidden sm:flex">
         <div class="h-full flex flex-col justify-start align-left px-12 pb-8">
           <div class="flex justify-start items-center">
-            <img class="h-10 w-10 mr-2 mt-2" src="@/assets/img/logo.png" alt="">
+            <img class="h-10 w-10 mr-2 mt-2" src="@/assets/img/logo.svg" alt="">
             <h1 class="font-semibold text-white text-2xl lg:text-4xl tracking-tight">TrustBloc</h1>
           </div>
           <div class="sidebar-wrapper flex-grow flex flex-col justify-between mt-8">

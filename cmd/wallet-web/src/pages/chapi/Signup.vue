@@ -9,7 +9,7 @@
         <div class="col-span-1 hidden xl:block 2xl:block lg:block md:block py-14 px-8">
           <ul class="list-none md:list-disc text-sm px-4 py-4">
             <div class="flex items-center">
-              <img class="h-2 w-8 mr-2 mt-4 md-4 my-2 mx-4" src="@/assets/img/logo.png">
+              <img class="h-2 w-8 mr-2 mt-4 md-4 my-2 mx-4" src="@/assets/img/logo.svg">
               <h2 class="font-bold text-4xl lg:text-3xl">TrustBloc</h2>
             </div>
             <ul class="w-full rounded-lg mt-2 mb-3 font-normal">
@@ -38,7 +38,7 @@
         <!--Trustbloc Sign-up provider div -->
         <div class="col-span-1 md:block sm:object-none sm:object-center md:py-18 lg:px-4 xl:py-14 xl:px-4 lg:py-14 ">
           <div class="flex justify-center items-center lg:hidden md:hidden xl:hidden xs:block sm:block ">
-            <img class="h-4 w-8 mr-1 mt-4 md-4 my-2" src="@/assets/img/logo.png">
+            <img class="h-4 w-8 mr-1 mt-4 md-4 my-2" src="@/assets/img/logo.svg">
             <h2 class="font-bold text-8xl lg:text-2xl md:text-4xl sm:text-6xl xs:text-8xl">TrustBloc</h2>
           </div>
           <div class="text-center items-center mb-10">
