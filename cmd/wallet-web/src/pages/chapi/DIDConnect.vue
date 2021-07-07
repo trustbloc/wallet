@@ -21,18 +21,18 @@ SPDX-License-Identifier: Apache-2.0
                     <h4 class="title">Connect your wallet</h4>
                 </md-card-header>
 
-                <md-card-content v-if="!credentialWarning.length" style="background-color: white; ">
+                <md-card-content style="background-color: white; ">
                     <div v-if="errors.length">
                         <b>Failed with following error(s):</b>
                         <ul>
-                            <li v-for="error in errors" :key="error">{{ error }}</li>
+                            <li v-for="error in errors" :key="error" style="color: #9d0006;">{{ error }}</li>
                         </ul>
                     </div>
 
                     <md-card-content class="viewport">
                         This issuer would like to
                         connect to your wallet for secured communication.
-                       <governance :govn-v-c="govnVC" :request-origin="requestOrigin"/>
+                        <governance :govn-v-c="govnVC" :request-origin="requestOrigin"/>
                     </md-card-content>
 
                     <md-card-content v-if="userCredentials.length" class="viewport">
@@ -54,11 +54,11 @@ SPDX-License-Identifier: Apache-2.0
 
                     <md-divider></md-divider>
 
-                    <md-card-content class="center-span flex justify-between">
+                    <md-card-content class="md-layout md-alignment-center-center">
                         <md-button v-on:click="connect"
-                                    style="margin-right: 5%" 
-                                    class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
-                                    id="didconnect">{{buttonLabel}}
+                                   style="margin-right: 5%"
+                                   class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
+                                   id="didconnect">{{buttonLabel}}
                         </md-button>
                         <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn">
                             Cancel
@@ -67,14 +67,6 @@ SPDX-License-Identifier: Apache-2.0
 
                 </md-card-content>
 
-                <md-card-content v-else style="background-color: white;">
-                    <md-empty-state md-size=250
-                                    class="md-accent"
-                                    md-rounded
-                                    md-icon="link_off"
-                                    :md-label="credentialWarning">
-                    </md-empty-state>
-                </md-card-content>
             </md-card>
 
         </div>
@@ -90,12 +82,11 @@ SPDX-License-Identifier: Apache-2.0
     export default {
         components: {Governance},
         created: async function () {
-            this.wallet = new DIDConn(this.getAgentInstance(), this.getAgentOpts(), this.$parent.credentialEvent,
-                this.getCurrentUser().username)
+            this.wallet = new DIDConn(this.getAgentInstance(), this.getCurrentUser().profile, this.getAgentOpts(), this.$parent.credentialEvent)
 
-            this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
-            this.userCredentials = this.wallet.getUserCredentials()
-            this.govnVC = this.wallet.getGovernanceCredential()
+            this.requestOrigin = this.wallet.chapiHandler.getRequestor()
+            this.userCredentials = this.wallet.userCredentials
+            this.govnVC = this.wallet.govnVC
             this.buttonLabel = this.userCredentials.length > 0 ? 'Store & Connect' : 'Connect'
 
             this.loading = false
@@ -105,7 +96,6 @@ SPDX-License-Identifier: Apache-2.0
                 errors: [],
                 requestOrigin: "",
                 loading: true,
-                credentialWarning: "",
                 userCredentials: [],
                 buttonLabel: "Connect",
                 govnVC: null,
@@ -119,7 +109,14 @@ SPDX-License-Identifier: Apache-2.0
             },
             connect: async function () {
                 this.loading = true
-                await this.wallet.connect()
+                this.errors = []
+                try {
+                    await this.wallet.connect(this.getCurrentUser().preference)
+                } catch (e) {
+                    console.error('failed to connect', e)
+                    this.errors.push('failed to perform connection, please try again later')
+                }
+
                 this.loading = false
             }
         },

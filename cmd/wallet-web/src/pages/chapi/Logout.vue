@@ -17,16 +17,15 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-  import { RegisterWallet } from "./wallet";
+  import { CHAPIHandler } from "./wallet";
   import { mapActions, mapGetters } from "vuex";
 
   export default {
     created: async function() {
-      this.registrar = new RegisterWallet(
+      this.chapi = new CHAPIHandler(
         this.$polyfill,
         this.$webCredentialHandler,
-        this.getAgentInstance(),
-        this.getAgentOpts()
+        this.getAgentOpts().credentialMediatorURL
       );
     },
     methods: {
@@ -34,7 +33,7 @@ SPDX-License-Identifier: Apache-2.0
       ...mapGetters("agent", { getAgentInstance: "getInstance" }),
       ...mapGetters(["getAgentOpts"]),
       logout: async function() {
-        await this.registrar.uninstallHandlers();
+        await this.chapi.uninstall();
         await this.logoutUser();
         this.$router.push("/login");
       },

@@ -13,80 +13,133 @@ SPDX-License-Identifier: Apache-2.0
     </div>
     <div v-else class="md-layout w-screen flex justify-center">
         <div class="md-layout-item max-w-screen-sm">
-            <div class="md-layout flex flex-col items-start" style="margin-top: 20px;">
+            <div class="md-layout md-alignment-center-center flex flex-col items-start" style="margin-top: 20px;">
                 <div class="md-headline">Credential Presentation Requested</div>
                 <div class="md-subheading">A credential presentation is been requested:</div>
             </div>
 
             <div style="margin: 10px"></div>
 
-            <div class="md-layout md-subheading flex flex-col">
-                <span class="md-layout md-subheading">By</span>
-                <div>
-                    <md-icon style="color: #00cc66;" class="md-size-1x">verified_user</md-icon>
-                    <span style="color: #025C8F;">{{ requestOrigin }}</span>
+            <div class="md-layout md-alignment-center-center">By</div>
+
+            <div class="md-layout md-alignment-center-center">
+
+                <div style="padding-bottom: 10px">
+                    <governance :govn-v-c="govnVC" :request-origin="requestOrigin" :issuer="false"/>
                 </div>
+
             </div>
 
             <div style="margin: 20px"></div>
 
-            <div v-if="errors.length" >
+            <div v-if="errors.length">
                 <b>Failed with following error(s):</b>
                 <md-field style="margin-top: -15px">
                     <ul>
-                        <li v-for="error in errors" :key="error">{{ error }}</li>
+                        <li v-for="error in errors" :key="error" style="color: #9d0006;">{{ error }}</li>
                     </ul>
                 </md-field>
 
-                <md-button v-on:click="cancel" style="background-color: #9d0006 !important;" class="md-cancel-text" id="cancelBtnNrc">
+                <md-button v-on:click="cancel" style="background-color: #9d0006 !important;" class="md-cancel-text"
+                           id="cancelBtnNrc">
                     Cancel
                 </md-button>
             </div>
 
+            <div class="md-layout md-alignment-center-center reasons" v-if="reasons.length || presExchReasons.length">
+                <ul>
+                    <md-card class="md-layout md-alignment-center-center" style="background: none !important;">
+                        <md-card-expand>
+                            <md-card-actions md-alignment="space-between" style="background: none !important;">
+                                <div class="md-subheading">Reason:</div>
+                                <md-card-expand-trigger>
+                                    <md-button class="md-icon-button">
+                                        <md-icon>keyboard_arrow_down</md-icon>
+                                    </md-button>
+                                </md-card-expand-trigger>
+                            </md-card-actions>
 
-            <md-card v-for="(record, key) in records" :key="key" md-with-hover>
-                <md-card-header>
-                    <md-avatar>
-                        <md-icon class="md-size-2x"></md-icon>
-                        <md-icon class="md-size-2x">{{getVCIcon( record.credential.type)}}</md-icon>
-                    </md-avatar>
+                            <md-card-expand-content>
+                                <md-card-content>
+                                    <ul>
+                                        <li v-for="(reason, index) in reasons" :key="index">
+                                            <b>{{reason}}</b>
+                                        </li>
 
-                    <div class="md-title">{{record.credential.name ? record.credential.name : getCredentialType(record.credential.type)}}</div>
-                    <div class="md-subhead">{{record.credential.description}}</div>
-                </md-card-header>
+                                        <li v-for="(requirement, index) in presExchReasons" :key="index">
+                                            <b>{{requirement.name}}</b>: {{requirement.purpose}}
+                                            <div>{{requirement.rule}}</div>
+                                            <ul>
+                                                <li v-for="descriptor in requirement.descriptors"
+                                                    :key="descriptor.name">
+                                                    <b>{{descriptor.name}} </b>{{descriptor.purpose}}
+                                                    <ul>
+                                                        <li v-for="constraint in descriptor.constraints"
+                                                            :key="constraint">
+                                                            {{ constraint}}
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </md-card-content>
+                            </md-card-expand-content>
+                        </md-card-expand>
+                    </md-card>
+                </ul>
+            </div>
 
-                <md-card-content>
-                    <span class="md-caption">
-                        <md-avatar>
-                            <md-icon>info</md-icon>
-                        </md-avatar>
-                        <b>For the purpose of:</b> {{record.reason}}
-                    </span>
+            <md-card-content v-if="records.length" class="md-layout md-alignment-center-center card-list">
+                <ul>
+                    <li v-for="(card, index) in records" :key="index">
+                        <transition name="flip">
+                            <div class="card" style="padding-bottom: 35px">
+                                <div class="cardContent">
+                                    <div class="cardHeader">
+                                        {{card.title}}
+                                    </div>
 
-                    <div v-if="record.output" class="md-caption" >
-                        The verifier will only access below information from your <span class="md-body-1">{{record.credential.name ? record.credential.name  : getCredentialType(record.credential.type)}}</span>
-                        <div style="margin: 10px"></div>
-                        <div v-for="(subj, skey) in record.output" :key="skey">
-                            <div class="md-caption" style="padding-left: 35%" v-if="displayContent(skey)">
-                                <b>{{skey.replace('.', ' ')}} </b>: {{subj}}
+                                    <div class="cardBody">
+                                        <div class="cardDetailsL">
+                                            <md-icon class="md-size-4x">{{ card.icon}}</md-icon>
+                                        </div>
+                                        <div class="cardDetailsR">
+                                            <p> {{ card.description}}</p>
+                                            <div v-if="card.body">
+                                                The verifier can only access below information from your credential.
+                                                <div v-for="(subj, skey) in card.body" :key="skey">
+                                                    <div class="md-caption" v-if="displayContent(skey)">
+                                                        <b>{{skey.replace('.', ' ')}} </b>: {{subj}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </md-card-content>
-            </md-card>
+                        </transition>
+                    </li>
+                </ul>
+            </md-card-content>
 
 
-            <div v-if="showShareCredential" class="md-layout md-alignment-center-center" >
-                <p class="md-body-1">By clicking Agree you will be sharing a unique identifier to <b style="color: #2E7D32">{{requestOrigin}}</b>, the Credential content, and your digital signature.
+            <div v-if="showShareCredential" class="md-layout md-alignment-center-center">
+                <p class="md-body-1">By clicking Agree you will be sharing a unique identifier to <b
+                        style="color: #2E7D32">{{requestOrigin}}</b>, the Credential content, and your digital
+                    signature.
                     <a href="https://www.w3.org/TR/vc-data-model/#proofs-signatures" target="_blank">Learn more</a></p>
 
-                 <md-button v-on:click="share" class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100 col"
-                            style="background-color: #29a329 !important;" id="share-credentials" >
-                     Agree
-                 </md-button>
-                 <md-button v-on:click="cancel" style="margin-left: 5px; background-color: #9d0006 !important;" class="md-cancel-text" id="cancelBtn">
-                     Cancel
-                 </md-button>
+                <md-button v-on:click="share"
+                           class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100 col"
+                           style="background-color: #29a329 !important;" id="share-credentials">
+                    Agree
+                </md-button>
+                <md-button v-on:click="cancel" style="margin-left: 5px; background-color: #9d0006 !important;"
+                           class="md-cancel-text" id="cancelBtn">
+                    Cancel
+                </md-button>
             </div>
 
         </div>
@@ -94,35 +147,55 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 
-    import {MultipleQuery} from "./wallet"
+    import {CredentialManager} from "@trustbloc/wallet-sdk"
+    import {
+        CHAPIEventHandler,
+        extractPresentationExchangeReasons,
+        extractQueryReasons,
+        flatCredentialSubject,
+        normalizeQuery,
+        getVCIcon,
+        getCredentialType
+    } from "./wallet"
     import {mapGetters} from 'vuex'
+    import Governance from "./Governance.vue";
+
 
     const nonDisplayContent = ['id', 'type']
-    const allIcons= ['account_box', 'contacts', 'person', 'person_outline', 'card_membership', 'portrait', 'bento']
-    const vcIcons = {
-        PermanentResidentCard:'perm_identity',
-        UniversityDegreeCredential:'school',
-        BookingReferenceCredential: 'flight',
-        VaccinationCertificate: 'health_and_safety',
-    }
 
-    const getIcon = (type) =>  vcIcons[type] ? vcIcons[type] : allIcons[Math.floor(Math.random() * Math.floor(allIcons.length))]
 
     export default {
-        errorCaptured(error) {
-            console.log('An error has occurred!', error);
+        components: {
+            Governance
         },
         created: async function () {
-            this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
+            this.loading = true
+            this.chapiHandler = new CHAPIEventHandler(this.$parent.credentialEvent)
+
+            let {query} = this.chapiHandler.getEventData()
+            query = normalizeQuery(query)
+
+            let {user, token} = this.getCurrentUser().profile
+            this.credentialManager = new CredentialManager({agent: this.getAgentInstance(), user})
+
 
             try {
-                this.wallet = new MultipleQuery(this.getAgentInstance(), this.$parent.credentialEvent)
+                let {results} = await this.credentialManager.query(token, query)
+                this.presentation = results
+
+                this.prepareRecords(results)
+                this.reasons = extractQueryReasons(query)
+                this.presExchReasons = extractPresentationExchangeReasons(query)
+
             } catch (e) {
-                this.handleError(e)
-                return
+                this.errors.push('No credentials found matching requested criteria.')
+                console.error('get credentials failed,:', e)
             }
 
-            await this.loadCredentials()
+            // TODO governance VC check
+
+            this.requestOrigin = this.chapiHandler.getRequestor()
+
             this.loading = false
         },
         data() {
@@ -130,11 +203,11 @@ SPDX-License-Identifier: Apache-2.0
                 errors: [],
                 requestOrigin: "",
                 loading: true,
-                credentialWarning: "",
-                reason: "",
                 allIcons: ['account_box', 'contacts', 'person', 'person_outline', 'card_membership', 'portrait', 'bento'],
-                selectedFrames: [],
-                decisionMade: []
+                records: [],
+                govnVC: null,
+                reasons: [],
+                presExchReasons: []
             };
         },
         methods: {
@@ -144,37 +217,56 @@ SPDX-License-Identifier: Apache-2.0
                 this.errors.push(e)
                 this.loading = false
             },
-            loadCredentials: async function () {
-                try {
-                    this.records = await this.wallet.queryCredentials()
-                } catch (err) {
-                    this.errors.push('failed to query your saved credentials.')
-                    console.error('get credentials failed, error:', err)
-                    return
+            prepareRecords: function (results) {
+                let vcs = results.reduce((acc, val) => acc.concat(val.verifiableCredential), []);
+
+                let _recordIt = vc => {
+                    let body
+                    if (vc.proof && vc.proof.type == 'BbsBlsSignatureProof2020') {
+                        body = flatCredentialSubject(vc.credentialSubject)
+                    }
+
+                    return {
+                        title: vc.name ? vc.name : getCredentialType(vc.type),
+                        description: vc.description,
+                        icon: this.getVCIcon(vc.type),
+                        body,
+                    }
                 }
 
-                if (this.records.length == 0) {
-                    this.errors.push('No credentials found matching requested criteria')
-                }
-
-                console.log(`found ${this.records.length}`, this.records)
+                this.records = vcs.map(_recordIt)
             },
             async share() {
                 this.loading = true
-                this.wallet.generatePresentation(this.getCurrentUser().username, this.records)
+                let {profile, preference} = this.getCurrentUser()
+                let {controller, proofType, verificationMethod} = preference
+                let {domain, challenge} = this.chapiHandler.getEventData()
+
+                let _present = async (presentation) => {
+                    return (await this.credentialManager.present(profile.token, {presentation}, {
+                        controller, proofType, domain, challenge, verificationMethod
+                    })).presentation
+                }
+
+                let results = await Promise.all(this.presentation.map(_present))
+                // typically single presentation, but some verifier queries might produce multiple presentation.
+                if (results.length == 1) {
+                    this.chapiHandler.present(results[0])
+                } else {
+                    this.chapiHandler.present(results)
+                }
+
+                this.loading = false
             },
             cancel() {
-                this.wallet.cancel()
+                this.chapiHandler.cancel()
             },
             getVCIcon(types) {
-                return getIcon(this.getCredentialType(types))
-            },
-            getCredentialType(types) {
-                return types.filter(type => type != "VerifiableCredential")[0]
+                return getVCIcon(getCredentialType(types))
             },
             displayContent(k) {
                 let parts = k.split('.')
-                return !nonDisplayContent.includes(parts[parts.length -1])
+                return !nonDisplayContent.includes(parts[parts.length - 1])
             },
         },
         computed: {
@@ -184,3 +276,59 @@ SPDX-License-Identifier: Apache-2.0
         },
     }
 </script>
+<style scoped>
+    .card {
+        display: block;
+        width: 360px;
+        padding: 10px;
+        background-color: #FFFFFF;
+        border-radius: 7px;
+        margin: 5px;
+        text-align: center;
+        line-height: 22px;
+        cursor: pointer;
+        position: relative;
+        color: black;
+        font-weight: 400;
+        font-size: 16px;
+        -webkit-box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, .5);
+        -moz-box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, .5);
+        box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, .5);
+        will-change: transform;
+        user-select: none;
+    }
+
+    .card i {
+        color: rgb(11, 151, 196) !important;
+    }
+
+    .cardContent {
+        text-align: left;
+    }
+
+    .cardHeader {
+        font-weight: 500;
+        padding: 10px 15px;
+    }
+
+    .card-list li {
+        list-style-type: none;
+        padding: 10px 10px;
+        transition: all 0.3s ease;
+    }
+
+    .card-list li:hover {
+        transform: scale(1.1);
+    }
+
+    .reasons {
+    }
+
+    .reasons li {
+        list-style: square;
+        margin-left: 30px;
+        list-style-type: "→"
+    }
+</style>
+
+

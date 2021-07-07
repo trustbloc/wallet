@@ -13,33 +13,31 @@ SPDX-License-Identifier: Apache-2.0
 
     import DIDAuthForm from "./DIDAuth.vue";
     import DIDConnectForm from "./DIDConnect.vue";
-    import GetCredentialsForm from "./GetCredentials.vue";
     import PresentationDefQueryForm from "./PresentationDefQuery.vue";
-    import QueryByFrameForm from "./QueryByFrame.vue";
     import MultipleQueryForm from "./MultipleQuery.vue";
+    import {extractQueryTypes} from "./wallet"
 
-    const QUERY_TYPES = [
-        {id:'MultiQuery', component:MultipleQueryForm, find: (type, ql) => ql > 1 && ['QueryByFrame', 'QueryByExample'].includes(type)},
-        {id:'PresentationDefinitionQuery', component:PresentationDefQueryForm, find: (type) => 'PresentationDefinitionQuery' == type},
-        {id:'DIDAuth', component:DIDAuthForm, find: (type) => 'DIDAuth' == type},
-        {id:'DIDConnect', component:DIDConnectForm, find: (type) => 'DIDConnect' == type},
-        {id:'QueryByFrame', component:QueryByFrameForm, find: (type) => 'QueryByFrame' == type},
+    const QUERY_FORMS = [
+        {id:'PresentationDefinitionQuery', component:PresentationDefQueryForm, match: (types) => ['PresentationExchange', 'DIDConnect'].every(elem => types.includes(elem))},
+        {id:'DIDAuth', component:DIDAuthForm, match: (types) => types.length == 1 && types.includes('DIDAuth')},
+        {id:'DIDConnect', component:DIDConnectForm, match: (types) => ['DIDConnect'].every(elem => types.includes(elem))},
+        // default: MultipleQueryForm
     ]
 
     function getComponent(credEvent){
         let {query} = credEvent.credentialRequestOptions.web.VerifiablePresentation
         query =  Array.isArray(query) ? query : [query]
+        let types = extractQueryTypes(query)
 
-        for (let queryType of QUERY_TYPES) {
-            let result = query.filter(({type}) => queryType.find(type, query.length) > 0)
-            if (result.length > 0) {
-                return queryType.component
+        for (let forms of QUERY_FORMS) {
+            if (forms.match(types)) {
+                return forms.component
             }
         }
 
-        console.debug('no matching query type handler found, switching to default QueryByExample')
-        // default form 'GetCredentialsForm'
-        return GetCredentialsForm
+        console.debug('no matching query type handler found, switching to default MultipleQueryForm')
+        // default form 'MultipleQueryForm'
+        return MultipleQueryForm
     }
 
     export default {

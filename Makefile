@@ -103,8 +103,10 @@ wallet-web-dev-start:
 bdd-test: bdd-test-wallet-web bdd-test-wallet-server
 
 .PHONY: bdd-test-wallet-web
-bdd-test-wallet-web: clean wallet-web-docker wallet-server-docker generate-test-keys mock-images
-	@scripts/check_js_integration.sh
+bdd-test-wallet-web:
+	@echo "No tests to run ..."
+# TODO disabled as part of universal wallet migration, Refer https://github.com/trustbloc/agent-sdk/tree/main/cmd/wallet-js-sdk for wallet feature tests.
+#	@scripts/check_js_integration.sh
 
 .PHONY: bdd-test-wallet-server
 bdd-test-wallet-server: clean wallet-web-docker wallet-server-docker generate-test-keys mock-images

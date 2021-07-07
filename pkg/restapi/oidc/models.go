@@ -5,7 +5,9 @@ SPDX-License-Identifier: Apache-2.0
 
 package oidc
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type createKeystoreReq struct {
 	Controller string `json:"controller,omitempty"`
@@ -33,15 +35,22 @@ type signResp struct {
 }
 
 // BootstrapData user bootsrap data.
+// TODO to be refactored for universal wallet migration.
 type BootstrapData struct {
-	UserEDVVaultURL   string `json:"edvVaultURL,omitempty"`
-	OpsEDVVaultURL    string `json:"opsVaultURL,omitempty"`
+	User              string `json:"user,omitempty"`
+	UserEDVVaultURL   string `json:"edvVaultURL,omitempty"` // TODO remove this
+	OpsEDVVaultURL    string `json:"opsVaultURL,omitempty"` // TODO remove this
 	AuthzKeyStoreURL  string `json:"authzKeyStoreURL,omitempty"`
 	OpsKeyStoreURL    string `json:"opsKeyStoreURL,omitempty"`
 	EDVOpsKIDURL      string `json:"edvOpsKIDURL,omitempty"`
 	EDVHMACKIDURL     string `json:"edvHMACKIDURL,omitempty"`
 	UserEDVCapability string `json:"edvCapability,omitempty"`
 	OPSKMSCapability  string `json:"opsKMSCapability,omitempty"` // TODO remove this
+	UserEDVServer     string `json:"userEDVServer,omitempty"`
+	UserEDVVaultID    string `json:"userEDVVaultID,omitempty"`
+	UserEDVEncKID     string `json:"userEDVEncKID,omitempty"`
+	UserEDVMACKID     string `json:"userEDVMACKID,omitempty"`
+	TokenExpiry       string `json:"tokenExpiry,omitempty"`
 }
 
 type userBootstrapData struct {

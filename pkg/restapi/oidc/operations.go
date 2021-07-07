@@ -71,8 +71,9 @@ const (
 )
 
 const (
-	edvResource        = "urn:edv:vault"
-	providerQueryParam = "provider"
+	edvResource           = "urn:edv:vault"
+	providerQueryParam    = "provider"
+	walletTokenExpiryMins = "20"
 )
 
 var logger = log.New("hub-auth/oidc")
@@ -127,6 +128,7 @@ type Operation struct {
 	userEDVClient   edvClient
 	hubAuthURL      string
 	jsonLDLoader    ld.DocumentLoader
+	userEDVURL      string
 }
 
 // New returns a new Operation.
@@ -171,6 +173,7 @@ func New(config *Config) (*Operation, error) {
 			config.UserEDVURL,
 			client.WithTLSConfig(config.TLSConfig),
 		)
+		op.userEDVURL = config.UserEDVURL
 	}
 
 	return op, nil
@@ -639,14 +642,20 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 
 	// TODO remove OPSKMSCapability: https://github.com/trustbloc/edge-agent/issues/583.
 	data := &BootstrapData{
-		UserEDVVaultURL:   userEDVVaultURL,
-		OpsEDVVaultURL:    opsEDVVaultURL,
+		User:              uuid.NewString(),
+		UserEDVVaultURL:   userEDVVaultURL, // TODO to be removed after universal wallet migration
+		OpsEDVVaultURL:    opsEDVVaultURL,  // TODO to be removed after universal wallet migration
 		AuthzKeyStoreURL:  authzKeyStoreURL,
 		OpsKeyStoreURL:    opsKeyStoreURL,
 		EDVOpsKIDURL:      edvOpsKIDURL,
 		EDVHMACKIDURL:     hmacEDVKIDURL,
 		UserEDVCapability: string(userEDVCapability),
 		OPSKMSCapability:  compressedOPSKMSCapability,
+		UserEDVVaultID:    getVaultID(userEDVVaultURL),
+		UserEDVServer:     o.userEDVURL,
+		UserEDVEncKID:     edvOpsKID,
+		UserEDVMACKID:     hmacEDVKID,
+		TokenExpiry:       walletTokenExpiryMins,
 	}
 
 	err = postUserBootstrapData(o.hubAuthURL, accessToken, data, o.httpClient)

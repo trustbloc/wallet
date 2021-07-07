@@ -17,61 +17,62 @@ SPDX-License-Identifier: Apache-2.0
                             </h3>
                         </md-card-header>
 
+                        <md-card-content v-if="records.length" class="md-layout md-alignment-center-center card-list">
+                            <ul>
+                                <li v-for="(card, index) in records" :key="index">
+                                    <transition name="flip">
+                                        <div class="card" style="padding-bottom: 35px">
+                                            <div class="cardContent">
+                                                <div class="cardHeader">
+                                                    {{card.title}}
+                                                </div>
+
+                                                <div class="cardBody">
+                                                    <div class="cardDetailsL">
+                                                        <md-icon class="md-size-4x">{{ card.icon}}</md-icon>
+                                                    </div>
+                                                    <div class="cardDetailsR">
+                                                        <p> {{ card.description}}</p>
+                                                        <div v-if="card.body">
+                                                            The verifier can only access below information from your
+                                                            credential.
+                                                            <div v-for="(subj, skey) in card.body" :key="skey">
+                                                                <div class="md-caption" v-if="displayContent(skey)">
+                                                                    <b>{{skey.replace('.', ' ')}} </b>: {{subj}}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </transition>
+                                </li>
+                            </ul>
+
+                        </md-card-content>
+
                         <md-card-content>
-                            <div class="md-layout">
-
-                                <div class="md-layout-item md-small-size-100 md-size-33">
-                                    <md-field>
-                                        <label>
-                                            <md-icon>face</md-icon>
-                                            Subject</label>
-                                        <md-input v-model="subject" disabled id="subject"></md-input>
-                                    </md-field>
+                            <div v-if="errors.length">
+                                <b>Please correct the following error(s):</b>
+                                <ul>
+                                    <li v-for="error in errors" :key="error" style="color: #9d0006;">{{ error }}</li>
+                                </ul>
+                            </div>
+                            <div class="md-layout md-alignment-center-center">
+                                <div>
+                                    <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn">Cancel
+                                    </md-button>
                                 </div>
-                                <div class="md-layout-item md-small-size-100 md-size-33">
-                                    <md-field>
-                                        <label>
-                                            <md-icon>how_to_reg</md-icon>
-                                            Issuer</label>
-                                        <md-input v-model="issuer" disabled id="issuer"></md-input>
-                                    </md-field>
-                                </div>
-                                <div class="md-layout-item md-small-size-100 md-size-33">
-                                    <md-field>
-                                        <label>
-                                            <md-icon>today</md-icon>
-                                            Issuance Date</label>
-                                        <md-input v-model="issuance" disabled id="issueDate"></md-input>
-                                    </md-field>
-                                </div>
-                                <div class="md-layout-item md-size-100">
-                                    <md-field maxlength="5">
-                                        <label class="md-helper-text">Type friendly name here</label>
-                                        <md-input v-model="friendlyName" id="friendlyName" required></md-input>
-                                    </md-field>
-                                </div>
-
-                                <div v-if="errors.length">
-                                    <b>Please correct the following error(s):</b>
-                                    <ul>
-                                        <li v-for="error in errors" :key="error">{{ error }}</li>
-                                    </ul>
-                                </div>
-                                <div class="md-layout md-gutter">
-                                <div class="md-layout-item md-layout md-gutter flex flex-row justify-between">
-                                    <div>
-                                        <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn">Cancel
-                                        </md-button>
-                                    </div>
-                                    <div>
-                                        <md-button v-on:click="store" class="md-raised md-success" id="storeVCBtn"
-                                                                           :disabled=isDisabled>Confirm
-                                         </md-button>
-                                    </div>
-                                  </div>
+                                <div>
+                                    <md-button v-on:click="store" class="md-raised md-success" id="storeVCBtn"
+                                               :disabled=isDisabled>Confirm
+                                    </md-button>
                                 </div>
                             </div>
                         </md-card-content>
+
                     </md-card>
                 </form>
 
@@ -81,72 +82,119 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-    import {isCredentialType, isVCType, getCredentialMetadata, WalletStore} from "./wallet"
+    import {CHAPIEventHandler, getCredentialType, getVCIcon, isVPType} from "./wallet"
+    import {CredentialManager} from "@trustbloc/wallet-sdk"
     import {mapGetters} from 'vuex'
 
     export default {
         created: async function () {
             // Load the Credentials
-            const credentialEvent = await this.$webCredentialHandler.receiveCredentialEvent();
-            console.log("Credential event received :", credentialEvent.credential)
+            this.credentialEvent = new CHAPIEventHandler(await this.$webCredentialHandler.receiveCredentialEvent())
+            let {dataType, data} = this.credentialEvent.getEventData()
 
-            if (!isCredentialType(credentialEvent.credential.dataType)) {
-                this.errors.push("unknown credential data type", credentialEvent.credential.dataType)
+            if (!isVPType(dataType)) {
+                this.errors.push(`unknown credential data type '${dataType}'`)
                 return
             }
 
-            this.isVC = isVCType(credentialEvent.credential.dataType)
-            this.credData = credentialEvent.credential.data
-            this.dataType = credentialEvent.credential.dataType
+            let {user} = this.getCurrentUser().profile
+            this.credentialManager = new CredentialManager({agent: this.getAgentInstance(), user})
 
-            this.wallet = new WalletStore(this.getAgentInstance(), this.getAgentOpts(), credentialEvent,
-                this.getCurrentUser().username)
-
-            // prefill form
-            this.prefillForm()
+            // prepare cards
+            this.prepareCards(data)
+            this.presentation = data
 
             // enable send vc button once loaded
-            this.sendButton = false
+            this.storeButton = false
         },
         computed: {
             isDisabled() {
-                return this.sendButton
+                return this.storeButton
             },
         },
         data() {
             return {
-                sendButton: true,
+                records: [],
+                storeButton: true,
                 subject: "",
                 issuer: "",
                 issuance: "",
-                friendlyName: "",
-                credData: {},
                 errors: [],
             };
         },
         methods: {
-            ...mapGetters(['getCurrentUser', 'getAgentOpts']),
+            ...mapGetters(['getCurrentUser']),
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
-            prefillForm: function() {
-                const {issuance, issuer, subject} = getCredentialMetadata(this.credData, this.dataType)
-                this.issuance = issuance
-                this.issuer = issuer
-                this.subject = subject
-                this.friendlyName = subject.concat('_', new Date().valueOf())
+            prepareCards: function (data) {
+                this.records = data.verifiableCredential.map((vc) => {
+                    return {
+                        title: vc.name ? vc.name : getCredentialType(vc.type),
+                        description: vc.description,
+                        icon: getVCIcon(vc.type)
+                    }
+                })
+                console.log('this.records', JSON.stringify(this.records, null, 2))
             },
             store: async function () {
                 this.errors.length = 0
-                if (this.friendlyName.length == 0) {
-                    this.errors.push("friendly name required.")
-                    return
-                }
+                let {token} = this.getCurrentUser().profile
 
-                await this.wallet.saveCredential(this.friendlyName, this.credData, this.isVC)
+                this.credentialManager.save(token, {presentation: this.presentation}).then(() => {
+                    this.credentialEvent.done()
+                }).catch((e) => {
+                    console.error(e)
+                    this.errors.push(`failed to save credential`)
+                });
             },
             cancel: async function () {
-                this.wallet.cancel()
+                this.credentialEvent.cancel()
             }
         }
     }
 </script>
 
+<style scoped>
+    .card {
+        display: block;
+        width: 360px;
+        padding: 10px;
+        background-color: whitesmoke;
+        border-radius: 7px;
+        margin: 5px;
+        text-align: center;
+        line-height: 22px;
+        cursor: pointer;
+        position: relative;
+        color: black;
+        font-weight: 400;
+        font-size: 16px;
+        -webkit-box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, .5);
+        -moz-box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, .5);
+        box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, .5);
+        will-change: transform;
+        user-select: none;
+    }
+
+    .card i {
+        color: rgb(11, 151, 196) !important;
+    }
+
+    .cardContent {
+        text-align: left;
+    }
+
+    .cardHeader {
+        font-weight: 500;
+        padding: 10px 15px;
+    }
+
+    .card-list li {
+        list-style-type: none;
+        padding: 10px 10px;
+        transition: all 0.3s ease;
+    }
+
+    .card-list li:hover {
+        transform: scale(1.1);
+    }
+</style>
