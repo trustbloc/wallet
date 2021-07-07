@@ -12,10 +12,14 @@ module.exports = {
   theme: {
     colors: {
       neutrals: {
+        chatelle: '#c7c3c8',
         dark: '#190c21',
         light: '#b6b7c7',
         medium: '#6c6d7c',
+        mobster: '#7b6f7f',
+        mountainMist: '#949095',
         softWhite: '#f4f1f5',
+        white: '#ffffff',
       },
       primary: {
         blue: '#2883fb',
@@ -64,29 +68,44 @@ module.exports = {
       normal: '400',
       bold: '700',
     },
-    gradientColorStops: {
+    gradientColorStops: (theme) => ({
+      ...theme('colors'),
       apricot: '#ec857c',
       blueViolet: '#5d5cbd',
+      cinnabar: {
+        DEFAULT: '#e84c4c',
+        light: '#ff6666',
+      },
       copperfield: '#df7f75',
       curiousBlue: '#2f97d9',
+      darkTan: '#670f0f',
       ebony: '#100716',
+      eastSide: '#c082cc',
       grape: '#49205e',
       haiti: '#261131',
       hibiscus: {
         DEFAULT: '#cd3a67',
         dark: '#cc3566',
       },
+      iron: '#e8e8e8',
       jagger: '#360b4c',
+      lavender: '#b964d3',
+      moonRaker: '#eec6f6',
       vividViolet: {
         DEFAULT: '#90399e',
         dark: '#8631a0',
       }
-    },
+    }),
     gradients: theme => ({
+      cinnabar: `linear-gradient(-180deg, ${theme('gradientColorStops.cinnabar.DEFAULT')} 0%, ${theme('gradientColorStops.darkTan')} 100%)`,
+      cinnabarLight: `linear-gradient(-180deg, ${theme('gradientColorStops.cinnabar.light')} 0%, ${theme('gradientColorStops.darkTan')} 100%)`,
       dark: `linear-gradient(-135deg, ${theme('gradientColorStops.haiti')} 0%, ${theme('gradientColorStops.ebony')} 100%)`,
       full: `linear-gradient(-225deg, ${theme('gradientColorStops.apricot')} 0%, ${theme('gradientColorStops.hibiscus.dark')} 26%, ${theme('gradientColorStops.copperfield')} 47%, ${theme('gradientColorStops.vividViolet.DEFAULT')} 66%, ${theme('gradientColorStops.blueViolet')} 83%, ${theme('gradientColorStops.curiousBlue')} 100%)`,
+      iron: `linear-gradient(-180deg, ${theme('gradientColorStops.iron')} 0%, ${theme('gradientColorStops.eastSide')} 100%)`,
+      lavender: `linear-gradient(-180deg, ${theme('gradientColorStops.lavender')} 0%, ${theme('gradientColorStops.jagger')} 100%)`,
       pink: `linear-gradient(-135deg, ${theme('gradientColorStops.hibiscus.DEFAULT')} 0%, ${theme('gradientColorStops.grape')} 100%)`,
       purple: `linear-gradient(-135deg, ${theme('gradientColorStops.vividViolet.dark')} 0%, ${theme('gradientColorStops.jagger')} 100%)`,
+      moonRaker: `linear-gradient(-180deg, ${theme('gradientColorStops.neutrals.white')} 0%, ${theme('gradientColorStops.moonRaker')} 100%)`,
     }),
     spacing: {
       px: '1px',
@@ -147,6 +166,103 @@ module.exports = {
         'h5': { fontSize: theme('fontSize.5xl'), fontWeight: theme('fontWeight.bold') },
         'h6': { fontSize: theme('fontSize.4xl'), fontWeight: theme('fontWeight.bold') },
       })
-    })
+    }),
+    plugin(function({ addComponents, theme }) {
+      const buttons = {
+        '.btn-primary': {
+          height: theme('spacing.11'),
+          padding: `0 ${theme('spacing.8')}`,
+          borderRadius: theme('borderRadius.lg'),
+          backgroundImage: theme('gradients.purple'),
+          boxShadow: `0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
+          color: theme('colors.neutrals.white'),
+          fontSize: theme('fontSize.base'),
+          fontWeight: theme('fontWeight.bold'),
+          transition: 'all 200ms cubic-bezier(0.4, 0, 1, 1)',
+          '&:hover': {
+            backgroundImage: theme('gradients.lavender'),
+          },
+          '&:focus': {
+            border: `2px solid ${theme('colors.neutrals.white')}`, // TODO: replace with border from theme once defined
+            boxShadow: `0px 0px 0px 2px rgba(138, 53, 183, 0.7), 0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
+          }
+        },
+        '.btn-inverse': {
+          height: theme('spacing.11'),
+          padding: `0 ${theme('spacing.8')}`,
+          borderRadius: theme('borderRadius.lg'),
+          backgroundImage: theme('gradients.moonRaker'),
+          boxShadow: `0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
+          color: theme('colors.neutrals.dark'),
+          fontSize: theme('fontSize.base'),
+          fontWeight: theme('fontWeight.bold'),
+          transition: 'all 200ms cubic-bezier(0.4, 0, 1, 1)',
+          '&:hover': {
+            backgroundImage: theme('gradients.iron'),
+          },
+          '&:focus': {
+            border: `2px solid ${theme('colors.neutrals.dark')}`, // TODO: replace with border from theme once defined
+            boxShadow: `0px 0px 0px 2px rgba(227, 173, 255, 0.7), 0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
+          }
+        },
+        '.btn-outline': {
+          height: theme('spacing.11'),
+          padding: `0 ${theme('spacing.8')}`,
+          border: `1px solid ${theme('colors.neutrals.chatelle')}`, // TODO: replace with border from theme once defined
+          borderRadius: theme('borderRadius.lg'),
+          backgroundColor: theme('colors.neutrals.white'),
+          color: theme('colors.neutrals.medium'),
+          fontSize: theme('fontSize.base'),
+          fontWeight: theme('fontWeight.bold'),
+          transition: 'all 200ms cubic-bezier(0.4, 0, 1, 1)',
+          '&:hover': {
+            border: `1px solid ${theme('colors.neutrals.mountainMist')}`,
+          },
+          '&:focus': {
+            boxShadow: `0px 0px 0px 2px rgba(138, 53, 183, 0.7)`, // TODO: replace with shadow from theme once defined
+          }
+        },
+        '.btn-danger': {
+          height: theme('spacing.11'),
+          padding: `0 ${theme('spacing.8')}`,
+          borderRadius: theme('borderRadius.lg'),
+          backgroundImage: theme('gradients.cinnabar'),
+          boxShadow: `0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
+          color: theme('colors.neutrals.white'),
+          fontSize: theme('fontSize.base'),
+          fontWeight: theme('fontWeight.bold'),
+          transition: 'all 200ms cubic-bezier(0.4, 0, 1, 1)',
+          '&:hover': {
+            backgroundImage: theme('gradients.cinnabarLight'),
+          },
+          '&:focus': {
+            border: `2px solid ${theme('colors.neutrals.white')}`, // TODO: replace with border from theme once defined
+            boxShadow: `0px 0px 0px 2px rgba(174, 49, 49, 0.7), 0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
+          }
+        },
+        '.btn-disabled': {
+          height: theme('spacing.11'),
+          padding: `0 ${theme('spacing.8')}`,
+          borderRadius: theme('borderRadius.lg'),
+          backgroundColor: theme('colors.neutrals.mobster'),
+          boxShadow: `0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
+          color: theme('colors.neutrals.white'),
+          fontSize: theme('fontSize.base'),
+          fontWeight: theme('fontWeight.bold'),
+        },
+        '.btn-loading': {
+          height: theme('spacing.11'),
+          padding: `0 ${theme('spacing.8')}`,
+          borderRadius: theme('borderRadius.lg'),
+          backgroundImage: theme('gradients.purple'),
+          boxShadow: `0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
+          color: theme('colors.neutrals.white'),
+          fontSize: theme('fontSize.base'),
+          fontWeight: theme('fontWeight.bold'),
+        }
+      }
+
+      addComponents(buttons)
+    }),
   ],
 }
