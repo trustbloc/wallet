@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-light flex  min-w-screen min-h-screen items-center justify-center px-5 py-5
+  <div class="bg-neutrals-softWhite flex  min-w-screen min-h-screen items-center justify-center px-5 py-5
               bg-scroll lg:bg-onboarding xl:bg-onboarding xs:bg-onboarding sm:bg-onboarding 2xl:bg-onboarding md:bg-onboarding bg-no-repeat">
     <div class="bg-gradient-dark rounded-xl overflow-hidden text-neutrals-softWhite text-xl md:text-3xl
     2xl:h-xl 2xl:w-xl xl:h-xl xl:w-xl sm:h-xl sm:w-xl md:h-xl md:w-xl h-fit-content w-full -mt-40 sm:-mt-56 xs:-mt-56 lg:mt-0 2xl:mt-0 xl:mt-0 md:mt-10">
