@@ -1,3 +1,9 @@
+/*
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
+
 <template>
   <div class="bg-neutrals-softWhite flex  min-w-screen min-h-screen items-center justify-center px-5 py-5
               bg-scroll lg:bg-onboarding xl:bg-onboarding xs:bg-onboarding sm:bg-onboarding 2xl:bg-onboarding md:bg-onboarding bg-no-repeat">
@@ -184,7 +190,6 @@ export default {
     loginDevice: async function () {
       await this.deviceLogin.login();
     },
-
   }
 }
 

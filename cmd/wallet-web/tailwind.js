@@ -12,12 +12,16 @@ module.exports = {
   theme: {
     colors: {
       neutrals: {
+        bonjour: '#eeeaee',
         chatelle: '#c7c3c8',
         dark: '#190c21',
         light: '#b6b7c7',
         medium: '#6c6d7c',
         mobster: '#7b6f7f',
-        mountainMist: '#949095',
+        mountainMist: {
+          light: '#949095',
+          dark: '#8d8a8e',
+        },
         softWhite: '#f4f1f5',
         white: '#ffffff',
       },
@@ -26,6 +30,7 @@ module.exports = {
         coral: '#ed6765',
         pink: '#e74577',
         purple: '#8a35b7',
+        valencia: '#d24343',
       },
       gray:{
         light: '#f4f1f5',
@@ -122,7 +127,7 @@ module.exports = {
       12: '3rem',
       13: '3.25rem',
       14: '3.5rem',
-      15: '3.75',
+      15: '3.75rem',
       16: '4rem',
       18: '4.5rem',
       20: '5rem',
@@ -216,7 +221,7 @@ module.exports = {
           fontWeight: theme('fontWeight.bold'),
           transition: 'all 200ms cubic-bezier(0.4, 0, 1, 1)',
           '&:hover': {
-            border: `1px solid ${theme('colors.neutrals.mountainMist')}`,
+            border: `1px solid ${theme('colors.neutrals.mountainMist.light')}`,
           },
           '&:focus': {
             boxShadow: `0px 0px 0px 2px rgba(138, 53, 183, 0.7)`, // TODO: replace with shadow from theme once defined
@@ -262,7 +267,92 @@ module.exports = {
         }
       }
 
-      addComponents(buttons)
+      const inputs = {
+        '.input-container': {
+          position: 'relative',
+          marginBottom: theme('spacing.6'),
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: 'flex-start',
+
+          '& input': {
+            height: theme('spacing.15'),
+            width: 342,
+            padding: `26px 0px 10px theme('spacing.4')`,
+            backgroundColor: theme('colors.neutrals.bonjour'),
+            border: 'none',
+            borderBottom: `2px solid ${theme('colors.neutrals.mountainMist.light')}`,
+            borderRadius: `6px 6px 0px 0px`,
+
+            '&:focus': {
+              borderColor: theme('colors.primary.purple'),
+            },
+
+            '&:invalid': {
+              borderColor: theme('colors.primary.valencia'),
+              '& ~ .fader > img': {
+                visibility: 'visible',
+              }
+            }
+          },
+
+          '& input::placeholder': {
+            visibility: 'hidden',
+          },
+
+          '& input:focus::placeholder': {
+            visibility: 'visible',
+            color: theme('colors.neutrals.medium'),
+            fontSize: theme('fontSize.base'),
+          },
+
+          '& input:focus + .input-label, input:not(:focus):not(:placeholder-shown) + .input-label': {
+            top: 5,
+            fontSize: theme('fontSize.sm'),
+            marginBottom: theme('spacing.8'),
+          },
+
+          '& .input-label': {
+            fontSize: theme('fontSize.base'),
+            fontWeight: theme('fontWeight.bold'),
+            color: theme('colors.neutrals.dark'),
+            position: 'absolute',
+            paddingLeft: theme('spacing.4'),
+            transition: `top .2s`,
+            top: 17,
+          },
+
+          '& .input-helper': {
+            color: theme('colors.neutrals.medium'),
+            fontSize: theme('fontSize.sm'),
+            display: 'flex',
+            alignItems: 'center',
+            marginTop: 5,
+          },
+
+          '& .fader': {
+            position: `absolute`,
+            top: 1,
+            right: 0,
+            background: `linear-gradient(90deg, rgba(238, 234, 238, 0) 0%, rgb(238, 234, 238) 100%)`,
+            borderRadius: `0px 4px 0px 0px`,
+            height: theme('spacing.14'),
+            width: 68,
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+          },
+
+          '& .fader > img': {
+            paddingRight: 15,
+            visibility: 'hidden',
+          },
+        },
+        
+      }
+
+      addComponents({ ...buttons, ...inputs })
     }),
   ],
 }
