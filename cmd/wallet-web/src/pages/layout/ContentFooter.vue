@@ -28,7 +28,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 export default {
-  name: "footer",
+  name: "content-footer",
   data() {
     return {
       date: new Date().getFullYear(),
