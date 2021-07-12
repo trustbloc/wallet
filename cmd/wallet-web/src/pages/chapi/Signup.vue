@@ -54,7 +54,7 @@
                            v-on:click="beginOIDCLogin(provider.id)">
                   <img class="object-contain inline-block  max-h-4 max-w-2 mr-2"
                        :src="provider.logoURL"/>
-                    {{ provider.name }}
+                    {{ provider.signUpText }}
                 </button>
               </div>
             </div>

@@ -239,6 +239,7 @@ services:
       - AUTH_REST_API_TOKEN=test_token
       - AUTH_REST_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - AUTH_REST_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
+      - AUTH_REST_STATIC_IMAGES=/etc/static/images
     ports:
       - 8044:8044
     entrypoint: ""
@@ -246,6 +247,7 @@ services:
     volumes:
       - ../keys:/etc/keys
       - ./oidc-config:/etc/oidc-config
+      - ./static:/etc/static
     depends_on:
       - demo-auth.rest.hydra.example.com
       - mysql
@@ -321,6 +323,7 @@ services:
       - AUTH_REST_DATABASE_PREFIX=authrest
       - AUTH_REST_OIDC_CALLBACK=https://localhost:8045/oauth2/callback
       - AUTH_REST_OIDC_PROVIDERS_CONFIG=/etc/oidc-config/bdd_providers.yaml
+      - AUTH_REST_STATIC_IMAGES=/etc/static/images
       - AUTH_REST_SDS_DOCS_URL=https://TODO.docs.sds.org/
       - AUTH_REST_SDS_OPSKEYS_URL=https://TODO.keys.sds.org/
       - AUTH_REST_KEYSERVER_AUTH_URL=https://TODO.auth.keyserver.org/
