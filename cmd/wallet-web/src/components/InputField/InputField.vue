@@ -9,10 +9,9 @@ SPDX-License-Identifier: Apache-2.0
         <input :id="'input-' + label" v-bind="$attrs" v-on="$listeners" :value="value" @input="$emit('update', $event.target.value)">
         <label :for="'input-' + label" class="input-label">{{ label }}</label>
         <span class="input-helper">{{ helperMessage }}</span>
-        <div class="fader">
-            <!-- TODO: use inline svg instead once https://github.com/trustbloc/edge-agent/issues/816 is fixed -->
-            <img src="@/assets/img/danger-icon.svg" />
-        </div>
+        <div class="fader" />
+        <!-- TODO: use inline svg instead once https://github.com/trustbloc/edge-agent/issues/816 is fixed -->
+        <img src="@/assets/img/danger-icon.svg" />
     </div>
 </template>
 

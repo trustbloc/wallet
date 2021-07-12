@@ -279,11 +279,12 @@ module.exports = {
           '& input': {
             height: theme('spacing.15'),
             width: 342,
-            padding: `26px 0px 10px theme('spacing.4')`,
+            padding: `26px ${theme('spacing.16')} 10px ${theme('spacing.4')}`,
             backgroundColor: theme('colors.neutrals.bonjour'),
             border: 'none',
             borderBottom: `2px solid ${theme('colors.neutrals.mountainMist.light')}`,
             borderRadius: `6px 6px 0px 0px`,
+            color: theme('colors.neutrals.dark'),
 
             '&:focus': {
               borderColor: theme('colors.primary.purple'),
@@ -291,10 +292,10 @@ module.exports = {
 
             '&:invalid': {
               borderColor: theme('colors.primary.valencia'),
-              '& ~ .fader > img': {
+              '& ~ img': {
                 visibility: 'visible',
               }
-            }
+            },
           },
 
           '& input::placeholder': {
@@ -334,7 +335,7 @@ module.exports = {
           '& .fader': {
             position: `absolute`,
             top: 1,
-            right: 0,
+            right: theme('spacing.16'),
             background: `linear-gradient(90deg, rgba(238, 234, 238, 0) 0%, rgb(238, 234, 238) 100%)`,
             borderRadius: `0px 4px 0px 0px`,
             height: theme('spacing.14'),
@@ -344,9 +345,11 @@ module.exports = {
             alignItems: 'center',
           },
 
-          '& .fader > img': {
-            paddingRight: 15,
+          '& img': {
             visibility: 'hidden',
+            position: `absolute`,
+            top: 18,
+            right: theme('spacing.3'),
           },
         },
         
