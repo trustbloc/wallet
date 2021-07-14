@@ -18,6 +18,10 @@ server {
         try_files $uri $uri/ /index.html;
     }
 
+    location /images {
+        try_files $uri $uri/ ${STATIC_ASSESTS_FOLDER};
+    }
+
     location ~ agent-js-worker\.wasm$ {
         gzip_static on;
         types {

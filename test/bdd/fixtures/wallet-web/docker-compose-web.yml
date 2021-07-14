@@ -11,6 +11,7 @@ services:
     image: ${WALLET_WEB_IMAGE}:latest
     volumes:
       - ../keys/tls:/etc/nginx/certs
+      - ./static:/etc/static
     ports:
       - 8091:443
     environment:
@@ -28,6 +29,7 @@ services:
       - USE_EDV_CACHE=true
       - EDV_CLEAR_CACHE=10m
       - USE_EDV_BATCH=true
+      - STATIC_ASSESTS_FOLDER=/etc/static
 
   second-ui-user-agent.example.com:
     container_name: second-ui-user-agent.example.com
