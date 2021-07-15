@@ -35,7 +35,7 @@ SPDX-License-Identifier: Apache-2.0
       logout: async function() {
         await this.chapi.uninstall();
         await this.logoutUser();
-        this.$router.push("/login");
+        this.$router.push("/signup");
       },
     },
   };
