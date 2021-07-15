@@ -75,7 +75,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 
-    import {DIDConn} from "./wallet"
+    import {DIDConn} from "./mixins"
     import Governance from "./Governance.vue";
     import {mapGetters} from 'vuex'
 

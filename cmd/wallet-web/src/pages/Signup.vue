@@ -75,7 +75,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-    import {CHAPIHandler, RegisterWallet} from "./wallet"
+    import {CHAPIHandler, RegisterWallet} from "./mixins"
     import {DeviceLogin} from "@trustbloc/wallet-sdk"
     import ContentFooter from "@/pages/layout/ContentFooter.vue"
     import {mapActions, mapGetters} from 'vuex'

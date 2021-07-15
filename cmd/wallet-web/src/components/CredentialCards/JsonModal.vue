@@ -30,7 +30,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-    import { getCredentialType} from "@/pages/chapi/wallet";
+    import { getCredentialType} from "@/pages/mixins";
     import VueJsonPretty from 'vue-json-pretty';
     export default {
         name: "DialogCustom",

@@ -17,7 +17,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-  import { CHAPIHandler } from "./wallet";
+  import { CHAPIHandler } from "./mixins";
   import { mapActions, mapGetters } from "vuex";
 
   export default {

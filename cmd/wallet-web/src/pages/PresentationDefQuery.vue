@@ -148,7 +148,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 
-    import {filterCredentialsByType, getCredentialType, WalletGetByQuery} from "./wallet"
+    import {filterCredentialsByType, getCredentialType, WalletGetByQuery} from "./mixins"
     import Governance from "./Governance.vue";
     import {mapGetters} from 'vuex'
 

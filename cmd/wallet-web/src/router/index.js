@@ -5,22 +5,21 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import DashboardLayout from "@/pages/layout/DashboardLayout.vue";
-
 import Dashboard from "@/pages/Dashboard.vue";
-import Login from "@/pages/chapi/Login.vue";
-import Signup from "@/pages/chapi/Signup.vue";
-import Logout from "@/pages/chapi/Logout.vue";
-import StoreInWallet from "@/pages/chapi/Store.vue";
-import GetFromWallet from "@/pages/chapi/Get.vue";
-import WalletWorker from "@/pages/chapi/Worker.vue";
-import WebWallet from "@/pages/WebWallet.vue";
+import Login from "@/pages/Login.vue";
+import Signup from "@/pages/Signup.vue";
+import Logout from "@/pages/Logout.vue";
+import StoreInWallet from "@/pages/Store.vue";
+import GetFromWallet from "@/pages/Get.vue";
+import WalletWorker from "@/pages/Worker.vue";
+import WebWallet from "@/pages/demos/WebWallet.vue";
 import DIDManagement from "@/pages/DIDManagement.vue";
-import Connections from "@/pages/Connections.vue";
-import Relationships from "@/pages/Relationships.vue";
-import IssueCredential from "@/pages/IssueCredential.vue";
-import PresentProof from "@/pages/PresentProof.vue";
+import Connections from "@/pages/demos/Connections.vue";
+import Relationships from "@/pages/demos/Relationships.vue";
+import IssueCredential from "@/pages/demos/IssueCredential.vue";
+import PresentProof from "@/pages/demos/PresentProof.vue";
 import NotFound from '@/pages/PageNotFound'
-import BlockNoAuth from "@/pages/chapi/BlockNoAuth.vue";
+import BlockNoAuth from "@/pages/BlockNoAuth.vue";
 
 const routes = [
     {

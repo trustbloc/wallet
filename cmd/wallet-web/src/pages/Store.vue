@@ -82,7 +82,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-    import {CHAPIEventHandler, getCredentialType, getVCIcon, isVPType} from "./wallet"
+    import {CHAPIEventHandler, getCredentialType, getVCIcon, isVPType} from "./mixins"
     import {CredentialManager} from "@trustbloc/wallet-sdk"
     import {mapGetters} from 'vuex'
 
