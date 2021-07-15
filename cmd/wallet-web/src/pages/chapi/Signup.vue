@@ -70,6 +70,8 @@ SPDX-License-Identifier: Apache-2.0
                 <!-- Foooter -->
                 <ContentFooter></ContentFooter>
             </div>
+        </div>
+    </div>
 </template>
 
 <script>
