@@ -44,6 +44,7 @@ let defaultAgentStartupOpts = {
     didAnchorOrigin: 'origin',
     sidetreeToken: '',
     hubAuthURL: '',
+    staticAssetsUrl: ''
 }
 
 export default {
@@ -177,6 +178,7 @@ export default {
                 didAnchorOrigin: ('didAnchorOrigin' in agentOpts) ? agentOpts['didAnchorOrigin'] : defaultAgentStartupOpts['didAnchorOrigin'],
                 sidetreeToken: ('sidetreeToken' in agentOpts) ? agentOpts['sidetreeToken'] : defaultAgentStartupOpts['sidetreeToken'],
                 hubAuthURL: ('hubAuthURL' in agentOpts) ? agentOpts['hubAuthURL'] : defaultAgentStartupOpts['hubAuthURL'],
+                staticAssetsUrl: ('staticAssetsUrl' in agentOpts) ? agentOpts['staticAssetsUrl'] : defaultAgentStartupOpts['staticAssetsUrl'],
             })
 
             commit('updateProfileOpts', profileOpts)
@@ -209,6 +211,9 @@ export default {
         },
         hubURL(state) {
             return state.agentOpts['hubAuthURL']
+        },
+        getStaticAssetsUrl(state) {
+            return state.agentOpts['staticAssetsUrl']
         },
     }
 }

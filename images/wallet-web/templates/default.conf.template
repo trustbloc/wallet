@@ -18,6 +18,10 @@ server {
         try_files $uri $uri/ /index.html;
     }
 
+    location /images {
+        root ${STATIC_ASSETS};
+    }
+
     location ~ agent-js-worker\.wasm$ {
         gzip_static on;
         types {
@@ -60,7 +64,8 @@ server {
             "cacheSize": ${CACHE_SIZE},
             "didAnchorOrigin":"${DID_ANCHOR_ORIGIN}",
             "sidetreeToken":"${SIDETREE_TOKEN}",
-            "hubAuthURL":"${HTTP_SERVER_HUB_AUTH_URL}"
+            "hubAuthURL":"${HTTP_SERVER_HUB_AUTH_URL}",
+            "staticAssetsUrl": "${STATIC_ASSETS_URL}"
         }';
     }
 }

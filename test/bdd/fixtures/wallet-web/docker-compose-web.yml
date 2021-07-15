@@ -11,6 +11,7 @@ services:
     image: ${WALLET_WEB_IMAGE}:latest
     volumes:
       - ../keys/tls:/etc/nginx/certs
+      - ./static:/etc/static
     ports:
       - 8091:443
     environment:
@@ -28,12 +29,17 @@ services:
       - USE_EDV_CACHE=true
       - EDV_CLEAR_CACHE=10m
       - USE_EDV_BATCH=true
+      - STATIC_ASSETS=/etc/static
+      # To add static images, set STATIC_ASSETS_URL=https://user-ui-agent.example.com:8091,
+      # then add images under /test/bdd/fixtures/wallet-web/static/images
+      - STATIC_ASSETS_URL=
 
   second-ui-user-agent.example.com:
     container_name: second-ui-user-agent.example.com
     image: ${WALLET_WEB_IMAGE}:latest
     volumes:
       - ../keys/tls:/etc/nginx/certs
+      - ./static:/etc/static
     ports:
       - 8071:443
     environment:
@@ -51,6 +57,8 @@ services:
       - USE_EDV_CACHE=true
       - EDV_CLEAR_CACHE=10m
       - USE_EDV_BATCH=true
+      - STATIC_ASSETS=/etc/static
+      - STATIC_ASSETS_URL=
 
   edge.router.agent.example.com:
     container_name: edge.router.agent.example.com

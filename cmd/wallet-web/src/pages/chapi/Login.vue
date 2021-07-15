@@ -11,7 +11,7 @@ SPDX-License-Identifier: Apache-2.0
             <div
                     class="md:max-w-6xl md:mx-auto md:flex md:items-center md:justify-between">
                 <div class="flex justify-between items-center">
-                    <img class="h-8 w-8 mr-2" src="@/assets/img/logo.svg" alt="">
+                    <img class="h-8 w-8 mr-2" :src="logoUrl" alt="">
                     <a class="font-semibold text-white text-2xl lg:text-4xl tracking-tight"
                        href="javascript:history.back()">TrustBloc</a>
                     <div
@@ -146,7 +146,8 @@ SPDX-License-Identifier: Apache-2.0
                     "This could take a minute.",
                     "Please do not refresh the page.",
                     "Please wait...",
-                ]
+                ],
+                logoUrl: this.getLogoUrl(),
             };
         },
         components: {
@@ -160,7 +161,7 @@ SPDX-License-Identifier: Apache-2.0
                 completeUserSetup: 'completeUserSetup',
                 refreshUserPreference: 'refreshUserPreference'
             }),
-            ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL']),
+            ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'getStaticAssetsUrl']),
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
             beginOIDCLogin: async function () {
                 window.location.href = this.serverURL() + "/oidc/login"
@@ -214,7 +215,14 @@ SPDX-License-Identifier: Apache-2.0
             stopLoading() {
                 clearInterval(this.intervalID);
             },
-
+            // Get logo url based on docker configuration
+            getLogoUrl: function() {
+              let staticAssetsUrl = this.getStaticAssetsUrl()
+              if (staticAssetsUrl) {
+                return this.logoUrl = `${staticAssetsUrl}/images/logo.svg`
+              }
+              return this.logoUrl = `${require('@/assets/img/logo.svg')}`
+            },
         }
     }
 
