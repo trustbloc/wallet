@@ -6,74 +6,44 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
 	<div
-		class="flex flex-col justify-between items-center min-w-screen min-h-screen bg-scroll bg-no-repeat bg-neutrals-softWhite bg-onboarding-sm md:bg-onboarding px-6"
+		class="flex flex-col justify-between items-center min-w-screen min-h-screen
+              bg-scroll bg-no-repeat bg-neutrals-softWhite bg-onboarding-sm md:bg-onboarding px-6"
 	>
 		<div class="flex flex-grow flex-col justify-center items-center">
+			<!--Trustbloc Sign-up provider div -->
 			<div
-				class="h-auto md:max-w-4xl bg-gradient-dark rounded-xl overflow-hidden text-xl mt-20 md:text-3xl"
+				class="flex flex-col justify-start items-center h-auto w-full sm:w-screen max-w-xl bg-gradient-dark rounded-xl overflow-hidden text-xl mx-6 px-6 mt-20 md:text-3xl"
 			>
-				<!--Trustbloc Intro div  -->
-				<div
-					class="grid md:grid-cols-2 grid-cols-1 bg-no-repeat bg-flare w-full h-full divide-x divide-neutrals-medium divide-opacity-25 md:px-20"
-				>
-					<div class="col-span-1 hidden md:block py-24 pr-16">
-						<Logo class="mb-12" href="" />
-
-						<div class="flex-1 flex items-center overflow-y-auto max-w-full mb-8">
-							<img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-1.svg" />
-							<span class="text-base pl-5 text-neutrals-white align-middle">
-								Keep your digital identity safe
-							</span>
-						</div>
-
-						<div class="flex-1 flex items-center overflow-y-auto max-w-full mb-8">
-							<img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-2.svg" />
-							<span class="text-base pl-5 text-neutrals-white align-middle">
-								Store digital IDs, certifications, and more—all in one secure wallet
-							</span>
-						</div>
-
-						<div class="flex-1 flex items-center overflow-y-auto max-w-full">
-							<img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-3.svg" />
-							<span class="text-base pl-5 text-neutrals-white align-middle">
-								Verify your identity in person or online
-							</span>
-						</div>
-					</div>
-					<!--Trustbloc Sign-up provider div -->
-					<div class="col-span-1 md:block object-none object-center">
-						<div class="px-6 md:pt-16 md:pb-12 md:pl-16 md:pr-0">
-							<Logo class="md:hidden justify-center mt-12 my-2" href="" />
-							<div class="text-center items-center mb-10">
-								<h1 class="text-2xl md:text-4xl font-bold text-neutrals-white">
-									Sign up. It's free!
-								</h1>
-							</div>
-							<div class="flex justify-center content-center w-full py-24 min-h-xl">
-								<Spinner v-if="loading" />
-								<button
-									v-else
-									v-for="(provider, index) in providers"
-									:key="index"
-									class="w-full h-11 max-w-xs flex flex-wrap items-center text-sm font-bold text-neutrals-dark py-2 px-4 mb-4
-                                    bg-neutrals-softWhite rounded-md"
-									@click="beginOIDCLogin(provider.id)"
-								>
-									<img class="object-contain inline-block max-h-6 mr-2" :src="provider.logoURL" />
-									<span class="flex flex-wrap">{{ provider.signUpText }}</span>
-								</button>
-							</div>
-							<div class="text-center py-10 md:pb-0 md:pt-12">
-								<p class="text-base font-normal text-neutrals-white">
-									Already have an account?
-									<a class="text-primary-blue whitespace-nowrap" href="/Signin">Sign in</a>
-								</p>
-							</div>
-						</div>
-					</div>
+				<!-- TODO: add href url to the root component once it is implemented -->
+				<Logo class="py-12" href="" />
+				<div class="text-center items-center mb-10 md:mb-8">
+					<span class="text-2xl md:text-4xl font-bold text-neutrals-white">
+						Sign in to your account
+					</span>
+				</div>
+				<div class="flex justify-center content-center w-full py-24 min-h-xl">
+					<Spinner v-if="loading" />
+					<button
+						v-else
+						v-for="(provider, index) in providers"
+						:key="index"
+						class="w-full h-11 max-w-xs flex flex-wrap items-center text-sm font-bold text-neutrals-dark py-2 px-4 mb-4
+						bg-neutrals-softWhite rounded-md"
+						@click="beginOIDCLogin(provider.id)"
+					>
+						<img class="object-contain inline-block max-h-6 mr-2" :src="provider.logoURL" />
+						<span class="flex flex-wrap">{{ provider.signInText }}</span>
+					</button>
+				</div>
+				<div class="text-center py-10 md:py-12">
+					<p class="text-base font-normal text-neutrals-softWhite">
+						Don't have an account?
+						<a class="text-primary-blue whitespace-nowrap" href="/Signup">Sign up</a>
+					</p>
 				</div>
 			</div>
 		</div>
+		<!-- Foooter -->
 		<ContentFooter />
 	</div>
 </template>
@@ -88,6 +58,20 @@ import { mapActions, mapGetters } from 'vuex';
 import axios from 'axios';
 
 export default {
+	components: {
+		ContentFooter,
+		Logo,
+		Spinner,
+	},
+	data() {
+		return {
+			providers: [],
+			hubOauthProvider: this.hubURL(),
+			statusMsg: '',
+			loading: true,
+			registered: false,
+		};
+	},
 	created: async function() {
 		await this.fetchProviders();
 		//TODO: issue-601 Implement cookie logic with information from the backend.
@@ -117,20 +101,6 @@ export default {
 			this.registered = true;
 		}
 		this.loading = false;
-	},
-	components: {
-		ContentFooter,
-		Logo,
-		Spinner,
-	},
-	data() {
-		return {
-			providers: [],
-			hubOauthProvider: this.hubURL(),
-			statusMsg: '',
-			loading: true,
-			registered: false,
-		};
 	},
 	methods: {
 		...mapActions({
@@ -207,8 +177,7 @@ export default {
 			this.refreshUserPreference();
 		},
 		handleSuccess() {
-			const route = this.$router.resolve({ name: this.redirect });
-			window.open(route.href, '_top');
+			this.$router.push(this.redirect);
 		},
 	},
 };

@@ -146,6 +146,7 @@ module.exports = {
         'gradient-pink': theme('gradients.pink'),
         'gradient-purple': theme('gradients.purple'),
         'onboarding': "url('~@/assets/img/onboarding-bg-lg.svg')",
+        'onboarding-sm': "url('~@/assets/img/onboarding-bg-sm.svg')",
         'flare': "url('~@/assets/img/onboarding-flare-lg.png')",
       }),
       height: {
@@ -155,6 +156,9 @@ module.exports = {
       width: {
         lg: '550px',
         xl: '896px',
+      },
+      screens: {
+        'xs': '320px',
       },
     },
   },
@@ -170,6 +174,7 @@ module.exports = {
         'h4': { fontSize: theme('fontSize.6xl'), fontWeight: theme('fontWeight.bold') },
         'h5': { fontSize: theme('fontSize.5xl'), fontWeight: theme('fontWeight.bold') },
         'h6': { fontSize: theme('fontSize.4xl'), fontWeight: theme('fontWeight.bold') },
+        'a': { borderBottom: `2px solid ${theme('colors.primary.blue')}`, paddingBottom: 2 },
       })
     }),
     plugin(function({ addComponents, theme }) {
