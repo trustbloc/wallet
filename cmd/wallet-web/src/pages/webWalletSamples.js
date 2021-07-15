@@ -22,6 +22,8 @@ export function getSample(v) {
             return multipleQuery1
         case "multiQ2":
             return multipleQuery2
+        case "multiQ3":
+            return multipleQuery3
         case "pexq":
             return presExchange
         case "pexq-didcomm":
@@ -45,12 +47,7 @@ export function getSample(v) {
 
 
 const prc = {
-    "@context": [
-        "https://www.w3.org/2018/credentials/v1",
-        "https://w3id.org/citizenship/v1",
-        "https://w3id.org/vc-revocation-list-2020/v1",
-        "https://w3id.org/security/bbs/v1"
-    ],
+    "@context": ["https://www.w3.org/2018/credentials/v1", "https://w3id.org/citizenship/v1", "https://w3id.org/vc-revocation-list-2020/v1", "https://w3id.org/security/bbs/v1"],
     "credentialStatus": {
         "id": "https://issuer-vcs.trustbloc.local/status/1#3",
         "revocationListCredential": "https://issuer-vcs.trustbloc.local/status/1",
@@ -68,10 +65,7 @@ const prc = {
         "lprCategory": "C09",
         "lprNumber": "999-999-999",
         "residentSince": "2015-01-01",
-        "type": [
-            "Person",
-            "PermanentResident"
-        ]
+        "type": ["Person", "PermanentResident"]
     },
     "description": "Permanent Resident Card of Mr.Louis Pasteur",
     "id": "http://example.com/eb299a34-529e-4a84-a67c-573865db4aa7",
@@ -82,16 +76,13 @@ const prc = {
     },
     "name": "Permanent Resident Card",
     "proof": {
-        "created": "2021-03-11T14:52:08.0677941Z",
+        "created": "2021-07-06T18:16:57.739627-04:00",
         "proofPurpose": "assertionMethod",
-        "proofValue": "oiJp3dJszrKzzedTGGrzmb02ouV6tAUI9wrXqJRUAJx5TNbGoHIeRrMAp-8MxcU0acsuvBNrWHTFON2pq_pL4MR3JO8RhHiHLb1Ta_GC8cQoPx4Pns-BtNlnoQEodJtd2cPMMmZmjIpMIqMnYAPATg",
+        "proofValue": "koyKGr8WwjCOUqm-HV_7SVtvIIM4EhnJJ_8P2k0RF3ElQP2ntQJMKKtpoQTqk5l3QI5jN0Zn8nHJm3gyFkKdYJpC4IseNTU98u9UTijHlABpAhGbDaKTHs-b1IDsHkx_DrR3BSktz1Va_cilRP2WqA",
         "type": "BbsBlsSignature2020",
-        "verificationMethod": "did:key:zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ#zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ"
+        "verificationMethod": "did:key:zUC73A7EHiDAxxy29qox4hD5Dyc6fXqStkWjbW2V5uVtmdpAr33Lhtz2sb9m8WotP6WxvjWxGb4iVsPPM5EGkwq5NCNwb6sn9breK588SiEcBtQEPyK7wXzXBT9QcCZ3S5XWygm#zUC73A7EHiDAxxy29qox4hD5Dyc6fXqStkWjbW2V5uVtmdpAr33Lhtz2sb9m8WotP6WxvjWxGb4iVsPPM5EGkwq5NCNwb6sn9breK588SiEcBtQEPyK7wXzXBT9QcCZ3S5XWygm"
     },
-    "type": [
-        "VerifiableCredential",
-        "PermanentResidentCard"
-    ]
+    "type": ["VerifiableCredential", "PermanentResidentCard"]
 }
 
 const prcbbs = {
@@ -118,11 +109,11 @@ const prcbbs = {
     },
     "name": "Permanent Resident Card",
     "proof": {
-        "created": "2021-03-05T21:31:46.735633361Z",
+        "created": "2021-07-06T17:32:32.838064-04:00",
         "proofPurpose": "assertionMethod",
-        "proofValue": "mHbDa0eKZT98SUyQ4YePH4zuaAdfb6gTYiVH0t1Z7Z_ZdH79W2hMQxCECCTLbBcvUDik4IOz392kpz2wDdf5OhVy0kyYwnH85JzjmNyn-8Rprs_ayOe0a5i-XwqZNmcBBnWmhSMkeTTGnmpxHZjWiw",
+        "proofValue": "hp08VNxXpgOSKvTsxCxBg2y_5yiI0d-dplUbwad24JJlX-GH97mPV0Dz3GesdXXNG-Bm1qwGYmfWdtXOk5eM8F-kSEsts46QZBfbGLkC7UtMKcgpPiorm0DCv0sjRH8OXDeIEOMMIyt1PXA-6ACDsQ",
         "type": "BbsBlsSignature2020",
-        "verificationMethod": "did:key:zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ#zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ"
+        "verificationMethod": "did:key:zUC72tF75rofR3xwYWG1WSkHNqMn6ZAAS3kMucAzfjDZXuQ3d2KcyFZ7Lp8RajtrMxAimzjx7dRQHfgw4RgUESsKHD79W6S7eKUsiTv8ig1Eybz16qpwU2kXrD5nYxzzsMYtwHD#zUC72tF75rofR3xwYWG1WSkHNqMn6ZAAS3kMucAzfjDZXuQ3d2KcyFZ7Lp8RajtrMxAimzjx7dRQHfgw4RgUESsKHD79W6S7eKUsiTv8ig1Eybz16qpwU2kXrD5nYxzzsMYtwHD"
     },
     "type": ["VerifiableCredential", "PermanentResidentCard"]
 }
@@ -153,38 +144,68 @@ const udc = {
 }
 
 const govnVC = {
-    "@context": ["https://www.w3.org/2018/credentials/v1", "https://trustbloc.github.io/context/governance/context.jsonld", "https://trustbloc.github.io/context/vc/examples-v1.jsonld"],
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://trustbloc.github.io/context/governance/context.jsonld",
+        "https://w3id.org/vc-revocation-list-2020/v1"
+    ],
     "credentialStatus": {
-        "id": "http://governance.vcs.example.com:8066/governance/status/1",
-        "type": "CredentialStatusList2017"
+        "id": "https://governance-vcs.stg.trustbloc.dev/governance/governance/status/1#3",
+        "revocationListCredential": "https://governance-vcs.stg.trustbloc.dev/governance/governance/status/1",
+        "revocationListIndex": "3",
+        "type": "RevocationList2020Status"
     },
     "credentialSubject": {
         "data_uri": "https://example.com/data.json",
-        "define": [{
-            "id": "did:orb:EiDniKF0RDQVRuCSwi7N87O-x7axF7bUZ9tA12uq4qiWLQ",
-            "name": "DID"
-        }],
-        "description": "Governs accredited financial institutions, colleges and universities.",
+        "define": [
+            {
+                "id": "did:orb:interim:EiDNdiR8SzDwHUxM1gI-684r4TXgnIlet4NNjOzl8JxAdA",
+                "name": "DID"
+            }
+        ],
+        "description": "Sample governance framework for the TrustBloc sandbox.",
         "docs_uri": "https://example.com/docs",
-        "duties": [{"name": "safe-accredit", "uri": "https://example.com/responsible-accredit"}],
-        "geos": ["Canadian"],
-        "jurisdictions": ["ca"],
+        "duties": [
+            {
+                "name": "safe-accredit",
+                "uri": "https://example.com/responsible-accredit"
+            }
+        ],
+        "geos": [
+            "Canadian"
+        ],
+        "jurisdictions": [
+            "ca"
+        ],
         "logo": "https://example.com/logo",
-        "name": "Trustbloc Govn",
-        "privileges": [{"name": "accredit", "uri": "https://example.com/accredit"}],
-        "roles": ["accreditor"],
-        "topics": ["banking"],
+        "name": "TrustBloc Sandbox",
+        "privileges": [
+            {
+                "name": "accredit",
+                "uri": "https://example.com/accredit"
+            }
+        ],
+        "roles": [
+            "accreditor"
+        ],
+        "topics": [
+            "banking"
+        ],
         "version": "1.0"
     },
-    "issuer": "did:orb:EiDdRGN4x2S4D0xYTPaJEHcD50Sq5fgv0sUfbdgY7x6lkQ",
+    "issuanceDate": "2021-07-06T17:20:57.736460722Z",
+    "issuer": "did:orb:interim:EiAbjeimRkgIIswIPpHpWO3JeXZg3eeuVjlzzCeAjgOC-g",
     "proof": {
-        "created": "2020-08-28T15:57:53.7002191Z",
-        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..oRWsB66_fgroRx2YQN1peaz7k636QOahd4etp8wyLCTR0WgEW1KzObgYxvz2AV0zJZHu0mvQi-9Uc5aXsWvBBA",
+        "created": "2021-07-06T17:20:57.851590383Z",
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..92EdftDqyPKq4HYjjwRrtYPUBVWukVxbhweNvque-QfMSkL7FKww-5Q25hq5uowa-6mFiV3UvB-9xC2x5s-eCg",
         "proofPurpose": "assertionMethod",
         "type": "Ed25519Signature2018",
-        "verificationMethod": "did:orb:EiDdRGN4x2S4D0xYTPaJEHcD50Sq5fgv0sUfbdgY7x6lkQ#G0E1sRYZv4EQg5EkcNRo"
+        "verificationMethod": "did:orb:interim:EiAbjeimRkgIIswIPpHpWO3JeXZg3eeuVjlzzCeAjgOC-g#a5hRq_BgA-TU0-RUsuhoIo3qQhrTEt2iKO9MPDeZ2fc"
     },
-    "type": ["VerifiableCredential", "GovernanceCredential"]
+    "type": [
+        "VerifiableCredential",
+        "GovernanceCredential"
+    ]
 }
 
 const vaccinationVC = {
@@ -195,17 +216,18 @@ const vaccinationVC = {
         "https://w3id.org/security/bbs/v1"
     ],
     "credentialStatus": {
-        "id": "https://issuer-vcs.trustbloc.local/status/1#2",
-        "revocationListCredential": "https://issuer-vcs.trustbloc.local/status/1",
-        "revocationListIndex": "2",
+        "id": "https://issuer-vcs.stg.trustbloc.dev/didkey-bbsblssignature2020-bls12381g2/status/1#3",
+        "revocationListCredential": "https://issuer-vcs.stg.trustbloc.dev/didkey-bbsblssignature2020-bls12381g2/status/1",
+        "revocationListIndex": "3",
         "type": "RevocationList2020Status"
     },
     "credentialSubject": {
-        "administeringCentre": "MoH",
+        "administeringCentre": "FEMA",
         "batchNumber": "1183738569",
-        "countryOfVaccination": "NZ",
-        "healthProfessional": "MoH",
-        "id": "did:orb:AiMP4:EiA2Gtl-qHKjTouzu-Rd0cYOwQxJ-qN0DO0HNnhfXXCqCg",
+        "countryOfVaccination": "US",
+        "dateOfVaccination": "2021-02-01",
+        "healthProfessional": "FEMA",
+        "id": "did:orb:interim:EiDyiUSqnYPQwMstHKfAY69uU1rbggoUq31edX-LmVD1AQ",
         "recipient": {
             "birthDate": "1958-07-17",
             "familyName": "Pasteur",
@@ -223,17 +245,17 @@ const vaccinationVC = {
         }
     },
     "description": "COVID-19 Vaccination Certificate for Mr.Louis Pasteur",
-    "id": "http://example.com/44423652-552c-40f9-8595-43be8cfa5984",
-    "issuanceDate": "2021-03-11T14:50:59.6017643Z",
+    "id": "http://example.com/9ac3a5da-cd1f-45d1-bfe4-de465c1dd750",
+    "issuanceDate": "2021-07-06T22:44:27.569613748Z",
     "issuer": {
         "id": "did:key:zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ",
         "name": "didkey-bbsblssignature2020-bls12381g2"
     },
     "name": "COVID-19 Vaccination Certificate",
     "proof": {
-        "created": "2021-03-11T14:51:21.1789952Z",
+        "created": "2021-07-06T22:45:54.16001986Z",
         "proofPurpose": "assertionMethod",
-        "proofValue": "kRv3ZnVgvYuFOhgYqm2P-dapKcQX345MnAs0xpuWNER0FMesDCHwF31vLh80KGjJTdgxxNEidQf4_ucMFSwlhghZXDUwu72rxwBfcUOWjI1sjjVBN91RzqFGNbk73v43oIhzVaLBSziR0lECgQ6ETA",
+        "proofValue": "sX3b4Y4kpdzHtxGVUkTJ_xKJC1IWCk8EMahJsfFK05vb56QTwBR6cqnlyRXic-AzUwTNH8jKShrj8DP0X0UHX9JvRowQcIwR_99PDvk1nuIgDYh1f3SmKCjRmd5eX6H7E2IQTSiodv9FU1AgTA6otg",
         "type": "BbsBlsSignature2020",
         "verificationMethod": "did:key:zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ#zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ"
     },
@@ -312,26 +334,68 @@ const manifest = {
         "https://www.w3.org/2018/credentials/v1",
         "https://trustbloc.github.io/context/vc/issuer-manifest-credential-v1.jsonld"
     ],
+    "credentialSubject": {
+        "contexts": [
+            "https://trustbloc.github.io/context/vc/examples/driver-license-evidence-v1.jsonld"
+        ],
+        "id": "8c0dd6f4-3d8f-412b-a7f1-37bd654910ab"
+    },
+    "id": "urn:uuid:89eb3c32-66b8-41dc-a979-e5046dcfd552",
+    "issuanceDate": "2021-07-09T14:39:34.701694635Z",
+    "issuer": "urn:uuid:e3142aa2-1a36-46be-9f4d-42016f434c67",
+    "name": "TrustBloc - Driving License + Assurance Issuer",
     "type": [
         "VerifiableCredential",
         "IssuerManifestCredential"
-    ],
-    "name": "Example Issuer Manifest Credential",
-    "description": "List of verifiable credentials provided by example issuer",
-    "id": "http://example.gov/credentials/ff98f978-588f-4eb0-b17b-60c18e1dac2c",
-    "issuanceDate": "2020-03-16T22:37:26.544Z",
-    "issuer": "did:factom:5d0dd58757119dd437c70d92b44fbf86627ee275f0f2146c3d99e441da342d9f",
-    "credentialSubject": {
-        "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
-        "contexts": [
-            "https://w3id.org/citizenship/v3"
-        ]
-    }
+    ]
 }
 
+
+const dl = {
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://trustbloc.github.io/context/vc/examples/mdl-v1.jsonld"
+    ],
+    "credentialSubject": {
+        "birthdate": "1990-01-01",
+        "document_number": "123-456-789",
+        "driving_privileges": "G2",
+        "expiry_date": "2025-05-26",
+        "family_name": "Smith",
+        "given_name": "John",
+        "issue_date": "2020-05-27",
+        "issuing_authority": "Ministry of Transport Ontario",
+        "issuing_country": "Canada",
+        "resident_address": "4726 Pine Street",
+        "resident_city": "Toronto",
+        "resident_postal_code": "A1B 2C3",
+        "resident_state": "Ontario"
+    },
+    "description": "Drivers License for John Smith (Issued by Government of Castleham)",
+    "id": "urn:uuid:a48d5a50-6599-474f-a869-ccde02474621",
+    "issuanceDate": "2021-07-09T14:39:34.791766913Z",
+    "issuer": {
+        "id": "https://demo-issuer.stg.trustbloc.dev/didcomm",
+        "name": "TrustBloc - Driving License + Assurance Issuer"
+    },
+    "name": "Drivers License",
+    "proof": {
+        "created": "2021-07-09T14:39:34.871724696Z",
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..mzklqGejisl2Law15Mnm-kvWnz9a3Ghd4X5FspDht3Fwi-idtBuW2m_dLkaV9CV29jlYqmW3uBefe0ioGGOfDw",
+        "proofPurpose": "assertionMethod",
+        "type": "Ed25519Signature2018",
+        "verificationMethod": "did:orb:interim:EiDNdiR8SzDwHUxM1gI-684r4TXgnIlet4NNjOzl8JxAdA#fchKuTonCSsgeFzActt8VstqKfkR5t6W20W9IP7AghE"
+    },
+    "type": [
+        "VerifiableCredential",
+        "mDL"
+    ]
+}
+
+
 const presentationExchangeQuery = {
-    "type": "PresentationDefinitionQuery",
-    "presentationDefinitionQuery": {
+    "type": "PresentationExchange",
+    "credentialQuery": {
         "id": "32f54163-7166-48f1-93d8-ff217bdb0653",
         "submission_requirements": [{
             "name": "Citizenship Information",
@@ -396,6 +460,71 @@ const presentationExchangeQuery = {
     }
 }
 
+const presentationExchange2 = {
+    "type": "PresentationExchange",
+    "credentialQuery": {
+        "id": "be2be4cc-51af-41c9-b0ce-00bf82d13228",
+        "input_descriptors": [
+            {
+                "id": "driver_license:local",
+                "name": "Driver's license.",
+                "purpose": "Verify your identity.",
+                "schema": [
+                    {
+                        "uri": "https://trustbloc.github.io/context/vc/examples/mdl-v1.jsonld#mDL"
+                    }
+                ]
+            },
+            {
+                "id": "credit_score:remote",
+                "name": "Authorization to access your credit score.",
+                "purpose": "Determine eligibility for the service.",
+                "schema": [
+                    {
+                        "uri": "https://trustbloc.github.io/context/vc/authorization-credential-v1.jsonld#AuthorizationCredential"
+                    }
+                ],
+                "constraints": {
+                    "fields": [
+                        {
+                            "path": [
+                                "$.credentialSubject.scope[*].schema.uri"
+                            ],
+                            "filter": {
+                                "type": "string",
+                                "const": "https://trustbloc.github.io/context/vc/examples/credit-score-v1.jsonld"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "driver_license_evidence:remote",
+                "name": "Authorization to verify your driver's license.",
+                "purpose": "We need your consent to verify issuance of your driver's license.",
+                "schema": [
+                    {
+                        "uri": "https://trustbloc.github.io/context/vc/authorization-credential-v1.jsonld#AuthorizationCredential"
+                    }
+                ],
+                "constraints": {
+                    "fields": [
+                        {
+                            "path": [
+                                "$.credentialSubject.scope[*].schema.uri"
+                            ],
+                            "filter": {
+                                "type": "string",
+                                "const": "https://trustbloc.github.io/context/vc/examples/driver-license-evidence-v1.jsonld"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
+
 const presExchangeDIDComm = {
     web: {
         VerifiablePresentation: {
@@ -416,7 +545,7 @@ const presExchangeDIDCommGovnVC = {
     web: {
         VerifiablePresentation: {
             query: [
-                presentationExchangeQuery,
+                presentationExchange2,
                 {
                     type: "DIDConnect",
                     invitation,
@@ -609,7 +738,7 @@ const multipleQuery2 = {
                                     "familyName": {}
                                 }
                             }
-                        } ,
+                        },
                         example: {
                             "@context": [
                                 "https://www.w3.org/2018/credentials/v1",
@@ -621,7 +750,89 @@ const multipleQuery2 = {
                         }
                     }
                 }
-            ]
+            ],
+            challenge: uuid(),
+            domain: "example.com"
+        }
+    }
+}
+
+const multipleQuery3 = {
+    web: {
+        VerifiablePresentation: {
+            query: [
+                {
+                    type: "QueryByExample",
+                    credentialQuery: {
+                        reason: "Please present your booking reference.",
+                        example: {
+                            "@context": [
+                                "https://www.w3.org/2018/credentials/v1",
+                                "https://trustbloc.github.io/context/vc/examples/booking-ref-v1.jsonld"
+                            ],
+                            type: ["BookingReferenceCredential"]
+                        }
+                    }
+                },
+                {
+                    type: "QueryByExample",
+                    credentialQuery: {
+                        reason: "Please present your identity document.",
+                        example: {
+                            "@context": [
+                                "https://www.w3.org/2018/credentials/v1",
+                                "https://w3id.org/citizenship/v1",
+                                "https://w3id.org/security/bbs/v1"
+                            ],
+                            type: ["PermanentResidentCard"]
+                        }
+                    }
+                },
+                {
+                    type: "QueryByFrame",
+                    credentialQuery: {
+                        reason: "Please present your proof of vaccination.",
+                        frame: {
+                            "@context": [
+                                "https://www.w3.org/2018/credentials/v1",
+                                "https://w3id.org/vaccination/v1",
+                                "https://w3id.org/vc-revocation-list-2020/v1",
+                                "https://w3id.org/security/bbs/v1"
+                            ],
+                            "type": [
+                                "VerifiableCredential",
+                                "VaccinationCertificate"
+                            ],
+                            "@explicit": true,
+                            "issuer": {},
+                            "issuanceDate": {},
+                            "credentialSubject": {
+                                "@explicit": true,
+                                "type": "VaccinationEvent",
+                                "countryOfVaccination": {},
+                                "recipient": {
+                                    "@explicit": true,
+                                    "type": "VaccineRecipient",
+                                    "givenName": {},
+                                    "familyName": {}
+                                }
+                            }
+                        },
+                        example: {
+                            "@context": [
+                                "https://www.w3.org/2018/credentials/v1",
+                                "https://w3id.org/vaccination/v1",
+                                "https://w3id.org/vc-revocation-list-2020/v1",
+                                "https://w3id.org/security/bbs/v1"
+                            ],
+                            type: ["VaccinationCertificate"]
+                        }
+                    }
+                },
+                presentationExchangeQuery
+            ],
+            challenge: uuid(),
+            domain: "example.com"
         }
     }
 }
@@ -666,7 +877,7 @@ const didConnQueryWithManifestAndUcred = {
         VerifiablePresentation: {
             query: {type: "DIDConnect"},
             invitation,
-            credentials: [manifest, prc, udc],
+            credentials: [manifest, dl],
             challenge: uuid(),
             domain: "example.com"
         }
@@ -678,11 +889,9 @@ const didConnQueryWithManifestGovnAndUcred = {
         VerifiablePresentation: {
             query: {type: "DIDConnect"},
             invitation,
-            credentials: [manifest, govnVC, prc, udc],
+            credentials: [manifest, govnVC, prc, dl],
             challenge: uuid(),
             domain: "example.com"
         }
     }
 }
-
-

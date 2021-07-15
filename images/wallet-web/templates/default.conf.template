@@ -52,6 +52,7 @@ server {
             "edvServerURL":"${EDV_SERVER_URL}",
             "edge-agent-server":"${EDGE_AGENT_SERVER}",
             "kmsType":"${KMS_TYPE}",
+            "localKMSPassphrase":"${LOCAL_KMS_PASSPHRASE}",
             "useEDVCache":${USE_EDV_CACHE},
             "edvClearCache": "${EDV_CLEAR_CACHE}",
             "useEDVBatch": ${USE_EDV_BATCH},

@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-
+// TO BE USED FOR DEMO SCREENS ONLY, NOT A WALLET FEATURE
 export default {
     actions: {
         onIssueCredentialState({dispatch}, notice) {

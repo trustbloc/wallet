@@ -4,16 +4,17 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import {WalletManager} from '../register/walletManager'
-import {WalletStore} from '../store/saveCredential'
-import {DIDExchange} from '../common/didExchange'
-import {BlindedRouter} from '../didcomm/blindedRouter'
-import {getCredentialType, filterCredentialsByType} from "..";
+import {CHAPIEventHandler} from '../'
+import {BlindedRouter, CredentialManager, DIDExchange} from "@trustbloc/wallet-sdk"
+import jp from 'jsonpath';
 
 const manifestCredType = "IssuerManifestCredential"
 const governanceCredType = "GovernanceCredential"
 
-var uuid = require('uuid/v4')
+var blindedRoutingDisabled = {
+    sharePeerDID: () => {
+    }
+}
 
 /**
  * DIDConn provides CHAPI did connection/exchange features
@@ -21,98 +22,68 @@ var uuid = require('uuid/v4')
  * @class
  */
 export class DIDConn {
-    constructor(agent, startupOpts, credEvent, walletUser) {
-        this.agent = agent
-        this.walletUser = walletUser
-        this.walletManager = new WalletManager(agent)
-        this.walletStore = new WalletStore(agent, startupOpts, credEvent, walletUser)
+    constructor(agent, profile, startupOpts, credEvent) {
         this.exchange = new DIDExchange(agent)
-        this.blindedRouter = new BlindedRouter(agent, startupOpts)
-        this.credEvent = credEvent
+        this.blindedRouter = startupOpts.blindedRouting ? new BlindedRouter(agent) : blindedRoutingDisabled
+        this.chapiHandler = new CHAPIEventHandler(credEvent)
+        this.credentialManager = new CredentialManager({agent, user: profile.user})
+        this.profile = profile
 
-        const {domain, challenge, invitation, credentials} = getRequestParams(credEvent);
+        let {domain, challenge, invitation, credentials=[]} = this.chapiHandler.getEventData();
+
         this.domain = domain
         this.challenge = challenge
         this.invitation = invitation
-        this.credentials = credentials
-    }
 
-    getUserCredentials() {
-        return this.credentials ? filterCredentialsByType(this.credentials, [manifestCredType, governanceCredType]) : []
-    }
-
-    getGovernanceCredential() {
-        let govnVCs = this.credentials ? filterCredentialsByType(this.credentials, [governanceCredType], true) : []
 
         /*
-           TODO:
-            * current assumption - expecting only one governance VC in request, may be support for multiple.
-            * correlate governance VC with requesting party so that consent for trust gets shown only once.
-            * verify governance VC proof.
-            * verify requesting party in governance framework to make sure this party of behaving properly.
-            * request party to get challenged to produce a VP that the governance credential agency has accredited them.
-          */
-        return govnVCs.length > 0 ? govnVCs[0] : undefined
+          TODO:
+           * current assumption - expecting only one governance VC in request, may be support for multiple.
+           * correlate governance VC with requesting party so that consent for trust gets shown only once.
+           * verify governance VC proof.
+           * verify requesting party in governance framework to make sure this party of behaving properly.
+           * request party to get challenged to produce a VP that the governance credential agency has accredited them.
+         */
+        // govn vc
+        let govnVCs = jp.query(credentials, `$[?(@.type.indexOf('${governanceCredType}') != -1)]`)
+        this.govnVC = govnVCs.length > 0 ? govnVCs[0] : undefined
+
+        // manifest VC
+        let manifest = jp.query(credentials, `$[?(@.type.indexOf('${manifestCredType}') != -1)]`)
+        this.manifestVC = manifest.length > 0 ? manifest[0] : undefined
+
+        // user credentials
+        this.userCredentials = jp.query(credentials, `$[?(@.type.indexOf('${governanceCredType}') == -1 && @.type.indexOf('${manifestCredType}') == -1)]`)
     }
 
-    async connect() {
-        console.time('wallet connect time');
-
-        // perform did exchange
-        console.time('did connect time');
+    async connect(preference) {
         let connection = await this.exchange.connect(this.invitation)
-        console.timeEnd('did connect time');
 
-        // share peer DID with inviter for blinded routing
-        console.time('blinded routing time');
         await this.blindedRouter.sharePeerDID(connection.result)
-        console.timeEnd('blinded routing time');
 
-        // save wallet metadata
-        console.time('get wallet metadata time');
-        let walletMetadata = await this.walletManager.getWalletMetadata(this.walletUser)
-        console.timeEnd('get wallet metadata time');
-
-        if (!walletMetadata.connections) {
-            walletMetadata.connections = []
+        // save credentials + manifestVCs
+        let saveQueue = []
+        if (this.manifestVC) {
+            saveQueue.push(this.credentialManager.saveManifestCredential(this.profile.token, this.manifestVC, connection.result.ConnectionID))
         }
-        walletMetadata.connections.push(connection.result.ConnectionID)
-
-        console.time('store wallet metadata time');
-        await this.walletManager.storeWalletMetadata(walletMetadata, walletMetadata)
-        console.timeEnd('store wallet metadata time');
-
-        // save credentials
-        if (this.credentials) {
-            for (let credential of this.credentials) {
-                if (getCredentialType(credential.type) == manifestCredType) {
-                    console.time('store manifest time');
-                    await this.walletManager.storeManifest(connection.result.ConnectionID, credential)
-                    console.timeEnd('store manifest time');
-                } else {
-                    console.time('save vc time');
-                    await this.walletStore.save(uuid(), credential)
-                    console.timeEnd('save vc time');
-                }
-            }
+        if (this.userCredentials.length > 0) {
+            saveQueue.push(this.credentialManager.save(this.profile.token, {credentials: this.userCredentials}))
         }
+        await Promise.all(saveQueue)
 
-        let responseData = await this._didConnResponse(walletMetadata, connection.result)
-        // need to flush
-        await this.agent.store.flush()
-        this.sendResponse("VerifiablePresentation", responseData)
-        console.timeEnd('wallet connect time');
+
+        await this._createConnectionResponse(connection.result, preference)
     }
 
-
-    async _didConnResponse(walletMetadata, connection) {
+    async _createConnectionResponse(connection, preference) {
+        let {controller, proofType, verificationMethod} = preference
 
         let credential = {
             "@context": [
                 "https://www.w3.org/2018/credentials/v1",
                 "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
             ],
-            issuer: walletMetadata.did,
+            issuer: controller,
             issuanceDate: new Date(),
             type: ["VerifiableCredential", "DIDConnection"],
             credentialSubject: {
@@ -125,97 +96,25 @@ export class DIDConn {
             }
         }
 
-        // create did connection VC
-        let vc, failure
-        await this.agent.verifiable.signCredential({
-            credential: credential,
-            did: walletMetadata.did,
-            signatureType: walletMetadata.signatureType
-        }).then(resp => {
-                if (!resp.verifiableCredential) {
-                    failure = "failed to create did connection credential"
-                    return
-                }
-
-                vc = resp.verifiableCredential
-            }
-        ).catch(err => {
-            failure = err
+        let issued = await this.credentialManager.issue(this.profile.token, credential, {
+            controller,
+            proofType,
+            verificationMethod
         })
 
-        if (failure) {
-            console.error("failed to create didconnection credential", failure)
-            return failure
-        }
-
-        // create did connection response VP
-        let presentation = {
-            "@context": [
-                "https://www.w3.org/2018/credentials/v1"
-            ],
-            type: "VerifiablePresentation",
-            holder: walletMetadata.did,
-            verifiableCredential: [vc]
-        }
-
-        let data
-        await this.agent.verifiable.generatePresentation({
-            presentation: presentation,
+        let {presentation} = await this.credentialManager.present(this.profile.token, {rawCredentials: [issued.credential]}, {
+            controller,
+            proofType,
+            verificationMethod,
             domain: this.domain,
-            challenge: this.challenge,
-            did: walletMetadata.did,
-            signatureType: walletMetadata.signatureType,
-            skipVerify: true,
-        }).then(resp => {
-                if (!resp.verifiablePresentation) {
-                    data = "failed to create did connection presentation"
-                    return
-                }
-
-                data = resp.verifiablePresentation
-            }
-        ).catch(err => {
-            data = err
-            console.log('failed to create presentation, errMsg:', err)
+            challenge: this.challenge
         })
 
-        return data
+        this.chapiHandler.present(presentation)
     }
 
     cancel() {
-        this.sendResponse("Response", "permission denied")
-    }
-
-    sendResponse(type, data) {
-        this.credEvent.respondWith(new Promise(function (resolve) {
-            return resolve({
-                dataType: type,
-                data: data
-            });
-        }))
+        this.chapiHandler.cancel()
     }
 }
 
-function getRequestParams(credEvent) {
-    if (!credEvent.credentialRequestOptions.web.VerifiablePresentation) {
-        throw "invitation not found in did connect credential event"
-    }
-
-    const verifiable = credEvent.credentialRequestOptions.web.VerifiablePresentation
-
-    let {challenge, domain, query, invitation, credentials} = verifiable;
-
-    if (query && query.challenge) {
-        challenge = query.challenge;
-    }
-
-    if (query && query.domain) {
-        domain = query.domain;
-    }
-
-    if (!domain && credEvent.credentialRequestOrigin) {
-        domain = credEvent.credentialRequestOrigin.split('//').pop()
-    }
-
-    return {domain, challenge, invitation, credentials}
-}

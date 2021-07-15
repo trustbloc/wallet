@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import {getMediatorConnections} from "../../pages/chapi/wallet/didcomm/mediator.js"
+import {getMediatorConnections} from "@trustbloc/wallet-sdk"
 
 export default {
     actions: {
@@ -31,7 +31,7 @@ export default {
             // creates invitation through the out-of-band protocol
             let res = await agent.outofband.createInvitation({
                 label: label,
-                router_connection_id: await getMediatorConnections(agent, true)
+                router_connection_id: await getMediatorConnections(agent, {single: true})
             })
 
             return res.invitation
@@ -40,7 +40,7 @@ export default {
             let agent = getters['agent/getInstance']
             agent.didexchange.acceptExchangeRequest({
                 id: id,
-                router_connections: await getMediatorConnections(agent, true),
+                router_connections: await getMediatorConnections(agent, {single: true}),
             }).then(() => dispatch('queryConnections'))
         },
         async acceptInvitation({dispatch, getters}, payload) {
@@ -48,7 +48,7 @@ export default {
             // accepts invitation thought out-of-band protocol
             let res = await agent.outofband.acceptInvitation({
                 ...payload,
-                router_connections: await getMediatorConnections(agent, true)
+                router_connections: await getMediatorConnections(agent, {single: true})
             })
 
             dispatch('queryConnections')

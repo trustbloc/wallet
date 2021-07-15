@@ -22,7 +22,7 @@ SPDX-License-Identifier: Apache-2.0
                             <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured communication.
                         </span>
                     </md-label>
-                    <div class="md-card px-24" md-with-hover v-if="verifiableCredentials.length">
+                    <div class="md-card px-24" md-with-hover v-if="cards.length">
                         <md-card-content>
                             <ul class="credential-list">
                                 <li v-on:click="toggleCard(card)" v-for="(card, index) in cards" :key="index">
@@ -30,50 +30,54 @@ SPDX-License-Identifier: Apache-2.0
                                         <div v-if="!card.flipped" v-bind:key="card.flipped" class="card">
                                             <div class="cardContent">
                                                 <div class="cardHeader">
-                                                    {{credDisplayName(card)}}
+                                                    {{credDisplayName(card.content)}}
                                                 </div>
 
-                                <university-card
-                                        v-if="credDisplayName(card) === 'Bachelor Degree' || credDisplayName(card) === 'University Degree Credential'"
-                                        :item="card"
-                                />
-                                <permanent-resident-card
-                                        v-else-if="credDisplayName(card) === 'Permanent Resident Card'"
-                                        :item="card"
-                                />
-                                <travel-card
-                                        v-else-if="credDisplayName(card) === 'Travel Card'"
-                                        :item="card"
-                                />
-                                <student-card
-                                        v-else-if="credDisplayName(card) === 'Student Card'"
-                                        :item="card"
-                                />
-                                <drivers-license
-                                        v-else-if="credDisplayName(card) === 'Drivers License'"
-                                        :item="card"
-                                />
-                                <crude-product-card
-                                        v-else-if="credDisplayName(card) === 'Heavy Sour Dilbit' || credDisplayName(card) === 'Crude Product Credential'"
-                                        :item="card"
-                                />
-                                <mill-test-card
-                                        v-else-if="credDisplayName(card) ===  'Steel Inc. CMTR' || credDisplayName(card) === 'Certified Mill Test Report'"
-                                        :item="card"
-                                />
-                                <general-card v-else :item="card"/>
+                                                <university-card
+                                                        v-if="credDisplayName(card.content) === 'Bachelor Degree' || credDisplayName(card.content) === 'University Degree Credential'"
+                                                        :item="card.content"
+                                                />
+                                                <permanent-resident-card
+                                                        v-else-if="credDisplayName(card.content) === 'Permanent Resident Card'"
+                                                        :item="card.content"
+                                                />
+                                                <travel-card
+                                                        v-else-if="credDisplayName(card.content) === 'Travel Card'"
+                                                        :item="card.content"
+                                                />
+                                                <student-card
+                                                        v-else-if="credDisplayName(card.content) === 'Student Card'"
+                                                        :item="card.content"
+                                                />
+                                                <drivers-license
+                                                        v-else-if="credDisplayName(card.content) === 'Drivers License'"
+                                                        :item="card.content"
+                                                />
+                                                <crude-product-card
+                                                        v-else-if="credDisplayName(card.content) === 'Heavy Sour Dilbit' || credDisplayName(card.content) === 'Crude Product Credential'"
+                                                        :item="card.content"
+                                                />
+                                                <mill-test-card
+                                                        v-else-if="credDisplayName(card.content) ===  'Steel Inc. CMTR' || credDisplayName(card.content) === 'Certified Mill Test Report'"
+                                                        :item="card.content"
+                                                />
+                                                <general-card v-else :item="card.content"/>
 
-                            </div>
-                                <json-modal :item="verifiableCredentials[index]" />
-                            </div>
-                                <div v-else v-bind:key="card.flipped" class="card">
-                                    <div class="cardContent cardBack">
-                                        <p> Issuance Date: {{ card.credentialSubject.issue_date || card.credentialSubject.issuedate || card.issuanceDate || 'N/A' }} </p>
-                                        <p> Expiration Date: {{ card.credentialSubject.expiry_date || card.credentialSubject.cardexpires || card.expirationDate || 'N/A' }} </p>
-                                    </div>
-                                </div>
-                            </transition>
-                            </li>
+                                            </div>
+                                            <!--<json-modal :item="card.content" />-->
+                                        </div>
+                                        <div v-else v-bind:key="card.flipped" class="card">
+                                            <div class="cardContent cardBack">
+                                                <p> Issuance Date: {{ card.content.credentialSubject.issue_date ||
+                                                    card.content.credentialSubject.issuedate ||
+                                                    card.content.issuanceDate || 'N/A' }} </p>
+                                                <p> Expiration Date: {{ card.content.credentialSubject.expiry_date ||
+                                                    card.content.credentialSubject.cardexpires ||
+                                                    card.content.expirationDate || 'N/A' }} </p>
+                                            </div>
+                                        </div>
+                                    </transition>
+                                </li>
                             </ul>
                         </md-card-content>
                     </div>
@@ -91,8 +95,10 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-    import {filterCredentialsByType, getCredentialType} from "@/pages/chapi/wallet";
-    import {mapActions, mapGetters} from 'vuex'
+
+    import {CredentialManager} from "@trustbloc/wallet-sdk"
+    import {getCredentialType} from "@/pages/chapi/wallet";
+    import {mapGetters} from 'vuex'
     import {PulseLoader} from "@saeris/vue-spinners";
     import PermanentResidentCard from "../components/CredentialCards/PermanentResidentCard";
     import UniversityCard from "../components/CredentialCards/UniversityCard";
@@ -102,10 +108,8 @@ SPDX-License-Identifier: Apache-2.0
     import CrudeProductCard from "../components/CredentialCards/CrudeProductCard";
     import MillTestCard from "../components/CredentialCards/MillTestCard";
     import GeneralCard from "../components/CredentialCards/GeneralCard";
-    import JsonModal from "../components/CredentialCards/JsonModal";
 
-    const manifestCredType = "IssuerManifestCredential"
-    const governanceCredType = "GovernanceCredential"
+    const filterBy = ["IssuerManifestCredential", "GovernanceCredential"]
     // TODO: issue-627 Add generic vue card for all the credentials to dynamically add support for all VC types.
     export default {
         components: {
@@ -117,45 +121,38 @@ SPDX-License-Identifier: Apache-2.0
             DriversLicense,
             CrudeProductCard,
             MillTestCard,
-            GeneralCard,
-            JsonModal
+            GeneralCard
         },
         created: async function () {
-            // Load the Credentials
-            await this.getCredentials()
-            await this.fetchAllCredentials()
-            await this.refreshUserMetadata()
-
+            let {user, token} = this.getCurrentUser().profile
             this.username = this.getCurrentUser().username
+
+            let credentialManager = new CredentialManager({agent: this.getAgentInstance(), user})
+            this.fetchAllCredentials(credentialManager.getAll(token))
         },
         methods: {
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
-            ...mapGetters(['getCurrentUser', 'allCredentials', 'getAgentOpts']),
-            ...mapActions(['getCredentials', 'refreshUserMetadata']),
-            fetchAllCredentials: async function () {
-                this.verifiableCredentials = []
-                try {
-                    for (let c of filterCredentialsByType(this.allCredentials(), [manifestCredType, governanceCredType])) {
-                        let resp = await this.getAgentInstance().verifiable.getCredential({
-                            id: c.id
-                        })
-                        this.verifiableCredentials.push(JSON.parse(resp.verifiableCredential))
-                    }
-                } catch (e) {
-                    console.error('failed to get all stored credentials', e)
-                    this.error = 'Failed to get your stored credentials'
-                    this.errorDescription = 'Unable to get stored credentials from your wallet, please try again later.'
+            ...mapGetters(['getCurrentUser', 'getAgentOpts']),
+            fetchAllCredentials: async function (getCredential) {
+                let {contents} = await getCredential
+                console.log(`found ${Object.keys(contents).length} credentials`)
+
+                const _filter = (id) => {
+                    return !contents[id].type.some(t => filterBy.includes(t))
                 }
-                this.cards = this.verifiableCredentials.map((credential) => {
-                    return { ...credential, flipped: false };
 
-                });
+                const _createCard = (id) => {
+                    return {content: contents[id], flipped: false}
+                }
 
+                this.cards = Object.keys(contents).filter(_filter).map(_createCard)
+
+                console.log(`showing ${this.cards.length} credentials`)
             },
             credDisplayName: function (vc) {
                 return vc.name ? vc.name : getCredentialType(vc.type)
             },
-            toggleCard: function(card) {
+            toggleCard: function (card) {
                 card.flipped = !card.flipped;
             },
         },
@@ -166,7 +163,6 @@ SPDX-License-Identifier: Apache-2.0
         },
         data() {
             return {
-                verifiableCredentials: [],
                 cards: [],
                 username: '',
                 agent: null,
@@ -179,15 +175,16 @@ SPDX-License-Identifier: Apache-2.0
 
 <style scoped>
     .md-card {
-      display: inline-block !important;
-      position: relative !important;
-      width: 100% !important;
-      margin: 25px 0 !important;
-      overflow: unset !important;
-      background: none !important;
-      box-shadow:none !important;
-      -webkit-box-shadow: none !important;
+        display: inline-block !important;
+        position: relative !important;
+        width: 100% !important;
+        margin: 25px 0 !important;
+        overflow: unset !important;
+        background: none !important;
+        box-shadow: none !important;
+        -webkit-box-shadow: none !important;
     }
+
     ul.credential-list {
         padding-left: 0;
         display: flex;
@@ -205,7 +202,7 @@ SPDX-License-Identifier: Apache-2.0
         width: 360px;
         height: 233px;
         padding: 10px;
-        background-color: #FFFFFF ;
+        background-color: #FFFFFF;
         border-radius: 7px;
         margin: 5px;
         text-align: center;
@@ -215,12 +212,13 @@ SPDX-License-Identifier: Apache-2.0
         color: black;
         font-weight: 400;
         font-size: 16px;
-        -webkit-box-shadow: 9px 10px 22px -8px rgba(209,193,209,.5);
-        -moz-box-shadow: 9px 10px 22px -8px rgba(209,193,209,.5);
-        box-shadow: 9px 10px 22px -8px rgba(209,193,209,.5);
+        -webkit-box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, .5);
+        -moz-box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, .5);
+        box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, .5);
         will-change: transform;
         user-select: none;
     }
+
     .card i {
         color: rgb(11, 151, 196) !important;
     }
@@ -228,15 +226,18 @@ SPDX-License-Identifier: Apache-2.0
     .cardContent {
         text-align: left;
     }
+
     .cardHeader {
         font-weight: 500;
         padding: 10px 15px;
     }
+
     .cardBack {
-        padding-top:40px;
-        color: rgba(0,0,0,.54);
+        padding-top: 40px;
+        color: rgba(0, 0, 0, .54);
     }
-    li:hover{
+
+    li:hover {
         transform: scale(1.1);
     }
 
@@ -253,6 +254,7 @@ SPDX-License-Identifier: Apache-2.0
         opacity: 0;
 
     }
+
     .md-dialog-container {
         width: 100% !important;
     }

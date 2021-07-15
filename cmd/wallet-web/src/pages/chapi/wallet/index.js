@@ -4,19 +4,9 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-export * from './common/util.js';
+export * from './common/helper.js';
 export {PresentationExchange} from './common/presentationExchange.js'
-export {DIDManager} from './didmgmt/didManager.js';
-export {WalletStore} from './store/saveCredential.js';
-export {WalletGet} from './get/getCredentials.js';
+export {RegisterWallet} from './common/register.js';
 export {WalletGetByQuery} from './get/getCredentialsByQuery.js';
-export {SelectiveDisclosure} from './get/getCredentialsByFrame.js';
-export {MultipleQuery} from './get/multiQuery.js';
-export {DIDAuth} from './get/didAuth.js';
 export {DIDConn} from './get/didConn.js';
-export {RegisterWallet} from './register/register.js';
-export {WalletManager} from './register/walletManager.js';
-export * from './didcomm/mediator.js';
-export {BlindedRouter} from './didcomm/blindedRouter.js';
-export {DeviceRegister} from './device/register.js';
-export {DeviceLogin} from './device/login.js';
+export {CHAPIEventHandler, CHAPIHandler} from './handler/chapi';

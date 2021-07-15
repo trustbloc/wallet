@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 import Ajv from 'ajv';
 import jp from 'jsonpath';
 import {presentationDefSchema} from './presentationDefSchema';
-import {getCredentialType} from './util'
+import {getCredentialType} from '..'
 
 
 const presentationSubmissionTemplate = `{
@@ -25,6 +25,7 @@ const presentationSubmissionTemplate = `{
 const defSubmissionRuleName = "Requested information"
 const defSubmissionRulePurpose = "We need below information from your wallet"
 const defSubmissionRule = "all conditions should be met"
+const manifestCredType = 'IssuerManifestCredential'
 
 /**
  * PresentationDefinition represents Presentation Definitions objects
@@ -71,9 +72,11 @@ export class PresentationExchange {
         this.descriptors = descriptors
     }
 
-    createPresentationSubmission(credentials, manifests) {
-        let results = []
+    createPresentationSubmission(vcs) {
+        let manifests = jp.query(vcs, `$[?(@.type.indexOf('${manifestCredType}') != -1)]`)
+        let credentials = jp.query(vcs, `$[?(@.type.indexOf('${manifestCredType}') == -1)]`)
 
+        let results = []
         if (this.applyRules) {
             results = evaluateByRules(credentials, manifests, this.descriptorsByGroup, this.requirementObjs)
         } else {

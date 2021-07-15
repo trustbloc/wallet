@@ -17,7 +17,7 @@ SPDX-License-Identifier: Apache-2.0
                 <b>Failed with following error(s):</b>
                 <md-field style="margin-top: -15px">
                     <ul>
-                        <li v-for="error in errors" :key="error">{{ error }}</li>
+                        <li v-for="error in errors" :key="error" style="color: #9d0006;">{{ error }}</li>
                     </ul>
                 </md-field>
             </div>
@@ -158,28 +158,28 @@ SPDX-License-Identifier: Apache-2.0
     export default {
         components: {Governance},
         created: async function () {
-            this.wallet = new WalletGetByQuery(this.getAgentInstance(), this.$parent.credentialEvent, this.getAgentOpts())
-            await this.wallet.connect()
+            let {user, token} = this.getCurrentUser().profile
+            this.wallet = new WalletGetByQuery(this.getAgentInstance(), this.$parent.credentialEvent, this.getAgentOpts(), user)
+            // make sure mediator is connected
+            await this.wallet.connectMediator()
 
-            this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
+            // TODO handling multiple governance VCs
+            this.govnVC = this.wallet.govnVC
+            this.requestOrigin = this.wallet.credentialHandler.getRequestor()
+            this.requirements = this.wallet.requirementDetails()
 
             try {
-                this.presentation = await this.wallet.getPresentationSubmission()
+                this.presentation = await this.wallet.getPresentationSubmission(token)
             } catch (e) {
                 this.credentialWarning = "Some unexpected error occurred, please try again later"
                 this.loading = false
                 return
             }
 
-            this.requirements = this.wallet.requirementDetails()
-
             let vcsFound = []
             this.presentation.verifiableCredential.forEach(function (vc) {
                 vcsFound.push(vc)
             })
-
-            // TODO handling multiple governance VCs
-            this.govnVC = this.wallet.govnVC.length > 0 ? this.wallet.govnVC[0] : undefined
 
             this.loading = false
 
@@ -202,7 +202,8 @@ SPDX-License-Identifier: Apache-2.0
                 credentialWarning: "",
                 searched: [],
                 reason: "",
-                requirements: []
+                requirements: [],
+                govnVC: null
             };
         },
         methods: {
@@ -210,14 +211,20 @@ SPDX-License-Identifier: Apache-2.0
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
             createPresentation: async function () {
                 this.loading = true
-                await this.wallet.createAndSendPresentation(this.getCurrentUser().username, this.presentation, this.selectedVCs)
+                this.errors = []
+                try {
+                    await this.wallet.createAndSendPresentation(this.getCurrentUser(), this.presentation, this.selectedVCs)
+                } catch (e) {
+                    console.error(e)
+                    this.errors.push('failed to share credential, please try again later.')
+                }
                 this.loading = false
             },
             cancel: async function () {
                 this.wallet.cancel()
             },
             noCredential: async function () {
-                this.wallet.sendNoCredntials()
+                this.wallet.sendNoCredentials()
             },
             isManifest(vc) {
                 return getCredentialType(vc.type) == manifestCredType

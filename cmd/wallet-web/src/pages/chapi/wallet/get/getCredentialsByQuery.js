@@ -4,41 +4,37 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import {WalletGet} from "./getCredentials";
 import jp from 'jsonpath';
 import {PresentationExchange} from '../common/presentationExchange'
-import {WalletManager} from "../register/walletManager";
-import {getCredentialType} from '../common/util'
-import {DIDExchange} from '../common/didExchange'
-import {BlindedRouter} from '../didcomm/blindedRouter'
-import {DIDManager} from '../didmgmt/didManager'
+import {BlindedRouter, CredentialManager, DIDExchange, DIDManager} from "@trustbloc/wallet-sdk"
+import {CHAPIEventHandler, normalizeQuery, getCredentialType} from '../'
 
 var uuid = require('uuid/v4')
 
-const responseType = 'VerifiablePresentation'
 const manifestType = 'IssuerManifestCredential'
 const didDocReqMsgType = 'https://trustbloc.dev/adapter/1.0/diddoc-req'
 const didDocResMsgType = 'https://trustbloc.dev/adapter/1.0/diddoc-resp'
+
+var blindedRoutingDisabled = {
+    sharePeerDID: () => {
+    }
+}
 
 /**
  * WalletGetByQuery provides CHAPI get vp features
  * @param agent instance & credential event
  * @class
  */
-export class WalletGetByQuery extends WalletGet {
-    constructor(agent, credEvent, opts) {
-        super(agent, credEvent);
+export class WalletGetByQuery {
+    constructor(agent, credEvent, opts, user) {
+        this.agent = agent
+        this.credentialHandler = new CHAPIEventHandler(credEvent)
+        let {query} = this.credentialHandler.getEventData()
 
-        // validate query and init Presentation Exchange
-        let query = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="PresentationDefinitionQuery")]');
-        if (query.length == 0) {
-            throw "invalid request, incorrect query type"
-        }
+        let presExchQuery = normalizeQuery(jp.query(query, `$[?(@.type=="PresentationExchange")]`))
+        this.invitation = jp.query(query, '$[?(@.type=="DIDConnect")].invitation');
 
-        this.exchange = new PresentationExchange(query[0].presentationDefinitionQuery)
-
-        this.invitation = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="DIDConnect")].invitation');
-
+        console.log('presExchQuery', JSON.stringify(presExchQuery, null, 2))
         /*
           TODO:
            * current assumption - expecting only one governance VC in request, may be support for multiple.
@@ -47,87 +43,66 @@ export class WalletGetByQuery extends WalletGet {
            * verify requesting party in governance framework to make sure this party of behaving properly.
            * request party to get challenged to produce a VP that the governance credential agency has accredited them.
          */
-        this.govnVC = jp.query(credEvent, '$..credentialRequestOptions.web.VerifiablePresentation.query[?(@.type=="DIDConnect")].credentials[?(@.type[0]=="GovernanceCredential" || @.type[1]=="GovernanceCredential")]');
+        let govnVCs = jp.query(query, `$[?(@.type=="DIDConnect")].credentials[?(@.type.indexOf("GovernanceCredential") != -1)]`);
+        this.govnVC = govnVCs.length > 0 ? govnVCs[0] : undefined
 
-        this.walletManager = new WalletManager(agent)
-        this.blindedRouter = new BlindedRouter(agent, opts)
-        this.didManager = new DIDManager(agent, opts)
+        this.blindedRouter = opts.blindedRouting ? new BlindedRouter(agent) : blindedRoutingDisabled
+        this.didManager = new DIDManager({agent, user})
         this.didExchange = new DIDExchange(agent)
+        this.credentialManager = new CredentialManager({agent, user})
+        this.presenationExchange = new PresentationExchange(presExchQuery[0].credentialQuery[0])
     }
 
     requirementDetails() {
-        return this.exchange.requirementDetails()
+        return this.presenationExchange.requirementDetails()
     }
 
-    async connect() {
-        // make sure mediator is connected
+    async connectMediator() {
         await this.agent.mediator.reconnectAll()
     }
 
-    async getPresentationSubmission() {
-        let credentials = await super.getCredentialRecords()
+    async getPresentationSubmission(token) {
+        let {contents} = await this.credentialManager.getAll(token)
+        let vcs = Object.keys(contents).map(k => contents[k])
 
-        let vcs = []
-        for (let credential of credentials) {
-            const resp = await this.agent.verifiable.getCredential({
-                id: credential.key
-            })
-
-            vcs.push(JSON.parse(resp.verifiableCredential))
-        }
-
-        let manifests = await this.walletManager.getAllManifests()
-        let submission = this.exchange.createPresentationSubmission(vcs, manifests)
-
-        return submission
+        return this.presenationExchange.createPresentationSubmission(vcs)
     }
 
-    async createAndSendPresentation(walletUser, presentationSubmission, selectedIndexes) {
-        try {
-            // remove unselected VCs from final presentation submission and get authorization credentials for matched manifests.
-            if (selectedIndexes && selectedIndexes.length > 0) {
-                presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes)
+    async createAndSendPresentation(user, presentationSubmission, selectedIndexes) {
+        // remove unselected VCs from final presentation submission and get authorization credentials for matched manifests.
+        if (selectedIndexes && selectedIndexes.length > 0) {
+            presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes)
 
-                if (this.invitation.length > 0) {
-                    presentationSubmission = await this._getAuthorizationCredentials(presentationSubmission)
-                }
+            if (this.invitation.length > 0) {
+                presentationSubmission = await this._getAuthorizationCredentials(presentationSubmission, user.profile)
             }
-
-            let walletMetadata = await this.walletManager.getWalletMetadata(walletUser)
-
-            let data
-            await this.agent.verifiable.generatePresentation({
-                presentation: presentationSubmission,
-                did: walletMetadata.did,
-                domain: this.domain,
-                challenge: this.challenge,
-                skipVerify: true,
-                signatureType: walletMetadata.signatureType
-            }).then(resp => {
-                    data = resp.verifiablePresentation
-                }
-            )
-
-            // need to flush
-            await this.agent.store.flush()
-            this.sendResponse(responseType, data)
-        } catch (e) {
-            console.error('sending response error', e)
-            this.sendResponse("error", e)
         }
 
+        let {controller, proofType, verificationMethod} = user.preference
+        let {domain, challenge} = this.credentialHandler.getEventData()
+        let {token} = user.profile
+
+        let {presentation} = await this.credentialManager.present(token, {presentation: presentationSubmission}, {
+            controller,
+            proofType,
+            verificationMethod,
+            domain,
+            challenge
+        })
+
+        this.credentialHandler.present(presentation)
     }
 
     cancel() {
-        this.sendResponse("error", "wallet declined credential share")
+        this.credentialHandler.cancel()
     }
 
-    sendNoCredntials() {
-        this.sendResponse("error", "no credentials found for given presentation exchange request")
+    sendNoCredentials() {
+        this.credentialHandler.present({})
     }
 
 
-    async _getAuthorizationCredentials(presentationSubmission) {
+    async _getAuthorizationCredentials(presentationSubmission, profile) {
         let rpConn = await this.didExchange.connect(this.invitation[0], {waitForCompletion: true})
 
         // share peer DID with RP for blinded routing
@@ -143,13 +118,15 @@ export class WalletGetByQuery extends WalletGet {
             },
             "await_reply": {messageType: didDocResMsgType, timeout: 20000000000}, //TODO (#531): Reduce timeout once EDV storage speed is improved. Note: this value used to be 2 seconds (now it's 20).
         })
-
         // response could be byte array from RP
         let rpDIDDoc = Array.isArray(didDocRes.response.message.data.didDoc) ?
             JSON.parse(String.fromCharCode.apply(String, didDocRes.response.message.data.didDoc)) : didDocRes.response.message.data.didDoc
 
-        let peerDID = (await this.didManager.createPeerDID()).DIDDocument
+
+        let {token} = profile
+        let peerDID = (await this.didManager.createPeerDID(token)).DIDDocument
         let agent = this.agent
+        let credManager = this.credentialManager
         let acceptCredPool = new Map()
 
         await Promise.all(presentationSubmission.verifiableCredential.map(async (vc, index) => {
@@ -157,12 +134,13 @@ export class WalletGetByQuery extends WalletGet {
                 return
             }
 
-            let conn = await agent.didexchange.queryConnectionByID({id: vc.connection})
-            let connection = conn.result;
+            let connectionID = await credManager.getManifestConnection(token, vc.id)
+            let {result} = await agent.didexchange.queryConnectionByID({id: connectionID})
+
             // TODO `request_credential.requests~attach.data.json.subjectDID` to be removed once adapters are updated
             let resp = await agent.issuecredential.sendRequest({
-                my_did: connection.MyDID,
-                their_did: connection.TheirDID,
+                my_did: result.MyDID,
+                their_did: result.TheirDID,
                 request_credential: {
                     "requests~attach": [
                         {

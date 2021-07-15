@@ -25,11 +25,11 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-    import {DeviceRegister} from "./wallet"
+    import {DeviceRegister} from "@trustbloc/wallet-sdk"
     import {mapActions, mapGetters} from 'vuex'
     export default {
         created: async function () {
-            this.deviceRegister = new DeviceRegister(this.getAgentOpts())
+            this.deviceRegister = new DeviceRegister(this.getAgentOpts()['edge-agent-server'])
             if (this.$cookies.isKey('registerSuccess')) {
                 this.registered = true;
             }

@@ -32,6 +32,7 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
+    store.dispatch('agent/flushStore')
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (store.getters.getCurrentUser) {
             next();
@@ -93,5 +94,11 @@ new Vue({
     render: h => h(App),
     router
 });
+
+window.onbeforeunload = function(){
+    if (store) {
+        store.dispatch('agent/flushStore')
+    }
+}
 
 

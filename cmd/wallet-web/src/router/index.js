@@ -10,7 +10,6 @@ import Dashboard from "@/pages/Dashboard.vue";
 import Login from "@/pages/chapi/Login.vue";
 import Signup from "@/pages/chapi/Signup.vue";
 import Logout from "@/pages/chapi/Logout.vue";
-import TablePresentation from "@/pages/TablePresentation.vue";
 import StoreInWallet from "@/pages/chapi/Store.vue";
 import GetFromWallet from "@/pages/chapi/Get.vue";
 import WalletWorker from "@/pages/chapi/Worker.vue";
@@ -40,11 +39,6 @@ const routes = [
                 path: "logout",
                 name: "logout",
                 component: Logout
-            },
-            {
-                path: "MyVC",
-                name: "my-credential",
-                component: TablePresentation
             },
             {
                 path: "WebWallet",

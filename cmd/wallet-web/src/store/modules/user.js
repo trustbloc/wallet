@@ -4,57 +4,64 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import {WalletManager} from "../../pages/chapi/wallet";
 import * as Agent from "@trustbloc/agent-sdk-web";
+import {WalletUser} from "@trustbloc/wallet-sdk"
+
+export const parseTIme = ns => parseInt(ns) * 60 * (10 ** 9)
 
 export default {
     state: {
         username: null,
-        metadata: null,
         setupStatus: null,
+        profile: null,
     },
     mutations: {
         setUser(state, val) {
             state.username = val
             localStorage.setItem('user', val)
         },
-        setUserMetadata(state, val) {
-            state.metadata = val
-            localStorage.setItem('metadata', val)
+        setProfile(state, val) {
+            state.profile = val
+            localStorage.setItem('profile', JSON.stringify(val))
         },
-        setUserSetupStatus(state, val){
+        setUserPreference(state, val) {
+            state.preference = val
+            localStorage.setItem('preference', JSON.stringify(val))
+        },
+        setUserSetupStatus(state, val) {
             state.setupStatus = val
             localStorage.setItem('setupStatus', val)
         },
         clearUser(state) {
             state.username = null
-            state.metadata = null
-            state.setupStatus= null
+            state.setupStatus = null
+            state.profile = null
 
             localStorage.removeItem('user')
-            localStorage.removeItem('metadata')
             localStorage.removeItem('setupStatus')
+            localStorage.removeItem('profile')
+            localStorage.removeItem('preference')
         },
         loadUser(state) {
             state.username = localStorage.getItem('user');
-            state.metadata = localStorage.getItem('metadata');
             state.setupStatus = localStorage.getItem('setupStatus');
+            state.profile = JSON.parse(localStorage.getItem('profile'));
+            state.preference = JSON.parse(localStorage.getItem('preference'));
         }
     },
     actions: {
-        async refreshUserMetadata({commit, state, rootGetters}) {
-            if (!state.username) {
-                throw 'invalid operation, user not logged in'
+        async refreshUserPreference({commit, state, rootGetters}) {
+            if (!state.profile) {
+                console.error('failed to refresh user preference, profile not found.')
+                throw 'invalid operation, user profile not set'
             }
 
-            await new WalletManager(rootGetters['agent/getInstance']).getWalletMetadata(state.username).then(
-                async resp => {
-                    commit('setUserMetadata', JSON.stringify(resp))
-                }
-            )
+            let {user, token} = state.profile
+            let walletUser = new WalletUser({agent: rootGetters['agent/getInstance'], user})
+            let {content} = await walletUser.getPreferences(token)
+            commit('setUserPreference', content)
         },
         async loadOIDCUser({commit, dispatch, getters}) {
-            console.log("getting from server URL", getters, getters.serverURL)
             let userInfo = await fetch(getters.serverURL + "/oidc/userinfo", {
                 method: 'GET', credentials: 'include'
             })
@@ -66,29 +73,47 @@ export default {
                 commit('setUser', profile.sub)
 
                 await dispatch('agent/init')
+
+                /*
+                  TODO should be uncommented once token expiry with aries agent wasm on refresh is fixed.
+
+                  Wallet should be unlocked once during login, works fine with agent server based universal wallet.
+                  Agent-Wasm destroys token cache on refresh and wallet expires token.
+
+                  */
+                // await dispatch('agent/unlockWallet')
+
             }
         },
-        async logout({commit, dispatch,getters}) {
-            await fetch(getters.serverURL+"/oidc/logout",{
+        async logout({commit, dispatch, getters}) {
+            await fetch(getters.serverURL + "/oidc/logout", {
                 method: 'GET',
                 credentials: 'include'
             })
-            commit('clearUser')
             await dispatch('agent/destroy')
+            commit('clearUser')
         },
         loadUser({commit}) {
             commit('loadUser')
         },
-        startUserSetup({commit}){
+        startUserSetup({commit}) {
             commit('setUserSetupStatus', 'inprogress')
         },
-        completeUserSetup({commit}, failure){
-            commit('setUserSetupStatus', failure ? 'failed': 'success')
+        completeUserSetup({commit}, failure) {
+            commit('setUserSetupStatus', failure ? 'failed' : 'success')
+        },
+        updateUserProfile({commit}, profile) {
+            commit('setProfile', profile)
         }
     },
     getters: {
         getCurrentUser(state) {
-            return state.username ? {username: state.username, metadata: state.metadata, setupStatus: state.setupStatus} : undefined
+            return state.username ? {
+                username: state.username,
+                setupStatus: state.setupStatus,
+                profile: state.profile,
+                preference: state.preference,
+            } : undefined
         },
     },
     modules: {
@@ -124,7 +149,7 @@ export default {
                 }
             },
             actions: {
-                async init({commit, rootState, state, rootGetters}) {
+                async init({commit, rootState, state, rootGetters, dispatch}) {
                     if (state.instance && state.agentName == rootState.user.username) {
                         return
                     }
@@ -141,18 +166,40 @@ export default {
                     })
 
                     let agent = await new Agent.Framework(opts)
-                    await new WalletManager(agent).getWalletMetadata(rootState.user.username).then(
-                        async resp => {
-                            commit('setUserMetadata', JSON.stringify(resp))
-                        }
-                    )
-
                     commit('setInstance', {instance: agent, user: rootState.user.username})
+                    // TODO to be moved from here to 'loadOIDCUser' in case server based universal wallet.
+                    await dispatch('unlockWallet')
                     commit('startAllNotifiers')
                 },
-                async destroy({commit, state}) {
+                async unlockWallet({state, rootGetters, dispatch}) {
+                    // create wallet profile if it doesn't exist
+                    let {user} = rootGetters.getProfileOpts.bootstrap
+                    let walletUser = new WalletUser({agent: state.instance, user})
+
+                    if (!await walletUser.profileExists()) {
+                        await walletUser.createWalletProfile(profileCreationOpts(rootGetters.getProfileOpts))
+                    }
+
+                    let {token} = await walletUser.unlock(profileUnlockOpts(rootGetters.getProfileOpts))
+
+                    dispatch('updateUserProfile', {user, token}, {root: true});
+                },
+                async flushStore({state}) {
+                    console.debug('flushing store', state.instance)
                     if (state.instance) {
-                        await state.instance.destroy()
+                        state.instance.store.flush()
+                        console.debug('flushed store.')
+                    }
+                },
+                async destroy({commit, state, rootGetters, dispatch}) {
+                    let {user} = rootGetters.getCurrentUser.profile
+
+                    let walletUser = new WalletUser({agent: state.instance, user})
+                    walletUser.lock()
+
+                    if (state.instance) {
+                        await dispatch('flushStore')
+                        state.instance.destroy()
                     }
                     commit('setInstance', {})
                 },
@@ -174,4 +221,64 @@ export default {
         }
     }
 
+}
+
+// options for creating wallet profile
+function profileCreationOpts(opts) {
+    let {bootstrap, config} = opts
+
+    let keyStoreURL, localKMSPassphrase, edvConfiguration
+    // webkms
+    if (config.kmsType == 'webkms') {
+        keyStoreURL = bootstrap.opsKeyStoreURL
+    }
+
+    // local
+    if (config.kmsType == 'local') {
+        localKMSPassphrase = config.localKMSScret
+    }
+
+    // edv
+    if (config.storageType == 'edv') {
+        edvConfiguration = {
+            serverURL: bootstrap.userEDVServer,
+            vaultID: bootstrap.userEDVVaultID,
+            encryptionKID: bootstrap.userEDVEncKID,
+            macKID: bootstrap.userEDVMACKID,
+        }
+    }
+
+    return {keyStoreURL, localKMSPassphrase, edvConfiguration}
+}
+
+function profileUnlockOpts(opts) {
+    let {bootstrap, userConfig, config} = opts
+
+    let webKMSAuth, localKMSPassphrase, edvUnlocks
+    // webkms
+    if (config.kmsType == 'webkms') {
+        webKMSAuth = {
+            authToken: userConfig.accessToken,
+            secretShare: userConfig.walletSecretShare,
+            capability: bootstrap.opsKMSCapability,
+            authzKeyStoreURL: bootstrap.authzKeyStoreURL,
+        }
+    }
+
+    // local
+    if (config.kmsType == 'local') {
+        localKMSPassphrase = config.localKMSScret
+    }
+
+    // edv
+    if (config.storageType == 'edv') {
+        edvUnlocks = {
+            authToken: userConfig.accessToken,
+            secretShare: userConfig.walletSecretShare,
+            capability: bootstrap.edvCapability,
+            authzKeyStoreURL: bootstrap.authzKeyStoreURL,
+        }
+    }
+
+    return {webKMSAuth, localKMSPassphrase, edvUnlocks, expiry: parseTIme(bootstrap.tokenExpiry)}
 }

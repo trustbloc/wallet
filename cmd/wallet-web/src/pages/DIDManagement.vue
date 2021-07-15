@@ -11,76 +11,120 @@ SPDX-License-Identifier: Apache-2.0
                 <md-card class="md-card-plain">
                     <md-card-content>
                         <md-tabs class="md-success" md-alignment="left">
-                            <md-tab id="tab-home" md-label="Digital Identity Dashboard" md-icon="contact_mail">
+
+                            <md-tab id="tab-home" md-label="Digital Identity Preference" md-icon="how_to_reg">
                                 <div class="md-layout-item md-layout md-gutter">
-                                    <div class="md-layout-item md-medium-size-75 md-xsmall-size-75 md-size-75">
+                                    <div class="md-layout-item md-medium-size-50 md-xsmall-size-75 md-size-75">
                                         <md-card-content>
-                                            <md-table v-model="searched" class="md-scrollbar" md-sort-order="asc">
-                                                <md-table-toolbar>
-                                                    <div class="md-toolbar-section-start">
-                                                        <h1 class="md-title"><b>Digital Identity Table</b></h1>
 
-                                                        <md-field md-clearable class="md-toolbar-section-end">
-                                                            <md-input placeholder="Search by name..."
-                                                                      v-model="searchQuery"/>
-                                                        </md-field>
-                                                    </div>
+                                            <md-list>
+                                                <md-subheader><label>
+                                                    <md-icon>how_to_reg</md-icon>
+                                                    Update Identity: </label>
+                                                </md-subheader>
 
+                                                <md-list-item v-for="did in allDIDs" :key="did.id">
+                                                    <md-checkbox v-model="selectedDID" :value="did.id">{{ did.id
+                                                        }}
+                                                    </md-checkbox>
+                                                </md-list-item>
+                                            </md-list>
 
-                                                </md-table-toolbar>
-                                                <md-table-row>
-                                                    <md-table-head><b>Name</b></md-table-head>
-                                                    <md-table-head><b>Digital Identity</b></md-table-head>
-                                                    <md-table-head><b>Signature Type</b></md-table-head>
-                                                </md-table-row>
-                                                <md-table-row v-for="(data) in resultQuery" :key="data.id">
-                                                    <md-table-cell>{{data.friendlyName}}</md-table-cell>
-                                                    <md-table-cell>{{data.id}}</md-table-cell>
-                                                    <md-table-cell>{{data.signatureType}}</md-table-cell>
-                                                </md-table-row>
-                                            </md-table>
+                                            <md-divider></md-divider>
+
+                                            <md-list>
+                                                <md-subheader>
+                                                    <label>
+                                                        <md-icon>vpn_lock</md-icon>
+                                                        Update Signature Type: </label>
+                                                </md-subheader>
+
+                                                <md-list-item>
+                                                    <md-checkbox v-model="selectedSignType"
+                                                                 value="Ed25519Signature2018">Ed25519Signature2018
+                                                    </md-checkbox>
+                                                </md-list-item>
+
+                                                <md-list-item>
+                                                    <md-checkbox v-model="selectedSignType"
+                                                                 value="JsonWebSignature2020">JsonWebSignature2020
+                                                    </md-checkbox>
+                                                </md-list-item>
+                                            </md-list>
+
+                                            <md-divider></md-divider>
+
+                                            <md-button class="md-button md-info md-square"
+                                                       v-on:click="updatePreferences"
+                                                       :disabled="!preferenceSelected">Update Preferences
+                                            </md-button>
+
                                         </md-card-content>
-                                        <md-field>
-                                        </md-field>
                                     </div>
+                                </div>
+                            </md-tab>
+
+                            <md-tab id="tab-home-1" md-label="Create TrustBloc Digital Identity" md-icon="add_box">
+                                <div class="md-layout-item md-layout md-gutter">
                                     <div class="md-layout-item">
-                                        <md-card>
+                                        <md-card md-alignment="left">
                                             <md-card-header data-background-color="green">
                                                 <h4 class="title"><b>Create New Trustbloc Digital Identity</b></h4>
                                             </md-card-header>
                                             <md-card-content>
+                                                <md-label>
+                                                    <md-icon>vpn_key</md-icon>
+                                                    Key Type:
+                                                </md-label>
                                                 <md-field>
+                                                    <select id="selectKey" v-model="keyType"
+                                                            style="color: grey;"
+                                                            md-alignment="left">
+                                                        <option value="ED25519">Ed25519</option>
+                                                        <option value="ECDSAP256IEEEP1363">P-256</option>
+                                                        <option value="ECDSAP384IEEEP1363">P-384</option>
+                                                        <option value="BLS12381G2">BLS12381G2</option>
+                                                    </select>
                                                 </md-field>
-                                                <select id="selectKey" v-model="selectType"
-                                                        style="color: grey; width: 200px; height: 35px;">
-                                                    <option value="" disabled="disabled">Select Key Type</option>
-                                                    <option value="Ed25519">Ed25519</option>
-                                                    <option value="P256">P256</option>
-                                                </select>
-                                                <md-field style="margin-top: -15px">
+
+                                                <md-label>
+                                                    <md-icon>lock</md-icon>
+                                                    Signature Suite:
+                                                </md-label>
+
+                                                <md-field>
+                                                    <select id="signKey" v-model="signType"
+                                                            style="color: grey;">
+                                                        <option value="Ed25519VerificationKey2018">
+                                                            Ed25519VerificationKey2018
+                                                        </option>
+                                                        <option value="JwsVerificationKey2020">JwsVerificationKey2020
+                                                        </option>
+                                                        <option value="Bls12381G2Key2020">Bls12381G2Key2020</option>
+                                                    </select>
                                                 </md-field>
-                                                <select id="signKey" v-model="signType"
-                                                        style="color: grey; width: 200px; height: 35px;">
-                                                    <option value="" disabled="disabled">Select Signature Type</option>
-                                                    <option value="Ed25519Signature2018">Ed25519Signature2018</option>
-                                                    <option value="JsonWebSignature2020">JsonWebSignature2020</option>
-                                                </select>
-                                                <md-field style="margin-top: -15px">
+
+                                                <md-label>
+                                                    <md-icon>design_services</md-icon>
+                                                    Key Purpose:
+                                                </md-label>
+
+                                                <md-field>
+
+                                                    <select id="puporseKey" v-model="purpose"
+                                                            style="color: grey;">
+                                                        <option value="all">all</option>
+                                                        <option value="authentication">authentication</option>
+                                                        <option value="assertionMethod">assertionMethod</option>
+                                                    </select>
                                                 </md-field>
-                                                <div class="md-layout-item md-size-100">
-                                                    <md-field maxlength="5">
-                                                        <label class="md-helper-text">Type Digital Identity friendly name
-                                                            here</label>
-                                                        <md-input v-model="friendlyName" id="friendlyName"
-                                                                  required></md-input>
-                                                    </md-field>
-                                                </div>
 
                                                 <md-button
-                                                        class="md-button md-info md-square  md-large-size-100 md-size-100"
-                                                        id='createDIDBtn' v-on:click="createDID"><b>Create and Save
-                                                    Digital Identity</b>
+                                                        class="md-button md-info md-square"
+                                                        id='createDIDBtn' v-on:click="createDID"><b>Create and
+                                                    Save</b>
                                                 </md-button>
+
                                                 <div v-if="errors.length">
                                                     <b>Please correct the following error(s):</b>
                                                     <ul>
@@ -97,7 +141,8 @@ SPDX-License-Identifier: Apache-2.0
                                                 </div>
                                                 <div v-if="createDIDSuccess">
                                                     <div class="md-layout-item md-size-100" style="color: green">
-                                                        <label class="md-helper-text" id="create-did-success">Saved your DID successfully.</label>
+                                                        <label class="md-helper-text" id="create-did-success">Saved your
+                                                            DID successfully.</label>
                                                     </div>
                                                 </div>
                                                 <md-field>
@@ -110,10 +155,11 @@ SPDX-License-Identifier: Apache-2.0
                                     </div>
                                 </div>
                             </md-tab>
-                            <md-tab id="tab-pages" md-label="Save Any Digital Identity" md-icon="contacts">
+
+                            <md-tab id="tab-pages" md-label="Import Any Digital Identity" md-icon="upload_file">
                                 <md-card class="md-card-plain">
                                     <md-card-header data-background-color="green">
-                                        <h4 class="title">Save Any Digital Identity</h4>
+                                        <h4 class="title">Import Any Digital Identity</h4>
                                     </md-card-header>
                                     <md-card-content>
                                         <div class="md-layout-item md-size-100">
@@ -123,14 +169,26 @@ SPDX-License-Identifier: Apache-2.0
                                                 <md-input v-model="didID" id="did" required></md-input>
                                             </md-field>
                                         </div>
+
                                         <div class="md-layout-item md-size-100">
                                             <md-icon>vpn_key</md-icon>
-                                            <label class="md-helper-text">Enter Private Key JWK</label>
+                                            <label class="md-helper-text">Select Key Format</label>
+                                            <div></div>
+                                            <md-checkbox v-model="keyFormat" value="Base58">Base58</md-checkbox>
+                                            <md-checkbox v-model="keyFormat" value="JWK">JWK</md-checkbox>
+                                            <md-field style="margin-top: -25px"></md-field>
+                                        </div>
+
+                                        <div class="md-layout-item md-size-100">
+                                            <md-icon>vpn_key</md-icon>
+                                            <label class="md-helper-text">Enter Private Key (in JWK or Base58
+                                                format)</label>
                                             <md-field maxlength="5">
-                                                <md-input v-model="privateKeyJwk" id="privateKeyJwk"
+                                                <md-input v-model="privateKeyStr" id="privateKeyStr"
                                                           required></md-input>
                                             </md-field>
                                         </div>
+
                                         <div class="md-layout-item md-size-100">
                                             <md-icon>aspect_ratio
                                                 <md-tooltip md-direction="top">Enter key ID for above private key
@@ -141,26 +199,24 @@ SPDX-License-Identifier: Apache-2.0
                                                 <md-input v-model="keyID" id="keyID" required></md-input>
                                             </md-field>
                                         </div>
-                                        <div class="md-layout-item md-size-100">
-                                            <md-icon>ballot</md-icon>
-                                            <select id="selectSignKey" v-model="selectSignKey"
-                                                    style="color: grey; width: 300px; height: 35px;">
-                                                <option value="">Select Signature Type</option>
-                                                <option value="Ed25519Signature2018">Ed25519Signature2018</option>
-                                            </select>
-                                            <md-field style="margin-top: -15px">
+
+                                        <div class="md-layout-item md-size-100" v-if="showImportKeyType">
+                                            <md-icon>style</md-icon>
+                                            <label class="md-helper-text">Select Key Type</label>
+                                            <md-field>
+                                                <select id="importKeyType" v-model="importKeyType"
+                                                        style="color: grey;"
+                                                        md-alignment="left">
+                                                    <option value="ed25519verificationkey2018">Ed25519VerificationKey2018</option>
+                                                    <option value="bls12381g1key2020">Bls12381G1Key2020</option>
+                                                </select>
                                             </md-field>
                                         </div>
-                                        <div class="md-layout-item md-size-100">
-                                            <md-field maxlength="5">
-                                                <label class="md-helper-text">Type Digital Identity friendly name here</label>
-                                                <md-input v-model="anyDIDFriendlyName" id="anyDIDFriendlyName"
-                                                          required></md-input>
-                                            </md-field>
-                                        </div>
+
                                         <md-button
                                                 class="md-button md-success md-square md-theme-default md-large-size-100 md-size-100"
-                                                id='saveDIDBtn' v-on:click="saveAnyDID">Resolve and Save Digital Identity
+                                                id='saveDIDBtn' v-on:click="saveAnyDID">Resolve and Save Digital
+                                            Identity
                                         </md-button>
                                         <div v-if="saveErrors.length">
                                             <b>Please correct the following error(s):</b>
@@ -171,7 +227,8 @@ SPDX-License-Identifier: Apache-2.0
 
                                         <div v-if="saveAnyDIDSuccess">
                                             <div class="md-layout-item md-size-100" style="color: green">
-                                                <label class="md-helper-text" id="save-anydid-success">Saved your DID successfully.</label>
+                                                <label class="md-helper-text" id="save-anydid-success">Saved your DID
+                                                    successfully.</label>
                                             </div>
                                         </div>
 
@@ -192,179 +249,151 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 
-    import {DIDManager} from "./chapi/wallet";
-    import {mapGetters} from 'vuex'
+    import {DIDManager, WalletUser} from "@trustbloc/wallet-sdk"
+    import {mapGetters, mapActions} from 'vuex'
 
     export default {
         created: async function () {
-            this.agent = this.getAgentInstance()
+            let agent = this.getAgentInstance()
+            let {user, token} = this.getCurrentUser().profile
 
-            this.didManager = new DIDManager(this.agent, this.getAgentOpts())
-            this.searched = this.myData
-            this.username = this.getCurrentUser().username
+            this.didManager = new DIDManager({agent, user})
+            this.listDIDs()
 
-            await this.loadDIDMetadata()
-            this.searched = this.myData
+            this.walletUser = new WalletUser({agent, user})
+
+            let {content} = await this.walletUser.getPreferences(token)
+
+            this.selectedDID = content.controller
+            this.selectedSignType = content.proofType
+            this.preference = content
         },
         methods: {
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
             ...mapGetters(['getCurrentUser', 'getAgentOpts']),
+            ...mapActions(['refreshUserPreference']),
+            listDIDs: async function () {
+                let {contents} = await this.didManager.getAllDIDs(this.getCurrentUser().profile.token)
+                this.allDIDs = Object.keys(contents).map(k => contents[k].DIDDocument)
+            },
             createDID: async function () {
                 this.errors.length = 0
                 this.createDIDSuccess = false
-
-                if (this.friendlyName.length == 0) {
-                    this.errors.push("friendly name required.")
-                    return
-                }
-                if ((this.selectType == "")) {
-                    this.errors.push("key type required")
-                    return;
-                }
-                if ((this.signType == "")) {
-                    this.errors.push("signature type required")
-                    return;
-                }
-
                 this.loading = true
 
-                let did
+                let docRes
                 try {
-                    did = await this.didManager.createTrustBlocDID(this.selectType, this.signType)
+                    docRes = await this.didManager.createTrustBlocDID(this.getCurrentUser().profile.token, {
+                        purposes: this.purpose == 'all' ? ["assertionMethod", "authentication"] : [this.purpose],
+                        keyType: this.keyType,
+                        signatureType: this.signType
+                    })
                 } catch (e) {
                     this.loading = false;
                     this.didDocTextArea = `failed to create did: ${e.toString()}`
                     return;
                 }
 
-                this.didDocTextArea = JSON.stringify(did, undefined, 2);
-
-                // saving did
-                try {
-                     await this.didManager.saveDID(this.username, this.friendlyName, this.signType, did)
-                } catch (e) {
-                    this.loading = false;
-                    this.didDocTextArea = `failed to save did: ${e.toString()}`
-                    console.error("failed to save did", e)
-                    return;
-                }
-
-                // saving did metadata
-                await this.didManager.storeDIDMetadata(did.id, {
-                  signatureType: this.signType,
-                  friendlyName: this.friendlyName,
-                  id: did.id,
-                })
-
-                await this.loadDIDMetadata()
-
+                this.didDocTextArea = `Created ${docRes.DIDDocument.id}`;
                 this.createDIDSuccess = true
                 this.loading = false;
+                this.listDIDs()
             },
-
             saveAnyDID: async function () {
                 this.saveErrors.length = 0
                 this.saveAnyDIDSuccess = false
                 this.anyDidDocTextArea = ""
+                this.loading = true;
 
                 if (this.didID.length == 0) {
                     this.saveErrors.push("did id required.")
                     return
                 }
-                if (this.privateKeyJwk.length == 0) {
-                    this.saveErrors.push("private key jwk required.")
+
+                if (this.keyFormat.length == 0) {
+                    this.saveErrors.push("please select format of the key being imported.")
                     return
                 }
+
+                if (this.privateKeyStr.length == 0) {
+                    this.saveErrors.push("private key is required.")
+                    return
+                }
+
                 if (this.keyID.length == 0) {
-                    this.errors.push("key ID (verification method) matching private key is required.")
+                    this.saveErrors.push("key ID (verification method) matching private key is required.")
                     return
                 }
-                if (this.anyDIDFriendlyName.length == 0) {
-                    this.saveErrors.push("friendly name required.")
+
+                if (this.keyFormat == "Base58" && this.importKeyType.length == 0) {
+                    this.saveErrors.push("key type of private key for importing base58 private keys.")
                     return
                 }
-                if ((this.selectSignKey == "")) {
-                    this.saveErrors.push("signature type required")
+
+                try {
+                    await this.didManager.importDID(this.getCurrentUser().profile.token, {
+                        did: this.didID,
+                        key: {
+                            keyType: this.importKeyType,
+                            privateKeyBase58: this.keyFormat == "Base58" ? this.privateKeyStr: '',
+                            privateKeyJwk: this.keyFormat == "JWK"? JSON.parse(this.privateKeyStr): undefined,
+                            keyID: this.keyID,
+                        }
+                    })
+                } catch (e) {
+                    this.loading = false;
+                    this.anyDidDocTextArea = `failed to import did: ${e.toString()}`
                     return;
                 }
 
-                var resp
-                try {
-                    resp = await this.agent.vdr.resolveDID({
-                        id: this.didID,
-                    })
-                } catch (err) {
-                    this.saveErrors.push(err)
-                    return
-                }
-
-                var obj = JSON.parse(this.privateKeyJwk);
-
-                try {
-                    await this.agent.kms.importKey(obj)
-                } catch (err) {
-                    this.saveErrors.push(err)
-                    return
-                }
-
-                // saving did
-                try {
-                    await this.didManager.saveDID(this.username, this.anyDIDFriendlyName, this.selectSignKey, resp.DIDDocument.id)
-                } catch (e) {
-                    this.anyDidDocTextArea = `failed to save did : ${e.toString()}`
-                    console.error("failed to save the did", e)
-                }
-
-                await this.didManager.storeDIDMetadata(resp.DIDDocument.id, {
-                  signatureType: this.selectSignKey,
-                  keyID: this.keyID,
-                  friendlyName: this.anyDIDFriendlyName,
-                  id: resp.DIDDocument.id,
-                })
-                this.anyDidDocTextArea = JSON.stringify(resp.DIDDocument, undefined, 2);
+                this.loading = false;
                 this.saveAnyDIDSuccess = true
+                this.listDIDs()
             },
-            loadDIDMetadata: async function () {
-               try {
-                   this.myData = await this.didManager.getAllDIDMetadata()
-               }catch (e) {
-                    console.error("failed to load DIDs", e)
-               }
-            }
+            updatePreferences() {
+                this.walletUser.updatePreferences(this.getCurrentUser().profile.token, {
+                    controller: this.selectedDID,
+                    proofType: this.selectedSignType,
+                }).then(
+                    () => {
+                        this.refreshUserPreference()
+                    }
+                )
 
+                this.preference.controller = this.selectedDID
+                this.preference.proofType = this.selectedSignType
+            }
         },
         computed: {
-            resultQuery() {
-                if (this.searchQuery) {
-                    return this.myData.filter((data) => {
-                        return this.searchQuery.toLowerCase().split(' ').every(v => data.friendlyName.toLowerCase().includes(v))
-                    })
-                } else {
-                    return this.myData;
-                }
+            preferenceSelected() {
+                return (this.selectedDID) && (this.selectedSignType)
+                    && (this.preference.controller != this.selectedDID || this.preference.proofType != this.selectedSignType)
+            },
+            showImportKeyType(){
+                return this.keyFormat == "Base58"
             }
         },
         data() {
             return {
                 didDocTextArea: "",
                 anyDidDocTextArea: "",
-                friendlyName: "",
-                selectType: "",
-                selectSignKey: "",
-                signType: "",
+                purpose: "authentication",
+                keyType: "ED25519",
+                signType: "Ed25519VerificationKey2018",
                 didID: "",
-                privateKeyJwk: "",
+                privateKeyStr: "",
                 keyID: "",
-                anyDIDFriendlyName: "",
                 errors: [],
                 saveErrors: [],
-                myData: {},
-                search: null,
-                searchQuery: null,
-                searched: [],
                 loading: false,
                 createDIDSuccess: false,
                 saveAnyDIDSuccess: false,
+                allDIDs: {},
+                importKeyType: "",
+                keyFormat: "",
+                allSignatureTypes: [{id: 'Ed25519Signature2018'}, {id: 'JsonWebSignature2020'}],
+                selectedDID: '',
+                selectedSignType: '',
             };
         }
 

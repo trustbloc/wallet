@@ -3,7 +3,6 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
-
 <template>
 
     <div v-if="loading" class="w-screen" style="margin-left: 40%;margin-top: 20%;height: 200px;">
@@ -16,14 +15,13 @@ SPDX-License-Identifier: Apache-2.0
     <div v-else class="md-layout w-screen flex justify-center">
         <div class="md-layout-item max-w-screen-md">
 
-            <h4> {{ requestOrigin }} would like you to authenticate </h4>
-
             <md-card class="md-card-plain">
-                <md-card-header data-background-color="green">
-                    <h4 class="title">DID Authorization</h4>
+                <md-card-header>
+                    <h4 class="title">Authenticate Your Wallet</h4>
                 </md-card-header>
 
-                <md-card-content v-if="!credentialWarning.length" style="background-color: white;">
+                <md-card-content style="background-color: white; ">
+
                     <div v-if="errors.length">
                         <b>Failed with following error(s):</b>
                         <ul>
@@ -31,36 +29,24 @@ SPDX-License-Identifier: Apache-2.0
                         </ul>
                     </div>
 
+                    <md-card-content class="viewport">
+                        This issuer would like to you to authenticate.
+                        <governance :govn-v-c="govnVC" :request-origin="requestOrigin"/>
+                    </md-card-content>
 
-                    <md-field>
-                        <label>
-                            <md-icon>how_to_reg</md-icon>
-                            Select a Subject DID: </label>
-                        <md-select v-model="selectedIssuer" id="select-did">
-                            <md-option v-for="{id, name} in issuers" :key="id" :value="id" :id="name">
-                                {{name}}
-                            </md-option>
-                        </md-select>
-                    </md-field>
+                    <md-divider></md-divider>
 
-                    <div class="flex justify-between">
-                        <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn" style="margin-right: 10px">
+                    <md-card-content class="md-layout md-alignment-center-center">
+                        <md-button v-on:click="authorize"
+                                   style="margin-right: 5%"
+                                   class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
+                                   id="didauth">Authenticate
+                        </md-button>
+                        <md-button v-on:click="cancel" class="md-cancel-text" id="cancelBtn">
                             Cancel
                         </md-button>
-                        <md-button v-on:click="authorize"
-                                class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
-                                id="authenticate">Authenticate
-                        </md-button>
-                    </div>
-                </md-card-content>
+                    </md-card-content>
 
-                <md-card-content v-else style="background-color: white;">
-                    <md-empty-state md-size=250
-                                    class="md-accent"
-                                    md-rounded
-                                    md-icon="link_off"
-                                    :md-label="credentialWarning">
-                    </md-empty-state>
                 </md-card-content>
             </md-card>
 
@@ -70,48 +56,60 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 
-    import {DIDAuth} from "./wallet"
+    import {CHAPIEventHandler} from "./wallet"
+    import {CredentialManager} from "@trustbloc/wallet-sdk"
+    import Governance from "./Governance.vue";
     import {mapGetters} from 'vuex'
 
     export default {
+        components: {Governance},
         created: async function () {
-            this.wallet = new DIDAuth(this.getAgentInstance(), this.$parent.credentialEvent)
-            this.requestOrigin = this.$parent.credentialEvent.credentialRequestOrigin
+            this.chapiHandler = new CHAPIEventHandler(this.$parent.credentialEvent)
+            let {query} = this.chapiHandler.getEventData()
 
-            await this.loadIssuers()
+            let {user, token} = this.getCurrentUser().profile
+            this.credentialManager = new CredentialManager({agent: this.getAgentInstance(), user})
+
+            try {
+                let {results} = await this.credentialManager.query(token, Array.isArray(query) ? query : [query])
+                this.presentation = results[0]
+            } catch (e) {
+                console.error('failed to prepare DIDAuth response:', e)
+                this.errors.push('failed to handle request, try again later.')
+                this.loading = false
+            }
+
+            this.requestOrigin = this.chapiHandler.getRequestor()
             this.loading = false
         },
         data() {
             return {
                 issuers: [{id: 0, name: "Select Identity"}],
-                selectedIssuer: 0,
                 errors: [],
                 requestOrigin: "",
                 loading: true,
-                credentialWarning: "",
+                govnVC: null,
             };
         },
         methods: {
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
-            loadIssuers: async function () {
-                try {
-                    this.issuers = await this.wallet.getDIDRecords()
-
-                    if (this.issuers.length == 0) {
-                        this.credentialWarning = 'Issuers not found, please create an issuer'
-                        return
-                    }
-
-                } catch (err) {
-                    this.errors.push(err)
-                }
-            },
+            ...mapGetters(['getCurrentUser']),
             cancel: async function () {
-                this.wallet.cancel()
+                this.chapiHandler.cancel()
             },
             authorize: async function () {
                 this.loading = true
-                await this.wallet.authorize(this.issuers[this.selectedIssuer].key)
+
+                let {profile, preference} = this.getCurrentUser()
+                let {controller, proofType, verificationMethod} = preference
+                let {domain, challenge} = this.chapiHandler.getEventData()
+
+                let {presentation} = await this.credentialManager.present(profile.token, {presentation: this.presentation}, {
+                    controller, proofType, domain, challenge, verificationMethod
+                })
+
+                this.chapiHandler.present(presentation)
+
                 this.loading = false
             }
         }
