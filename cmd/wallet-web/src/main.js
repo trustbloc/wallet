@@ -39,8 +39,12 @@ router.beforeEach((to, from, next) => {
         } else if (store.dispatch('loadUser') && store.getters.getCurrentUser) {
             next()
         } else {
+            if (window.top.opener) {
+                window.top.close()
+            }
+            window.opener.location.reload();
             next({
-                name: "login",
+                name: "signup",
                 params: {redirect: to.name},
             });
         }
@@ -48,9 +52,10 @@ router.beforeEach((to, from, next) => {
         if (store.dispatch('loadUser') && store.getters.getCurrentUser) {
             next()
         } else {
+            console.log("other options ")
             next({
                 name: "block-no-auth",
-                params: {loginURL: "login"},
+                params: {loginURL: "signup"},
             });
         }
     } else {

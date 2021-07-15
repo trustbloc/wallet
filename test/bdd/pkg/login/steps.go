@@ -29,7 +29,7 @@ import (
 // HTTP server.
 const (
 	host                         = "https://bddtest-wallet-web.trustbloc.local:8077"
-	loginPath                    = host + "/oidc/login"
+	signupPath                   = host + "/oidc/signup"
 	userProfilePath              = host + "/oidc/userinfo"
 	userLogoutPath               = host + "/oidc/logout"
 	dashboardPath                = "https://localhost:8078/dashboard"
@@ -102,7 +102,7 @@ type Steps struct {
 
 // Register the login BDD test steps in the godog suite.
 func (s *Steps) Register(gs *godog.Suite) {
-	gs.Step("the user clicks on the Login button", s.userClicksLoginButton)
+	gs.Step("the user clicks on the Signup button", s.userClicksLoginButton)
 	gs.Step("the user is redirected to the OIDC provider", s.userRedirectedToOIDCProvider)
 	gs.Step("the user is authenticated", s.userIsAuthenticated)
 	gs.Step("the user consents to sharing their identity data", s.userAuthorizesAccessToTheirData)
@@ -126,9 +126,9 @@ func (s *Steps) userClicksLoginButton() error {
 		Jar:       cookieJar,
 	}
 
-	resp, err := s.browser.Get(loginPath) // nolint:noctx // no need to set context
+	resp, err := s.browser.Get(signupPath) // nolint:noctx // no need to set context
 	if err != nil {
-		return fmt.Errorf("failed to invoke http server login endpoint %s: %w", loginPath, err)
+		return fmt.Errorf("failed to invoke http server login endpoint %s: %w", signupPath, err)
 	}
 
 	err = resp.Body.Close()

@@ -54,6 +54,13 @@ SPDX-License-Identifier: Apache-2.0
                     </div>
                     <div class="flex 2xl:m-8 xl:mx-8 lg:mx-4 md:mx-4 mx-4 align-middle content-center">
                         <div class="w-full px-8 mb-8 2xl:m-8 xl:m-8 lg:m-8 md:m-4 sm:mx-2 sm:mb-8 md:mb-8">
+                          <md-card-content v-if="loading">
+                            <beat-loader :color="'white'" :size="10"></beat-loader>
+                            <transition name="fade" mode="out-in">
+                              <div class="text-white" :key="messageNum">{{messages[messageNum]}}</div>
+                            </transition>
+                          </md-card-content>
+                          <div v-else>
                             <button class="2xl:flex 2xl:flex-wrap lg:flex lg:flex-wrap md:flex md:flex-wrap text-xs 2xl:text-xs xl:text-xs lg:text-sm
                 md:text-xs sm:text-xl text-center content-center w-full py-2 mb-4 px-6
                         font-bold bg-neutrals-softWhite text-neutrals-dark rounded-md"
@@ -64,13 +71,17 @@ SPDX-License-Identifier: Apache-2.0
                                 {{ provider.signUpText }}
                             </button>
                         </div>
-
+                        </div>
                     </div>
+                  <div class="text-center text-xl xs:text-2xl mb-10">
+                    <p class="font-normal text-neutrals-softWhite">Already have an account?
+                      <a class="text-primary-blue  underline" href=""> Sign in </a>
+                    </p>
+                  </div>
                 </div>
-                <!-- Foooter -->
-                <ContentFooter></ContentFooter>
-            </div>
+           </div>
         </div>
+      <ContentFooter></ContentFooter>
     </div>
 </template>
 
@@ -78,11 +89,13 @@ SPDX-License-Identifier: Apache-2.0
     import {CHAPIHandler, RegisterWallet} from "./mixins"
     import {DeviceLogin} from "@trustbloc/wallet-sdk"
     import ContentFooter from "@/pages/layout/ContentFooter.vue"
+    import {BeatLoader} from "@saeris/vue-spinners";
     import {mapActions, mapGetters} from 'vuex'
     import axios from 'axios';
 
     export default {
         created: async function () {
+            this.startLoading()
             await this.fetchProviders()
             //TODO: issue-601 Implement cookie logic with information from the backend.
             this.deviceLogin = new DeviceLogin(this.getAgentOpts()['edge-agent-server']);
@@ -110,9 +123,13 @@ SPDX-License-Identifier: Apache-2.0
             if (this.$cookies.isKey('registerSuccess')) {
                 this.registered = true;
             }
+
+          this.stopLoading()
+          this.loading = false
         },
         components: {
             ContentFooter,
+            BeatLoader
         },
         data() {
             return {
@@ -125,7 +142,7 @@ SPDX-License-Identifier: Apache-2.0
                 messages: [
                     "Getting Started..",
                     "This could take a minute.",
-                    "Please do not refresh the page.",
+                    "Do not refresh the page.",
                     "Please wait...",
                 ],
                 logoUrl: this.getLogoUrl(),
@@ -142,7 +159,18 @@ SPDX-License-Identifier: Apache-2.0
             ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL', 'getStaticAssetsUrl']),
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
             beginOIDCLogin: async function (providerID) {
-                window.location.href = this.serverURL() + "/oidc/login?provider=" + providerID
+              let leftPosition, topPosition, width, height;
+              // Dimensions as per defined in ux design.
+              width = 700;
+              height = 770;
+              leftPosition = (window.screen.width / 2) - ((width / 2) + 10);
+              //Allow for title and status bars.
+              topPosition = (window.screen.height / 2) - ((height / 2) + 50);
+              //Open the pop up window.
+              window.open(this.serverURL() + "/oidc/login?provider=" + providerID, "_blank",
+                  "status=no,height=" + height + ",width=" + width + ",resizable=yes,left="
+                  + leftPosition + ",top=" + topPosition + ",screenX=" + leftPosition + ",screenY="
+                  + topPosition + ",toolbar=no,menubar=no,scrollbars=no,location=no,directories=no");
             },
 
             // Fetching the providers from hub-auth
@@ -190,13 +218,22 @@ SPDX-License-Identifier: Apache-2.0
                 this.refreshUserPreference()
             },
             handleSuccess() {
-                this.$router.push(this.redirect);
+              const route = this.$router.resolve({ name: this.redirect});
+              window.open(route.href, '_top')
             },
             loginDevice: async function () {
                 await this.deviceLogin.login();
             },
-
-        }
-    }
-
+            startLoading() {
+              this.intervalID = setInterval(() => {
+                this.messageNum++;
+                this.messageNum %= this.messages.length;
+              }, 3000);
+            },
+            stopLoading() {
+              clearInterval(this.intervalID);
+            },
+       }
+   }
 </script>
+
