@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright SecureKey Technologies Inc. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
@@ -44,7 +44,7 @@ import TopNavbar from "./TopNavbar.vue";
 import ContentFooter from "./ContentFooter.vue";
 import DashboardContent from "./Content.vue";
 import MobileMenu from "@/pages/layout/MobileMenu.vue";
-import Logout from "@/pages/chapi/Logout.vue";
+import Logout from "@/pages/Logout.vue";
 import { mapGetters } from "vuex";
 
 export default {

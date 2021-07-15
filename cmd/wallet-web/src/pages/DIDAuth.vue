@@ -56,7 +56,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 
-    import {CHAPIEventHandler} from "./wallet"
+    import {CHAPIEventHandler} from "./mixins"
     import {CredentialManager} from "@trustbloc/wallet-sdk"
     import Governance from "./Governance.vue";
     import {mapGetters} from 'vuex'

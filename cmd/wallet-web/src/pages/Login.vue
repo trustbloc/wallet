@@ -94,7 +94,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-    import {CHAPIHandler, RegisterWallet} from "./wallet"
+    import {CHAPIHandler, RegisterWallet} from "./mixins"
     import {DeviceLogin} from "@trustbloc/wallet-sdk"
     import {mapActions, mapGetters} from 'vuex'
     import {BeatLoader} from "@saeris/vue-spinners";

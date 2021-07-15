@@ -15,7 +15,7 @@ SPDX-License-Identifier: Apache-2.0
     import DIDConnectForm from "./DIDConnect.vue";
     import PresentationDefQueryForm from "./PresentationDefQuery.vue";
     import MultipleQueryForm from "./MultipleQuery.vue";
-    import {extractQueryTypes} from "./wallet"
+    import {extractQueryTypes} from "./mixins"
 
     const QUERY_FORMS = [
         {id:'PresentationDefinitionQuery', component:PresentationDefQueryForm, match: (types) => ['PresentationExchange', 'DIDConnect'].every(elem => types.includes(elem))},

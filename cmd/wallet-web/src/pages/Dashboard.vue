@@ -97,7 +97,7 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import {CredentialManager} from "@trustbloc/wallet-sdk"
-    import {getCredentialType} from "@/pages/chapi/wallet";
+    import {getCredentialType} from "@/pages/mixins";
     import {mapGetters} from 'vuex'
     import {PulseLoader} from "@saeris/vue-spinners";
     import PermanentResidentCard from "../components/CredentialCards/PermanentResidentCard";

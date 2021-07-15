@@ -377,7 +377,7 @@ SPDX-License-Identifier: Apache-2.0
             return {
                 didDocTextArea: "",
                 anyDidDocTextArea: "",
-                purpose: "authentication",
+                purpose: "all",
                 keyType: "ED25519",
                 signType: "Ed25519VerificationKey2018",
                 didID: "",

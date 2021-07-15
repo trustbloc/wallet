@@ -156,7 +156,7 @@ SPDX-License-Identifier: Apache-2.0
         normalizeQuery,
         getVCIcon,
         getCredentialType
-    } from "./wallet"
+    } from "./mixins"
     import {mapGetters} from 'vuex'
     import Governance from "./Governance.vue";
 
