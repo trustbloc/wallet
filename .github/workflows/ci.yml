@@ -30,13 +30,13 @@ jobs:
           echo $PATH
           go env
           echo ${{ github.workspace }}
-          echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
+          echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make checks
         env:
-          DOCKER_PASSWORD: ${{ secrets.CR_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   UnitTest:
     runs-on: ubuntu-20.04
@@ -96,13 +96,13 @@ jobs:
           echo '127.0.0.1 bdd-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bddtest-wallet-web.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-edv-oathkeeper-proxy' | sudo tee -a /etc/hosts
-          echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
+          echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make bdd-test-wallet-server
         env:
-          DOCKER_PASSWORD: ${{ secrets.CR_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   Publish:
     needs: [Checks, UnitTest, BDDTestWalletWeb, BDDTestWalletServer]
@@ -125,6 +125,10 @@ jobs:
           git lfs pull
           source ci/version_var.sh
           echo $DOCKER_PASSWORD | docker login ghcr.io --username $DOCKER_USER --password-stdin
+          echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
+          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make wallet-web-docker
           docker tag ghcr.io/trustbloc/wallet-web:latest ${WALLET_WEB_PKG}:${WALLET_WEB_TAG}
           docker push ${WALLET_WEB_PKG}:${WALLET_WEB_TAG}
