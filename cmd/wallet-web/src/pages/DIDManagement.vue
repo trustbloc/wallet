@@ -24,10 +24,30 @@ SPDX-License-Identifier: Apache-2.0
                                                 </md-subheader>
 
                                                 <md-list-item v-for="did in allDIDs" :key="did.id">
-                                                    <md-checkbox v-model="selectedDID" :value="did.id">{{ did.id
+                                                    <md-checkbox v-model="selectedDID" :value="did.id" v-on:change="didSelected(did.id)">{{ did.id
                                                         }}
                                                     </md-checkbox>
                                                 </md-list-item>
+                                            </md-list>
+
+                                            <md-divider></md-divider>
+
+                                            <md-list>
+                                                <md-subheader><label>
+                                                    <md-icon>aspect_ratio</md-icon>
+                                                    Key ID: </label>
+                                                </md-subheader>
+
+                                                <md-field>
+                                                    <select v-model="verificationMethod" name="verification-method"
+                                                               id="verification-method">
+                                                        <option value="default">Use Default</option>
+                                                        <option v-for="keyID in keyIDs" :key="keyID"
+                                                                   :value="keyID">
+                                                            {{keyID}}
+                                                        </option>
+                                                    </select>
+                                                </md-field>
                                             </md-list>
 
                                             <md-divider></md-divider>
@@ -56,7 +76,7 @@ SPDX-License-Identifier: Apache-2.0
 
                                             <md-button class="md-button md-info md-square"
                                                        v-on:click="updatePreferences"
-                                                       :disabled="!preferenceSelected">Update Preferences
+                                                       :disabled="!preferencesChanged">Update Preferences
                                             </md-button>
 
                                         </md-card-content>
@@ -207,7 +227,9 @@ SPDX-License-Identifier: Apache-2.0
                                                 <select id="importKeyType" v-model="importKeyType"
                                                         style="color: grey;"
                                                         md-alignment="left">
-                                                    <option value="ed25519verificationkey2018">Ed25519VerificationKey2018</option>
+                                                    <option value="ed25519verificationkey2018">
+                                                        Ed25519VerificationKey2018
+                                                    </option>
                                                     <option value="bls12381g1key2020">Bls12381G1Key2020</option>
                                                 </select>
                                             </md-field>
@@ -250,23 +272,20 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 
     import {DIDManager, WalletUser} from "@trustbloc/wallet-sdk"
-    import {mapGetters, mapActions} from 'vuex'
+    import {mapActions, mapGetters} from 'vuex'
+    import {getDIDVerificationMethod} from './mixins'
 
     export default {
         created: async function () {
             let agent = this.getAgentInstance()
-            let {user, token} = this.getCurrentUser().profile
-
-            this.didManager = new DIDManager({agent, user})
-            this.listDIDs()
+            let {user} = this.getCurrentUser().profile
 
             this.walletUser = new WalletUser({agent, user})
+            this.didManager = new DIDManager({agent, user})
 
-            let {content} = await this.walletUser.getPreferences(token)
+            await Promise.all([this.listDIDs(), this.loadPreferences()])
 
-            this.selectedDID = content.controller
-            this.selectedSignType = content.proofType
-            this.preference = content
+            this.updateVerificationMethod()
         },
         methods: {
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
@@ -275,6 +294,14 @@ SPDX-License-Identifier: Apache-2.0
             listDIDs: async function () {
                 let {contents} = await this.didManager.getAllDIDs(this.getCurrentUser().profile.token)
                 this.allDIDs = Object.keys(contents).map(k => contents[k].DIDDocument)
+            },
+            loadPreferences: async function(){
+                let {content} = await this.walletUser.getPreferences(this.getCurrentUser().profile.token)
+
+                this.selectedDID = content.controller
+                this.selectedSignType = content.proofType
+                this.preference = content
+                this.verificationMethod = (content.verificationMethod) ? content.verificationMethod : "default"
             },
             createDID: async function () {
                 this.errors.length = 0
@@ -335,8 +362,8 @@ SPDX-License-Identifier: Apache-2.0
                         did: this.didID,
                         key: {
                             keyType: this.importKeyType,
-                            privateKeyBase58: this.keyFormat == "Base58" ? this.privateKeyStr: '',
-                            privateKeyJwk: this.keyFormat == "JWK"? JSON.parse(this.privateKeyStr): undefined,
+                            privateKeyBase58: this.keyFormat == "Base58" ? this.privateKeyStr : '',
+                            privateKeyJwk: this.keyFormat == "JWK" ? JSON.parse(this.privateKeyStr) : undefined,
                             keyID: this.keyID,
                         }
                     })
@@ -354,6 +381,7 @@ SPDX-License-Identifier: Apache-2.0
                 this.walletUser.updatePreferences(this.getCurrentUser().profile.token, {
                     controller: this.selectedDID,
                     proofType: this.selectedSignType,
+                    verificationMethod: (this.verificationMethod != "default") ? this.verificationMethod: ''
                 }).then(
                     () => {
                         this.refreshUserPreference()
@@ -362,14 +390,36 @@ SPDX-License-Identifier: Apache-2.0
 
                 this.preference.controller = this.selectedDID
                 this.preference.proofType = this.selectedSignType
-            }
+                this.preference.verificationMethod = this.verificationMethod
+            },
+            didSelected(did) {
+                this.selectedDID= did
+                this.verificationMethod = "default"
+                this.updateVerificationMethod()
+            },
+            updateVerificationMethod() {
+                this.keyIDs = getDIDVerificationMethod(this.allDIDs, this.selectedDID)
+            },
         },
         computed: {
-            preferenceSelected() {
-                return (this.selectedDID) && (this.selectedSignType)
-                    && (this.preference.controller != this.selectedDID || this.preference.proofType != this.selectedSignType)
+            preferencesChanged() {
+                let {controller, proofType, verificationMethod} = this.preference
+
+                if (controller != this.selectedDID) {
+                    return true
+                }
+
+                if (proofType != this.selectedSignType) {
+                    return true
+                }
+
+                if (verificationMethod != (this.verificationMethod == 'default'? "": this.verificationMethod)) {
+                    return true
+                }
+
+                return false
             },
-            showImportKeyType(){
+            showImportKeyType() {
                 return this.keyFormat == "Base58"
             }
         },
@@ -394,6 +444,9 @@ SPDX-License-Identifier: Apache-2.0
                 allSignatureTypes: [{id: 'Ed25519Signature2018'}, {id: 'JsonWebSignature2020'}],
                 selectedDID: '',
                 selectedSignType: '',
+                verificationMethod: '',
+                keyIDs: [],
+                preference: {}
             };
         }
 
