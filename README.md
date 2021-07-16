@@ -2,8 +2,8 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/trustbloc/edge-agent/main/LICENSE)
 [![Godocs](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/trustbloc/edge-agent)
 
-[![Build Status](https://dev.azure.com/trustbloc/edge/_apis/build/status/trustbloc.edge-agent?branchName=main)](https://dev.azure.com/trustbloc/edge/_build/latest?definitionId=29&branchName=main)
-[![codecov](https://codecov.io/gh/trustbloc/edge-agent/branch/main/graph/badge.svg)](https://codecov.io/gh/trustbloc/edge-agent)
+[![Build Status](https://github.com/trustbloc/wallet/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/trustbloc/wallet/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/trustbloc/wallet/branch/main/graph/badge.svg)](https://codecov.io/gh/trustbloc/wallet)
 [![Go Report Card](https://goreportcard.com/badge/github.com/trustbloc/edge-agent)](https://goreportcard.com/report/github.com/trustbloc/edge-agent)
 
 # edge-agent
