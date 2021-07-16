@@ -34,6 +34,7 @@ jobs:
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          make wallet-web
         env:
           DOCKER_USER: ${{ secrets.CR_USER }}
           DOCKER_PASSWORD: ${{ secrets.CR_PAT }}
