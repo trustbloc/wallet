@@ -31,7 +31,3 @@ SPDX-License-Identifier: Apache-2.0
         },
     };
 </script>
-
-<style lang="scss">
-    @import "@/assets/scss/card-content";
-</style>

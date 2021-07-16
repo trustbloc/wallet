@@ -27,7 +27,6 @@
     "vue-badger-accordion": "^1.1.6",
     "vue-cookies": "^1.7.4",
     "vue-json-pretty": "^1.6.3",
-    "vue-material": "1.0.0-beta-11",
     "vue-router": "3.1.6",
     "vuex": "^3.5.1",
     "web-credential-handler": "^1.0.1"
