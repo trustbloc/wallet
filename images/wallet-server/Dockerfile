@@ -21,7 +21,7 @@ ARG GO_TAGS
 RUN GO_TAGS=${GO_TAGS} make wallet-server
 
 FROM alpine:${ALPINE_VER} as base
-LABEL org.opencontainers.image.source https://github.com/trustbloc/edge-agent
+LABEL org.opencontainers.image.source https://github.com/trustbloc/wallet
 
 COPY --from=golang_build /opt/workspace/edge-agent/build/bin/wallet-server /usr/local/bin/wallet-server
 ENV PATH=/usr/local/bin/wallet-server:$PATH
