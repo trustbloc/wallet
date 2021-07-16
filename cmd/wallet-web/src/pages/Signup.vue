@@ -14,11 +14,8 @@ SPDX-License-Identifier: Apache-2.0
            bg-flare bg-no-repeat w-auto h-3/5 divide-x divide-neutrals-medium divide-opacity-25">
                 <div class="col-span-1 hidden xl:block 2xl:block lg:block md:block py-14 px-8">
                     <ul class="list-none md:list-disc text-sm px-4 py-4">
-                        <div class="flex items-center">
-                            <img class="h-2 w-8 mr-2 mt-4 md-4 my-2 mx-4" :src="logoUrl">
-                            <h2 class="font-bold text-4xl lg:text-6xl">TrustBloc</h2>
-                        </div>
-                        <ul class="w-full rounded-lg mt-2 mb-3 font-normal">
+                        <Logo class="pl-3" href="" />
+                        <ul class="w-full rounded-lg mt-12 mb-3 font-normal">
                             <li class="pl-3 pr-4 py-3 text-sm">
                                 <div class="flex-1 flex items-center overflow-y-auto max-w-full">
                                     <img class="flex w-8 h-full" src="@/assets/img/onboarding-icon-1.svg"/>
@@ -89,6 +86,7 @@ SPDX-License-Identifier: Apache-2.0
     import {CHAPIHandler, RegisterWallet} from "./mixins"
     import {DeviceLogin} from "@trustbloc/wallet-sdk"
     import ContentFooter from "@/pages/layout/ContentFooter.vue"
+    import Logo from '@/components/Logo/Logo.vue'
     import {BeatLoader} from "@saeris/vue-spinners";
     import {mapActions, mapGetters} from 'vuex'
     import axios from 'axios';
@@ -129,7 +127,8 @@ SPDX-License-Identifier: Apache-2.0
         },
         components: {
             ContentFooter,
-            BeatLoader
+            BeatLoader,
+            Logo,
         },
         data() {
             return {
@@ -145,7 +144,6 @@ SPDX-License-Identifier: Apache-2.0
                     "Do not refresh the page.",
                     "Please wait...",
                 ],
-                logoUrl: this.getLogoUrl(),
             };
         },
         methods: {
@@ -156,7 +154,7 @@ SPDX-License-Identifier: Apache-2.0
                 completeUserSetup: 'completeUserSetup',
                 refreshUserPreference: 'refreshUserPreference'
             }),
-            ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL', 'getStaticAssetsUrl']),
+            ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL']),
             ...mapGetters('agent', {getAgentInstance: 'getInstance'}),
             beginOIDCLogin: async function (providerID) {
               let leftPosition, topPosition, width, height;
@@ -179,15 +177,6 @@ SPDX-License-Identifier: Apache-2.0
                     .then(response => {
                         this.providers = response.data.authProviders
                     })
-            },
-
-            // Get logo url based on docker configuration
-            getLogoUrl: function() {
-              let staticAssetsUrl = this.getStaticAssetsUrl()
-              if (staticAssetsUrl) {
-                return this.logoUrl = `${staticAssetsUrl}/images/logo.svg`
-              }
-              return this.logoUrl = `${require('@/assets/img/logo.svg')}`
             },
 
             sleep(ms) {

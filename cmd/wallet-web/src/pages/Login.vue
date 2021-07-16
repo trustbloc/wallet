@@ -11,9 +11,7 @@ SPDX-License-Identifier: Apache-2.0
             <div
                     class="md:max-w-6xl md:mx-auto md:flex md:items-center md:justify-between">
                 <div class="flex justify-between items-center">
-                    <img class="h-8 w-8 mr-2" :src="logoUrl" alt="">
-                    <a class="font-semibold text-white text-2xl lg:text-4xl tracking-tight"
-                       href="javascript:history.back()">TrustBloc</a>
+                    <Logo class="" href="javascript:history.back()" />
                     <div
                             class="inline-block cursor-pointer md:hidden">
                         <div class="bg-gray-400 w-8 mb-2" style="height: 2px;"></div>
@@ -98,6 +96,7 @@ SPDX-License-Identifier: Apache-2.0
     import {DeviceLogin} from "@trustbloc/wallet-sdk"
     import {mapActions, mapGetters} from 'vuex'
     import {BeatLoader} from "@saeris/vue-spinners";
+    import Logo from '@/components/Logo/Logo.vue'
 
     export default {
         created: async function () {
@@ -147,11 +146,11 @@ SPDX-License-Identifier: Apache-2.0
                     "Please do not refresh the page.",
                     "Please wait...",
                 ],
-                logoUrl: this.getLogoUrl(),
             };
         },
         components: {
             BeatLoader,
+            Logo,
         },
         methods: {
             ...mapActions({
@@ -214,14 +213,6 @@ SPDX-License-Identifier: Apache-2.0
             },
             stopLoading() {
                 clearInterval(this.intervalID);
-            },
-            // Get logo url based on docker configuration
-            getLogoUrl: function() {
-              let staticAssetsUrl = this.getStaticAssetsUrl()
-              if (staticAssetsUrl) {
-                return this.logoUrl = `${staticAssetsUrl}/images/logo.svg`
-              }
-              return this.logoUrl = `${require('@/assets/img/logo.svg')}`
             },
         }
     }
