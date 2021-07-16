@@ -77,3 +77,7 @@ export const getCredentialType = (types) => types.filter(type => type != "Verifi
 export const toLower = text => text.toString().toLowerCase()
 
 export const minsToNanoSeconds = ns => ns * 60 * (10 ** 9)
+
+export const getDIDVerificationMethod = (dids, id) => {
+    return jp.query(dids, `$[?(@.id=="${id}")].verificationMethod[*].id`)
+}
