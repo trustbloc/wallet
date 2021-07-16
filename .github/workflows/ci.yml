@@ -1,57 +1,71 @@
+#
 # Copyright SecureKey Technologies Inc. All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+#
 
+name: "wallet ci"
 
-name: $(SourceBranchName)-$(Date:yyyyMMdd).$(Rev:r)
-trigger:
-  - main
-pr:
-  - main
-variables:
+env:
   GO_VERSION: 1.16
-  GOPATH: $(Agent.BuildDirectory)/go
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  - job: Checks
-    pool:
-      vmImage: ubuntu-20.04
-    timeoutInMinutes: 30
+  Checks:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
     steps:
-      - template: azp-dependencies.yml
-      - checkout: self
-      - bash: |
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run checks
+        run: |
+          echo $PATH
+          go env
+          echo ${{ github.workspace }}
           echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make checks
         env:
-          DOCKER_PASSWORD: $(DOCKER_PASSWORD)
-        displayName: Run checks
+          DOCKER_PASSWORD: ${{ secrets.CR_PAT }}
 
-  - job: UnitTest
-    pool:
-      vmImage: ubuntu-20.04
-    timeoutInMinutes: 30
+  UnitTest:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
     steps:
-      - template: azp-dependencies.yml
-      - checkout: self
-      - script: make unit-test
-        displayName: Run unit test
-      - script: bash <(curl https://codecov.io/bash)
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run unit test
+        run: make unit-test
+      - name: Upload coverage to Codecov
+        run: |
+          bash <(curl https://codecov.io/bash)
         env:
-          CODECOV_UPLOAD_TOKEN: $(CODECOV_UPLOAD_TOKEN)
-        displayName: Upload coverage to Codecov
+          CODECOV_UPLOAD_TOKEN: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
 
-  - job: BDDTestJS
-    pool:
-      vmImage: ubuntu-18.04
-    timeoutInMinutes: 30
+  BDDTestWalletWeb:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
     steps:
-      - template: azp-dependencies.yml
-      - checkout: self
-      - bash: |
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run BDD test JS
+        run: |
           echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-hydra.trustbloc.local' | sudo tee -a /etc/hosts
@@ -62,18 +76,18 @@ jobs:
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make bdd-test-wallet-web
-        env:
-          DOCKER_PASSWORD: $(DOCKER_PASSWORD)
-        displayName: Run BDD tests in JS
 
-  - job: BDDTestHTTPServer
-    pool:
-      vmImage: ubuntu-18.04
-    timeoutInMinutes: 30
+  BDDTestWalletServer:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
     steps:
-      - template: azp-dependencies.yml
-      - checkout: self
-      - bash: |
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run BDD test
+        run: |
           echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 stakeholder.one' | sudo tee -a /etc/hosts
@@ -88,23 +102,21 @@ jobs:
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make bdd-test-wallet-server
         env:
-          DOCKER_PASSWORD: $(DOCKER_PASSWORD)
-        displayName: Run HTTP Server (wallet-server)
+          DOCKER_PASSWORD: ${{ secrets.CR_PAT }}
 
-  - job: Publish
-    dependsOn:
-      - Checks
-      - UnitTest
-      - BDDTestJS
-      - BDDTestHTTPServer
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-    pool:
-      vmImage: ubuntu-20.04
-    timeoutInMinutes: 30
+  Publish:
+    needs: [Checks, UnitTest, BDDTestWalletWeb, BDDTestWalletServer]
+    if: github.event_name == 'push' && (github.repository == 'trustbloc/edge-agent' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
     steps:
-      - template: azp-dependencies.yml
-      - checkout: self
-      - bash: |
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - run: |
           function logout {
             docker logout
           }
@@ -113,10 +125,6 @@ jobs:
           git lfs pull
           source ci/version_var.sh
           echo $DOCKER_PASSWORD | docker login ghcr.io --username $DOCKER_USER --password-stdin
-          echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
-          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
           make wallet-web-docker
           docker tag ghcr.io/trustbloc/wallet-web:latest ${WALLET_WEB_PKG}:${WALLET_WEB_TAG}
           docker push ${WALLET_WEB_PKG}:${WALLET_WEB_TAG}
@@ -124,5 +132,6 @@ jobs:
           docker tag ghcr.io/trustbloc/wallet-server:latest ${WALLET_SERVER_PKG}:${WALLET_SERVER_TAG}
           docker push ${WALLET_SERVER_PKG}:${WALLET_SERVER_TAG}
         env:
-          DOCKER_USER: $(DOCKER_USER)
-          DOCKER_PASSWORD: $(DOCKER_PASSWORD)
+          DOCKER_USER: ${{ secrets.CR_USER }}
+          DOCKER_PASSWORD: ${{ secrets.CR_PAT }}
+
