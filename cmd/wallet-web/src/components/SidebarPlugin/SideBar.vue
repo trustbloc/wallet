@@ -10,8 +10,7 @@ SPDX-License-Identifier: Apache-2.0
       <div class="md:w-1/4 xl:w-1/5 2xl:w-1/6 h-screen absolute sm:relative gradient shadow md:h-auto flex-col justify-between hidden sm:flex">
         <div class="h-full flex flex-col justify-start align-left px-12 pb-8">
           <div class="flex justify-start items-center">
-            <img class="h-10 w-10 mr-2 mt-2" :src="logoUrl" alt="">
-            <h1 class="font-semibold text-white text-2xl lg:text-4xl tracking-tight">TrustBloc</h1>
+            <Logo class="mt-12" href="" />
           </div>
           <div class="sidebar-wrapper flex-grow flex flex-col justify-between mt-8">
             <slot name="content"></slot>
@@ -35,11 +34,12 @@ SPDX-License-Identifier: Apache-2.0
   </template>
   <script>
   import SidebarLink from "./SidebarLink.vue";
-  import { mapGetters } from 'vuex';
+  import Logo from '@/components/Logo/Logo.vue';
 
     export default {
       components: {
-        SidebarLink
+        SidebarLink,
+        Logo,
       },
       props: {
         sidebarLinks: {
@@ -54,20 +54,9 @@ SPDX-License-Identifier: Apache-2.0
     data() {
       return {
         moved: true,
-        logoUrl: this.getLogoUrl(),
        };
      },
-    methods: {
-      ...mapGetters(['getStaticAssetsUrl']),
-      // Get logo url based on docker configuration
-      getLogoUrl: function() {
-        let staticAssetsUrl = this.getStaticAssetsUrl()
-        if (staticAssetsUrl) {
-          return this.logoUrl = `${staticAssetsUrl}/images/logo.svg`
-        }
-        return this.logoUrl = `${require('@/assets/img/logo.svg')}`
-      },
-    },
+    methods: {},
   };
 </script>
 <style>
