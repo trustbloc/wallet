@@ -68,11 +68,6 @@ SPDX-License-Identifier: Apache-2.0
                                 </form>
                             </md-card-content>
                         </div>
-                        <div class="md:px-24 relative">
-                            <div class="hidden md:block">
-                                <img class="object-scale-down h-84 w-full" src="@/assets/img/home_wallet.png" alt="">
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
