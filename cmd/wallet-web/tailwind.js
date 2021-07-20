@@ -174,7 +174,6 @@ module.exports = {
         'h4': { fontSize: theme('fontSize.6xl'), fontWeight: theme('fontWeight.bold') },
         'h5': { fontSize: theme('fontSize.5xl'), fontWeight: theme('fontWeight.bold') },
         'h6': { fontSize: theme('fontSize.4xl'), fontWeight: theme('fontWeight.bold') },
-        'a': { borderBottom: `2px solid ${theme('colors.primary.blue')}`, paddingBottom: 2 },
       })
     }),
     plugin(function({ addComponents, theme }) {
@@ -269,7 +268,7 @@ module.exports = {
           color: theme('colors.neutrals.white'),
           fontSize: theme('fontSize.base'),
           fontWeight: theme('fontWeight.bold'),
-        }
+        },
       }
 
       const inputs = {
@@ -356,11 +355,17 @@ module.exports = {
             top: 18,
             right: theme('spacing.3'),
           },
-        },
-        
+        }
       }
 
-      addComponents({ ...buttons, ...inputs })
+      const links = {
+        '.underline-blue': {
+          borderBottom: `2px solid ${theme('colors.primary.blue')}`,
+          paddingBottom: 2,
+        },
+      }
+
+      addComponents({ ...buttons, ...inputs, ...links })
     }),
   ],
 }

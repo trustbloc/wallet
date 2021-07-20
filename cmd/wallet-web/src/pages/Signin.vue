@@ -38,7 +38,7 @@ SPDX-License-Identifier: Apache-2.0
 				<div class="text-center py-10 md:py-12">
 					<p class="text-base font-normal text-neutrals-softWhite">
 						Don't have an account?
-						<a class="text-primary-blue whitespace-nowrap" href="/Signup">Sign up</a>
+						<a class="underline-blue text-primary-blue whitespace-nowrap" href="/Signup">Sign up</a>
 					</p>
 				</div>
 			</div>
