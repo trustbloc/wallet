@@ -1,6 +1,8 @@
 # User Agent Web Wallet
 
- User agent Web Wallet is based on [CHAPI](https://w3c-ccg.github.io/credential-handler-api/) developed using [credential handler polyfill](https://github.com/digitalbazaar/credential-handler-polyfill), [Vue](https://vuejs.org)
+ User agent Web Wallet is based on [CHAPI](https://w3c-ccg.github.io/credential-handler-api/) developed using [credential handler polyfill](https://github.com/digitalbazaar/credential-handler-polyfill), [Vue](https://vuejs.org), [Aries JS Worker](https://github.com/hyperledger/aries-framework-go/blob/main/cmd/aries-js-worker/README.md).
+ 
+ This wallet uses [Wallet SDK](https://github.com/trustbloc/agent-sdk/tree/main/cmd/wallet-js-sdk) built on top of Aries [Universal Wallet](https://w3c-ccg.github.io/universal-wallet-interop-spec/) implementation. 
 
 ## Steps to start user agent web wallet
 
@@ -122,7 +124,7 @@ const webCredential = await navigator.credentials.get(didAuthQuery);
 ```
 
 ## Sending Presentation Exchange request to web wallet
-A relying party or verifier can request submission of proof from wallet in align with requester's [proof requirements](https://identity.foundation/presentation-exchange/) as given in sample below (wallet `get()` with type `"PresentationDefinitionQuery"`),
+A relying party or verifier can request submission of proof from wallet in align with requester's [proof requirements](https://identity.foundation/presentation-exchange/) as given in sample below (wallet `get()` with type `"PresentationExchange"`),
 
 Once presentation exchange request received, Web wallet will query saved credentials in wallet based on criteria defined in presentation exchange request. 
 
@@ -132,8 +134,8 @@ let presentationExchangeQuery = {
                                     "VerifiablePresentation": {
                                       "query": [
                                         {
-                                          "type": "PresentationDefinitionQuery",
-                                          "presentationDefinitionQuery": {
+                                          "type": "PresentationExchange",
+                                          "credentialQuery": {
                                             "submission_requirements": [
                                               {
                                                 "name": "Education Qualification",
@@ -321,8 +323,8 @@ let presentationExchangeDIDCommQuery = {
                                                "VerifiablePresentation": {
                                                    "query": [
                                                        {
-                                                           "type": "PresentationDefinitionQuery",
-                                                           "presentationDefinitionQuery": {...}
+                                                           "type": "PresentationExchange",
+                                                           "credentialQuery": {...}
                                                        },
                                                        {
                                                            "type": "DIDConnect",
