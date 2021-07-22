@@ -16,7 +16,22 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-export default {};
+import { setDocumentLang, setDocumentTitle } from "@/utils/i18n/document";
+export default {
+  mounted() {
+    this.$watch(
+      "$i18n.locale",
+      (newLocale, oldLocale) => {
+        if (newLocale === oldLocale) {
+          return
+        }
+        setDocumentLang(newLocale)
+        setDocumentTitle(this.$t("App.title"))
+      },
+      { immediate: true }
+    )
+  }
+};
 </script>
 
 <style scoped>
