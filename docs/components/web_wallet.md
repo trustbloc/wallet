@@ -301,27 +301,16 @@ let didConnectQuery = {
                 "type": "DIDConnect"
             },
             "invitation": {
-                "@id": "0d72ebac-6210-46b4-a736-43a3bf90f976",
-                "@type": "https://didcomm.org/out-of-band/1.0/invitation",
-                "label": "ewr",
-                "protocols": [
-                    "https://didcomm.org/didexchange/1.0"
-                ],
-                "service": [
-                    {
-                        "ID": "6941a000-b7c8-4535-be49-814a2289bc26",
-                        "Priority": 0,
-                        "Properties": null,
-                        "RecipientKeys": [
-                            "EYbrpVudXxPJnowxCycPhRz6NtdQdu9sZKYoHHyq2Fc4"
-                        ],
-                        "RoutingKeys": [
-                            "CTkGyS7PjPgYDHhgv6WJwjgUU9ABbrT68x1X4HzwazM4"
-                        ],
-                        "ServiceEndpoint": "https://localhost:10091",
-                        "Type": "did-communication"
-                    }
-                ]
+                    "@id": "2629b7f4-f8f9-43fc-8964-65740e73d0ab",
+                    "@type": "https://didcomm.org/out-of-band/1.0/invitation",
+                    "label": "issuer",
+                     "services": [{
+                        "id": "2c757b3f-2f57-44bc-b9d2-0c2301571f41",
+                        "recipientKeys": ["did:key:z6MkkYU4VfCzss5JuHQiHiXS9GKVHVrs5GFrA4RRTakNu7o2"],
+                        "serviceEndpoint": "https://adapter-issuer-didcomm.stg.trustbloc.dev",
+                        "type": "did-communication"
+                    }],
+                 "handshake_protocols": ["https://didcomm.org/didexchange/1.0"]
             },
             // credentials issuer wants to send like manifests, governance credential or any other credentials 
             "credentials": [],
@@ -350,30 +339,19 @@ let presentationExchangeDIDCommQuery = {
                                                            "credentialQuery": {...}
                                                        },
                                                        {
-                                                           "type": "DIDConnect",
-                                                           "invitation": {
-                                                               "@id": "0d72ebac-6210-46b4-a736-43a3bf90f976",
-                                                               "@type": "https://didcomm.org/out-of-band/1.0/invitation",
-                                                               "label": "ewr",
-                                                               "protocols": [
-                                                                   "https://didcomm.org/didexchange/1.0"
-                                                               ],
-                                                               "service": [
-                                                                   {
-                                                                       "ID": "6941a000-b7c8-4535-be49-814a2289bc26",
-                                                                       "Priority": 0,
-                                                                       "Properties": null,
-                                                                       "RecipientKeys": [
-                                                                           "EYbrpVudXxPJnowxCycPhRz6NtdQdu9sZKYoHHyq2Fc4"
-                                                                       ],
-                                                                       "RoutingKeys": [
-                                                                           "CTkGyS7PjPgYDHhgv6WJwjgUU9ABbrT68x1X4HzwazM4"
-                                                                       ],
-                                                                       "ServiceEndpoint": "https://localhost:10091",
-                                                                       "Type": "did-communication"
-                                                                   }
-                                                               ]
-                                                           }
+                                                            "type": "DIDConnect",
+                                                            "invitation": {
+                                                                    "@id": "2629b7f4-f8f9-43fc-8964-65740e73d0ab",
+                                                                    "@type": "https://didcomm.org/out-of-band/1.0/invitation",
+                                                                    "label": "issuer",
+                                                                     "services": [{
+                                                                        "id": "2c757b3f-2f57-44bc-b9d2-0c2301571f41",
+                                                                        "recipientKeys": ["did:key:z6MkkYU4VfCzss5JuHQiHiXS9GKVHVrs5GFrA4RRTakNu7o2"],
+                                                                        "serviceEndpoint": "https://adapter-rp-didcomm.stg.trustbloc.dev",
+                                                                        "type": "did-communication"
+                                                                    }],
+                                                                 "handshake_protocols": ["https://didcomm.org/didexchange/1.0"]
+                                                            },
                                                        }
                                                    ],
                                                    "challenge": "37c66a97-b2c9-4666-b3d5-66d01b02707b",
