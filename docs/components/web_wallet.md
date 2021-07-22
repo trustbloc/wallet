@@ -2,7 +2,26 @@
 
  User agent Web Wallet is based on [CHAPI](https://w3c-ccg.github.io/credential-handler-api/) developed using [credential handler polyfill](https://github.com/digitalbazaar/credential-handler-polyfill), [Vue](https://vuejs.org), [Aries JS Worker](https://github.com/hyperledger/aries-framework-go/blob/main/cmd/aries-js-worker/README.md).
  
- This wallet uses [Wallet SDK](https://github.com/trustbloc/agent-sdk/tree/main/cmd/wallet-js-sdk) built on top of Aries [Universal Wallet](https://w3c-ccg.github.io/universal-wallet-interop-spec/) implementation. 
+ This wallet uses [Wallet SDK](https://github.com/trustbloc/agent-sdk/tree/main/cmd/wallet-js-sdk) built on top of [Aries Verifiable Credential wallet](https://github.com/hyperledger/aries-framework-go/blob/main/docs/vc_wallet.md) based on [Universal Wallet Specifications](https://w3c-ccg.github.io/universal-wallet-interop-spec/) implementation.
+
+## Key components
+
+Here are the major components used by User Agent web wallet.
+
+* **Storage** - used for storing wallet contents. Supports many storage providers, but Encrypted Data Vaults(EDV) is highly recommended. Refer [TrustBloc EDV](https://github.com/trustbloc/edv) for TrustBloc Encrypted Data Vault implementations.
+   * Supports EDV and indexedDB for Aries Web Assembly based user agents.
+   * Supports EDV, couchDB, levelDB and many more storage providers in case of Aries REST based user agents.
+    
+* **Key Management System (KMS)** - used for managing keys for authorization, cryptographic operations, encrypted data vaults etc. Supports both local KMS and WebKMS, but WebKMS is highly recommended. Refer [TrustBloc KMS](https://github.com/trustbloc/kms) for TrustBloc WebKMS implementations. 
+
+* **DID Management (VDR)** - For creating, resolving DIDs. By Default user agent web wallet supports Orb DIDs. Web wallet also provides features to import any DIDs with their keys.
+Refer this [link](https://trustbloc.github.io/did-method-orb/) to learn more about Orb DIDs.
+
+* **Authentication** - Any OIDC implementation can be integrated into User agent web wallet for user login and authentication. 
+Refer [TrustBloc Hub Auth](https://github.com/trustbloc/hub-auth) for TrustBloc end user authentication services.
+
+
+Refer `User Agent (edge-agent)` in [Architectural Diagram](https://github.com/trustbloc/sandbox/blob/main/docs/components/adapter_components.md) to learn more about relationship of web wallet with various TrustBloc components.
 
 ## Steps to start user agent web wallet
 
@@ -32,7 +51,8 @@ Once user agent is started using previous step,
 User agent web wallet supports various wallet operations and also [DIDComm](https://github.com/hyperledger/aries-rfcs/blob/master/concepts/0005-didcomm/README.md). 
 - **DID auth**: This operation can be used when a website that wants user to authenticate (prove they are authorized to act as a particular DID subject, aka "DIDAuth" over wallet)
 - **Store Credential**: This operation can be used when an issuer website wants to give user a credential to store in their wallet
-- **Get Credential**: This operation can be used when a website (a Relying Party or verifier) wants to request a credential from user.
+- **Get Credential**: This operation can be used when a website (a Relying Party or verifier) wants to request a credential from user. 
+The user agent web wallet supports various query types including the ones in [verifiable presentation request specifications](https://w3c-ccg.github.io/vp-request-spec/). 
 - **DID Connect**: This operation can be used by a website(or agent) to perform [DID Exchange](https://github.com/hyperledger/aries-rfcs/blob/master/features/0023-did-exchange/README.md) with web wallet for all future DIDComm operations.  
 - **Presentation Exchange**: This operation can be used by a website (a Relying Party or verifier) to request submission of proof from wallet in align with requester's [proof requirements](https://identity.foundation/presentation-exchange/). This request can also be made in conjuction with DID Connect operation, so that wallet can request further information from requester (a Relying party or verifier) over DIDComm channel.
 
@@ -101,7 +121,8 @@ let credentialQuery = {
 const webCredential = await navigator.credentials.get(credentialQuery);
 
 ```
-Note: currently, web wallet lists all the saved credentials and applies filter based on type `query.credentialQuery.example.type`.
+Web wallet supports multiple queries where different query types can be mixed together in a single request.
+
 
 ## DID Auth from wallet
 A DID Auth request asking to prove ownership of a DID can be sent to wallet as given in sample below (wallet `get()` with type `"DIDAuth"` ),
@@ -260,6 +281,8 @@ let presentationExchangeQuery = {
 const webCredential = await navigator.credentials.get(presentationExchangeQuery);
 
 ```
+
+Note: `PresentaionExchange` can be mixed with other credential query types like QueryByExample, QueryByFrame etc. But it is not recommended since it might produce multiple presentations as a response.
 
 ## DIDComm by web wallet
 User agent web wallet supports DID communication for secured interactions with issuer and verifiers. 
