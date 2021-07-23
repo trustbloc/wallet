@@ -1,0 +1,24 @@
+{
+	"App": {
+		"title": "Wallet"
+	},
+	"ContentFooter": {
+		"privacyPolicy": "Politique de confidentialité",
+		"terms": "Conditions d’utilisation"
+	},
+	"Signin": {
+		"heading": "Connectez-vous à votre compte",
+		"redirect": "Vous n’avez pas de compte?",
+		"signup": "S’inscrire"
+	},
+	"Signup": {
+		"heading": "Inscrivez-vous. C’est gratuit!",
+		"redirect": "Vous avez déjà un compte?",
+		"signin": "Se connecter",
+		"leftContainer": {
+			"span1": "Protégez votre identité numérique",
+			"span2": "Conservez vos pièces d’identité numériques, vos certifications et bien plus dans un même portefeuille sécurisé",
+			"span3": "Vérifiez votre identité en personne ou en ligne"
+		}
+	}
+}

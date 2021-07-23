@@ -1,0 +1,24 @@
+{
+  "App": {
+    "title": "Wallet"
+  },
+  "ContentFooter": {
+    "privacyPolicy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+  "Signin": {
+    "heading": "Sign in to your account",
+    "redirect": "Don't have an account?",
+    "signup": "Sign up"
+  },
+  "Signup": {
+    "heading": "Sign up. It's free!",
+    "redirect": "Already have an account?",
+    "signin": "Sign in",
+    "leftContainer": {
+        "span1": "Keep your digital identity safe",
+        "span2": "Store digital IDs, certifications, and more—all in one secure wallet",
+        "span3": "Verify your identity in person or online"
+    }
+  }
+}

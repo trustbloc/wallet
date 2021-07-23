@@ -22,21 +22,21 @@ SPDX-License-Identifier: Apache-2.0
 						<div class="flex-1 flex items-center overflow-y-auto max-w-full mb-8">
 							<img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-1.svg" />
 							<span class="text-base pl-5 text-neutrals-white align-middle">
-								Keep your digital identity safe
+								{{ i18n.leftContainer.span1 }}
 							</span>
 						</div>
 
 						<div class="flex-1 flex items-center overflow-y-auto max-w-full mb-8">
 							<img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-2.svg" />
 							<span class="text-base pl-5 text-neutrals-white align-middle">
-								Store digital IDs, certifications, and more—all in one secure wallet
+								{{ i18n.leftContainer.span2 }}
 							</span>
 						</div>
 
 						<div class="flex-1 flex items-center overflow-y-auto max-w-full">
 							<img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-3.svg" />
 							<span class="text-base pl-5 text-neutrals-white align-middle">
-								Verify your identity in person or online
+								{{ i18n.leftContainer.span3 }}
 							</span>
 						</div>
 					</div>
@@ -46,7 +46,7 @@ SPDX-License-Identifier: Apache-2.0
 							<Logo class="md:hidden justify-center mt-12 my-2" href="" />
 							<div class="text-center items-center mb-10">
 								<h1 class="text-2xl md:text-4xl font-bold text-neutrals-white">
-									Sign up. It's free!
+									{{ i18n.heading }}
 								</h1>
 							</div>
 							<div class="flex justify-center content-center w-full py-24 min-h-xl">
@@ -64,8 +64,8 @@ SPDX-License-Identifier: Apache-2.0
 							</div>
 							<div class="text-center py-10 md:pb-0 md:pt-12">
 								<p class="text-base font-normal text-neutrals-white">
-									Already have an account?
-									<a class="underline-blue text-primary-blue whitespace-nowrap" href="/Signin">Sign in</a>
+									{{ i18n.redirect }}
+									<a class="underline-blue text-primary-blue whitespace-nowrap" href="/Signin">{{ i18n.signin }}</a>
 								</p>
 							</div>
 						</div>
@@ -121,6 +121,11 @@ export default {
 		ContentFooter,
 		Logo,
 		Spinner,
+	},
+	computed: {
+		i18n() {
+			return this.$t("Signup")
+		}
 	},
 	data() {
 		return {

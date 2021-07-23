@@ -18,6 +18,7 @@ import SideBar from "@/components/SidebarPlugin";
 import VueMaterial from "vue-material";
 import "vue-material/dist/vue-material.css";
 import "./assets/scss/material-dashboard.scss";
+import i18n from './i18n'
 
 Vue.config.productionTip = false
 
@@ -68,15 +69,18 @@ Vue.use(VueMaterial);
 new Vue({
     store,
     el: "#app",
+
     data: () => ({
         loaded: false,
     }),
+
     methods: {
         ...mapActions(['initOpts', 'loadUser']),
         ...mapActions('agent', {initAgent: 'init'}),
         ...mapGetters('agent', {isAgentInitialized: 'isInitialized'}),
         ...mapGetters(['getAgentOpts']),
     },
+
     mounted: async function () {
         // load opts
         await this.initOpts()
@@ -92,7 +96,9 @@ new Vue({
         // removes spinner
         this.loaded = true
     },
+
     render: h => h(App),
+    i18n,
     router
 });
 

@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "setup:assets": "bash scripts/setup_assets.sh",
     "serve": "npm run setup:assets && vue-cli-service serve --port 9098",
     "build": " npm run setup:assets && vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\"",
+    "setup:assets": "bash scripts/setup_assets.sh"
   },
   "dependencies": {
     "@saeris/vue-spinners": "^1.0.8",
@@ -26,6 +27,7 @@
     "vue": "^2.6.10",
     "vue-badger-accordion": "^1.1.6",
     "vue-cookies": "^1.7.4",
+    "vue-i18n": "^8.22.3",
     "vue-json-pretty": "^1.6.3",
     "vue-material": "1.0.0-beta-11",
     "vue-router": "3.1.6",
@@ -33,6 +35,7 @@
     "web-credential-handler": "^1.0.1"
   },
   "devDependencies": {
+    "@intlify/vue-i18n-loader": "^1.0.0",
     "@nuxtjs/vuetify": "^1.11.0",
     "@vue/cli-plugin-babel": "^4.1.0",
     "@vue/cli-plugin-eslint": "^4.1.0",
@@ -53,6 +56,7 @@
     "sass-loader": "8.0.2",
     "serialize-javascript": ">=3.1.0",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.1.4",
+    "vue-cli-plugin-i18n": "~2.1.1",
     "vue-template-compiler": "^2.6.10",
     "yargs-parser": ">=18.1.2"
   },

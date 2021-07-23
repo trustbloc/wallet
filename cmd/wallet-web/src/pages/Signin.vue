@@ -18,7 +18,7 @@ SPDX-License-Identifier: Apache-2.0
 				<Logo class="py-12" href="" />
 				<div class="text-center items-center mb-10 md:mb-8">
 					<span class="text-2xl md:text-4xl font-bold text-neutrals-white">
-						Sign in to your account
+						{{ i18n.heading }}
 					</span>
 				</div>
 				<div class="flex justify-center content-center w-full py-24 min-h-xl">
@@ -37,8 +37,8 @@ SPDX-License-Identifier: Apache-2.0
 				</div>
 				<div class="text-center py-10 md:py-12">
 					<p class="text-base font-normal text-neutrals-softWhite">
-						Don't have an account?
-						<a class="underline-blue text-primary-blue whitespace-nowrap" href="/Signup">Sign up</a>
+						{{ i18n.redirect }}
+						<a class="underline-blue text-primary-blue whitespace-nowrap" href="/Signup">{{ i18n.signup }}</a>
 					</p>
 				</div>
 			</div>
@@ -62,6 +62,11 @@ export default {
 		ContentFooter,
 		Logo,
 		Spinner,
+	},
+	computed: {
+		i18n() {
+			return this.$t("Signin")
+		}
 	},
 	data() {
 		return {
