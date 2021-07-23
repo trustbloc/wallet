@@ -39,10 +39,6 @@ router.beforeEach((to, from, next) => {
         } else if (store.dispatch('loadUser') && store.getters.getCurrentUser) {
             next()
         } else {
-            if (window.top.opener) {
-                window.top.close()
-                window.opener.location.reload();
-            }
             next({
                 name: "signup",
                 params: {redirect: to.name},
