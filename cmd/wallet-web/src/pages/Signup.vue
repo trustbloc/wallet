@@ -181,8 +181,7 @@ export default {
 			this.refreshUserPreference();
 		},
 		handleSuccess() {
-			const route = this.$router.resolve({ name: this.redirect });
-			window.open(route.href, '_top');
+      this.$router.push(this.redirect);
 		},
 	},
 };
