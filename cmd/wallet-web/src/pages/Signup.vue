@@ -57,10 +57,9 @@ SPDX-License-Identifier: Apache-2.0
 									:key="index"
 									class="w-full h-11 max-w-xs flex flex-wrap items-center text-sm font-bold text-neutrals-dark py-2 px-4 mb-4
                                     bg-neutrals-softWhite rounded-md"
-									@click="beginOIDCLogin(provider.id)"
-								>
+									@click="beginOIDCLogin(provider.id)">
 									<img class="object-contain inline-block max-h-6 mr-2" :src="provider.logoURL" />
-									<span class="flex flex-wrap">{{ provider.signUpText }}</span>
+									<span class="flex flex-wrap" id="signUpText">{{ provider.signUpText }}</span>
 								</button>
 							</div>
 							<div class="text-center py-10 md:pb-0 md:pt-12">
@@ -142,33 +141,9 @@ export default {
 		}),
 		...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL']),
 		...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-		beginOIDCLogin: async function(providerID) {
-			let leftPosition, topPosition, width, height;
-			// Dimensions as per defined in ux design.
-			width = 700;
-			height = 770;
-			leftPosition = window.screen.width / 2 - (width / 2 + 10);
-			//Allow for title and status bars.
-			topPosition = window.screen.height / 2 - (height / 2 + 50);
-			//Open the pop up window.
-			window.open(
-				this.serverURL() + '/oidc/login?provider=' + providerID,
-				'_blank',
-				'status=no,height=' +
-					height +
-					',width=' +
-					width +
-					',resizable=yes,left=' +
-					leftPosition +
-					',top=' +
-					topPosition +
-					',screenX=' +
-					leftPosition +
-					',screenY=' +
-					topPosition +
-					',toolbar=no,menubar=no,scrollbars=no,location=no,directories=no'
-			);
-		},
+    beginOIDCLogin: async function (providerID) {
+      window.location.href = this.serverURL() + '/oidc/login?provider=' + providerID
+    },
 		// Fetching the providers from hub-auth
 		fetchProviders: async function() {
 			await axios.get(this.hubURL() + '/oauth2/providers').then((response) => {
@@ -188,11 +163,10 @@ export default {
 			await chapi.install(this.getCurrentUser().username);
 		},
 		async registerUser(user) {
-			if (!user.preference) {
+      if (!user.preference) {
 				this.startUserSetup();
 
 				let user = this.getCurrentUser();
-
 				// first time login, register this user
 				await new RegisterWallet(this.getAgentInstance(), this.getAgentOpts()).register(
 					{
