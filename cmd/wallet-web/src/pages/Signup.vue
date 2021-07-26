@@ -50,7 +50,7 @@ SPDX-License-Identifier: Apache-2.0
 								</h1>
 							</div>
 							<div class="flex justify-center content-center w-full py-24 min-h-xl">
-								<Spinner v-if="loading" />
+								<Spinner v-if="!loading" />
 								<button
 									v-else
 									v-for="(provider, index) in providers"
@@ -88,7 +88,7 @@ import axios from 'axios';
 
 export default {
 	created: async function() {
-		await this.fetchProviders();
+    await this.fetchProviders();
 		//TODO: issue-601 Implement cookie logic with information from the backend.
 		this.deviceLogin = new DeviceLogin(this.getAgentOpts()['edge-agent-server']);
 
@@ -96,18 +96,20 @@ export default {
 		this.redirect = redirect ? { name: redirect } : `${__webpack_public_path__}`;
 
 		// if session found, then no need to login
+    console.log("step 1" , this.getCurrentUser(), this.getState)
 		this.loadUser();
-		if (this.getCurrentUser()) {
-			this.handleSuccess();
+		if (this.getCurrentUser() && this.getState) {
+      this.handleSuccess();
 			return;
 		}
 
-		// call server to get user info and process login
 		await this.loadOIDCUser();
 
 		// register or let user inside wallet
 		if (this.getCurrentUser()) {
-			await this.finishOIDCLogin();
+      this.popUpClosedSetup()
+      console.log("step 2")
+      await this.finishOIDCLogin();
 			this.handleSuccess();
 			return;
 		}
@@ -125,16 +127,19 @@ export default {
 	computed: {
 		i18n() {
 			return this.$t("Signup")
-		}
+		},
+    getState() {
+      return this.getLoginHandleSetup();
+    },
 	},
 	data() {
 		return {
 			providers: [],
-			hubOauthProvider: this.hubURL(),
 			statusMsg: '',
 			loading: true,
 			registered: false,
-		};
+      myWindow: null,
+    };
 	},
 	methods: {
 		...mapActions({
@@ -143,15 +148,27 @@ export default {
 			startUserSetup: 'startUserSetup',
 			completeUserSetup: 'completeUserSetup',
 			refreshUserPreference: 'refreshUserPreference',
+      popUpOpenedSetup: 'popUpOpenedSetup',
+      popUpClosedSetup: 'popUpClosedSetup',
 		}),
 		...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL']),
-		...mapGetters('agent', { getAgentInstance: 'getInstance' }),
+		...mapGetters('agent', { getAgentInstance: 'getInstance'}),
+    ...mapGetters(['getLoginHandleSetup']),
     beginOIDCLogin: async function (providerID) {
-      window.location.href = this.serverURL() + '/oidc/login?provider=' + providerID
+      console.log("before updated state", this.getLoginHandleSetup(), loginSetup)
+      this.popUpOpenedSetup()
+      let loginSetup = this.getLoginHandleSetup();
+      console.log("final updated state", this.getLoginHandleSetup(), loginSetup)
+      this.myWindow =  this.popupwindow( this.serverURL() + '/oidc/login?provider=' + providerID, '', 700, 770)
     },
-		// Fetching the providers from hub-auth
+    popupwindow(url, title, w, h) {
+      var left = (screen.width/2)-(w/2);
+      var top = (screen.height/2)-(h/2);
+      return  window.open(url, title, 'menubar=yes,status=yes, replace=true, width='+w+', height='+h+', top='+top+', left='+left);
+    },
+    // Fetching the providers from hub-auth
 		fetchProviders: async function() {
-			await axios.get(this.hubURL() + '/oauth2/providers').then((response) => {
+    await axios.get('https://localhost:8044/oauth2/providers').then((response) => {
 				this.providers = response.data.authProviders;
 			});
 		},

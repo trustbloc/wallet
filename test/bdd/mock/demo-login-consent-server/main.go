@@ -38,13 +38,14 @@ const (
 	bankconsentHTML     = "./templates/bankconsent.html"
 	dlUploadHTML        = "./templates/uploadCred.html"
 	dlUploadConsentHTML = "./templates/uploadCredConsent.html"
-
-	bankLogin = "banklogin"
+	providerQueryParam  = "provider"
+	bankLogin = "mockbank"
 	dlUpload  = "uploaddrivinglicense"
 
 	bankFlow     = "bank"
 	dlUploadFlow = "dlUpload"
 	defaultFlow  = "default"
+	skipConsentFlow = "skipConsent"
 
 	loginTypeCookie = "loginType"
 
@@ -176,14 +177,33 @@ func (c *consentServer) login(w http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodGet:
 		challenge := req.URL.Query().Get("login_challenge")
+		loginReq := prepareLoginRequest(challenge)
+
+		resp, err := c.hydraClient.Admin.GetLoginRequest(loginReq)
+		if err != nil {
+			fmt.Fprintf(w, "Failed to fetch login request from hydra: %s", err.Error())
+			w.WriteHeader(http.StatusBadRequest)
+
+			return
+		}
+
+		// fetching the request url from the valid login request to fetch provider (custom parameter)
+		providerID, err := c.fetchProviderFromURL(resp.Payload.RequestURL)
+		if err != nil {
+			fmt.Fprintf(w, "Failed to fetch the provider name: %s", err.Error())
+			w.WriteHeader(http.StatusBadRequest)
+
+			return
+		}
+
 		fullData := map[string]interface{}{
 			"login_challenge": challenge,
 		}
 
 		switch {
-		case strings.Contains(req.Referer(), bankLogin):
+		case strings.Contains(providerID, bankLogin):
 			expire := time.Now().AddDate(0, 0, 1)
-			cookie := http.Cookie{Name: loginTypeCookie, Value: bankFlow, Expires: expire}
+			cookie := http.Cookie{Name: loginTypeCookie, Value: skipConsentFlow, Expires: expire}
 			http.SetCookie(w, &cookie)
 
 			err := c.bankLoginTemplate.Execute(w, fullData)
@@ -207,7 +227,7 @@ func (c *consentServer) login(w http.ResponseWriter, req *http.Request) {
 			}
 		default:
 			expire := time.Now().AddDate(0, 0, 1)
-			cookie := http.Cookie{Name: loginTypeCookie, Value: defaultFlow, Expires: expire}
+			cookie := http.Cookie{Name: loginTypeCookie, Value: skipConsentFlow, Expires: expire}
 			http.SetCookie(w, &cookie)
 
 			err := c.loginTemplate.Execute(w, fullData)
@@ -359,6 +379,18 @@ func (c *consentServer) showConsentPage(w http.ResponseWriter, req *http.Request
 			fmt.Fprint(w, err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 		}
+	case skipConsentFlow:
+		form := url.Values{}
+		form.Add("grant_scope", consentRequest.Payload.RequestedScope[0])
+
+		req.PostForm = form
+
+		ok := parseRequestForm(w, req)
+		if !ok {
+			return
+		}
+
+		c.acceptConsentRequest(w, req)
 	default:
 		err = c.consentTemplate.Execute(w, fullData)
 		if err != nil {
@@ -366,6 +398,34 @@ func (c *consentServer) showConsentPage(w http.ResponseWriter, req *http.Request
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}
+}
+func prepareLoginRequest(challenge string) *admin.GetLoginRequestParams {
+	loginReq := admin.NewGetLoginRequestParams()
+	loginReq.SetLoginChallenge(challenge)
+
+	loginReq.SetHTTPClient(&http.Client{Transport: &http.Transport{TLSClientConfig: &tls.Config{ //nolint:gosec
+		InsecureSkipVerify: true,
+	}}})
+
+	return loginReq
+}
+
+func (c *consentServer) fetchProviderFromURL(requestURL string) (string, error) {
+	parsedURL, err := url.Parse(requestURL)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse url: %s", parsedURL)
+	}
+
+	params, err := url.ParseQuery(parsedURL.RawQuery)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse raw query for provider name: %s", parsedURL.RawQuery)
+	}
+
+	if providerName, ok := params[providerQueryParam]; ok {
+		return providerName[0], nil
+	}
+
+	return "", nil
 }
 
 func (c *consentServer) acceptConsentRequest(w http.ResponseWriter, req *http.Request) {
