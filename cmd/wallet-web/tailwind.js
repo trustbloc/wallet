@@ -32,9 +32,9 @@ module.exports = {
         purple: '#8a35b7',
         valencia: '#d24343',
       },
-      gray:{
+      gray: {
         light: '#f4f1f5',
-      }
+      },
     },
     fontFamily: {
       sans: [
@@ -99,18 +99,40 @@ module.exports = {
       vividViolet: {
         DEFAULT: '#90399e',
         dark: '#8631a0',
-      }
+      },
     }),
-    gradients: theme => ({
-      cinnabar: `linear-gradient(-180deg, ${theme('gradientColorStops.cinnabar.DEFAULT')} 0%, ${theme('gradientColorStops.darkTan')} 100%)`,
-      cinnabarLight: `linear-gradient(-180deg, ${theme('gradientColorStops.cinnabar.light')} 0%, ${theme('gradientColorStops.darkTan')} 100%)`,
-      dark: `linear-gradient(-135deg, ${theme('gradientColorStops.haiti')} 0%, ${theme('gradientColorStops.ebony')} 100%)`,
-      full: `linear-gradient(-225deg, ${theme('gradientColorStops.apricot')} 0%, ${theme('gradientColorStops.hibiscus.dark')} 26%, ${theme('gradientColorStops.copperfield')} 47%, ${theme('gradientColorStops.vividViolet.DEFAULT')} 66%, ${theme('gradientColorStops.blueViolet')} 83%, ${theme('gradientColorStops.curiousBlue')} 100%)`,
-      iron: `linear-gradient(-180deg, ${theme('gradientColorStops.iron')} 0%, ${theme('gradientColorStops.eastSide')} 100%)`,
-      lavender: `linear-gradient(-180deg, ${theme('gradientColorStops.lavender')} 0%, ${theme('gradientColorStops.jagger')} 100%)`,
-      pink: `linear-gradient(-135deg, ${theme('gradientColorStops.hibiscus.DEFAULT')} 0%, ${theme('gradientColorStops.grape')} 100%)`,
-      purple: `linear-gradient(-135deg, ${theme('gradientColorStops.vividViolet.dark')} 0%, ${theme('gradientColorStops.jagger')} 100%)`,
-      moonRaker: `linear-gradient(-180deg, ${theme('gradientColorStops.neutrals.white')} 0%, ${theme('gradientColorStops.moonRaker')} 100%)`,
+    gradients: (theme) => ({
+      cinnabar: `linear-gradient(-180deg, ${theme(
+        'gradientColorStops.cinnabar.DEFAULT'
+      )} 0%, ${theme('gradientColorStops.darkTan')} 100%)`,
+      cinnabarLight: `linear-gradient(-180deg, ${theme(
+        'gradientColorStops.cinnabar.light'
+      )} 0%, ${theme('gradientColorStops.darkTan')} 100%)`,
+      dark: `linear-gradient(-135deg, ${theme('gradientColorStops.haiti')} 0%, ${theme(
+        'gradientColorStops.ebony'
+      )} 100%)`,
+      full: `linear-gradient(-225deg, ${theme('gradientColorStops.apricot')} 0%, ${theme(
+        'gradientColorStops.hibiscus.dark'
+      )} 26%, ${theme('gradientColorStops.copperfield')} 47%, ${theme(
+        'gradientColorStops.vividViolet.DEFAULT'
+      )} 66%, ${theme('gradientColorStops.blueViolet')} 83%, ${theme(
+        'gradientColorStops.curiousBlue'
+      )} 100%)`,
+      iron: `linear-gradient(-180deg, ${theme('gradientColorStops.iron')} 0%, ${theme(
+        'gradientColorStops.eastSide'
+      )} 100%)`,
+      lavender: `linear-gradient(-180deg, ${theme('gradientColorStops.lavender')} 0%, ${theme(
+        'gradientColorStops.jagger'
+      )} 100%)`,
+      pink: `linear-gradient(-135deg, ${theme('gradientColorStops.hibiscus.DEFAULT')} 0%, ${theme(
+        'gradientColorStops.grape'
+      )} 100%)`,
+      purple: `linear-gradient(-135deg, ${theme('gradientColorStops.vividViolet.dark')} 0%, ${theme(
+        'gradientColorStops.jagger'
+      )} 100%)`,
+      moonRaker: `linear-gradient(-180deg, ${theme(
+        'gradientColorStops.neutrals.white'
+      )} 0%, ${theme('gradientColorStops.moonRaker')} 100%)`,
     }),
     spacing: {
       px: '1px',
@@ -140,14 +162,14 @@ module.exports = {
       64: '16rem',
     },
     extend: {
-      backgroundImage: theme => ({
+      backgroundImage: (theme) => ({
         'gradient-dark': theme('gradients.dark'),
         'gradient-full': theme('gradients.full'),
         'gradient-pink': theme('gradients.pink'),
         'gradient-purple': theme('gradients.purple'),
-        'onboarding': "url('~@/assets/img/onboarding-bg-lg.svg')",
+        onboarding: "url('~@/assets/img/onboarding-bg-lg.svg')",
         'onboarding-sm': "url('~@/assets/img/onboarding-bg-sm.svg')",
-        'flare': "url('~@/assets/img/onboarding-flare-lg.png')",
+        flare: "url('~@/assets/img/onboarding-flare-lg.png')",
       }),
       height: {
         lg: '46px',
@@ -158,7 +180,7 @@ module.exports = {
         xl: '896px',
       },
       screens: {
-        'xs': '320px',
+        xs: '320px',
       },
     },
   },
@@ -166,17 +188,17 @@ module.exports = {
     extend: {},
   },
   plugins: [
-    plugin(function({ addBase, theme }) {
+    plugin(function ({ addBase, theme }) {
       addBase({
-        'h1': { fontSize: theme('fontSize.9xl'), fontWeight: theme('fontWeight.bold') },
-        'h2': { fontSize: theme('fontSize.8xl'), fontWeight: theme('fontWeight.bold') },
-        'h3': { fontSize: theme('fontSize.7xl'), fontWeight: theme('fontWeight.bold') },
-        'h4': { fontSize: theme('fontSize.6xl'), fontWeight: theme('fontWeight.bold') },
-        'h5': { fontSize: theme('fontSize.5xl'), fontWeight: theme('fontWeight.bold') },
-        'h6': { fontSize: theme('fontSize.4xl'), fontWeight: theme('fontWeight.bold') },
-      })
+        h1: { fontSize: theme('fontSize.9xl'), fontWeight: theme('fontWeight.bold') },
+        h2: { fontSize: theme('fontSize.8xl'), fontWeight: theme('fontWeight.bold') },
+        h3: { fontSize: theme('fontSize.7xl'), fontWeight: theme('fontWeight.bold') },
+        h4: { fontSize: theme('fontSize.6xl'), fontWeight: theme('fontWeight.bold') },
+        h5: { fontSize: theme('fontSize.5xl'), fontWeight: theme('fontWeight.bold') },
+        h6: { fontSize: theme('fontSize.4xl'), fontWeight: theme('fontWeight.bold') },
+      });
     }),
-    plugin(function({ addComponents, theme }) {
+    plugin(function ({ addComponents, theme }) {
       const buttons = {
         '.btn-primary': {
           height: theme('spacing.11'),
@@ -194,7 +216,7 @@ module.exports = {
           '&:focus': {
             border: `2px solid ${theme('colors.neutrals.white')}`, // TODO: replace with border from theme once defined
             boxShadow: `0px 0px 0px 2px rgba(138, 53, 183, 0.7), 0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
-          }
+          },
         },
         '.btn-inverse': {
           height: theme('spacing.11'),
@@ -212,7 +234,7 @@ module.exports = {
           '&:focus': {
             border: `2px solid ${theme('colors.neutrals.dark')}`, // TODO: replace with border from theme once defined
             boxShadow: `0px 0px 0px 2px rgba(227, 173, 255, 0.7), 0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
-          }
+          },
         },
         '.btn-outline': {
           height: theme('spacing.11'),
@@ -229,7 +251,7 @@ module.exports = {
           },
           '&:focus': {
             boxShadow: `0px 0px 0px 2px rgba(138, 53, 183, 0.7)`, // TODO: replace with shadow from theme once defined
-          }
+          },
         },
         '.btn-danger': {
           height: theme('spacing.11'),
@@ -247,7 +269,7 @@ module.exports = {
           '&:focus': {
             border: `2px solid ${theme('colors.neutrals.white')}`, // TODO: replace with border from theme once defined
             boxShadow: `0px 0px 0px 2px rgba(174, 49, 49, 0.7), 0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
-          }
+          },
         },
         '.btn-disabled': {
           height: theme('spacing.11'),
@@ -269,7 +291,7 @@ module.exports = {
           fontSize: theme('fontSize.base'),
           fontWeight: theme('fontWeight.bold'),
         },
-      }
+      };
 
       const inputs = {
         '.input-container': {
@@ -298,7 +320,7 @@ module.exports = {
               borderColor: theme('colors.primary.valencia'),
               '& ~ img': {
                 visibility: 'visible',
-              }
+              },
             },
           },
 
@@ -312,11 +334,12 @@ module.exports = {
             fontSize: theme('fontSize.base'),
           },
 
-          '& input:focus + .input-label, input:not(:focus):not(:placeholder-shown) + .input-label': {
-            top: 5,
-            fontSize: theme('fontSize.sm'),
-            marginBottom: theme('spacing.8'),
-          },
+          '& input:focus + .input-label, input:not(:focus):not(:placeholder-shown) + .input-label':
+            {
+              top: 5,
+              fontSize: theme('fontSize.sm'),
+              marginBottom: theme('spacing.8'),
+            },
 
           '& .input-label': {
             fontSize: theme('fontSize.base'),
@@ -355,17 +378,17 @@ module.exports = {
             top: 18,
             right: theme('spacing.3'),
           },
-        }
-      }
+        },
+      };
 
       const links = {
         '.underline-blue': {
           borderBottom: `2px solid ${theme('colors.primary.blue')}`,
           paddingBottom: 2,
         },
-      }
+      };
 
-      addComponents({ ...buttons, ...inputs, ...links })
+      addComponents({ ...buttons, ...inputs, ...links });
     }),
   ],
-}
+};

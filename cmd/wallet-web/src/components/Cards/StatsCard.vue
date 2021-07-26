@@ -1,8 +1,4 @@
-/*
-Copyright SecureKey Technologies Inc. All Rights Reserved.
-
-SPDX-License-Identifier: Apache-2.0
-*/
+/* Copyright SecureKey Technologies Inc. All Rights Reserved. SPDX-License-Identifier: Apache-2.0 */
 
 <template>
   <md-card class="md-card-stats">
@@ -21,12 +17,12 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 <script>
 export default {
-  name: "stats-card",
+  name: 'StatsCard',
   props: {
     dataBackgroundColor: {
       type: String,
-      default: ""
-    }
-  }
+      default: '',
+    },
+  },
 };
 </script>

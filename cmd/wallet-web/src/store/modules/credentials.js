@@ -6,58 +6,58 @@ SPDX-License-Identifier: Apache-2.0
 
 // TO BE USED FOR DEMO SCREENS ONLY, NOT A WALLET FEATURE
 export default {
-    actions: {
-        onIssueCredentialState({dispatch}, notice) {
-            if (notice.payload.Type !== "post_state") {
-                return
-            }
+  actions: {
+    onIssueCredentialState({ dispatch }, notice) {
+      if (notice.payload.Type !== 'post_state') {
+        return;
+      }
 
-            dispatch('getCredentials')
-        },
-        async getCredentials({commit, getters}) {
-            let agent = getters['agent/getInstance']
-            // retrieves all agent credentials
-            let res = await agent.verifiable.getCredentials()
-            if (!res.hasOwnProperty('result')) {
-                return
-            }
-
-            res.result.forEach(function (v) {
-                getters.completedConnections.forEach(function (conn) {
-                    if (conn.MyDID !== v.my_did || conn.TheirDID !== v.their_did) {
-                        return
-                    }
-
-                    v.label = conn.TheirLabel
-                    if (!v.label) {
-                        v.label = conn.ConnectionID
-                    }
-                })
-            })
-
-            // sets connections
-            commit('updateCredentials', res.result)
-
-            return res.result
-        },
+      dispatch('getCredentials');
     },
-    mutations: {
-        updateCredentials(state, credentials) {
-            state.credentials = credentials
-        },
+    async getCredentials({ commit, getters }) {
+      let agent = getters['agent/getInstance'];
+      // retrieves all agent credentials
+      let res = await agent.verifiable.getCredentials();
+      if (!res.hasOwnProperty('result')) {
+        return;
+      }
+
+      res.result.forEach(function (v) {
+        getters.completedConnections.forEach(function (conn) {
+          if (conn.MyDID !== v.my_did || conn.TheirDID !== v.their_did) {
+            return;
+          }
+
+          v.label = conn.TheirLabel;
+          if (!v.label) {
+            v.label = conn.ConnectionID;
+          }
+        });
+      });
+
+      // sets connections
+      commit('updateCredentials', res.result);
+
+      return res.result;
     },
-    state: {
-        credentials: [],
+  },
+  mutations: {
+    updateCredentials(state, credentials) {
+      state.credentials = credentials;
     },
-    getters: {
-        allCredentials(state) {
-            return state.credentials
-        },
-        associatedCredentials(state, {allCredentials}) {
-            return allCredentials.filter(v => v.label)
-        },
-        associatedCredentialsCount(state, {associatedCredentials}) {
-            return associatedCredentials.length
-        },
+  },
+  state: {
+    credentials: [],
+  },
+  getters: {
+    allCredentials(state) {
+      return state.credentials;
     },
-}
+    associatedCredentials(state, { allCredentials }) {
+      return allCredentials.filter((v) => v.label);
+    },
+    associatedCredentialsCount(state, { associatedCredentials }) {
+      return associatedCredentials.length;
+    },
+  },
+};

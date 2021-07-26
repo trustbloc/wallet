@@ -1,24 +1,25 @@
-/*
-Copyright SecureKey Technologies Inc. All Rights Reserved.
-
-SPDX-License-Identifier: Apache-2.0
-*/
+/* Copyright SecureKey Technologies Inc. All Rights Reserved. SPDX-License-Identifier: Apache-2.0 */
 
 <template>
   <md-card class="md-card-plain">
     <md-card-header data-background-color="green">
-      <h4 class="title">{{ title }}
-        <md-badge v-if="count" class="md-primary md-square" style="position: relative;margin-top: 5px;"
-                  :md-content="count"/>
+      <h4 class="title">
+        {{ title }}
+        <md-badge
+          v-if="count"
+          class="md-primary md-square"
+          style="position: relative; margin-top: 5px"
+          :md-content="count"
+        />
       </h4>
       <div class="title-btn-right">
-        <md-button v-on:click="queryConnections" class="md-icon-button md-dense md-raised md-info">
+        <md-button class="md-icon-button md-dense md-raised md-info" @click="queryConnections">
           <md-icon>cached</md-icon>
         </md-button>
       </div>
     </md-card-header>
     <md-card-content class="white">
-      <div class="text-center" v-if="connections.length===0">No connections</div>
+      <div v-if="connections.length === 0" class="text-center">No connections</div>
       <md-content class="md-content-connections md-scrollbar">
         <md-list class="md-triple-line">
           <md-list-item v-for="conn in connections" :key="conn.id">
@@ -30,8 +31,11 @@ SPDX-License-Identifier: Apache-2.0
               <span v-if="!short && conn.ThreadID">ThreadID: {{ conn.ThreadID }}</span>
               <span v-if="!short && conn.MyDID">MyDID: {{ conn.MyDID }}</span>
             </div>
-            <md-button v-if="canAcceptExchangeRequest(conn)" v-on:click="acceptExchangeRequest(conn.ConnectionID)"
-                       class="md-icon-button md-dense md-raised md-info right">
+            <md-button
+              v-if="canAcceptExchangeRequest(conn)"
+              class="md-icon-button md-dense md-raised md-info right"
+              @click="acceptExchangeRequest(conn.ConnectionID)"
+            >
               <md-icon>done</md-icon>
             </md-button>
           </md-list-item>
@@ -42,14 +46,14 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-import {mapActions} from 'vuex'
+import { mapActions } from 'vuex';
 
 export default {
-  name: "connections",
+  name: 'Connections',
   props: {
     title: {
       type: String,
-      default: 'Connections'
+      default: 'Connections',
     },
     short: {
       type: Boolean,
@@ -66,10 +70,10 @@ export default {
   methods: {
     ...mapActions(['acceptExchangeRequest', 'queryConnections']),
     canAcceptExchangeRequest: function (conn) {
-      return conn.State === 'requested' && conn.Namespace === 'their'
+      return conn.State === 'requested' && conn.Namespace === 'their';
     },
   },
-}
+};
 </script>
 
 <style scoped>

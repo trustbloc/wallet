@@ -4,51 +4,57 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-export const PRE_STATE = "pre_state"
-export const POST_STATE = "post_state"
+export const PRE_STATE = 'pre_state';
+export const POST_STATE = 'post_state';
 
-const defaultTimeout = 120000 // TODO (#531): Reduce timeout once EDV storage speed is improved.
-const defaultTimeoutError = "time out while waiting for event"
-const defaultTopic = 'all'
+const defaultTimeout = 120000; // TODO (#531): Reduce timeout once EDV storage speed is improved.
+const defaultTimeoutError = 'time out while waiting for event';
+const defaultTopic = 'all';
 
 export function waitForEvent(agent, options = {}) {
-    if (!options.timeout) {
-        options.timeout = defaultTimeout
-    }
+  if (!options.timeout) {
+    options.timeout = defaultTimeout;
+  }
 
-    if (!options.timeoutError) {
-        options.timeoutError = defaultTimeoutError
-    }
+  if (!options.timeoutError) {
+    options.timeoutError = defaultTimeoutError;
+  }
 
-    if (!options.topic) {
-        options.topic = defaultTopic
-    }
+  if (!options.topic) {
+    options.topic = defaultTopic;
+  }
 
-    return new Promise((resolve, reject) => {
-        setTimeout(() => reject(new Error(options.timeoutError)), options.timeout)
-        const stop = agent.startNotifier(event => {
-            try {
-                let payload = event.payload;
+  return new Promise((resolve, reject) => {
+    setTimeout(() => reject(new Error(options.timeoutError)), options.timeout);
+    const stop = agent.startNotifier(
+      (event) => {
+        try {
+          let payload = event.payload;
 
-                if (options.connectionID && payload.Properties &&
-                    payload.Properties.connectionID !== options.connectionID) {
-                    return
-                }
+          if (
+            options.connectionID &&
+            payload.Properties &&
+            payload.Properties.connectionID !== options.connectionID
+          ) {
+            return;
+          }
 
-                if (options.stateID && payload.StateID !== options.stateID) {
-                    return
-                }
+          if (options.stateID && payload.StateID !== options.stateID) {
+            return;
+          }
 
-                if (options.type && payload.Type !== options.type) {
-                    return
-                }
+          if (options.type && payload.Type !== options.type) {
+            return;
+          }
 
-                stop()
-                resolve(payload)
-            } catch (e) {
-                stop()
-                reject(e)
-            }
-        }, [options.topic])
-    })
+          stop();
+          resolve(payload);
+        } catch (e) {
+          stop();
+          reject(e);
+        }
+      },
+      [options.topic]
+    );
+  });
 }

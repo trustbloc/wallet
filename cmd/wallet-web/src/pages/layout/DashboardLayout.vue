@@ -1,8 +1,4 @@
-/*
-Copyright SecureKey Technologies Inc. All Rights Reserved.
-
-SPDX-License-Identifier: Apache-2.0
-*/
+/* Copyright SecureKey Technologies Inc. All Rights Reserved. SPDX-License-Identifier: Apache-2.0 */
 
 <template>
   <div v-if="$route.meta.showNav === false" class="main-panel">
@@ -20,8 +16,8 @@ SPDX-License-Identifier: Apache-2.0
         <sidebar-link to="/dashboard">
           <div class="py-8 text-lg rounded text-white">
             <div class="flex items-center">
-              <img class="h-8 w-8 mr-2" src="@/assets/img/wallet.png" alt="" />
-              <span class="normal-case px-4 mt-2 text-2xl font-sans">Wallet</span>
+              <img class="mr-2 w-8 h-8" src="@/assets/img/wallet.png" alt="" />
+              <span class="px-4 mt-2 font-sans text-2xl normal-case">Wallet</span>
             </div>
           </div>
         </sidebar-link>
@@ -29,7 +25,7 @@ SPDX-License-Identifier: Apache-2.0
       <logout />
     </side-bar>
 
-    <div class="main-panel md:w-3/4 xl:w-4/5 2xl:w-5/6">
+    <div class="md:w-3/4 xl:w-4/5 2xl:w-5/6 main-panel">
       <top-navbar></top-navbar>
 
       <dashboard-content></dashboard-content>
@@ -40,12 +36,12 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-import TopNavbar from "./TopNavbar.vue";
-import ContentFooter from "./ContentFooter.vue";
-import DashboardContent from "./Content.vue";
-import MobileMenu from "@/pages/layout/MobileMenu.vue";
-import Logout from "@/pages/Logout.vue";
-import { mapGetters } from "vuex";
+import TopNavbar from './TopNavbar.vue';
+import ContentFooter from './ContentFooter.vue';
+import DashboardContent from './Content.vue';
+import MobileMenu from '@/pages/layout/MobileMenu.vue';
+import Logout from '@/pages/Logout.vue';
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -58,6 +54,6 @@ export default {
   data() {
     return {};
   },
-  computed: mapGetters(["pendingConnectionsCount", "isDevMode"]),
+  computed: mapGetters(['pendingConnectionsCount', 'isDevMode']),
 };
 </script>
