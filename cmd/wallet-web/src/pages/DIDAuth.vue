@@ -90,7 +90,7 @@ export default {
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser']),
-    cancel: async function () {
+    cancel: function () {
       this.chapiHandler.cancel();
     },
     authorize: async function () {

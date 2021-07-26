@@ -148,9 +148,11 @@
                         </md-field>
 
                         <md-button
-                          id='createDIDBtn'
-                                                        class="md-button md-info md-square" @click="createDID"><b>Create and
-                          ><b>Create and Save</b>
+                          id="createDIDBtn"
+                          class="md-button md-info md-square"
+                          @click="createDID"
+                        >
+                          <b>Create and Save</b>
                         </md-button>
 
                         <div v-if="errors.length">
@@ -427,54 +429,56 @@ export default {
       this.keyIDs = getDIDVerificationMethod(this.allDIDs, this.selectedDID);
     },
   },
-        data() {
-            return {
-                didDocTextArea: "",
-                anyDidDocTextArea: "",
-                purpose: "all",
-                keyType: "ED25519",
-                signType: "Ed25519VerificationKey2018",
-                didID: "",
-                privateKeyStr: "",
-                keyID: "",
-                errors: [],
-                saveErrors: [],
-                loading: false,
-                createDIDSuccess: false,
-                saveAnyDIDSuccess: false,
-                allDIDs: {},
-                importKeyType: "",
-                keyFormat: "",
-                allSignatureTypes: [{id: 'Ed25519Signature2018'}, {id: 'JsonWebSignature2020'}],
-                selectedDID: '',
-                selectedSignType: '',
-                verificationMethod: '',
-                keyIDs: [],
-                preference: {}
-            };
-        },
-        computed: {
-            preferencesChanged() {
-                let {controller, proofType, verificationMethod} = this.preference
+  data() {
+    return {
+      didDocTextArea: '',
+      anyDidDocTextArea: '',
+      purpose: 'all',
+      keyType: 'ED25519',
+      signType: 'Ed25519VerificationKey2018',
+      didID: '',
+      privateKeyStr: '',
+      keyID: '',
+      errors: [],
+      saveErrors: [],
+      loading: false,
+      createDIDSuccess: false,
+      saveAnyDIDSuccess: false,
+      allDIDs: {},
+      importKeyType: '',
+      keyFormat: '',
+      allSignatureTypes: [{ id: 'Ed25519Signature2018' }, { id: 'JsonWebSignature2020' }],
+      selectedDID: '',
+      selectedSignType: '',
+      verificationMethod: '',
+      keyIDs: [],
+      preference: {},
+    };
+  },
+  computed: {
+    preferencesChanged() {
+      let { controller, proofType, verificationMethod } = this.preference;
 
-                if (controller != this.selectedDID) {
-                    return true
-                }
+      if (controller != this.selectedDID) {
+        return true;
+      }
 
-                if (proofType != this.selectedSignType) {
-                    return true
-                }
+      if (proofType != this.selectedSignType) {
+        return true;
+      }
 
-                if (verificationMethod != (this.verificationMethod == 'default'? "": this.verificationMethod)) {
-                    return true
-                }
+      if (
+        verificationMethod != (this.verificationMethod == 'default' ? '' : this.verificationMethod)
+      ) {
+        return true;
+      }
 
-                return false
-            },
-            showImportKeyType() {
-                return this.keyFormat == "Base58"
-            }
-        }
+      return false;
+    },
+    showImportKeyType() {
+      return this.keyFormat == 'Base58';
+    },
+  },
 };
 </script>
 <style></style>

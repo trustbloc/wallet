@@ -73,9 +73,11 @@ export class WalletGetByQuery {
   async createAndSendPresentation(user, presentationSubmission, selectedIndexes) {
     // remove unselected VCs from final presentation submission and get authorization credentials for matched manifests.
     if (selectedIndexes && selectedIndexes.length > 0) {
+      // eslint-disable-next-line no-param-reassign
       presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes);
 
       if (this.invitation.length > 0) {
+        // eslint-disable-next-line no-param-reassign
         presentationSubmission = await this._getAuthorizationCredentials(
           presentationSubmission,
           user.profile
@@ -220,12 +222,14 @@ function retainOnlySelected(presentationSubmission, selectedIndexes) {
   return presentationSubmission;
 }
 
-async function waitForCredentials(agent, pool) {
+function waitForCredentials(agent, pool) {
   let processed = 0;
+  // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     setTimeout(() => reject(new Error('timeout waiting for incoming credentials')), 600000); // TODO (#531): Reduce timeout once EDV storage speed is improved.
 
     for (;;) {
+      // eslint-disable-next-line no-await-in-loop
       let resp = await agent.issuecredential.actions();
       for (let action of resp.actions) {
         if (pool.has(action.PIID)) {
@@ -235,7 +239,9 @@ async function waitForCredentials(agent, pool) {
             names: [credID],
           });
 
+          // eslint-disable-next-line no-await-in-loop
           let metadata = await getCredentialMetadata(agent, credID);
+          // eslint-disable-next-line no-await-in-loop
           let credential = await agent.verifiable.getCredential(metadata);
 
           pool.get(action.PIID).credential = JSON.parse(credential.verifiableCredential);
@@ -246,6 +252,7 @@ async function waitForCredentials(agent, pool) {
 
       if (processed < pool.size) {
         console.log(`received ${processed} out of ${pool.size} credentials, retrying`);
+        // eslint-disable-next-line no-await-in-loop
         await sleep(1000);
         continue;
       }
@@ -262,6 +269,7 @@ async function getCredentialMetadata(agent, name) {
   const retries = 30; // TODO (#531): Reduce number of retries once EDV storage speed is improved.
   for (let i = 0; i < retries; i++) {
     try {
+      // eslint-disable-next-line no-await-in-loop
       return await agent.verifiable.getCredentialByName({
         name: name,
       });
@@ -269,6 +277,7 @@ async function getCredentialMetadata(agent, name) {
       console.log(`credential '${name}' not found, retrying`);
     }
 
+    // eslint-disable-next-line no-await-in-loop
     await sleep(500);
   }
 

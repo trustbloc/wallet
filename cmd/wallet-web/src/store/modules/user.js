@@ -177,7 +177,7 @@ export default {
 
           dispatch('updateUserProfile', { user, token }, { root: true });
         },
-        async flushStore({ state }) {
+        flushStore({ state }) {
           console.debug('flushing store', state.instance);
           if (state.instance) {
             state.instance.store.flush();

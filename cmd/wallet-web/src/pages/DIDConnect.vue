@@ -83,7 +83,7 @@ export default {
       govnVC: null,
     };
   },
-  created: async function () {
+  created: function () {
     this.wallet = new DIDConn(
       this.getAgentInstance(),
       this.getCurrentUser().profile,
@@ -101,7 +101,7 @@ export default {
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser', 'getAgentOpts']),
-    cancel: async function () {
+    cancel: function () {
       this.wallet.cancel();
     },
     connect: async function () {

@@ -37,7 +37,7 @@ export default {
       registered: false,
     };
   },
-  created: async function () {
+  created: function () {
     this.deviceRegister = new DeviceRegister(this.getAgentOpts()['edge-agent-server']);
     if (this.$cookies.isKey('registerSuccess')) {
       this.registered = true;

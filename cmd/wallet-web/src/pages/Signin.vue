@@ -151,7 +151,7 @@ export default {
     }),
     ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    beginOIDCLogin: async function (providerID) {
+    beginOIDCLogin: function (providerID) {
       let leftPosition, topPosition, width, height;
       // Dimensions as per defined in ux design.
       width = 700;

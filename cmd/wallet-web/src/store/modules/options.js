@@ -52,9 +52,7 @@ let defaultAgentStartupOpts = {
 
 export default {
   actions: {
-    async initOpts({ commit, getters, dispatch }, location) {
-      location = location ? location : window.location.origin;
-
+    async initOpts({ commit, getters, dispatch }, location = window.location.origin) {
       let agentOpts = {};
       let profileOpts = {};
 

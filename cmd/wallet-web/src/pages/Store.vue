@@ -136,7 +136,7 @@ export default {
       });
       console.log('this.records', JSON.stringify(this.records, null, 2));
     },
-    store: async function () {
+    store: function () {
       this.errors.length = 0;
       let { token } = this.getCurrentUser().profile;
 
@@ -150,7 +150,7 @@ export default {
           this.errors.push(`failed to save credential`);
         });
     },
-    cancel: async function () {
+    cancel: function () {
       this.credentialEvent.cancel();
     },
   },

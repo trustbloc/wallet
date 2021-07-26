@@ -182,7 +182,7 @@ export default {
     }),
     ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    beginOIDCLogin: async function (providerID) {
+    beginOIDCLogin: function (providerID) {
       window.location.href = this.serverURL() + '/oidc/login?provider=' + providerID;
     },
     // Fetching the providers from hub-auth

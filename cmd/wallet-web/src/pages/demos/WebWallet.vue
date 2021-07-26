@@ -158,7 +158,7 @@ export default {
     await this.$polyfill.loadOnce(opts.credentialMediatorURL);
   },
   methods: {
-    clearResults: async function () {
+    clearResults: function () {
       this.errors.length = 0;
       this.responses.length = 0;
     },
@@ -195,7 +195,7 @@ export default {
       this.showResp(result.data);
       this.responses.push('Successfully got response from wallet.');
     },
-    showResp: async function (data) {
+    showResp: function (data) {
       if (typeof data == 'object') {
         this.interopData = JSON.stringify(data, null, 2);
       } else {

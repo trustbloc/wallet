@@ -18,11 +18,11 @@ export default {
 
     return this.$webCredentialHandler.activateHandler({
       mediatorOrigin: opts.credentialMediatorURL,
-      async get(event) {
+      get(event) {
         console.log('Received get() event:', event.event);
         return { type: 'redirect', url: `${__webpack_public_path__}GetFromWallet` };
       },
-      async store(event) {
+      store(event) {
         console.log('Received store() event:', event.event);
         return { type: 'redirect', url: `${__webpack_public_path__}StoreInWallet` };
       },

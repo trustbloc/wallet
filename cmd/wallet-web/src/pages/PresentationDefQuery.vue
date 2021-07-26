@@ -223,10 +223,10 @@ export default {
       }
       this.loading = false;
     },
-    cancel: async function () {
+    cancel: function () {
       this.wallet.cancel();
     },
-    noCredential: async function () {
+    noCredential: function () {
       this.wallet.sendNoCredentials();
     },
     isManifest(vc) {

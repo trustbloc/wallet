@@ -144,7 +144,7 @@ export default {
     MillTestCard,
     GeneralCard,
   },
-  created: async function () {
+  created: function () {
     let { user, token } = this.getCurrentUser().profile;
     this.username = this.getCurrentUser().username;
 

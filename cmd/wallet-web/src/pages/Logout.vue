@@ -17,7 +17,7 @@ import { CHAPIHandler } from './mixins';
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
-  created: async function () {
+  created: function () {
     this.chapi = new CHAPIHandler(
       this.$polyfill,
       this.$webCredentialHandler,

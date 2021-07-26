@@ -176,7 +176,7 @@ export default {
     }),
     ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'getStaticAssetsUrl']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    beginOIDCLogin: async function () {
+    beginOIDCLogin: function () {
       window.location.href = this.serverURL() + '/oidc/login';
     },
 
