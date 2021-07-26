@@ -1,4 +1,8 @@
-/* Copyright SecureKey Technologies Inc. All Rights Reserved. SPDX-License-Identifier: Apache-2.0 */
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
 
 <template>
   <a v-bind="$attrs" class="flex justify-start items-center border-0">

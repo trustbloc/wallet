@@ -1,4 +1,8 @@
-/* Copyright SecureKey Technologies Inc. All Rights Reserved. SPDX-License-Identifier: Apache-2.0 */
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
 
 <template>
   <div class="py-6 px-15 mx-6 w-full text-center">

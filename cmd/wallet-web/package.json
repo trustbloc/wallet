@@ -5,10 +5,10 @@
   "scripts": {
     "serve": "npm run setup:assets && vue-cli-service serve --port 9098",
     "build": " npm run setup:assets && vue-cli-service build",
-    "lint": "vue-cli-service lint --fix",
+    "lint": "vue-cli-service lint",
     "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\"",
-    "prettier": "prettier --write \"./**/*.{md,jsx,json,html,css,js,yml}\"",
-    "prettier-check": "prettier --check \"./**/*.{md,jsx,json,html,css,js,yml}\"",
+    "prettier": "prettier --write \"./**/*.{md,jsx,json,html,css,js,yml,vue}\"",
+    "prettier-check": "prettier --check \"./**/*.{md,jsx,json,html,css,js,yml,vue}\"",
     "setup:assets": "bash scripts/setup_assets.sh"
   },
   "dependencies": {
@@ -75,8 +75,7 @@
     "extends": [
       "plugin:vue/recommended",
       "eslint:recommended",
-      "prettier",
-      "prettier/vue"
+      "prettier"
     ],
     "rules": {
       "no-console": "off"

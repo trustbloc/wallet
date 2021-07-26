@@ -62,12 +62,14 @@ export class RegisterWallet {
     console.timeEnd('time tracking: register mediator time');
   }
 
-    async _assignDID(profile) {
-        console.time('time tracking: create did time');
-        let {user, name, token} = profile
-        let didManager = new DIDManager({agent: this.agent, user})
-        let docres = await didManager.createOrbDID(token, {purposes: ["authentication", "assertionMethod"]})
-        let controller = docres.DIDDocument.id
+  async _assignDID(profile) {
+    console.time('time tracking: create did time');
+    let { user, name, token } = profile;
+    let didManager = new DIDManager({ agent: this.agent, user });
+    let docres = await didManager.createOrbDID(token, {
+      purposes: ['authentication', 'assertionMethod'],
+    });
+    let controller = docres.DIDDocument.id;
 
     let walletUser = new WalletUser({ agent: this.agent, user });
     await walletUser.savePreferences(token, { name, controller, proofType });

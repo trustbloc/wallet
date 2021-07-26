@@ -1,6 +1,5 @@
 /*
 Copyright SecureKey Technologies Inc. All Rights Reserved.
-
 SPDX-License-Identifier: Apache-2.0
 */
 
@@ -24,26 +23,52 @@ export default {
       state.profile = val;
       localStorage.setItem('profile', JSON.stringify(val));
     },
-    actions: {
-        async refreshUserPreference({commit, state, rootGetters}, profile=state.profile) {
-            if (!profile) {
-                console.error('failed to refresh user preference, profile not found.')
-                throw 'invalid operation, user profile not set'
-            }
+    setUserPreference(state, val) {
+      state.preference = val;
+      localStorage.setItem('preference', JSON.stringify(val));
+    },
+    setUserSetupStatus(state, val) {
+      state.setupStatus = val;
+      localStorage.setItem('setupStatus', val);
+    },
+    clearUser(state) {
+      state.username = null;
+      state.setupStatus = null;
+      state.profile = null;
 
-            let {user, token} = profile
-            let walletUser = new WalletUser({agent: rootGetters['agent/getInstance'], user})
-            try {
-                let {content} = await walletUser.getPreferences(token)
-                commit('setUserPreference', content)
-            } catch (e) {
-                console.error('user preference not found, may be user yet to get registered', e)
-            }
-        },
-        async loadOIDCUser({commit, dispatch, getters}) {
-            let userInfo = await fetch(getters.serverURL + "/oidc/userinfo", {
-                method: 'GET', credentials: 'include'
-            })
+      localStorage.removeItem('user');
+      localStorage.removeItem('setupStatus');
+      localStorage.removeItem('profile');
+      localStorage.removeItem('preference');
+    },
+    loadUser(state) {
+      state.username = localStorage.getItem('user');
+      state.setupStatus = localStorage.getItem('setupStatus');
+      state.profile = JSON.parse(localStorage.getItem('profile'));
+      state.preference = JSON.parse(localStorage.getItem('preference'));
+    },
+  },
+  actions: {
+    async refreshUserPreference({ commit, state, rootGetters }, profile = state.profile) {
+      if (!profile) {
+        console.error('failed to refresh user preference, profile not found.');
+        throw 'invalid operation, user profile not set';
+      }
+
+      let { user, token } = profile;
+      let walletUser = new WalletUser({ agent: rootGetters['agent/getInstance'], user });
+      try {
+        let { content } = await walletUser.getPreferences(token);
+        commit('setUserPreference', content);
+      } catch (e) {
+        console.error('user preference not found, may be user yet to get registered', e);
+      }
+    },
+    async loadOIDCUser({ commit, dispatch, getters }) {
+      let userInfo = await fetch(getters.serverURL + '/oidc/userinfo', {
+        method: 'GET',
+        credentials: 'include',
+      });
 
       if (userInfo.ok) {
         let profile = await userInfo.json();
@@ -55,10 +80,8 @@ export default {
 
         /*
                   TODO should be uncommented once token expiry with aries agent wasm on refresh is fixed.
-
                   Wallet should be unlocked once during login, works fine with agent server based universal wallet.
                   Agent-Wasm destroys token cache on refresh and wallet expires token.
-
                   */
         // await dispatch('agent/unlockWallet')
       }
@@ -160,22 +183,12 @@ export default {
             await walletUser.createWalletProfile(profileCreationOpts(rootGetters.getProfileOpts));
           }
 
-                    await Promise.all([
-                        dispatch('updateUserProfile', {user, token}, {root: true}),
-                        dispatch('refreshUserPreference', {user, token}, {root: true})
-                    ])
-                },
-                async flushStore({state}) {
-                    console.debug('flushing store', state.instance)
-                    if (state.instance) {
-                        state.instance.store.flush()
-                        console.debug('flushed store.')
-                    }
-                },
-                async destroy({commit, state, rootGetters, dispatch}) {
-                    let {user} = rootGetters.getCurrentUser.profile
+          let { token } = await walletUser.unlock(profileUnlockOpts(rootGetters.getProfileOpts));
 
-          dispatch('updateUserProfile', { user, token }, { root: true });
+          await Promise.all([
+            dispatch('updateUserProfile', { user, token }, { root: true }),
+            dispatch('refreshUserPreference', { user, token }, { root: true }),
+          ]);
         },
         flushStore({ state }) {
           console.debug('flushing store', state.instance);

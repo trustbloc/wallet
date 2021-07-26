@@ -1,4 +1,8 @@
-/* Copyright SecureKey Technologies Inc. All Rights Reserved. SPDX-License-Identifier: Apache-2.0 */
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
 
 <template>
   <div
@@ -114,13 +118,13 @@
 </template>
 
 <script>
-    import {CHAPIHandler, RegisterWallet} from './mixins';
-    import {DeviceLogin} from '@trustbloc/wallet-sdk';
-    import ContentFooter from '@/pages/layout/ContentFooter.vue';
-    import Logo from '@/components/Logo/Logo.vue';
-    import Spinner from '@/components/Spinner/Spinner.vue';
-    import {mapActions, mapGetters} from 'vuex';
-    import axios from 'axios';
+import { CHAPIHandler, RegisterWallet } from './mixins';
+import { DeviceLogin } from '@trustbloc/wallet-sdk';
+import ContentFooter from '@/pages/layout/ContentFooter.vue';
+import Logo from '@/components/Logo/Logo.vue';
+import Spinner from '@/components/Spinner/Spinner.vue';
+import { mapActions, mapGetters } from 'vuex';
+import axios from 'axios';
 
 export default {
   components: {

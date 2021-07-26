@@ -1,4 +1,8 @@
-/* Copyright SecureKey Technologies Inc. All Rights Reserved. SPDX-License-Identifier: Apache-2.0 */
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
 
 <template>
   <div v-if="loading" class="w-screen" style="margin-left: 40%; margin-top: 20%; height: 200px">

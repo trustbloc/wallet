@@ -1,4 +1,8 @@
-/* Copyright SecureKey Technologies Inc. All Rights Reserved. SPDX-License-Identifier: Apache-2.0 */
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
 
 <template>
   <div class="content">
@@ -338,7 +342,7 @@ export default {
 
       let docRes;
       try {
-        docRes = await this.didManager.createTrustBlocDID(this.getCurrentUser().profile.token, {
+        docRes = await this.didManager.createOrbDID(this.getCurrentUser().profile.token, {
           purposes: this.purpose == 'all' ? ['assertionMethod', 'authentication'] : [this.purpose],
           keyType: this.keyType,
           signatureType: this.signType,

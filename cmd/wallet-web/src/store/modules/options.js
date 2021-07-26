@@ -15,40 +15,40 @@ const credentialMediator = (url) =>
 var uuid = require('uuid/v4');
 
 let defaultAgentStartupOpts = {
-    assetsPath: `${__webpack_public_path__}agent-js-worker/assets`,
-    'outbound-transport': ['ws', 'http'],
-    'transport-return-route': 'all',
-    'http-resolver-url': ["web@http://localhost:9080/1.0/identifiers"],
+  assetsPath: `${__webpack_public_path__}agent-js-worker/assets`,
+  'outbound-transport': ['ws', 'http'],
+  'transport-return-route': 'all',
+  'http-resolver-url': ['web@http://localhost:9080/1.0/identifiers'],
 
-    'agent-default-label': 'demo-wallet-web',
-    'auto-accept': true,
-    'log-level': 'debug',
-    'indexedDB-namespace': 'agent',
-    // default backend server url
-    'edge-agent-server': 'https://localhost:9099',
+  'agent-default-label': 'demo-wallet-web',
+  'auto-accept': true,
+  'log-level': 'debug',
+  'indexedDB-namespace': 'agent',
+  // default backend server url
+  'edge-agent-server': 'https://localhost:9099',
 
-    blocDomain: 'testnet.orb.local',
-    walletMediatorURL: 'https://localhost:10063',
-    blindedRouting: false,
-    credentialMediatorURL: '',
-    storageType: `indexedDB`,
-    edvServerURL: '',
-    edvVaultID: '',
-    edvCapability: '',
-    authzKeyStoreURL: '',
-    kmsType: `local`,
-    localKMSPassphrase: `demo`,
-    useEDVCache: false,
-    edvClearCache: '',
-    opsKMSCapability: '',
-    useEDVBatch: false,
-    cacheSize: 100,
-    edvBatchSize: 0,
-    didAnchorOrigin: 'origin',
-    sidetreeToken: '',
-    hubAuthURL: 'https://localhost:8044',
-    staticAssetsUrl: ''
-}
+  blocDomain: 'testnet.orb.local',
+  walletMediatorURL: 'https://localhost:10063',
+  blindedRouting: false,
+  credentialMediatorURL: '',
+  storageType: `indexedDB`,
+  edvServerURL: '',
+  edvVaultID: '',
+  edvCapability: '',
+  authzKeyStoreURL: '',
+  kmsType: `local`,
+  localKMSPassphrase: `demo`,
+  useEDVCache: false,
+  edvClearCache: '',
+  opsKMSCapability: '',
+  useEDVBatch: false,
+  cacheSize: 100,
+  edvBatchSize: 0,
+  didAnchorOrigin: 'origin',
+  sidetreeToken: '',
+  hubAuthURL: 'https://localhost:8044',
+  staticAssetsUrl: '',
+};
 
 export default {
   actions: {
