@@ -103,7 +103,7 @@
               <div class="py-10 md:pt-12 md:pb-0 text-center">
                 <p class="text-base font-normal text-neutrals-white">
                   {{ i18n.redirect }}
-                  <a class="text-primary-blue whitespace-nowrap underline-blue" href="/Signin">{{
+                  <a class="text-primary-blue whitespace-nowrap underline-blue" href="/signin">{{
                     i18n.signin
                   }}</a>
                 </p>
@@ -221,9 +221,8 @@ export default {
           },
           this.completeUserSetup
         );
+        this.refreshUserPreference();
       }
-
-      this.refreshUserPreference();
     },
     handleSuccess() {
       this.$router.push(this.redirect);

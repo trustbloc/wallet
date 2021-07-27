@@ -93,16 +93,12 @@
                 </div>
               </md-tab>
 
-              <md-tab
-                id="tab-home-1"
-                md-label="Create TrustBloc Digital Identity"
-                md-icon="add_box"
-              >
+              <md-tab id="tab-home-1" md-label="Create Orb Digital Identity" md-icon="add_box">
                 <div class="md-layout-item md-layout md-gutter">
                   <div class="md-layout-item">
                     <md-card md-alignment="left">
                       <md-card-header data-background-color="green">
-                        <h4 class="title"><b>Create New Trustbloc Digital Identity</b></h4>
+                        <h4 class="title"><b>Create New Orb Digital Identity</b></h4>
                       </md-card-header>
                       <md-card-content>
                         <md-label>
