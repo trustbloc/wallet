@@ -1,30 +1,32 @@
-/*
-Copyright SecureKey Technologies Inc. All Rights Reserved.
-
-SPDX-License-Identifier: Apache-2.0
-*/
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
 
 <template>
   <md-card class="md-card-plain associated-presentations">
     <md-card-header data-background-color="green">
-      <h4 class="title">{{ title }}
-      </h4>
+      <h4 class="title">{{ title }}</h4>
       <div class="title-btn-right">
-        <md-button v-on:click="getPresentations" class="md-icon-button md-dense md-raised md-info">
+        <md-button class="md-icon-button md-dense md-raised md-info" @click="getPresentations">
           <md-icon>cached</md-icon>
         </md-button>
       </div>
     </md-card-header>
     <md-card-content class="white">
-      <div class="text-center" v-if="presentations.length===0">No connections</div>
+      <div v-if="presentations.length === 0" class="text-center">No connections</div>
       <md-content class="md-content-connections md-scrollbar">
         <md-list class="md-triple-line">
           <md-list-item v-for="presentation in presentations" :key="presentation.id">
             <div class="md-list-item-text">
               <span v-if="presentation.name">
-                <span style="color: red">{{ (presentation.name) ? presentation.name : presentation.id }}</span>
+                <span style="color: red">{{
+                  presentation.name ? presentation.name : presentation.id
+                }}</span>
                 presentation was exchanged by
-                <span style="color: green">{{ presentation.label }}</span> </span>
+                <span style="color: green">{{ presentation.label }}</span>
+              </span>
             </div>
           </md-list-item>
         </md-list>
@@ -34,14 +36,14 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-import {mapActions} from 'vuex'
+import { mapActions } from 'vuex';
 
 export default {
-  name: "associated-presentation",
+  name: 'AssociatedPresentation',
   props: {
     title: {
       type: String,
-      default: 'Associated Presentations'
+      default: 'Associated Presentations',
     },
     presentations: {
       type: Array,
@@ -51,9 +53,9 @@ export default {
     ...mapActions(['getPresentations']),
   },
   mounted() {
-    this.getPresentations()
-  }
-}
+    this.getPresentations();
+  },
+};
 </script>
 
 <style scoped>

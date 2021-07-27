@@ -4,60 +4,59 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-
 export default {
-    actions: {
-        onPresentProofState({dispatch}, notice) {
-            if (notice.payload.Type !== "post_state") {
-                return
-            }
+  actions: {
+    onPresentProofState({ dispatch }, notice) {
+      if (notice.payload.Type !== 'post_state') {
+        return;
+      }
 
-            dispatch('getPresentations')
-        },
-        async getPresentations({commit, getters}) {
-            let agent = getters['agent/getInstance']
-            // retrieves all agent credentials
-            let res = await agent.verifiable.getPresentations()
-            if (!res.hasOwnProperty('result')) {
-                return
-            }
-
-            res.result.forEach(function (v) {
-                getters.completedConnections.forEach(function (conn) {
-                    if (conn.MyDID !== v.my_did || conn.TheirDID !== v.their_did) {
-                        return
-                    }
-
-                    v.label = conn.TheirLabel
-                    if (!v.label) {
-                        v.label = conn.ConnectionID
-                    }
-                })
-            })
-
-            // sets connections
-            commit('updatePresentations', res.result)
-
-            return res.result
-        },
+      dispatch('getPresentations');
     },
-    mutations: {
-        updatePresentations(state, presentations) {
-            state.presentations = presentations
-        },
+    async getPresentations({ commit, getters }) {
+      let agent = getters['agent/getInstance'];
+      // retrieves all agent credentials
+      let res = await agent.verifiable.getPresentations();
+      if (!res.hasOwnProperty('result')) {
+        return;
+      }
+
+      res.result.forEach(function (v) {
+        getters.completedConnections.forEach(function (conn) {
+          if (conn.MyDID !== v.my_did || conn.TheirDID !== v.their_did) {
+            return;
+          }
+
+          v.label = conn.TheirLabel;
+          if (!v.label) {
+            v.label = conn.ConnectionID;
+          }
+        });
+      });
+
+      // sets connections
+      commit('updatePresentations', res.result);
+
+      return res.result;
     },
-    state: {
-        presentations: [],
+  },
+  mutations: {
+    updatePresentations(state, presentations) {
+      state.presentations = presentations;
     },
-    getters: {
-        allPresentations(state) {
-            return state.presentations
-        },
-        associatedPresentations(state, {allPresentations}) {
-            return allPresentations.filter(v => v.label)
-        },
-        associatedPresentationsCount(state, {associatedPresentations}) {
-            return associatedPresentations.length
-        },
+  },
+  state: {
+    presentations: [],
+  },
+  getters: {
+    allPresentations(state) {
+      return state.presentations;
     },
-}
+    associatedPresentations(state, { allPresentations }) {
+      return allPresentations.filter((v) => v.label);
+    },
+    associatedPresentationsCount(state, { associatedPresentations }) {
+      return associatedPresentations.length;
+    },
+  },
+};

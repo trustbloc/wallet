@@ -4,17 +4,16 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import {CHAPIEventHandler} from '../'
-import {BlindedRouter, CredentialManager, DIDExchange} from "@trustbloc/wallet-sdk"
+import { CHAPIEventHandler } from '../';
+import { BlindedRouter, CredentialManager, DIDExchange } from '@trustbloc/wallet-sdk';
 import jp from 'jsonpath';
 
-const manifestCredType = "IssuerManifestCredential"
-const governanceCredType = "GovernanceCredential"
+const manifestCredType = 'IssuerManifestCredential';
+const governanceCredType = 'GovernanceCredential';
 
 var blindedRoutingDisabled = {
-    sharePeerDID: () => {
-    }
-}
+  sharePeerDID: () => {},
+};
 
 /**
  * DIDConn provides CHAPI did connection/exchange features
@@ -22,21 +21,22 @@ var blindedRoutingDisabled = {
  * @class
  */
 export class DIDConn {
-    constructor(agent, profile, startupOpts, credEvent) {
-        this.exchange = new DIDExchange(agent)
-        this.blindedRouter = startupOpts.blindedRouting ? new BlindedRouter(agent) : blindedRoutingDisabled
-        this.chapiHandler = new CHAPIEventHandler(credEvent)
-        this.credentialManager = new CredentialManager({agent, user: profile.user})
-        this.profile = profile
+  constructor(agent, profile, startupOpts, credEvent) {
+    this.exchange = new DIDExchange(agent);
+    this.blindedRouter = startupOpts.blindedRouting
+      ? new BlindedRouter(agent)
+      : blindedRoutingDisabled;
+    this.chapiHandler = new CHAPIEventHandler(credEvent);
+    this.credentialManager = new CredentialManager({ agent, user: profile.user });
+    this.profile = profile;
 
-        let {domain, challenge, invitation, credentials=[]} = this.chapiHandler.getEventData();
+    let { domain, challenge, invitation, credentials = [] } = this.chapiHandler.getEventData();
 
-        this.domain = domain
-        this.challenge = challenge
-        this.invitation = invitation
+    this.domain = domain;
+    this.challenge = challenge;
+    this.invitation = invitation;
 
-
-        /*
+    /*
           TODO:
            * current assumption - expecting only one governance VC in request, may be support for multiple.
            * correlate governance VC with requesting party so that consent for trust gets shown only once.
@@ -44,77 +44,90 @@ export class DIDConn {
            * verify requesting party in governance framework to make sure this party of behaving properly.
            * request party to get challenged to produce a VP that the governance credential agency has accredited them.
          */
-        // govn vc
-        let govnVCs = jp.query(credentials, `$[?(@.type.indexOf('${governanceCredType}') != -1)]`)
-        this.govnVC = govnVCs.length > 0 ? govnVCs[0] : undefined
+    // govn vc
+    let govnVCs = jp.query(credentials, `$[?(@.type.indexOf('${governanceCredType}') != -1)]`);
+    this.govnVC = govnVCs.length > 0 ? govnVCs[0] : undefined;
 
-        // manifest VC
-        let manifest = jp.query(credentials, `$[?(@.type.indexOf('${manifestCredType}') != -1)]`)
-        this.manifestVC = manifest.length > 0 ? manifest[0] : undefined
+    // manifest VC
+    let manifest = jp.query(credentials, `$[?(@.type.indexOf('${manifestCredType}') != -1)]`);
+    this.manifestVC = manifest.length > 0 ? manifest[0] : undefined;
 
-        // user credentials
-        this.userCredentials = jp.query(credentials, `$[?(@.type.indexOf('${governanceCredType}') == -1 && @.type.indexOf('${manifestCredType}') == -1)]`)
+    // user credentials
+    this.userCredentials = jp.query(
+      credentials,
+      `$[?(@.type.indexOf('${governanceCredType}') == -1 && @.type.indexOf('${manifestCredType}') == -1)]`
+    );
+  }
+
+  async connect(preference) {
+    let connection = await this.exchange.connect(this.invitation);
+
+    await this.blindedRouter.sharePeerDID(connection.result);
+
+    // save credentials + manifestVCs
+    let saveQueue = [];
+    if (this.manifestVC) {
+      saveQueue.push(
+        this.credentialManager.saveManifestCredential(
+          this.profile.token,
+          this.manifestVC,
+          connection.result.ConnectionID
+        )
+      );
     }
-
-    async connect(preference) {
-        let connection = await this.exchange.connect(this.invitation)
-
-        await this.blindedRouter.sharePeerDID(connection.result)
-
-        // save credentials + manifestVCs
-        let saveQueue = []
-        if (this.manifestVC) {
-            saveQueue.push(this.credentialManager.saveManifestCredential(this.profile.token, this.manifestVC, connection.result.ConnectionID))
-        }
-        if (this.userCredentials.length > 0) {
-            saveQueue.push(this.credentialManager.save(this.profile.token, {credentials: this.userCredentials}))
-        }
-        await Promise.all(saveQueue)
-
-
-        await this._createConnectionResponse(connection.result, preference)
+    if (this.userCredentials.length > 0) {
+      saveQueue.push(
+        this.credentialManager.save(this.profile.token, { credentials: this.userCredentials })
+      );
     }
+    await Promise.all(saveQueue);
 
-    async _createConnectionResponse(connection, preference) {
-        let {controller, proofType, verificationMethod} = preference
+    await this._createConnectionResponse(connection.result, preference);
+  }
 
-        let credential = {
-            "@context": [
-                "https://www.w3.org/2018/credentials/v1",
-                "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
-            ],
-            issuer: controller,
-            issuanceDate: new Date(),
-            type: ["VerifiableCredential", "DIDConnection"],
-            credentialSubject: {
-                id: connection.ConnectionID,
-                threadID: connection.ThreadID,
-                inviteeDID: connection.MyDID,
-                inviterDID: connection.TheirDID,
-                inviterLabel: connection.TheirLabel,
-                connectionState: connection.State,
-            }
-        }
+  async _createConnectionResponse(connection, preference) {
+    let { controller, proofType, verificationMethod } = preference;
 
-        let issued = await this.credentialManager.issue(this.profile.token, credential, {
-            controller,
-            proofType,
-            verificationMethod
-        })
+    let credential = {
+      '@context': [
+        'https://www.w3.org/2018/credentials/v1',
+        'https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld',
+      ],
+      issuer: controller,
+      issuanceDate: new Date(),
+      type: ['VerifiableCredential', 'DIDConnection'],
+      credentialSubject: {
+        id: connection.ConnectionID,
+        threadID: connection.ThreadID,
+        inviteeDID: connection.MyDID,
+        inviterDID: connection.TheirDID,
+        inviterLabel: connection.TheirLabel,
+        connectionState: connection.State,
+      },
+    };
 
-        let {presentation} = await this.credentialManager.present(this.profile.token, {rawCredentials: [issued.credential]}, {
-            controller,
-            proofType,
-            verificationMethod,
-            domain: this.domain,
-            challenge: this.challenge
-        })
+    let issued = await this.credentialManager.issue(this.profile.token, credential, {
+      controller,
+      proofType,
+      verificationMethod,
+    });
 
-        this.chapiHandler.present(presentation)
-    }
+    let { presentation } = await this.credentialManager.present(
+      this.profile.token,
+      { rawCredentials: [issued.credential] },
+      {
+        controller,
+        proofType,
+        verificationMethod,
+        domain: this.domain,
+        challenge: this.challenge,
+      }
+    );
 
-    cancel() {
-        this.chapiHandler.cancel()
-    }
+    this.chapiHandler.present(presentation);
+  }
+
+  cancel() {
+    this.chapiHandler.cancel();
+  }
 }
-

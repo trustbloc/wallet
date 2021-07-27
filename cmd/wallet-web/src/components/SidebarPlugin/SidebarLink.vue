@@ -1,15 +1,15 @@
-/*
-Copyright SecureKey Technologies Inc. All Rights Reserved.
-
-SPDX-License-Identifier: Apache-2.0
-*/
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
 
 <template>
   <li class="md-list-item">
     <router-link
       class="md-list-item-router md-list-item-container md-button-clean"
-      @click="hideSidebar"
       v-bind="$attrs"
+      @click="hideSidebar"
     >
       <div class="md-list-item-content md-ripple">
         <slot>
@@ -24,36 +24,32 @@ SPDX-License-Identifier: Apache-2.0
 export default {
   inject: {
     autoClose: {
-      default: true
-    }
+      default: true,
+    },
   },
   props: {
     link: {
       type: [String, Object],
       default: () => {
         return {
-          name: "",
-          path: "",
-          icon: ""
+          name: '',
+          path: '',
+          icon: '',
         };
-      }
+      },
     },
     tag: {
       type: String,
-      default: "router-link"
-    }
+      default: 'router-link',
+    },
   },
   methods: {
     hideSidebar() {
-      if (
-        this.autoClose &&
-        this.$sidebar &&
-        this.$sidebar.showSidebar === true
-      ) {
+      if (this.autoClose && this.$sidebar && this.$sidebar.showSidebar === true) {
         this.$sidebar.displaySidebar(false);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style></style>

@@ -1,23 +1,23 @@
-/*
-Copyright SecureKey Technologies Inc. All Rights Reserved.
-
-SPDX-License-Identifier: Apache-2.0
-*/
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
 
 <template>
   <md-card class="md-card-plain">
     <md-card-header data-background-color="green">
       <h4 class="title">{{ title }}</h4>
     </md-card-header>
-    <md-card-content style="background-color: white;">
+    <md-card-content style="background-color: white">
       <md-field>
         <label>Invitation ({{ type }})</label>
         <md-textarea v-model="invitation" required></md-textarea>
       </md-field>
       <div style="display: flow-root">
-        <span class="error" v-if="error">{{ error }}</span>
-        <span class="success" v-if="success">{{ success }}</span>
-        <md-button class="md-button md-info md-square right" v-on:click="submit">
+        <span v-if="error" class="error">{{ error }}</span>
+        <span v-if="success" class="success">{{ success }}</span>
+        <md-button class="md-button md-info md-square right" @click="submit">
           <b>Receive</b>
         </md-button>
       </div>
@@ -26,38 +26,38 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script>
-import {mapGetters, mapActions} from 'vuex'
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
-  name: "receive-invitation",
+  name: 'ReceiveInvitation',
   props: {
     title: {
       type: String,
-      default: 'Receive Invitation'
+      default: 'Receive Invitation',
     },
     type: {
       type: String,
-      default: 'json'
+      default: 'json',
     },
   },
   methods: {
     ...mapActions(['acceptInvitation', 'createInvitation']),
     async submit() {
-      this.error = ""
+      this.error = '';
 
       if (!this.isMediatorRegistered) {
-        this.error = "Please register a mediator first!"
-        return
+        this.error = 'Please register a mediator first!';
+        return;
       }
 
       if (this.invitation.trim().length === 0) {
-        this.error = "Please fill in the field!"
-        return
+        this.error = 'Please fill in the field!';
+        return;
       }
 
       let invitation = this.invitation.trim();
-      if (this.type === "base64") {
-        invitation = window.atob(this.invitation.trim())
+      if (this.type === 'base64') {
+        invitation = window.atob(this.invitation.trim());
       }
 
       try {
@@ -65,13 +65,13 @@ export default {
         let res = await this.acceptInvitation({
           my_label: this.agentDefaultLabel,
           invitation: JSON.parse(invitation),
-        })
+        });
 
         // shows connection id that has been received
-        this.success = `Your connection ID is ${res['connection_id']}`
-        this.invitation = ''
+        this.success = `Your connection ID is ${res['connection_id']}`;
+        this.invitation = '';
       } catch (e) {
-        this.error = e.message
+        this.error = e.message;
       }
     },
   },
@@ -80,8 +80,8 @@ export default {
     invitation: '',
     error: '',
     success: '',
-  })
-}
+  }),
+};
 </script>
 
 <style scoped>
@@ -100,5 +100,4 @@ export default {
 .error {
   color: red;
 }
-
 </style>

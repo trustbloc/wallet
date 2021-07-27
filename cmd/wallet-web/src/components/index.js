@@ -5,42 +5,42 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 // Cards
-import StatsCard from "./Cards/StatsCard.vue";
+import StatsCard from './Cards/StatsCard.vue';
 // Tables
-import SimpleTable from "./Tables/SimpleTable.vue";
+import SimpleTable from './Tables/SimpleTable.vue';
 // Mediator
-import Mediator from "./Mediator/Mediator.vue";
+import Mediator from './Mediator/Mediator.vue';
 
 // PublicInvitation
-import PublicInvitation from "./PublicInvitation/PublicInvitation.vue";
+import PublicInvitation from './PublicInvitation/PublicInvitation.vue';
 
 // CreateInvitation
-import CreateInvitation from "./CreateInvitation/CreateInvitation.vue";
+import CreateInvitation from './CreateInvitation/CreateInvitation.vue';
 
 // ReceiveInvitation
-import ReceiveInvitation from "./ReceiveInvitation/ReceiveInvitation.vue";
+import ReceiveInvitation from './ReceiveInvitation/ReceiveInvitation.vue';
 
 // CopyButton
-import CopyButton from "./CopyButton/CopyButton";
+import CopyButton from './CopyButton/CopyButton';
 
 // Connections
-import Connections from "./Connections/Connections";
+import Connections from './Connections/Connections';
 
 // AssociatedCredentials
-import AssociatedCredentials from "./AssociatedCredentials/AssociatedCredentials";
+import AssociatedCredentials from './AssociatedCredentials/AssociatedCredentials';
 
 // AssociatedPresentation
-import AssociatedPresentation from "./AssociatedPresentation/AssociatedPresentation";
+import AssociatedPresentation from './AssociatedPresentation/AssociatedPresentation';
 
 export {
-    StatsCard,
-    SimpleTable,
-    Mediator,
-    PublicInvitation,
-    CreateInvitation,
-    ReceiveInvitation,
-    CopyButton,
-    Connections,
-    AssociatedCredentials,
-    AssociatedPresentation,
+  StatsCard,
+  SimpleTable,
+  Mediator,
+  PublicInvitation,
+  CreateInvitation,
+  ReceiveInvitation,
+  CopyButton,
+  Connections,
+  AssociatedCredentials,
+  AssociatedPresentation,
 };

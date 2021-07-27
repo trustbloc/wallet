@@ -16,9 +16,9 @@
     "redirect": "Already have an account?",
     "signin": "Sign in",
     "leftContainer": {
-        "span1": "Keep your digital identity safe",
-        "span2": "Store digital IDs, certifications, and more—all in one secure wallet",
-        "span3": "Verify your identity in person or online"
+      "span1": "Keep your digital identity safe",
+      "span2": "Store digital IDs, certifications, and more—all in one secure wallet",
+      "span3": "Verify your identity in person or online"
     }
   }
 }
