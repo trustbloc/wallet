@@ -50,16 +50,20 @@ export default {
         }
     },
     actions: {
-        async refreshUserPreference({commit, state, rootGetters}) {
-            if (!state.profile) {
+        async refreshUserPreference({commit, state, rootGetters}, profile=state.profile) {
+            if (!profile) {
                 console.error('failed to refresh user preference, profile not found.')
                 throw 'invalid operation, user profile not set'
             }
 
-            let {user, token} = state.profile
+            let {user, token} = profile
             let walletUser = new WalletUser({agent: rootGetters['agent/getInstance'], user})
-            let {content} = await walletUser.getPreferences(token)
-            commit('setUserPreference', content)
+            try {
+                let {content} = await walletUser.getPreferences(token)
+                commit('setUserPreference', content)
+            } catch (e) {
+                console.error('user preference not found, may be user yet to get registered', e)
+            }
         },
         async loadOIDCUser({commit, dispatch, getters}) {
             let userInfo = await fetch(getters.serverURL + "/oidc/userinfo", {
@@ -182,7 +186,10 @@ export default {
 
                     let {token} = await walletUser.unlock(profileUnlockOpts(rootGetters.getProfileOpts))
 
-                    dispatch('updateUserProfile', {user, token}, {root: true});
+                    await Promise.all([
+                        dispatch('updateUserProfile', {user, token}, {root: true}),
+                        dispatch('refreshUserPreference', {user, token}, {root: true})
+                    ])
                 },
                 async flushStore({state}) {
                     console.debug('flushing store', state.instance)

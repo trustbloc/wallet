@@ -177,9 +177,9 @@ export default {
 					},
 					this.completeUserSetup
 				);
-			}
 
-			this.refreshUserPreference();
+				this.refreshUserPreference();
+			}
 		},
 		handleSuccess() {
 			this.$router.push(this.redirect);
