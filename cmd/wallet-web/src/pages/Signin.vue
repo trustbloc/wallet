@@ -74,7 +74,7 @@
         <div class="py-10 md:py-12 text-center">
           <p class="text-base font-normal text-neutrals-softWhite">
             {{ i18n.redirect }}
-            <a class="text-primary-blue whitespace-nowrap underline-blue" href="/Signup">{{
+            <a class="text-primary-blue whitespace-nowrap underline-blue" href="/signup">{{
               i18n.signup
             }}</a>
           </p>
@@ -156,31 +156,7 @@ export default {
     ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     beginOIDCLogin: function (providerID) {
-      let leftPosition, topPosition, width, height;
-      // Dimensions as per defined in ux design.
-      width = 700;
-      height = 770;
-      leftPosition = window.screen.width / 2 - (width / 2 + 10);
-      //Allow for title and status bars.
-      topPosition = window.screen.height / 2 - (height / 2 + 50);
-      //Open the pop up window.
-      window.open(
-        this.serverURL() + '/oidc/login?provider=' + providerID,
-        '_blank',
-        'status=no,height=' +
-          height +
-          ',width=' +
-          width +
-          ',resizable=yes,left=' +
-          leftPosition +
-          ',top=' +
-          topPosition +
-          ',screenX=' +
-          leftPosition +
-          ',screenY=' +
-          topPosition +
-          ',toolbar=no,menubar=no,scrollbars=no,location=no,directories=no'
-      );
+      window.location.href = this.serverURL() + '/oidc/login?provider=' + providerID;
     },
     // Fetching the providers from hub-auth
     fetchProviders: async function () {
@@ -215,9 +191,8 @@ export default {
           },
           this.completeUserSetup
         );
+        this.refreshUserPreference();
       }
-
-      this.refreshUserPreference();
     },
     handleSuccess() {
       this.$router.push(this.redirect);
