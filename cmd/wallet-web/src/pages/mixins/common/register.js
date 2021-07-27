@@ -61,7 +61,7 @@ export class RegisterWallet {
         console.time('time tracking: create did time');
         let {user, name, token} = profile
         let didManager = new DIDManager({agent: this.agent, user})
-        let docres = await didManager.createTrustBlocDID(token, {purposes: ["authentication", "assertionMethod"]})
+        let docres = await didManager.createOrbDID(token, {purposes: ["authentication", "assertionMethod"]})
         let controller = docres.DIDDocument.id
 
         let walletUser = new WalletUser({agent: this.agent, user})

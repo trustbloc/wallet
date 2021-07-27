@@ -186,9 +186,8 @@ SPDX-License-Identifier: Apache-2.0
                         token: user.profile.token
                     }, this.completeUserSetup)
 
+                    this.refreshUserPreference()
                 }
-
-                this.refreshUserPreference()
             },
             handleSuccess() {
                 this.$router.push(this.redirect);
