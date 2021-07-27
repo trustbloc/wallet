@@ -8,10 +8,7 @@
   <div class="py-6 px-15 mx-6 w-full text-center">
     <div class="hidden md:block mx-auto text-center text-neutrals-medium">
       © {{ date }} TrustBloc ･ {{ i18n.privacyPolicy }} ･ {{ i18n.terms }} ･
-      <select v-model="$i18n.locale" class="py-4" style="background-color: transparent">
-        <option id="english" value="en" class="block text-sm text-neutrals-dark">English</option>
-        <option id="french" value="fr" class="block text-sm text-neutrals-medium">Français</option>
-      </select>
+      <LocaleSwitcher />
     </div>
     <div class="block md:hidden text-neutrals-medium">
       <ul class="list-inside">
@@ -21,18 +18,20 @@
         </li>
         <li>
           <span class="whitespace-nowrap">© {{ date }} TrustBloc</span> ･
-          <select class="py-4" style="background-color: transparent">
-            <option class="block text-sm text-neutrals-dark">English</option>
-            <option class="block text-sm text-neutrals-medium">Français</option>
-          </select>
+          <LocaleSwitcher />
         </li>
       </ul>
     </div>
   </div>
 </template>
 <script>
+import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher.vue';
+
 export default {
   name: 'ContentFooter',
+  components: {
+    LocaleSwitcher,
+  },
   data() {
     return {
       date: new Date().getFullYear(),

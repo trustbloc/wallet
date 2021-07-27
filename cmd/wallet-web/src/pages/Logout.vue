@@ -35,7 +35,7 @@ export default {
     logout: async function () {
       await this.chapi.uninstall();
       await this.logoutUser();
-      this.$router.push('/signup');
+      this.$router.push({ name: 'signup', params: this.$route.params });
     },
   },
 };
