@@ -20,7 +20,6 @@
     "credential-handler-polyfill": "^2.1.0",
     "es6-promise": "^4.2.8",
     "flat": "^5.0.2",
-    "jsonld": "^5.2.0",
     "jsonpath": "^1.0.2",
     "minimist": "^1.2.5",
     "parse-duration": "^0.4.4",
