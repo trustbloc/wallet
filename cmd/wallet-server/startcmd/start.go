@@ -721,7 +721,7 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store ari
 	}
 
 	oidcOps, err := oidc.New(&oidc.Config{
-		WalletDashboard: config.agentUIURL + "/dashboard",
+		WalletDashboard: config.agentUIURL + "/loginhandle",
 		TLSConfig:       config.tls.config,
 		OIDCClient: oidc2.NewClient(&oidc2.Config{
 			TLSConfig:    config.tls.config,

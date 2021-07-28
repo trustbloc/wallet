@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 import DashboardLayout from '@/pages/layout/DashboardLayout.vue';
 import Dashboard from '@/pages/Dashboard.vue';
 import Login from '@/pages/Login.vue';
+import LoginHandle from '@/pages/LoginHandle.vue';
 import Signin from '@/pages/Signin.vue';
 import Signup from '@/pages/Signup.vue';
 import Logout from '@/pages/Logout.vue';
@@ -100,6 +101,12 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login,
+  },
+  {
+    path: '/loginHandle',
+    name: 'loginhandle',
+    component: LoginHandle,
+    props: (route) => ({ provider: route.query.provider }),
   },
   {
     path: '/signin',
