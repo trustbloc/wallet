@@ -1,0 +1,18 @@
+{
+    "mediatorEndPoint": "http://localhost:10093",
+    "agentStartupOpts": {
+        "assetsPath": "/base/public/agent-js-worker/assets",
+        "outbound-transport": [
+            "ws",
+            "http"
+        ],
+        "transport-return-route": "all",
+        "agent-default-label": "wallet-test-agent",
+        "auto-accept": true,
+        "log-level": "debug",
+        "indexedDB-namespace": "agent",
+        "storageType": "indexedDB",
+        "didAnchorOrigin": "origin",
+        "blocDomain": "testnet.orb.local"
+    }
+}
