@@ -38,6 +38,11 @@ license:
 unit-test:
 	@scripts/check_unit.sh
 
+.PHONY: wallet-web-test
+wallet-web-test:
+	@set -e
+	@cd cmd/wallet-web && npm install && npm run test
+
 .PHONY: wallet-web
 wallet-web:
 	@scripts/build_wallet_web.sh

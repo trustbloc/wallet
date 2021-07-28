@@ -1,0 +1,80 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1"
+  ],
+  "type": "VerifiablePresentation",
+  "verifiableCredential": [
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://w3id.org/citizenship/v1",
+        "https://w3id.org/security/bbs/v1"
+      ],
+      "credentialSubject": {
+        "birthCountry": "Bahamas",
+        "birthDate": "1958-07-17",
+        "familyName": "SMITH",
+        "gender": "Male",
+        "givenName": "JOHN",
+        "id": "did:orb:AiMP4:EiDZGbGKGpfHo0NreApVT6Kqq6vyecYBmRBFXXRwSWYXcg",
+        "image": "data:image/png;base64,iVBORw0KGgo...kJggg==",
+        "lprCategory": "C09",
+        "lprNumber": "999-999-999",
+        "residentSince": "2015-01-01",
+        "type": [
+          "Person",
+          "PermanentResident"
+        ]
+      },
+      "description": "Permanent Resident Card of Mr.John Smith",
+      "id": "http://example.com/3cebaa25-6495-4af5-b6bc-f40af4578733",
+      "issuanceDate": "2021-03-05T21:31:19.684229048Z",
+      "issuer": {
+        "id": "did:key:zUC72c7u4BYVmfYinDceXkNAwzPEyuEE23kUmJDjLy8495KH3pjLwFhae1Fww9qxxRdLnS2VNNwni6W3KbYZKsicDtiNNEp76fYWR6HCD8jAz6ihwmLRjcHH6kB294Xfg1SL1qQ",
+        "name": "didkey-bbsblssignature2020-bls12381g2"
+      },
+      "name": "Permanent Resident Card",
+      "proof": {
+        "created": "2021-07-06T17:32:32.838064-04:00",
+        "proofPurpose": "assertionMethod",
+        "proofValue": "hp08VNxXpgOSKvTsxCxBg2y_5yiI0d-dplUbwad24JJlX-GH97mPV0Dz3GesdXXNG-Bm1qwGYmfWdtXOk5eM8F-kSEsts46QZBfbGLkC7UtMKcgpPiorm0DCv0sjRH8OXDeIEOMMIyt1PXA-6ACDsQ",
+        "type": "BbsBlsSignature2020",
+        "verificationMethod": "did:key:zUC72tF75rofR3xwYWG1WSkHNqMn6ZAAS3kMucAzfjDZXuQ3d2KcyFZ7Lp8RajtrMxAimzjx7dRQHfgw4RgUESsKHD79W6S7eKUsiTv8ig1Eybz16qpwU2kXrD5nYxzzsMYtwHD#zUC72tF75rofR3xwYWG1WSkHNqMn6ZAAS3kMucAzfjDZXuQ3d2KcyFZ7Lp8RajtrMxAimzjx7dRQHfgw4RgUESsKHD79W6S7eKUsiTv8ig1Eybz16qpwU2kXrD5nYxzzsMYtwHD"
+      },
+      "type": [
+        "VerifiableCredential",
+        "PermanentResidentCard"
+      ]
+    },
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://www.w3.org/2018/credentials/examples/v1",
+        "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
+      ],
+      "id": "http://example.gov/credentials/3732",
+      "type": [
+        "VerifiableCredential",
+        "UniversityDegreeCredential"
+      ],
+      "name": "Bachelor Degree",
+      "description": "Bachelor of Science and Arts of Mr.John Smith",
+      "issuer": "did:key:z6MkjRagNiMu91DduvCvgEsqLZDVzrJzFrwahc4tXLt9DoHd",
+      "issuanceDate": "2020-03-16T22:37:26.544Z",
+      "credentialSubject": {
+        "id": "did:key:z6MkjRagNiMu91DduvCvgEsqLZDVzrJzFrwahc4tXLt9DoHd",
+        "degree": {
+          "type": "BachelorDegree",
+          "name": "Bachelor of Science and Arts"
+        }
+      },
+      "proof": {
+        "type": "Ed25519Signature2018",
+        "created": "2020-03-16T22:37:26Z",
+        "verificationMethod": "did:key:z6MkjRagNiMu91DduvCvgEsqLZDVzrJzFrwahc4tXLt9DoHd#z6MkjRagNiMu91DduvCvgEsqLZDVzrJzFrwahc4tXLt9DoHd",
+        "proofPurpose": "assertionMethod",
+        "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..7gJwYBvJuXYrFa_hpuWxknm3R5Czas_NDL-Bh7LnURA1PwjH0uBqMy4W4pgYeat3xYa12gZBkmIR0VmgY3qQCw"
+      }
+    }
+  ]
+}

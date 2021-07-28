@@ -1,0 +1,43 @@
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+services:
+  edge.router.agent.example.com:
+    container_name: edge.router.agent.example.com
+    image: ${HUB_ROUTER_IMAGE}:${HUB_ROUTER_IMAGE_TAG}
+    environment:
+      - HUB_ROUTER_HOST_URL=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_API_PORT}
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=http://localhost:${EDGE_ROUTER_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_WS_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=ws://localhost:${EDGE_ROUTER_WS_INBOUND_PORT}
+      - HUB_ROUTER_DSN_PERSISTENT=mem://tests
+      - HUB_ROUTER_DSN_TRANSIENT=mem://tests
+      - HUB_ROUTER_DSN_TIMEOUT=45
+    ports:
+      - ${EDGE_ROUTER_API_PORT}:${EDGE_ROUTER_API_PORT}
+      - ${EDGE_ROUTER_HTTP_INBOUND_PORT}:${EDGE_ROUTER_HTTP_INBOUND_PORT}
+      - ${EDGE_ROUTER_WS_INBOUND_PORT}:${EDGE_ROUTER_WS_INBOUND_PORT}
+    entrypoint: ""
+    command: /bin/sh -c "hub-router start"
+
+  sidetree:
+    container_name: testnet.orb.local
+    image: ${SIDETREE_MOCK_IMAGE}:${SIDETREE_MOCK_IMAGE_TAG}
+    environment:
+      - SIDETREE_MOCK_TLS_CERTIFICATE=/etc/sidetree/tls/ec-pubCert.pem
+      - SIDETREE_MOCK_TLS_KEY=/etc/sidetree/tls/ec-key.pem
+      - SIDETREE_MOCK_HOST=0.0.0.0
+      - SIDETREE_MOCK_PORT=443
+      - SIDETREE_MOCK_DID_NAMESPACE=did:orb
+      - SIDETREE_MOCK_DID_ALIASES=did:orb:testnet.orb.local
+      - SIDETREE_MOCK_EXTERNAL_ENDPOINT=https://testnet.orb.local
+      - SIDETREE_MOCK_WELLKNOWN_PATH=did-orb
+    ports:
+      - 443:443
+    volumes:
+      - ./keys/tls:/etc/sidetree/tls
