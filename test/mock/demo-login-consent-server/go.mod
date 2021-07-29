@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-module github.com/trustbloc/edge-agent/test/bdd/mock/demo-login-consent-server
+module github.com/trustbloc/edge-agent/test/mock/demo-login-consent-server
 
 go 1.16
 

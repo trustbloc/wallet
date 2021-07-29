@@ -13,10 +13,10 @@ ROOT=`pwd`
 
 npm -v
 echo "starting containers..."
-cd $ROOT/test/bdd/fixtures/wallet-web
+cd $ROOT/test/fixtures/wallet-web
 (source .env && docker-compose -f docker-compose-server.yml -f docker-compose-web.yml down && docker-compose -f docker-compose-server.yml -f docker-compose-web.yml up  --force-recreate -d)
 
-sleep 60
+sleep 45
 
 echo "running healthcheck..."
 
@@ -56,13 +56,13 @@ healthCheck() {
 # healthcheck
 healthCheck wallet-web https://user-ui-agent.example.com:8091/healthcheck 200
 healthCheck wallet-web-2 https://second-ui-user-agent.example.com:8071/healthcheck 200
-healthCheck wallet-server https://localhost:8077/healthcheck 200
+healthCheck wallet-server https://localhost:8090/healthcheck 200
 
 echo "running tests..."
 cd $ROOT/test/ui-automation
 npm run test && npm run report
 
 echo "stopping containers..."
-cd $ROOT/test/bdd/fixtures/wallet-web
+cd $ROOT/test/fixtures/wallet-web
 
 (source .env && docker-compose -f docker-compose-server.yml -f docker-compose-web.yml down --remove-orphans)

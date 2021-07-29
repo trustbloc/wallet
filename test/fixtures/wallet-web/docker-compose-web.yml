@@ -31,7 +31,7 @@ services:
       - USE_EDV_BATCH=true
       - STATIC_ASSETS=/etc/static
       # To add static images, set STATIC_ASSETS_URL=https://user-ui-agent.example.com:8091,
-      # then add images under /test/bdd/fixtures/wallet-web/static/images
+      # then add images under /test/fixtures/wallet-web/static/images
       - STATIC_ASSETS_URL=
 
   second-ui-user-agent.example.com:
@@ -110,28 +110,6 @@ services:
     volumes:
       - ../keys/tls:/etc/tls
 
-
-  bddtest.ui.user-agent.example.com:
-    container_name: bddtest.ui.user-agent.example.com
-    image: ${WALLET_WEB_IMAGE}:latest
-    volumes:
-      - ../keys/tls:/etc/nginx/certs
-    ports:
-      - 8078:443
-    environment:
-      - ARIESD_HTTP_RESOLVER=${HTTP_RESOLVER}
-      - AGENT_DEFAULT_LABEL=wallet-web
-      - BLOC_DOMAIN=testnet.orb.local
-      - EDGE_AGENT_SERVER=https://localhost:8077
-      - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
-      - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
-      - TLS_KEY=/etc/nginx/certs/ec-key.pem
-      - EDV_SERVER_URL=https://bdd-edv-oathkeeper-proxy:4457/encrypted-data-vaults
-      - STORAGE_TYPE=edv
-      - USE_EDV_CACHE=true
-      - EDV_CLEAR_CACHE=10m
-      - USE_EDV_BATCH=true
-      - KMS_TYPE=webkms
 
   sidetree:
     container_name: testnet.orb.local

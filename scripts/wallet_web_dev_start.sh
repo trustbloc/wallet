@@ -11,7 +11,7 @@ echo "Running $0"
 ROOT=`pwd`
 
 echo "starting containers..."
-cd $ROOT/test/bdd/fixtures/wallet-web
+cd $ROOT/test/fixtures/wallet-web
 (source .env && docker-compose -f docker-compose-server.yml -f docker-compose-web.yml down && docker-compose -f docker-compose-server.yml -f docker-compose-web.yml up --force-recreate -d)
 
 echo "waiting for containers to start..."
