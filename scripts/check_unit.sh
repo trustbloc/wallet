@@ -22,7 +22,7 @@ fi
 
 # Running edge-store unit tests
 PKGS=`go list github.com/trustbloc/edge-agent/... 2> /dev/null | \
-                                                  grep -v /mocks`
+                                                  grep -v /mock`
 go test $PKGS -count=1 -race -coverprofile=profile.out -covermode=atomic -timeout=10m
 amend_coverage_file
 

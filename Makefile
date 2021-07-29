@@ -70,7 +70,7 @@ wallet-server-docker:
 
 .PHONY: generate-test-keys
 generate-test-keys:
-	@mkdir -p -p test/bdd/fixtures/keys/tls
+	@mkdir -p -p test/fixtures/keys/tls
 	@docker run -i --rm \
 		-v $(abspath .):/opt/workspace/edge-agent \
 		--entrypoint "/opt/workspace/edge-agent/scripts/generate_test_keys.sh" \
@@ -87,15 +87,14 @@ generate-openapi-spec:
 .PHONY: generate-openapi-demo-specs
 generate-openapi-demo-specs: generate-openapi-spec
 	@echo "Generate demo wallet server rest controller API specifications using Open API"
-	@SPEC_PATH=${OPENAPI_SPEC_PATH} OPENAPI_DEMO_PATH=test/bdd/fixtures/wallet-web \
+	@SPEC_PATH=${OPENAPI_SPEC_PATH} OPENAPI_DEMO_PATH=test/fixtures/wallet-web \
     	DOCKER_IMAGE=$(OPENAPI_DOCKER_IMG) DOCKER_IMAGE_VERSION=$(OPENAPI_DOCKER_IMG_VERSION)  \
     	scripts/generate-openapi-demo-specs.sh
 
 .PHONY: run-openapi-demo
 run-openapi-demo: generate-openapi-demo-specs wallet-server-docker generate-test-keys mock-images
 	@echo "Starting demo wallet server rest containers ..."
-	@DEMO_COMPOSE_PATH=test/bdd/fixtures/wallet-web scripts/run-openapi-demo.sh
-
+	@DEMO_COMPOSE_PATH=test/fixtures/wallet-web scripts/run-openapi-demo.sh
 
 .PHONY: wallet-web-start
 wallet-web-start: clean wallet-web-docker wallet-server-docker generate-test-keys mock-images
@@ -106,26 +105,13 @@ wallet-web-start: clean wallet-web-docker wallet-server-docker generate-test-key
 wallet-web-dev-start:
 	@scripts/wallet_web_dev_start.sh
 
-
-.PHONY: bdd-test
-bdd-test: bdd-test-wallet-server
-
-.PHONY: bdd-test-wallet-server
-bdd-test-wallet-server: clean wallet-web-docker wallet-server-docker generate-test-keys mock-images
-	@scripts/check_wallet_server_integration.sh
-
-.PHONY: mock-bddtest-login-consent-docker
-mock-bddtest-login-consent-docker:
-	@echo "Building mock login consent server for BDD tests..."
-	@cd test/bdd/mock/bddtest-login-consent-server && docker build -f image/Dockerfile --build-arg GO_VER=$(GO_VER) --build-arg ALPINE_VER=$(ALPINE_VER) -t edgeagent/mockbddtestloginconsent:latest .
-
 .PHONY: mock-demo-login-consent-docker
 mock-demo-login-consent-docker:
 	@echo "Building login consent server for demo..."
-	@cd test/bdd/mock/demo-login-consent-server && docker build -f image/Dockerfile --build-arg GO_VER=$(GO_VER) --build-arg ALPINE_VER=$(ALPINE_VER) -t edgeagent/demologinconsent:latest .
+	@cd test/mock/demo-login-consent-server && docker build -f image/Dockerfile --build-arg GO_VER=$(GO_VER) --build-arg ALPINE_VER=$(ALPINE_VER) -t edgeagent/demologinconsent:latest .
 
 .PHONY: mock-images
-mock-images: mock-bddtest-login-consent-docker mock-demo-login-consent-docker
+mock-images: mock-demo-login-consent-docker
 
 .PHONY: automation-test
 automation-test: clean wallet-web-docker wallet-server-docker generate-test-keys mock-images
@@ -136,4 +122,4 @@ clean:
 	@rm -Rf ./build
 	@rm -Rf ./cmd/wallet-web/dist
 	@rm -Rf ./cmd/wallet-web/node_modules
-	@rm -Rf ./test/bdd/fixtures/wallet-web/config
+	@rm -Rf ./test/fixtures/wallet-web/config

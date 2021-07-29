@@ -47,9 +47,9 @@ docker-compose.log
 
 cmd/wallet-web/web/dist
 cmd/wallet-web/dist
-test/bdd/fixtures/db
-test/bdd/fixtures/keys/tls
-test/bdd/fixtures/wallet-web/config/
-test/bdd/fixtures/user-agent/config
+test/fixtures/db
+test/fixtures/keys/tls
+test/fixtures/wallet-web/config/
+test/fixtures/user-agent/config
 cmd/wallet-web/public/agent-js-worker/
 wasm_exec.js

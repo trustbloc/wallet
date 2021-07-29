@@ -16,7 +16,7 @@ import (
 
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
 	"github.com/trustbloc/edge-agent/pkg/restapi/device"
-	"github.com/trustbloc/edge-agent/test/bdd/mock/authenticator"
+	authenticator "github.com/trustbloc/edge-agent/test/mock/authenticator"
 )
 
 func TestAuthenticate(t *testing.T) {
