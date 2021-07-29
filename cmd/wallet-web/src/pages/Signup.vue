@@ -99,7 +99,6 @@
                   <img class="inline-block object-contain mr-2 max-h-6" :src="provider.logoURL" />
                   <span id="signUpText" class="flex flex-wrap">{{ provider.signUpText }}</span>
                 </button>
-                <h1 hidden>{{ isLoggedIn }}</h1>
               </div>
               <div class="py-10 md:pt-12 md:pb-0 text-center">
                 <p class="text-base font-normal text-neutrals-white">
@@ -147,10 +146,14 @@ export default {
       return this.$t('Signup');
     },
     isLoggedIn() {
+      return this.isUserLoggedIn();
+    },
+  },
+  watch: {
+    isLoggedIn() {
       if (this.isUserLoggedIn()) {
         return this.redirectIfLoggedIn();
       }
-      return false;
     },
   },
   created: async function () {
