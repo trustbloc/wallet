@@ -19,6 +19,9 @@ OPENAPI_DOCKER_IMG_VERSION=v0.23.0
 DOCKER_OUTPUT_NS         ?= ghcr.io
 REPO_IMAGE_NAME          ?= trustbloc
 
+# shell/term
+export SHELL	:= /bin/bash
+export TERM		:= xterm-256color
 
 .PHONY: all
 all: clean checks unit-test
@@ -105,13 +108,7 @@ wallet-web-dev-start:
 
 
 .PHONY: bdd-test
-bdd-test: bdd-test-wallet-web bdd-test-wallet-server
-
-.PHONY: bdd-test-wallet-web
-bdd-test-wallet-web:
-	@echo "No tests to run ..."
-# TODO disabled as part of universal wallet migration, Refer https://github.com/trustbloc/agent-sdk/tree/main/cmd/wallet-js-sdk for wallet feature tests.
-#	@scripts/check_js_integration.sh
+bdd-test: bdd-test-wallet-server
 
 .PHONY: bdd-test-wallet-server
 bdd-test-wallet-server: clean wallet-web-docker wallet-server-docker generate-test-keys mock-images
@@ -129,6 +126,10 @@ mock-demo-login-consent-docker:
 
 .PHONY: mock-images
 mock-images: mock-bddtest-login-consent-docker mock-demo-login-consent-docker
+
+.PHONY: automation-test
+automation-test: clean wallet-web-docker wallet-server-docker generate-test-keys mock-images
+	@scripts/run_ui_automation.sh
 
 .PHONY: clean
 clean:

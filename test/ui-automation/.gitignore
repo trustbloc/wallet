@@ -4,5 +4,5 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-node_modules/
-public/
+node_modules
+reports

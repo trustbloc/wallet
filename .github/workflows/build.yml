@@ -55,7 +55,7 @@ jobs:
         env:
           CODECOV_UPLOAD_TOKEN: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
 
-  BDDTestWalletWeb:
+  WalletWebUIAutomation:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
     steps:
@@ -64,50 +64,27 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ${{ env.GO_VERSION }}
-      - name: Run BDD test JS
+      - name: Run Wallet Web UI automation
         run: |
           echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bddtest-wallet-web.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 bdd-edv-oathkeeper-proxy' | sudo tee -a /etc/hosts
-          echo '//npm.pkg.github.com/:_authToken=${DOCKER_PASSWORD}' > ~/.npmrc
-          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make bdd-test-wallet-web
-
-  BDDTestWalletServer:
-    runs-on: ubuntu-20.04
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - name: Run BDD test
-        run: |
-          echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 hydra.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 stakeholder.one' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 sidetree-mock' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 bdd-hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 bdd-hydra.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 bddtest-wallet-web.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 bdd-edv-oathkeeper-proxy' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 user-ui-agent.example.com' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 second-ui-user-agent.example.com' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make bdd-test-wallet-server
+          make automation-test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   Publish:
     name: Publish image
     if: github.event_name == 'push' && (github.repository == 'trustbloc/wallet' && github.ref == 'refs/heads/main')
-    needs: [Checks, UnitTest, BDDTestWalletWeb, BDDTestWalletServer]
+    needs: [Checks, UnitTest, WalletWebUIAutomation]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
