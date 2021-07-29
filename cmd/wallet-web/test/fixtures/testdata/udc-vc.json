@@ -21,8 +21,5 @@
     "name": "Example University"
   },
   "referenceNumber": 83294847,
-  "type": [
-    "VerifiableCredential",
-    "UniversityDegreeCredential"
-  ]
+  "type": ["VerifiableCredential", "UniversityDegreeCredential"]
 }

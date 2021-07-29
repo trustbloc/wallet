@@ -1,7 +1,5 @@
 {
-  "@context": [
-    "https://www.w3.org/2018/credentials/v1"
-  ],
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
   "type": "VerifiablePresentation",
   "verifiableCredential": [
     {
@@ -11,10 +9,7 @@
         "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld"
       ],
       "id": "http://example.gov/credentials/3731",
-      "type": [
-        "VerifiableCredential",
-        "UniversityDegreeCredential"
-      ],
+      "type": ["VerifiableCredential", "UniversityDegreeCredential"],
       "name": "Bachelor Degree",
       "description": "Bachelor of Science and Arts of Mr.John Smith",
       "issuer": "did:key:z6MkjRagNiMu91DduvCvgEsqLZDVzrJzFrwahc4tXLt9DoHd",
