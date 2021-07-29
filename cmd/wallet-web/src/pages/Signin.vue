@@ -92,6 +92,7 @@ import { DeviceLogin } from '@trustbloc/wallet-sdk';
 import ContentFooter from '@/pages/layout/ContentFooter.vue';
 import Logo from '@/components/Logo/Logo.vue';
 import Spinner from '@/components/Spinner/Spinner.vue';
+
 import { mapActions, mapGetters } from 'vuex';
 import axios from 'axios';
 
@@ -104,15 +105,30 @@ export default {
   data() {
     return {
       providers: [],
-      hubOauthProvider: this.hubURL(),
       statusMsg: '',
       loading: true,
-      registered: false,
     };
   },
   computed: {
     i18n() {
       return this.$t('Signin');
+    },
+    isLoggedIn() {
+      return this.isUserLoggedIn();
+    },
+  },
+  watch: {
+    async isLoggedIn() {
+      // watch for use login state and proceed with load OIDC user step.
+      if (this.isUserLoggedIn()) {
+        await this.refreshOpts();
+        await this.loadOIDCUser();
+
+        if (this.getCurrentUser()) {
+          await this.finishOIDCLogin();
+          this.handleSuccess();
+        }
+      }
     },
   },
   created: async function () {
@@ -120,29 +136,22 @@ export default {
     //TODO: issue-601 Implement cookie logic with information from the backend.
     this.deviceLogin = new DeviceLogin(this.getAgentOpts()['edge-agent-server']);
 
+    // user intended to destination
     let redirect = this.$route.params['redirect'];
-    this.redirect = redirect ? { name: redirect } : `${__webpack_public_path__}`;
+    this.redirect = redirect ? { name: redirect } : `${__webpack_public_path__}dashboard`;
 
-    // if session found, then no need to login
+    console.debug('redirecting to', this.redirect);
+
+    // load user.
     this.loadUser();
+
+    // if session found, then no need to login.
     if (this.getCurrentUser()) {
       this.handleSuccess();
       return;
     }
 
-    // call server to get user info and process login
-    await this.loadOIDCUser();
-
-    // register or let user inside wallet
-    if (this.getCurrentUser()) {
-      await this.finishOIDCLogin();
-      this.handleSuccess();
-      return;
-    }
-
-    if (this.$cookies.isKey('registerSuccess')) {
-      this.registered = true;
-    }
+    // show default view with signup options.
     this.loading = false;
   },
   methods: {
@@ -152,15 +161,33 @@ export default {
       startUserSetup: 'startUserSetup',
       completeUserSetup: 'completeUserSetup',
       refreshUserPreference: 'refreshUserPreference',
+      refreshOpts: 'initOpts',
     }),
-    ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL']),
+    ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubAuthURL', 'isUserLoggedIn']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     beginOIDCLogin: function (providerID) {
-      window.location.href = this.serverURL() + '/oidc/login?provider=' + providerID;
+      this.loading = true;
+      this.popupwindow('/loginhandle?provider=' + providerID, '', 700, 770);
+    },
+    popupwindow(url, title, w, h) {
+      var left = screen.width / 2 - w / 2;
+      var top = screen.height / 2 - h / 2;
+      return window.open(
+        url,
+        title,
+        'menubar=yes,status=yes, replace=true, width=' +
+          w +
+          ', height=' +
+          h +
+          ', top=' +
+          top +
+          ', left=' +
+          left
+      );
     },
     // Fetching the providers from hub-auth
     fetchProviders: async function () {
-      await axios.get(this.hubURL() + '/oauth2/providers').then((response) => {
+      await axios.get(this.hubAuthURL() + '/oauth2/providers').then((response) => {
         this.providers = response.data.authProviders;
       });
     },
@@ -181,7 +208,6 @@ export default {
         this.startUserSetup();
 
         let user = this.getCurrentUser();
-
         // first time login, register this user
         await new RegisterWallet(this.getAgentInstance(), this.getAgentOpts()).register(
           {
