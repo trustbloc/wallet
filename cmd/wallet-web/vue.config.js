@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-const {alias} = require('./alias.config')
+const { alias } = require('./alias.config');
 const path = require('path');
 
 module.exports = {
@@ -13,7 +13,7 @@ module.exports = {
 
   configureWebpack: {
     resolve: {
-      alias
+      alias,
     },
   },
 

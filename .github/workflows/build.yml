@@ -55,6 +55,27 @@ jobs:
         env:
           CODECOV_UPLOAD_TOKEN: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
 
+  WalletWebUnitTest:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run Wallet Web Unit Test
+        run: |
+          echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 edge.router.agent.example.com' | sudo tee -a /etc/hosts
+          echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
+          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          make wallet-web-test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   WalletWebUIAutomation:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
@@ -84,7 +105,7 @@ jobs:
   Publish:
     name: Publish image
     if: github.event_name == 'push' && (github.repository == 'trustbloc/wallet' && github.ref == 'refs/heads/main')
-    needs: [Checks, UnitTest, WalletWebUIAutomation]
+    needs: [Checks, UnitTest, WalletWebUnitTest, WalletWebUIAutomation]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

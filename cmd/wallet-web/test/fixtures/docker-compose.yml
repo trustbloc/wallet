@@ -22,7 +22,7 @@ services:
       - ${EDGE_ROUTER_API_PORT}:${EDGE_ROUTER_API_PORT}
       - ${EDGE_ROUTER_HTTP_INBOUND_PORT}:${EDGE_ROUTER_HTTP_INBOUND_PORT}
       - ${EDGE_ROUTER_WS_INBOUND_PORT}:${EDGE_ROUTER_WS_INBOUND_PORT}
-    entrypoint: ""
+    entrypoint: ''
     command: /bin/sh -c "hub-router start"
 
   sidetree:
