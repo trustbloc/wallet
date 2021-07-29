@@ -298,7 +298,7 @@ export default {
     serverURL(state) {
       return state.agentOpts['edge-agent-server'];
     },
-    hubURL(state) {
+    hubAuthURL(state) {
       return state.agentOpts['hubAuthURL'];
     },
     getStaticAssetsUrl(state) {

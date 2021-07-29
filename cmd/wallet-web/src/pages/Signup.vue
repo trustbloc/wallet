@@ -138,7 +138,6 @@ export default {
       providers: [],
       statusMsg: '',
       loading: true,
-      registered: false,
     };
   },
   computed: {
@@ -150,9 +149,16 @@ export default {
     },
   },
   watch: {
-    isLoggedIn() {
+    async isLoggedIn() {
+      // watch for use login state and proceed with load OIDC user step.
       if (this.isUserLoggedIn()) {
-        return this.redirectIfLoggedIn();
+        await this.refreshOpts();
+        await this.loadOIDCUser();
+
+        if (this.getCurrentUser()) {
+          await this.finishOIDCLogin();
+          this.handleSuccess();
+        }
       }
     },
   },
@@ -161,26 +167,22 @@ export default {
     //TODO: issue-601 Implement cookie logic with information from the backend.
     this.deviceLogin = new DeviceLogin(this.getAgentOpts()['edge-agent-server']);
 
+    // user intended to destination
     let redirect = this.$route.params['redirect'];
-    this.redirect = redirect ? { name: redirect } : `${__webpack_public_path__}`;
-    // if session found, then no need to login
+    this.redirect = redirect ? { name: redirect } : `${__webpack_public_path__}dashboard`;
+
+    console.debug('redirecting to', this.redirect);
+
+    // load user.
     this.loadUser();
+
+    // if session found, then no need to login.
     if (this.getCurrentUser()) {
       this.handleSuccess();
       return;
     }
-    await this.loadOIDCUser();
 
-    // register or let user inside wallet
-    if (this.getCurrentUser()) {
-      await this.finishOIDCLogin();
-      this.handleSuccess();
-      return;
-    }
-
-    if (this.$cookies.isKey('registerSuccess')) {
-      this.registered = true;
-    }
+    // show default view with signup options.
     this.loading = false;
   },
   methods: {
@@ -190,8 +192,9 @@ export default {
       startUserSetup: 'startUserSetup',
       completeUserSetup: 'completeUserSetup',
       refreshUserPreference: 'refreshUserPreference',
+      refreshOpts: 'initOpts',
     }),
-    ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL', 'isUserLoggedIn']),
+    ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubAuthURL', 'isUserLoggedIn']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     beginOIDCLogin: function (providerID) {
       this.loading = true;
@@ -215,7 +218,7 @@ export default {
     },
     // Fetching the providers from hub-auth
     fetchProviders: async function () {
-      await axios.get(this.hubURL() + '/oauth2/providers').then((response) => {
+      await axios.get(this.hubAuthURL() + '/oauth2/providers').then((response) => {
         this.providers = response.data.authProviders;
       });
     },
@@ -250,9 +253,6 @@ export default {
     },
     handleSuccess() {
       this.$router.push(this.redirect);
-    },
-    redirectIfLoggedIn() {
-      window.location.href = this.redirect;
     },
   },
 };
