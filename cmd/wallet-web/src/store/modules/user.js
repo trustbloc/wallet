@@ -13,6 +13,7 @@ export default {
     username: null,
     setupStatus: null,
     profile: null,
+    loggedIn: false,
   },
   mutations: {
     setUser(state, val) {
@@ -46,6 +47,9 @@ export default {
       state.setupStatus = localStorage.getItem('setupStatus');
       state.profile = JSON.parse(localStorage.getItem('profile'));
       state.preference = JSON.parse(localStorage.getItem('preference'));
+    },
+    setUserLoggedIn(state) {
+      state.loggedIn = true;
     },
   },
   actions: {
@@ -106,6 +110,9 @@ export default {
     updateUserProfile({ commit }, profile) {
       commit('setProfile', profile);
     },
+    updateUserOnboard({ commit }) {
+      commit('setUserLoggedIn');
+    },
   },
   getters: {
     getCurrentUser(state) {
@@ -117,6 +124,9 @@ export default {
             preference: state.preference,
           }
         : undefined;
+    },
+    isUserLoggedIn(state) {
+      return state.loggedIn;
     },
   },
   modules: {

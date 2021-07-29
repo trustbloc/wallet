@@ -13,9 +13,11 @@ import credentials from './modules/credentials';
 import presentation from './modules/presentation';
 import user from './modules/user';
 import options from './modules/options';
+import sharedMutations from 'vuex-shared-mutations';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   modules: { connections, mode, mediator, credentials, presentation, user, options },
+  plugins: [sharedMutations({ predicate: ['setUserLoggedIn'] })],
 });

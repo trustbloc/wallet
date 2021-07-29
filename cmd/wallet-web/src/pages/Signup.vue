@@ -99,6 +99,7 @@
                   <img class="inline-block object-contain mr-2 max-h-6" :src="provider.logoURL" />
                   <span id="signUpText" class="flex flex-wrap">{{ provider.signUpText }}</span>
                 </button>
+                <h1 hidden>{{ isLoggedIn }}</h1>
               </div>
               <div class="py-10 md:pt-12 md:pb-0 text-center">
                 <p class="text-base font-normal text-neutrals-white">
@@ -123,6 +124,7 @@ import { DeviceLogin } from '@trustbloc/wallet-sdk';
 import ContentFooter from '@/pages/layout/ContentFooter.vue';
 import Logo from '@/components/Logo/Logo.vue';
 import Spinner from '@/components/Spinner/Spinner.vue';
+
 import { mapActions, mapGetters } from 'vuex';
 import axios from 'axios';
 
@@ -135,7 +137,6 @@ export default {
   data() {
     return {
       providers: [],
-      hubOauthProvider: this.hubURL(),
       statusMsg: '',
       loading: true,
       registered: false,
@@ -145,6 +146,12 @@ export default {
     i18n() {
       return this.$t('Signup');
     },
+    isLoggedIn() {
+      if (this.isUserLoggedIn()) {
+        return this.redirectIfLoggedIn();
+      }
+      return false;
+    },
   },
   created: async function () {
     await this.fetchProviders();
@@ -153,15 +160,12 @@ export default {
 
     let redirect = this.$route.params['redirect'];
     this.redirect = redirect ? { name: redirect } : `${__webpack_public_path__}`;
-
     // if session found, then no need to login
     this.loadUser();
     if (this.getCurrentUser()) {
       this.handleSuccess();
       return;
     }
-
-    // call server to get user info and process login
     await this.loadOIDCUser();
 
     // register or let user inside wallet
@@ -184,10 +188,27 @@ export default {
       completeUserSetup: 'completeUserSetup',
       refreshUserPreference: 'refreshUserPreference',
     }),
-    ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL']),
+    ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubURL', 'isUserLoggedIn']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     beginOIDCLogin: function (providerID) {
-      window.location.href = this.serverURL() + '/oidc/login?provider=' + providerID;
+      this.loading = true;
+      this.popupwindow('/loginhandle?provider=' + providerID, '', 700, 770);
+    },
+    popupwindow(url, title, w, h) {
+      var left = screen.width / 2 - w / 2;
+      var top = screen.height / 2 - h / 2;
+      return window.open(
+        url,
+        title,
+        'menubar=yes,status=yes, replace=true, width=' +
+          w +
+          ', height=' +
+          h +
+          ', top=' +
+          top +
+          ', left=' +
+          left
+      );
     },
     // Fetching the providers from hub-auth
     fetchProviders: async function () {
@@ -226,6 +247,9 @@ export default {
     },
     handleSuccess() {
       this.$router.push(this.redirect);
+    },
+    redirectIfLoggedIn() {
+      window.location.href = this.redirect;
     },
   },
 };
