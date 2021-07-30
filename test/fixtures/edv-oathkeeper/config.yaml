@@ -20,7 +20,7 @@ authenticators:
     # Set enabled to true if the authenticator should be enabled and false to disable the authenticator. Defaults to false.
     enabled: true
     config:
-      introspection_url: https://demo-hub-auth-hydra.trustbloc.local:5556/oauth2/introspect
+      introspection_url: https://hub-auth-hydra.trustbloc.local:5556/oauth2/introspect
   noop:
     enabled: true
 

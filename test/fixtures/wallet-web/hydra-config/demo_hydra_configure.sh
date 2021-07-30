@@ -16,5 +16,5 @@ hydra clients create \
     --response-types code,id_token \
     --scope openid,profile,email \
     --skip-tls-verify \
-    --callbacks https://demo-hub-auth.trustbloc.local:8044/oauth2/callback
+    --callbacks https://hub-auth.trustbloc.local:8044/oauth2/callback
 echo "Finished registering demo-hub-auth with third party provider"

@@ -54,8 +54,8 @@ healthCheck() {
 }
 
 # healthcheck
-healthCheck wallet-web https://user-ui-agent.example.com:8091/healthcheck 200
-healthCheck wallet-web-2 https://second-ui-user-agent.example.com:8071/healthcheck 200
+healthCheck wallet-web https://wallet.trustbloc.local:8091/healthcheck 200
+healthCheck wallet-web-2 https://wallet-2.trustbloc.local:8071/healthcheck 200
 healthCheck wallet-server https://localhost:8090/healthcheck 200
 
 echo "running tests..."

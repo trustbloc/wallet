@@ -1413,7 +1413,7 @@ func (m *mockEDVClient) CreateDataVault(_ *models.DataVaultConfiguration,
 		return "", nil, err
 	}
 
-	return "http://edv.example.com" + uuid.New().String(), b, nil
+	return "http://edv.trustbloc.local" + uuid.New().String(), b, nil
 }
 
 type mockSigner struct {

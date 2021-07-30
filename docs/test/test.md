@@ -20,32 +20,32 @@ Run (`make generate-test-keys`) to generate tls keys and import ec-cacert.pem in
 
 You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following lines, to allow few of the bdd test containers to be connected to externally. 
 
-    127.0.0.1 testnet.orb.local
-    127.0.0.1 user-ui-agent.example.com
-    127.0.0.1 user-agent.example.com
-    127.0.0.1 second-ui-user-agent.example.com
-    127.0.0.1 second-user-agent.example.com
-    127.0.0.1 edge.router.agent.example.com
-    127.0.0.1 uni-resolver-web.example.com
-    127.0.0.1 demo-hub-auth.trustbloc.local
-    127.0.0.1 demo-hub-auth-hydra.trustbloc.local
-    127.0.0.1 demo-hydra.trustbloc.local
-    127.0.0.1 bdd-hub-auth-hydra.trustbloc.local
-    127.0.0.1 bdd-hydra.trustbloc.local
-    127.0.0.1 bddtest-wallet-web.trustbloc.local
-    127.0.0.1 edv.example.com
-    127.0.0.1 authz-kms.trustbloc.local
-    127.0.0.1 edv-oathkeeper-proxy
-    127.0.0.1 bdd-edv-oathkeeper-proxy
-    127.0.0.1 ops-kms.trustbloc.local
-    127.0.0.1 demo-oathkeeper-auth-keyserver.trustbloc.local
-    127.0.0.1 demo-oathkeeper-ops-keyserver.trustbloc.local
+```
+127.0.0.1 testnet.orb.local
+127.0.0.1 wallet.trustbloc.local
+127.0.0.1 wallet-server.trustbloc.local
+127.0.0.1 wallet-2.trustbloc.local
+127.0.0.1 wallet-server-2.trustbloc.local
+127.0.0.1 hub-router.trustbloc.local
+127.0.0.1 uni-resolver-web.trustbloc.local
+127.0.0.1 hub-auth.trustbloc.local
+127.0.0.1 hub-auth-hydra.trustbloc.local
+127.0.0.1 demo-hydra.trustbloc.local
+127.0.0.1 edv.trustbloc.local
+127.0.0.1 authz-kms.trustbloc.local
+127.0.0.1 edv-oathkeeper-proxy.trustbloc.local
+127.0.0.1 ops-kms.trustbloc.local
+127.0.0.1 oathkeeper-auth-keyserver.trustbloc.local
+127.0.0.1 oathkeeper-ops-keyserver.trustbloc.local
+```
 
-## Running BDD tests
+## Wallet Automation tests
 
-Run below command to run JS bdd tests in headless browser.
+Run below command to run wallet automation tests.
 
-    make bdd-test-js
+```
+make automation-test
+```
 
 
 ## Targets
@@ -80,8 +80,8 @@ make wallet-web-start
 
 ## Agents
 
-- To access user agent wasm open [user home page](https://user-ui-agent.example.com:8091/dashboard).
-- To access second user agent wasm open [user home page](https://second-ui-user-agent.example.com:8071/dashboard).
+- To access user agent wasm open [user home page](https://wallet.trustbloc.local:8091/dashboard).
+- To access second user agent wasm open [user home page](https://wallet-2.trustbloc.local:8071/dashboard).
 
 Click on the login button on both agents. You will land on a mock login form. Any credentials will work.
 

@@ -12,4 +12,4 @@ providers:
     name: Demo OIDC
     signUpText: Demo Sign-Up Partner
     signInText: Demo Sign-In Partner
-    logoURL: https://demo-hub-auth.trustbloc.local:8044/static/images/demo_provider.svg
+    logoURL: https://hub-auth.trustbloc.local:8044/static/images/demo_provider.svg
