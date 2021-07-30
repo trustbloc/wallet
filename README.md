@@ -6,22 +6,21 @@
 [![codecov](https://codecov.io/gh/trustbloc/wallet/branch/main/graph/badge.svg)](https://codecov.io/gh/trustbloc/wallet)
 [![Go Report Card](https://goreportcard.com/badge/github.com/trustbloc/edge-agent)](https://goreportcard.com/report/github.com/trustbloc/edge-agent)
 
-# edge-agent
+# Wallet
+The TrustBloc Wallet repo contains a Web Wallet to store/share [W3C Verifiable Credential(VC)](https://w3c.github.io/vc-data-model/) signed/verified with [W3C Decentralized Identifier(DID)](https://w3c.github.io/did-core/). These wallets are useful for the [holder](https://www.w3.org/TR/vc-data-model/#dfn-holders) role defined in [W3C Verifiable Credential](https://www.w3.org/TR/vc-data-model/#ecosystem-overview) Specification.
 
-Edge Agent is agent involved in sending (creating) and receiving (processing) an Agent Message.
+The wallet uses [TrustBloc Wallet SDK](https://github.com/trustbloc/agent-sdk/tree/main/cmd/wallet-js-sdk) built on top of [Aries Verifiable Credential wallet](https://github.com/hyperledger/aries-framework-go/blob/main/docs/vc_wallet.md) based on [Universal Wallet Specifications](https://w3c-ccg.github.io/universal-wallet-interop-spec/) implementation.
 
+The [Wallet Web](./cmd/wallet-web) works together with [Wallet Server](./cmd/wallet-server) to support user actions.
 
-# Components
+## Components
+- [Wallet Web](docs/components/wallet_web.md)
+- [Wallet Server](docs/components/wallet_server.md)
 
-- [User Agent WASM](docs/components/user_agent_wasm.md)
-- [Web Wallet](docs/components/web_wallet.md)
-
-# Test
-
+## Test
 - [Test](docs/test/test.md)
 
-# Dev
-
+## Dev
 - [Dev Mode](docs/dev/dev-mode.md)
 
 ## Contributing
