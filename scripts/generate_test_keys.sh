@@ -24,14 +24,14 @@ DNS.2 = *.trustbloc.local
 DNS.3 = testnet.orb.local
 DNS.4 = hydra
 DNS.5 = *.example.com
-DNS.6 = user-ui-agent.example.com
-DNS.7 = user-agent.example.com
-DNS.8 = second-ui-user-agent.example.com
-DNS.9 = second-user-agent.example.com
-DNS.10 = edge.router.agent.example.com
-DNS.11 = uni-resolver-web.example.com
-DNS.12 = edv-oathkeeper-proxy
-DNS.13 = bdd-edv-oathkeeper-proxy" >> "$tmp"
+DNS.6 = wallet.trustbloc.local
+DNS.7 = wallet-server.trustbloc.local
+DNS.8 = wallet-2.trustbloc.local
+DNS.9 = wallet-server-2.trustbloc.local
+DNS.10 = hub-router.trustbloc.local
+DNS.11 = uni-resolver-web.trustbloc.local
+DNS.12 = edv-oathkeeper-proxy.trustbloc.local
+DNS.13 = bdd-edv-oathkeeper-proxy.trustbloc.local" >> "$tmp"
 
 CERT_CA="test/fixtures/keys/tls/ec-cacert.pem"
 if [ ! -f "$CERT_CA" ]; then

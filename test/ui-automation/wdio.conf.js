@@ -12,6 +12,6 @@ const domain = ".dev.trustbloc.dev"
 
 exports.config = {
     ...config,
-    "walletName": "user-ui-agent.example.com",
-    "walletURL": "https://user-ui-agent.example.com:8091",
+    "walletName": "wallet.trustbloc.local",
+    "walletURL": "https://wallet.trustbloc.local:8091",
 };

@@ -67,7 +67,7 @@ jobs:
       - name: Run Wallet Web Unit Test
         run: |
           echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 edge.router.agent.example.com' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 hub-router.trustbloc.local' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
@@ -88,12 +88,21 @@ jobs:
       - name: Run Wallet Web UI automation
         run: |
           echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 bdd-hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 bdd-hydra.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 bddtest-wallet-web.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 bdd-edv-oathkeeper-proxy' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 user-ui-agent.example.com' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 second-ui-user-agent.example.com' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 wallet.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 wallet-server.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 wallet-2.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 wallet-server-2.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 hub-router.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 uni-resolver-web.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 hub-auth.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 demo-hydra.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 edv.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 authz-kms.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 edv-oathkeeper-proxy.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 ops-kms.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 oathkeeper-auth-keyserver.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 oathkeeper-ops-keyserver.trustbloc.local' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc

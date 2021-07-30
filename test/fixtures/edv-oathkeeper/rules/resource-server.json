@@ -2,10 +2,10 @@
   {
     "id": "edv-vault-resource-server-rule",
     "upstream": {
-      "url": "https://edv.example.com:8072"
+      "url": "https://edv.trustbloc.local:8072"
     },
     "match": {
-      "url": "https://edv-oathkeeper-proxy:4455/encrypted-data-vaults",
+      "url": "https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults",
       "methods": [
         "POST"
       ]
@@ -32,10 +32,10 @@
   {
     "id": "edv-operation-resource-server-rule",
     "upstream": {
-      "url": "https://edv.example.com:8072"
+      "url": "https://edv.trustbloc.local:8072"
     },
     "match": {
-      "url": "https://edv-oathkeeper-proxy:4455/encrypted-data-vaults/<.*>",
+      "url": "https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults/<.*>",
       "methods": [
         "GET",
         "POST",

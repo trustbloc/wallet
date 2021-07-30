@@ -6,7 +6,22 @@
 
 serve:
   proxy:
-    port: 4460
+    port: 4462
+    cors:
+      enabled: true
+      allowed_headers:
+        - Content-Type
+        - Authorization
+        - Hub-Kms-Secret
+        - Capability-Invocation
+        - Digest
+        - Signature
+      allowed_origins:
+        - https://wallet.trustbloc.local:8091
+        - https://wallet-2.trustbloc.local:8071
+        - https://localhost:9098
+      allow_credentials: true
+      debug: true
   api:
     port: 4458
 
@@ -19,7 +34,7 @@ authenticators:
   oauth2_introspection:
     enabled: true
     config:
-      introspection_url: https://bdd-hub-auth-hydra.trustbloc.local:8889/oauth2/introspect
+      introspection_url: https://hub-auth-hydra.trustbloc.local:5556/oauth2/introspect
   noop:
     enabled: true
 

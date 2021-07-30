@@ -34,26 +34,6 @@ CREATE DATABASE authresthydra;
 GRANT ALL PRIVILEGES ON authresthydra.* TO 'authresthydra'@'%';
 
 /*
-BDD Hydra
-*/
-CREATE USER 'bddhydra'@'%' IDENTIFIED BY 'bddhydra-pwd';
-CREATE DATABASE bddhydra;
-GRANT ALL PRIVILEGES ON bddhydra.* TO 'bddhydra'@'%';
-
-/*
-bdd auth rest
-*/
-CREATE USER 'bddauthrest'@'%' IDENTIFIED BY 'bddauthrest-secret-pw';
-GRANT ALL PRIVILEGES ON `authrest\_%` . * TO 'bddauthrest'@'%';
-
-/*
-bd auth rest hydra
-*/
-CREATE USER 'bddauthresthydra'@'%' IDENTIFIED BY 'bddauthresthydra-secret-pw';
-CREATE DATABASE bddauthresthydra;
-GRANT ALL PRIVILEGES ON bddauthresthydra.* TO 'bddauthresthydra'@'%';
-
-/*
 edge agent rest
 */
 CREATE USER 'edgeagent'@'%' IDENTIFIED BY 'edgeagent-secret-pw';

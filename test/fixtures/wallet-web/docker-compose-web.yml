@@ -6,8 +6,8 @@
 version: '2'
 
 services:
-  user-ui-agent.example.com:
-    container_name: user-ui-agent.example.com
+  wallet.trustbloc.local:
+    container_name: wallet.trustbloc.local
     image: ${WALLET_WEB_IMAGE}:latest
     volumes:
       - ../keys/tls:/etc/nginx/certs
@@ -18,24 +18,24 @@ services:
       - HTTP_RESOLVER_URL=${HTTP_RESOLVER}
       - AGENT_DEFAULT_LABEL=wallet-web
       - BLOC_DOMAIN=testnet.orb.local
-      - EDGE_AGENT_SERVER=https://user-agent.example.com:8090
-      - HTTP_SERVER_HUB_AUTH_URL=https://demo-hub-auth.trustbloc.local:8044
+      - EDGE_AGENT_SERVER=https://wallet-server.trustbloc.local:8090
+      - HTTP_SERVER_HUB_AUTH_URL=https://hub-auth.trustbloc.local:8044
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
-      - EDV_SERVER_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+      - EDV_SERVER_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
       - STORAGE_TYPE=edv
       - KMS_TYPE=webkms
       - USE_EDV_CACHE=true
       - EDV_CLEAR_CACHE=10m
       - USE_EDV_BATCH=true
       - STATIC_ASSETS=/etc/static
-      # To add static images, set STATIC_ASSETS_URL=https://user-ui-agent.example.com:8091,
+      # To add static images, set STATIC_ASSETS_URL=https://wallet.trustbloc.local:8091,
       # then add images under /test/fixtures/wallet-web/static/images
       - STATIC_ASSETS_URL=
 
-  second-ui-user-agent.example.com:
-    container_name: second-ui-user-agent.example.com
+  wallet-2.trustbloc.local:
+    container_name: wallet-2.trustbloc.local
     image: ${WALLET_WEB_IMAGE}:latest
     volumes:
       - ../keys/tls:/etc/nginx/certs
@@ -46,12 +46,12 @@ services:
       - HTTP_RESOLVER_URL=${HTTP_RESOLVER}
       - AGENT_DEFAULT_LABEL=second-wallet-web
       - BLOC_DOMAIN=testnet.orb.local
-      - EDGE_AGENT_SERVER=https://second-user-agent.example.com:8070
-      - HTTP_SERVER_HUB_AUTH_URL=https://demo-hub-auth.trustbloc.local:8044
+      - EDGE_AGENT_SERVER=https://wallet-server-2.trustbloc.local:8070
+      - HTTP_SERVER_HUB_AUTH_URL=https://hub-auth.trustbloc.local:8044
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
-      - EDV_SERVER_URL=https://edv-oathkeeper-proxy:4455/encrypted-data-vaults
+      - EDV_SERVER_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
       - STORAGE_TYPE=edv
       - KMS_TYPE=webkms
       - USE_EDV_CACHE=true
@@ -60,51 +60,51 @@ services:
       - STATIC_ASSETS=/etc/static
       - STATIC_ASSETS_URL=
 
-  edge.router.agent.example.com:
-    container_name: edge.router.agent.example.com
+  hub-router.trustbloc.local:
+    container_name: hub-router.trustbloc.local
     image: ${HUB_ROUTER_IMAGE}:${HUB_ROUTER_IMAGE_TAG}
     environment:
-      - HUB_ROUTER_HOST_URL=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_API_PORT}
+      - HUB_ROUTER_HOST_URL=${HUB_ROUTER_HOST}:${HUB_ROUTER_API_PORT}
       - HUB_ROUTER_TLS_CACERTS=/etc/tls/ec-cacert.pem
       - HUB_ROUTER_TLS_SYSTEMCERTPOOL=true
       - HUB_ROUTER_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - HUB_ROUTER_TLS_SERVE_KEY=/etc/tls/ec-key.pem
-      - HUB_ROUTER_DIDCOMM_HTTP_HOST=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_HTTP_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://localhost:${EDGE_ROUTER_HTTP_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_WS_HOST=${EDGE_ROUTER_HOST}:${EDGE_ROUTER_WS_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${EDGE_ROUTER_WS_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST=${HUB_ROUTER_HOST}:${HUB_ROUTER_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://localhost:${HUB_ROUTER_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST=${HUB_ROUTER_HOST}:${HUB_ROUTER_WS_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${HUB_ROUTER_WS_INBOUND_PORT}
       - HUB_ROUTER_DSN_PERSISTENT=mem://tests
       - HUB_ROUTER_DSN_TRANSIENT=mem://tests
       - HUB_ROUTER_DSN_TIMEOUT=45
     ports:
-      - ${EDGE_ROUTER_API_PORT}:${EDGE_ROUTER_API_PORT}
-      - ${EDGE_ROUTER_HTTP_INBOUND_PORT}:${EDGE_ROUTER_HTTP_INBOUND_PORT}
-      - ${EDGE_ROUTER_WS_INBOUND_PORT}:${EDGE_ROUTER_WS_INBOUND_PORT}
+      - ${HUB_ROUTER_API_PORT}:${HUB_ROUTER_API_PORT}
+      - ${HUB_ROUTER_HTTP_INBOUND_PORT}:${HUB_ROUTER_HTTP_INBOUND_PORT}
+      - ${HUB_ROUTER_WS_INBOUND_PORT}:${HUB_ROUTER_WS_INBOUND_PORT}
     entrypoint: ""
     command: /bin/sh -c "hub-router start"
     volumes:
       - ../keys/tls:/etc/tls
 
-  edge.router.agent2.example.com:
-    container_name: edge.router.agent2.example.com
+  hub-router-2.example.com:
+    container_name: hub-router-2.example.com
     image: ${HUB_ROUTER_IMAGE}:${HUB_ROUTER_IMAGE_TAG}
     environment:
-      - HUB_ROUTER_HOST_URL=${EDGE_ROUTER2_HOST}:${EDGE_ROUTER2_API_PORT}
+      - HUB_ROUTER_HOST_URL=${HUB_ROUTER2_HOST}:${HUB_ROUTER2_API_PORT}
       - HUB_ROUTER_TLS_CACERTS=/etc/tls/ec-cacert.pem
       - HUB_ROUTER_TLS_SYSTEMCERTPOOL=true
       - HUB_ROUTER_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - HUB_ROUTER_TLS_SERVE_KEY=/etc/tls/ec-key.pem
-      - HUB_ROUTER_DIDCOMM_HTTP_HOST=${EDGE_ROUTER2_HOST}:${EDGE_ROUTER2_HTTP_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://localhost:${EDGE_ROUTER2_HTTP_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_WS_HOST=${EDGE_ROUTER2_HOST}:${EDGE_ROUTER2_WS_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${EDGE_ROUTER2_WS_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST=${HUB_ROUTER2_HOST}:${HUB_ROUTER2_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://localhost:${HUB_ROUTER2_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST=${HUB_ROUTER2_HOST}:${HUB_ROUTER2_WS_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${HUB_ROUTER2_WS_INBOUND_PORT}
       - HUB_ROUTER_DSN_PERSISTENT=mem://tests
       - HUB_ROUTER_DSN_TRANSIENT=mem://tests
       - HUB_ROUTER_DSN_TIMEOUT=45
     ports:
-      - ${EDGE_ROUTER2_API_PORT}:${EDGE_ROUTER2_API_PORT}
-      - ${EDGE_ROUTER2_HTTP_INBOUND_PORT}:${EDGE_ROUTER2_HTTP_INBOUND_PORT}
-      - ${EDGE_ROUTER2_WS_INBOUND_PORT}:${EDGE_ROUTER2_WS_INBOUND_PORT}
+      - ${HUB_ROUTER2_API_PORT}:${HUB_ROUTER2_API_PORT}
+      - ${HUB_ROUTER2_HTTP_INBOUND_PORT}:${HUB_ROUTER2_HTTP_INBOUND_PORT}
+      - ${HUB_ROUTER2_WS_INBOUND_PORT}:${HUB_ROUTER2_WS_INBOUND_PORT}
     entrypoint: ""
     command: /bin/sh -c "hub-router start"
     volumes:
@@ -128,8 +128,8 @@ services:
     volumes:
       - ../keys/tls:/etc/sidetree/tls
 
-  uni-resolver-web.example.com:
-    container_name: uni-resolver-web.example.com
+  uni-resolver-web.trustbloc.local:
+    container_name: uni-resolver-web.trustbloc.local
     image: universalresolver/uni-resolver-web:latest
     ports:
       - "9080:8080"

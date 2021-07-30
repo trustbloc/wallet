@@ -2,10 +2,10 @@
   {
     "id": "ops-kms-create-keystore",
     "upstream": {
-      "url": "https://bdd-ops-kms.trustbloc.local:8065"
+      "url": "https://ops-kms.trustbloc.local:8075"
     },
     "match": {
-      "url": "https://bdd-oathkeeper-ops-keyserver.trustbloc.local:4460/kms/keystores",
+      "url": "https://oathkeeper-ops-keyserver.trustbloc.local:4462/kms/keystores",
       "methods": ["POST"]
     },
     "authenticators": [{
@@ -21,10 +21,10 @@
   {
     "id": "ops-kms-keystore-ops",
     "upstream": {
-      "url": "https://bdd-ops-kms.trustbloc.local:8065"
+      "url": "https://ops-kms.trustbloc.local:8075"
     },
     "match": {
-      "url": "https://bdd-oathkeeper-ops-keyserver.trustbloc.local:4460/kms/keystores/<*>",
+      "url": "https://oathkeeper-ops-keyserver.trustbloc.local:4462/kms/keystores/<*>",
       "methods": ["POST", "GET"]
     },
     "authenticators": [{
@@ -40,10 +40,10 @@
   {
     "id": "ops-kms-health",
     "upstream": {
-      "url": "https://bdd-ops-kms.trustbloc.local:8065"
+      "url": "https://ops-kms.trustbloc.local:8075"
     },
     "match": {
-      "url": "http://bdd-oathkeeper-ops-keyserver.trustbloc.local:4460/healthcheck",
+      "url": "http://oathkeeper-ops-keyserver.trustbloc.local:4462/healthcheck",
       "methods": ["GET"]
     },
     "authenticators": [{
