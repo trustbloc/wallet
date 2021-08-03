@@ -11,14 +11,13 @@ const {allow} = require('./chapi');
 
 const DIDS = constants.dids
 const timeout = 60000;
+let signedUpUserEmail;
 
 /*************************** Public API ******************************/
 
 exports.init = async ({createDID, importDID, email}) => {
   // login and consent
-  await _getSignUp();
-  await _getThirdPartyLogin(email);
-
+  await _getSignUp(email);
   // register chapi
   await allow()
 
@@ -31,6 +30,8 @@ exports.init = async ({createDID, importDID, email}) => {
   } else if(createDID) {
     await _createTrustblocDID({method: createDID});
   }
+
+  signedUpUserEmail = email
 };
 
 exports.authenticate = async ({did}) => {
@@ -55,6 +56,19 @@ exports.didConnect = async () => {
   await successMsg.waitForExist();
 };
 
+exports.logout = async () => {
+  await _logoutWallet();
+};
+
+exports.signIn = async () => {
+  await _signIn(signedUpUserEmail);
+};
+
+exports.checkStoredCredentials = async () => {
+  await _checkStoredCredentials();
+};
+
+
 /*************************** Helper functions ******************************/
 
 async function _didAuth({method='trustbloc'} = {}) {
@@ -78,15 +92,34 @@ async function _sendCredentials({method="trustbloc"} = {}) {
   await shareBtn.click();
 }
 
-async function _getSignUp() {
-  // Todo issue-852 Replace the text with an ID'
-  const signUpButton = await $('button*=Demo Sign-Up Partner');
+async function _getSignUp(email) {
+  const signUpButton = await $('#signUpText');
   await signUpButton.waitForExist();
   await signUpButton.click();
+  await _getThirdPartyLogin(email)
 }
 
+async function _logoutWallet() {
+  const logOutButton = await $('button*=Log Out');
+  await logOutButton.waitForExist();
+  await logOutButton.click();
+}
+
+async function _signIn(signedUpUserEmail) {
+  const signInLink = await $('a*=Sign in');
+  await signInLink.waitForExist();
+  await signInLink.click();
+  await browser.waitUntil(async () => {
+    const signInButton = await $('button*=Demo Sign-In Partner');
+    await signInButton.waitForExist();
+    await signInButton.click();
+    await _getThirdPartyLogin(signedUpUserEmail);
+    return true;
+  });
+}
 
 async function _getThirdPartyLogin(email) {
+  await browser.switchWindow('Login Page')
   await browser.waitUntil(async () => {
     let emailInput = await $('#email');
     await emailInput.waitForExist();
@@ -95,9 +128,10 @@ async function _getThirdPartyLogin(email) {
     return true;
   });
 
-  const signInButton = await $('#accept');
-  await signInButton.click();
+  const oidcLoginButton = await $('#accept');
+  await oidcLoginButton.click();
 
+  await browser.switchWindow(browser.config.walletURL)
   await browser.waitUntil(async () => {
     let title = await $('iframe');
     await title.waitForExist({timeout, interval: 5000});
@@ -112,6 +146,12 @@ async function _waitForDashboard() {
     expect(didResponse).toHaveText('Successfully setup your user');
     return true;
   });
+}
+
+async function _checkStoredCredentials() {
+  const checkStoredCredential = await $('div*=Permanent Resident Card');
+  await checkStoredCredential.waitForExist();
+  return true;
 }
 
 async function _saveAnyDID({method}) {
