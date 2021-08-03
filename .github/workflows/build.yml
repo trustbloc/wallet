@@ -55,7 +55,7 @@ jobs:
         env:
           CODECOV_UPLOAD_TOKEN: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
 
-  WalletWebUnitTest:
+  UIUnitTest:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
     steps:
@@ -76,7 +76,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  WalletWebUIAutomation:
+  UIAutomation:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
     steps:
@@ -114,7 +114,7 @@ jobs:
   Publish:
     name: Publish image
     if: github.event_name == 'push' && (github.repository == 'trustbloc/wallet' && github.ref == 'refs/heads/main')
-    needs: [Checks, UnitTest, WalletWebUnitTest, WalletWebUIAutomation]
+    needs: [Checks, UnitTest, UIUnitTest, UIAutomation]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
