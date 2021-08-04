@@ -197,17 +197,15 @@ func (o *Operation) oidcLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	session, err := o.store.cookies.Open(r)
 	if err != nil {
-		common.WriteErrorResponsef(w, logger,
-			http.StatusInternalServerError, "failed to read user session cookie: %s", err.Error())
+		// log the error and continue
+		logger.Warnf("failed to read user session cookie: %s", err.Error())
+	} else {
+		_, found := session.Get(userSubCookieName)
+		if found {
+			http.Redirect(w, r, o.walletDashboard, http.StatusMovedPermanently)
 
-		return
-	}
-
-	_, found := session.Get(userSubCookieName)
-	if found {
-		http.Redirect(w, r, o.walletDashboard, http.StatusMovedPermanently)
-
-		return
+			return
+		}
 	}
 
 	state := uuid.New().String()

@@ -122,6 +122,11 @@ export default {
             console.log(
               "Note: If you haven't logged in yet and you just got a 403 error, then it's expected"
             );
+
+            // http 400 denotes expired cookie at server - logout the user and make user to signin
+            if (err.response && err.response.status === 400) {
+              dispatch('logout');
+            }
           });
 
         console.log('agent-sdk will be started with:');

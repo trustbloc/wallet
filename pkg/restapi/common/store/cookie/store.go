@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package cookie
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -41,11 +40,9 @@ type Jars struct {
 // Open the Jar.
 func (cs *Jars) Open(r *http.Request) (Jar, error) {
 	s, err := cs.cs.Get(r, StoreName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch session cookies %s: %w", StoreName, err)
-	}
 
-	return &Session{s: s}, nil
+	// the session 's' is returned even when error is not nil - pass it back to the caller and let the caller decide.
+	return &Session{s: s}, err
 }
 
 // Session is a Jar holding cookies.

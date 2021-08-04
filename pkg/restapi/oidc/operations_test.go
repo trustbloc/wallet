@@ -105,18 +105,6 @@ func TestOperation_OIDCLoginHandler(t *testing.T) {
 		require.NotEmpty(t, w.Header().Get("Location"))
 	})
 
-	t.Run("internal server error if cannot fetch session cookie", func(t *testing.T) {
-		config := config(t)
-		o, err := New(config)
-		require.NoError(t, err)
-		o.store.cookies = &cookie.MockStore{
-			OpenErr: errors.New("test"),
-		}
-		w := httptest.NewRecorder()
-		o.oidcLoginHandler(w, newOIDCLoginRequest())
-		require.Equal(t, http.StatusInternalServerError, w.Code)
-	})
-
 	t.Run("internal server error if cannot save to cookie store", func(t *testing.T) {
 		config := config(t)
 		o, err := New(config)
