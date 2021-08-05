@@ -388,7 +388,25 @@ module.exports = {
         },
       };
 
-      addComponents({ ...buttons, ...inputs, ...links });
+      const toastNotifications = {
+        '.error-notification': {
+          backgroundColor: theme('colors.primary.valencia'),
+          top: theme('spacing.8'),
+          position: 'absolute',
+          borderRadius: theme('spacing.3'),
+          zIndex: 10,
+          maxWidth: '48rem',
+          display: 'flex',
+          verticalAlign: 'middle',
+          flexDirection: 'row',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          padding: `${theme('spacing.4')} ${theme('spacing.5')}`,
+          color: theme('colors.neutrals.softWhite'),
+        },
+      };
+
+      addComponents({ ...buttons, ...inputs, ...links, ...toastNotifications });
     }),
   ],
 };

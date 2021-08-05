@@ -33,6 +33,10 @@ Vue.use(SideBar);
 Vue.use(VueCookies);
 Vue.$cookies.config('7d');
 Vue.use(VueMaterial);
+Vue.component(
+  'ToastNotification',
+  require('./components/ToastNotification/ToastNotification').default
+);
 
 // Returns locale configuration. By default, try VUE_APP_I18N_LOCALE. As fallback, use 'en'.
 function getMappedLocale(locale = process.env.VUE_APP_I18N_LOCALE || 'en') {
