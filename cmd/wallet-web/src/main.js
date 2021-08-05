@@ -8,7 +8,7 @@ import Vue from 'vue';
 import store from './store';
 import App from './App.vue';
 import VueRouter from 'vue-router';
-import routes from './router/index';
+import router from './router/index';
 import * as polyfill from 'credential-handler-polyfill';
 import * as webCredentialHandler from 'web-credential-handler';
 import { mapActions, mapGetters } from 'vuex';
@@ -18,47 +18,15 @@ import SideBar from '@/components/SidebarPlugin';
 import VueMaterial from 'vue-material';
 import 'vue-material/dist/vue-material.css';
 import './assets/scss/material-dashboard.scss';
-import i18n from './i18n';
+import i18n from './plugins/i18n';
+import supportedLocales from '@/config/supportedLocales';
+import { updateI18nLocale } from '@/plugins/i18n';
+import getBrowserLocale from '@/utils/i18n/getBrowserLocale';
 
 Vue.config.productionTip = false;
 
 Vue.prototype.$polyfill = polyfill;
 Vue.prototype.$webCredentialHandler = webCredentialHandler;
-
-// configure router
-const router = new VueRouter({
-  mode: 'history',
-  routes, // short for routes: routes
-  linkExactActiveClass: 'nav-item active',
-});
-
-router.beforeEach((to, from, next) => {
-  store.dispatch('agent/flushStore');
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (store.getters.getCurrentUser) {
-      next();
-    } else if (store.dispatch('loadUser') && store.getters.getCurrentUser) {
-      next();
-    } else {
-      next({
-        name: 'signup',
-        params: { redirect: to.name },
-      });
-    }
-  } else if (to.matched.some((record) => record.meta.blockNoAuth)) {
-    if (store.dispatch('loadUser') && store.getters.getCurrentUser) {
-      next();
-    } else {
-      console.log('other options ');
-      next({
-        name: 'block-no-auth',
-        params: { loginURL: 'signup' },
-      });
-    }
-  } else {
-    next();
-  }
-});
 
 Vue.use(VueRouter);
 Vue.use(SideBar);
@@ -66,19 +34,40 @@ Vue.use(VueCookies);
 Vue.$cookies.config('7d');
 Vue.use(VueMaterial);
 
+// Returns locale configuration. By default, try VUE_APP_I18N_LOCALE. As fallback, use 'en'.
+function getMappedLocale(locale = process.env.VUE_APP_I18N_LOCALE || 'en') {
+  return supportedLocales.find((loc) => loc.id === locale);
+}
+
+function getStartingLocale() {
+  // Get locale parameter form the URL
+  const localeUrlParam = router.history._startLocation
+    .replaceAll(/^\//gi, '')
+    .replace(/\/.*$/gi, '');
+  // If locale parameter is set, check if it is amongst the supported locales and return it.
+  if (localeUrlParam && supportedLocales.find((loc) => loc.id === localeUrlParam)) {
+    return getMappedLocale(localeUrlParam);
+  }
+  // If no locale parameter is set in the URL, use the browser default.
+  else {
+    const browserLocale = getBrowserLocale({ countryCodeOnly: true });
+    return getMappedLocale(browserLocale);
+  }
+}
+
+// Get starting locale, set it in i18n and in the store
+const startingLocale = getStartingLocale();
+store.dispatch('setLocale', startingLocale);
+
 new Vue({
   store,
-  el: '#app',
 
   data: () => ({
     loaded: false,
   }),
 
-  methods: {
-    ...mapActions(['initOpts', 'loadUser']),
-    ...mapActions('agent', { initAgent: 'init' }),
-    ...mapGetters('agent', { isAgentInitialized: 'isInitialized' }),
-    ...mapGetters(['getAgentOpts']),
+  created: async function () {
+    await updateI18nLocale(startingLocale.id);
   },
 
   mounted: async function () {
@@ -97,10 +86,16 @@ new Vue({
     this.loaded = true;
   },
 
-  render: (h) => h(App),
+  methods: {
+    ...mapActions(['initOpts', 'loadUser']),
+    ...mapActions('agent', { initAgent: 'init' }),
+    ...mapGetters('agent', { isAgentInitialized: 'isInitialized' }),
+    ...mapGetters(['getAgentOpts']),
+  },
   i18n,
   router,
-});
+  render: (h) => h(App),
+}).$mount('#app');
 
 window.onbeforeunload = function () {
   if (store) {

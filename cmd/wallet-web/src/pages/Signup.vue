@@ -103,9 +103,11 @@
               <div class="py-10 md:pt-12 md:pb-0 text-center">
                 <p class="text-base font-normal text-neutrals-white">
                   {{ i18n.redirect }}
-                  <a class="text-primary-blue whitespace-nowrap underline-blue" href="/signin">{{
-                    i18n.signin
-                  }}</a>
+                  <router-link
+                    class="text-primary-blue whitespace-nowrap underline-blue"
+                    to="signin"
+                    >{{ i18n.signin }}</router-link
+                  >
                 </p>
               </div>
             </div>
@@ -123,7 +125,6 @@ import { DeviceLogin } from '@trustbloc/wallet-sdk';
 import ContentFooter from '@/pages/layout/ContentFooter.vue';
 import Logo from '@/components/Logo/Logo.vue';
 import Spinner from '@/components/Spinner/Spinner.vue';
-
 import { mapActions, mapGetters } from 'vuex';
 import axios from 'axios';
 
@@ -168,8 +169,16 @@ export default {
     this.deviceLogin = new DeviceLogin(this.getAgentOpts()['edge-agent-server']);
 
     // user intended to destination
-    let redirect = this.$route.params['redirect'];
-    this.redirect = redirect ? { name: redirect } : `${__webpack_public_path__}dashboard`;
+    const redirect = this.$route.params['redirect'];
+    this.redirect = redirect
+      ? {
+          name: redirect,
+          params: { ...this.$route.params, locale: this.$store.getters.getLocale.base },
+        }
+      : {
+          name: 'dashboard',
+          params: { ...this.$route.params, locale: this.$store.getters.getLocale.base },
+        };
 
     console.debug('redirecting to', this.redirect);
 

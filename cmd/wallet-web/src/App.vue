@@ -7,32 +7,25 @@
 <template>
   <div class="font-sans">
     <div v-if="!$root.loaded" class="loader">
-      <md-progress-spinner
-        :md-diameter="100"
-        :md-stroke="10"
-        md-mode="indeterminate"
-      ></md-progress-spinner>
-      <div>Loading Agent...</div>
+      <Spinner />
+      <span>Loading Agent...</span>
     </div>
-    <router-view v-if="$root.loaded"></router-view>
+    <router-view v-else />
   </div>
 </template>
 
 <script>
-import { setDocumentLang, setDocumentTitle } from '@/utils/i18n/document';
+import Spinner from '@/components/Spinner/Spinner.vue';
+import EventBus from '@/EventBus';
+
 export default {
+  components: { Spinner },
+  data: () => ({
+    isLoading: true,
+  }),
   mounted() {
-    this.$watch(
-      '$i18n.locale',
-      (newLocale, oldLocale) => {
-        if (newLocale === oldLocale) {
-          return;
-        }
-        setDocumentLang(newLocale);
-        setDocumentTitle(this.$t('App.title'));
-      },
-      { immediate: true }
-    );
+    EventBus.$on('i18n-load-start', () => (this.isLoading = true));
+    EventBus.$on('i18n-load-complete', () => (this.isLoading = false));
   },
 };
 </script>
