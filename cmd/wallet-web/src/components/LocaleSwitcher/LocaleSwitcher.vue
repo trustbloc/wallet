@@ -27,10 +27,10 @@ export default {
       if (this.$i18n.locale !== newLocale || store.getters.getLocale.id !== newLocale) {
         await updateI18nLocale(newLocale.id);
         store.dispatch('setLocale', newLocale);
-        const to = this.$router.resolve({
+        this.$router.replace({
+          name: this.$router.history.current.name,
           params: { ...this.$router.history.current.params, locale: newLocale.base },
         });
-        this.$router.replace(to.location);
       }
     },
   },

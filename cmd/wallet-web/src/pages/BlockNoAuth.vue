@@ -13,7 +13,9 @@
 
       <md-card-content style="font-size: 16px">
         You don't have authorization to access this page, please login to your wallet
-        <a :href="loginURL" target="_blank" style="font-weight: 600; font-style: italic">here</a>
+        <router-link :to="redirect" target="_blank" style="font-weight: 600; font-style: italic"
+          >here</router-link
+        >
         and try again.
       </md-card-content>
     </md-card>
@@ -24,7 +26,7 @@
 export default {
   data() {
     return {
-      loginURL: this.$route.params['loginURL'] ? this.$route.params['loginURL'] : '/',
+      redirect: this.$route.params['redirect'] ? this.$route.params['redirect'] : '/',
     };
   },
 };

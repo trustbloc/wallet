@@ -10,7 +10,6 @@ import Root from './Root';
 import store from '@/store';
 import routes from './routes';
 import supportedLocales from '@/config/supportedLocales';
-import i18n, { updateI18nLocale } from '@/plugins/i18n';
 
 Vue.use(VueRouter);
 
@@ -46,30 +45,44 @@ router.beforeEach((to, from, next) => {
       next();
       return;
     } else {
-      next({
-        path: `${locale.base}/signup`,
-        params: { redirect: to.name },
+      router.replace({
+        name: 'signup',
+        params: {
+          ...router.history.current.params,
+          locale: locale.base,
+          redirect: { name: to.name },
+        },
       });
+      next();
       return;
     }
   } else if (to.matched.some((record) => record.meta.blockNoAuth)) {
-    console.log('blockNoAuth');
     if (store.dispatch('loadUser') && store.getters.getCurrentUser) {
       next();
       return;
     } else {
-      console.log('other options ');
-      next({
+      router.replace({
         name: 'block-no-auth',
-        params: { loginURL: `${locale.base}/signup` },
+        params: {
+          ...router.history.current.params,
+          locale: locale.base,
+          redirect: { name: 'signup' },
+        },
       });
+      next();
       return;
     }
   } else {
     if (locale.id !== router.history.pending.params.locale) {
-      next({
-        path: `${locale.base}${router.history._startLocation}`,
+      router.replace({
+        name: router.history.pending.name,
+        params: {
+          ...router.history.pending.params,
+          locale: locale.base,
+        },
+        query: router.history.pending.query,
       });
+      next();
       return;
     } else {
       next();
