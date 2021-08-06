@@ -139,7 +139,7 @@ export default {
     const redirect = this.$route.params['redirect'];
     this.redirect = redirect
       ? {
-          name: redirect,
+          name: redirect.name,
           params: { ...this.$route.params, locale: this.$store.getters.getLocale.base },
         }
       : {
