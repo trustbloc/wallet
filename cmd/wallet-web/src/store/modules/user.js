@@ -36,6 +36,7 @@ export default {
       state.username = null;
       state.setupStatus = null;
       state.profile = null;
+      state.loggedIn = false;
 
       localStorage.removeItem('user');
       localStorage.removeItem('setupStatus');
