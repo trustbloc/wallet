@@ -46,6 +46,16 @@ wallet-web-test:
 	@set -e
 	@cd cmd/wallet-web && npm install && npm run test
 
+.PHONY: wallet-web-prettier-check
+wallet-web-prettier-check:
+	@set -e
+	@cd cmd/wallet-web && npm install && npm run prettier-check
+
+.PHONY: wallet-web-eslint-check
+wallet-web-eslint-check:
+	@set -e
+	@cd cmd/wallet-web && npm install && npm run lint
+
 .PHONY: wallet-web
 wallet-web:
 	@scripts/build_wallet_web.sh
