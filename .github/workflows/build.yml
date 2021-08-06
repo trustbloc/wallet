@@ -146,7 +146,7 @@ jobs:
   Publish:
     name: Publish image
     if: github.event_name == 'push' && (github.repository == 'trustbloc/wallet' && github.ref == 'refs/heads/main')
-    needs: [Checks, UnitTest, UIUnitTest, UIAutomation]
+    needs: [Prettier, ESLint, Checks, UnitTest, UIUnitTest, UIAutomation]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
