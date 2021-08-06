@@ -33,9 +33,8 @@ export default {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getAgentOpts']),
     logout: async function () {
-      await this.chapi.uninstall();
-      await this.logoutUser();
-      this.$router.push({ name: 'signup', params: this.$route.params });
+      await Promise.all([this.chapi.uninstall(), this.logoutUser()]);
+      this.$router.push({ name: 'signin', params: this.$route.params });
     },
   },
 };
