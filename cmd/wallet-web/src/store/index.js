@@ -20,5 +20,5 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   modules: { connections, mode, mediator, credentials, presentation, user, options, locale },
-  plugins: [sharedMutations({ predicate: ['setUserLoggedIn', 'setLocale'] })],
+  plugins: [sharedMutations({ predicate: ['setUserLoggedIn', 'setLocale', 'setLogInSuspended'] })],
 });

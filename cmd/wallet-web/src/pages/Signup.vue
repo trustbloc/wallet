@@ -17,6 +17,12 @@
     "
   >
     <div class="flex flex-col flex-grow justify-center items-center">
+      <toast-notification
+        v-if="systemError"
+        :title="i18n.errorToast.title"
+        :description="i18n.errorToast.description"
+        type="error"
+      ></toast-notification>
       <div
         class="
           overflow-hidden
@@ -139,6 +145,7 @@ export default {
       providers: [],
       statusMsg: '',
       loading: true,
+      systemError: false,
     };
   },
   computed: {
@@ -148,19 +155,29 @@ export default {
     isLoggedIn() {
       return this.isUserLoggedIn();
     },
+    isSuspended() {
+      return this.isLoginSuspended();
+    },
   },
   watch: {
     async isLoggedIn() {
       // watch for use login state and proceed with load OIDC user step.
       if (this.isUserLoggedIn()) {
         await this.refreshOpts();
-        await this.loadOIDCUser();
-
+        try {
+          await this.loadOIDCUser();
+        } catch (e) {
+          this.systemError = true;
+          this.loading = false;
+        }
         if (this.getCurrentUser()) {
           await this.finishOIDCLogin();
           this.handleSuccess();
         }
       }
+    },
+    isSuspended() {
+      this.loading = false;
     },
   },
   created: async function () {
@@ -203,7 +220,14 @@ export default {
       refreshUserPreference: 'refreshUserPreference',
       refreshOpts: 'initOpts',
     }),
-    ...mapGetters(['getCurrentUser', 'getAgentOpts', 'serverURL', 'hubAuthURL', 'isUserLoggedIn']),
+    ...mapGetters([
+      'getCurrentUser',
+      'getAgentOpts',
+      'serverURL',
+      'hubAuthURL',
+      'isUserLoggedIn',
+      'isLoginSuspended',
+    ]),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     beginOIDCLogin: function (providerID) {
       this.loading = true;
