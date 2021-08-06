@@ -4,18 +4,50 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-name: "wallet ci"
+name: "Wallet CI"
 
 env:
   GO_VERSION: 1.16
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
+  Prettier:
+    name: Prettier Check
+    timeout-minutes: 5
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Wallet Web Prettier Check
+        run: |
+          echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
+          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          make wallet-web-prettier-check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  ESLint:
+    name: ESLint Check
+    timeout-minutes: 5
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Wallet Web ESLint Check
+        run: |
+          echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
+          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          make wallet-web-eslint-check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   Checks:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
@@ -145,7 +177,7 @@ jobs:
         with:
           current-version: "${{ env.CURRENT_SEMVER }}"
           # TODO: needs to be configurable https://github.com/christian-draeger/increment-semantic-version#input--output-examples
-          version-fragment: 'bug'
+          version-fragment: "bug"
 
       - name: Set ENV vars
         run: |
