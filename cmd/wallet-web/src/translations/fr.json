@@ -19,6 +19,10 @@
       "span1": "Protégez votre identité numérique",
       "span2": "Conservez vos pièces d’identité numériques, vos certifications et bien plus dans un même portefeuille sécurisé",
       "span3": "Vérifiez votre identité en personne ou en ligne"
+    },
+    "errorToast": {
+      "title": "Impossible de créer un compte",
+      "description": "Désolé, un problème est survenu. Veuillez réessayer ou choisir un autre partenaire d’inscription."
     }
   }
 }

@@ -19,6 +19,10 @@
       "span1": "Keep your digital identity safe",
       "span2": "Store digital IDs, certifications, and more—all in one secure wallet",
       "span3": "Verify your identity in person or online"
+    },
+    "errorToast": {
+      "title": "Unable to create Account",
+      "description": "Sorry, something went wrong. Please try again or choose a different sign-up partner."
     }
   }
 }
