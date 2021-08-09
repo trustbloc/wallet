@@ -11,28 +11,28 @@ version: 2
 
 updates:
   # wallet-web package.json
-  - package-ecosystem: 'npm'
-    directory: '/cmd/wallet-web'
+  - package-ecosystem: "npm"
+    directory: "/cmd/wallet-web"
     schedule:
-      interval: 'weekly'
-      day: 'monday'
+      interval: "weekly"
+      day: "monday"
       # Use Eastern Standard Time (UTC -05:00)
-      timezone: 'America/Toronto'
+      timezone: "America/Toronto"
     open-pull-requests-limit: 3
     commit-message:
-      prefix: 'chore: '
+      prefix: "chore: "
     labels:
-      - 'dependencies'
+      - "dependencies"
   # wallet-web test package.json
-  - package-ecosystem: 'npm'
-    directory: '/test/wallet-web'
+  - package-ecosystem: "npm"
+    directory: "/test/ui-automation"
     schedule:
-      interval: 'weekly'
-      day: 'sunday'
+      interval: "weekly"
+      day: "sunday"
       # Use Eastern Standard Time (UTC -05:00)
-      timezone: 'America/Toronto'
+      timezone: "America/Toronto"
     open-pull-requests-limit: 1
     commit-message:
-      prefix: 'chore: '
+      prefix: "chore: "
     labels:
-      - 'dependencies'
+      - "dependencies"
