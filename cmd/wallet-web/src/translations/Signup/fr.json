@@ -9,8 +9,6 @@
   },
   "errorToast": {
     "title": "Impossible de créer un compte",
-    "description": "Désolé, un problème est survenu. Veuillez réessayer ou choisir un autre partenaire d’inscription.",
-    "unused": "unused"
-  },
-  "unused2": "unused2"
+    "description": "Désolé, un problème est survenu. Veuillez réessayer ou choisir un autre partenaire d’inscription."
+  }
 }
