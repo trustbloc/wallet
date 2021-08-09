@@ -1,0 +1,9 @@
+{
+  "heading": "Sign in to your account",
+  "redirect": "Don't have an account?",
+  "signup": "Sign up",
+  "errorToast": {
+    "title": "Unable to create Account",
+    "description": "Sorry, something went wrong. Please try again or choose a different sign-up partner."
+  }
+}

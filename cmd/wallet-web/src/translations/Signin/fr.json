@@ -1,0 +1,9 @@
+{
+  "heading": "Connectez-vous à votre compte",
+  "redirect": "Vous n’avez pas de compte?",
+  "signup": "S’inscrire",
+  "errorToast": {
+    "title": "Impossible de créer un compte",
+    "description": "Désolé, un problème est survenu. Veuillez réessayer ou choisir un autre partenaire d’inscription."
+  }
+}
