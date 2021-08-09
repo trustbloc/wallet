@@ -27,11 +27,13 @@ export default {
       window.top.close();
     } else {
       window.location.href = this.serverURL() + '/oidc/login?provider=' + this.provider;
+      window.addEventListener('beforeunload', this.onclose);
     }
   },
   methods: {
     ...mapActions({
       updateUserOnboard: 'updateUserOnboard',
+      updateLoginSuspended: 'updateLoginSuspended',
     }),
     ...mapGetters(['serverURL']),
     checkIfUserLoggedIn: async function () {
@@ -39,6 +41,9 @@ export default {
         method: 'GET',
         credentials: 'include',
       });
+    },
+    onclose: function onclose() {
+      this.updateLoginSuspended();
     },
   },
 };

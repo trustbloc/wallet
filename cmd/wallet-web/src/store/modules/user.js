@@ -14,6 +14,7 @@ export default {
     setupStatus: null,
     profile: null,
     loggedIn: false,
+    logInSuspended: false,
   },
   mutations: {
     setUser(state, val) {
@@ -51,6 +52,9 @@ export default {
     },
     setUserLoggedIn(state) {
       state.loggedIn = true;
+    },
+    setLogInSuspended(state) {
+      state.logInSuspended = true;
     },
   },
   actions: {
@@ -114,6 +118,9 @@ export default {
     updateUserOnboard({ commit }) {
       commit('setUserLoggedIn');
     },
+    updateLoginSuspended({ commit }) {
+      commit('setLogInSuspended');
+    },
   },
   getters: {
     getCurrentUser(state) {
@@ -128,6 +135,9 @@ export default {
     },
     isUserLoggedIn(state) {
       return state.loggedIn;
+    },
+    isLoginSuspended(state) {
+      return state.logInSuspended;
     },
   },
   modules: {
