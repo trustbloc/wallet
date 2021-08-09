@@ -83,11 +83,6 @@ export default [
     ],
   },
   {
-    path: 'login',
-    name: 'login',
-    component: load('Login'),
-  },
-  {
     path: 'loginhandle',
     name: 'loginhandle',
     component: load('LoginHandle'),
