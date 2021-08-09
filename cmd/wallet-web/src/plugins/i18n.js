@@ -5,9 +5,10 @@ import EventBus from '@/EventBus';
 
 Vue.use(VueI18n);
 
+const loadedLanguages = [];
+
 // This function updates i18n locale, loads new locale's messages and sets document properties accordingly
 export async function updateI18nLocale(locale) {
-  const loadedLanguages = [];
   EventBus.$emit('i18n-load-start');
 
   if (loadedLanguages.length > 0 && i18n.locale === locale) {
@@ -26,7 +27,7 @@ export async function updateI18nLocale(locale) {
 
   // If the language hasn't been loaded yet
   const messages = await import(
-    /* webpackChunkName: "locale-[request]" */ `@/translations/${locale}.json`
+    /* webpackChunkName: "locale-[request]" */ `@/translations/${locale}.js`
   );
   i18n.setLocaleMessage(locale, messages.default);
   setDocumentLang(locale);
