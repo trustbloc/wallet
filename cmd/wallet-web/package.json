@@ -60,7 +60,7 @@
     "eslint-plugin-i18n-json": "^3.1.0",
     "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-tailwindcss": "^1.14.1",
-    "eslint-plugin-vue": "^7.15.1",
+    "eslint-plugin-vue": "^7.16.0",
     "highlight.js": ">=10.4.1",
     "karma": "^6.3.4",
     "karma-chai": "^0.1.0",
