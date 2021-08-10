@@ -42,7 +42,7 @@
     "@intlify/vue-i18n-loader": "^1.0.0",
     "@nuxtjs/vuetify": "^1.11.0",
     "@vue/cli-plugin-babel": "^4.1.0",
-    "@vue/cli-plugin-eslint": "^5.0.0-beta.2",
+    "@vue/cli-plugin-eslint": "^5.0.0-beta.3",
     "@vue/cli-plugin-router": "^4.5.13",
     "@vue/cli-service": "^4.1.0",
     "@vue/test-utils": "^1.2.2",
