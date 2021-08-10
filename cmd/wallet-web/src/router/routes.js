@@ -82,6 +82,79 @@ export default [
       },
     ],
   },
+  // Temporary path for the new dashboard
+  {
+    path: 'v2',
+    name: 'DashboardLayoutV2',
+    component: load('layout/DashboardLayoutV2'),
+    redirect: 'dashboardV2',
+    children: [
+      {
+        path: 'dashboard',
+        name: 'dashboardV2',
+        component: load('DashboardV2'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'logout',
+        name: 'logoutV2',
+        component: load('Logout'),
+      },
+      {
+        path: 'WebWallet',
+        name: 'web-walletV2',
+        component: load('demos/WebWallet'),
+      },
+      {
+        path: 'DIDManagement',
+        name: 'did-managementV2',
+        component: load('DIDManagement'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'connections',
+        name: 'connectionsV2',
+        component: load('demos/Connections'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'relationships',
+        name: 'relationshipsV2',
+        component: load('demos/Relationships'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'issue-credential',
+        name: 'issue-credentialV2',
+        component: load('demos/IssueCredential'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'present-proof',
+        name: 'present-proofV2',
+        component: load('demos/PresentProof'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'worker',
+        name: 'chapi-workerV2',
+        component: load('WalletWorker'),
+        meta: { showNav: false, hideFooter: true },
+      },
+      {
+        path: 'StoreInWallet',
+        name: 'chapi-storeV2',
+        component: load('StoreInWallet'),
+        meta: { blockNoAuth: true, showNav: false, hideFooter: true },
+      },
+      {
+        path: 'GetFromWallet',
+        name: 'chapi-getV2',
+        component: load('GetFromWallet'),
+        meta: { blockNoAuth: true, showNav: false, hideFooter: true },
+      },
+    ],
+  },
   {
     path: 'loginhandle',
     name: 'loginhandle',
