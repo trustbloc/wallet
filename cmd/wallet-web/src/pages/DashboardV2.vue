@@ -11,12 +11,7 @@
         <div>
           <md-label style="color: #1b5e20; font-size: 16px; margin: 5px">
             <span v-if="loadingStatus === 'inprogress'">
-              <pulse-loader
-                :color="'green'"
-                :size="5"
-                style="float: left; margin-right: 5px"
-              ></pulse-loader>
-              Setting up your user for secured communication.
+              <skeleton-loader type="vault" />
             </span>
             <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg" class="px-24">
               <md-icon style="color: green" class="px-4">check_circle_outline</md-icon> Successfully
@@ -124,7 +119,6 @@
 import { CredentialManager } from '@trustbloc/wallet-sdk';
 import { getCredentialType } from '@/pages/mixins';
 import { mapGetters } from 'vuex';
-import { PulseLoader } from '@saeris/vue-spinners';
 import PermanentResidentCard from '../components/CredentialCards/PermanentResidentCard';
 import UniversityCard from '../components/CredentialCards/UniversityCard';
 import TravelCard from '../components/CredentialCards/TravelCard';
@@ -133,13 +127,13 @@ import DriversLicense from '../components/CredentialCards/DriversLicense';
 import CrudeProductCard from '../components/CredentialCards/CrudeProductCard';
 import MillTestCard from '../components/CredentialCards/MillTestCard';
 import GeneralCard from '../components/CredentialCards/GeneralCard';
+import SkeletonLoader from '../components/SkeletonLoader/SkeletonLoader';
 
 const filterBy = ['IssuerManifestCredential', 'GovernanceCredential'];
 // TODO: issue-627 Add generic vue card for all the credentials to dynamically add support for all VC types.
 export default {
   name: 'DashboardV2',
   components: {
-    PulseLoader,
     PermanentResidentCard,
     UniversityCard,
     TravelCard,
@@ -148,6 +142,7 @@ export default {
     CrudeProductCard,
     MillTestCard,
     GeneralCard,
+    SkeletonLoader,
   },
   created: function () {
     let { user, token } = this.getCurrentUser().profile;
