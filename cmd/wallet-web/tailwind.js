@@ -24,6 +24,8 @@ module.exports = {
         },
         softWhite: '#f4f1f5',
         white: '#ffffff',
+        whiteLilac: '#e4e1e5',
+        selago: '#f4f1f5',
       },
       primary: {
         blue: '#2883fb',
@@ -180,7 +182,7 @@ module.exports = {
         xl: '896px',
       },
       screens: {
-        xs: '320px',
+        xs: '350px',
       },
     },
   },
@@ -406,7 +408,82 @@ module.exports = {
         },
       };
 
-      addComponents({ ...buttons, ...inputs, ...links, ...toastNotifications });
+      const skeletons = {
+        '.skeleton': {
+          backgroundColor: theme('colors.neutrals.whiteLilac'),
+          borderRadius: theme('spacing.3'),
+          display: 'flex',
+          paddingLeft: theme('spacing.4'),
+          paddingTop: theme('spacing.4'),
+          paddingRight: theme('spacing.14'),
+          paddingBottom: theme('spacing.4'),
+          width: 342,
+          height: 80,
+          flexDirection: 'row',
+          [`@media (min-width: ${theme('screens.md')})`]: {
+            paddingLeft: theme('spacing.6'),
+            paddingTop: theme('spacing.5'),
+            paddingRight: theme('spacing.6'),
+            paddingBottom: theme('spacing.6'),
+            width: 256,
+            height: 160,
+            flexDirection: 'column',
+          },
+        },
+        '.skeleton-photo': {
+          backgroundColor: theme('colors.neutrals.selago'),
+          borderRadius: '50%',
+          width: theme('spacing.12'),
+          height: theme('spacing.12'),
+          flexFlow: 'col-1',
+        },
+        '.skeleton-data': {
+          backgroundColor: theme('colors.neutrals.selago'),
+          position: 'relative',
+          borderRadius: theme('spacing.6'),
+          overflow: 'hidden',
+          marginTop: theme('spacing.0'),
+          marginLeft: theme('spacing.3'),
+          [`@media (min-width: ${theme('screens.md')})`]: {
+            marginTop: theme('spacing.3'),
+            marginLeft: theme('spacing.0'),
+          },
+          '&::before, &::after': {
+            content: '""',
+            position: 'absolute',
+            left: 0,
+            width: 80,
+            height: 1,
+            backgroundImage: `linear-gradient(-90deg, rgba(255, 255, 255, 0) 15%, #867C8C 50%, rgba(255, 255, 255, 0) 85%)`,
+            animation: 'shimmer 1.25s linear infinite',
+          },
+          '&::before': {
+            top: 0,
+          },
+
+          '&::after': {
+            bottom: 0,
+          },
+
+          '& .top': {
+            width: '100%',
+          },
+
+          '& .bottom': {
+            width: '60%',
+          },
+        },
+        '@keyframes shimmer': {
+          from: {
+            transform: 'translateX(-100%)',
+          },
+          to: {
+            transform: 'translateX(250%)',
+          },
+        },
+      };
+
+      addComponents({ ...buttons, ...inputs, ...links, ...toastNotifications, ...skeletons });
     }),
   ],
 };
