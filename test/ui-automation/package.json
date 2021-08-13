@@ -27,7 +27,7 @@
   "devDependencies": {
     "@wdio/junit-reporter": "^7.9.0",
     "@wdio/local-runner": "^7.5.0",
-    "@wdio/mocha-framework": "^7.4.6",
+    "@wdio/mocha-framework": "^7.9.1",
     "@wdio/spec-reporter": "^7.4.3",
     "mochawesome-report-generator": "^3.1.5",
     "wdio-mochawesome-reporter": "^4.0.0",
