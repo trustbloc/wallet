@@ -32,46 +32,21 @@
                       <div class="cardContent">
                         <div class="cardHeader">
                           {{ credDisplayName(card.content) }}
+                          <div v-for="cd in cjson" :key="cd.schema">
+                            <div v-if="credDisplayName(card.content) === cd.schema">
+                              <div class="cardBody">
+                                <div class="cardDetailsL">
+                                  <md-icon>{{ cd.icon }}</md-icon>
+                                </div>
+                                <div class="cardDetailsR">
+                                  <p v-for="(value, key) in cd.credentialSubject" :key="key">
+                                    {{ key }}: {{ value }}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-
-                        <university-card
-                          v-if="
-                            credDisplayName(card.content) === 'Bachelor Degree' ||
-                            credDisplayName(card.content) === 'University Degree Credential'
-                          "
-                          :item="card.content"
-                        />
-                        <permanent-resident-card
-                          v-else-if="credDisplayName(card.content) === 'Permanent Resident Card'"
-                          :item="card.content"
-                        />
-                        <travel-card
-                          v-else-if="credDisplayName(card.content) === 'Travel Card'"
-                          :item="card.content"
-                        />
-                        <student-card
-                          v-else-if="credDisplayName(card.content) === 'Student Card'"
-                          :item="card.content"
-                        />
-                        <drivers-license
-                          v-else-if="credDisplayName(card.content) === 'Drivers License'"
-                          :item="card.content"
-                        />
-                        <crude-product-card
-                          v-else-if="
-                            credDisplayName(card.content) === 'Heavy Sour Dilbit' ||
-                            credDisplayName(card.content) === 'Crude Product Credential'
-                          "
-                          :item="card.content"
-                        />
-                        <mill-test-card
-                          v-else-if="
-                            credDisplayName(card.content) === 'Steel Inc. CMTR' ||
-                            credDisplayName(card.content) === 'Certified Mill Test Report'
-                          "
-                          :item="card.content"
-                        />
-                        <general-card v-else :item="card.content" />
                       </div>
                       <!--<json-modal :item="card.content" />-->
                     </div>
@@ -119,29 +94,14 @@
 import { CredentialManager } from '@trustbloc/wallet-sdk';
 import { getCredentialType } from '@/pages/mixins';
 import { mapGetters } from 'vuex';
-import PermanentResidentCard from '../components/CredentialCards/PermanentResidentCard';
-import UniversityCard from '../components/CredentialCards/UniversityCard';
-import TravelCard from '../components/CredentialCards/TravelCard';
-import StudentCard from '../components/CredentialCards/StudentCard';
-import DriversLicense from '../components/CredentialCards/DriversLicense';
-import CrudeProductCard from '../components/CredentialCards/CrudeProductCard';
-import MillTestCard from '../components/CredentialCards/MillTestCard';
-import GeneralCard from '../components/CredentialCards/GeneralCard';
 import SkeletonLoader from '../components/SkeletonLoader/SkeletonLoader';
+import credentialDisplayData from '@/config/credentialDisplayData.json';
 
 const filterBy = ['IssuerManifestCredential', 'GovernanceCredential'];
 // TODO: issue-627 Add generic vue card for all the credentials to dynamically add support for all VC types.
 export default {
   name: 'DashboardV2',
   components: {
-    PermanentResidentCard,
-    UniversityCard,
-    TravelCard,
-    StudentCard,
-    DriversLicense,
-    CrudeProductCard,
-    MillTestCard,
-    GeneralCard,
     SkeletonLoader,
   },
   created: function () {
@@ -157,7 +117,6 @@ export default {
     fetchAllCredentials: async function (getCredential) {
       let { contents } = await getCredential;
       console.log(`found ${Object.keys(contents).length} credentials`);
-
       const _filter = (id) => {
         return !contents[id].type.some((t) => filterBy.includes(t));
       };
@@ -169,6 +128,22 @@ export default {
       this.cards = Object.keys(contents).filter(_filter).map(_createCard);
 
       console.log(`showing ${this.cards.length} credentials`);
+
+      // Reading the values of the credentials and mapping it to the credential display data schemas
+      this.cjson.forEach((obj) => {
+        let flattened = {};
+        for (let credentialKey in this.cards) {
+          this.flatten(this.cards[credentialKey].content, flattened);
+          for (let credentialContent in flattened) {
+            if (
+              obj.credentialSubject.hasOwnProperty(credentialContent) &&
+              obj.schema === this.credDisplayName(this.cards[credentialKey].content)
+            ) {
+              obj.credentialSubject[credentialContent] = flattened[credentialContent];
+            }
+          }
+        }
+      });
     },
     credDisplayName: function (vc) {
       return vc.name ? vc.name : getCredentialType(vc.type);
@@ -176,10 +151,22 @@ export default {
     toggleCard: function (card) {
       card.flipped = !card.flipped;
     },
+    flatten: function (json, flattened) {
+      for (let key in json) {
+        if (json.hasOwnProperty(key)) {
+          if (json[key] instanceof Object && json[key] != '') {
+            this.flatten(json[key], flattened, key);
+          } else {
+            flattened[key] = json[key];
+          }
+        }
+      }
+    },
   },
   data() {
     return {
       cards: [],
+      cjson: credentialDisplayData,
       username: '',
       agent: null,
       error: 'No stored credentials',
@@ -278,5 +265,33 @@ li:hover {
 
 .md-dialog-container {
   width: 100% !important;
+}
+.cardBody {
+  content: '""';
+  display: table;
+  clear: both;
+  width: 100%;
+  padding: 5px;
+}
+
+.cardDetailsL {
+  float: left;
+  width: 30%;
+}
+
+.cardDetailsR {
+  float: left;
+  width: 70%;
+}
+
+.cardDetailsR p {
+  margin-bottom: 2px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.cardDetailsL i {
+  font-size: 80px !important;
+  padding-top: 20px;
+  padding-left: 20px;
 }
 </style>
