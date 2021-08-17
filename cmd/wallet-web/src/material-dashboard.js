@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 // Sidebar on the right. Used as a local plugin in DashboardLayout.vue
-import SideBar from './components/SidebarPlugin';
+import Sidebar from './components/SidebarPlugin';
 
 // asset imports
 import VueMaterial from 'vue-material';
@@ -19,7 +19,7 @@ import 'es6-promise';
  */
 export default {
   install(Vue) {
-    Vue.use(SideBar);
+    Vue.use(Sidebar);
     Vue.use(VueMaterial);
   },
 };

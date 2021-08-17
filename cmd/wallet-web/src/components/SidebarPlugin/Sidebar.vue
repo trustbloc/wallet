@@ -14,7 +14,7 @@
       <div class="flex flex-col flex-grow justify-start mt-8 w-full">
         <slot>
           <ul class="">
-            <sidebar-link-v2
+            <sidebar-link
               v-for="(link, index) in sidebarLinks"
               :key="link.name + index"
               :to="link.path"
@@ -39,15 +39,15 @@
   </div>
 </template>
 <script>
-import SidebarLinkV2 from '@/components/SidebarPluginV2/SidebarLinkV2.vue';
+import SidebarLink from './SidebarLink.vue';
 import Logo from '@/components/Logo/Logo.vue';
 import Signout from '@/components/Signout/Signout.vue';
 import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher.vue';
 
 export default {
-  name: 'SideBarV2',
+  name: 'Sidebar',
   components: {
-    SidebarLinkV2,
+    SidebarLink,
     Signout,
     Logo,
     LocaleSwitcher,
