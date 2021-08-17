@@ -5,14 +5,17 @@
 -->
 
 <template>
-  <ul class="nav nav-mobile-menu">
-    <li />
-  </ul>
+  <div class="">
+    <Logo class="mt-12" to="" />
+  </div>
 </template>
+
 <script>
+import Logo from '@/components/Logo/Logo.vue';
 export default {
-  data() {
-    return {};
+  name: 'Header',
+  components: {
+    Logo,
   },
 };
 </script>

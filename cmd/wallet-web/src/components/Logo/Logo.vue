@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <a v-bind="$attrs" class="flex justify-start items-center border-0">
+  <a class="flex justify-start items-center border-0 cursor-pointer">
     <img class="w-48" :src="logoUrl" alt="logo" />
   </a>
 </template>
@@ -15,7 +15,6 @@ import { mapGetters } from 'vuex';
 
 export default {
   name: 'Logo',
-  inheritAttrs: false,
   data() {
     return {
       logoUrl: this.getLogoUrl(),
