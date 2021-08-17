@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import Sidebar from './SideBar.vue';
+import Sidebar from './Sidebar.vue';
 import SidebarLink from './SidebarLink.vue';
 
 const SidebarStore = {
@@ -28,7 +28,7 @@ const SidebarPlugin = {
         return SidebarStore;
       },
     });
-    Vue.component('SideBar', Sidebar), Vue.component('SidebarLink', SidebarLink);
+    Vue.component('Sidebar', Sidebar), Vue.component('SidebarLink', SidebarLink);
   },
 };
 

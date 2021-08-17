@@ -5,63 +5,57 @@
 -->
 
 <template>
-  <div v-if="$route.meta.showNav === false" class="main-panel">
-    <dashboard-content />
-    <content-footer v-if="!$route.meta.hideFooter" />
-  </div>
-
-  <div v-else class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
-    <!--
-     TODO - base path for sidebar links should be configurable: https://github.com/trustbloc/edge-agent/issues/374
-    -->
-    <side-bar>
-      <mobile-menu slot="content" />
-      <div>
-        <sidebar-link to="/dashboard">
-          <div class="py-8 text-lg rounded text-white">
-            <div class="flex items-center">
-              <img class="mr-2 w-8 h-8" src="@/assets/img/wallet.png" alt="" />
-              <span class="px-4 mt-2 font-sans text-2xl normal-case">Wallet</span>
-            </div>
-          </div>
-        </sidebar-link>
-      </div>
-      <logout />
-    </side-bar>
-
-    <div class="md:w-3/4 xl:w-4/5 2xl:w-5/6 main-panel">
-      <top-navbar />
-
+  <div>
+    <!-- Mobile Dashboard Layout -->
+    <div class="flex md:hidden flex-col justify-start items-center">
+      <!-- <header></header> -->
+      <sidebar v-if="sidebarOpen">
+        <!-- links -->
+      </sidebar>
       <dashboard-content />
+    </div>
 
-      <content-footer v-if="!$route.meta.hideFooter" />
+    <!-- Desktop Dashboard Layout -->
+    <div class="hidden md:flex flex-row justify-start items-center px-20">
+      <sidebar>
+        <!-- TODO: bring link to vault on top once the component is implemented -->
+        <sidebar-link :to="'dashboard'" :heading="i18n.credentials" icon="credentials.svg" />
+        <!-- TODO: uncomment once corresponding components are ready -->
+        <!-- <sidebar-link :to="'vaults'" :heading="i18n.vaults" icon="vaults.svg" /> -->
+        <!-- <sidebar-link :to="'account'" :heading="i18n.account" icon="profile.svg" /> -->
+        <!-- TODO: link to actual settings once implemented -->
+        <sidebar-link :to="'did-management'" :heading="i18n.settings" icon="settings.svg" />
+      </sidebar>
+      <dashboard-content />
     </div>
   </div>
 </template>
 
 <script>
-import TopNavbar from './TopNavbar.vue';
-import ContentFooter from './ContentFooter.vue';
 import DashboardContent from './Content.vue';
-import MobileMenu from '@/pages/layout/MobileMenu.vue';
-import Logout from '@/pages/Logout.vue';
-import SideBar from '@/components/SidebarPlugin/SideBar.vue';
-import SidebarLink from '@/components/SidebarPlugin/SidebarLink.vue';
 import { mapGetters } from 'vuex';
+import Sidebar from '@/components/SidebarPlugin/Sidebar.vue';
+import SidebarLink from '@/components/SidebarPlugin/SidebarLink.vue';
 
 export default {
   components: {
-    TopNavbar,
     DashboardContent,
-    ContentFooter,
-    MobileMenu,
-    Logout,
-    SideBar,
+    Sidebar,
     SidebarLink,
   },
   data() {
-    return {};
+    return {
+      sidebarOpen: false,
+    };
   },
-  computed: mapGetters(['pendingConnectionsCount', 'isDevMode']),
+  computed: {
+    ...mapGetters(['pendingConnectionsCount', 'isDevMode']),
+    getSidebarOpen() {
+      return this.sidebarOpen;
+    },
+    i18n() {
+      return this.$t('DashboardLayout');
+    },
+  },
 };
 </script>
