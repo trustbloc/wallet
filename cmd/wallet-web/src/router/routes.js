@@ -87,18 +87,13 @@ export default [
     path: 'v2',
     name: 'DashboardLayoutV2',
     component: load('layout/DashboardLayoutV2'),
-    redirect: 'dashboardV2',
+    redirect: { name: 'dashboardV2' },
     children: [
       {
         path: 'dashboard',
         name: 'dashboardV2',
         component: load('DashboardV2'),
         meta: { requiresAuth: true },
-      },
-      {
-        path: 'logout',
-        name: 'logoutV2',
-        component: load('Logout'),
       },
       {
         path: 'WebWallet',

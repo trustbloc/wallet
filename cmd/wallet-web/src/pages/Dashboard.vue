@@ -11,11 +11,7 @@
         <div>
           <md-label style="color: #1b5e20; font-size: 16px; margin: 5px">
             <span v-if="loadingStatus === 'inprogress'">
-              <pulse-loader
-                :color="'green'"
-                :size="5"
-                style="float: left; margin-right: 5px"
-              ></pulse-loader>
+              <pulse-loader :color="'green'" :size="5" style="float: left; margin-right: 5px" />
               Setting up your user for secured communication.
             </span>
             <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg" class="px-24">
@@ -112,8 +108,7 @@
             md-icon="devices_other"
             :md-label="error"
             :md-description="errorDescription"
-          >
-          </md-empty-state>
+          />
         </div>
       </div>
     </div>

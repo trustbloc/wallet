@@ -7,6 +7,12 @@ Vue.use(VueI18n);
 
 const loadedLanguages = [];
 
+const i18n = new VueI18n({
+  locale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en',
+  fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en',
+  messages: {},
+});
+
 // This function updates i18n locale, loads new locale's messages and sets document properties accordingly
 export async function updateI18nLocale(locale) {
   EventBus.$emit('i18n-load-start');
@@ -37,11 +43,5 @@ export async function updateI18nLocale(locale) {
   EventBus.$emit('i18n-load-complete');
   return;
 }
-
-const i18n = new VueI18n({
-  locale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en',
-  fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en',
-  messages: {},
-});
 
 export default i18n;

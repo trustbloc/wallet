@@ -15,6 +15,7 @@ import { mapActions, mapGetters } from 'vuex';
 import VueCookies from 'vue-cookies';
 import '@/assets/css/tailwind.css';
 import SideBar from '@/components/SidebarPlugin';
+import SideBarV2 from '@/components/SidebarPluginV2';
 import VueMaterial from 'vue-material';
 import 'vue-material/dist/vue-material.css';
 import './assets/scss/material-dashboard.scss';
@@ -30,6 +31,7 @@ Vue.prototype.$webCredentialHandler = webCredentialHandler;
 
 Vue.use(VueRouter);
 Vue.use(SideBar);
+Vue.use(SideBarV2);
 Vue.use(VueCookies);
 Vue.$cookies.config('7d');
 Vue.use(VueMaterial);
@@ -70,7 +72,7 @@ new Vue({
     loaded: false,
   }),
 
-  created: async function () {
+  beforeCreate: async function () {
     await updateI18nLocale(startingLocale.id);
   },
 

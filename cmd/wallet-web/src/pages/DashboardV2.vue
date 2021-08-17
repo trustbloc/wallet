@@ -9,20 +9,18 @@
     <div class="content">
       <div class="md-layout">
         <div>
-          <md-label style="color: #1b5e20; font-size: 16px; margin: 5px">
-            <span v-if="loadingStatus === 'inprogress'">
-              <skeleton-loader type="vault" />
-            </span>
-            <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg" class="px-24">
-              <md-icon style="color: green" class="px-4">check_circle_outline</md-icon> Successfully
-              setup your user for secured communication.
-            </span>
-            <span v-else-if="loadingStatus === 'failed'">
-              <md-icon style="color: red" class="px-4">warning</md-icon>
-              <b>Warning:</b> Failed to connect to server. Your wallet can not participate in
-              secured communication.
-            </span>
-          </md-label>
+          <span v-if="loadingStatus === 'inprogress'">
+            <skeleton-loader type="vault" />
+          </span>
+          <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg" class="px-24">
+            <md-icon style="color: green" class="px-4">check_circle_outline</md-icon> Successfully
+            setup your user for secured communication.
+          </span>
+          <span v-else-if="loadingStatus === 'failed'">
+            <md-icon style="color: red" class="px-4">warning</md-icon>
+            <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
+            communication.
+          </span>
           <div v-if="cards.length" class="px-24 md-card" md-with-hover>
             <md-card-content>
               <ul class="credential-list">
@@ -82,8 +80,7 @@
             md-icon="devices_other"
             :md-label="error"
             :md-description="errorDescription"
-          >
-          </md-empty-state>
+          />
         </div>
       </div>
     </div>

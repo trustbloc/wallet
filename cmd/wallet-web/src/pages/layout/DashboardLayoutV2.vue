@@ -5,59 +5,58 @@
 -->
 
 <template>
-  <div v-if="$route.meta.showNav === false" class="main-panel">
-    <dashboard-content></dashboard-content>
-    <content-footer v-if="!$route.meta.hideFooter"></content-footer>
-  </div>
+  <div>
+    <!-- Mobile Dashboard Layout -->
+    <div class="flex md:hidden flex-col justify-start items-center">
+      <!-- <header></header> -->
+      <side-bar v-if="sidebarOpen">
+        <!-- links -->
+        <!-- <footer></footer> -->
+      </side-bar>
+    </div>
 
-  <div v-else class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
-    <!--
-     TODO - base path for sidebar links should be configurable: https://github.com/trustbloc/edge-agent/issues/374
-    -->
-    <side-bar>
-      <mobile-menu slot="content"></mobile-menu>
-      <div>
-        <sidebar-link to="/dashboard">
-          <div class="py-8 text-lg rounded text-white">
-            <div class="flex items-center">
-              <img class="mr-2 w-8 h-8" src="@/assets/img/wallet.png" alt="" />
-              <span class="px-4 mt-2 font-sans text-2xl normal-case">Wallet</span>
-            </div>
-          </div>
-        </sidebar-link>
-      </div>
-      <logout />
-    </side-bar>
-
-    <div class="md:w-3/4 xl:w-4/5 2xl:w-5/6 main-panel">
-      <top-navbar></top-navbar>
-
-      <dashboard-content></dashboard-content>
-
-      <content-footer v-if="!$route.meta.hideFooter"></content-footer>
+    <!-- Desktop Dashboard Layout -->
+    <div class="hidden md:flex flex-row justify-start items-center px-20">
+      <side-bar-v2>
+        <sidebar-link-v2 :to="{ name: 'dashboardV2' }" :heading="i18n.vaults" icon="vaults.svg" />
+        <sidebar-link-v2 :to="{ name: '' }" :heading="i18n.credentials" icon="credentials.svg" />
+        <sidebar-link-v2 :to="{ name: '' }" :heading="i18n.account" icon="profile.svg" />
+        <sidebar-link-v2
+          :to="{ name: 'did-managementV2' }"
+          :heading="i18n.settings"
+          icon="settings.svg"
+        />
+      </side-bar-v2>
+      <dashboard-content />
     </div>
   </div>
 </template>
 
 <script>
-import TopNavbar from './TopNavbar.vue';
-import ContentFooter from './ContentFooter.vue';
 import DashboardContent from './Content.vue';
-import MobileMenu from '@/pages/layout/MobileMenu.vue';
-import Logout from '@/pages/Logout.vue';
 import { mapGetters } from 'vuex';
+import SideBarV2 from '@/components/SidebarPluginV2/SideBarV2.vue';
+import SidebarLinkV2 from '@/components/SidebarPluginV2/SidebarLinkV2.vue';
 
 export default {
   components: {
-    TopNavbar,
     DashboardContent,
-    ContentFooter,
-    MobileMenu,
-    Logout,
+    SideBarV2,
+    SidebarLinkV2,
   },
   data() {
-    return {};
+    return {
+      sidebarOpen: false,
+    };
   },
-  computed: mapGetters(['pendingConnectionsCount', 'isDevMode']),
+  computed: {
+    ...mapGetters(['pendingConnectionsCount', 'isDevMode']),
+    getSidebarOpen() {
+      return this.sidebarOpen;
+    },
+    i18n() {
+      return this.$t('DashboardLayout');
+    },
+  },
 };
 </script>

@@ -29,7 +29,7 @@
           <Logo class="mt-12" href="" />
         </div>
         <div class="flex flex-col flex-grow justify-between mt-8 sidebar-wrapper">
-          <slot name="content"></slot>
+          <slot name="content" />
           <slot>
             <ul class="mt-12">
               <li class="">
@@ -38,8 +38,7 @@
                   :key="link.name + index"
                   :to="link.path"
                   :link="link"
-                >
-                </sidebar-link>
+                />
               </li>
             </ul>
           </slot>
@@ -50,10 +49,11 @@
   </div>
 </template>
 <script>
-import SidebarLink from './SidebarLink.vue';
+import SidebarLink from '@/components/SidebarPlugin/SidebarLink.vue';
 import Logo from '@/components/Logo/Logo.vue';
 
 export default {
+  name: 'SideBar',
   components: {
     SidebarLink,
     Logo,
