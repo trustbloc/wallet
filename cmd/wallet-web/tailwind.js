@@ -12,6 +12,7 @@ module.exports = {
   theme: {
     colors: {
       neutrals: {
+        black: '#000000',
         bonjour: '#eeeaee',
         chatelle: '#c7c3c8',
         dark: '#190c21',
@@ -31,7 +32,10 @@ module.exports = {
         blue: '#2883fb',
         coral: '#ed6765',
         pink: '#e74577',
-        purple: '#8a35b7',
+        purple: {
+          DEFAULT: '#8a35b7',
+          hashita: '#8a5d8a',
+        },
         valencia: '#d24343',
       },
       gray: {
@@ -191,7 +195,9 @@ module.exports = {
     },
   },
   variants: {
-    extend: {},
+    extend: {
+      backgroundImage: ['focus', 'hover'],
+    },
   },
   plugins: [
     plugin(function ({ addBase, theme }) {
@@ -319,7 +325,7 @@ module.exports = {
             color: theme('colors.neutrals.dark'),
 
             '&:focus': {
-              borderColor: theme('colors.primary.purple'),
+              borderColor: theme('colors.primary.purple.DEFAULT'),
             },
 
             '&:invalid': {
