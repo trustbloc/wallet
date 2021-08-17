@@ -135,6 +135,7 @@ jobs:
           echo '127.0.0.1 ops-kms.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 oathkeeper-auth-keyserver.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 oathkeeper-ops-keyserver.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 file-server.trustbloc.local' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc

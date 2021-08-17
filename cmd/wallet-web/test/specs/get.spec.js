@@ -127,9 +127,7 @@ describe('sharing a credential from wallet - PresentationExchange', function () 
                   input_descriptors: [
                     {
                       id: '20b073bb-cede-4912-9e9d-334e5702077b',
-                      schema: [
-                        { uri: 'https://www.w3.org/2018/credentials/v1#VerifiableCredential' },
-                      ],
+                      schema: [{ uri: 'https://www.w3.org/2018/credentials#VerifiableCredential' }],
                       constraints: { fields: [{ path: ['$.credentialSubject.familyName'] }] },
                     },
                   ],

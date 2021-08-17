@@ -33,6 +33,7 @@ services:
       # To add static images, set STATIC_ASSETS_URL=https://wallet.trustbloc.local:8091,
       # then add images under /test/fixtures/wallet-web/static/images
       - STATIC_ASSETS_URL=
+      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
 
   wallet-2.trustbloc.local:
     container_name: wallet-2.trustbloc.local
@@ -59,6 +60,7 @@ services:
       - USE_EDV_BATCH=true
       - STATIC_ASSETS=/etc/static
       - STATIC_ASSETS_URL=
+      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
 
   hub-router.trustbloc.local:
     container_name: hub-router.trustbloc.local
@@ -140,3 +142,18 @@ services:
     image: universalresolver/driver-did-key:latest
     ports:
       - "8098:8080"
+
+  file-server.trustbloc.local: # file server for hosting static resources (e.g. JSON-LD contexts)
+    container_name: file-server.trustbloc.local
+    image: halverneus/static-file-server:latest
+    environment:
+      - PORT=12096
+      - FOLDER=/data
+      - TLS_CERT=/etc/tls/ec-pubCert.pem
+      - TLS_KEY=/etc/tls/ec-key.pem
+      - CORS=true
+    ports:
+      - 12096:12096
+    volumes:
+      - ./static/contexts:/data
+      - ../keys/tls:/etc/tls

@@ -26,6 +26,8 @@ let defaultAgentStartupOpts = {
   'indexedDB-namespace': 'agent',
   // default backend server url
   'edge-agent-server': 'https://localhost:9099',
+  // remote JSON-LD context provider urls
+  'context-provider-url': [],
 
   blocDomain: 'testnet.orb.local',
   walletMediatorURL: 'https://localhost:10063',
@@ -69,6 +71,7 @@ export default {
           });
 
         agentOpts['http-resolver-url'] = agentOpts['http-resolver-url'].split(',');
+        agentOpts['context-provider-url'] = agentOpts['context-provider-url'].split(',');
 
         const client = axios.create({
           withCredentials: true,
@@ -181,6 +184,10 @@ export default {
           'edge-agent-server' in agentOpts
             ? agentOpts['edge-agent-server']
             : defaultAgentStartupOpts['edge-agent-server'],
+        'context-provider-url':
+          'context-provider-url' in agentOpts
+            ? agentOpts['context-provider-url']
+            : defaultAgentStartupOpts['context-provider-url'],
         blocDomain:
           'blocDomain' in agentOpts
             ? agentOpts['blocDomain']

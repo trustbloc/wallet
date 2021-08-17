@@ -10,6 +10,7 @@
     "indexedDB-namespace": "agent",
     "storageType": "indexedDB",
     "didAnchorOrigin": "origin",
-    "blocDomain": "testnet.orb.local"
+    "blocDomain": "testnet.orb.local",
+    "context-provider-url": ["http://localhost:11096/agent-startup-contexts.json"]
   }
 }
