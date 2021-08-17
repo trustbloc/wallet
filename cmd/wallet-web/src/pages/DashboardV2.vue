@@ -101,6 +101,21 @@ export default {
   components: {
     SkeletonLoader,
   },
+  data() {
+    return {
+      cards: [],
+      cjson: credentialDisplayData,
+      username: '',
+      agent: null,
+      error: 'No stored credentials',
+      errorDescription: "Your wallet is empty, there aren't any stored credentials to show.",
+    };
+  },
+  computed: {
+    loadingStatus() {
+      return this.getCurrentUser().setupStatus;
+    },
+  },
   created: function () {
     let { user, token } = this.getCurrentUser().profile;
     this.username = this.getCurrentUser().username;
@@ -158,21 +173,6 @@ export default {
           }
         }
       }
-    },
-  },
-  data() {
-    return {
-      cards: [],
-      cjson: credentialDisplayData,
-      username: '',
-      agent: null,
-      error: 'No stored credentials',
-      errorDescription: "Your wallet is empty, there aren't any stored credentials to show.",
-    };
-  },
-  computed: {
-    loadingStatus() {
-      return this.getCurrentUser().setupStatus;
     },
   },
 };

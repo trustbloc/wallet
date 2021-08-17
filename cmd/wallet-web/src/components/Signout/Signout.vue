@@ -5,14 +5,27 @@
 -->
 
 <template>
-  <button
-    type="button"
-    class="flex flex-row justify-start items-center w-full h-16"
-    @click="signout"
+  <div
+    class="
+      justify-start
+      items-center
+      w-full
+      h-16
+      opacity-60
+      hover:from-neutrals-black hover:bg-gradient-to-r hover:opacity-100
+      flex flex-row
+      bar
+    "
   >
-    <img src="@/assets/img/signout.svg" />
-    <span class="ml-4 text-lg text-neutrals-white">{{ i18n.signout }}</span>
-  </button>
+    <button
+      class="flex flex-row justify-start items-center px-10 w-full"
+      type="button"
+      @click="signout"
+    >
+      <img src="@/assets/img/signout.svg" />
+      <span class="ml-4 text-lg font-bold text-neutrals-white">{{ i18n.signout }}</span>
+    </button>
+  </div>
 </template>
 
 <script>
@@ -44,3 +57,14 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.bar:hover:before {
+  position: absolute;
+  content: "''";
+  display: block;
+  background-color: theme('colors.primary.purple.hashita');
+  height: theme('spacing.16');
+  width: 4px;
+}
+</style>
