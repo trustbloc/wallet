@@ -61,6 +61,10 @@ healthCheck wallet-server https://localhost:8090/healthcheck 200
 echo "running tests..."
 cd $ROOT/test/ui-automation
 npm run test && npm run report
+if [ $? -ne 0 ]
+then
+    exit 1
+fi
 
 echo "stopping containers..."
 cd $ROOT/test/fixtures/wallet-web
