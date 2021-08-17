@@ -13,7 +13,7 @@
             <span v-if="loadingStatus === 'inprogress'">
               <skeleton-loader type="vault" />
             </span>
-            <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg" class="px-24">
+            <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg" class="px-8">
               <md-icon style="color: green" class="px-4">check_circle_outline</md-icon> Successfully
               setup your user for secured communication.
             </span>
@@ -23,67 +23,46 @@
               secured communication.
             </span>
           </md-label>
-          <div v-if="cards.length" class="px-24 md-card" md-with-hover>
-            <md-card-content>
-              <ul class="credential-list">
-                <li v-for="(card, index) in cards" :key="index" @click="toggleCard(card)">
-                  <transition name="flip">
-                    <div v-if="!card.flipped" :key="card.flipped" class="card">
-                      <div class="cardContent">
-                        <div class="cardHeader">
-                          {{ credDisplayName(card.content) }}
-                          <div v-for="cd in cjson" :key="cd.schema">
-                            <div v-if="credDisplayName(card.content) === cd.schema">
-                              <div class="cardBody">
-                                <div class="cardDetailsL">
-                                  <md-icon>{{ cd.icon }}</md-icon>
-                                </div>
-                                <div class="cardDetailsR">
-                                  <p v-for="(value, key) in cd.credentialSubject" :key="key">
-                                    {{ key }}: {{ value }}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+          <div v-if="cards.length" class="px-8">
+            <ul class="flex flex-wrap spacing-8">
+              <li
+                v-for="(card, index) in cards"
+                :key="index"
+                class="cursor-pointer hover:shadow-2xl focus:ring-8"
+              >
+                <div v-for="cd in cjson" :key="cd.schema">
+                  <div
+                    v-if="credDisplayName(card.content) === cd.schema"
+                    class="flex justify-between credentialCard"
+                  >
+                    <div class="flex flex-row flex-grow items-center">
+                      <div class="border-opacity-10 credentialLogoContainer">
+                        <img :src="loadImg(cd.icon)" class="credentialLogo" />
+                      </div>
+                      <div class="credentialHeader">
+                        {{ credDisplayName(card.content) }}
+                      </div>
+                    </div>
+                    <div class="py-2">
+                      <div class="credentialArrowContainer">
+                        <div class="credentialArrowLogo">
+                          <button>
+                            <img src="@/assets/img/credential-arrow-right-icon.svg" />
+                          </button>
                         </div>
                       </div>
-                      <!--<json-modal :item="card.content" />-->
                     </div>
-                    <div v-else :key="card.flipped" class="card">
-                      <div class="cardContent cardBack">
-                        <p>
-                          Issuance Date:
-                          {{
-                            card.content.credentialSubject.issue_date ||
-                            card.content.credentialSubject.issuedate ||
-                            card.content.issuanceDate ||
-                            'N/A'
-                          }}
-                        </p>
-                        <p>
-                          Expiration Date:
-                          {{
-                            card.content.credentialSubject.expiry_date ||
-                            card.content.credentialSubject.cardexpires ||
-                            card.content.expirationDate ||
-                            'N/A'
-                          }}
-                        </p>
-                      </div>
-                    </div>
-                  </transition>
-                </li>
-              </ul>
-            </md-card-content>
+                  </div>
+                </div>
+              </li>
+            </ul>
           </div>
           <md-empty-state
             v-else
             md-icon="devices_other"
             :md-label="error"
             :md-description="errorDescription"
-          >
-          </md-empty-state>
+          />
         </div>
       </div>
     </div>
@@ -98,6 +77,8 @@ import SkeletonLoader from '../components/SkeletonLoader/SkeletonLoader';
 import credentialDisplayData from '@/config/credentialDisplayData.json';
 
 const filterBy = ['IssuerManifestCredential', 'GovernanceCredential'];
+const images = require.context('@/assets/img/', false, /\.png$|\.jpg$|\.svg$/);
+
 // TODO: issue-627 Add generic vue card for all the credentials to dynamically add support for all VC types.
 export default {
   name: 'DashboardV2',
@@ -144,6 +125,9 @@ export default {
           }
         }
       });
+    },
+    loadImg(imgPath) {
+      return images('./' + imgPath);
     },
     credDisplayName: function (vc) {
       return vc.name ? vc.name : getCredentialType(vc.type);
@@ -243,10 +227,6 @@ li {
 .cardBack {
   padding-top: 40px;
   color: rgba(0, 0, 0, 0.54);
-}
-
-li:hover {
-  transform: scale(1.1);
 }
 
 .flip-enter-active {

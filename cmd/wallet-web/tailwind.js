@@ -26,6 +26,7 @@ module.exports = {
         white: '#ffffff',
         whiteLilac: '#e4e1e5',
         selago: '#f4f1f5',
+        thistle: '#dbd7dc',
       },
       primary: {
         blue: '#2883fb',
@@ -483,7 +484,62 @@ module.exports = {
         },
       };
 
-      addComponents({ ...buttons, ...inputs, ...links, ...toastNotifications, ...skeletons });
+      const credentialPreview = {
+        '.credentialCard': {
+          backgroundColor: theme('colors.neutrals.white'),
+          borderRadius: theme('spacing.3'),
+          paddingLeft: theme('spacing.4'),
+          paddingTop: theme('spacing.6'),
+          paddingRight: theme('spacing.3'),
+          paddingBottom: theme('spacing.6'),
+          fontSize: theme('fontSize.base'),
+          fontWeight: 'bold',
+          borderWidth: theme('spacing.px'),
+          borderColor: theme('colors.neutrals.thistle'),
+          width: 400,
+          height: 96,
+        },
+        '.credentialHeader': {
+          paddingLeft: theme('spacing.4'),
+          color: theme('colors.neutrals.dark'),
+        },
+        '.credentialLogoContainer': {
+          borderRadius: theme('spacing.1'),
+          borderWidth: theme('spacing.px'),
+          borderColor: theme('colors.neutrals.thistle'),
+          width: theme('spacing.12'),
+          height: theme('spacing.12'),
+        },
+        '.credentialLogo': {
+          paddingLeft: theme('spacing.2'),
+          paddingTop: theme('spacing.2'),
+          paddingRight: theme('spacing.2'),
+          paddingBottom: theme('spacing.2'),
+        },
+        '.credentialArrowContainer': {
+          backgroundColor: theme('colors.neutrals.thistle'),
+          borderWidth: theme('spacing.px'),
+          borderColor: theme('colors.neutrals.thistle'),
+          borderRadius: '50%',
+          width: theme('spacing.8'),
+          height: theme('spacing.8'),
+        },
+        '.credentialArrowLogo': {
+          paddingLeft: theme('spacing.1'),
+          paddingTop: theme('spacing.1'),
+          paddingRight: theme('spacing.1'),
+          paddingBottom: theme('spacing.1'),
+        },
+      };
+
+      addComponents({
+        ...buttons,
+        ...inputs,
+        ...links,
+        ...toastNotifications,
+        ...skeletons,
+        ...credentialPreview,
+      });
     }),
   ],
 };
