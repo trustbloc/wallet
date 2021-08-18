@@ -43,7 +43,7 @@
         "
         :class="dropDownOpen ? '' : 'hidden'"
       >
-        <a href="/DIDManagement" class="block py-2 px-4 hover:bg-gray-200">
+        <a href="/did-management" class="block py-2 px-4 hover:bg-gray-200">
           <md-icon class="px-4 mr-2 w-8 h-8 hover:bg-gray-300 bg-indigo-100">flip_to_back</md-icon
           >DID Management</a
         >

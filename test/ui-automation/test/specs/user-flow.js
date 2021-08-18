@@ -31,7 +31,7 @@ describe("TrustBloc Wallet - SignUp and SignIn flow", () => {
     await wallet.init(ctx);
   });
 
-  it(`User Logout (${ctx.email})`, async function () {
+  it(`User Sign Out (${ctx.email})`, async function () {
     this.timeout(300000);
 
     // 1. Navigate to Wallet Website
@@ -51,7 +51,7 @@ describe("TrustBloc Wallet - SignUp and SignIn flow", () => {
     await wallet.signIn(ctx);
   });
 
-  it(`User Logout (${ctx.email})`, async function () {
+  it(`User Sign Out (${ctx.email})`, async function () {
     this.timeout(300000);
 
     // 1. Navigate to Wallet Website
