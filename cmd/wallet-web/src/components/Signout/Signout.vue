@@ -13,6 +13,10 @@
       h-16
       opacity-60
       hover:from-neutrals-black hover:bg-gradient-to-r hover:opacity-100
+      focus-within:bg-gradient-to-r
+      focus-within:opacity-100
+      focus-within:from-neutrals-black
+      focus-within:shadow-inner-outline-blue
       flex flex-row
       bar
     "
@@ -59,9 +63,9 @@ export default {
 </script>
 
 <style scoped>
-.bar:hover:before {
+.bar:not(:focus-within):hover:before {
   position: absolute;
-  content: "''";
+  content: '';
   display: block;
   background-color: theme('colors.primary.purple.hashita');
   height: theme('spacing.16');

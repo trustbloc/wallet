@@ -5,9 +5,9 @@
 -->
 
 <template>
-  <a class="flex justify-start items-center border-0 cursor-pointer">
+  <div class="flex justify-start items-center border-0">
     <img class="w-48" :src="logoUrl" alt="logo" />
-  </a>
+  </div>
 </template>
 
 <script>

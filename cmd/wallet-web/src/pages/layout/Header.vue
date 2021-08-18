@@ -6,7 +6,7 @@
 
 <template>
   <div class="">
-    <Logo class="mt-12" to="" />
+    <Logo class="mt-12" />
   </div>
 </template>
 
