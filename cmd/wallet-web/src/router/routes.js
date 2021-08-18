@@ -23,17 +23,12 @@ export default [
         meta: { requiresAuth: true },
       },
       {
-        path: 'logout',
-        name: 'logout',
-        component: load('Logout'),
-      },
-      {
-        path: 'WebWallet',
+        path: 'web-wallet',
         name: 'web-wallet',
         component: load('demos/WebWallet'),
       },
       {
-        path: 'DIDManagement',
+        path: 'did-management',
         name: 'did-management',
         component: load('DIDManagement'),
         meta: { requiresAuth: true },
@@ -62,25 +57,24 @@ export default [
         component: load('demos/PresentProof'),
         meta: { requiresAuth: true },
       },
-      {
-        path: 'worker',
-        name: 'chapi-worker',
-        component: load('Worker'),
-        meta: { showNav: false, hideFooter: true },
-      },
-      {
-        path: 'StoreInWallet',
-        name: 'chapi-store',
-        component: load('Store'),
-        meta: { blockNoAuth: true, showNav: false, hideFooter: true },
-      },
-      {
-        path: 'GetFromWallet',
-        name: 'chapi-get',
-        component: load('Get'),
-        meta: { blockNoAuth: true, showNav: false, hideFooter: true },
-      },
     ],
+  },
+  {
+    path: 'StoreInWallet',
+    name: 'chapi-store',
+    component: load('Store'),
+    meta: { blockNoAuth: true },
+  },
+  {
+    path: 'GetFromWallet',
+    name: 'chapi-get',
+    component: load('Get'),
+    meta: { blockNoAuth: true },
+  },
+  {
+    path: 'worker',
+    name: 'chapi-worker',
+    component: load('Worker'),
   },
   {
     path: 'loginhandle',
