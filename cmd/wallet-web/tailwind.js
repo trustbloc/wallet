@@ -398,6 +398,13 @@ module.exports = {
           borderBottom: `2px solid ${theme('colors.primary.blue')}`,
           paddingBottom: 2,
         },
+        '.underline-white': {
+          paddingBottom: 2,
+          '&:hover': {
+            borderBottom: `1px solid ${theme('colors.neutrals.white')}`,
+            paddingBottom: 1,
+          },
+        },
       };
 
       const toastNotifications = {

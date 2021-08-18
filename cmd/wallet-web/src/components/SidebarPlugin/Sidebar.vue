@@ -27,13 +27,21 @@
       </div>
     </div>
     <div class="flex z-10 flex-col items-start px-10 text-sm text-neutrals-white">
-      <span class="opacity-60 hover:opacity-100">{{ i18n.privacyPolicy }}</span>
-      <span class="opacity-60 hover:opacity-100">{{ i18n.terms }}</span>
+      <span class="mb-2 opacity-60 hover:opacity-100 cursor-pointer underline-white">{{
+        i18n.privacyPolicy
+      }}</span>
+      <span class="opacity-60 hover:opacity-100 cursor-pointer underline-white">{{
+        i18n.terms
+      }}</span>
       <div class="flex flex-row justify-start items-center my-6">
-        <span class="whitespace-nowrap opacity-60 hover:opacity-100">© {{ date }} TrustBloc</span>
+        <span class="whitespace-nowrap opacity-60 hover:opacity-100 cursor-pointer underline-white"
+          >© {{ date }} TrustBloc</span
+        >
         <span class="px-2 opacity-60">･</span>
         <!-- TODO: remove locale-switcher class after sass styles are deleted -->
-        <locale-switcher class="text-neutrals-white opacity-60 hover:opacity-100 locale-switcher" />
+        <locale-switcher
+          class="text-neutrals-white opacity-60 hover:opacity-100 underline-white locale-switcher"
+        />
       </div>
     </div>
   </div>
