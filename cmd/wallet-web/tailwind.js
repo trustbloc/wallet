@@ -178,6 +178,11 @@ module.exports = {
         'onboarding-sm': "url('~@/assets/img/onboarding-bg-sm.svg')",
         flare: "url('~@/assets/img/onboarding-flare-lg.png')",
       }),
+      boxShadow: (theme) => ({
+        'inner-outline-blue': `inset 0px 2px 0px 0px ${theme(
+          'colors.primary.blue'
+        )}, inset 0px -2px 0px 0px ${theme('colors.primary.blue')}`,
+      }),
       height: {
         lg: '46px',
         xl: '468px',
@@ -196,7 +201,9 @@ module.exports = {
   },
   variants: {
     extend: {
-      backgroundImage: ['focus', 'hover'],
+      backgroundImage: ['focus-within', 'hover'],
+      borderRadius: ['focus'],
+      gradientColorStops: ['focus-within'],
     },
   },
   plugins: [
@@ -400,7 +407,7 @@ module.exports = {
         },
         '.underline-white': {
           paddingBottom: 2,
-          '&:hover': {
+          '&:not(:focus):not(:focus-within):hover': {
             borderBottom: `1px solid ${theme('colors.neutrals.white')}`,
             paddingBottom: 1,
           },

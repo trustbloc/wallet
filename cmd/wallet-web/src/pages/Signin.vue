@@ -44,7 +44,7 @@
         "
       >
         <!-- TODO: add href url to the root component once it is implemented -->
-        <Logo class="py-12" href="" />
+        <Logo class="py-12" />
         <div class="items-center mb-10 md:mb-8 text-center">
           <span class="text-2xl md:text-4xl font-bold text-neutrals-white">
             {{ i18n.heading }}

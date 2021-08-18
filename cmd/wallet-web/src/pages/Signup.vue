@@ -47,7 +47,7 @@
           "
         >
           <div class="hidden md:block col-span-1 py-24 pr-16">
-            <Logo class="mb-12" href="" />
+            <Logo class="mb-12" />
 
             <div class="flex overflow-y-auto flex-1 items-center mb-8 max-w-full">
               <img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-1.svg" />
@@ -73,7 +73,7 @@
           <!--Trustbloc Sign-up provider div -->
           <div class="md:block object-none object-center col-span-1">
             <div class="px-6 md:pt-16 md:pr-0 md:pb-12 md:pl-16">
-              <Logo class="md:hidden justify-center my-2 mt-12" href="" />
+              <Logo class="md:hidden justify-center my-2 mt-12" />
               <div class="items-center mb-10 text-center">
                 <h1 class="text-2xl md:text-4xl font-bold text-neutrals-white">
                   {{ i18n.heading }}

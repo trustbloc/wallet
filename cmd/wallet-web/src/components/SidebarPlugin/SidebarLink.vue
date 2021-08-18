@@ -13,6 +13,10 @@
       h-16
       font-bold
       hover:bg-gradient-to-r hover:opacity-100 hover:from-neutrals-black
+      focus-within:bg-gradient-to-r
+      focus-within:opacity-100
+      focus-within:from-neutrals-black
+      focus-within:shadow-inner-outline-blue
       opacity-60
       bar
       flex flex-row
@@ -43,7 +47,7 @@ export default {
 </script>
 
 <style scoped>
-.bar:hover:before {
+.bar:not(:focus-within):hover:before {
   position: absolute;
   content: '';
   display: block;

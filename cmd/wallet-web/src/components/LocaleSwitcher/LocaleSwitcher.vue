@@ -5,7 +5,12 @@
 -->
 
 <template>
-  <a class="cursor-pointer" @click="handleLocaleSwitch(newLocale)">
+  <a
+    tabindex="0"
+    class="cursor-pointer"
+    @click="handleLocaleSwitch(newLocale)"
+    @keyup.enter="handleLocaleSwitch(newLocale)"
+  >
     <!-- TODO: remove span and text color after sass styles are removed -->
     <span class="text-neutrals-medium">{{ newLocale.name }}</span>
   </a>
