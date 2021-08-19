@@ -9,10 +9,9 @@
     <!-- Mobile Dashboard Layout -->
     <div class="flex md:hidden flex-col justify-start items-center w-screen bg-neutrals-softWhite">
       <Header />
-      <!-- <navbar> -->
-      <!-- links -->
-      <!-- </navbar> -->
-      <dashboard-content class="bg-neutrals-softWhite h-screen" />
+      <keep-alive v-if="!isNavbarOpen">
+        <dashboard-content class="h-screen bg-neutrals-softWhite" />
+      </keep-alive>
     </div>
 
     <!-- Desktop Dashboard Layout -->
@@ -47,6 +46,7 @@ import DashboardContent from './DashboardContent.vue';
 import Header from '@/components/Header/Header.vue';
 import Navbar from '@/components/Navbar/Navbar.vue';
 import NavbarLink from '@/components/Navbar/NavbarLink.vue';
+import { navbarStore, navbarMutations } from '@/components/Navbar';
 
 export default {
   name: 'DashboardLayout',
@@ -59,6 +59,14 @@ export default {
   computed: {
     i18n() {
       return this.$t('DashboardLayout');
+    },
+    isNavbarOpen() {
+      return navbarStore.isNavbarOpen;
+    },
+  },
+  methods: {
+    toggleNavbar() {
+      navbarMutations.toggleNavbar();
     },
   },
 };

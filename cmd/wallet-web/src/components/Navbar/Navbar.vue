@@ -6,11 +6,22 @@
 
 <template>
   <div
-    class="flex relative flex-col justify-between w-80 h-screen shadow min-w-80 bg-gradient-dark"
+    class="
+      flex flex-grow
+      md:flex-grow-0
+      relative
+      flex-col
+      justify-between
+      w-screen
+      md:w-80 md:h-screen
+      shadow
+      min-w-80
+      md:bg-gradient-dark
+    "
   >
-    <img class="absolute -top-1 left-0" src="@/assets/img/navbar-flare.png" />
-    <div class="flex z-10 flex-col justify-start items-start pb-8 h-full">
-      <div class="flex justify-start items-center px-10">
+    <img class="hidden md:block absolute -top-1 left-0" src="@/assets/img/navbar-flare.png" />
+    <div class="flex md:z-10 flex-col justify-start items-start pb-8 h-full">
+      <div class="hidden md:flex justify-start items-center px-10">
         <Logo class="mt-13" />
       </div>
       <div class="flex flex-col flex-grow justify-start mt-8 w-full">
@@ -21,7 +32,7 @@
         <signout />
       </div>
     </div>
-    <div class="flex z-10 flex-col items-start px-10 text-sm text-neutrals-white">
+    <div class="flex md:z-10 flex-col items-start px-10 text-sm text-neutrals-white">
       <span
         tabindex="0"
         class="

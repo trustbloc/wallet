@@ -178,7 +178,6 @@ module.exports = {
         onboarding: "url('~@/assets/img/onboarding-bg-lg.svg')",
         'onboarding-sm': "url('~@/assets/img/onboarding-bg-sm.svg')",
         'onboarding-flare-lg': "url('~@/assets/img/onboarding-flare-lg.png')",
-        'header-mobile-flare': "url('~@/assets/img/header-mobile-flare.png')",
       }),
       boxShadow: (theme) => ({
         'inner-outline-blue': `inset 0px 2px 0px 0px ${theme(

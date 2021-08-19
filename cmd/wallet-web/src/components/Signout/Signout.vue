@@ -9,8 +9,6 @@
     class="
       justify-start
       items-center
-      w-full
-      h-16
       opacity-60
       hover:from-neutrals-black hover:bg-gradient-to-r hover:opacity-100
       focus-within:bg-gradient-to-r
@@ -22,7 +20,7 @@
     "
   >
     <button
-      class="flex flex-row justify-start items-center px-10 w-full"
+      class="flex flex-row justify-start items-center px-10 w-full h-16"
       type="button"
       @click="signout"
     >
