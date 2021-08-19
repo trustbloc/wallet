@@ -24,9 +24,10 @@ module.exports = {
           dark: '#8d8a8e',
         },
         softWhite: '#f4f1f5',
+        selago: '#f4f1f5',
+        thistle: '#dbd7dc',
         white: '#ffffff',
         whiteLilac: '#e4e1e5',
-        selago: '#f4f1f5',
       },
       primary: {
         blue: '#2883fb',
@@ -492,8 +493,47 @@ module.exports = {
           },
         },
       };
+      const credentialPreview = {
+        '.credentialCard': {
+          backgroundColor: theme('colors.neutrals.white'),
+          borderRadius: theme('spacing.3'),
+          padding: `${theme('spacing.6')} ${theme('spacing.3')} ${theme('spacing.6')} ${theme(
+            'spacing.4'
+          )}`,
+          fontSize: theme('fontSize.base'),
+          fontWeight: theme('fontWeight.bold'),
+          border: `${theme('spacing.px')} solid ${theme('colors.neutrals.thistle')}`,
+          width: 400,
+          height: theme('spacing.24'),
+        },
+        '.credentialHeader': {
+          paddingLeft: theme('spacing.4'),
+          color: theme('colors.neutrals.dark'),
+        },
+        '.credentialLogoContainer': {
+          width: theme('spacing.12'),
+          height: theme('spacing.12'),
+        },
+        '.credentialArrowContainer': {
+          backgroundColor: theme('colors.neutrals.thistle'),
+          border: `${theme('spacing.px')} solid ${theme('colors.neutrals.thistle')}`,
+          borderRadius: '50%',
+          width: theme('spacing.8'),
+          height: theme('spacing.8'),
+        },
+        '.credentialArrowLogo': {
+          padding: theme('spacing.1'),
+        },
+      };
 
-      addComponents({ ...buttons, ...inputs, ...links, ...toastNotifications, ...skeletons });
+      addComponents({
+        ...buttons,
+        ...inputs,
+        ...links,
+        ...toastNotifications,
+        ...skeletons,
+        ...credentialPreview,
+      });
     }),
   ],
 };
