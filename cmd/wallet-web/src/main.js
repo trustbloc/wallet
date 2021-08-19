@@ -14,7 +14,7 @@ import * as webCredentialHandler from 'web-credential-handler';
 import { mapActions, mapGetters } from 'vuex';
 import VueCookies from 'vue-cookies';
 import '@/assets/css/tailwind.css';
-import Sidebar from '@/components/SidebarPlugin';
+import Navbar from '@/components/Navbar';
 import VueMaterial from 'vue-material';
 import 'vue-material/dist/vue-material.css';
 import './assets/scss/material-dashboard.scss';
@@ -29,7 +29,7 @@ Vue.prototype.$polyfill = polyfill;
 Vue.prototype.$webCredentialHandler = webCredentialHandler;
 
 Vue.use(VueRouter);
-Vue.use(Sidebar);
+Vue.use(Navbar);
 Vue.use(VueCookies);
 Vue.$cookies.config('7d');
 Vue.use(VueMaterial);

@@ -4,8 +4,8 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-// Sidebar on the right. Used as a local plugin in DashboardLayout.vue
-import Sidebar from './components/SidebarPlugin';
+// Navbar on the right. Used as a local plugin in DashboardLayout.vue
+import Navbar from './components/Navbar';
 
 // asset imports
 import VueMaterial from 'vue-material';
@@ -19,7 +19,7 @@ import 'es6-promise';
  */
 export default {
   install(Vue) {
-    Vue.use(Sidebar);
+    Vue.use(Navbar);
     Vue.use(VueMaterial);
   },
 };

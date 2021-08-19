@@ -28,7 +28,7 @@
 import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher.vue';
 
 export default {
-  name: 'ContentFooter',
+  name: 'Footer',
   components: {
     LocaleSwitcher,
   },
@@ -39,7 +39,7 @@ export default {
   },
   computed: {
     i18n() {
-      return this.$t('ContentFooter');
+      return this.$t('Footer');
     },
   },
 };

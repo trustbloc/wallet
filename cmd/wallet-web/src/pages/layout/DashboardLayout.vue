@@ -8,51 +8,44 @@
   <div>
     <!-- Mobile Dashboard Layout -->
     <div class="flex md:hidden flex-col justify-start items-center">
-      <!-- <header></header> -->
-      <sidebar v-if="sidebarOpen">
-        <!-- links -->
-      </sidebar>
+      <Header />
+      <!-- <navbar> -->
+      <!-- links -->
+      <!-- </navbar> -->
       <dashboard-content />
     </div>
 
     <!-- Desktop Dashboard Layout -->
     <div class="hidden md:flex flex-row justify-start items-center px-20">
-      <sidebar>
+      <navbar>
         <!-- TODO: bring link to vault on top once the component is implemented -->
-        <sidebar-link :to="'dashboard'" :heading="i18n.credentials" icon="credentials.svg" />
+        <navbar-link to="dashboard" :heading="i18n.credentials" icon="credentials.svg" />
         <!-- TODO: uncomment once corresponding components are ready -->
-        <!-- <sidebar-link :to="'vaults'" :heading="i18n.vaults" icon="vaults.svg" /> -->
-        <!-- <sidebar-link :to="'account'" :heading="i18n.account" icon="profile.svg" /> -->
+        <!-- <navbar-link to="vaults" :heading="i18n.vaults" icon="vaults.svg" /> -->
+        <!-- <navbar-link to="account" :heading="i18n.account" icon="profile.svg" /> -->
         <!-- TODO: link to actual settings once implemented -->
-        <sidebar-link :to="'did-management'" :heading="i18n.settings" icon="settings.svg" />
-      </sidebar>
+        <navbar-link to="did-management" :heading="i18n.settings" icon="settings.svg" />
+      </navbar>
       <dashboard-content />
     </div>
   </div>
 </template>
 
 <script>
-import DashboardContent from './Content.vue';
-import { mapGetters } from 'vuex';
-import Sidebar from '@/components/SidebarPlugin/Sidebar.vue';
-import SidebarLink from '@/components/SidebarPlugin/SidebarLink.vue';
+import DashboardContent from './DashboardContent.vue';
+import Header from '@/components/Header/Header.vue';
+import Navbar from '@/components/Navbar/Navbar.vue';
+import NavbarLink from '@/components/Navbar/NavbarLink.vue';
 
 export default {
+  name: 'DashboardLayout',
   components: {
     DashboardContent,
-    Sidebar,
-    SidebarLink,
-  },
-  data() {
-    return {
-      sidebarOpen: false,
-    };
+    Header,
+    Navbar,
+    NavbarLink,
   },
   computed: {
-    ...mapGetters(['pendingConnectionsCount', 'isDevMode']),
-    getSidebarOpen() {
-      return this.sidebarOpen;
-    },
     i18n() {
       return this.$t('DashboardLayout');
     },
