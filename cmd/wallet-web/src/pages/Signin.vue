@@ -87,15 +87,14 @@
         </div>
       </div>
     </div>
-    <!-- Foooter -->
-    <ContentFooter />
+    <Footer />
   </div>
 </template>
 
 <script>
 import { CHAPIHandler, RegisterWallet } from './mixins';
 import { DeviceLogin } from '@trustbloc/wallet-sdk';
-import ContentFooter from '@/pages/layout/ContentFooter.vue';
+import Footer from '@/components/Footer/Footer.vue';
 import Logo from '@/components/Logo/Logo.vue';
 import Spinner from '@/components/Spinner/Spinner.vue';
 import { mapActions, mapGetters } from 'vuex';
@@ -103,7 +102,7 @@ import axios from 'axios';
 
 export default {
   components: {
-    ContentFooter,
+    Footer,
     Logo,
     Spinner,
   },

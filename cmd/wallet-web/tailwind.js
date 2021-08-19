@@ -176,7 +176,8 @@ module.exports = {
         'gradient-purple': theme('gradients.purple'),
         onboarding: "url('~@/assets/img/onboarding-bg-lg.svg')",
         'onboarding-sm': "url('~@/assets/img/onboarding-bg-sm.svg')",
-        flare: "url('~@/assets/img/onboarding-flare-lg.png')",
+        'onboarding-flare-lg': "url('~@/assets/img/onboarding-flare-lg.png')",
+        'header-mobile-flare': "url('~@/assets/img/header-mobile-flare.png')",
       }),
       boxShadow: (theme) => ({
         'inner-outline-blue': `inset 0px 2px 0px 0px ${theme(

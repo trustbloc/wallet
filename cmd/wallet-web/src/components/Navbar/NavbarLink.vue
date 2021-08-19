@@ -32,7 +32,7 @@
 
 <script>
 export default {
-  name: 'SidebarLink',
+  name: 'NavbarLink',
   props: {
     heading: {
       type: String,

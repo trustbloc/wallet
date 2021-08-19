@@ -6,22 +6,15 @@
 
 <template>
   <div class="flex relative flex-col justify-between w-80 h-screen shadow bg-gradient-dark">
-    <img class="absolute -top-1 left-0" src="@/assets/img/sidebar-flare.png" />
+    <img class="absolute -top-1 left-0" src="@/assets/img/navbar-flare.png" />
     <div class="flex z-10 flex-col justify-start items-start pb-8 h-full">
       <div class="flex justify-start items-center px-10">
         <Logo class="mt-13" />
       </div>
       <div class="flex flex-col flex-grow justify-start mt-8 w-full">
-        <slot>
-          <ul class="">
-            <sidebar-link
-              v-for="(link, index) in sidebarLinks"
-              :key="link.name + index"
-              :to="link.path"
-              :link="link"
-            />
-          </ul>
-        </slot>
+        <ul class="">
+          <slot />
+        </ul>
         <div class="my-5 mx-10 h-px opacity-20 bg-neutrals-white"></div>
         <signout />
       </div>
@@ -88,41 +81,27 @@
   </div>
 </template>
 <script>
-import SidebarLink from './SidebarLink.vue';
 import Logo from '@/components/Logo/Logo.vue';
 import Signout from '@/components/Signout/Signout.vue';
 import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher.vue';
 
 export default {
-  name: 'Sidebar',
+  name: 'Navbar',
   components: {
-    SidebarLink,
     Signout,
     Logo,
     LocaleSwitcher,
   },
-  props: {
-    sidebarLinks: {
-      type: Array,
-      default: () => [],
-    },
-    autoClose: {
-      type: Boolean,
-      default: true,
-    },
-  },
   data() {
     return {
-      moved: true,
       date: new Date().getFullYear(),
     };
   },
   computed: {
     i18n() {
-      return this.$t('ContentFooter');
+      return this.$t('Footer');
     },
   },
-  methods: {},
 };
 </script>
 

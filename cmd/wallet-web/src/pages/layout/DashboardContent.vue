@@ -5,17 +5,13 @@
 -->
 
 <template>
-  <div class="">
-    <Logo class="mt-12" />
-  </div>
+  <transition name="fade" mode="out-in">
+    <router-view />
+  </transition>
 </template>
 
 <script>
-import Logo from '@/components/Logo/Logo.vue';
 export default {
-  name: 'Header',
-  components: {
-    Logo,
-  },
+  name: 'DashboardContent',
 };
 </script>
