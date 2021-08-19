@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <div class="font-sans">
+  <div class="font-sans bg-neutrals-mischka">
     <div v-if="!$root.loaded" class="loader">
       <Spinner />
       <span>Loading Agent...</span>

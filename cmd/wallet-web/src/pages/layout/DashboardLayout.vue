@@ -16,7 +16,18 @@
     </div>
 
     <!-- Desktop Dashboard Layout -->
-    <div class="hidden md:flex flex-row justify-start items-center px-20">
+    <div
+      class="
+        hidden
+        md:flex
+        justify-center
+        mx-auto
+        max-w-7xl
+        bg-neutrals-softWhite
+        shadow-main-container
+        flex-row flex-grow
+      "
+    >
       <navbar>
         <!-- TODO: bring link to vault on top once the component is implemented -->
         <navbar-link to="dashboard" :heading="i18n.credentials" icon="credentials.svg" />
@@ -26,7 +37,7 @@
         <!-- TODO: link to actual settings once implemented -->
         <navbar-link to="did-management" :heading="i18n.settings" icon="settings.svg" />
       </navbar>
-      <dashboard-content />
+      <dashboard-content class="flex flex-grow py-12 px-16" />
     </div>
   </div>
 </template>

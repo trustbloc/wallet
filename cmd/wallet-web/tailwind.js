@@ -18,6 +18,7 @@ module.exports = {
         dark: '#190c21',
         light: '#b6b7c7',
         medium: '#6c6d7c',
+        mischka: '#dcdadd',
         mobster: '#7b6f7f',
         mountainMist: {
           light: '#949095',
@@ -184,6 +185,7 @@ module.exports = {
         'inner-outline-blue': `inset 0px 2px 0px 0px ${theme(
           'colors.primary.blue'
         )}, inset 0px -2px 0px 0px ${theme('colors.primary.blue')}`,
+        'main-container': '0px 0px 40px 0px rgba(25, 12, 33, 0.1)',
       }),
       height: {
         lg: '46px',
