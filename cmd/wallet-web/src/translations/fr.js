@@ -4,6 +4,7 @@ import DashboardLayout from './DashboardLayout/fr.json';
 import Signin from './Signin/fr.json';
 import Signout from './Signout/fr.json';
 import Signup from './Signup/fr.json';
+import Credentials from './Credentials/fr.json';
 
 export default {
   App,
@@ -12,4 +13,5 @@ export default {
   Signin,
   Signout,
   Signup,
+  Credentials,
 };
