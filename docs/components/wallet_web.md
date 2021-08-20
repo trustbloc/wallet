@@ -387,3 +387,24 @@ Blinded routing DIDComm flow is very similar to DIDComm flow explained in previo
   - web wallet requests a new peer DID from invitee (an issuer or verifier).
   - web wallet creates a new peer DID from router for new peer DID it received from invitee.
   - web wallet shares newly created peer DID with invitee.
+
+
+## Customizing you wallet
+
+By default wallet is configured to [orb DID](https://trustbloc.github.io/did-method-orb/) and [Ed25519Signature2018](https://w3c-ccg.github.io/lds-ed25519-2018/) signature suite for all its signing operations. 
+Wallet creates and assigns a new orb DID as a controller during wallet user registration (i.e setup process during user's first login).
+But your wallet profile can also be customized to use any other DID methods and signature types. 
+
+To customize signing DIDs and signature types, go to wallet settings, you will see you current digital identity preferences showing your current DID (aka controller), verification method and signature type. 
+Once customized, wallet will use these controller, verification method & signature type to add digital proofs to presentations presented from this wallet (i.e. signing verifiable presentation).
+
+- **Customizing Signature type**: you can customize your signature suite by changing `Update Signature Type` section in digital identity preferences page.
+- **Customizing Signing key**: you can customize your signing key (aka verification method) by selecting verification method of your choice from `Key ID` section.
+- **Customizing controller**: you can customize your controller by choosing a DID of your choice in  `Update Identity` section. 
+You have to create a new orb DID or import any other DID in order to get them listed in `Update Identity` section. Remember, wallet always creates one orb DID for user during registration.
+  - **Creating a new orb DID**: Navigate to ``CREATE ORB DIGITAL IDENTITY`` tab and create your new orb DID. You can even customize your orb DID by choosing `Key Type, Signature Suite` & `Key Purpose` of your choice while creating it. 
+  Once a new orb DID is created successfully it will show up in your list of DIDs in `DIGITAL IDENITTY PREFERNCE` page.
+  - **Import a DID**: You can also import any DID along with its private key by navigating to ``IMPORT ANY DIGITAL IDENTITY`` tab. Wallet supports importing private keys in both `base58` & `jwk` formats. 
+  Any DID which can be resolved by wallet can be imported. Refer [this](https://github.com/trustbloc/wallet/blob/main/test/fixtures/wallet-web/config.json) for resolver configuration of demo web wallet instance.
+  Once imported successfully it will show up in your list of DIDs in `DIGITAL IDENITTY PREFERNCE` page. 
+
