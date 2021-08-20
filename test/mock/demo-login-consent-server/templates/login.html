@@ -32,7 +32,7 @@ SPDX-License-Identifier: Apache-2.0
 
 </head>
 
-<body class="leading-normal tracking-normal text-white" style="background-color: #f4f1f5;">
+<body onload="setRandomEmail();" class="leading-normal tracking-normal text-white" style="background-color: #f4f1f5;">
 <section class="py-48">
     <p class="text-black text-2xl text-center font-bold">Demo Sign In</p>
     <div class="container mx-auto flex flex-wrap h-auto lg:w-1/3 w-full">
@@ -48,7 +48,7 @@ SPDX-License-Identifier: Apache-2.0
                                 Email
                             </label>
                             <input class="w-full text-gray-700 leading-tight inputColor
-                        focus:outline-none" type='email' name='email' id='email' id="email" value="john.smith@example.com" required>
+                        focus:outline-none" type='email' name='email' id="email" value="john.smith@example.com" required>
                         </div>
 
                         <div class="mb-4 py-2 px-4 rounded-t-lg inputColor border-b-2 border-gray-500 lg:text-sm text-xs">
@@ -70,7 +70,16 @@ SPDX-License-Identifier: Apache-2.0
         </div>
     </div>
 </section>
+<script src="https://randojs.com/1.0.0.js"></script>
+<script type="application/javascript">
+    var randomemailprefix = "john.smith";
+    var randomemailsuffix = "@example.com";
+    var randomnumber = rando(1000000, 100000000);
 
+    function setRandomEmail() {
+        document.getElementById("email").value = randomemailprefix + randomnumber + randomemailsuffix;
+    }
+</script>
 </body>
 
 </html>
