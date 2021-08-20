@@ -22,26 +22,22 @@
       <div v-if="cards.length">
         <ul class="grid grid-cols-2 gap-8">
           <li v-for="(card, index) in cards" :key="index" class="focus:ring-8 cursor-pointer">
-            <div v-for="cd in cjson" :key="cd.schema">
-              <div
-                v-if="credDisplayName(card.content) === cd.schema"
-                class="flex justify-between credentialCard"
-              >
-                <div class="flex flex-row flex-grow items-center">
-                  <div class="border-opacity-10 credentialLogoContainer">
-                    <img :src="loadImg(cd.icon)" />
-                  </div>
-                  <div class="credentialHeader">
-                    {{ credDisplayName(card.content) }}
-                  </div>
+            <!--Temporary solution to handle preview for the generic credential, this will be refactored issue-981-->
+            <div class="flex justify-between credentialCard">
+              <div class="flex flex-row flex-grow items-center">
+                <div class="border-opacity-10 credentialLogoContainer">
+                  <img src="@/assets/img/credential--generic-icon.svg" />
                 </div>
-                <div class="py-2">
-                  <div class="credentialArrowContainer">
-                    <div class="credentialArrowLogo">
-                      <button>
-                        <img src="@/assets/img/credential--arrow-right-icon.svg" />
-                      </button>
-                    </div>
+                <div class="credentialHeader">
+                  {{ credDisplayName(card.content) }}
+                </div>
+              </div>
+              <div class="py-2">
+                <div class="credentialArrowContainer">
+                  <div class="credentialArrowLogo">
+                    <button>
+                      <img src="@/assets/img/credential--arrow-right-icon.svg" />
+                    </button>
                   </div>
                 </div>
               </div>
