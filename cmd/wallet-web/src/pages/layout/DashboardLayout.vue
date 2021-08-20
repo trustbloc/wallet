@@ -37,7 +37,7 @@
         <!-- TODO: link to actual settings once implemented -->
         <navbar-link to="did-management" :heading="i18n.settings" icon="settings.svg" />
       </navbar>
-      <dashboard-content class="flex flex-grow py-12 px-16" />
+      <dashboard-content class="flex flex-col flex-grow py-12 px-16" />
     </div>
   </div>
 </template>

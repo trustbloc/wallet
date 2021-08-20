@@ -511,6 +511,10 @@ module.exports = {
         },
       };
       const credentialPreview = {
+        '.nocredentialCard': {
+          width: 384,
+          height: 152,
+        },
         '.credentialCard': {
           backgroundColor: theme('colors.neutrals.white'),
           borderRadius: theme('spacing.3'),

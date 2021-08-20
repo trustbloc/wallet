@@ -5,15 +5,29 @@
 -->
 
 <template>
-  <div class="">
+  <div>
     <div>
+      <!-- Todo move this to seprate component as required -->
+      <div class="flex flex-row justify-between items-center align-middle">
+        <div class="flex flex-grow">
+          <h3 class="m-0 font-bold text-neutals-dark">{{ i18n.credentials }}</h3>
+        </div>
+        <div
+          class="
+            inline-flex
+            items-center
+            bg-neutrals-white
+            rounded-lg
+            border border-neutrals-chatelle
+          "
+        >
+          <flyout-menu />
+        </div>
+      </div>
       <span v-if="loadingStatus === 'inprogress'">
         <skeleton-loader type="vault" />
       </span>
-      <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg" class="px-8">
-        <md-icon style="color: green" class="px-4">check_circle_outline</md-icon> Successfully setup
-        your user for secured communication.
-      </span>
+      <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg" class="px-8"> </span>
       <span v-else-if="loadingStatus === 'failed'">
         <md-icon style="color: red" class="px-4">warning</md-icon>
         <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
@@ -45,12 +59,20 @@
           </li>
         </ul>
       </div>
-      <md-empty-state
-        v-else
-        md-icon="devices_other"
-        :md-label="error"
-        :md-description="errorDescription"
-      />
+      <div
+        v-else-if="loadingStatus === 'success'"
+        class="py-8 px-6 mx-auto rounded-lg border border-neutrals-thistle nocredentialCard"
+      >
+        <div class="flex justify-center">
+          <img src="@/assets/img/icons-md--credentials-icon.svg" />
+        </div>
+        <div class="flex justify-center">
+          <span class="text-base font-bold text-neutrals-medium"> {{ i18n.error }}</span>
+        </div>
+        <div class="flex justify-center">
+          <span class="text-base text-neutrals-medium"> {{ i18n.description }}</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -59,7 +81,8 @@
 import { CredentialManager } from '@trustbloc/wallet-sdk';
 import { getCredentialType } from '@/pages/mixins';
 import { mapGetters } from 'vuex';
-import SkeletonLoader from '../components/SkeletonLoader/SkeletonLoader';
+import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
+import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
 import credentialDisplayData from '@/config/credentialDisplayData.json';
 
 const filterBy = ['IssuerManifestCredential', 'GovernanceCredential'];
@@ -69,6 +92,7 @@ export default {
   name: 'Dashboard',
   components: {
     SkeletonLoader,
+    FlyoutMenu,
   },
   data() {
     return {
@@ -76,13 +100,14 @@ export default {
       cjson: credentialDisplayData,
       username: '',
       agent: null,
-      error: 'No stored credentials',
-      errorDescription: "Your wallet is empty, there aren't any stored credentials to show.",
     };
   },
   computed: {
     loadingStatus() {
       return this.getCurrentUser() ? this.getCurrentUser().setupStatus : null;
+    },
+    i18n() {
+      return this.$t('Credentials');
     },
   },
   created: function () {
@@ -146,5 +171,3 @@ export default {
   },
 };
 </script>
-
-<style scoped></style>
