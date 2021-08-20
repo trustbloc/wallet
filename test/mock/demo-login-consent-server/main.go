@@ -39,12 +39,12 @@ const (
 	dlUploadHTML        = "./templates/uploadCred.html"
 	dlUploadConsentHTML = "./templates/uploadCredConsent.html"
 	providerQueryParam  = "provider"
-	bankLogin = "mockbank"
-	dlUpload  = "uploaddrivinglicense"
+	bankLogin           = "legacyMockbank"
+	dlUpload            = "uploaddrivinglicense"
 
-	bankFlow     = "bank"
-	dlUploadFlow = "dlUpload"
-	defaultFlow  = "default"
+	bankFlow        = "bank"
+	dlUploadFlow    = "dlUpload"
+	defaultFlow     = "default"
 	skipConsentFlow = "skipConsent"
 
 	loginTypeCookie = "loginType"
