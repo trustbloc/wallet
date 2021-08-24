@@ -201,7 +201,7 @@ func (c *consentServer) login(w http.ResponseWriter, req *http.Request) {
 		}
 
 		switch {
-		case strings.Contains(providerID, bankLogin):
+		case strings.EqualFold(providerID, bankLogin):
 			expire := time.Now().AddDate(0, 0, 1)
 			cookie := http.Cookie{Name: loginTypeCookie, Value: skipConsentFlow, Expires: expire}
 			http.SetCookie(w, &cookie)
@@ -213,7 +213,7 @@ func (c *consentServer) login(w http.ResponseWriter, req *http.Request) {
 
 				return
 			}
-		case strings.Contains(req.Referer(), dlUpload):
+		case strings.EqualFold(req.Referer(), dlUpload):
 			expire := time.Now().AddDate(0, 0, 1)
 			cookie := http.Cookie{Name: loginTypeCookie, Value: dlUploadFlow, Expires: expire}
 			http.SetCookie(w, &cookie)
