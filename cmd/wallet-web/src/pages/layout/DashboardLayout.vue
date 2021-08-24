@@ -7,12 +7,12 @@
 <template>
   <div>
     <!-- Mobile Dashboard Layout -->
-    <div class="flex md:hidden flex-col justify-start items-center">
+    <div class="flex md:hidden flex-col justify-start items-center w-screen">
       <Header />
       <!-- <navbar> -->
       <!-- links -->
       <!-- </navbar> -->
-      <dashboard-content />
+      <dashboard-content class="bg-neutrals-softWhite h-screen" />
     </div>
 
     <!-- Desktop Dashboard Layout -->

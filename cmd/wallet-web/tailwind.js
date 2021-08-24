@@ -25,7 +25,6 @@ module.exports = {
           dark: '#8d8a8e',
         },
         softWhite: '#f4f1f5',
-        selago: '#f4f1f5',
         thistle: '#dbd7dc',
         white: '#ffffff',
         whiteLilac: '#e4e1e5',
@@ -459,14 +458,14 @@ module.exports = {
           },
         },
         '.skeleton-photo': {
-          backgroundColor: theme('colors.neutrals.selago'),
+          backgroundColor: theme('colors.neutrals.softWhite'),
           borderRadius: '50%',
           width: theme('spacing.12'),
           height: theme('spacing.12'),
           flexFlow: 'col-1',
         },
         '.skeleton-data': {
-          backgroundColor: theme('colors.neutrals.selago'),
+          backgroundColor: theme('colors.neutrals.softWhite'),
           position: 'relative',
           borderRadius: theme('spacing.6'),
           overflow: 'hidden',
@@ -521,19 +520,26 @@ module.exports = {
           padding: `${theme('spacing.6')} ${theme('spacing.3')} ${theme('spacing.6')} ${theme(
             'spacing.4'
           )}`,
-          fontSize: theme('fontSize.base'),
+          fontSize: theme('fontSize.sm'),
           fontWeight: theme('fontWeight.bold'),
           border: `${theme('spacing.px')} solid ${theme('colors.neutrals.thistle')}`,
-          width: 400,
-          height: theme('spacing.24'),
-        },
-        '.credentialHeader': {
-          paddingLeft: theme('spacing.4'),
-          color: theme('colors.neutrals.dark'),
-        },
-        '.credentialLogoContainer': {
-          width: theme('spacing.12'),
-          height: theme('spacing.12'),
+          width: 382,
+          height: theme('spacing.20'),
+          [`@media (min-width: ${theme('screens.md')})`]: {
+            fontSize: theme('fontSize.base'),
+            fontWeight: theme('fontWeight.bold'),
+            width: 400,
+            height: theme('spacing.24'),
+          },
+          '&:hover': {
+            border: `1px solid ${theme('colors.neutrals.chatelle')}`,
+          },
+          '&:focus-within': {
+            border: `1px solid ${theme('colors.neutrals.chatelle')}`,
+            boxShadow: `inset 0 0 0,
+             0 0  0 2px ${theme('colors.neutrals.softWhite')},
+             0 0  0.1em 4px rgb(129, 131, 138)`,
+          },
         },
         '.credentialArrowContainer': {
           backgroundColor: theme('colors.neutrals.thistle'),
@@ -541,9 +547,6 @@ module.exports = {
           borderRadius: '50%',
           width: theme('spacing.8'),
           height: theme('spacing.8'),
-        },
-        '.credentialArrowLogo': {
-          padding: theme('spacing.1'),
         },
       };
 

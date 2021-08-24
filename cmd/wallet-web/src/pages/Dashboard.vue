@@ -6,72 +6,80 @@
 
 <template>
   <div>
-    <div>
-      <!-- Todo move this to seprate component as required -->
-      <div class="flex flex-row justify-between items-center align-middle">
-        <div class="flex flex-grow">
-          <h3 class="m-0 font-bold text-neutals-dark">{{ i18n.credentials }}</h3>
-        </div>
-        <div
-          class="
-            inline-flex
-            items-center
-            bg-neutrals-white
-            rounded-lg
-            border border-neutrals-chatelle
-          "
-        >
-          <flyout-menu />
-        </div>
+    <!-- Mobile Dashboard Layout -->
+    <div class="flex md:hidden flex-col justify-start w-screen">
+      <!-- Todo move this to resuable component issue-985 -->
+      <div class="bg-neutrals-white border border-neutrals-chatelle">
+        <flyout-menu />
       </div>
-      <span v-if="loadingStatus === 'inprogress'">
-        <skeleton-loader type="vault" />
-      </span>
-      <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg" class="px-8"> </span>
-      <span v-else-if="loadingStatus === 'failed'">
-        <md-icon style="color: red" class="px-4">warning</md-icon>
-        <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
-        communication.
-      </span>
-      <div v-if="cards.length">
-        <ul class="grid grid-cols-2 gap-8">
-          <li v-for="(card, index) in cards" :key="index" class="focus:ring-8 cursor-pointer">
-            <!--Temporary solution to handle preview for the generic credential, this will be refactored issue-981-->
-            <div class="flex justify-between credentialCard">
-              <div class="flex flex-row flex-grow items-center">
-                <div class="border-opacity-10 credentialLogoContainer">
-                  <img src="@/assets/img/credential--generic-icon.svg" />
-                </div>
-                <div class="credentialHeader">
-                  {{ credDisplayName(card.content) }}
-                </div>
-              </div>
-              <div class="py-2">
-                <div class="credentialArrowContainer">
-                  <div class="credentialArrowLogo">
-                    <button>
-                      <img src="@/assets/img/credential--arrow-right-icon.svg" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-        </ul>
+      <div class="items-start">
+        <h3 class="mx-6 mb-5 font-bold text-neutals-dark">{{ i18n.credentials }}</h3>
+      </div>
+    </div>
+    <!-- Desktop Dashboard Layout -->
+    <!-- Todo move this to seprate component as required -->
+    <div class="hidden md:flex justify-between items-center mb-8 w-full align-middle">
+      <div class="flex flex-grow">
+        <h3 class="m-0 font-bold text-neutals-dark">{{ i18n.credentials }}</h3>
       </div>
       <div
-        v-else-if="loadingStatus === 'success'"
-        class="py-8 px-6 mx-auto rounded-lg border border-neutrals-thistle nocredentialCard"
+        class="
+          inline-flex
+          items-center
+          bg-neutrals-white
+          rounded-lg
+          border border-neutrals-chatelle
+        "
       >
-        <div class="flex justify-center">
-          <img src="@/assets/img/icons-md--credentials-icon.svg" />
-        </div>
-        <div class="flex justify-center">
-          <span class="text-base font-bold text-neutrals-medium"> {{ i18n.error }}</span>
-        </div>
-        <div class="flex justify-center">
-          <span class="text-base text-neutrals-medium"> {{ i18n.description }}</span>
-        </div>
+        <flyout-menu />
+      </div>
+    </div>
+    <div class="mx-6 md:mx-0 mb-5">
+      <span class="font-bold font-xl text-neutals-dark">{{ i18n.defaultvault }}</span>
+    </div>
+    <span v-if="loadingStatus === 'inprogress'">
+      <skeleton-loader type="vault" />
+    </span>
+    <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg" class="px-8"> </span>
+    <span v-else-if="loadingStatus === 'failed'">
+      <md-icon style="color: red" class="px-4">warning</md-icon>
+      <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
+      communication.
+    </span>
+    <div v-if="cards.length">
+      <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mx-6 md:mx-0">
+        <li v-for="(card, index) in cards" :key="index">
+          <!--Temporary solution to handle preview for the generic credential, this will be refactored issue-981-->
+          <div class="inline-flex items-center w-full credentialCard">
+            <div class="flex-none w-12 h-12 border-opacity-10">
+              <img src="@/assets/img/credential--generic-icon.svg" />
+            </div>
+            <div class="flex-grow p-4 text-left text-neutrals-dark overflow-ellipsi">
+              {{ credDisplayName(card.content) }}
+            </div>
+            <div class="flex-none credentialArrowContainer">
+              <div class="p-1">
+                <button>
+                  <img src="@/assets/img/credential--arrow-right-icon.svg" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div
+      v-else-if="loadingStatus === 'success'"
+      class="py-8 px-6 mx-auto rounded-lg border border-neutrals-thistle nocredentialCard"
+    >
+      <div class="flex justify-center">
+        <img src="@/assets/img/icons-md--credentials-icon.svg" />
+      </div>
+      <div class="flex justify-center">
+        <span class="text-base font-bold text-neutrals-medium"> {{ i18n.error }}</span>
+      </div>
+      <div class="flex justify-center">
+        <span class="text-base text-neutrals-medium"> {{ i18n.description }}</span>
       </div>
     </div>
   </div>
