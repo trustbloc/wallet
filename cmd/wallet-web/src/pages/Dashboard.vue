@@ -34,9 +34,6 @@
         <flyout-menu />
       </div>
     </div>
-    <div class="mx-6 md:mx-0 mb-5">
-      <span class="font-bold font-xl text-neutals-dark">{{ i18n.defaultvault }}</span>
-    </div>
     <span v-if="loadingStatus === 'inprogress'">
       <skeleton-loader type="vault" />
     </span>
@@ -47,6 +44,9 @@
       communication.
     </span>
     <div v-if="cards.length">
+      <div class="mx-6 md:mx-0 mb-5">
+        <span class="font-bold font-xl text-neutals-dark">{{ i18n.defaultvault }}</span>
+      </div>
       <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mx-6 md:mx-0">
         <li v-for="(card, index) in cards" :key="index">
           <!--Temporary solution to handle preview for the generic credential, this will be refactored issue-981-->
