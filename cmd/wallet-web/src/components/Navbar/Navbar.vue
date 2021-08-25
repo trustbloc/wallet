@@ -5,7 +5,9 @@
 -->
 
 <template>
-  <div class="flex relative flex-col justify-between w-80 h-screen shadow bg-gradient-dark">
+  <div
+    class="flex relative flex-col justify-between w-80 h-screen shadow min-w-80 bg-gradient-dark"
+  >
     <img class="absolute -top-1 left-0" src="@/assets/img/navbar-flare.png" />
     <div class="flex z-10 flex-col justify-start items-start pb-8 h-full">
       <div class="flex justify-start items-center px-10">
@@ -15,7 +17,7 @@
         <ul class="">
           <slot />
         </ul>
-        <div class="my-5 mx-10 h-px opacity-20 bg-neutrals-white"></div>
+        <div class="my-5 mx-10 h-px opacity-20 bg-neutrals-white" />
         <signout />
       </div>
     </div>

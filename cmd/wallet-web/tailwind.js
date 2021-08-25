@@ -193,6 +193,9 @@ module.exports = {
       inset: {
         '-1': '-1px',
       },
+      minWidth: {
+        80: '20rem',
+      },
       width: {
         lg: '550px',
         xl: '896px',

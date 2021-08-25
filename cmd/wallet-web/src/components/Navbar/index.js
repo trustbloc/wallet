@@ -10,7 +10,6 @@ import NavbarLink from './NavbarLink.vue';
 const NavbarStore = {
   navbarOpen: false,
   setNavbarOpen(value) {
-    console.log('called setNavbarOpen with', value);
     this.navbarOpen = value;
   },
 };
