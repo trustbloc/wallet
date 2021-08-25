@@ -7,7 +7,7 @@
 <template>
   <div>
     <!-- Mobile Dashboard Layout -->
-    <div class="flex md:hidden flex-col justify-start items-center w-screen">
+    <div class="flex md:hidden flex-col justify-start items-center w-screen bg-neutrals-softWhite">
       <Header />
       <!-- <navbar> -->
       <!-- links -->
