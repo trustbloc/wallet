@@ -9,8 +9,6 @@
     class="
       justify-start
       items-center
-      w-full
-      h-16
       font-bold
       hover:bg-gradient-to-r hover:opacity-100 hover:from-neutrals-black
       focus-within:bg-gradient-to-r
@@ -22,15 +20,22 @@
       flex flex-row
     "
   >
-    <router-link class="flex flex-row justify-start items-center px-10" v-bind="$attrs">
-      <img v-if="icon" :src="require(`@/assets/img/${icon}`)" class="w-8 h-8" />
+    <a
+      tabindex="0"
+      class="flex flex-row justify-start items-center px-10 w-full h-16 cursor-pointer"
+      v-bind="$attrs"
+      @click="handleClick($attrs.to)"
+    >
+      <img v-if="icon" :src="iconUrl" class="w-8 h-8" />
       <div v-else class="w-8 h-8" />
       <span class="ml-4 text-lg text-neutrals-white">{{ heading }}</span>
-    </router-link>
+    </a>
   </li>
 </template>
 
 <script>
+import { navbarMutations } from '@/components/Navbar';
+
 export default {
   name: 'NavbarLink',
   props: {
@@ -41,6 +46,20 @@ export default {
     icon: {
       type: String,
       required: true,
+    },
+  },
+  computed: {
+    iconUrl() {
+      return require(`@/assets/img/${this.icon}`);
+    },
+  },
+  methods: {
+    toggleNavbar() {
+      navbarMutations.toggleNavbar();
+    },
+    handleClick(to) {
+      this.$router.push(to);
+      this.toggleNavbar();
     },
   },
 };
