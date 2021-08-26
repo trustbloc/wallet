@@ -102,6 +102,12 @@
                   @click="prefillRequest('didconn-manifest-usrc-govvc', 'get')"
                   >DID Connect with manifest, user credential and governance VC
                 </md-chip>
+                <md-chip
+                  class="request-sample"
+                  md-clickable
+                  v-on:click="prefillRequest('waci-credential-share', 'get')"
+                  >WACI Credential Share
+                </md-chip>
               </div>
 
               <div>
@@ -203,7 +209,7 @@ export default {
       if (typeof data == 'object') {
         this.interopData = JSON.stringify(data, null, 2);
       } else {
-        this.responses.push('Warning: received unexpcted string data type');
+        this.responses.push('Warning: received unexpected string data type');
         this.interopData = data;
       }
     },

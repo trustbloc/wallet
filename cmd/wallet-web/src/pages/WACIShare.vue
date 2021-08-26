@@ -165,7 +165,7 @@
   </div>
 </template>
 <script>
-import { CredentialManager } from '@trustbloc/wallet-sdk';
+import { DIDComm } from '@trustbloc/wallet-sdk';
 import {
   CHAPIEventHandler,
   extractPresentationExchangeReasons,
@@ -175,6 +175,7 @@ import {
   getVCIcon,
   getCredentialType,
 } from './mixins';
+import jp from 'jsonpath';
 import { mapGetters } from 'vuex';
 import Governance from './Governance.vue';
 
@@ -206,28 +207,25 @@ export default {
   },
   created: async function () {
     this.loading = true;
+
     this.protocolHandler = this.$parent.protocolHandler;
 
-    let { query } = this.protocolHandler.getEventData();
-    query = normalizeQuery(query);
-
+    let invitation = this.protocolHandler.message();
     let { user, token } = this.getCurrentUser().profile;
-    this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
 
-    try {
-      let { results } = await this.credentialManager.query(token, query);
-      this.presentation = results;
+    //initiate credential share flow.
+    this.didcomm = new DIDComm({ agent: this.getAgentInstance(), user });
+    let { threadID, presentations } = await this.didcomm.initiateCredentialShare(
+      token,
+      invitation,
+      { userAnyRouterConnection: true }
+    );
 
-      this.prepareRecords(results);
-      this.reasons = extractQueryReasons(query);
-      this.presExchReasons = extractPresentationExchangeReasons(query);
-    } catch (e) {
-      this.errors.push('No credentials found matching requested criteria.');
-      console.error('get credentials failed,:', e);
-    }
+    // display results.
+    this.prepareRecords(presentations);
 
-    // TODO governance VC check
-
+    this.threadID = threadID;
+    this.presentations = presentations;
     this.requestOrigin = this.protocolHandler.requestor();
 
     this.loading = false;
@@ -257,37 +255,31 @@ export default {
       };
 
       this.records = vcs.map(_recordIt);
+
+      console.log('this.records', JSON.stringify(this.records, null, 2));
     },
     async share() {
       this.loading = true;
       let { profile, preference } = this.getCurrentUser();
       let { controller, proofType, verificationMethod } = preference;
-      let { domain, challenge } = this.protocolHandler.getEventData();
 
-      let _present = async (presentation) => {
-        return (
-          await this.credentialManager.present(
-            profile.token,
-            { presentation },
-            {
-              controller,
-              proofType,
-              domain,
-              challenge,
-              verificationMethod,
-            }
-          )
-        ).presentation;
-      };
-
-      let results = await Promise.all(this.presentation.map(_present));
-      // typically single presentation, but some verifier queries might produce multiple presentation.
-      if (results.length == 1) {
-        this.protocolHandler.present(results[0]);
-      } else {
-        this.protocolHandler.present(results);
+      try {
+        await this.didcomm.completeCredentialShare(
+          profile.token,
+          this.threadID,
+          this.presentations,
+          {
+            controller,
+            proofType,
+            verificationMethod,
+          }
+        );
+      } catch (e) {
+        this.handleError(e);
+        return;
       }
 
+      this.protocolHandler.done();
       this.loading = false;
     },
     cancel() {

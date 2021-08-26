@@ -173,7 +173,7 @@ export default {
     let { user, token } = this.getCurrentUser().profile;
     this.wallet = new WalletGetByQuery(
       this.getAgentInstance(),
-      this.$parent.credentialEvent,
+      this.$parent.protocolHandler,
       this.getAgentOpts(),
       user
     );

@@ -34,7 +34,7 @@ export class CHAPIEventHandler {
     return { query, challenge, domain, invitation, credentials };
   }
 
-  getRequestor() {
+  requestor() {
     let { credentialRequestOrigin } = this.credEvent;
 
     return credentialRequestOrigin;

@@ -92,10 +92,10 @@ export default {
       this.getAgentInstance(),
       this.getCurrentUser().profile,
       this.getAgentOpts(),
-      this.$parent.credentialEvent
+      this.$parent.protocolHandler
     );
 
-    this.requestOrigin = this.wallet.chapiHandler.getRequestor();
+    this.requestOrigin = this.$parent.protocolHandler.requestor();
     this.userCredentials = this.wallet.userCredentials;
     this.govnVC = this.wallet.govnVC;
     this.buttonLabel = this.userCredentials.length > 0 ? 'Store & Connect' : 'Connect';

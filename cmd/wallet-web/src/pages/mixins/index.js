@@ -10,3 +10,4 @@ export { RegisterWallet } from './common/register.js';
 export { WalletGetByQuery } from './get/getCredentialsByQuery.js';
 export { DIDConn } from './get/didConn.js';
 export { CHAPIEventHandler, CHAPIHandler } from './handler/chapi';
+export { WACIPolyfillHandler, WACIRedirectHandler } from './handler/waci';
