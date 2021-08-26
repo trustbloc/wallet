@@ -37,6 +37,7 @@ You need to modify your hosts file (`/etc/hosts` on \*NIX) to add the following 
 127.0.0.1 ops-kms.trustbloc.local
 127.0.0.1 oathkeeper-auth-keyserver.trustbloc.local
 127.0.0.1 oathkeeper-ops-keyserver.trustbloc.local
+127.0.0.1 file-server.trustbloc.local
 ```
 
 ## Wallet Automation tests

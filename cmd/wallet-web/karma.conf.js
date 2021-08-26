@@ -40,6 +40,7 @@ module.exports = function (config) {
           '--disable-web-security',
           '--disable-site-isolation-trials',
           '--auto-open-devtools-for-tabs',
+          '--ignore-certificate-errors',
         ],
       },
     },

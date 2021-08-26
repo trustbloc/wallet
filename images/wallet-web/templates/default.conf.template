@@ -65,7 +65,8 @@ server {
             "didAnchorOrigin":"${DID_ANCHOR_ORIGIN}",
             "sidetreeToken":"${SIDETREE_TOKEN}",
             "hubAuthURL":"${HTTP_SERVER_HUB_AUTH_URL}",
-            "staticAssetsUrl": "${STATIC_ASSETS_URL}"
+            "staticAssetsUrl": "${STATIC_ASSETS_URL}",
+            "context-provider-url":"${CONTEXT_PROVIDER_URL}"
         }';
     }
 }

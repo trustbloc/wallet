@@ -25,9 +25,13 @@ import (
 	ariesmysql "github.com/hyperledger/aries-framework-go-ext/component/storage/mysql"
 	ariesleveldb "github.com/hyperledger/aries-framework-go/component/storage/leveldb"
 	ariesmem "github.com/hyperledger/aries-framework-go/component/storageutil/mem"
+	ldrest "github.com/hyperledger/aries-framework-go/pkg/controller/rest/ld"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/messaging/msghandler"
-	"github.com/hyperledger/aries-framework-go/pkg/doc/jsonld"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/ld"
+	ldsvc "github.com/hyperledger/aries-framework-go/pkg/ld"
+	ldstore "github.com/hyperledger/aries-framework-go/pkg/store/ld"
 	ariesstorage "github.com/hyperledger/aries-framework-go/spi/storage"
+	jsonld "github.com/piprate/json-gold/ld"
 	"github.com/rs/cors"
 	"github.com/spf13/cobra"
 	"github.com/trustbloc/edge-core/pkg/log"
@@ -706,6 +710,11 @@ func router(config *httpServerParameters) (http.Handler, error) {
 		walletRouter.HandleFunc(handler.Path(), handler.Handle()).Methods(handler.Method())
 	}
 
+	// JSON-LD context operations
+	for _, handler := range ldrest.New(ldsvc.New(ctx)).GetRESTHandlers() {
+		walletRouter.HandleFunc(handler.Path(), handler.Handle()).Methods(handler.Method())
+	}
+
 	return root, nil
 }
 
@@ -715,7 +724,7 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store ari
 		return fmt.Errorf("failed to init OIDC provider: %w", err)
 	}
 
-	loader, err := jsonld.NewDocumentLoader(store)
+	loader, err := createJSONLDDocumentLoader(store)
 	if err != nil {
 		return fmt.Errorf("create document loader: %w", err)
 	}
@@ -822,4 +831,41 @@ func setEdgeCoreLogLevel(logLevel string) error {
 	log.SetLevel("", level)
 
 	return nil
+}
+
+type ldStoreProvider struct {
+	ContextStore        ldstore.ContextStore
+	RemoteProviderStore ldstore.RemoteProviderStore
+}
+
+func (p *ldStoreProvider) JSONLDContextStore() ldstore.ContextStore {
+	return p.ContextStore
+}
+
+func (p *ldStoreProvider) JSONLDRemoteProviderStore() ldstore.RemoteProviderStore {
+	return p.RemoteProviderStore
+}
+
+func createJSONLDDocumentLoader(storageProvider ariesstorage.Provider) (jsonld.DocumentLoader, error) {
+	contextStore, err := ldstore.NewContextStore(storageProvider)
+	if err != nil {
+		return nil, fmt.Errorf("create JSON-LD context store: %w", err)
+	}
+
+	remoteProviderStore, err := ldstore.NewRemoteProviderStore(storageProvider)
+	if err != nil {
+		return nil, fmt.Errorf("create remote provider store: %w", err)
+	}
+
+	ldStore := &ldStoreProvider{
+		ContextStore:        contextStore,
+		RemoteProviderStore: remoteProviderStore,
+	}
+
+	documentLoader, err := ld.NewDocumentLoader(ldStore)
+	if err != nil {
+		return nil, fmt.Errorf("new document loader: %w", err)
+	}
+
+	return documentLoader, nil
 }

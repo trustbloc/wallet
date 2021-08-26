@@ -25,6 +25,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	mockstorage "github.com/hyperledger/aries-framework-go/pkg/mock/storage"
+	ldstore "github.com/hyperledger/aries-framework-go/pkg/store/ld"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
 
@@ -325,6 +327,20 @@ func TestStartCmdWithInvalidAgentArgs(t *testing.T) {
 		err := startCmd.Execute()
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "failed to parse session cookie max age")
+	})
+
+	t.Run("test invalid context provider URL", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[agentContextProviderFlagName] = "testURL"
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "context-provider-url flag not found")
 	})
 }
 
@@ -804,6 +820,37 @@ func TestCreateVDRs(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, test.expected, len(res))
 	}
+}
+
+func TestCreateJSONLDDocumentLoader(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		loader, err := createJSONLDDocumentLoader(mockstorage.NewMockStoreProvider())
+
+		require.NotNil(t, loader)
+		require.NoError(t, err)
+	})
+
+	t.Run("Fail to create JSON-LD context store", func(t *testing.T) {
+		storageProvider := mockstorage.NewMockStoreProvider()
+		storageProvider.FailNamespace = ldstore.ContextStoreName
+
+		loader, err := createJSONLDDocumentLoader(storageProvider)
+
+		require.Nil(t, loader)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "create JSON-LD context store")
+	})
+
+	t.Run("Fail to create remote provider store", func(t *testing.T) {
+		storageProvider := mockstorage.NewMockStoreProvider()
+		storageProvider.FailNamespace = ldstore.RemoteProviderStoreName
+
+		loader, err := createJSONLDDocumentLoader(storageProvider)
+
+		require.Nil(t, loader)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "create remote provider store")
+	})
 }
 
 func checkFlagPropertiesCorrect(t *testing.T, cmd *cobra.Command, flagName, flagShorthand, flagUsage string) {

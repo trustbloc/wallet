@@ -22,12 +22,14 @@ import (
 
 	"github.com/google/uuid"
 	ariesmem "github.com/hyperledger/aries-framework-go/component/storageutil/mem"
-	jld "github.com/hyperledger/aries-framework-go/pkg/doc/jsonld"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/ld"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/jsonld"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
 	"github.com/hyperledger/aries-framework-go/pkg/kms"
+	mockldstore "github.com/hyperledger/aries-framework-go/pkg/mock/ld"
 	mockstore "github.com/hyperledger/aries-framework-go/pkg/mock/storage"
+	ldstore "github.com/hyperledger/aries-framework-go/pkg/store/ld"
 	"github.com/stretchr/testify/require"
 	"github.com/trustbloc/edge-core/pkg/zcapld"
 	"github.com/trustbloc/edv/pkg/client"
@@ -956,14 +958,11 @@ func TestOperation_UserProfileHandler(t *testing.T) {
 			},
 		}
 
-		loader, err := jld.NewDocumentLoader(mockstore.NewMockStoreProvider())
-		require.NoError(t, err)
-
 		originalZcap, err := zcapld.NewCapability(&zcapld.Signer{
 			SignatureSuite:     ed25519signature2018.New(suite.WithSigner(&mockSigner{})),
 			SuiteType:          ed25519signature2018.SignatureType,
 			VerificationMethod: "test:123",
-			ProcessorOpts:      []jsonld.ProcessorOpts{jsonld.WithDocumentLoader(loader)},
+			ProcessorOpts:      []jsonld.ProcessorOpts{jsonld.WithDocumentLoader(createTestDocumentLoader(t))},
 		}, zcapld.WithParent(uuid.New().URN()))
 		require.NoError(t, err)
 
@@ -1341,10 +1340,28 @@ func setupOnboardingTest(t *testing.T, state string) *Operation {
 	return ops
 }
 
-func createTestDocumentLoader(t *testing.T) *jld.DocumentLoader {
+type mockLDStoreProvider struct {
+	ContextStore        ldstore.ContextStore
+	RemoteProviderStore ldstore.RemoteProviderStore
+}
+
+func (p *mockLDStoreProvider) JSONLDContextStore() ldstore.ContextStore {
+	return p.ContextStore
+}
+
+func (p *mockLDStoreProvider) JSONLDRemoteProviderStore() ldstore.RemoteProviderStore {
+	return p.RemoteProviderStore
+}
+
+func createTestDocumentLoader(t *testing.T) *ld.DocumentLoader {
 	t.Helper()
 
-	loader, err := jld.NewDocumentLoader(mockstore.NewMockStoreProvider())
+	ldStore := &mockLDStoreProvider{
+		ContextStore:        mockldstore.NewMockContextStore(),
+		RemoteProviderStore: mockldstore.NewMockRemoteProviderStore(),
+	}
+
+	loader, err := ld.NewDocumentLoader(ldStore)
 	require.NoError(t, err)
 
 	return loader
@@ -1381,7 +1398,12 @@ func (m *mockEDVClient) CreateDataVault(_ *models.DataVaultConfiguration,
 		return "", nil, m.CreateErr
 	}
 
-	loader, err := jld.NewDocumentLoader(mockstore.NewMockStoreProvider())
+	ldStore := &mockLDStoreProvider{
+		ContextStore:        mockldstore.NewMockContextStore(),
+		RemoteProviderStore: mockldstore.NewMockRemoteProviderStore(),
+	}
+
+	loader, err := ld.NewDocumentLoader(ldStore)
 	if err != nil {
 		return "", nil, fmt.Errorf("create document loader: %w", err)
 	}

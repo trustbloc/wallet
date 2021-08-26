@@ -139,6 +139,14 @@ const (
 		"pkg/framework/aries/framework.go#L165-L168." +
 		" Alternatively, this can be set with the following environment variable: " + agentTransportReturnRouteEnvKey
 
+	// remote JSON-LD context provider url flag.
+	agentContextProviderFlagName  = "context-provider-url"
+	agentContextProviderEnvKey    = "ARIESD_CONTEXT_PROVIDER_URL"
+	agentContextProviderFlagUsage = "Remote context provider URL to get JSON-LD contexts from." +
+		" This flag can be repeated, allowing setting up multiple context providers." +
+		" Alternatively, this can be set with the following environment variable (in CSV format): " +
+		agentContextProviderEnvKey
+
 	httpProtocol      = "http"
 	websocketProtocol = "ws"
 
@@ -160,6 +168,7 @@ type agentParameters struct {
 	outboundTransports   []string
 	inboundHostInternals []string
 	inboundHostExternals []string
+	contextProviderURLs  []string
 	msgHandler           command.MessageHandler
 	dbParam              *dbParam
 }
@@ -236,6 +245,12 @@ func getAgentParams(cmd *cobra.Command) (*agentParameters, error) {
 		return nil, err
 	}
 
+	contextProviderURLs, err := cmdutils.GetUserSetVarFromArrayString(cmd, agentContextProviderFlagName,
+		agentContextProviderEnvKey, true)
+	if err != nil {
+		return nil, err
+	}
+
 	return &agentParameters{
 		token:                token,
 		inboundHostInternals: inboundHosts,
@@ -248,6 +263,7 @@ func getAgentParams(cmd *cobra.Command) (*agentParameters, error) {
 		trustblocResolver:    trustblocResolver,
 		outboundTransports:   outboundTransports,
 		transportReturnRoute: transportReturnRoute,
+		contextProviderURLs:  contextProviderURLs,
 	}, nil
 }
 
@@ -338,6 +354,9 @@ func createAgentFlags(cmd *cobra.Command) {
 
 	// db timeout
 	cmd.Flags().StringP(databaseTimeoutFlagName, "", "", databaseTimeoutFlagUsage)
+
+	// remote JSON-LD context provider url flag
+	cmd.Flags().StringSliceP(agentContextProviderFlagName, "", []string{}, agentContextProviderFlagUsage)
 }
 
 func createStoreProviders(params *dbParam) (ariesstorage.Provider, error) {
@@ -414,6 +433,10 @@ func createAriesAgent(parameters *httpServerParameters) (*context.Provider, erro
 
 	opts = append(opts, outboundTransportOpts...)
 	opts = append(opts, aries.WithMessageServiceProvider(agentParams.msgHandler))
+
+	if len(agentParams.contextProviderURLs) > 0 {
+		opts = append(opts, aries.WithJSONLDContextProviderURL(agentParams.contextProviderURLs...))
+	}
 
 	framework, err := aries.New(opts...)
 	if err != nil {
