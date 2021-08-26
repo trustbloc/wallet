@@ -19,13 +19,13 @@
       md:bg-gradient-dark
     "
   >
-    <img class="hidden md:block absolute -top-1 left-0" src="@/assets/img/navbar-flare.png" />
+    <div class="hidden md:block absolute w-full opacity-40 bg-gradient-full oval" />
     <div class="flex md:z-10 flex-col justify-start items-start pb-8 h-full">
       <div class="hidden md:flex justify-start items-center px-10">
         <Logo class="mt-13" />
       </div>
       <div class="flex flex-col flex-grow justify-start mt-8 w-full">
-        <ul class="">
+        <ul>
           <slot />
         </ul>
         <div class="my-5 mx-10 h-px opacity-20 bg-neutrals-white" />
@@ -118,8 +118,17 @@ export default {
 };
 </script>
 
-<!-- TODO: remove after sass styles are deleted -->
 <style>
+.oval {
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  filter: blur(50px);
+  width: 22.625rem; /* 362px */
+  height: 8.25rem; /* 132px */
+  top: -5rem; /* 80px */
+}
+/* TODO: remove after sass styles are deleted */
 .locale-switcher > span {
   color: #fff;
 }

@@ -8,10 +8,14 @@ import Vue from 'vue';
 
 export const navbarStore = Vue.observable({
   isNavbarOpen: false,
+  currentPage: '',
 });
 
 export const navbarMutations = {
   toggleNavbar() {
     navbarStore.isNavbarOpen = !navbarStore.isNavbarOpen;
+  },
+  setCurrentPage(newPage) {
+    navbarStore.currentPage = newPage;
   },
 };

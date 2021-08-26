@@ -11,7 +11,7 @@
       v-if="!isNavbarOpen"
       class="flex relative flex-col justify-center items-center p-6 w-full h-auto bg-gradient-dark"
     >
-      <div class="absolute opacity-40 bg-gradient-full oval oval-navbar-closed" />
+      <div class="absolute w-full opacity-40 bg-gradient-full oval oval-navbar-closed" />
       <div class="flex flex-row justify-center items-center">
         <button class="absolute left-6 z-10" @click="toggleNavbar">
           <img src="@/assets/img/menu-icon.svg" />
@@ -21,7 +21,7 @@
     </div>
     <!-- Navbar Open -->
     <keep-alive v-else>
-      <transition name="fade">
+      <transition name="slide">
         <div
           class="
             flex
@@ -35,7 +35,7 @@
             bg-gradient-dark
           "
         >
-          <div class="absolute opacity-40 bg-gradient-full oval oval-navbar-open" />
+          <div class="absolute w-full opacity-40 bg-gradient-full oval oval-navbar-open" />
           <div class="flex flex-row justify-center items-center">
             <button class="absolute left-6 z-10" @click="toggleNavbar">
               <img src="@/assets/img/close.svg" />
@@ -44,12 +44,22 @@
           </div>
           <navbar>
             <!-- TODO: bring link to vault on top once the component is implemented -->
-            <navbar-link to="dashboard" :heading="i18n.credentials" icon="credentials.svg" />
+            <navbar-link
+              id="navbar-link-dashboard"
+              to="dashboard"
+              :heading="i18n.credentials"
+              icon="credentials.svg"
+            />
             <!-- TODO: uncomment once corresponding components are ready -->
-            <!-- <navbar-link to="vaults" :heading="i18n.vaults" icon="vaults.svg" /> -->
-            <!-- <navbar-link to="account" :heading="i18n.account" icon="profile.svg" /> -->
+            <!-- <navbar-link id="navbar-link-vaults" to="vaults" :heading="i18n.vaults" icon="vaults.svg" /> -->
+            <!-- <navbar-link id="navbar-link-account" to="account" :heading="i18n.account" icon="profile.svg" /> -->
             <!-- TODO: link to actual settings once implemented -->
-            <navbar-link to="did-management" :heading="i18n.settings" icon="settings.svg" />
+            <navbar-link
+              id="navbar-link-did-management"
+              to="did-management"
+              :heading="i18n.settings"
+              icon="settings.svg"
+            />
           </navbar>
         </div>
       </transition>
@@ -88,7 +98,6 @@ export default {
 
 <style scoped>
 .oval {
-  width: 22.625rem; /* 362px */
   left: 50%;
   transform: translateX(-50%);
   border-radius: 50%;

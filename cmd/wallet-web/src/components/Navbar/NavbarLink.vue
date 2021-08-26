@@ -6,7 +6,10 @@
 
 <template>
   <li
-    class="
+    :class="[
+      currentPage === id && `bg-gradient-to-r opacity-100 from-neutrals-black current-bar`,
+      currentPage !== id && `focus-within:shadow-inner-outline-blue`,
+      `
       justify-start
       items-center
       font-bold
@@ -14,17 +17,17 @@
       focus-within:bg-gradient-to-r
       focus-within:opacity-100
       focus-within:from-neutrals-black
-      focus-within:shadow-inner-outline-blue
       opacity-60
       bar
       flex flex-row
-    "
+    `,
+    ]"
   >
     <a
       tabindex="0"
       class="flex flex-row justify-start items-center px-10 w-full h-16 cursor-pointer"
       v-bind="$attrs"
-      @click="handleClick($attrs.to)"
+      @click="handleClick($attrs)"
     >
       <img v-if="icon" :src="iconUrl" class="w-8 h-8" />
       <div v-else class="w-8 h-8" />
@@ -34,11 +37,15 @@
 </template>
 
 <script>
-import { navbarMutations } from '@/components/Navbar';
+import { navbarStore, navbarMutations } from '@/components/Navbar';
 
 export default {
   name: 'NavbarLink',
   props: {
+    id: {
+      type: String,
+      required: true,
+    },
     heading: {
       type: String,
       required: true,
@@ -52,13 +59,25 @@ export default {
     iconUrl() {
       return require(`@/assets/img/${this.icon}`);
     },
+    currentPage() {
+      const routerPage = this.$router.history.current.name;
+      if (`navbar-link-${routerPage}` !== navbarStore.currentPage) {
+        this.setCurrentPage(routerPage);
+      }
+      return navbarStore.currentPage;
+    },
   },
   methods: {
     toggleNavbar() {
       navbarMutations.toggleNavbar();
     },
-    handleClick(to) {
-      this.$router.push(to);
+    setCurrentPage(newPage) {
+      navbarMutations.setCurrentPage(`navbar-link-${newPage}`);
+    },
+    handleClick(attrs) {
+      if (this.$router.history.current.name !== attrs.to) {
+        this.$router.push(attrs.to, () => this.setCurrentPage(attrs.to));
+      }
       this.toggleNavbar();
     },
   },
@@ -71,6 +90,14 @@ export default {
   content: '';
   display: block;
   background-color: theme('colors.primary.purple.hashita');
+  height: theme('spacing.16');
+  width: 4px;
+}
+.current-bar:before {
+  position: absolute;
+  content: '';
+  display: block;
+  background: theme('gradients.full');
   height: theme('spacing.16');
   width: 4px;
 }
