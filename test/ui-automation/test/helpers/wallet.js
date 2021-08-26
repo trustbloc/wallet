@@ -15,7 +15,7 @@ let signedUpUserEmail;
 
 /*************************** Public API ******************************/
 
-exports.init = async ({ createDID, importDID, email }) => {
+exports.init = async ({ email }) => {
   // login and consent
   await _getSignUp(email);
   // register chapi
@@ -24,14 +24,23 @@ exports.init = async ({ createDID, importDID, email }) => {
   // wait for dashboard
   await _waitForDashboard();
 
-  // setup DIDs if required.
-  if (importDID) {
-    await _saveAnyDID({ method: importDID });
-  } else if (createDID) {
-    await _createTrustblocDID({ method: createDID });
-  }
-
   signedUpUserEmail = email;
+};
+
+exports.signIn = async () => {
+  await _signIn(signedUpUserEmail);
+};
+
+exports.createOrbDID = async () => {
+  await _createOrbDID();
+};
+
+exports.importDID = async ({ method, keyFormat }) => {
+  await _importDID({ method: method });
+};
+
+exports.updatePreferences = async () => {
+  await _updatePreferences();
 };
 
 exports.authenticate = async ({ did }) => {
@@ -58,10 +67,6 @@ exports.didConnect = async () => {
 
 exports.logout = async () => {
   await _logoutWallet();
-};
-
-exports.signIn = async () => {
-  await _signIn(signedUpUserEmail);
 };
 
 exports.checkStoredCredentials = async () => {
@@ -185,41 +190,33 @@ async function _checkStoredCredentials() {
   return true;
 }
 
-async function _saveAnyDID({ method }) {
-  const didManager = await $("a*=Settings");
-  await didManager.waitForExist();
-  await didManager.click();
+async function _importDID({ method }) {
+  const settingsTab = await $("a*=Settings");
+  await settingsTab.waitForExist();
+  await settingsTab.click();
 
-  const saveAnyDID = await $("button*=Save Any Digital Identity");
-  await saveAnyDID.waitForExist();
-  await saveAnyDID.click();
+  const importDID = await $("li*=Import Any Digital Identity");
+  await importDID.waitForExist();
+  await importDID.click();
 
   if (!DIDS[method]) {
     throw `couldn't find did method '${did} in test config'`;
   }
 
-  // enter DID
-  const didInput = await $("#did");
+  const didInput = await $("#did-input");
   await didInput.addValue(DIDS[method].did);
 
-  // enter private key JWK
-  const privateKeyJWK = await $("#privateKeyJwk");
+  const jwkType = await $("#JWK");
+  await jwkType.click();
+
+  const privateKeyJWK = await $("#privateKeyStr");
   await privateKeyJWK.addValue(DIDS[method].pkjwk);
 
-  // enter KEY ID
   const keyID = await $("#keyID");
   await keyID.addValue(DIDS[method].keyID);
 
-  // select signature Type
-  const signType = await $("#selectSignKey");
-  await signType.addValue(DIDS[method].signatureType);
-
-  // enter friendly name
-  const friendlyName = await $("#anyDIDFriendlyName");
-  await friendlyName.addValue(DIDS[method].name);
-
   const submit = await $("#saveDIDBtn");
-  submit.click();
+  await submit.click();
 
   await browser.waitUntil(async () => {
     let didResponse = await $("#save-anydid-success");
@@ -227,33 +224,27 @@ async function _saveAnyDID({ method }) {
     expect(didResponse).toHaveText("Saved your DID successfully.");
     return true;
   });
-
-  console.log("saved DID successfully !!");
 }
 
-async function _createTrustblocDID() {
-  const didManager = await $("a*=Settings");
-  await didManager.waitForExist();
-  await didManager.click();
+async function _createOrbDID() {
+  const settingsTab = await $("a*=Settings");
+  await settingsTab.waitForExist();
+  await settingsTab.click();
 
-  const didDashboard = await $("button*=Digital Identity Dashboard");
-  await didDashboard.waitForExist();
-  await didDashboard.click();
+  const createOrbTab = await $('span*=Create ORB Digital Identity');
+  await createOrbTab.waitForClickable();
+  await createOrbTab.click();
 
   // select key Type
-  const keyType = await $("#selectKey");
-  await keyType.addValue(DIDS.trustbloc.keyType);
+  const keyType = await $("#select-key");
+  await keyType.addValue(DIDS.orb.keyType);
 
   // select signature Type
-  const signType = await $("#signKey");
-  await signType.addValue(DIDS.trustbloc.signatureType);
-
-  // enter friendly name
-  const friendlyName = await $("#friendlyName");
-  await friendlyName.addValue(DIDS.trustbloc.name);
+  const signType = await $("#select-signature-suite");
+  await signType.addValue(DIDS.orb.signatureType);
 
   const submit = await $("#createDIDBtn");
-  submit.click();
+  await submit.click();
 
   await browser.waitUntil(async () => {
     let didResponse = await $("#create-did-success");
@@ -261,6 +252,22 @@ async function _createTrustblocDID() {
     expect(didResponse).toHaveText("Saved your DID successfully.");
     return true;
   });
+}
 
-  console.log("created trustbloc DID successfully !!");
+async function _updatePreferences() {
+  const settingsTab = await $("a*=Settings");
+  await settingsTab.waitForExist();
+  await settingsTab.click();
+
+  const preferences = await $("li*=Digital Identity Preference");
+  await preferences.waitForExist();
+  await preferences.click();
+
+  const jwkType = await $("label*=JsonWebSignature2020");
+  await jwkType.click();
+
+  const submit = await $("button*=Update Preferences");
+  await submit.click();
+
+  // TODO validate success message
 }
