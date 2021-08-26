@@ -27,7 +27,7 @@ let defaultAgentStartupOpts = {
   // default backend server url
   'edge-agent-server': 'https://localhost:9099',
   // remote JSON-LD context provider urls
-  'context-provider-url': [],
+  'context-provider-url': ['https://localhost:12096/ld-contexts.json'],
 
   blocDomain: 'testnet.orb.local',
   walletMediatorURL: 'https://localhost:10063',

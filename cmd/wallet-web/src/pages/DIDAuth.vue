@@ -53,7 +53,6 @@
   </div>
 </template>
 <script>
-import { CHAPIEventHandler } from './mixins';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
 import Governance from './Governance.vue';
 import { mapGetters } from 'vuex';
@@ -70,8 +69,8 @@ export default {
     };
   },
   created: async function () {
-    this.chapiHandler = new CHAPIEventHandler(this.$parent.credentialEvent);
-    let { query } = this.chapiHandler.getEventData();
+    this.protocolHandler = this.$parent.protocolHandler;
+    let { query } = this.protocolHandler.getEventData();
 
     let { user, token } = this.getCurrentUser().profile;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
@@ -88,21 +87,21 @@ export default {
       this.loading = false;
     }
 
-    this.requestOrigin = this.chapiHandler.getRequestor();
+    this.requestOrigin = this.protocolHandler.requestor();
     this.loading = false;
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser']),
     cancel: function () {
-      this.chapiHandler.cancel();
+      this.protocolHandler.cancel();
     },
     authorize: async function () {
       this.loading = true;
 
       let { profile, preference } = this.getCurrentUser();
       let { controller, proofType, verificationMethod } = preference;
-      let { domain, challenge } = this.chapiHandler.getEventData();
+      let { domain, challenge } = this.protocolHandler.getEventData();
 
       let { presentation } = await this.credentialManager.present(
         profile.token,
@@ -116,7 +115,7 @@ export default {
         }
       );
 
-      this.chapiHandler.present(presentation);
+      this.protocolHandler.present(presentation);
 
       this.loading = false;
     },

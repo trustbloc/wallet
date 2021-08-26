@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 import jp from 'jsonpath';
 import { PresentationExchange } from '../common/presentationExchange';
-import { BlindedRouter, CredentialManager, DIDExchange, DIDManager } from '@trustbloc/wallet-sdk';
-import { CHAPIEventHandler, normalizeQuery, getCredentialType } from '../';
+import { BlindedRouter, CredentialManager, DIDComm, DIDManager } from '@trustbloc/wallet-sdk';
+import { CHAPIEventHandler, getCredentialType, normalizeQuery } from '../';
 
 var uuid = require('uuid/v4');
 
@@ -25,23 +25,23 @@ var blindedRoutingDisabled = {
  * @class
  */
 export class WalletGetByQuery {
-  constructor(agent, credEvent, opts, user) {
+  constructor(agent, protocolHandler, opts, user) {
     this.agent = agent;
-    this.credentialHandler = new CHAPIEventHandler(credEvent);
-    let { query } = this.credentialHandler.getEventData();
+    this.protocolHandler = protocolHandler;
+    let { query } = this.protocolHandler.getEventData();
 
     let presExchQuery = normalizeQuery(jp.query(query, `$[?(@.type=="PresentationExchange")]`));
     this.invitation = jp.query(query, '$[?(@.type=="DIDConnect")].invitation');
 
     console.log('presExchQuery', JSON.stringify(presExchQuery, null, 2));
     /*
-          TODO:
-           * current assumption - expecting only one governance VC in request, may be support for multiple.
-           * correlate governance VC with requesting party so that consent for trust gets shown only once.
-           * verify governance VC proof.
-           * verify requesting party in governance framework to make sure this party of behaving properly.
-           * request party to get challenged to produce a VP that the governance credential agency has accredited them.
-         */
+              TODO:
+               * current assumption - expecting only one governance VC in request, may be support for multiple.
+               * correlate governance VC with requesting party so that consent for trust gets shown only once.
+               * verify governance VC proof.
+               * verify requesting party in governance framework to make sure this party of behaving properly.
+               * request party to get challenged to produce a VP that the governance credential agency has accredited them.
+             */
     let govnVCs = jp.query(
       query,
       `$[?(@.type=="DIDConnect")].credentials[?(@.type.indexOf("GovernanceCredential") != -1)]`
@@ -50,7 +50,7 @@ export class WalletGetByQuery {
 
     this.blindedRouter = opts.blindedRouting ? new BlindedRouter(agent) : blindedRoutingDisabled;
     this.didManager = new DIDManager({ agent, user });
-    this.didExchange = new DIDExchange(agent);
+    this.didcomm = new DIDComm({ agent, user });
     this.credentialManager = new CredentialManager({ agent, user });
     this.presenationExchange = new PresentationExchange(presExchQuery[0].credentialQuery[0]);
   }
@@ -86,7 +86,7 @@ export class WalletGetByQuery {
     }
 
     let { controller, proofType, verificationMethod } = user.preference;
-    let { domain, challenge } = this.credentialHandler.getEventData();
+    let { domain, challenge } = this.protocolHandler.getEventData();
     let { token } = user.profile;
 
     let { presentation } = await this.credentialManager.present(
@@ -101,19 +101,23 @@ export class WalletGetByQuery {
       }
     );
 
-    this.credentialHandler.present(presentation);
+    this.protocolHandler.present(presentation);
   }
 
   cancel() {
-    this.credentialHandler.cancel();
+    this.protocolHandler.cancel();
   }
 
   sendNoCredentials() {
-    this.credentialHandler.present({});
+    this.protocolHandler.present({});
   }
 
   async _getAuthorizationCredentials(presentationSubmission, profile) {
-    let rpConn = await this.didExchange.connect(this.invitation[0], { waitForCompletion: true });
+    let { token } = profile;
+    let rpConn = await this.didcomm.connect(token, this.invitation[0], {
+      userAnyRouterConnection: true,
+      waitForCompletion: true,
+    });
 
     // share peer DID with RP for blinded routing
     await this.blindedRouter.sharePeerDID(rpConn.result);
@@ -133,7 +137,6 @@ export class WalletGetByQuery {
       ? JSON.parse(String.fromCharCode.apply(String, didDocRes.response.message.data.didDoc))
       : didDocRes.response.message.data.didDoc;
 
-    let { token } = profile;
     let peerDID = (await this.didManager.createPeerDID(token)).DIDDocument;
     let agent = this.agent;
     let credManager = this.credentialManager;

@@ -23,6 +23,12 @@ export default [
         meta: { requiresAuth: true },
       },
       {
+        path: 'waci',
+        name: 'waci',
+        component: load('WACI'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: 'web-wallet',
         name: 'web-wallet',
         component: load('demos/WebWallet'),

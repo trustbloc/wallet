@@ -14,7 +14,8 @@ import DIDAuthForm from './DIDAuth.vue';
 import DIDConnectForm from './DIDConnect.vue';
 import PresentationDefQueryForm from './PresentationDefQuery.vue';
 import MultipleQueryForm from './MultipleQuery.vue';
-import { extractQueryTypes } from './mixins';
+import WACIShareForm from './WACIShare.vue';
+import { extractQueryTypes, WACIPolyfillHandler, CHAPIEventHandler } from './mixins';
 
 const QUERY_FORMS = [
   {
@@ -32,29 +33,48 @@ const QUERY_FORMS = [
     component: DIDConnectForm,
     match: (types) => ['DIDConnect'].every((elem) => types.includes(elem)),
   },
+  {
+    id: 'WACIShare',
+    component: WACIShareForm,
+    match: (types) => types.includes('WACIShare'),
+    protocolHandler: WACIPolyfillHandler,
+  },
   // default: MultipleQueryForm
 ];
 
-function getComponent(credEvent) {
+function findForm(credEvent) {
   let { query } = credEvent.credentialRequestOptions.web.VerifiablePresentation;
   query = Array.isArray(query) ? query : [query];
-  let types = extractQueryTypes(query);
+  const types = extractQueryTypes(query);
 
-  for (let forms of QUERY_FORMS) {
-    if (forms.match(types)) {
-      return forms.component;
+  // TODO user filter instead of forloop
+  for (let form of QUERY_FORMS) {
+    if (form.match(types)) {
+      return {
+        component: form.component,
+        protocolHandler: form.protocolHandler
+          ? new form.protocolHandler(credEvent)
+          : new CHAPIEventHandler(credEvent),
+      };
     }
   }
 
-  console.debug('no matching query type handler found, switching to default MultipleQueryForm');
-  // default form 'MultipleQueryForm'
-  return MultipleQueryForm;
+  console.debug(
+    'no matching query type handler found, switching to default MultipleQueryForm & CHAPI event handler'
+  );
+
+  // default form & protocol handler
+  return {
+    component: MultipleQueryForm,
+    protocolHandler: new CHAPIEventHandler(credEvent),
+  };
 }
 
 export default {
   data() {
     return {
       component: '',
+      protocolHandler: null,
     };
   },
   beforeCreate: async function () {
@@ -64,8 +84,15 @@ export default {
       return;
     }
 
-    console.log('incoming web credential event', this.credentialEvent);
-    this.component = getComponent(this.credentialEvent);
+    const { component, protocolHandler } = findForm(this.credentialEvent);
+
+    this.component = component;
+    this.protocolHandler = protocolHandler;
+  },
+  computed: {
+    dynamo() {
+      return this.component;
+    },
   },
 };
 </script>

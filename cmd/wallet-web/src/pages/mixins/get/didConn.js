@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import { CHAPIEventHandler } from '../';
-import { BlindedRouter, CredentialManager, DIDExchange } from '@trustbloc/wallet-sdk';
+import { BlindedRouter, CredentialManager, DIDComm } from '@trustbloc/wallet-sdk';
 import jp from 'jsonpath';
 
 const manifestCredType = 'IssuerManifestCredential';
@@ -21,29 +21,29 @@ var blindedRoutingDisabled = {
  * @class
  */
 export class DIDConn {
-  constructor(agent, profile, startupOpts, credEvent) {
-    this.exchange = new DIDExchange(agent);
+  constructor(agent, profile, startupOpts, protocolHandler) {
+    this.didcomm = new DIDComm({ agent, user: profile.user });
     this.blindedRouter = startupOpts.blindedRouting
       ? new BlindedRouter(agent)
       : blindedRoutingDisabled;
-    this.chapiHandler = new CHAPIEventHandler(credEvent);
+    this.protocolHandler = protocolHandler;
     this.credentialManager = new CredentialManager({ agent, user: profile.user });
     this.profile = profile;
 
-    let { domain, challenge, invitation, credentials = [] } = this.chapiHandler.getEventData();
+    let { domain, challenge, invitation, credentials = [] } = this.protocolHandler.getEventData();
 
     this.domain = domain;
     this.challenge = challenge;
     this.invitation = invitation;
 
     /*
-          TODO:
-           * current assumption - expecting only one governance VC in request, may be support for multiple.
-           * correlate governance VC with requesting party so that consent for trust gets shown only once.
-           * verify governance VC proof.
-           * verify requesting party in governance framework to make sure this party of behaving properly.
-           * request party to get challenged to produce a VP that the governance credential agency has accredited them.
-         */
+              TODO:
+               * current assumption - expecting only one governance VC in request, may be support for multiple.
+               * correlate governance VC with requesting party so that consent for trust gets shown only once.
+               * verify governance VC proof.
+               * verify requesting party in governance framework to make sure this party of behaving properly.
+               * request party to get challenged to produce a VP that the governance credential agency has accredited them.
+             */
     // govn vc
     let govnVCs = jp.query(credentials, `$[?(@.type.indexOf('${governanceCredType}') != -1)]`);
     this.govnVC = govnVCs.length > 0 ? govnVCs[0] : undefined;
@@ -60,7 +60,9 @@ export class DIDConn {
   }
 
   async connect(preference) {
-    let connection = await this.exchange.connect(this.invitation);
+    let connection = await this.didcomm.connect(this.profile.token, this.invitation, {
+      userAnyRouterConnection: true,
+    });
 
     await this.blindedRouter.sharePeerDID(connection.result);
 
@@ -124,10 +126,10 @@ export class DIDConn {
       }
     );
 
-    this.chapiHandler.present(presentation);
+    this.protocolHandler.present(presentation);
   }
 
   cancel() {
-    this.chapiHandler.cancel();
+    this.protocolHandler.cancel();
   }
 }

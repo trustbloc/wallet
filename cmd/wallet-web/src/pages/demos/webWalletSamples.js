@@ -40,6 +40,8 @@ export function getSample(v) {
       return didConnQueryWithManifestAndUcred;
     case 'didconn-manifest-usrc-govvc':
       return didConnQueryWithManifestGovnAndUcred;
+    case 'waci-credential-share':
+      return waciCredentialShare;
     default:
       alert('unknown sample type');
   }
@@ -884,6 +886,22 @@ const didConnQueryWithManifestGovnAndUcred = {
       credentials: [manifest, govnVC, prc, dl],
       challenge: uuid(),
       domain: 'example.com',
+    },
+  },
+};
+
+const waciCredentialShare = {
+  web: {
+    VerifiablePresentation: {
+      query: [
+        {
+          type: 'WACIShare',
+          credentialQuery: {
+            reason: 'Please present a credential to prove your eligibility.',
+            oob: invitation,
+          },
+        },
+      ],
     },
   },
 };
