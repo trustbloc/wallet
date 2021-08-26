@@ -7,37 +7,40 @@
 <template>
   <div>
     <!-- Mobile Dashboard Layout -->
-    <div class="flex md:hidden flex-col justify-start items-center w-screen bg-neutrals-softWhite">
-      <Header />
-      <keep-alive v-if="!isNavbarOpen">
-        <dashboard-content class="h-screen bg-neutrals-softWhite" />
-      </keep-alive>
-    </div>
+    <keep-alive v-if="breakpoints.xs || breakpoints.sm">
+      <div class="flex flex-col justify-start items-center w-screen bg-neutrals-softWhite">
+        <Header />
+        <keep-alive v-if="!isNavbarOpen">
+          <dashboard-content class="h-screen bg-neutrals-softWhite" />
+        </keep-alive>
+      </div>
+    </keep-alive>
 
     <!-- Desktop Dashboard Layout -->
-    <div
-      class="
-        hidden
-        md:flex
-        justify-center
-        mx-auto
-        max-w-7xl
-        bg-neutrals-softWhite
-        shadow-main-container
-        flex-row flex-grow
-      "
-    >
-      <navbar>
-        <!-- TODO: bring link to vault on top once the component is implemented -->
-        <navbar-link to="dashboard" :heading="i18n.credentials" icon="credentials.svg" />
-        <!-- TODO: uncomment once corresponding components are ready -->
-        <!-- <navbar-link to="vaults" :heading="i18n.vaults" icon="vaults.svg" /> -->
-        <!-- <navbar-link to="account" :heading="i18n.account" icon="profile.svg" /> -->
-        <!-- TODO: link to actual settings once implemented -->
-        <navbar-link to="did-management" :heading="i18n.settings" icon="settings.svg" />
-      </navbar>
-      <dashboard-content class="flex flex-col flex-grow py-12 px-16" />
-    </div>
+    <keep-alive v-else>
+      <div
+        class="
+          flex
+          justify-center
+          mx-auto
+          max-w-7xl
+          bg-neutrals-softWhite
+          shadow-main-container
+          flex-row flex-grow
+        "
+      >
+        <navbar>
+          <!-- TODO: bring link to vault on top once the component is implemented -->
+          <navbar-link to="dashboard" :heading="i18n.credentials" icon="credentials.svg" />
+          <!-- TODO: uncomment once corresponding components are ready -->
+          <!-- <navbar-link to="vaults" :heading="i18n.vaults" icon="vaults.svg" /> -->
+          <!-- <navbar-link to="account" :heading="i18n.account" icon="profile.svg" /> -->
+          <!-- TODO: link to actual settings once implemented -->
+          <navbar-link to="did-management" :heading="i18n.settings" icon="settings.svg" />
+        </navbar>
+        <dashboard-content class="flex flex-col flex-grow py-12 px-16" />
+      </div>
+    </keep-alive>
   </div>
 </template>
 
@@ -47,6 +50,7 @@ import Header from '@/components/Header/Header.vue';
 import Navbar from '@/components/Navbar/Navbar.vue';
 import NavbarLink from '@/components/Navbar/NavbarLink.vue';
 import { navbarStore, navbarMutations } from '@/components/Navbar';
+import useBreakpoints from '@/plugins/breakpoints.js';
 
 export default {
   name: 'DashboardLayout',
@@ -55,6 +59,11 @@ export default {
     Header,
     Navbar,
     NavbarLink,
+  },
+  data() {
+    return {
+      breakpoints: useBreakpoints(),
+    };
   },
   computed: {
     i18n() {
