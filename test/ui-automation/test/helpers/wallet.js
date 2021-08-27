@@ -51,8 +51,8 @@ exports.storeCredentials = async () => {
   await _acceptCredentials();
 };
 
-exports.presentCredentials = async ({ did }) => {
-  await _sendCredentials({ method: did });
+exports.presentCredentials = async () => {
+  await _sendCredentials();
 };
 
 exports.didConnect = async () => {
@@ -92,7 +92,7 @@ async function _acceptCredentials() {
   await storeBtn.click();
 }
 
-async function _sendCredentials({ method = "trustbloc" } = {}) {
+async function _sendCredentials() {
   // share
   const shareBtn = await $("#share-credentials");
   await shareBtn.waitForExist();
