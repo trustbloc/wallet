@@ -8,7 +8,7 @@
   <div class="font-sans bg-neutrals-mischka">
     <div v-if="!$root.loaded" class="loader">
       <Spinner />
-      <span>Loading Agent...</span>
+      <span>Loading Wallet...</span>
     </div>
     <router-view v-else />
   </div>
