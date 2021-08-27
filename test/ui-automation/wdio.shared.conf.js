@@ -32,7 +32,7 @@ exports.config = {
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
     specs: [
-        './test/specs/user-flow.js'
+        './test/specs/credential-interaction-flow.js'
     ],
     // Patterns to exclude.
     exclude: [
