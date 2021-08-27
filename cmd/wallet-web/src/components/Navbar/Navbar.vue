@@ -19,7 +19,7 @@
       md:bg-gradient-dark
     "
   >
-    <div class="hidden md:block absolute w-full opacity-40 bg-gradient-full oval" />
+    <div class="hidden md:block absolute opacity-40 bg-gradient-full oval" />
     <div class="flex md:z-10 flex-col justify-start items-start pb-8 h-full">
       <div class="hidden md:flex justify-start items-center px-10">
         <Logo class="mt-13" />
@@ -118,7 +118,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .oval {
   left: 50%;
   transform: translateX(-50%);
@@ -128,7 +128,10 @@ export default {
   height: 8.25rem; /* 132px */
   top: -5rem; /* 80px */
 }
-/* TODO: remove after sass styles are deleted */
+</style>
+
+<!-- TODO: remove after sass styles are deleted -->
+<style>
 .locale-switcher > span {
   color: #fff;
 }
