@@ -51,6 +51,7 @@ router.beforeEach((to, from, next) => {
           ...router.history.current.params,
           locale: locale.base,
           redirect: { name: to.name },
+          query: to.query,
         },
       });
       next();

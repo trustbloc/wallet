@@ -45,18 +45,17 @@ const QUERY_FORMS = [
 function findForm(credEvent) {
   let { query } = credEvent.credentialRequestOptions.web.VerifiablePresentation;
   query = Array.isArray(query) ? query : [query];
-  const types = extractQueryTypes(query);
 
-  // TODO user filter instead of forloop
-  for (let form of QUERY_FORMS) {
-    if (form.match(types)) {
-      return {
-        component: form.component,
-        protocolHandler: form.protocolHandler
-          ? new form.protocolHandler(credEvent)
-          : new CHAPIEventHandler(credEvent),
-      };
-    }
+  const types = extractQueryTypes(query);
+  const found = QUERY_FORMS.filter((form) => form.match(types));
+
+  if (found.length > 0) {
+    return {
+      component: found[0].component,
+      protocolHandler: found[0].protocolHandler
+        ? new found[0].protocolHandler(credEvent)
+        : new CHAPIEventHandler(credEvent),
+    };
   }
 
   console.debug(

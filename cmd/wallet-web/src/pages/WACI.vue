@@ -14,11 +14,19 @@
 import WACIShareForm from './WACIShare.vue';
 import { WACIRedirectHandler } from './mixins';
 
-function findForm(credEvent) {
-  // for now, has implemented only one form and handler
+function findForm(query) {
+  // for now, implemented only one form and handler
+  let protocolHandler;
+
+  if (query.redirect) {
+    protocolHandler = new WACIRedirectHandler(query.oob, query.redirect);
+  } else {
+    throw 'unable to find protocol handler.';
+  }
+
   return {
     component: WACIShareForm,
-    protocolHandler: new WACIRedirectHandler(credEvent),
+    protocolHandler,
   };
 }
 
@@ -30,10 +38,7 @@ export default {
     };
   },
   created: function () {
-    // TODO read oob & redirect URL from query string
-    this.credentialEvent = {};
-
-    const { component, protocolHandler } = findForm(this.credentialEvent);
+    const { component, protocolHandler } = findForm(this.$route.query);
 
     this.component = component;
     this.protocolHandler = protocolHandler;
