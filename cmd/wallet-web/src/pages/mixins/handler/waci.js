@@ -7,37 +7,42 @@ SPDX-License-Identifier: Apache-2.0
 import { CHAPIEventHandler } from './chapi';
 import { normalizeQuery } from '../common/helper';
 import jp from 'jsonpath';
+const base64url = require('base64url');
 
 /**
  * WACIRedirectHandler handles WACI events for redirect flows.
  *
  * currently handling only WACI share flow with redirect.
  *
- * TODO: to be implemented
- *
  * @param credEvent instance
  * @class
  */
 export class WACIRedirectHandler {
-  constructor(credEvent) {
-    this.credEvent = credEvent;
+  constructor(oob, redirect) {
+    this.oob = JSON.parse(base64url.decode(oob));
+    this.redirect = base64url.decode(redirect);
   }
 
   message() {
     // oob message from waci request
-    return null;
+    return this.oob;
   }
 
   requestor() {
-    return null;
+    //TODO to be removed, requestor info currently unavailable in WACI
+    return 'requestor';
   }
 
   done() {
     // redirect to `redirectURL` with status success
+    //TODO add status code
+    window.location.href = this.redirect;
   }
 
   cancel() {
     // redirect to `redirectURL` with status error
+    //TODO add status code
+    window.location.href = this.redirect;
   }
 }
 
