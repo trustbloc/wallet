@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "@saeris/vue-spinners": "^1.0.8",
-    "@trustbloc-cicd/agent-sdk-web": "^0.1.7-snapshot-a8f5086",
-    "@trustbloc-cicd/wallet-sdk": "^0.1.7-snapshot-a8f5086",
+    "@trustbloc-cicd/agent-sdk-web": "^0.1.7-snapshot-84de477",
+    "@trustbloc-cicd/wallet-sdk": "^0.1.7-snapshot-84de477",
     "ajv": "^8.6.2",
     "base64url": "^3.0.1",
     "core-js": "^3.16.1",
