@@ -13,11 +13,10 @@
         <flyout-menu />
       </div>
       <div class="items-start">
-        <h3 class="mx-6 mb-5 font-bold text-neutals-dark">{{ i18n.credentials }}</h3>
+        <h3 class="mx-6 mb-5 font-bold text-neutrals-dark">{{ i18n.credentials }}</h3>
       </div>
     </div>
     <!-- Desktop Dashboard Layout -->
-    <!-- Todo move this to seprate component as required -->
     <div class="hidden md:flex justify-between items-center mb-8 w-full align-middle">
       <div class="flex flex-grow">
         <h3 class="m-0 font-bold text-neutals-dark">{{ i18n.credentials }}</h3>
@@ -43,19 +42,18 @@
       <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
       communication.
     </span>
-    <div v-if="cards.length">
+    <div v-if="processedCredentials.length">
       <div class="mx-6 md:mx-0 mb-5">
         <span class="font-bold font-xl text-neutals-dark">{{ i18n.defaultvault }}</span>
       </div>
-      <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mx-6 md:mx-0">
-        <li v-for="(card, index) in cards" :key="index">
-          <!--Temporary solution to handle preview for the generic credential, this will be refactored issue-981-->
+      <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 my-8 mx-6 md:mx-0">
+        <li v-for="(processedCredential, index) in processedCredentials" :key="index">
           <div class="inline-flex items-center w-full credentialCard">
             <div class="flex-none w-12 h-12 border-opacity-10">
-              <img src="@/assets/img/credential--generic-icon.svg" />
+              <img :src="require(`@/assets/img/${processedCredential.icon}`)" />
             </div>
             <div class="flex-grow p-4 text-left text-neutrals-dark overflow-ellipsi">
-              {{ credDisplayName(card.content) }}
+              {{ processedCredential.title }}
             </div>
             <div class="flex-none credentialArrowContainer">
               <div class="p-1">
@@ -87,14 +85,13 @@
 
 <script>
 import { CredentialManager } from '@trustbloc/wallet-sdk';
-import { getCredentialType } from '@/pages/mixins';
+import { getCredentialType, getCredentialDisplayData } from '@/pages/mixins';
 import { mapGetters } from 'vuex';
 import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
 import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
-import credentialDisplayData from '@/config/credentialDisplayData.json';
+import credentialDisplayData from '@/config/credentialDisplayData';
 
 const filterBy = ['IssuerManifestCredential', 'GovernanceCredential'];
-const images = require.context('@/assets/img/', false, /\.png$|\.jpg$|\.svg$/);
 // TODO: issue-627 Add generic vue card for all the credentials to dynamically add support for all VC types.
 export default {
   name: 'Dashboard',
@@ -104,8 +101,7 @@ export default {
   },
   data() {
     return {
-      cards: [],
-      cjson: credentialDisplayData,
+      processedCredentials: [],
       username: '',
       agent: null,
     };
@@ -129,52 +125,37 @@ export default {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser', 'getAgentOpts']),
     fetchAllCredentials: async function (getCredential) {
-      let { contents } = await getCredential;
+      const { contents } = await getCredential;
       console.log(`found ${Object.keys(contents).length} credentials`);
       const _filter = (id) => {
         return !contents[id].type.some((t) => filterBy.includes(t));
       };
 
-      const _createCard = (id) => {
-        return { content: contents[id], flipped: false };
-      };
+      const credentials = Object.keys(contents)
+        .filter(_filter)
+        .map((id) => contents[id]);
 
-      this.cards = Object.keys(contents).filter(_filter).map(_createCard);
+      console.debug(`showing ${credentials.length} credentials`);
 
-      console.log(`showing ${this.cards.length} credentials`);
-
-      // Reading the values of the credentials and mapping it to the credential display data schemas
-      this.cjson.forEach((obj) => {
-        let flattened = {};
-        for (let credentialKey in this.cards) {
-          this.flatten(this.cards[credentialKey].content, flattened);
-          for (let credentialContent in flattened) {
-            if (
-              obj.credentialSubject.hasOwnProperty(credentialContent) &&
-              obj.schema === this.credDisplayName(this.cards[credentialKey].content)
-            ) {
-              obj.credentialSubject[credentialContent] = flattened[credentialContent];
-            }
-          }
-        }
+      credentials.map((credential) => {
+        const manifest = this.getManifest(credential);
+        const processedCredential = this.getCredentialDisplayData(credential, manifest);
+        this.processedCredentials.push(processedCredential);
       });
+      console.debug(`showing ${this.processedCredentials.length} credentials`);
+    },
+    getCredentialType: function (vc) {
+      return getCredentialType(vc.type);
     },
     credDisplayName: function (vc) {
       return vc.name ? vc.name : getCredentialType(vc.type);
     },
-    loadImg(imgPath) {
-      return images('./' + imgPath);
+    getCredentialDisplayData: function (vc, manifestCredential) {
+      return getCredentialDisplayData(vc, manifestCredential);
     },
-    flatten: function (json, flattened) {
-      for (let key in json) {
-        if (json.hasOwnProperty(key)) {
-          if (json[key] instanceof Object && json[key] != '') {
-            this.flatten(json[key], flattened, key);
-          } else {
-            flattened[key] = json[key];
-          }
-        }
-      }
+    getManifest: function (credential) {
+      const currentCredentialType = this.getCredentialType(credential);
+      return credentialDisplayData[currentCredentialType] || credentialDisplayData.fallback;
     },
   },
 };

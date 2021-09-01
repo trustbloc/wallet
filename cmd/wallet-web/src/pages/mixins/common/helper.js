@@ -89,6 +89,48 @@ export const isVPType = (type) => toLower(type) == 'verifiablepresentation';
 export const getCredentialType = (types) =>
   types.filter((type) => type != 'VerifiableCredential')[0];
 
+// function to get the credential display data
+export function getCredentialDisplayData(vc, manifest) {
+  // title
+  const title = populatePath(vc, manifest.title.path) || manifest.title.fallback;
+  // icon
+  const icon = manifest.icon;
+
+  // find properties
+  const _readProperty = (property) => {
+    const value = populatePath(vc, property[1].path) || '';
+    const label = property.label;
+    const type = property.type;
+    const format = property.format;
+    return {
+      label,
+      value,
+      type,
+      format,
+    };
+  };
+
+  const properties = Object.entries(manifest.properties).map(_readProperty);
+  return {
+    title,
+    icon,
+    properties,
+  };
+}
+// Populates path property in the JSON object
+function populatePath(vc, paths) {
+  for (const path of paths) {
+    try {
+      const resolvedQuery = jp.value(vc, path);
+      if (resolvedQuery) return resolvedQuery;
+    } catch (error) {
+      // TODO: write this error into logger once implemented (it would mean we received corrupt value from config file)
+      console.warn('failed to read display data from credentail config', error);
+    }
+  }
+  return undefined;
+}
+
 export const toLower = (text) => text.toString().toLowerCase();
 
 export const minsToNanoSeconds = (ns) => ns * 60 * 10 ** 9;
