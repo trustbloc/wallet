@@ -182,7 +182,7 @@ export default {
 
     // TODO handling multiple governance VCs
     this.govnVC = this.wallet.govnVC;
-    this.requestOrigin = this.wallet.credentialHandler.getRequestor();
+    this.requestOrigin = this.wallet.credentialHandler.requestor();
     this.requirements = this.wallet.requirementDetails();
 
     try {
