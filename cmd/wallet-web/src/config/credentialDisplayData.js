@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 export default {
   PermanentResidentCard: {
+    id: ['$.id'],
     properties: {
       birthCountry: {
         path: ['$.credentialSubject.birthCountry'],
@@ -48,6 +49,7 @@ export default {
     },
   },
   UniversityDegreeCredential: {
+    id: ['$.id'],
     properties: {
       type: {
         path: ['$.credentialSubject.degree.type'],
@@ -65,6 +67,7 @@ export default {
     },
   },
   VaccinationCertificate: {
+    id: ['$.id'],
     properties: {
       administeringCentre: {
         path: ['$.credentialSubject.administeringCentre'],
@@ -124,6 +127,7 @@ export default {
     },
   },
   TravelCard: {
+    id: ['$.id'],
     properties: {
       name: {
         path: ['$.credentialSubject.name'],
@@ -167,6 +171,7 @@ export default {
     },
   },
   StudentCard: {
+    id: ['$.id'],
     properties: {
       name: {
         path: ['$.credentialSubject.name'],
@@ -196,6 +201,7 @@ export default {
     },
   },
   mdL: {
+    id: ['$.id'],
     properties: {
       familyName: {
         path: ['$.credentialSubject.family_name'],
@@ -245,6 +251,7 @@ export default {
     },
   },
   fallback: {
+    id: ['$.id'],
     properties: {},
     icon: 'credential--generic-icon.svg',
     title: {
