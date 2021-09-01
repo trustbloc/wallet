@@ -371,8 +371,13 @@ describe("TrustBloc Wallet - Store/Share credential flow", () => {
     await wallet.signIn(ctx);
   });
 
-  // TODO https://github.com/trustbloc/wallet/issues/1004
-  it.skip(`User shares the saved credential with mock verifier`, async function () {
+  it(`Create Orb DID`, async function () {
+    this.timeout(90000);
+
+    await wallet.createOrbDID();
+  });
+
+  it(`User shares the saved credential with mock verifier`, async function () {
     this.timeout(300000);
 
     for (const [key, value] of credential.entries()) {
