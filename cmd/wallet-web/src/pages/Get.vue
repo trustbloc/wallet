@@ -76,6 +76,11 @@ export default {
       protocolHandler: null,
     };
   },
+  computed: {
+    dynamo() {
+      return this.component;
+    },
+  },
   beforeCreate: async function () {
     this.credentialEvent = await this.$webCredentialHandler.receiveCredentialEvent();
     if (!this.credentialEvent.credentialRequestOptions.web.VerifiablePresentation) {
@@ -87,11 +92,6 @@ export default {
 
     this.component = component;
     this.protocolHandler = protocolHandler;
-  },
-  computed: {
-    dynamo() {
-      return this.component;
-    },
   },
 };
 </script>

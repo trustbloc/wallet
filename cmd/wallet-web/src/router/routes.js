@@ -23,6 +23,12 @@ export default [
         meta: { requiresAuth: true },
       },
       {
+        path: 'credential-details',
+        name: 'credential-details',
+        component: load('CredentialDetails'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: 'waci',
         name: 'waci',
         component: load('WACI'),

@@ -135,7 +135,7 @@
                 <md-chip
                   class="request-sample"
                   md-clickable
-                  v-on:click="prefillRequest('waci-credential-share', 'get')"
+                  @click="prefillRequest('waci-credential-share', 'get')"
                   >WACI Credential Share
                 </md-chip>
               </div>

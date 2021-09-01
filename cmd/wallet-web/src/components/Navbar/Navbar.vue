@@ -7,19 +7,18 @@
 <template>
   <div
     class="
-      flex flex-grow
-      md:flex-grow-0
       relative
       flex-col
+      md:flex-grow-0
       justify-between
       w-screen
-      md:w-80 md:h-screen
-      shadow
       min-w-80
-      md:bg-gradient-dark
+      md:w-80 md:h-screen md:bg-gradient-dark
+      shadow
+      flex flex-grow
     "
   >
-    <div class="hidden md:block absolute opacity-40 bg-gradient-full oval" />
+    <div class="hidden md:block absolute bg-gradient-full opacity-40 oval" />
     <div class="flex md:z-10 flex-col justify-start items-start pb-8 h-full">
       <div class="hidden md:flex justify-start items-center px-10">
         <Logo class="mt-13" />
@@ -28,7 +27,7 @@
         <ul>
           <slot />
         </ul>
-        <div class="my-5 mx-10 h-px opacity-20 bg-neutrals-white" />
+        <div class="my-5 mx-10 h-px bg-neutrals-white opacity-20" />
         <signout />
       </div>
     </div>
@@ -38,11 +37,11 @@
         class="
           mb-2
           focus:rounded focus:ring-1
+          ring-primary-blue
           opacity-60
           hover:opacity-100
           focus:opacity-100
           cursor-pointer
-          ring-primary-blue
           underline-white
         "
         >{{ i18n.privacyPolicy }}</span
@@ -51,11 +50,11 @@
         tabindex="0"
         class="
           focus:rounded focus:ring-1
+          ring-primary-blue
           opacity-60
           hover:opacity-100
           focus:opacity-100
           cursor-pointer
-          ring-primary-blue
           underline-white
         "
         >{{ i18n.terms }}</span
@@ -66,11 +65,11 @@
           class="
             whitespace-nowrap
             focus:rounded focus:ring-1
+            ring-primary-blue
             opacity-60
             hover:opacity-100
             focus:opacity-100
             cursor-pointer
-            ring-primary-blue
             underline-white
           "
           >© {{ date }} TrustBloc</span
@@ -79,13 +78,13 @@
         <!-- TODO: remove locale-switcher class after sass styles are deleted -->
         <locale-switcher
           class="
+            text-neutrals-white
             focus:rounded focus:ring-1
+            ring-primary-blue
             opacity-60
             hover:opacity-100
             focus:opacity-100
-            text-neutrals-white
             underline-white
-            ring-primary-blue
             locale-switcher
           "
         />
