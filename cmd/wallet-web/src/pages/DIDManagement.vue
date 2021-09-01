@@ -7,9 +7,9 @@
 <template>
   <div class="flex flex-col justify-start items-start w-full">
     <tabs>
-      <tab title="Digital Identity Preference"><preferences :allDIDs.sync="allDIDs" /></tab>
-      <tab title="Create ORB Digital Identity"><create-orb :allDIDs.sync="allDIDs" /></tab>
-      <tab title="Import Any Digital Identity"><import-did :allDIDs.sync="allDIDs" /></tab>
+      <tab title="Digital Identity Preference"><preferences :all-d-i-ds.sync="allDIDs" /></tab>
+      <tab title="Create ORB Digital Identity"><create-orb :all-d-i-ds.sync="allDIDs" /></tab>
+      <tab title="Import Any Digital Identity"><import-did :all-d-i-ds.sync="allDIDs" /></tab>
     </tabs>
   </div>
 </template>

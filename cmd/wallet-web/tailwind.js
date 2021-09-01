@@ -214,12 +214,12 @@ module.exports = {
   plugins: [
     plugin(function ({ addBase, theme }) {
       addBase({
-        h1: { fontSize: theme('fontSize.9xl'), fontWeight: theme('fontWeight.bold') },
-        h2: { fontSize: theme('fontSize.8xl'), fontWeight: theme('fontWeight.bold') },
-        h3: { fontSize: theme('fontSize.7xl'), fontWeight: theme('fontWeight.bold') },
-        h4: { fontSize: theme('fontSize.6xl'), fontWeight: theme('fontWeight.bold') },
-        h5: { fontSize: theme('fontSize.5xl'), fontWeight: theme('fontWeight.bold') },
-        h6: { fontSize: theme('fontSize.4xl'), fontWeight: theme('fontWeight.bold') },
+        h1: { fontSize: theme('fontSize.9xl'), fontWeight: theme('fontWeight.bold'), margin: 0 },
+        h2: { fontSize: theme('fontSize.8xl'), fontWeight: theme('fontWeight.bold'), margin: 0 },
+        h3: { fontSize: theme('fontSize.7xl'), fontWeight: theme('fontWeight.bold'), margin: 0 },
+        h4: { fontSize: theme('fontSize.6xl'), fontWeight: theme('fontWeight.bold'), margin: 0 },
+        h5: { fontSize: theme('fontSize.5xl'), fontWeight: theme('fontWeight.bold'), margin: 0 },
+        h6: { fontSize: theme('fontSize.4xl'), fontWeight: theme('fontWeight.bold'), margin: 0 },
       });
     }),
     plugin(function ({ addComponents, theme }) {

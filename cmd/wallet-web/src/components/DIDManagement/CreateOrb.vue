@@ -57,7 +57,7 @@
       </div>
     </div>
     <div>
-      <span class="break-words max-w-full">{{ didDocTextArea }}</span>
+      <span class="max-w-full break-words">{{ didDocTextArea }}</span>
     </div>
   </div>
 </template>

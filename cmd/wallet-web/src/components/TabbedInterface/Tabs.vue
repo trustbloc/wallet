@@ -6,10 +6,10 @@
         items-center
         w-full
         bg-gradient-to-r
-        md:rounded
-        flex flex-row
         from-haiti
         to-jagger
+        md:rounded
+        flex flex-row
       "
     >
       <li

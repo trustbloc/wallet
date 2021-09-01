@@ -9,12 +9,12 @@
     class="
       justify-start
       items-center
-      opacity-60
-      hover:from-neutrals-black hover:bg-gradient-to-r hover:opacity-100
       focus-within:bg-gradient-to-r
-      focus-within:opacity-100
       focus-within:from-neutrals-black
       focus-within:shadow-inner-outline-blue
+      opacity-60
+      focus-within:opacity-100
+      hover:from-neutrals-black hover:bg-gradient-to-r hover:opacity-100
       flex flex-row
       bar
     "
