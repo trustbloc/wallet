@@ -23,7 +23,7 @@ export default [
         meta: { requiresAuth: true },
       },
       {
-        path: 'credential-details',
+        path: 'credentials/:id',
         name: 'credential-details',
         component: load('CredentialDetails'),
         meta: { requiresAuth: true },

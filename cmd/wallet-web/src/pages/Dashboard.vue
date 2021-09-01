@@ -48,7 +48,10 @@
       </div>
       <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 my-8 mx-6 md:mx-0">
         <li v-for="(processedCredential, index) in processedCredentials" :key="index">
-          <div class="inline-flex items-center w-full credentialCard">
+          <router-link
+            :to="{ name: 'credential-details', params: { id: processedCredential.id } }"
+            class="inline-flex items-center w-full credentialCard"
+          >
             <div class="flex-none w-12 h-12 border-opacity-10">
               <img :src="require(`@/assets/img/${processedCredential.icon}`)" />
             </div>
@@ -57,12 +60,10 @@
             </div>
             <div class="flex-none credentialArrowContainer">
               <div class="p-1">
-                <button>
-                  <img src="@/assets/img/credential--arrow-right-icon.svg" />
-                </button>
+                <img src="@/assets/img/credential--arrow-right-icon.svg" />
               </div>
             </div>
-          </div>
+          </router-link>
         </li>
       </ul>
     </div>
