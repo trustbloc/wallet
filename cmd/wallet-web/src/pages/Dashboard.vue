@@ -8,7 +8,7 @@
   <div>
     <!-- Mobile Dashboard Layout -->
     <div class="flex md:hidden flex-col justify-start w-screen">
-      <!-- Todo move this to resuable component issue-985 -->
+      <!-- Todo move this to reusable component issue-985 -->
       <div class="bg-neutrals-white border border-neutrals-chatelle">
         <flyout-menu />
       </div>
@@ -19,7 +19,7 @@
     <!-- Desktop Dashboard Layout -->
     <div class="hidden md:flex justify-between items-center mb-8 w-full align-middle">
       <div class="flex flex-grow">
-        <h3 class="m-0 font-bold text-neutals-dark">{{ i18n.credentials }}</h3>
+        <h3 class="m-0 font-bold text-neutrals-dark">{{ i18n.credentials }}</h3>
       </div>
       <div
         class="
@@ -44,7 +44,7 @@
     </span>
     <div v-if="processedCredentials.length">
       <div class="mx-6 md:mx-0 mb-5">
-        <span class="font-bold font-xl text-neutals-dark">{{ i18n.defaultvault }}</span>
+        <span class="text-xl font-bold text-neutrals-dark">{{ i18n.defaultVault }}</span>
       </div>
       <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 my-8 mx-6 md:mx-0">
         <li v-for="(processedCredential, index) in processedCredentials" :key="index">
@@ -52,7 +52,7 @@
             <div class="flex-none w-12 h-12 border-opacity-10">
               <img :src="require(`@/assets/img/${processedCredential.icon}`)" />
             </div>
-            <div class="flex-grow p-4 text-left text-neutrals-dark overflow-ellipsi">
+            <div class="flex-grow p-4 text-left text-neutrals-dark overflow-ellipsis">
               {{ processedCredential.title }}
             </div>
             <div class="flex-none credentialArrowContainer">
