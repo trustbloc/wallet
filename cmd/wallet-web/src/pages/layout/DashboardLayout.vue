@@ -11,7 +11,7 @@
       <div class="flex flex-col justify-start items-center w-screen bg-neutrals-softWhite">
         <Header />
         <keep-alive v-if="!isNavbarOpen">
-          <dashboard-content class="h-screen bg-neutrals-softWhite" />
+          <dashboard-content class="w-screen h-screen bg-neutrals-softWhite" />
         </keep-alive>
       </div>
     </keep-alive>

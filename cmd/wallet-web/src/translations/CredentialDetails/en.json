@@ -1,0 +1,10 @@
+{
+  "heading": "Credentials details",
+  "Banner": {
+    "addedOn": "Added on",
+    "expiresOn": "Expires on",
+    "lastUsed": "Last used",
+    "vault": "Vault"
+  },
+  "verifiedInformation": "Verified information"
+}

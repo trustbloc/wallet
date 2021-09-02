@@ -1,4 +1,5 @@
 import App from './App/en.json';
+import CredentialDetails from './CredentialDetails/en.json';
 import Credentials from './Credentials/en.json';
 import DashboardLayout from './DashboardLayout/en.json';
 import Footer from './Footer/en.json';
@@ -8,6 +9,7 @@ import Signup from './Signup/en.json';
 
 export default {
   App,
+  CredentialDetails,
   Credentials,
   DashboardLayout,
   Footer,

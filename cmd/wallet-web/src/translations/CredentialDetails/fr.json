@@ -1,0 +1,10 @@
+{
+  "heading": "Renseignements de l’identifiant",
+  "Banner": {
+    "addedOn": "Ajouté le",
+    "expiresOn": "A expiré le",
+    "lastUsed": "Dernière utilisation",
+    "vault": "Chambre forte"
+  },
+  "verifiedInformation": "Information vérifiée"
+}
