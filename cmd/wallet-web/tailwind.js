@@ -523,14 +523,14 @@ module.exports = {
           backgroundColor: theme('colors.neutrals.white'),
           borderRadius: theme('spacing.3'),
           padding: `${theme('spacing.6')} ${theme('spacing.3')} ${theme('spacing.6')} ${theme(
-            'spacing.4'
+            'spacing.5'
           )}`,
           fontSize: theme('fontSize.sm'),
           fontWeight: theme('fontWeight.bold'),
           border: `${theme('spacing.px')} solid ${theme('colors.neutrals.thistle')}`,
-          width: 382,
+          width: '100%',
           height: theme('spacing.20'),
-          [`@media (min-width: ${theme('screens.md')})`]: {
+          [`@media (min-width: ${theme('screens.xl')})`]: {
             fontSize: theme('fontSize.base'),
             fontWeight: theme('fontWeight.bold'),
             width: 400,
