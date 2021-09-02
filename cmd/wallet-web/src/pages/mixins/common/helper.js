@@ -92,6 +92,7 @@ export const getCredentialType = (types) =>
 
 // function to get the credential display data
 export function getCredentialDisplayData(vc, manifest) {
+  // id
   const id = base64url.encode(populatePath(vc, manifest.id));
   // title
   const title = populatePath(vc, manifest.title.path) || manifest.title.fallback;
@@ -112,7 +113,12 @@ export function getCredentialDisplayData(vc, manifest) {
     };
   };
 
-  const properties = Object.entries(manifest.properties).map(_readProperty);
+  // fallback credential will use vc credentialSubject as properties
+  const properties =
+    Object.values(manifest.properties).length === 0
+      ? vc.credentialSubject
+      : Object.entries(manifest.properties).map(_readProperty);
+
   return {
     id,
     title,
