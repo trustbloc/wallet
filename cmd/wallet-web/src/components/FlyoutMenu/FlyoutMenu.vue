@@ -1,7 +1,7 @@
 <template>
   <div>
     <!--Todo make flyout icon and text configurable -->
-    <button v-if="type === 'default'" class="inline-flex py-2 px-3 w-screen md:w-auto">
+    <button v-if="type === 'default'" class="inline-flex items-center py-2 px-3 w-screen md:w-auto">
       <div class="flex-none w-6 h-6">
         <img src="@/assets/img/icons-sm--vault-icon.svg" />
       </div>

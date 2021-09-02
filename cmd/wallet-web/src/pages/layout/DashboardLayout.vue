@@ -59,7 +59,7 @@ import DashboardContent from './DashboardContent.vue';
 import Header from '@/components/Header/Header.vue';
 import Navbar from '@/components/Navbar/Navbar.vue';
 import NavbarLink from '@/components/Navbar/NavbarLink.vue';
-import { navbarStore, navbarMutations } from '@/components/Navbar';
+import { navbarStore } from '@/components/Navbar';
 import useBreakpoints from '@/plugins/breakpoints.js';
 
 export default {
