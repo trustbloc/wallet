@@ -97,7 +97,7 @@
 <script>
 import { CredentialManager } from '@trustbloc/wallet-sdk';
 import { getCredentialType, getCredentialDisplayData } from '@/pages/mixins';
-import { mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
 import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
 import credentialDisplayData from '@/config/credentialDisplayData';
@@ -137,6 +137,7 @@ export default {
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser', 'getAgentOpts']),
+    ...mapActions(['updateProcessedCredentials']),
     fetchAllCredentials: async function (getCredential) {
       const { contents } = await getCredential;
       console.log(`found ${Object.keys(contents).length} credentials`);
@@ -155,6 +156,9 @@ export default {
         const processedCredential = this.getCredentialDisplayData(credential, manifest);
         this.processedCredentials.push(processedCredential);
       });
+
+      this.updateProcessedCredentials(this.processedCredentials);
+
       console.debug(`showing ${this.processedCredentials.length} credentials`);
     },
     getCredentialType: function (vc) {

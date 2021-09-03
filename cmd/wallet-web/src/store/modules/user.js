@@ -15,6 +15,7 @@ export default {
     profile: null,
     loggedIn: false,
     logInSuspended: false,
+    processedCredentials: [],
   },
   mutations: {
     setUser(state, val) {
@@ -28,6 +29,10 @@ export default {
     setUserPreference(state, val) {
       state.preference = val;
       localStorage.setItem('preference', JSON.stringify(val));
+    },
+    setProcessedCredentials(state, val) {
+      state.processedCredentials = val;
+      localStorage.setItem('processedCredentials', JSON.stringify(val));
     },
     setUserSetupStatus(state, val) {
       state.setupStatus = val;
@@ -121,6 +126,9 @@ export default {
     updateLoginSuspended({ commit }) {
       commit('setLogInSuspended');
     },
+    updateProcessedCredentials({ commit }, processedCredentials) {
+      commit('setProcessedCredentials', processedCredentials);
+    },
   },
   getters: {
     getCurrentUser(state) {
@@ -139,6 +147,8 @@ export default {
     isLoginSuspended(state) {
       return state.logInSuspended;
     },
+    getProcessedCredentialByID: (state) => (id) =>
+      state.processedCredentials.find((credential) => credential.id === id),
   },
   modules: {
     agent: {
