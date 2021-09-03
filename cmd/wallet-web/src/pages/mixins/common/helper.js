@@ -101,7 +101,7 @@ export function getCredentialDisplayData(vc, manifest) {
 
   // find properties
   const _readProperty = (property) => {
-    const value = populatePath(vc, property[1].path) || '';
+    const value = populatePath(vc, property.path) || '';
     const label = property.label;
     const type = property.type;
     const format = property.format;
@@ -116,8 +116,11 @@ export function getCredentialDisplayData(vc, manifest) {
   // fallback credential will use vc credentialSubject as properties
   const properties =
     Object.values(manifest.properties).length === 0
-      ? vc.credentialSubject
-      : Object.entries(manifest.properties).map(_readProperty);
+      ? Object.entries(vc.credentialSubject).map(([label, value]) => ({
+          label,
+          value,
+        }))
+      : Object.values(manifest.properties).map(_readProperty);
 
   return {
     id,

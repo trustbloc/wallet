@@ -1,3 +1,8 @@
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
 <template>
   <div class="flex flex-col justify-start items-start py-6 px-3">
     <div class="flex flex-row justify-between items-center mb-8 w-full">
@@ -18,10 +23,17 @@
     <div class="flex flex-col justify-start items-start mt-12 w-full">
       <span class="mb-5 text-xl font-bold text-neutrals-dark">{{ i18n.verifiedInformation }}</span>
       <table class="w-full border-t border-neutrals-chatelle">
-        <tr class="border-b border-neutrals-thistle border-dotted">
-          <!-- Todo: Integrate the credential data label and real data-->
-          <td class="py-4 pr-6 pl-3 text-neutrals-medium"></td>
-          <td class="py-4 pr-6 pl-3 text-neutrals-dark"></td>
+        <tr
+          v-for="(property, index) of credential.properties"
+          :key="index"
+          class="border-b border-neutrals-thistle border-dotted"
+        >
+          <!-- Todo: Add the dropdown for the nested credentials 1016-->
+          <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
+          <!-- Todo: Convert the image type string of base 64 to an image 1032-->
+          <td v-if="property.type != 'image'" class="py-4 pr-6 pl-3 text-neutrals-dark break-words">
+            {{ property.value }}
+          </td>
         </tr>
       </table>
     </div>
@@ -31,6 +43,7 @@
 <script>
 import Banner from '@/components/CredentialDetails/Banner';
 import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'CredentialDetails',
@@ -38,10 +51,21 @@ export default {
     Banner,
     FlyoutMenu,
   },
+  data() {
+    return {
+      credential: {},
+      credentialID: '',
+    };
+  },
   computed: {
     i18n() {
       return this.$t('CredentialDetails');
     },
+    ...mapGetters(['getProcessedCredentialByID']),
+  },
+  created() {
+    this.credentialID = this.$route.params.id;
+    this.credential = this.getProcessedCredentialByID(this.credentialID);
   },
 };
 </script>
