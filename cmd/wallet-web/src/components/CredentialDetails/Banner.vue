@@ -26,13 +26,9 @@
         <div class="flex-none w-12 h-12 border-opacity-10">
           <img src="@/assets/img/credential--generic-icon.svg" />
         </div>
-        <!-- TODO: Integrate the credential heading with real data-->
-        <!-- <span class="flex-grow pl-4 font-bold text-left text-neutrals-dark overflow-ellipsis">
-        {{ credential.title }}
-      </span> -->
-        <span class="flex-1 pl-4 font-bold text-left text-neutrals-dark overflow-ellipsis"
-          >Heavy Sour Dilbit</span
-        >
+        <span class="flex-1 pl-4 font-bold text-left text-neutrals-dark overflow-ellipsis">{{
+          title
+        }}</span>
       </div>
       <div
         class="
@@ -59,15 +55,10 @@
             </tr>
           </thead>
           <tbody class="text-neutrals-medium">
-            <!-- TODO: Integrate with real data and remove placeholder -->
-            <!-- <tr class="flex">
-              <td class="flex-1">{{ credential.addedOn }}</td>
-              <td class="flex-1">{{ credential.expiresOn }}</td>
-              <td class="flex-1">{{ credential.lastUsed }}</td>
-              <td class="flex-1">{{ credential.vault }}</td>
-          </tr> -->
             <tr class="flex">
-              <td class="flex-1">January 14, 2020</td>
+              <td class="flex-1">
+                {{ addedOn }}
+              </td>
               <td class="flex-1">N/A</td>
               <td class="flex-1">Never</td>
               <td class="flex-1">Default Vault</td>
@@ -82,16 +73,26 @@
 <script>
 export default {
   name: 'Banner',
-  // TODO: uncomment when integrating with real data
-  //   props: {
-  //     credential: {
-  //       type: Object,
-  //         required: true,
-  //     },
-  //   },
+  props: {
+    title: {
+      type: String,
+      required: true,
+    },
+    issuanceDate: {
+      type: String,
+      required: true,
+    },
+  },
   computed: {
     i18n() {
       return this.$t('CredentialDetails.Banner');
+    },
+    addedOn() {
+      return new Date(this.issuanceDate).toLocaleDateString(this.$i18n.locale, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
     },
   },
 };

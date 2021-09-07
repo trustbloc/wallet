@@ -92,11 +92,9 @@ export const getCredentialType = (types) =>
 
 // function to get the credential display data
 export function getCredentialDisplayData(vc, manifest) {
-  // id
   const id = base64url.encode(populatePath(vc, manifest.id));
-  // title
+  const issuanceDate = populatePath(vc, manifest.issuanceDate);
   const title = populatePath(vc, manifest.title.path) || manifest.title.fallback;
-  // icon
   const icon = manifest.icon;
 
   // find properties
@@ -124,6 +122,7 @@ export function getCredentialDisplayData(vc, manifest) {
 
   return {
     id,
+    issuanceDate,
     title,
     icon,
     properties,
