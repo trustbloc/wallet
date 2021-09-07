@@ -13,7 +13,7 @@
       justify-between
       w-screen
       min-w-80
-      md:w-80 md:h-screen md:bg-gradient-dark
+      md:w-80 md:h-auto md:min-h-screen md:bg-gradient-dark
       shadow
       flex flex-grow
     "

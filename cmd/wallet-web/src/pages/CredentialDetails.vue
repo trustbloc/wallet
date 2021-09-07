@@ -18,7 +18,7 @@
     </div>
     <banner :title="credential.title" :issuance-date="credential.issuanceDate" />
     <!-- List of Credential Details -->
-    <div class="flex flex-col justify-start items-start mt-12 w-full">
+    <div class="flex flex-col justify-start items-start mt-8 md:mt-12 w-full">
       <span class="mb-5 text-xl font-bold text-neutrals-dark">{{ i18n.verifiedInformation }}</span>
       <table class="w-full border-t border-neutrals-chatelle">
         <tr

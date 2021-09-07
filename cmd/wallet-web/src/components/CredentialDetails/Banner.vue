@@ -5,8 +5,8 @@
 -->
 
 <template>
-  <div class="px-3 md:px-0 w-full">
-    <div class="flex relative flex-col justify-start items-start w-full h-48">
+  <div class="flex flex-col justify-start px-3 md:px-0 w-full">
+    <div class="flex flex-col justify-start items-start w-full root-container">
       <div
         class="
           flex
@@ -32,11 +32,11 @@
       </div>
       <div
         class="
-          absolute
+          relative
           justify-start
           items-start
           px-6
-          pt-11
+          pt-14
           pb-6
           w-full
           bg-neutrals-white
@@ -45,7 +45,45 @@
           sub-container
         "
       >
-        <table class="w-full text-left">
+        <table v-if="breakpoints.xs || breakpoints.sm" class="w-full text-left">
+          <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">
+            <th>
+              {{ i18n.addedOn }}
+            </th>
+          </tr>
+          <tr class="flex flex-1 mb-4 text-neutrals-medium">
+            <td>
+              {{ addedOn }}
+            </td>
+          </tr>
+          <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">
+            <th>
+              {{ i18n.expiresOn }}
+            </th>
+          </tr>
+          <tr class="flex flex-1 mb-4 text-neutrals-medium">
+            <td>N/A</td>
+          </tr>
+
+          <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">
+            <th>
+              {{ i18n.lastUsed }}
+            </th>
+          </tr>
+          <tr class="flex flex-1 mb-4 text-neutrals-medium">
+            <td>Never</td>
+          </tr>
+
+          <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">
+            <th>
+              {{ i18n.vault }}
+            </th>
+          </tr>
+          <tr class="flex flex-1 text-neutrals-medium">
+            <td>Default Vault</td>
+          </tr>
+        </table>
+        <table v-else class="w-full text-left">
           <thead class="font-bold text-neutrals-dark">
             <tr class="flex">
               <th class="flex-1">{{ i18n.addedOn }}</th>
@@ -71,6 +109,8 @@
 </template>
 
 <script>
+import useBreakpoints from '@/plugins/breakpoints.js';
+
 export default {
   name: 'Banner',
   props: {
@@ -82,6 +122,11 @@ export default {
       type: String,
       required: true,
     },
+  },
+  data() {
+    return {
+      breakpoints: useBreakpoints(),
+    };
   },
   computed: {
     i18n() {
@@ -99,10 +144,12 @@ export default {
 </script>
 
 <style scoped>
+.root-container {
+  height: calc(100% - 2.5rem);
+}
 .sub-container {
-  top: 4.75rem; /* 76px */
+  top: -2.5rem;
   left: 0;
-  height: 7.3125rem; /* 117px */
   /* TODO: replace with tailwind shadow once defined in config */
   box-shadow: 0px 2px 12px 0px rgba(25, 12, 33, 0.1);
 }
