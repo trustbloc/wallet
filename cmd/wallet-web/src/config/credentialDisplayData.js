@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 export default {
   PermanentResidentCard: {
     id: ['$.id'],
+    issuanceDate: ['$.issuanceDate'],
     properties: {
       image: {
         path: ['$.credentialSubject.image'],
@@ -54,6 +55,7 @@ export default {
   },
   UniversityDegreeCredential: {
     id: ['$.id'],
+    issuanceDate: ['$.issuanceDate'],
     properties: {
       type: {
         path: ['$.credentialSubject.degree.type'],
@@ -72,6 +74,7 @@ export default {
   },
   VaccinationCertificate: {
     id: ['$.id'],
+    issuanceDate: ['$.issuanceDate'],
     properties: {
       RecipientFamilyName: {
         path: ['$.credentialSubject.recipient.familyName'],
@@ -132,6 +135,7 @@ export default {
   },
   TravelCard: {
     id: ['$.id'],
+    issuanceDate: ['$.issuanceDate'],
     properties: {
       name: {
         path: ['$.credentialSubject.name'],
@@ -176,6 +180,7 @@ export default {
   },
   StudentCard: {
     id: ['$.id'],
+    issuanceDate: ['$.issuanceDate'],
     properties: {
       name: {
         path: ['$.credentialSubject.name'],
@@ -206,6 +211,7 @@ export default {
   },
   mdL: {
     id: ['$.id'],
+    issuanceDate: ['$.issuanceDate'],
     properties: {
       familyName: {
         path: ['$.credentialSubject.family_name'],
@@ -256,6 +262,7 @@ export default {
   },
   fallback: {
     id: ['$.id'],
+    issuanceDate: ['$.issuanceDate'],
     properties: {},
     icon: 'credential--generic-icon.svg',
     title: {

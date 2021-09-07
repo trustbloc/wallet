@@ -16,9 +16,7 @@
         <flyout-menu type="outline" />
       </div>
     </div>
-    <!-- TODO: pass actual credential data to banner -->
-    <!-- <banner :credential="credential" /> -->
-    <banner />
+    <banner :title="credential.title" :issuance-date="credential.issuanceDate" />
     <!-- List of Credential Details -->
     <div class="flex flex-col justify-start items-start mt-12 w-full">
       <span class="mb-5 text-xl font-bold text-neutrals-dark">{{ i18n.verifiedInformation }}</span>
@@ -28,7 +26,7 @@
           :key="index"
           class="border-b border-neutrals-thistle border-dotted"
         >
-          <!-- Todo: Add the dropdown for the nested credentials 1016-->
+          <!-- TODO: Add the dropdown for the nested credentials 1016 -->
           <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
           <td v-if="property.type != 'image'" class="py-4 pr-6 pl-3 text-neutrals-dark break-words">
             {{ property.value }}
