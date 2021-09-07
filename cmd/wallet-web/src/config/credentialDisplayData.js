@@ -7,9 +7,23 @@ export default {
   PermanentResidentCard: {
     id: ['$.id'],
     properties: {
-      birthCountry: {
-        path: ['$.credentialSubject.birthCountry'],
-        label: 'Country of Birth',
+      image: {
+        path: ['$.credentialSubject.image'],
+        label: 'Photo',
+        type: 'image',
+        format: '',
+      },
+      givenName: {
+        path: ['$.credentialSubject.givenName'],
+        label: 'Given Name',
+      },
+      familyName: {
+        path: ['$.credentialSubject.familyName'],
+        label: 'Family Name',
+      },
+      gender: {
+        path: ['$.credentialSubject.gender'],
+        label: 'Gender',
       },
       birthDate: {
         path: ['$.credentialSubject.birthDate'],
@@ -17,25 +31,15 @@ export default {
         type: 'date',
         format: 'yyyy-mm-dd',
       },
-      familyName: {
-        path: ['$.credentialSubject.familyName'],
-        label: 'Family Name',
-      },
-      givenName: {
-        path: ['$.credentialSubject.givenName'],
-        label: 'Given Name',
+      birthCountry: {
+        path: ['$.credentialSubject.birthCountry'],
+        label: 'Country of Birth',
       },
       residentSince: {
         path: ['$.credentialSubject.residentSince'],
         label: 'Resident Since',
         type: 'date',
         format: 'yyyy-mm-dd',
-      },
-      image: {
-        path: ['$.credentialSubject.image'],
-        label: 'Photo',
-        type: 'image',
-        format: '',
       },
     },
     icon: 'credential--generic-icon.svg',
@@ -69,6 +73,24 @@ export default {
   VaccinationCertificate: {
     id: ['$.id'],
     properties: {
+      RecipientFamilyName: {
+        path: ['$.credentialSubject.recipient.familyName'],
+        label: 'Family Name',
+      },
+      RecipientGivenName: {
+        path: ['$.credentialSubject.recipient.givenName'],
+        label: 'Given Name',
+      },
+      RecipientGender: {
+        path: ['$.credentialSubject.recipient.gender'],
+        label: 'Gender',
+      },
+      RecipientBirthDate: {
+        path: ['$.credentialSubject.recipient.birthDate'],
+        label: 'Date of Birth',
+        type: 'date',
+        format: 'yyyy-mm-dd',
+      },
       administeringCentre: {
         path: ['$.credentialSubject.administeringCentre'],
         label: 'Administering Centre',
@@ -88,24 +110,6 @@ export default {
       healthProfessional: {
         path: ['$.credentialSubject.healthProfessional'],
         label: 'Health Professional',
-      },
-      RecipientBirthDate: {
-        path: ['$.credentialSubject.recipient.birthDate'],
-        label: 'Date of Birth',
-        type: 'date',
-        format: 'yyyy-mm-dd',
-      },
-      RecipientFamilyName: {
-        path: ['$.credentialSubject.recipient.familyName'],
-        label: 'Family Name',
-      },
-      RecipientGender: {
-        path: ['$.credentialSubject.recipient.gender'],
-        label: 'Gender',
-      },
-      RecipientGivenName: {
-        path: ['$.credentialSubject.recipient.givenName'],
-        label: 'Given Name',
       },
       VaccineCode: {
         path: ['$.credentialSubject.vaccine.atcCode'],

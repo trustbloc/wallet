@@ -147,8 +147,10 @@ export default {
     isLoginSuspended(state) {
       return state.logInSuspended;
     },
-    getProcessedCredentialByID: (state) => (id) =>
-      state.processedCredentials.find((credential) => credential.id === id),
+    getProcessedCredentialByID: (state) => (id) => {
+      state.processedCredentials = JSON.parse(localStorage.getItem('processedCredentials'));
+      return state.processedCredentials.find((credential) => credential.id === id);
+    },
   },
   modules: {
     agent: {

@@ -30,9 +30,14 @@
         >
           <!-- Todo: Add the dropdown for the nested credentials 1016-->
           <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
-          <!-- Todo: Convert the image type string of base 64 to an image 1032-->
           <td v-if="property.type != 'image'" class="py-4 pr-6 pl-3 text-neutrals-dark break-words">
             {{ property.value }}
+          </td>
+          <td
+            v-if="property.type === 'image'"
+            class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+          >
+            <img :src="property.value" class="w-20 h-20" />
           </td>
         </tr>
       </table>
@@ -51,21 +56,14 @@ export default {
     Banner,
     FlyoutMenu,
   },
-  data() {
-    return {
-      credential: {},
-      credentialID: '',
-    };
-  },
   computed: {
     i18n() {
       return this.$t('CredentialDetails');
     },
     ...mapGetters(['getProcessedCredentialByID']),
-  },
-  created() {
-    this.credentialID = this.$route.params.id;
-    this.credential = this.getProcessedCredentialByID(this.credentialID);
+    credential() {
+      return this.getProcessedCredentialByID(this.$route.params.id);
+    },
   },
 };
 </script>
