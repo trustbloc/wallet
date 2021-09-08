@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import { CHAPIEventHandler } from './chapi';
-import { normalizeQuery } from '../common/helper';
+import { normalizeQuery, wait } from '../common/helper';
 import jp from 'jsonpath';
 const base64url = require('base64url');
 
@@ -72,8 +72,14 @@ export class WACIPolyfillHandler {
     return this.handler.requestor();
   }
 
-  done() {
-    return this.handler.done();
+  // TODO delay logic to be removed once WACI ack is available.
+  done(delay) {
+    let h = this.handler;
+    if (delay) {
+      wait(delay).then(() => h.done());
+    } else {
+      h.done();
+    }
   }
 
   cancel() {

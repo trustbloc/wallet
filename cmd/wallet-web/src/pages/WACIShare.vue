@@ -272,15 +272,15 @@ export default {
             controller,
             proofType,
             verificationMethod,
-          }
+          },
+          true
         );
       } catch (e) {
         this.handleError(e);
         return;
       }
 
-      this.protocolHandler.done();
-      this.loading = false;
+      this.protocolHandler.done(2000);
     },
     cancel() {
       this.protocolHandler.cancel();

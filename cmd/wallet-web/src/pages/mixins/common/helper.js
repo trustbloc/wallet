@@ -149,3 +149,7 @@ export const minsToNanoSeconds = (ns) => ns * 60 * 10 ** 9;
 export const getDIDVerificationMethod = (dids, id) => {
   return jp.query(dids, `$[?(@.id=="${id}")].verificationMethod[*].id`);
 };
+
+export function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
