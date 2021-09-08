@@ -27,7 +27,7 @@ let defaultAgentStartupOpts = {
   // default backend server url
   'edge-agent-server': 'https://localhost:9099',
   // remote JSON-LD context provider urls
-  'context-provider-url': ['https://localhost:12096/ld-contexts.json'],
+  'context-provider-url': [],
 
   blocDomain: 'testnet.orb.local',
   walletMediatorURL: 'https://localhost:10063',
@@ -71,7 +71,9 @@ export default {
           });
 
         agentOpts['http-resolver-url'] = agentOpts['http-resolver-url'].split(',');
-        agentOpts['context-provider-url'] = agentOpts['context-provider-url'].split(',');
+        agentOpts['context-provider-url'] = agentOpts['context-provider-url']
+          ? agentOpts['context-provider-url'].split(',')
+          : [];
 
         const client = axios.create({
           withCredentials: true,
@@ -132,8 +134,9 @@ export default {
             }
           });
 
-        console.log('agent-sdk will be started with:');
-        console.log(agentOpts);
+        // TODO to be removed
+        console.debug('agent-sdk will be started with:');
+        console.debug(JSON.stringify(agentOpts));
       } else {
         // strictly, for dev mode only
 

@@ -33,7 +33,8 @@ services:
       # To add static images, set STATIC_ASSETS_URL=https://wallet.trustbloc.local:8091,
       # then add images under /test/fixtures/wallet-web/static/images
       - STATIC_ASSETS_URL=
-      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
+      # Disabled remote context download for this wallet for better performance.
+#      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
 
   wallet-2.trustbloc.local:
     container_name: wallet-2.trustbloc.local
