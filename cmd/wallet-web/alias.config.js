@@ -4,6 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 const path = require('path');
+const vueSrc = './src';
 
 let isSnapshotAgent = require('./package.json').dependencies.hasOwnProperty(
   '@trustbloc-cicd/agent-sdk-web'
@@ -19,5 +20,6 @@ module.exports = {
   alias: {
     '@trustbloc/agent-sdk-web': path.resolve(__dirname, `node_modules/${AGENT_SDK}`),
     '@trustbloc/wallet-sdk': path.resolve(__dirname, `node_modules/${WALLET_SDK}`),
+    '@': path.resolve(__dirname, vueSrc),
   },
 };

@@ -13,7 +13,7 @@
     >
       <div class="absolute w-full bg-gradient-full opacity-40 oval oval-navbar-closed" />
       <div class="flex flex-row justify-center items-center">
-        <button class="absolute left-6 z-10" @click="toggleNavbar">
+        <button v-if="isNavbarShown" class="absolute left-6 z-10" @click="toggleNavbar">
           <img src="@/assets/img/menu-icon.svg" />
         </button>
         <Logo class="z-10 h-6" />
@@ -86,6 +86,9 @@ export default {
     },
     isNavbarOpen() {
       return navbarStore.isNavbarOpen;
+    },
+    isNavbarShown() {
+      return this.$route.meta.isNavbarShown;
     },
   },
   methods: {

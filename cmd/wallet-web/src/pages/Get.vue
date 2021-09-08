@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <div>
+  <div class="h-screen">
     <component :is="component"></component>
   </div>
 </template>

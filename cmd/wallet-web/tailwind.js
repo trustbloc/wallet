@@ -17,6 +17,7 @@ module.exports = {
         chatelle: '#c7c3c8',
         dark: '#190c21',
         light: '#b6b7c7',
+        magnolia: '#fbf8fc',
         medium: '#6c6d7c',
         mischka: '#dcdadd',
         mobster: '#7b6f7f',

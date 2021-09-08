@@ -4,61 +4,91 @@
  * SPDX-License-Identifier: Apache-2.0
 -->
 <template>
-  <div v-if="loading" class="w-screen" style="margin-left: 40%; margin-top: 20%; height: 200px">
-    <div class="md-layout">
-      <md-progress-spinner
-        :md-diameter="100"
-        class="md-accent"
-        :md-stroke="10"
-        md-mode="indeterminate"
-      ></md-progress-spinner>
-    </div>
+  <div v-if="loading">
+    <Spinner />
   </div>
 
-  <div v-else class="flex justify-center w-screen md-layout">
-    <div class="max-w-screen-md md-layout-item">
-      <md-card class="md-card-plain">
-        <md-card-header>
-          <h4 class="title">Authenticate Your Wallet</h4>
-        </md-card-header>
+  <div v-else class="flex justify-center w-screen">
+    <div>
+      <Header />
 
-        <md-card-content style="background-color: white">
-          <div v-if="errors.length">
-            <b>Failed with following error(s):</b>
-            <ul>
-              <li v-for="error in errors" :key="error">{{ error }}</li>
-            </ul>
+      <div class="h-auto bg-gray-light rounded-b border border-neutrals-black chapi-container">
+        <div v-if="errors.length">
+          <b>Failed with following error(s):</b>
+          <ul>
+            <li v-for="error in errors" :key="error" class="text-primary-valencia">{{ error }}</li>
+          </ul>
+        </div>
+        <!-- todo issue-1055 Read meta data from external urls -->
+        <div class="p-5 text-neutrals-dark font-sm">Issuer wants to connect to your wallet.</div>
+
+        <hr class="mx-5 border border-neutrals-thistle" />
+        <div class="py-6 px-5">
+          <div class="flex z-10 flex-row justify-start items-center p-5 w-full">
+            <div class="flex-none w-12 h-12 border-opacity-10">
+              <!-- todo issue-1055 Read meta data from external urls -->
+              <img src="@/assets/img/generic-issuer-icon.svg" />
+            </div>
+            <div class="flex flex-col">
+              <span
+                class="flex-1 pl-4 font-bold text-left text-neutrals-dark overflow-ellipsis font-sm"
+              >
+                <!-- todo issue-1055 Read meta data from external urls -->
+                Issuer
+              </span>
+              <div class="flex flex-row justify-center items-center pl-4">
+                <img src="@/assets/img/small-lock-icon.svg" />
+                <span class="flex-1 pl-1 text-left text-neutrals-medium overflow-ellipsis font-xs">
+                  {{ requestOrigin }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <!-- Share icon -->
+          <div class="flex flex-col pl-6 w-14 h-14 border-opacity-10">
+            <img src="@/assets/img/share.svg" />
           </div>
 
-          <md-card-content class="viewport">
-            This issuer would like to you to authenticate.
-            <governance :govn-v-c="govnVC" :request-origin="requestOrigin" />
-          </md-card-content>
+          <!-- Wallet to connect-->
+          <div class="flex z-10 flex-row justify-start items-center px-5 w-full">
+            <div class="flex-none w-12 h-12 border-opacity-10">
+              <img :src="walletIcon" />
+            </div>
+            <div class="flex flex-col">
+              <span
+                class="flex-1 pl-4 font-bold text-left text-neutrals-dark overflow-ellipsis font-sm"
+              >
+                TrustBloc Wallet
+              </span>
+              <div class="flex flex-row justify-center items-center pl-4">
+                <img src="@/assets/img/small-lock-icon.svg" />
+                <span class="flex-1 pl-1 text-left text-neutrals-medium overflow-ellipsis font-xs">
+                  {{ walletUrl }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          <md-divider></md-divider>
-
-          <md-card-content class="md-layout md-alignment-center-center">
-            <md-button
-              id="didauth"
-              style="margin-right: 5%"
-              class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
-              @click="authorize"
-              >Authenticate
-            </md-button>
-            <md-button id="cancelBtn" class="md-cancel-text" @click="cancel"> Cancel </md-button>
-          </md-card-content>
-        </md-card-content>
-      </md-card>
+        <div class="flex justify-between py-4 px-5 w-full h-auto bg-neutrals-magnolia">
+          <button id="cancelBtn" class="btn-outline" @click="cancel">Decline</button>
+          <button id="didauth" class="btn-primary" @click="authorize">Connect</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script>
 import { CredentialManager } from '@trustbloc/wallet-sdk';
-import Governance from './Governance.vue';
+import Spinner from '@/components/Spinner/Spinner.vue';
+import Header from '@/components/Header/Header.vue';
 import { mapGetters } from 'vuex';
 
 export default {
-  components: { Governance },
+  components: {
+    Spinner,
+    Header,
+  },
   data() {
     return {
       issuers: [{ id: 0, name: 'Select Identity' }],
@@ -67,6 +97,14 @@ export default {
       loading: true,
       govnVC: null,
     };
+  },
+  computed: {
+    walletUrl() {
+      return window.location.origin;
+    },
+    walletIcon() {
+      return document.querySelector("link[rel~='icon']").href;
+    },
   },
   created: async function () {
     this.protocolHandler = this.$parent.protocolHandler;
@@ -122,3 +160,12 @@ export default {
   },
 };
 </script>
+<style scoped>
+.chapi-container {
+  width: 28rem;
+}
+.description {
+  height: 25.5rem;
+  width: 2.6rem;
+}
+</style>
