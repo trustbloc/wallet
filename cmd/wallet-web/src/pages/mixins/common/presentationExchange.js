@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 import Ajv from 'ajv';
 import jp from 'jsonpath';
 import { presentationDefSchema } from './presentationDefSchema';
-import { getCredentialType } from '..';
+import { getContext, getCredentialType, matchTypeInContext } from '..';
 
 const presentationSubmissionTemplate = `{
     "@context": [
@@ -72,20 +72,20 @@ export class PresentationExchange {
     this.descriptors = descriptors;
   }
 
-  createPresentationSubmission(vcs) {
+  async createPresentationSubmission(vcs) {
     let manifests = jp.query(vcs, `$[?(@.type.indexOf('${manifestCredType}') != -1)]`);
     let credentials = jp.query(vcs, `$[?(@.type.indexOf('${manifestCredType}') == -1)]`);
 
     let results = [];
     if (this.applyRules) {
-      results = evaluateByRules(
+      results = await evaluateByRules(
         credentials,
         manifests,
         this.descriptorsByGroup,
         this.requirementObjs
       );
     } else {
-      results = evaluateAll(credentials, manifests, this.descriptors);
+      results = await evaluateAll(credentials, manifests, this.descriptors);
     }
 
     return prepareSubmission(results);
@@ -153,28 +153,53 @@ function validateSchema(data) {
   }
 }
 
-// match matches given credential with descriptor
-function match(credential, descriptor) {
-  if (getCredentialType(credential.type) == 'IssuerManifestCredential') {
+// doesCredMatchDescriptor returns true if given credential matches descriptor, false otherwise.
+async function doesCredMatchDescriptor(credential, descriptor) {
+  if (getCredentialType(credential.type) === 'IssuerManifestCredential') {
     return false;
   }
 
   // match schema
-  let schemas = descriptor.schema.map((s) => s.uri);
+  let schemas;
+  let requiredSchemas = descriptor.schema.filter((s) => s.required);
+  let required = !!requiredSchemas.length;
+  if (required) {
+    schemas = requiredSchemas.map((s) => s.uri);
+  } else {
+    schemas = descriptor.schema.map((s) => s.uri);
+  }
+
   let contexts = Array.isArray(credential['@context'])
     ? credential['@context']
     : [credential['@context']];
   let types = Array.isArray(credential['type']) ? credential['type'] : [credential['type']];
-  let schemaMatched = false;
+  let expandedTypes = [];
 
-  loop: for (let i = 0; i < contexts.length; i++) {
+  let contextObjs = await Promise.all(contexts.map((ctxURI) => getContext(ctxURI)));
+
+  for (let i = 0; i < contextObjs.length; i++) {
+    let ctx = contextObjs[i];
+
     for (let j = 0; j < types.length; j++) {
-      const c = `${contexts[i]}#${types[j]}`;
-      for (let k = 0; k < schemas.length; k++) {
-        schemaMatched = schemas[k] === c;
-        if (schemaMatched) {
-          break loop;
-        }
+      let typ = matchTypeInContext(ctx, types[j]);
+      if (typ) {
+        expandedTypes.push(typ);
+      }
+    }
+  }
+
+  let schemaMatched = required; // with required schemas, check for failure, otherwise, check for success
+
+  for (let i = 0; i < schemas.length; i++) {
+    if (expandedTypes.includes(schemas[i])) {
+      if (!required) {
+        schemaMatched = true;
+        break;
+      }
+    } else {
+      if (required) {
+        schemaMatched = false;
+        break;
       }
     }
   }
@@ -264,65 +289,102 @@ function prepareSubmission(results) {
 }
 
 // evaluateAll evaluates credentials based on all input descriptors
-function evaluateAll(credentials, manifests, descriptors) {
-  let result = [];
+async function evaluateAll(credentials, manifests, descriptors) {
+  let collectedResults = await Promise.all(
+    descriptors.map((descriptor) =>
+      (async function () {
+        let credMatches = await Promise.all(
+          credentials.map((credential) =>
+            doesCredMatchDescriptor(credential, descriptor).then(function (res) {
+              if (res) {
+                return { credential, id: descriptor.id };
+              }
 
-  descriptors.forEach(function (descriptor) {
-    let matched = false;
+              return false;
+            })
+          )
+        );
 
-    credentials.forEach(function (credential) {
-      if (match(credential, descriptor)) {
-        matched = true;
-        result.push({ credential, id: descriptor.id });
-      }
-    });
+        let partialResults = credMatches.filter((res) => !!res);
+        let matched = partialResults.length > 0;
 
-    // none of the credential matched, check for manifest credential matches
-    if (!matched && manifests) {
-      manifests.forEach(function (credential) {
-        if (matchManifest(credential, descriptor)) {
-          result.push({ credential, id: descriptor.id, manifest: true });
+        // none of the credentials matched, check for manifest credential matches
+        if (!matched && manifests) {
+          partialResults = manifests
+            .filter((cred) => matchManifest(cred, descriptor))
+            .map((credential) => ({ credential, id: descriptor.id, manifest: true }));
         }
-      });
-    }
-  });
 
-  return result;
+        return partialResults;
+      })()
+    )
+  );
+
+  return collectedResults.reduce((a, b) => a.concat(b));
 }
 
 // evaluateByRules evaluates credentials based on submission rules
-function evaluateByRules(credentials, manifests, descrsByGroup, submissions) {
-  let result = [];
+async function evaluateByRules(credentials, manifests, descrsByGroup, submissions) {
+  let collectedResults = await Promise.allSettled(
+    submissions.map((submission) =>
+      (async function () {
+        let descriptors = descrsByGroup[submission.from];
+        let pick = countMatcher(submission, descriptors.length);
 
-  submissions.forEach(function (submission) {
-    let descriptors = descrsByGroup[submission.from];
-    let pick = countMatcher(submission, descriptors.length);
-    let matched = false;
+        let credMatches = await Promise.allSettled(
+          credentials.map((credential) =>
+            (async function () {
+              let isMatch = await Promise.allSettled(
+                descriptors.map((d) => doesCredMatchDescriptor(credential, d))
+              );
 
-    credentials.forEach(function (credential) {
-      let matches = descriptors.filter((d) => match(credential, d));
-      if (pick(matches.length)) {
-        matched = true;
-        matches.forEach(function (match) {
-          result.push({ credential, id: match.id });
-        });
-      }
-    });
+              let matches = descriptors.filter((_, i) => !!isMatch[i].value);
 
-    // none of the credential matched, check for manifest credential matches
-    if (!matched && manifests) {
-      manifests.forEach(function (credential) {
-        let matches = descriptors.filter((d) => matchManifest(credential, d));
-        if (pick(matches.length)) {
-          matches.forEach(function (match) {
-            result.push({ credential, id: match.id, manifest: true });
-          });
+              if (pick(matches.length)) {
+                return matches.map((match) => ({
+                  credential: credential,
+                  id: match.id,
+                }));
+              } else {
+                return false;
+              }
+            })()
+          )
+        );
+
+        let partialResults = credMatches
+          .filter((res) => !!res.value)
+          .map((res) => res.value)
+          .reduce((a, b) => a.concat(b));
+
+        let matched = partialResults.length > 0;
+
+        // none of the credentials matched, check for manifest credential matches
+        if (!matched && manifests) {
+          partialResults = manifests
+            .map((credential) => ({
+              credential,
+              matches: descriptors.filter((d) => matchManifest(credential, d)),
+            }))
+            .filter((res) => pick(res.matches.length))
+            .map((res) =>
+              res.matches.map((match) => ({
+                credential: res.credential,
+                id: match.id,
+                manifest: true,
+              }))
+            );
         }
-      });
-    }
-  });
 
-  return result;
+        return partialResults;
+      })()
+    )
+  );
+
+  return collectedResults
+    .filter((res) => !!res.value)
+    .map((res) => res.value)
+    .reduce((a, b) => a.concat(b));
 }
 
 function countMatcher(submission, descrLen) {

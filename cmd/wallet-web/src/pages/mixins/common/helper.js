@@ -90,6 +90,113 @@ export const isVPType = (type) => toLower(type) == 'verifiablepresentation';
 export const getCredentialType = (types) =>
   types.filter((type) => type != 'VerifiableCredential')[0];
 
+function contextCacheClosure() {
+  let contextCache = {};
+
+  return function (contextURI) {
+    let cacheElement = contextCache[contextURI];
+    if (cacheElement !== undefined) {
+      return cacheElement;
+    }
+
+    return new Promise((resolve, reject) => {
+      let req = new XMLHttpRequest();
+
+      req.onload = (e) => {
+        if (req.status !== 200) {
+          console.log('fetching remote context failed with status code ' + req.status);
+          reject('failed with status code ' + req.status);
+        }
+
+        cacheElement = JSON.parse(req.responseText);
+        contextCache[contextURI] = cacheElement;
+        resolve(cacheElement);
+      };
+
+      req.open('GET', contextURI);
+      req.send();
+    });
+  };
+}
+
+export const getContext = contextCacheClosure();
+
+export function matchTypeInContext(ctxObj, type) {
+  return getTermInContext(ctxObj, type);
+}
+
+// splits the iri if it's a compact IRI, returns undefined otherwise.
+function getCompactIRISplit(iri) {
+  let idx = iri.indexOf(':');
+  if (idx === -1) return undefined;
+
+  let pref = iri.substring(0, idx);
+  if (pref === 'http' || pref === 'https') return undefined; // assume http and https prefixes are literal.
+
+  let suff = iri.substring(idx + 1);
+
+  return [pref, suff];
+}
+
+// Get a term in a context, expanding compact IRIs as necessary
+function getTermInContext(ctxObj, term) {
+  let res;
+
+  if (Array.isArray(ctxObj)) {
+    for (let i = 0; i < ctxObj.length; i++) {
+      let curr = ctxObj[i];
+
+      // string in a context array is a remote context reference.
+      // note: dereferencing isn't needed for bank account demo
+      // which is all that uses the legacy js-side presexch filtering.
+      if (typeof curr === 'string' || curr instanceof String) {
+        continue;
+      }
+
+      res = getTermInContext(ctxObj[i], term);
+      if (!!res) {
+        break;
+      }
+    }
+  } else if (typeof ctxObj === 'string' || ctxObj instanceof String) {
+    // if the parent object contained a string at index [term], then we've found an instance of term.
+    // in this case, we return immediately, so the parent can handle any IRI expansion.
+    return ctxObj;
+  } else if (typeof ctxObj === 'object' && !!ctxObj) {
+    // if this is an object (we've already handled arrays above), check if it contains term
+    // either directly, or within a @context member.
+    res = getTermInContext(ctxObj[term], term);
+    if (!res) {
+      res = getTermInContext(ctxObj['@context'], term);
+    }
+    if (!res) {
+      res = getTermInContext(ctxObj['@id'], term); // @id holds the ID of a json-ld type
+    }
+  }
+
+  // term not present inside ctx
+  if (!res) {
+    return undefined;
+  }
+
+  // res is an IRI, if it's compact we need to try and expand it.
+  let compactSplit = getCompactIRISplit(res);
+  if (!compactSplit || !compactSplit.length || compactSplit.length < 2) {
+    // res is not a compact IRI, so we return it directly.
+    return res;
+  }
+
+  // res is a compact IRI, so we try to lookup its prefix within the current ctxObj.
+  let pref = getTermInContext(ctxObj, compactSplit[0]);
+  if (!pref) {
+    // res is a compact IRI, but it must be expanded in a parent context, not the current one.
+    return res;
+  }
+
+  // concatenate expanded prefix with original suffix
+  return pref + compactSplit[1];
+}
+
 // function to get the credential display data
 export function getCredentialDisplayData(vc, manifest) {
   const id = base64url.encode(populatePath(vc, manifest.id));
