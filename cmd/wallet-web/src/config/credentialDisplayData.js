@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 export default {
   PermanentResidentCard: {
     id: ['$.id'],
+    brandColor: 'boatBlue',
     issuanceDate: ['$.issuanceDate'],
     properties: {
       image: {
@@ -74,6 +75,7 @@ export default {
   },
   VaccinationCertificate: {
     id: ['$.id'],
+    brandColor: 'green',
     issuanceDate: ['$.issuanceDate'],
     properties: {
       RecipientFamilyName: {
@@ -135,6 +137,7 @@ export default {
   },
   TravelCard: {
     id: ['$.id'],
+    brandColor: 'cobalt',
     issuanceDate: ['$.issuanceDate'],
     properties: {
       name: {
