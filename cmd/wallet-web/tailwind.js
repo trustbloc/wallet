@@ -26,16 +26,37 @@ module.exports = {
         },
         softWhite: '#f4f1f5',
         thistle: '#dbd7dc',
+        victorianPewter: '#81838a',
         white: '#ffffff',
         whiteLilac: '#e4e1e5',
       },
       primary: {
         blue: '#2883fb',
+        boatBlue: {
+          DEFAULT: '#2b5283',
+          dark: '#1e3a5d',
+          light: '#386aa9',
+        },
+        cobalt: {
+          DEFAULT: '#313283',
+          dark: '#23245e',
+          light: '#3f40a8',
+        },
         coral: '#ed6765',
+        green: {
+          DEFAULT: '#277B3E',
+          dark: '#1b542a',
+          light: '#33a252',
+        },
         pink: '#e74577',
         purple: {
           DEFAULT: '#8a35b7',
           hashita: '#8a5d8a',
+        },
+        red: {
+          DEFAULT: '#ae0002',
+          dark: '#7b0001',
+          light: '#e10003',
         },
         valencia: '#d24343',
       },
@@ -109,12 +130,18 @@ module.exports = {
       },
     }),
     gradients: (theme) => ({
+      boatBlue: `linear-gradient(-225deg, ${theme('colors.primary.boatBlue.dark')} 0%, ${theme(
+        'colors.primary.boatBlue.light'
+      )} 100%)`,
       cinnabar: `linear-gradient(-180deg, ${theme(
         'gradientColorStops.cinnabar.DEFAULT'
       )} 0%, ${theme('gradientColorStops.darkTan')} 100%)`,
       cinnabarLight: `linear-gradient(-180deg, ${theme(
         'gradientColorStops.cinnabar.light'
       )} 0%, ${theme('gradientColorStops.darkTan')} 100%)`,
+      cobalt: `linear-gradient(-225deg, ${theme('colors.primary.cobalt.dark')} 0%, ${theme(
+        'colors.primary.cobalt.light'
+      )} 100%)`,
       dark: `linear-gradient(-135deg, ${theme('gradientColorStops.haiti')} 0%, ${theme(
         'gradientColorStops.ebony'
       )} 100%)`,
@@ -125,21 +152,27 @@ module.exports = {
       )} 66%, ${theme('gradientColorStops.blueViolet')} 83%, ${theme(
         'gradientColorStops.curiousBlue'
       )} 100%)`,
+      green: `linear-gradient(-225deg, ${theme('colors.primary.green.dark')} 0%, ${theme(
+        'colors.primary.green.light'
+      )} 100%)`,
       iron: `linear-gradient(-180deg, ${theme('gradientColorStops.iron')} 0%, ${theme(
         'gradientColorStops.eastSide'
       )} 100%)`,
       lavender: `linear-gradient(-180deg, ${theme('gradientColorStops.lavender')} 0%, ${theme(
         'gradientColorStops.jagger'
       )} 100%)`,
+      moonRaker: `linear-gradient(-180deg, ${theme(
+        'gradientColorStops.neutrals.white'
+      )} 0%, ${theme('gradientColorStops.moonRaker')} 100%)`,
       pink: `linear-gradient(-135deg, ${theme('gradientColorStops.hibiscus.DEFAULT')} 0%, ${theme(
         'gradientColorStops.grape'
       )} 100%)`,
       purple: `linear-gradient(-135deg, ${theme('gradientColorStops.vividViolet.dark')} 0%, ${theme(
         'gradientColorStops.jagger'
       )} 100%)`,
-      moonRaker: `linear-gradient(-180deg, ${theme(
-        'gradientColorStops.neutrals.white'
-      )} 0%, ${theme('gradientColorStops.moonRaker')} 100%)`,
+      red: `linear-gradient(-225deg, ${theme('colors.primary.red.dark')} 0%, ${theme(
+        'colors.primary.red.light'
+      )} 100%)`,
     }),
     spacing: {
       px: '1px',
@@ -171,10 +204,14 @@ module.exports = {
     },
     extend: {
       backgroundImage: (theme) => ({
+        'gradient-boatBlue': theme('gradients.boatBlue'),
+        'gradient-cobalt': theme('gradients.cobalt'),
         'gradient-dark': theme('gradients.dark'),
         'gradient-full': theme('gradients.full'),
+        'gradient-green': theme('gradients.green'),
         'gradient-pink': theme('gradients.pink'),
         'gradient-purple': theme('gradients.purple'),
+        'gradient-red': theme('gradients.red'),
         onboarding: "url('~@/assets/img/onboarding-bg-lg.svg')",
         'onboarding-sm': "url('~@/assets/img/onboarding-bg-sm.svg')",
         'onboarding-flare-lg': "url('~@/assets/img/onboarding-flare-lg.png')",
@@ -518,40 +555,6 @@ module.exports = {
           [`@media (min-width: ${theme('screens.md')})`]: {
             width: 384,
           },
-        },
-        '.credentialCard': {
-          backgroundColor: theme('colors.neutrals.white'),
-          borderRadius: theme('spacing.3'),
-          padding: `${theme('spacing.6')} ${theme('spacing.3')} ${theme('spacing.6')} ${theme(
-            'spacing.5'
-          )}`,
-          fontSize: theme('fontSize.sm'),
-          fontWeight: theme('fontWeight.bold'),
-          border: `${theme('spacing.px')} solid ${theme('colors.neutrals.thistle')}`,
-          width: '100%',
-          height: theme('spacing.20'),
-          [`@media (min-width: ${theme('screens.xl')})`]: {
-            fontSize: theme('fontSize.base'),
-            fontWeight: theme('fontWeight.bold'),
-            width: 400,
-            height: theme('spacing.24'),
-          },
-          '&:hover': {
-            border: `1px solid ${theme('colors.neutrals.chatelle')}`,
-          },
-          '&:focus-within': {
-            border: `1px solid ${theme('colors.neutrals.chatelle')}`,
-            boxShadow: `inset 0 0 0,
-             0 0  0 2px ${theme('colors.neutrals.softWhite')},
-             0 0  0.1em 4px rgb(129, 131, 138)`,
-          },
-        },
-        '.credentialArrowContainer': {
-          backgroundColor: theme('colors.neutrals.thistle'),
-          border: `${theme('spacing.px')} solid ${theme('colors.neutrals.thistle')}`,
-          borderRadius: '50%',
-          width: theme('spacing.8'),
-          height: theme('spacing.8'),
         },
       };
 

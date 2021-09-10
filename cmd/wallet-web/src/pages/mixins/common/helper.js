@@ -200,6 +200,7 @@ function getTermInContext(ctxObj, term) {
 // function to get the credential display data
 export function getCredentialDisplayData(vc, manifest) {
   const id = base64url.encode(populatePath(vc, manifest.id));
+  const brandColor = manifest.brandColor || '';
   const issuanceDate = populatePath(vc, manifest.issuanceDate);
   const title = populatePath(vc, manifest.title.path) || manifest.title.fallback;
   const icon = manifest.icon;
@@ -229,6 +230,7 @@ export function getCredentialDisplayData(vc, manifest) {
 
   return {
     id,
+    brandColor,
     issuanceDate,
     title,
     icon,

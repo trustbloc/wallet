@@ -49,6 +49,7 @@
         <li v-for="(processedCredential, index) in processedCredentials" :key="index">
           <credential-preview
             :id="processedCredential.id"
+            :brand-color="processedCredential.brandColor"
             :icon="processedCredential.icon"
             :title="processedCredential.title"
           />
