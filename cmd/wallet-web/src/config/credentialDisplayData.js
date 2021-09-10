@@ -260,6 +260,145 @@ export default {
       fallback: 'Driving License',
     },
   },
+  CrudeProductCredential: {
+    id: ['$.id'],
+    issuanceDate: ['$.issuanceDate'],
+    properties: {
+      name: {
+        path: ['$.credentialSubject.name'],
+        label: 'Name',
+      },
+      description: {
+        path: ['$.credentialSubject.description'],
+        label: 'Description',
+      },
+      productionDate: {
+        path: ['$.credentialSubject.productionDate'],
+        label: 'Date of Production',
+        type: 'date',
+        format: 'yyyy-mm-dd',
+      },
+      category: {
+        path: ['$.credentialSubject.category'],
+        label: 'Category',
+      },
+      hsCode: {
+        path: ['$.credentialSubject.hsCode'],
+        label: 'Code',
+      },
+      volume: {
+        path: ['$.credentialSubject.volume'],
+        label: 'Volume',
+      },
+      minimumQuantity: {
+        path: ['$.credentialSubject.physicalSpecs.minimumQuantity'],
+        label: 'Min Quantity',
+      },
+      uom: {
+        path: ['$.credentialSubject.physicalSpecs.uom'],
+        label: 'Unit of Measurement',
+      },
+      pourPoint: {
+        path: ['$.credentialSubject.physicalSpecs.pourPoint'],
+        label: 'Pour Point',
+      },
+      vapourPressure: {
+        path: ['$.credentialSubject.physicalSpecs.vapourPressure'],
+        label: 'Vapour Pressure',
+      },
+      density: {
+        path: ['$.credentialSubject.physicalSpecs.density'],
+        label: 'Density',
+      },
+      microCarbonResidue: {
+        path: ['$.credentialSubject.chemicalSpecs.microCarbonResidue'],
+        label: 'Carbon Residue',
+      },
+    },
+    icon: 'credential--generic-icon.svg',
+    title: {
+      path: ['$.name'],
+      fallback: 'Crude Product Credential',
+    },
+  },
+  CertifiedMillTestReport: {
+    id: ['$.id'],
+    issuanceDate: ['$.issuanceDate'],
+    properties: {
+      companyBrandMark: {
+        path: ['$.credentialSubject.cmtr.companyBrandMark'],
+        label: 'BrandMark',
+        type: 'image',
+      },
+      companyName: {
+        path: ['$.credentialSubject.cmtr.companyName'],
+        label: 'Name',
+      },
+      companyAddress: {
+        path: ['$.credentialSubject.cmtr.companyAddress'],
+        label: 'Address',
+      },
+      companyPhoneNumber: {
+        path: ['$.credentialSubject.cmtr.companyPhoneNumber'],
+        label: 'Phone Number',
+      },
+      companyContactPersonName: {
+        path: ['$.credentialSubject.cmtr.companyContactPersonName'],
+        label: 'Contact Person',
+      },
+      invoiceNumber: {
+        path: ['$.credentialSubject.cmtr.invoiceNumber'],
+        label: 'Invoice Number',
+      },
+      authorizingPartyName: {
+        path: ['$.credentialSubject.cmtr.authorizingPartyName'],
+        label: 'Authorizing Party Name',
+      },
+      authorizingPartyDate: {
+        path: ['$.credentialSubject.cmtr.authorizingPartyDate'],
+        label: 'Authorizing Party Date',
+        type: 'date',
+        format: 'yyyy-mm-dd',
+      },
+      manufacturerLocationCompanyName: {
+        path: ['$.credentialSubject.cmtr.manufacturerLocationCompanyName'],
+        label: 'Manufacturer Name',
+      },
+      manufacturerLocationStreetAddress: {
+        path: ['$.credentialSubject.cmtr.manufacturerLocationStreetAddress'],
+        label: 'Manufacturer Street Address',
+      },
+      manufacturerLocationAddressLocality: {
+        path: ['$.credentialSubject.cmtr.manufacturerLocationAddressLocality'],
+        label: 'Manufacturer City',
+      },
+      manufacturerLocationAddressCountry: {
+        path: ['$.credentialSubject.cmtr.manufacturerLocationAddressCountry'],
+        label: 'Manufacturer Location',
+      },
+      customerLocationCompanyName: {
+        path: ['$.credentialSubject.cmtr.customerLocationCompanyName'],
+        label: 'Customer Location',
+      },
+      customerLocationStreetAddress: {
+        path: ['$.credentialSubject.cmtr.customerLocationStreetAddress'],
+        label: 'Customer Address',
+      },
+      customerLocationAddressLocality: {
+        path: ['$.credentialSubject.cmtr.customerLocationAddressLocality'],
+        label: 'Customer City',
+      },
+      customerLocationAddressCountry: {
+        path: ['$.credentialSubject.cmtr.customerLocationAddressCountry'],
+        label: 'Customer Country',
+      },
+    },
+    icon: 'credential--generic-icon.svg',
+    title: {
+      path: ['$.name'],
+      fallback: 'Certified Mill Test Report',
+    },
+  },
   fallback: {
     id: ['$.id'],
     issuanceDate: ['$.issuanceDate'],
