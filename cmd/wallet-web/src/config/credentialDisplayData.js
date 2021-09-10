@@ -3,6 +3,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
+
 export default {
   PermanentResidentCard: {
     id: ['$.id'],
@@ -44,7 +45,7 @@ export default {
         format: 'yyyy-mm-dd',
       },
     },
-    icon: 'credential--generic-icon.svg',
+    icon: 'credential--uscis-icon.svg',
     title: {
       path: ['$.name'],
       fallback: 'Permanent Resident Card',
@@ -129,7 +130,7 @@ export default {
         label: 'Product Name',
       },
     },
-    icon: 'credential--generic-icon.svg',
+    icon: 'credential--vaccination-icon.svg',
     title: {
       path: ['$.name'],
       fallback: 'Vaccination Certificate',
@@ -175,7 +176,7 @@ export default {
         format: 'yyyy-mm-dd',
       },
     },
-    icon: 'credential--generic-icon.svg',
+    icon: 'credential--flight-icon.svg',
     title: {
       path: ['$.name'],
       fallback: 'Travel Card',
@@ -206,7 +207,7 @@ export default {
         label: 'Semester',
       },
     },
-    icon: 'credential--generic-icon.svg',
+    icon: 'credential--school-icon.svg',
     title: {
       path: ['$.name'],
       fallback: 'Student Card',
@@ -257,7 +258,7 @@ export default {
         format: 'yyyy-mm-dd',
       },
     },
-    icon: 'credential--generic-icon.svg',
+    icon: 'credential-drivers-license-icon.svg',
     title: {
       path: ['$.name'],
       fallback: 'Driving License',
