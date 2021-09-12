@@ -174,6 +174,7 @@ import {
   normalizeQuery,
   getVCIcon,
   getCredentialType,
+  wait,
 } from './mixins';
 import jp from 'jsonpath';
 import { mapGetters } from 'vuex';
@@ -280,7 +281,10 @@ export default {
         return;
       }
 
-      this.protocolHandler.done(2000);
+      //TODO this delay to be removed once we have WACI ack feature available for present proof.
+      await wait(1000);
+
+      this.protocolHandler.done();
     },
     cancel() {
       this.protocolHandler.cancel();
