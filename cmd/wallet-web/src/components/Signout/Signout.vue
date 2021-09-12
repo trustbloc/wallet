@@ -32,6 +32,7 @@
 
 <script>
 import { CHAPIHandler } from '@/pages/mixins';
+import useBreakpoints from '@/plugins/breakpoints.js';
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
@@ -48,12 +49,23 @@ export default {
       this.getAgentOpts().credentialMediatorURL
     );
   },
+  data() {
+    return {
+      breakpoints: useBreakpoints(),
+    };
+  },
   methods: {
     ...mapActions({ signoutUser: 'logout' }),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getAgentOpts']),
     signout: async function () {
-      await Promise.all([this.chapi.uninstall(), this.signoutUser()]);
+      let actions = [this.signoutUser()];
+      if (!this.breakpoints.xs && !this.breakpoints.sm) {
+        actions.push(this.chapi.uninstall());
+      }
+
+      await Promise.all(actions);
+
       this.$router.push({ name: 'signin', params: this.$route.params });
     },
   },
