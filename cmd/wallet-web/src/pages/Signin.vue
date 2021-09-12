@@ -97,6 +97,7 @@ import { DeviceLogin } from '@trustbloc/wallet-sdk';
 import Footer from '@/components/Footer/Footer.vue';
 import Logo from '@/components/Logo/Logo.vue';
 import Spinner from '@/components/Spinner/Spinner.vue';
+import useBreakpoints from '@/plugins/breakpoints.js';
 import { mapActions, mapGetters } from 'vuex';
 import axios from 'axios';
 
@@ -112,6 +113,7 @@ export default {
       statusMsg: '',
       loading: true,
       systemError: false,
+      breakpoints: useBreakpoints(),
     };
   },
   computed: {
@@ -226,13 +228,16 @@ export default {
       let user = this.getCurrentUser();
       this.registerUser(user);
 
-      // all credential handlers registration should happen here, ex: CHAPI, WACI etc
-      let chapi = new CHAPIHandler(
-        this.$polyfill,
-        this.$webCredentialHandler,
-        this.getAgentOpts().credentialMediatorURL
-      );
-      await chapi.install(this.getCurrentUser().username);
+      if (!this.breakpoints.xs && !this.breakpoints.sm) {
+        // all credential handlers registration should happen here, ex: CHAPI, WACI etc
+        let chapi = new CHAPIHandler(
+          this.$polyfill,
+          this.$webCredentialHandler,
+          this.getAgentOpts().credentialMediatorURL
+        );
+
+        await chapi.install(this.getCurrentUser().username);
+      }
     },
     async registerUser(user) {
       if (!user.preference) {
