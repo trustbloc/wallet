@@ -121,7 +121,8 @@ export default {
       this.presentation = results[0];
     } catch (e) {
       console.error('failed to prepare DIDAuth response:', e);
-      this.errors.push('failed to handle request, try again later.');
+      // TODO https://github.com/trustbloc/wallet/issues/1067 DIDAuth query failure
+      // this.errors.push('failed to handle request, try again later.');
       this.loading = false;
     }
 
