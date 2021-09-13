@@ -16,7 +16,12 @@
         <flyout-menu type="outline" />
       </div>
     </div>
-    <banner :title="credential.title" :issuance-date="credential.issuanceDate" />
+    <banner
+      :brand-color="credential.brandColor"
+      :icon="credential.icon"
+      :title="credential.title"
+      :issuance-date="credential.issuanceDate"
+    />
     <!-- List of Credential Details -->
     <div class="flex flex-col justify-start items-start mt-8 md:mt-12 w-full">
       <span class="mb-5 text-xl font-bold text-neutrals-dark">{{ i18n.verifiedInformation }}</span>
