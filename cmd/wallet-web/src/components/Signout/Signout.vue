@@ -10,11 +10,10 @@
       justify-start
       items-center
       focus-within:bg-gradient-to-r
-      focus-within:from-neutrals-black
-      focus-within:shadow-inner-outline-blue
       opacity-60
       focus-within:opacity-100
       hover:from-neutrals-black hover:bg-gradient-to-r hover:opacity-100
+      focus-within:from-neutrals-black focus-within:shadow-inner-outline-blue
       flex flex-row
       bar
     "
@@ -37,6 +36,11 @@ import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'Signout',
+  data() {
+    return {
+      breakpoints: useBreakpoints(),
+    };
+  },
   computed: {
     i18n() {
       return this.$t('Signout');
@@ -48,11 +52,6 @@ export default {
       this.$webCredentialHandler,
       this.getAgentOpts().credentialMediatorURL
     );
-  },
-  data() {
-    return {
-      breakpoints: useBreakpoints(),
-    };
   },
   methods: {
     ...mapActions({ signoutUser: 'logout' }),

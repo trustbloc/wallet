@@ -8,8 +8,8 @@
   <div class="flex flex-col justify-start px-3 md:px-0 w-full">
     <div class="flex flex-col justify-start items-start w-full root-container">
       <div
-        class="
-          flex
+        :class="[
+          `flex
           z-10
           flex-row
           justify-start
@@ -20,15 +20,22 @@
           h-24
           bg-neutrals-white
           rounded-xl
-          border border-neutrals-thistle
-        "
+          border `,
+          brandColor.length
+            ? `bg-gradient-${brandColor} border-neutrals-black border-opacity-10`
+            : `bg-neutrals-white border-neutrals-thistle`,
+        ]"
       >
         <div class="flex-none w-12 h-12 border-opacity-10">
-          <img src="@/assets/img/credential--generic-icon.svg" />
+          <img :src="require(`@/assets/img/${icon}`)" />
         </div>
-        <span class="flex-1 pl-4 font-bold text-left text-neutrals-dark overflow-ellipsis">{{
-          title
-        }}</span>
+        <span
+          :class="[
+            `flex-1 pl-4 font-bold text-left text-sm md:text-base overflow-ellipsis`,
+            brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
+          ]"
+          >{{ title }}</span
+        >
       </div>
       <div
         class="
@@ -39,8 +46,8 @@
           pt-14
           pb-6
           w-full
-          bg-neutrals-white
           rounded-b-xl
+          bg-neutrals-white
           flex flex-col
           sub-container
         "
@@ -114,6 +121,14 @@ import useBreakpoints from '@/plugins/breakpoints.js';
 export default {
   name: 'Banner',
   props: {
+    brandColor: {
+      type: String,
+      required: true,
+    },
+    icon: {
+      type: String,
+      required: true,
+    },
     title: {
       type: String,
       required: true,
