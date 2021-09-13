@@ -182,6 +182,26 @@ export default {
       fallback: 'Travel Card',
     },
   },
+  BookingReferenceCredential: {
+    id: ['$.id'],
+    brandColor: 'cobalt',
+    issuanceDate: ['$.issuanceDate'],
+    properties: {
+      issuedBy: {
+        path: ['$.credentialSubject.issuedBy'],
+        label: 'Issued By',
+      },
+      referenceNumber: {
+        path: ['$.credentialSubject.referenceNumber'],
+        label: 'Reference Number',
+      },
+    },
+    icon: 'credential--flight-icon.svg',
+    title: {
+      path: ['$.name'],
+      fallback: 'Booking Reference',
+    },
+  },
   StudentCard: {
     id: ['$.id'],
     issuanceDate: ['$.issuanceDate'],
