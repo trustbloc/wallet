@@ -282,7 +282,7 @@ export default {
       }
 
       //TODO this delay to be removed once we have WACI ack feature available for present proof.
-      await wait(1000);
+      await wait(2000);
 
       this.protocolHandler.done();
     },
