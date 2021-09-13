@@ -81,7 +81,7 @@ export default [
     path: 'GetFromWallet',
     name: 'chapi-get',
     component: load('Get'),
-    meta: { blockNoAuth: true },
+    meta: { blockNoAuth: true, isNavbarShown: false },
   },
   {
     path: 'worker',
