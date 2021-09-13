@@ -107,7 +107,7 @@ run-openapi-demo: generate-openapi-demo-specs wallet-server-docker generate-test
 	@DEMO_COMPOSE_PATH=test/fixtures/wallet-web scripts/run-openapi-demo.sh
 
 .PHONY: wallet-web-start
-wallet-web-start: clean wallet-web-docker wallet-server-docker generate-test-keys mock-images
+wallet-web-start: clean wallet-web-docker wallet-server-docker mock-images generate-test-keys
 	@scripts/wallet_web_start.sh
 
 # starting wallet-web in dev mode for hot deployment

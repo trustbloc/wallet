@@ -286,7 +286,7 @@ const bookingRefVC = {
   id: 'http://example.gov/credentials/3732',
   issuanceDate: '2020-03-16T22:37:26.544Z',
   issuer: 'did:key:z6MkjRagNiMu91DduvCvgEsqLZDVzrJzFrwahc4tXLt9DoHd',
-  name: 'Booking reference',
+  name: 'Taylor Flights Booking Reference',
   proof: {
     challenge: '69b25d39-e87c-4627-ab1a-144c632ca211',
     created: '2021-03-11T10:02:03.519525-05:00',
