@@ -6,5 +6,5 @@
 
 dist/
 node_modules/
-public/
+public/agent-js-worker
 test/fixtures/keys

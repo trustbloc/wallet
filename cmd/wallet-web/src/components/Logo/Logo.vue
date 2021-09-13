@@ -24,7 +24,7 @@ export default {
     ...mapGetters(['getStaticAssetsUrl']),
     // Get logo url based on docker configuration
     getLogoUrl: function () {
-      let staticAssetsUrl = this.getStaticAssetsUrl();
+      const staticAssetsUrl = this.getStaticAssetsUrl();
       if (staticAssetsUrl) {
         return (this.logoUrl = `${staticAssetsUrl}/images/logo.svg`);
       }
