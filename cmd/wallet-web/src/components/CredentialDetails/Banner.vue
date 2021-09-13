@@ -46,8 +46,8 @@
           pt-14
           pb-6
           w-full
-          rounded-b-xl
           bg-neutrals-white
+          rounded-b-xl
           flex flex-col
           sub-container
         "
