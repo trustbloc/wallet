@@ -9,12 +9,12 @@ name: "wallet release"
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 jobs:
   publish:
     name: Publish image
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
 
