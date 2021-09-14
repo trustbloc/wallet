@@ -6,7 +6,12 @@
 
 <template>
   <!-- Todo Add Credential Card and Credential Details skeleton here -->
-  <vault-card v-if="type === 'vault'" />
+  <div
+    v-if="type === 'vault'"
+    class="flex flex-col lg:flex-row flex-wrap lg:gap-x-8 gap-y-8 px-6 md:px-0"
+  >
+    <vault-card v-for="id in skeletons" :key="`vault-skeleton-${id}`" />
+  </div>
 </template>
 
 <script>
@@ -20,6 +25,11 @@ export default {
       type: String,
       default: 'vault',
     },
+  },
+  data() {
+    return {
+      skeletons: [1, 2, 3],
+    };
   },
 };
 </script>
