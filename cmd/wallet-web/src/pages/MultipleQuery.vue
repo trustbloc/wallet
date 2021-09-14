@@ -5,231 +5,260 @@
 -->
 
 <template>
-  <div v-if="loading" class="w-screen" style="margin-left: 40%; margin-top: 20%; height: 200px">
-    <div class="md-layout">
-      <md-progress-spinner
-        :md-diameter="100"
-        class="md-accent"
-        :md-stroke="10"
-        md-mode="indeterminate"
-      ></md-progress-spinner>
+  <!-- Loading State -->
+  <div v-if="loading" class="flex justify-center items-start w-screen h-screen">
+    <div
+      class="
+        flex
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-80
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+      "
+    >
+      <Spinner />
     </div>
   </div>
-  <div v-else class="flex justify-center w-screen md-layout">
-    <div class="max-w-screen-sm md-layout-item">
+  <div v-else-if="sharing" class="flex justify-center items-start w-screen h-screen">
+    <div
+      class="
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-80
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+        flex flex-col
+      "
+    >
+      <Spinner />
+      <span class="mt-8 text-base text-neutrals-dark">{{
+        $t('CHAPI.Share.sharingCredential')
+      }}</span>
+    </div>
+  </div>
+  <div v-else-if="showCredentialsMissing" class="flex justify-center items-start w-screen h-screen">
+    <div
+      class="
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-auto
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+        flex flex-col
+      "
+    >
+      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
+        <img src="@/assets/img/icons-warning.svg" />
+        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
+          $t('CHAPI.Share.CredentialsMissing.heading')
+        }}</span>
+        <span class="text-lg text-center text-neutrals-medium">{{
+          $t('CHAPI.Share.CredentialsMissing.body')
+        }}</span>
+      </div>
       <div
-        class="flex flex-col items-start md-layout md-alignment-center-center"
-        style="margin-top: 20px"
+        class="
+          justify-center
+          items-center
+          pt-4
+          pr-5
+          pb-4
+          pl-5
+          w-full
+          bg-neutrals-magnolia
+          flex flex-row
+          border-t border-neutrals-thistle
+        "
       >
-        <div class="md-headline">Credential Presentation Requested</div>
-        <div class="md-subheading">A credential presentation is been requested:</div>
+        <button id="share-credentials-ok-btn" class="btn-outline" @click="cancel">
+          {{ $t('CHAPI.Share.CredentialsMissing.ok') }}
+        </button>
       </div>
-
-      <div style="margin: 10px"></div>
-
-      <div class="md-layout md-alignment-center-center">By</div>
-
-      <div class="md-layout md-alignment-center-center">
-        <div style="padding-bottom: 10px">
-          <governance :govn-v-c="govnVC" :request-origin="requestOrigin" :issuer="false" />
+    </div>
+  </div>
+  <div v-else-if="errors.length" class="flex justify-center items-start w-screen h-screen">
+    <div
+      class="
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-auto
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+        flex flex-col
+      "
+    >
+      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
+        <img src="@/assets/img/icons-warning.svg" />
+        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
+          $t('CHAPI.Share.Error.heading')
+        }}</span>
+        <span class="text-lg text-center text-neutrals-medium">{{
+          $t('CHAPI.Share.Error.body')
+        }}</span>
+      </div>
+      <div
+        class="
+          justify-center
+          items-center
+          pt-4
+          pr-5
+          pb-4
+          pl-5
+          w-full
+          bg-neutrals-magnolia
+          flex flex-row
+          border-t border-neutrals-thistle
+        "
+      >
+        <button id="share-credentials-ok-btn" class="btn-primary" @click="cancel">
+          {{ $t('CHAPI.Share.Error.tryAgain') }}
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Main Container -->
+  <div v-else class="flex justify-center items-start w-screen h-screen">
+    <div class="w-full max-w-md bg-gray-light md:border md:border-t-0 border-neutrals-black">
+      <div class="p-5">
+        <!-- Heading -->
+        <div class="flex flex-row justify-start items-start mb-4 w-full">
+          <div class="flex-none w-12 h-12 border-opacity-10">
+            <!-- todo issue-1055 Read meta data from external urls -->
+            <img src="@/assets/img/generic-issuer-icon.svg" />
+          </div>
+          <div class="flex flex-col pl-3">
+            <span
+              class="flex-1 mb-1 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
+            >
+              <!-- todo issue-1055 Read meta data from external urls -->
+              Requestor
+            </span>
+            <div class="flex flex-row justify-center items-center">
+              <img src="@/assets/img/small-lock-icon.svg" />
+              <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
+                {{ requestOrigin }}
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div style="margin: 20px"></div>
-
-      <div v-if="errors.length">
-        <b>Failed with following error(s):</b>
-        <md-field style="margin-top: -15px">
+        <!-- Errors -->
+        <div v-if="errors.length" class="mb-4">
+          <b>Failed with following error(s):</b>
           <ul>
             <li v-for="error in errors" :key="error" style="color: #9d0006">{{ error }}</li>
           </ul>
-        </md-field>
+        </div>
 
-        <md-button
-          id="cancelBtnNrc"
-          style="background-color: #9d0006 !important"
-          class="md-cancel-text"
-          @click="cancel"
+        <span class="text-neutrals-dark">{{
+          $tc('CHAPI.Share.headline', processedCredentials.length, { issuer: 'Requestor' })
+        }}</span>
+
+        <!-- Credentials Preview -->
+        <div
+          v-if="processedCredentials.length"
+          class="flex flex-col justify-start items-center mt-6 mb-6 w-full"
         >
-          Cancel
-        </md-button>
+          <ul class="space-y-5 w-full">
+            <li v-for="(credential, index) in processedCredentials" :key="index">
+              <credential-preview
+                :id="credential.id"
+                :brand-color="credential.brandColor"
+                :icon="credential.icon"
+                :title="credential.title"
+              />
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div
-        v-if="reasons.length || presExchReasons.length"
-        class="md-layout md-alignment-center-center reasons"
+        class="
+          justify-between
+          items-center
+          pt-4
+          pr-5
+          pb-4
+          pl-5
+          w-full
+          bg-neutrals-magnolia
+          flex flex-row
+          border-t border-neutrals-thistle
+        "
       >
-        <ul>
-          <md-card class="md-layout md-alignment-center-center" style="background: none !important">
-            <md-card-expand>
-              <md-card-actions md-alignment="space-between" style="background: none !important">
-                <div class="md-subheading">Reason:</div>
-                <md-card-expand-trigger>
-                  <md-button class="md-icon-button">
-                    <md-icon>keyboard_arrow_down</md-icon>
-                  </md-button>
-                </md-card-expand-trigger>
-              </md-card-actions>
-
-              <md-card-expand-content>
-                <md-card-content>
-                  <ul>
-                    <li v-for="(reason, index) in reasons" :key="index">
-                      <b>{{ reason }}</b>
-                    </li>
-
-                    <li v-for="(requirement, index) in presExchReasons" :key="index">
-                      <b>{{ requirement.name }}</b
-                      >: {{ requirement.purpose }}
-                      <div>{{ requirement.rule }}</div>
-                      <ul>
-                        <li v-for="descriptor in requirement.descriptors" :key="descriptor.name">
-                          <b>{{ descriptor.name }} </b>{{ descriptor.purpose }}
-                          <ul>
-                            <li v-for="constraint in descriptor.constraints" :key="constraint">
-                              {{ constraint }}
-                            </li>
-                          </ul>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </md-card-content>
-              </md-card-expand-content>
-            </md-card-expand>
-          </md-card>
-        </ul>
-      </div>
-
-      <md-card-content v-if="records.length" class="md-layout md-alignment-center-center card-list">
-        <ul>
-          <li v-for="(card, index) in records" :key="index">
-            <transition name="flip">
-              <div class="card" style="padding-bottom: 35px">
-                <div class="cardContent">
-                  <div class="cardHeader">
-                    {{ card.title }}
-                  </div>
-
-                  <div class="cardBody">
-                    <div class="cardDetailsL">
-                      <md-icon class="md-size-4x">{{ card.icon }}</md-icon>
-                    </div>
-                    <div class="cardDetailsR">
-                      <p>{{ card.description }}</p>
-                      <div v-if="card.body">
-                        The verifier can only access below information from your credential.
-                        <div v-for="(subj, skey) in card.body" :key="skey">
-                          <div v-if="displayContent(skey)" class="md-caption">
-                            <b>{{ skey.replace('.', ' ') }} </b>: {{ subj }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </transition>
-          </li>
-        </ul>
-      </md-card-content>
-
-      <div v-if="showShareCredential" class="md-layout md-alignment-center-center">
-        <p class="md-body-1">
-          By clicking Agree you will be sharing a unique identifier to
-          <b style="color: #2e7d32">{{ requestOrigin }}</b
-          >, the Credential content, and your digital signature.
-          <a href="https://www.w3.org/TR/vc-data-model/#proofs-signatures" target="_blank"
-            >Learn more</a
-          >
-        </p>
-
-        <md-button
-          id="share-credentials"
-          class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100 col"
-          style="background-color: #29a329 !important"
-          @click="share"
-        >
-          Agree
-        </md-button>
-        <md-button
-          id="cancelBtn"
-          style="margin-left: 5px; background-color: #9d0006 !important"
-          class="md-cancel-text"
-          @click="cancel"
-        >
-          Cancel
-        </md-button>
+        <button id="cancelBtn" class="btn-outline" @click="cancel">
+          {{ $t('CHAPI.Share.decline') }}
+        </button>
+        <button id="share-credentials" class="btn-primary" @click="share">
+          {{ $t('CHAPI.Share.share') }}
+        </button>
       </div>
     </div>
   </div>
 </template>
 <script>
 import { CredentialManager } from '@trustbloc/wallet-sdk';
-import {
-  CHAPIEventHandler,
-  extractPresentationExchangeReasons,
-  extractQueryReasons,
-  flatCredentialSubject,
-  normalizeQuery,
-  getVCIcon,
-  getCredentialType,
-} from './mixins';
+import { normalizeQuery, getCredentialType, getCredentialDisplayData } from './mixins';
 import { mapGetters } from 'vuex';
-import Governance from './Governance.vue';
-
-const nonDisplayContent = ['id', 'type'];
+import Spinner from '@/components/Spinner/Spinner.vue';
+import CredentialPreview from '@/components/CredentialPreview/CredentialPreview.vue';
+import credentialDisplayData from '@/config/credentialDisplayData';
 
 export default {
   components: {
-    Governance,
+    CredentialPreview,
+    Spinner,
   },
   data() {
     return {
       errors: [],
       requestOrigin: '',
       loading: true,
-      allIcons: [
-        'account_box',
-        'contacts',
-        'person',
-        'person_outline',
-        'card_membership',
-        'portrait',
-        'bento',
-      ],
-      records: [],
-      govnVC: null,
-      reasons: [],
-      presExchReasons: [],
+      sharing: false,
+      processedCredentials: [],
     };
+  },
+  computed: {
+    showCredentialsMissing() {
+      return this.processedCredentials.length === 0;
+    },
   },
   created: async function () {
     this.loading = true;
     this.protocolHandler = this.$parent.protocolHandler;
-
-    let { query } = this.protocolHandler.getEventData();
-    query = normalizeQuery(query);
-
-    let { user, token } = this.getCurrentUser().profile;
+    const query = normalizeQuery(this.protocolHandler.getEventData().query);
+    const { user, token } = this.getCurrentUser().profile;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
 
     try {
-      let { results } = await this.credentialManager.query(token, query);
+      const { results } = await this.credentialManager.query(token, query);
       this.presentation = results;
-
-      this.prepareRecords(results);
-      this.reasons = extractQueryReasons(query);
-      this.presExchReasons = extractPresentationExchangeReasons(query);
+      const credentials = results.reduce((acc, val) => acc.concat(val.verifiableCredential), []);
+      credentials.map((credential) => {
+        const manifest = this.getManifest(credential);
+        const processedCredential = this.getCredentialDisplayData(credential, manifest);
+        this.processedCredentials.push(processedCredential);
+      });
     } catch (e) {
       this.errors.push('No credentials found matching requested criteria.');
       console.error('get credentials failed,:', e);
     }
 
-    // TODO governance VC check
-
+    // TODO: governance VC check
     this.requestOrigin = this.protocolHandler.requestor();
-
     this.loading = false;
   },
   methods: {
@@ -239,32 +268,13 @@ export default {
       this.errors.push(e);
       this.loading = false;
     },
-    prepareRecords: function (results) {
-      let vcs = results.reduce((acc, val) => acc.concat(val.verifiableCredential), []);
-
-      let _recordIt = (vc) => {
-        let body;
-        if (vc.proof && vc.proof.type == 'BbsBlsSignatureProof2020') {
-          body = flatCredentialSubject(vc.credentialSubject);
-        }
-
-        return {
-          title: vc.name ? vc.name : getCredentialType(vc.type),
-          description: vc.description,
-          icon: this.getVCIcon(vc.type),
-          body,
-        };
-      };
-
-      this.records = vcs.map(_recordIt);
-    },
     async share() {
-      this.loading = true;
-      let { profile, preference } = this.getCurrentUser();
-      let { controller, proofType, verificationMethod } = preference;
-      let { domain, challenge } = this.protocolHandler.getEventData();
+      this.sharing = true;
+      const { profile, preference } = this.getCurrentUser();
+      const { controller, proofType, verificationMethod } = preference;
+      const { domain, challenge } = this.protocolHandler.getEventData();
 
-      let _present = async (presentation) => {
+      const _present = async (presentation) => {
         return (
           await this.credentialManager.present(
             profile.token,
@@ -279,86 +289,30 @@ export default {
           )
         ).presentation;
       };
-
-      let results = await Promise.all(this.presentation.map(_present));
+      // TODO: match expected format
+      const results = await Promise.all(this.presentation.map(_present));
       // typically single presentation, but some verifier queries might produce multiple presentation.
-      if (results.length == 1) {
+      if (results.length === 1) {
         this.protocolHandler.present(results[0]);
       } else {
         this.protocolHandler.present(results);
       }
 
-      this.loading = false;
+      this.sharing = false;
     },
     cancel() {
       this.protocolHandler.cancel();
     },
-    getVCIcon(types) {
-      return getVCIcon(getCredentialType(types));
+    getCredentialType: function (vc) {
+      return getCredentialType(vc.type);
     },
-    displayContent(k) {
-      let parts = k.split('.');
-      return !nonDisplayContent.includes(parts[parts.length - 1]);
+    getCredentialDisplayData: function (vc, manifestCredential) {
+      return getCredentialDisplayData(vc, manifestCredential);
     },
-  },
-  computed: {
-    showShareCredential() {
-      return this.records.length > 0;
+    getManifest: function (credential) {
+      const currentCredentialType = this.getCredentialType(credential);
+      return credentialDisplayData[currentCredentialType] || credentialDisplayData.fallback;
     },
   },
 };
 </script>
-<style scoped>
-.card {
-  display: block;
-  width: 360px;
-  padding: 10px;
-  background-color: #ffffff;
-  border-radius: 7px;
-  margin: 5px;
-  text-align: center;
-  line-height: 22px;
-  cursor: pointer;
-  position: relative;
-  color: black;
-  font-weight: 400;
-  font-size: 16px;
-  -webkit-box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, 0.5);
-  -moz-box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, 0.5);
-  box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, 0.5);
-  will-change: transform;
-  user-select: none;
-}
-
-.card i {
-  color: rgb(11, 151, 196) !important;
-}
-
-.cardContent {
-  text-align: left;
-}
-
-.cardHeader {
-  font-weight: 500;
-  padding: 10px 15px;
-}
-
-.card-list li {
-  list-style-type: none;
-  padding: 10px 10px;
-  transition: all 0.3s ease;
-}
-
-.card-list li:hover {
-  transform: scale(1.1);
-}
-
-.reasons {
-}
-
-.reasons li {
-  list-style: square;
-  margin-left: 30px;
-  list-style-type: '→';
-}
-</style>
