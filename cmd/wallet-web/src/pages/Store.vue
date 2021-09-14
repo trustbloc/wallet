@@ -5,88 +5,129 @@
 -->
 
 <template>
-  <div class="flex justify-center w-screen content">
-    <div class="max-w-screen-xl md-layout">
-      <div class="md-layout-item">
-        <form>
-          <md-card>
-            <md-card-header style="background-color: #00bcd4">
-              <h3 class="title">
-                <md-icon>fingerprint</md-icon>
-                Credential
-              </h3>
-            </md-card-header>
-
-            <md-card-content
-              v-if="records.length"
-              class="md-layout md-alignment-center-center card-list"
+  <div class="flex justify-center w-screen h-auto">
+    <div
+      class="
+        pt-5
+        h-auto
+        bg-neutrals-softWhite
+        rounded-b
+        border border-neutrals-black
+        chapi-container
+      "
+    >
+      <span class="px-5 text-xl font-bold text-neutrals-dark">Save credential</span>
+      <div v-if="records.length" class="flex flex-col justify-center px-5">
+        <ul class="grid grid-cols-1 gap-4 my-8">
+          <li v-for="(record, index) in records" :key="index" @click="toggleDetails(index)">
+            <div
+              :class="[
+                `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
+                record.brandColor.length
+                  ? `bg-gradient-${record.brandColor} border-neutrals-black border-opacity-10 focus-within:ring-primary-${record.brandColor}`
+                  : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
+              ]"
             >
-              <ul>
-                <li v-for="(card, index) in records" :key="index">
-                  <transition name="flip">
-                    <div class="card" style="padding-bottom: 35px">
-                      <div class="cardContent">
-                        <div class="cardHeader">
-                          {{ card.title }}
-                        </div>
-
-                        <div class="cardBody">
-                          <div class="cardDetailsL">
-                            <md-icon class="md-size-4x">{{ card.icon }}</md-icon>
-                          </div>
-                          <div class="cardDetailsR">
-                            <p>{{ card.description }}</p>
-                            <div v-if="card.body">
-                              The verifier can only access below information from your credential.
-                              <div v-for="(subj, skey) in card.body" :key="skey">
-                                <div v-if="displayContent(skey)" class="md-caption">
-                                  <b>{{ skey.replace('.', ' ') }} </b>: {{ subj }}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </transition>
-                </li>
-              </ul>
-            </md-card-content>
-
-            <md-card-content>
-              <div v-if="errors.length">
-                <b>Please correct the following error(s):</b>
-                <ul>
-                  <li v-for="error in errors" :key="error" style="color: #9d0006">{{ error }}</li>
-                </ul>
+              <div class="flex-none w-12 h-12 border-opacity-10">
+                <img :src="require(`@/assets/img/${record.icon}`)" />
               </div>
-              <div class="md-layout md-alignment-center-center">
-                <div>
-                  <md-button id="cancelBtn" class="md-cancel-text" @click="cancel"
-                    >Cancel
-                  </md-button>
-                </div>
-                <div>
-                  <md-button
-                    id="storeVCBtn"
-                    class="md-raised md-success"
-                    :disabled="isDisabled"
-                    @click="store"
-                    >Confirm
-                  </md-button>
-                </div>
+              <div class="flex-grow p-4">
+                <span
+                  :class="[
+                    `text-sm md:text-base font-bold text-left overflow-ellipsis`,
+                    record.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
+                  ]"
+                >
+                  {{ record.title }}
+                </span>
               </div>
-            </md-card-content>
-          </md-card>
-        </form>
+            </div>
+            <!-- TODO refactor this solution, if only 1 credential present then display detail by default -->
+            <div
+              v-if="showDetails || records.length === 1"
+              :class="index == active || records.length === 1 ? activeClass : 'hidden'"
+              class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full details"
+            >
+              <!-- todo populate with dynamic vault list -->
+              <div
+                class="
+                  justify-start
+                  items-start
+                  px-4
+                  mb-8
+                  w-full
+                  bg-neutrals-lilacSoft
+                  rounded-t-lg
+                  flex flex-col flex-grow
+                  border-b border-neutrals-dark
+                "
+              >
+                <label for="select-key" class="mb-1 text-sm font-bold text-neutrals-dark"
+                  >Select Vault</label
+                >
+                <select
+                  v-model="selectedDefault"
+                  class="mb-1 w-full max-w-full text-base text-neutrals-dark bg-neutrals-lilacSoft"
+                >
+                  <option>Default Vault</option>
+                </select>
+              </div>
+
+              <span class="py-3 text-base font-bold text-neutrals-dark">Verified Information</span>
+
+              <!-- todo move this to resuable components -->
+              <table class="w-full border-t border-neutrals-chatelle">
+                <tr
+                  v-for="(property, index) of record.properties"
+                  :key="index"
+                  class="border-b border-neutrals-thistle border-dotted"
+                >
+                  <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
+                  <td
+                    v-if="property.type != 'image'"
+                    class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+                  >
+                    {{ property.value }}
+                  </td>
+                  <td
+                    v-if="property.type === 'image'"
+                    class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+                  >
+                    <img :src="property.value" class="w-20 h-20" />
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div v-if="errors.length">
+        <b>Please correct the following error(s):</b>
+        <ul>
+          <!-- todo implement error as per ux design -->
+          <li v-for="error in errors" :key="error" class="text-sm text-primary-valencia">
+            {{ error }}
+          </li>
+        </ul>
+      </div>
+      <div class="flex justify-between p-5 w-full h-auto bg-neutrals-magnolia footerContainer">
+        <button id="cancelBtn" class="btn-outline" @click="cancel">Decline</button>
+        <button id="storeVCBtn" class="btn-primary" @click="store">Save</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { CHAPIEventHandler, getCredentialType, getVCIcon, isVPType } from './mixins';
+import {
+  CHAPIEventHandler,
+  getCredentialType,
+  getCredentialDisplayData,
+  getVCIcon,
+  isVPType,
+} from './mixins';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
+import credentialDisplayData from '@/config/credentialDisplayData';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -97,13 +138,18 @@ export default {
       subject: '',
       issuer: '',
       issuance: '',
+      activeClass: 'is-visible',
+      active: null,
+      showDetails: false,
       errors: [],
+      selectedDefault: 'Default Vault',
     };
   },
   computed: {
     isDisabled() {
       return this.storeButton;
     },
+    // Todo issue 1075 add ii8n support : failing UI Test
   },
   created: async function () {
     // Load the Credentials
@@ -131,14 +177,12 @@ export default {
     ...mapGetters(['getCurrentUser']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     prepareCards: function (data) {
-      this.records = data.verifiableCredential.map((vc) => {
-        return {
-          title: vc.name ? vc.name : getCredentialType(vc.type),
-          description: vc.description,
-          icon: getVCIcon(vc.type),
-        };
+      data.verifiableCredential.map((vc) => {
+        const manifest = this.getManifest(vc);
+        const record = this.getCredentialDisplayData(vc, manifest);
+        this.records.push(record);
       });
-      console.log('this.records', JSON.stringify(this.records, null, 2));
+      console.log('records', JSON.stringify(this.records, null, 2));
     },
     store: function () {
       this.errors.length = 0;
@@ -157,52 +201,32 @@ export default {
     cancel: function () {
       this.credentialEvent.cancel();
     },
+    getCredentialType: function (vc) {
+      return getCredentialType(vc.type);
+    },
+    getCredentialDisplayData: function (vc, manifestCredential) {
+      return getCredentialDisplayData(vc, manifestCredential);
+    },
+    getManifest: function (credential) {
+      const currentCredentialType = this.getCredentialType(credential);
+      return credentialDisplayData[currentCredentialType] || credentialDisplayData.fallback;
+    },
+    toggleDetails(i) {
+      this.active = i;
+      this.showDetails = !this.showDetails;
+    },
   },
 };
 </script>
 
 <style scoped>
-.card {
-  display: block;
-  width: 360px;
-  padding: 10px;
-  background-color: whitesmoke;
-  border-radius: 7px;
-  margin: 5px;
-  text-align: center;
-  line-height: 22px;
-  cursor: pointer;
-  position: relative;
-  color: black;
-  font-weight: 400;
-  font-size: 16px;
-  -webkit-box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, 0.5);
-  -moz-box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, 0.5);
-  box-shadow: 9px 10px 22px -8px rgba(209, 193, 209, 0.5);
-  will-change: transform;
-  user-select: none;
+.chapi-container {
+  width: 28rem;
 }
-
-.card i {
-  color: rgb(11, 151, 196) !important;
+.credentialPreviewContainer:not(:focus-within):hover {
+  box-shadow: 0px 4px 12px 0px rgba(25, 12, 33, 0.1);
 }
-
-.cardContent {
-  text-align: left;
-}
-
-.cardHeader {
-  font-weight: 500;
-  padding: 10px 15px;
-}
-
-.card-list li {
-  list-style-type: none;
-  padding: 10px 10px;
-  transition: all 0.3s ease;
-}
-
-.card-list li:hover {
-  transform: scale(1.1);
+.footerContainer {
+  box-shadow: inset 0px 1px 0px 0px rgb(219, 215, 220);
 }
 </style>
