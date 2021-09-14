@@ -41,7 +41,7 @@
       <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
       communication.
     </span>
-    <div v-if="processedCredentials.length" class="mx-6 md:mx-0">
+    <div v-if="processedCredentials.length && loadingStatus === 'success'" class="mx-6 md:mx-0">
       <div class="md:mx-0 mb-5">
         <span class="text-xl font-bold text-neutrals-dark">{{ i18n.defaultVault }}</span>
       </div>
@@ -143,9 +143,6 @@ export default {
     },
     getCredentialType: function (vc) {
       return getCredentialType(vc.type);
-    },
-    credDisplayName: function (vc) {
-      return vc.name ? vc.name : getCredentialType(vc.type);
     },
     getCredentialDisplayData: function (vc, manifestCredential) {
       return getCredentialDisplayData(vc, manifestCredential);

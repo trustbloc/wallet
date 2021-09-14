@@ -1,4 +1,5 @@
 import App from './App/en.json';
+import CHAPI from './CHAPI/en.json';
 import CredentialDetails from './CredentialDetails/en.json';
 import Credentials from './Credentials/en.json';
 import DashboardLayout from './DashboardLayout/en.json';
@@ -9,6 +10,7 @@ import Signup from './Signup/en.json';
 
 export default {
   App,
+  CHAPI,
   CredentialDetails,
   Credentials,
   DashboardLayout,
