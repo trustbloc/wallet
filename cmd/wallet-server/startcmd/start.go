@@ -22,6 +22,7 @@ import (
 	"github.com/duo-labs/webauthn/webauthn"
 	"github.com/gorilla/mux"
 	ariescouchdb "github.com/hyperledger/aries-framework-go-ext/component/storage/couchdb"
+	ariesmongodb "github.com/hyperledger/aries-framework-go-ext/component/storage/mongodb"
 	ariesmysql "github.com/hyperledger/aries-framework-go-ext/component/storage/mysql"
 	ariesleveldb "github.com/hyperledger/aries-framework-go/component/storage/leveldb"
 	ariesmem "github.com/hyperledger/aries-framework-go/component/storageutil/mem"
@@ -200,6 +201,9 @@ var supportedStorageProviders = map[string]func(string, string) (ariesstorage.Pr
 	},
 	databaseTypeMYSQLDBOption: func(url, prefix string) (ariesstorage.Provider, error) {
 		return ariesmysql.NewProvider(url, ariesmysql.WithDBPrefix(prefix))
+	},
+	databaseTypeMongoDBOption: func(url, prefix string) (ariesstorage.Provider, error) {
+		return ariesmongodb.NewProvider(url, ariesmongodb.WithDBPrefix(prefix))
 	},
 }
 

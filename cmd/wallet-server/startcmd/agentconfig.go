@@ -41,7 +41,7 @@ const (
 	databaseTypeEnvKey        = "ARIESD_DATABASE_TYPE"
 	databaseTypeFlagShorthand = "q"
 	databaseTypeFlagUsage     = "The type of database to use for everything except key storage. " +
-		"Supported options: mem, couchdb, mysql, leveldb. " +
+		"Supported options: mem, couchdb, mysql, leveldb, mongodb. " +
 		" Alternatively, this can be set with the following environment variable: " + databaseTypeEnvKey
 
 	databaseURLFlagName      = "database-url"
@@ -154,6 +154,7 @@ const (
 	databaseTypeCouchDBOption = "couchdb"
 	databaseTypeMYSQLDBOption = "mysql"
 	databaseTypeLevelDBOption = "leveldb"
+	databaseTypeMongoDBOption = "mongodb"
 )
 
 // agentParameters contains parameters for wallet server agent.
