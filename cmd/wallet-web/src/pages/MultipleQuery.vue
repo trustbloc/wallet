@@ -23,6 +23,7 @@
       <Spinner />
     </div>
   </div>
+  <!-- Sharing State -->
   <div v-else-if="sharing" class="flex justify-center items-start w-screen h-screen">
     <div
       class="
@@ -43,49 +44,7 @@
       }}</span>
     </div>
   </div>
-  <div v-else-if="showCredentialsMissing" class="flex justify-center items-start w-screen h-screen">
-    <div
-      class="
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-auto
-        bg-gray-light
-        md:border md:border-t-0
-        border-neutrals-black
-        flex flex-col
-      "
-    >
-      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
-        <img src="@/assets/img/icons-warning.svg" />
-        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
-          $t('CHAPI.Share.CredentialsMissing.heading')
-        }}</span>
-        <span class="text-lg text-center text-neutrals-medium">{{
-          $t('CHAPI.Share.CredentialsMissing.body')
-        }}</span>
-      </div>
-      <div
-        class="
-          justify-center
-          items-center
-          pt-4
-          pr-5
-          pb-4
-          pl-5
-          w-full
-          bg-neutrals-magnolia
-          flex flex-row
-          border-t border-neutrals-thistle
-        "
-      >
-        <button id="share-credentials-ok-btn" class="btn-outline" @click="cancel">
-          {{ $t('CHAPI.Share.CredentialsMissing.ok') }}
-        </button>
-      </div>
-    </div>
-  </div>
+  <!-- Error State -->
   <div v-else-if="errors.length" class="flex justify-center items-start w-screen h-screen">
     <div
       class="
@@ -129,7 +88,51 @@
       </div>
     </div>
   </div>
-  <!-- Main Container -->
+  <!-- Credentials Missing State -->
+  <div v-else-if="showCredentialsMissing" class="flex justify-center items-start w-screen h-screen">
+    <div
+      class="
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-auto
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+        flex flex-col
+      "
+    >
+      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
+        <img src="@/assets/img/icons-warning.svg" />
+        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
+          $t('CHAPI.Share.CredentialsMissing.heading')
+        }}</span>
+        <span class="text-lg text-center text-neutrals-medium">{{
+          $t('CHAPI.Share.CredentialsMissing.body')
+        }}</span>
+      </div>
+      <div
+        class="
+          justify-center
+          items-center
+          pt-4
+          pr-5
+          pb-4
+          pl-5
+          w-full
+          bg-neutrals-magnolia
+          flex flex-row
+          border-t border-neutrals-thistle
+        "
+      >
+        <button id="share-credentials-ok-btn" class="btn-outline" @click="cancel">
+          {{ $t('CHAPI.Share.CredentialsMissing.ok') }}
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Main State -->
   <div v-else class="flex justify-center items-start w-screen h-screen">
     <div class="w-full max-w-md bg-gray-light md:border md:border-t-0 border-neutrals-black">
       <div class="p-5">
@@ -153,14 +156,6 @@
               </span>
             </div>
           </div>
-        </div>
-
-        <!-- Errors -->
-        <div v-if="errors.length" class="mb-4">
-          <b>Failed with following error(s):</b>
-          <ul>
-            <li v-for="error in errors" :key="error" style="color: #9d0006">{{ error }}</li>
-          </ul>
         </div>
 
         <span class="text-neutrals-dark">{{
@@ -253,8 +248,9 @@ export default {
         this.processedCredentials.push(processedCredential);
       });
     } catch (e) {
-      this.errors.push('No credentials found matching requested criteria.');
-      console.error('get credentials failed,:', e);
+      this.errors.push(e);
+      console.error('get credentials failed,', e);
+      this.loading = false;
     }
 
     // TODO: governance VC check
@@ -264,10 +260,6 @@ export default {
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser']),
-    handleError(e) {
-      this.errors.push(e);
-      this.loading = false;
-    },
     async share() {
       this.sharing = true;
       const { profile, preference } = this.getCurrentUser();
@@ -289,13 +281,19 @@ export default {
           )
         ).presentation;
       };
-      // TODO: match expected format
-      const results = await Promise.all(this.presentation.map(_present));
-      // typically single presentation, but some verifier queries might produce multiple presentation.
-      if (results.length === 1) {
-        this.protocolHandler.present(results[0]);
-      } else {
-        this.protocolHandler.present(results);
+      try {
+        // TODO: match expected format
+        const results = await Promise.all(this.presentation.map(_present));
+        // typically single presentation, but some verifier queries might produce multiple presentation.
+        if (results.length === 1) {
+          this.protocolHandler.present(results[0]);
+        } else {
+          this.protocolHandler.present(results);
+        }
+      } catch (e) {
+        this.errors.push(e);
+        console.error('share credentials failed,', e);
+        this.sharing = false;
       }
 
       this.sharing = false;
