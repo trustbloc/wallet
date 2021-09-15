@@ -15,6 +15,7 @@ export default {
     profile: null,
     loggedIn: false,
     logInSuspended: false,
+    chapi: false,
     processedCredentials: [], // TODO to be removed
   },
   mutations: {
@@ -38,18 +39,24 @@ export default {
       state.setupStatus = val;
       localStorage.setItem('setupStatus', val);
     },
+    setCHAPI(state, val) {
+      state.chapi = val;
+      localStorage.setItem('chapi', JSON.stringify(val));
+    },
     clearUser(state) {
       state.username = null;
       state.setupStatus = null;
       state.profile = null;
       state.loggedIn = false;
       state.processedCredentials = [];
+      state.chapi = false;
 
       localStorage.removeItem('user');
       localStorage.removeItem('setupStatus');
       localStorage.removeItem('profile');
       localStorage.removeItem('preference');
       localStorage.removeItem('processedCredentials');
+      localStorage.removeItem('chapi');
     },
     loadUser(state) {
       state.username = localStorage.getItem('user');
@@ -57,6 +64,7 @@ export default {
       state.profile = JSON.parse(localStorage.getItem('profile'));
       state.preference = JSON.parse(localStorage.getItem('preference'));
       state.processedCredentials = JSON.parse(localStorage.getItem('processedCredentials'));
+      state.chapi = JSON.parse(localStorage.getItem('chapi'));
     },
     setUserLoggedIn(state) {
       state.loggedIn = true;
@@ -132,6 +140,9 @@ export default {
     updateProcessedCredentials({ commit }, processedCredentials) {
       commit('setProcessedCredentials', processedCredentials);
     },
+    activateCHAPI({ commit }) {
+      commit('setCHAPI', true);
+    },
   },
   getters: {
     getCurrentUser(state) {
@@ -153,6 +164,9 @@ export default {
     getProcessedCredentialByID: (state) => (id) => {
       state.processedCredentials = JSON.parse(localStorage.getItem('processedCredentials'));
       return state.processedCredentials.find((credential) => credential.id === id);
+    },
+    isCHAPI(state) {
+      return state.chapi;
     },
   },
   modules: {

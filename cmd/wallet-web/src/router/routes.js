@@ -32,7 +32,7 @@ export default [
         path: 'waci',
         name: 'waci',
         component: load('WACI'),
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true, signin: true, disableCHAPI: true },
       },
       {
         path: 'web-wallet',
