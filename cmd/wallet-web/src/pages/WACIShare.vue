@@ -169,12 +169,60 @@
         >
           <ul class="space-y-5 w-full">
             <li v-for="(credential, index) in processedCredentials" :key="index">
-              <credential-preview
-                :id="credential.id"
-                :brand-color="credential.brandColor"
-                :icon="credential.icon"
-                :title="credential.title"
-              />
+              <!-- Credential Preview -->
+              <button
+                :class="[
+                  `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
+                  credential.brandColor.length
+                    ? `bg-gradient-${credential.brandColor} border-neutrals-black border-opacity-10 focus-within:ring-primary-${credential.brandColor}`
+                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
+                ]"
+                @click="toggleDetails(credential)"
+              >
+                <div class="flex-none w-12 h-12 border-opacity-10">
+                  <img :src="require(`@/assets/img/${credential.icon}`)" />
+                </div>
+                <div class="flex-grow p-4">
+                  <span
+                    :class="[
+                      `text-sm md:text-base font-bold text-left overflow-ellipsis`,
+                      credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
+                    ]"
+                  >
+                    {{ credential.title }}
+                  </span>
+                </div>
+              </button>
+              <!-- Credential Details -->
+              <div
+                v-if="credential.showDetails"
+                class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full details"
+              >
+                <span class="py-3 text-base font-bold text-neutrals-dark">What's being shared</span>
+
+                <!-- TODO: move this to reusable components -->
+                <table class="w-full border-t border-neutrals-chatelle">
+                  <tr
+                    v-for="(property, index) of credential.properties"
+                    :key="index"
+                    class="border-b border-neutrals-thistle border-dotted"
+                  >
+                    <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
+                    <td
+                      v-if="property.type != 'image'"
+                      class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+                    >
+                      {{ property.value }}
+                    </td>
+                    <td
+                      v-if="property.type === 'image'"
+                      class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+                    >
+                      <img :src="property.value" class="w-20 h-20" />
+                    </td>
+                  </tr>
+                </table>
+              </div>
             </li>
           </ul>
         </div>
@@ -209,12 +257,10 @@ import { DIDComm } from '@trustbloc/wallet-sdk';
 import { wait, getCredentialType, getCredentialDisplayData } from './mixins';
 import { mapGetters } from 'vuex';
 import Spinner from '@/components/Spinner/Spinner.vue';
-import CredentialPreview from '@/components/CredentialPreview/CredentialPreview.vue';
 import credentialDisplayData from '@/config/credentialDisplayData';
 
 export default {
   components: {
-    CredentialPreview,
     Spinner,
   },
   data() {
@@ -258,6 +304,9 @@ export default {
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser']),
+    toggleDetails(credential) {
+      credential.showDetails = !credential.showDetails;
+    },
     prepareRecords: function (presentations) {
       try {
         const credentials = presentations.reduce(
@@ -267,7 +316,7 @@ export default {
         credentials.map((credential) => {
           const manifest = this.getManifest(credential);
           const processedCredential = this.getCredentialDisplayData(credential, manifest);
-          this.processedCredentials.push(processedCredential);
+          this.processedCredentials.push({ ...processedCredential, showDetails: false });
         });
       } catch (e) {
         this.errors.push('No credentials found matching requested criteria.');
