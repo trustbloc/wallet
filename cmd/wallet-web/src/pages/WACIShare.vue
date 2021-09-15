@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <div class="w-full flex justify-center items-start">
+  <div class="flex justify-center items-start w-full">
     <!-- Loading State -->
     <div
       v-if="loading"
@@ -16,9 +16,9 @@
         w-full
         max-w-md
         h-80
+        bg-gray-light
         rounded-lg
         md:border
-        bg-gray-light
         border-neutrals-chatelle
       "
     >
@@ -33,9 +33,9 @@
         w-full
         max-w-md
         h-80
+        bg-gray-light
         rounded-lg
         md:border
-        bg-gray-light
         border-neutrals-chatelle
         flex flex-col
       "
@@ -54,9 +54,9 @@
         w-full
         max-w-md
         h-auto
+        bg-gray-light
         rounded-lg
         md:border
-        bg-gray-light
         border-neutrals-chatelle
         flex flex-col
       "
@@ -98,9 +98,9 @@
         w-full
         max-w-md
         h-auto
+        bg-gray-light
         rounded-lg
         md:border
-        bg-gray-light
         border-neutrals-chatelle
         flex flex-col
       "
@@ -134,7 +134,7 @@
       </div>
     </div>
     <!-- Main State -->
-    <div v-else class="w-full max-w-md rounded-lg md:border bg-gray-light border-neutrals-chatelle">
+    <div v-else class="w-full max-w-md bg-gray-light rounded-lg md:border border-neutrals-chatelle">
       <div class="p-5">
         <!-- Heading -->
         <div class="flex flex-row justify-start items-start mb-4 w-full">
@@ -151,7 +151,7 @@
             </span>
             <div class="flex flex-row justify-center items-center">
               <img src="@/assets/img/small-lock-icon.svg" />
-              <span class="flex-1 pl-1 text-xs text-left overflow-ellipsis text-neutrals-medium">
+              <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
                 {{ requestOrigin }}
               </span>
             </div>
@@ -205,18 +205,18 @@
                   <tr
                     v-for="(property, index) of credential.properties"
                     :key="index"
-                    class="border-b border-dotted border-neutrals-thistle"
+                    class="border-b border-neutrals-thistle border-dotted"
                   >
                     <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
                     <td
                       v-if="property.type != 'image'"
-                      class="py-4 pr-6 pl-3 break-words text-neutrals-dark"
+                      class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
                     >
                       {{ property.value }}
                     </td>
                     <td
                       v-if="property.type === 'image'"
-                      class="py-4 pr-6 pl-3 break-words text-neutrals-dark"
+                      class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
                     >
                       <img :src="property.value" class="w-20 h-20" />
                     </td>
@@ -237,8 +237,8 @@
           pb-4
           pl-5
           w-full
-          rounded-b-lg
           bg-neutrals-magnolia
+          rounded-b-lg
           flex flex-row
           border-t border-neutrals-thistle
         "
