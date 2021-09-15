@@ -32,42 +32,42 @@
         <flyout-menu />
       </div>
     </div>
-    <span v-if="loadingStatus === 'inprogress'">
-      <skeleton-loader type="vault" />
-    </span>
-    <span v-else-if="loadingStatus === 'success'" id="dashboard-success-msg" class="px-8" />
+    <skeleton-loader v-if="loadingStatus === 'inProgress'" type="vault" />
     <span v-else-if="loadingStatus === 'failed'">
-      <md-icon style="color: red" class="px-4">warning</md-icon>
       <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
       communication.
     </span>
-    <div v-if="processedCredentials.length && loadingStatus === 'success'" class="mx-6 md:mx-0">
-      <div class="md:mx-0 mb-5">
-        <span class="text-xl font-bold text-neutrals-dark">{{ i18n.defaultVault }}</span>
+    <div v-else-if="loadingStatus === 'success'">
+      <span id="dashboard-success-msg" class="px-8" />
+      <div v-if="processedCredentials.length" class="mx-6 md:mx-0">
+        <span id="dashboard-success-msg" class="px-8" />
+        <div class="md:mx-0 mb-5">
+          <span class="text-xl font-bold text-neutrals-dark">{{ i18n.defaultVault }}</span>
+        </div>
+        <ul class="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-8 my-8">
+          <li v-for="(processedCredential, index) in processedCredentials" :key="index">
+            <credential-preview
+              :id="processedCredential.id"
+              :brand-color="processedCredential.brandColor"
+              :icon="processedCredential.icon"
+              :title="processedCredential.title"
+            />
+          </li>
+        </ul>
       </div>
-      <ul class="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-8 my-8">
-        <li v-for="(processedCredential, index) in processedCredentials" :key="index">
-          <credential-preview
-            :id="processedCredential.id"
-            :brand-color="processedCredential.brandColor"
-            :icon="processedCredential.icon"
-            :title="processedCredential.title"
-          />
-        </li>
-      </ul>
-    </div>
-    <div
-      v-else-if="loadingStatus === 'success'"
-      class="py-8 px-6 mx-auto rounded-lg border border-neutrals-thistle nocredentialCard"
-    >
-      <div class="flex justify-center">
-        <img src="@/assets/img/icons-md--credentials-icon.svg" />
-      </div>
-      <div class="flex justify-center">
-        <span class="text-base font-bold text-neutrals-medium"> {{ i18n.error }}</span>
-      </div>
-      <div class="flex justify-center">
-        <span class="text-base text-neutrals-medium"> {{ i18n.description }}</span>
+      <div
+        v-else
+        class="py-8 px-6 mx-auto rounded-lg border border-neutrals-thistle nocredentialCard"
+      >
+        <div class="flex justify-center">
+          <img src="@/assets/img/icons-md--credentials-icon.svg" />
+        </div>
+        <div class="flex justify-center">
+          <span class="text-base font-bold text-neutrals-medium"> {{ i18n.error }}</span>
+        </div>
+        <div class="flex justify-center">
+          <span class="text-base text-neutrals-medium"> {{ i18n.description }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -110,7 +110,6 @@ export default {
   created: function () {
     let { user, token } = this.getCurrentUser().profile;
     this.username = this.getCurrentUser().username;
-
     let credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
     this.fetchAllCredentials(credentialManager.getAll(token));
   },
