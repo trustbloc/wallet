@@ -37,10 +37,9 @@
       <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
       communication.
     </span>
-    <div v-else-if="loadingStatus === 'success'">
+    <div v-else>
       <span id="dashboard-success-msg" class="px-8" />
       <div v-if="processedCredentials.length" class="mx-6 md:mx-0">
-        <span id="dashboard-success-msg" class="px-8" />
         <div class="md:mx-0 mb-5">
           <span class="text-xl font-bold text-neutrals-dark">{{ i18n.defaultVault }}</span>
         </div>
