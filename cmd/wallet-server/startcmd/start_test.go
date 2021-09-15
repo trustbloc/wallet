@@ -85,6 +85,10 @@ func TestSupportedDatabases(t *testing.T) {
 				expectedErrMsg: "failed to connect to storage at test:test@test/",
 			},
 			{
+				dbURL: "mongodb://", dbType: "mongodb", isErr: true,
+				expectedErrMsg: "failed to connect to storage at mongodb://:",
+			},
+			{
 				dbURL: "random", dbType: "random", isErr: true,
 				expectedErrMsg: "key database type not set to a valid type",
 			},

@@ -33,10 +33,10 @@ services:
       - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${INBOUND_HOST}:8092
       - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://wallet-server.trustbloc.local:8092
       - ARIESD_DEFAULT_LABEL=user-agent
-      - ARIESD_DATABASE_TYPE=mysql
-      - ARIESD_DATABASE_PREFIX=edgeagent_usragdb
+      - ARIESD_DATABASE_TYPE=mongodb
+      - ARIESD_DATABASE_PREFIX=edgeagent_usragdb_
       - ARIESD_DATABASE_TIMEOUT=60
-      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/?interpolateParams=true&multiStatements=true
+      - ARIESD_DATABASE_URL=mongodb://mongodb.example.com:27017
     ports:
       - 8090:8090
     volumes:
@@ -44,7 +44,6 @@ services:
     command: start
     depends_on:
       - edv.trustbloc.local
-      - mysql
 
   wallet-server-dev.trustbloc.local:
     container_name: wallet-server-dev.trustbloc.local
@@ -73,10 +72,10 @@ services:
       - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${INBOUND_HOST}:9100
       - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://wallet-server-dev.trustbloc.local:9100
       - ARIESD_DEFAULT_LABEL=user-local-agent
-      - ARIESD_DATABASE_TYPE=mysql
-      - ARIESD_DATABASE_PREFIX=edgeagent_usrlagdb
+      - ARIESD_DATABASE_TYPE=mongodb
+      - ARIESD_DATABASE_PREFIX=edgeagent_usrlagdb_
       - ARIESD_DATABASE_TIMEOUT=60
-      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/?interpolateParams=true&multiStatements=true
+      - ARIESD_DATABASE_URL=mongodb://mongodb.example.com:27017
     ports:
       - 9099:9099
     volumes:
@@ -84,7 +83,7 @@ services:
     command: start
     depends_on:
       - edv.trustbloc.local
-      - mysql
+      - mongodb.example.com
 
   wallet-server-2.trustbloc.local:
     container_name: wallet-server-2.trustbloc.local
@@ -113,10 +112,10 @@ services:
       - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${INBOUND_HOST}:8072
       - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://wallet-server-2.trustbloc.local:8072
       - ARIESD_DEFAULT_LABEL=second-user-agent
-      - ARIESD_DATABASE_TYPE=mysql
-      - ARIESD_DATABASE_PREFIX=edgeagent_scusragdb
+      - ARIESD_DATABASE_TYPE=mongodb
+      - ARIESD_DATABASE_PREFIX=edgeagent_scusragdb_
       - ARIESD_DATABASE_TIMEOUT=60
-      - ARIESD_DATABASE_URL=edgeagent:edgeagent-secret-pw@tcp(mysql:3306)/?interpolateParams=true&multiStatements=true
+      - ARIESD_DATABASE_URL=mongodb://mongodb.example.com:27017
     ports:
       - 8070:8070
     volumes:
@@ -124,20 +123,14 @@ services:
     command: start
     depends_on:
       - edv.trustbloc.local
-      - mysql
+      - mongodb.example.com
 
-  couchdb.example.com:
-    container_name: couchdb.example.com
-    image: ${COUCHDB_IMAGE}:${COUCHDB_IMAGE_TAG}
+
+  mongodb.example.com:
+    container_name: mongodb.example.com
+    image: mongo:4.0.0
     ports:
-      - ${COUCHDB_PORT}:${COUCHDB_PORT}
-    environment:
-      - COUCHDB_USER=${COUCHDB_USERNAME}
-      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
-    volumes:
-      - ./couchdb-config/config.ini:/opt/couchdb/etc/local.d/config.ini
-    logging:
-      driver: none
+      - "27017:27017"
 
   edv.trustbloc.local:
     container_name: edv.trustbloc.local
@@ -152,7 +145,7 @@ services:
       - EDV_AUTH_ENABLE=true
       - EDV_LOCALKMS_SECRETS_DATABASE_TYPE=${EDV_DATABASE_TYPE}
       - EDV_LOCALKMS_SECRETS_DATABASE_URL=${EDV_DATABASE_URL}
-      - EDV_LOCALKMS_SECRETS_DATABASE_PREFIX=${EDV_DATABASE_PREFIX}_kms
+      - EDV_LOCALKMS_SECRETS_DATABASE_PREFIX=${EDV_DATABASE_PREFIX}_kms_
       - EDV_EXTENSIONS=ReturnFullDocumentsOnQuery,Batch
     ports:
       - ${EDV_PORT}:${EDV_PORT}
@@ -160,7 +153,7 @@ services:
       - ../keys/tls:/etc/tls
     command: start
     depends_on:
-      - couchdb.example.com
+      - mongodb.example.com
 
   dns-proxy-server:
     image: defreitas/dns-proxy-server:latest
@@ -182,9 +175,9 @@ services:
       - AUTH_REST_TLS_SYSTEMCERTPOOL=true
       - AUTH_REST_TLS_SERVE_CERT=/etc/keys/tls/ec-pubCert.pem
       - AUTH_REST_TLS_SERVE_KEY=/etc/keys/tls/ec-key.pem
-      - AUTH_REST_DATABASE_TYPE=mysql
-      - AUTH_REST_DATABASE_URL=authrest:authrest-secret-pw@tcp(mysql:3306)/
-      - AUTH_REST_DATABASE_PREFIX=authrest
+      - AUTH_REST_DATABASE_TYPE=mongodb
+      - AUTH_REST_DATABASE_URL=mongodb://mongodb.example.com:27017
+      - AUTH_REST_DATABASE_PREFIX=authrest_
       - AUTH_REST_OIDC_CALLBACK=https://hub-auth.trustbloc.local:8044/oauth2/callback
       - AUTH_REST_OIDC_PROVIDERS_CONFIG=/etc/oidc-config/demo_providers.yaml
       - AUTH_REST_SDS_DOCS_URL=https://TODO.docs.sds.org/
@@ -207,7 +200,7 @@ services:
       - ./static:/etc/static
     depends_on:
       - auth.rest.hydra.example.com
-      - mysql
+      - mongodb.example.com
 
   auth.rest.hydra.example.com:
     container_name: hub-auth-hydra.trustbloc.local
@@ -297,19 +290,19 @@ services:
       - KMS_TLS_SYSTEMCERTPOOL=true
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
-      - KMS_DATABASE_TYPE=couchdb
+      - KMS_DATABASE_TYPE=mongodb
       - KMS_DATABASE_URL=${EDV_DATABASE_URL}
-      - KMS_DATABASE_PREFIX=authzkeystore
+      - KMS_DATABASE_PREFIX=authzkeystore_
       - KMS_SECRET_LOCK_KEY_PATH=/etc/tls/service-lock.key
-      - KMS_PRIMARY_KEY_DATABASE_TYPE=couchdb
+      - KMS_PRIMARY_KEY_DATABASE_TYPE=mongodb
       - KMS_PRIMARY_KEY_DATABASE_URL=${EDV_DATABASE_URL}
-      - KMS_PRIMARY_KEY_DATABASE_PREFIX=authzkmspk
-      - KMS_LOCAL_KMS_DATABASE_TYPE=couchdb
+      - KMS_PRIMARY_KEY_DATABASE_PREFIX=authzkmspk_
+      - KMS_LOCAL_KMS_DATABASE_TYPE=mongodb
       - KMS_LOCAL_KMS_DATABASE_URL=${EDV_DATABASE_URL}
-      - KMS_LOCAL_KMS_DATABASE_PREFIX=authzkmslocal
-      - KMS_KEY_MANAGER_STORAGE_TYPE=couchdb
+      - KMS_LOCAL_KMS_DATABASE_PREFIX=authzkmslocal_
+      - KMS_KEY_MANAGER_STORAGE_TYPE=mongodb
       - KMS_KEY_MANAGER_STORAGE_URL=${EDV_DATABASE_URL}
-      - KMS_KEY_MANAGER_STORAGE_PREFIX=authzkmskm
+      - KMS_KEY_MANAGER_STORAGE_PREFIX=authzkmskm_
       - KMS_HUB_AUTH_URL=https://hub-auth.trustbloc.local:8044
       - KMS_HUB_AUTH_API_TOKEN=test_token
       - KMS_BASE_URL=https://oathkeeper-auth-keyserver.trustbloc.local:4461
@@ -322,7 +315,7 @@ services:
     volumes:
       - ../keys/tls:/etc/tls
     depends_on:
-      - couchdb.example.com
+      - mongodb.example.com
 
   ops-kms.example.com:
     container_name: ops-kms.trustbloc.local
@@ -332,16 +325,16 @@ services:
       - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
-      - KMS_DATABASE_TYPE=couchdb
+      - KMS_DATABASE_TYPE=mongodb
       - KMS_DATABASE_URL=${EDV_DATABASE_URL}
       - KMS_DATABASE_PREFIX=keystore
       - KMS_SECRET_LOCK_KEY_PATH=/etc/tls/service-lock.key
-      - KMS_PRIMARY_KEY_DATABASE_TYPE=couchdb
+      - KMS_PRIMARY_KEY_DATABASE_TYPE=mongodb
       - KMS_PRIMARY_KEY_DATABASE_URL=${EDV_DATABASE_URL}
-      - KMS_PRIMARY_KEY_DATABASE_PREFIX=kmspk
-      - KMS_LOCAL_KMS_DATABASE_TYPE=couchdb
+      - KMS_PRIMARY_KEY_DATABASE_PREFIX=kmspk_
+      - KMS_LOCAL_KMS_DATABASE_TYPE=mongodb
       - KMS_LOCAL_KMS_DATABASE_URL=${EDV_DATABASE_URL}
-      - KMS_LOCAL_KMS_DATABASE_PREFIX=kmslocal
+      - KMS_LOCAL_KMS_DATABASE_PREFIX=kmslocal_
       - KMS_KEY_MANAGER_STORAGE_TYPE=edv
       - KMS_KEY_MANAGER_STORAGE_URL=https://edv.trustbloc.local:${EDV_PORT}
       - KMS_ZCAP_ENABLE=true
@@ -355,7 +348,7 @@ services:
     volumes:
       - ../keys/tls:/etc/tls
     depends_on:
-      - couchdb.example.com
+      - mongodb.example.com
 
   edv-oathkeeper-proxy.trustbloc.local:
     image: oryd/oathkeeper:v0.38.4-alpine
