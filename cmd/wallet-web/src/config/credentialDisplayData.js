@@ -80,19 +80,19 @@ export default {
     issuanceDate: ['$.issuanceDate'],
     properties: {
       RecipientFamilyName: {
-        path: ['$.credentialSubject.recipient.familyName'],
+        path: ['$.credentialSubject..familyName'],
         label: 'Family Name',
       },
       RecipientGivenName: {
-        path: ['$.credentialSubject.recipient.givenName'],
+        path: ['$.credentialSubject..givenName'],
         label: 'Given Name',
       },
       RecipientGender: {
-        path: ['$.credentialSubject.recipient.gender'],
+        path: ['$.credentialSubject..gender'],
         label: 'Gender',
       },
       RecipientBirthDate: {
-        path: ['$.credentialSubject.recipient.birthDate'],
+        path: ['$.credentialSubject..birthDate'],
         label: 'Date of Birth',
         type: 'date',
         format: 'yyyy-mm-dd',

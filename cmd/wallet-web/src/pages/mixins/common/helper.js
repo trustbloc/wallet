@@ -198,7 +198,7 @@ function getTermInContext(ctxObj, term) {
 }
 
 // function to get the credential display data
-export function getCredentialDisplayData(vc, manifest) {
+export function getCredentialDisplayData(vc, manifest, skipEmpty = true) {
   const id = base64url.encode(populatePath(vc, manifest.id));
   const brandColor = manifest.brandColor || '';
   const issuanceDate = populatePath(vc, manifest.issuanceDate);
@@ -226,7 +226,9 @@ export function getCredentialDisplayData(vc, manifest) {
           label,
           value,
         }))
-      : Object.values(manifest.properties).map(_readProperty);
+      : Object.values(manifest.properties)
+          .map(_readProperty)
+          .filter((el) => !(skipEmpty && el.value.length === 0));
 
   return {
     id,
@@ -245,7 +247,7 @@ function populatePath(vc, paths) {
       if (resolvedQuery) return resolvedQuery;
     } catch (error) {
       // TODO: write this error into logger once implemented (it would mean we received corrupt value from config file)
-      console.warn('failed to read display data from credentail config', error);
+      console.warn('failed to read display data from credential config', error);
     }
   }
   return undefined;
