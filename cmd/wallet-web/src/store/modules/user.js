@@ -15,7 +15,7 @@ export default {
     profile: null,
     loggedIn: false,
     logInSuspended: false,
-    processedCredentials: [],
+    processedCredentials: [], // TODO to be removed
   },
   mutations: {
     setUser(state, val) {
@@ -43,17 +43,20 @@ export default {
       state.setupStatus = null;
       state.profile = null;
       state.loggedIn = false;
+      state.processedCredentials = [];
 
       localStorage.removeItem('user');
       localStorage.removeItem('setupStatus');
       localStorage.removeItem('profile');
       localStorage.removeItem('preference');
+      localStorage.removeItem('processedCredentials');
     },
     loadUser(state) {
       state.username = localStorage.getItem('user');
       state.setupStatus = localStorage.getItem('setupStatus');
       state.profile = JSON.parse(localStorage.getItem('profile'));
       state.preference = JSON.parse(localStorage.getItem('preference'));
+      state.processedCredentials = JSON.parse(localStorage.getItem('processedCredentials'));
     },
     setUserLoggedIn(state) {
       state.loggedIn = true;
