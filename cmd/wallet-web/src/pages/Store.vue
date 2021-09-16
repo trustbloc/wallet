@@ -5,17 +5,8 @@
 -->
 
 <template>
-  <div class="flex justify-center w-screen h-auto">
-    <div
-      class="
-        pt-5
-        h-auto
-        bg-neutrals-softWhite
-        rounded-b
-        border border-neutrals-black
-        chapi-container
-      "
-    >
+  <div class="flex justify-center items-start w-screen h-screen">
+    <div class="pt-5 bg-neutrals-softWhite rounded-b border border-neutrals-black chapi-container">
       <span class="px-5 text-xl font-bold text-neutrals-dark">Save credential</span>
       <div v-if="records.length" class="flex flex-col justify-center px-5">
         <ul class="grid grid-cols-1 gap-4 my-8">
