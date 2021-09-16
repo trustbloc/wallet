@@ -168,6 +168,9 @@ export default {
 
     console.debug('redirecting to', this.redirect);
 
+    // meta info related to intended target
+    this.meta = this.$route.params.meta || {};
+
     // load user.
     this.loadUser();
 
@@ -188,6 +191,7 @@ export default {
       completeUserSetup: 'completeUserSetup',
       refreshUserPreference: 'refreshUserPreference',
       refreshOpts: 'initOpts',
+      activateCHAPI: 'activateCHAPI',
     }),
     ...mapGetters([
       'getCurrentUser',
@@ -228,7 +232,7 @@ export default {
       let user = this.getCurrentUser();
       this.registerUser(user);
 
-      if (!this.breakpoints.xs && !this.breakpoints.sm) {
+      if (!this.breakpoints.xs && !this.breakpoints.sm && !this.meta.disableCHAPI) {
         // all credential handlers registration should happen here, ex: CHAPI, WACI etc
         let chapi = new CHAPIHandler(
           this.$polyfill,
@@ -237,6 +241,7 @@ export default {
         );
 
         await chapi.install(this.getCurrentUser().username);
+        this.activateCHAPI();
       }
     },
     async registerUser(user) {

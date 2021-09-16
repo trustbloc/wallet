@@ -36,6 +36,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   store.dispatch('agent/flushStore');
+  console.log('to ', to, 'to meta --> ', to.meta);
   const locale = store.getters.getLocale;
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (store.getters.getCurrentUser) {
@@ -46,12 +47,13 @@ router.beforeEach((to, from, next) => {
       return;
     } else {
       router.replace({
-        name: 'signup',
+        name: to.meta.signin ? 'signin' : 'signup',
         params: {
           ...router.history.current.params,
           locale: locale.base,
           redirect: { name: to.name },
           query: to.query,
+          meta: to.meta,
         },
       });
       next();

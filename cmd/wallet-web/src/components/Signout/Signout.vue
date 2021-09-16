@@ -32,16 +32,10 @@
 
 <script>
 import { CHAPIHandler } from '@/pages/mixins';
-import useBreakpoints from '@/plugins/breakpoints.js';
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'Signout',
-  data() {
-    return {
-      breakpoints: useBreakpoints(),
-    };
-  },
   computed: {
     i18n() {
       return this.$t('Signout');
@@ -57,10 +51,10 @@ export default {
   methods: {
     ...mapActions({ signoutUser: 'logout' }),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getAgentOpts']),
+    ...mapGetters(['getAgentOpts', 'isCHAPI']),
     signout: async function () {
       let actions = [this.signoutUser()];
-      if (!this.breakpoints.xs && !this.breakpoints.sm) {
+      if (this.isCHAPI()) {
         actions.push(this.chapi.uninstall());
       }
 
