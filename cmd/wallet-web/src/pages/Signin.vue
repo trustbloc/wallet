@@ -160,10 +160,12 @@ export default {
       ? {
           name: redirect.name,
           params: { ...this.$route.params, locale: this.$store.getters.getLocale.base },
+          query: this.$route.params.query,
         }
       : {
           name: 'dashboard',
           params: { ...this.$route.params, locale: this.$store.getters.getLocale.base },
+          query: this.$route.params.query,
         };
 
     console.debug('redirecting to', this.redirect);
