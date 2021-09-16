@@ -283,15 +283,19 @@ export default {
     //initiate credential share flow.
     this.didcomm = new DIDComm({ agent: this.getAgentInstance(), user });
     try {
-      const { threadID, results } = await this.didcomm.initiateCredentialShare(token, invitation, {
-        userAnyRouterConnection: true,
-      });
+      const { threadID, presentations } = await this.didcomm.initiateCredentialShare(
+        token,
+        invitation,
+        { userAnyRouterConnection: true }
+      );
+
       this.threadID = threadID;
-      this.presentations = results;
+      this.presentations = presentations;
     } catch (e) {
       this.errors.push('Error initiating credential share');
       console.error('initiating credential share failed,', e);
       this.loading = false;
+      return;
     }
 
     this.prepareRecords(this.presentations);
