@@ -17,6 +17,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          lfs: true
 
       - name: Setup Go 1.16
         uses: actions/setup-go@v2
