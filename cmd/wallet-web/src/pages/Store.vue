@@ -6,7 +6,18 @@
 
 <template>
   <div class="flex justify-center items-start w-screen h-screen">
-    <div class="pt-5 bg-neutrals-softWhite rounded-b border border-neutrals-black chapi-container">
+    <div
+      class="
+        overflow-scroll
+        pt-5
+        max-h-screen
+        rounded-b
+        border
+        bg-neutrals-softWhite
+        border-neutrals-black
+        chapi-container
+      "
+    >
       <span class="px-5 text-xl font-bold text-neutrals-dark">Save credential</span>
       <div v-if="processedCredentials.length" class="flex flex-col justify-center px-5">
         <ul class="grid grid-cols-1 gap-4 my-8">
@@ -38,12 +49,11 @@
                 </span>
               </div>
             </div>
-            <!-- TODO refactor this solution, if only 1 credential present then display detail by default -->
             <div
               v-if="credential.showDetails"
-              class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full details"
+              class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full"
             >
-              <!-- todo populate with dynamic vault list -->
+              <!-- TODO: populate with dynamic vault list -->
               <div
                 class="
                   justify-start
@@ -51,8 +61,8 @@
                   px-4
                   mb-8
                   w-full
-                  bg-neutrals-lilacSoft
                   rounded-t-lg
+                  bg-neutrals-lilacSoft
                   flex flex-col flex-grow
                   border-b border-neutrals-dark
                 "
@@ -61,7 +71,7 @@
                   >Select Vault</label
                 >
                 <select
-                  v-model="selectedDefault"
+                  v-model="selectedVault"
                   class="mb-1 w-full max-w-full text-base text-neutrals-dark bg-neutrals-lilacSoft"
                 >
                   <option>Default Vault</option>
@@ -70,23 +80,23 @@
 
               <span class="py-3 text-base font-bold text-neutrals-dark">Verified Information</span>
 
-              <!-- todo move this to resuable components -->
+              <!-- TODO: move this to a reusable component -->
               <table class="w-full border-t border-neutrals-chatelle">
                 <tr
-                  v-for="(property, index) of credential.properties"
-                  :key="index"
-                  class="border-b border-neutrals-thistle border-dotted"
+                  v-for="(property, key) of credential.properties"
+                  :key="key"
+                  class="border-b border-dotted border-neutrals-thistle"
                 >
                   <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
                   <td
                     v-if="property.type != 'image'"
-                    class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+                    class="py-4 pr-6 pl-3 break-words text-neutrals-dark"
                   >
                     {{ property.value }}
                   </td>
                   <td
                     v-if="property.type === 'image'"
-                    class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+                    class="py-4 pr-6 pl-3 break-words text-neutrals-dark"
                   >
                     <img :src="property.value" class="w-20 h-20" />
                   </td>
@@ -99,13 +109,25 @@
       <div v-if="errors.length">
         <b>Please correct the following error(s):</b>
         <ul>
-          <!-- todo implement error as per ux design -->
+          <!-- TODO: implement error as per designs -->
           <li v-for="error in errors" :key="error" class="text-sm text-primary-valencia">
             {{ error }}
           </li>
         </ul>
       </div>
-      <div class="flex justify-between p-5 w-full h-auto bg-neutrals-magnolia footerContainer">
+      <div
+        class="
+          flex
+          sticky
+          bottom-0
+          justify-between
+          p-5
+          w-full
+          h-auto
+          bg-neutrals-magnolia
+          footerContainer
+        "
+      >
         <button id="cancelBtn" class="btn-outline" @click="cancel">Decline</button>
         <button id="storeVCBtn" class="btn-primary" @click="store">Save</button>
       </div>
@@ -114,13 +136,7 @@
 </template>
 
 <script>
-import {
-  CHAPIEventHandler,
-  getCredentialType,
-  getCredentialDisplayData,
-  getVCIcon,
-  isVPType,
-} from './mixins';
+import { CHAPIEventHandler, getCredentialType, getCredentialDisplayData, isVPType } from './mixins';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
 import credentialDisplayData from '@/config/credentialDisplayData';
 import { mapGetters } from 'vuex';
@@ -129,20 +145,11 @@ export default {
   data() {
     return {
       processedCredentials: [],
-      storeButton: true,
-      subject: '',
-      issuer: '',
-      issuance: '',
-      activeClass: 'is-visible',
-      active: null,
       errors: [],
-      selectedDefault: 'Default Vault',
+      selectedVault: 'Default Vault',
     };
   },
   computed: {
-    isDisabled() {
-      return this.storeButton;
-    },
     // Todo issue 1075 add ii8n support : failing UI Test
   },
   created: async function () {
@@ -150,22 +157,19 @@ export default {
     this.credentialEvent = new CHAPIEventHandler(
       await this.$webCredentialHandler.receiveCredentialEvent()
     );
-    let { dataType, data } = this.credentialEvent.getEventData();
+    const { dataType, data } = this.credentialEvent.getEventData();
 
     if (!isVPType(dataType)) {
       this.errors.push(`unknown credential data type '${dataType}'`);
       return;
     }
 
-    let { user } = this.getCurrentUser().profile;
+    const { user } = this.getCurrentUser().profile;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
 
     // prepare cards
     this.prepareCards(data);
     this.presentation = data;
-
-    // enable send vc button once loaded
-    this.storeButton = false;
   },
   methods: {
     ...mapGetters(['getCurrentUser']),
@@ -191,7 +195,7 @@ export default {
     },
     store: function () {
       this.errors.length = 0;
-      let { token } = this.getCurrentUser().profile;
+      const { token } = this.getCurrentUser().profile;
 
       this.credentialManager
         .save(token, { presentation: this.presentation })
