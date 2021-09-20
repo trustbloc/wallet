@@ -61,7 +61,7 @@ describe('saving a credential into wallet', function () {
   });
 
   it('credential to be saved are presented to user', async () => {
-    expect(wrapper.vm.records).to.have.lengthOf(1);
+    expect(wrapper.vm.processedCredentials).to.have.lengthOf(1);
   });
 
   it('saved credential into wallet successfully !', async () => {
@@ -103,7 +103,7 @@ describe('saving multiple credentials into wallet', function () {
   });
 
   it('credentials to be saved are presented to user', async () => {
-    expect(wrapper.vm.records).to.have.lengthOf(2);
+    expect(wrapper.vm.processedCredentials).to.have.lengthOf(2);
   });
 
   it('saved credentials in wallet successfully', async () => {
