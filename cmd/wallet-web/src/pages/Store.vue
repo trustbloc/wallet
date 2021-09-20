@@ -8,35 +8,39 @@
   <div class="flex justify-center items-start w-screen h-screen">
     <div class="pt-5 bg-neutrals-softWhite rounded-b border border-neutrals-black chapi-container">
       <span class="px-5 text-xl font-bold text-neutrals-dark">Save credential</span>
-      <div v-if="records.length" class="flex flex-col justify-center px-5">
+      <div v-if="processedCredentials.length" class="flex flex-col justify-center px-5">
         <ul class="grid grid-cols-1 gap-4 my-8">
-          <li v-for="(record, index) in records" :key="index" @click="toggleDetails(index)">
+          <li
+            v-for="(credential, index) in processedCredentials"
+            :key="index"
+            @click="toggleDetails(index)"
+          >
             <div
               :class="[
                 `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
-                record.brandColor.length
-                  ? `bg-gradient-${record.brandColor} border-neutrals-black border-opacity-10 focus-within:ring-primary-${record.brandColor}`
+                credential.brandColor.length
+                  ? `bg-gradient-${credential.brandColor} border-neutrals-black border-opacity-10 focus-within:ring-primary-${credential.brandColor}`
                   : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
               ]"
+              @click="toggleDetails(credential)"
             >
               <div class="flex-none w-12 h-12 border-opacity-10">
-                <img :src="require(`@/assets/img/${record.icon}`)" />
+                <img :src="require(`@/assets/img/${credential.icon}`)" />
               </div>
               <div class="flex-grow p-4">
                 <span
                   :class="[
                     `text-sm md:text-base font-bold text-left overflow-ellipsis`,
-                    record.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
+                    credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
                   ]"
                 >
-                  {{ record.title }}
+                  {{ credential.title }}
                 </span>
               </div>
             </div>
             <!-- TODO refactor this solution, if only 1 credential present then display detail by default -->
             <div
-              v-if="showDetails || records.length === 1"
-              :class="index == active || records.length === 1 ? activeClass : 'hidden'"
+              v-if="credential.showDetails"
               class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full details"
             >
               <!-- todo populate with dynamic vault list -->
@@ -69,7 +73,7 @@
               <!-- todo move this to resuable components -->
               <table class="w-full border-t border-neutrals-chatelle">
                 <tr
-                  v-for="(property, index) of record.properties"
+                  v-for="(property, index) of credential.properties"
                   :key="index"
                   class="border-b border-neutrals-thistle border-dotted"
                 >
@@ -124,14 +128,13 @@ import { mapGetters } from 'vuex';
 export default {
   data() {
     return {
-      records: [],
+      processedCredentials: [],
       storeButton: true,
       subject: '',
       issuer: '',
       issuance: '',
       activeClass: 'is-visible',
       active: null,
-      showDetails: false,
       errors: [],
       selectedDefault: 'Default Vault',
     };
@@ -167,13 +170,24 @@ export default {
   methods: {
     ...mapGetters(['getCurrentUser']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
+    toggleDetails(credential) {
+      credential.showDetails = !credential.showDetails;
+    },
     prepareCards: function (data) {
-      data.verifiableCredential.map((vc) => {
-        const manifest = this.getManifest(vc);
-        const record = this.getCredentialDisplayData(vc, manifest);
-        this.records.push(record);
-      });
-      console.log('records', JSON.stringify(this.records, null, 2));
+      // If only one credential then show details by default
+      if (data.verifiableCredential.length === 1) {
+        const manifest = this.getManifest(data.verifiableCredential[0]);
+        const credential = this.getCredentialDisplayData(data.verifiableCredential[0], manifest);
+        this.processedCredentials.push({ ...credential, showDetails: true });
+      } else {
+        data.verifiableCredential.map((vc) => {
+          const manifest = this.getManifest(vc);
+          const credential = this.getCredentialDisplayData(vc, manifest);
+          this.processedCredentials.push({ ...credential, showDetails: false });
+        });
+      }
+
+      console.log('processedCredentials', JSON.stringify(this.processedCredentials, null, 2));
     },
     store: function () {
       this.errors.length = 0;
@@ -201,10 +215,6 @@ export default {
     getManifest: function (credential) {
       const currentCredentialType = this.getCredentialType(credential);
       return credentialDisplayData[currentCredentialType] || credentialDisplayData.fallback;
-    },
-    toggleDetails(i) {
-      this.active = i;
-      this.showDetails = !this.showDetails;
     },
   },
 };
