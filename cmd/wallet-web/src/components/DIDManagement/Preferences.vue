@@ -55,9 +55,20 @@
       </div>
     </div>
 
-    <button class="mt-5 btn-primary" :disabled="!preferencesChanged" @click="updatePreferences">
-      Update Preferences
-    </button>
+    <styled-button
+      id="update-btn"
+      class="mt-5"
+      :disabled="!preferencesChanged"
+      :loading="loading"
+      type="primary"
+      @click.native="updatePreferences()"
+    >
+      <span>Update Preferences</span>
+    </styled-button>
+
+    <div v-if="updateSuccessful && !preferencesChanged">
+      <label id="update-preferences-success">Updated preferences successfully.</label>
+    </div>
   </div>
 </template>
 
@@ -65,8 +76,13 @@
 import { DIDManager, WalletUser } from '@trustbloc/wallet-sdk';
 import { mapActions, mapGetters } from 'vuex';
 import { getDIDVerificationMethod } from '@/pages/mixins';
+import StyledButton from '@/components/StyledButton/StyledButton.vue';
+
 export default {
   name: 'Preferences',
+  components: {
+    StyledButton,
+  },
   props: {
     allDIDs: {
       type: Array,
@@ -80,6 +96,8 @@ export default {
       selectedDID: '',
       selectedSignType: '',
       verificationMethod: '',
+      updateSuccessful: false,
+      loading: false,
       keyIDs: [],
       preference: {},
     };
@@ -87,15 +105,13 @@ export default {
   computed: {
     preferencesChanged() {
       const { controller, proofType, verificationMethod } = this.preference;
-      if (controller != this.selectedDID) {
+      if (controller !== this.selectedDID) {
         return true;
       }
-      if (proofType != this.selectedSignType) {
+      if (proofType !== this.selectedSignType) {
         return true;
       }
-      if (
-        verificationMethod != (this.verificationMethod === 'default' ? '' : this.verificationMethod)
-      ) {
+      if (verificationMethod !== this.verificationMethod) {
         return true;
       }
       return false;
@@ -114,7 +130,7 @@ export default {
     ...mapGetters(['getCurrentUser']),
     ...mapActions(['refreshUserPreference']),
     listDIDs: async function () {
-      let { contents } = await this.didManager.getAllDIDs(this.getCurrentUser().profile.token);
+      const { contents } = await this.didManager.getAllDIDs(this.getCurrentUser().profile.token);
       const newAllDIDs = Object.keys(contents).map((k) => contents[k].DIDDocument);
       this.$emit('update:allDIDs', newAllDIDs);
       if (this.selectedDID === '') this.didSelected(newAllDIDs[0].id);
@@ -123,15 +139,20 @@ export default {
       const { content } = await this.walletUser.getPreferences(this.getCurrentUser().profile.token);
       this.selectedDID = content.controller;
       this.selectedSignType = content.proofType;
-      this.preference = content;
+      this.preference = {
+        ...content,
+        verificationMethod: content.verificationMethod ? content.verificationMethod : 'default',
+      };
       this.verificationMethod = content.verificationMethod ? content.verificationMethod : 'default';
     },
     updatePreferences() {
+      this.updateSuccessful = false;
+      this.loading = true;
       this.walletUser
         .updatePreferences(this.getCurrentUser().profile.token, {
           controller: this.selectedDID,
           proofType: this.selectedSignType,
-          verificationMethod: this.verificationMethod != 'default' ? this.verificationMethod : '',
+          verificationMethod: this.verificationMethod !== 'default' ? this.verificationMethod : '',
         })
         .then(() => {
           this.refreshUserPreference();
@@ -140,6 +161,8 @@ export default {
       this.preference.controller = this.selectedDID;
       this.preference.proofType = this.selectedSignType;
       this.preference.verificationMethod = this.verificationMethod;
+      this.loading = false;
+      this.updateSuccessful = true;
     },
     didSelected(did) {
       this.selectedDID = did;
