@@ -11,10 +11,9 @@
         overflow-scroll
         pt-5
         max-h-screen
-        rounded-b
-        border
         bg-neutrals-softWhite
-        border-neutrals-black
+        rounded-b
+        border border-neutrals-black
         chapi-container
       "
     >
@@ -61,8 +60,8 @@
                   px-4
                   mb-8
                   w-full
-                  rounded-t-lg
                   bg-neutrals-lilacSoft
+                  rounded-t-lg
                   flex flex-col flex-grow
                   border-b border-neutrals-dark
                 "
@@ -85,18 +84,18 @@
                 <tr
                   v-for="(property, key) of credential.properties"
                   :key="key"
-                  class="border-b border-dotted border-neutrals-thistle"
+                  class="border-b border-neutrals-thistle border-dotted"
                 >
                   <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
                   <td
                     v-if="property.type != 'image'"
-                    class="py-4 pr-6 pl-3 break-words text-neutrals-dark"
+                    class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
                   >
                     {{ property.value }}
                   </td>
                   <td
                     v-if="property.type === 'image'"
-                    class="py-4 pr-6 pl-3 break-words text-neutrals-dark"
+                    class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
                   >
                     <img :src="property.value" class="w-20 h-20" />
                   </td>

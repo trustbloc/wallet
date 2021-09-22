@@ -135,12 +135,12 @@ module.exports = {
       boatBlue: `linear-gradient(-225deg, ${theme('colors.primary.boatBlue.dark')} 0%, ${theme(
         'colors.primary.boatBlue.light'
       )} 100%)`,
-      cinnabar: `linear-gradient(-180deg, ${theme(
-        'gradientColorStops.cinnabar.DEFAULT'
-      )} 0%, ${theme('gradientColorStops.darkTan')} 100%)`,
-      cinnabarLight: `linear-gradient(-180deg, ${theme(
-        'gradientColorStops.cinnabar.light'
-      )} 0%, ${theme('gradientColorStops.darkTan')} 100%)`,
+      cinnabar: `linear-gradient(${theme('gradientColorStops.cinnabar.DEFAULT')} 0%, ${theme(
+        'gradientColorStops.darkTan'
+      )} 100%)`,
+      cinnabarLight: `linear-gradient(${theme('gradientColorStops.cinnabar.light')} 0%, ${theme(
+        'gradientColorStops.darkTan'
+      )} 100%)`,
       cobalt: `linear-gradient(-225deg, ${theme('colors.primary.cobalt.dark')} 0%, ${theme(
         'colors.primary.cobalt.light'
       )} 100%)`,
@@ -157,19 +157,19 @@ module.exports = {
       green: `linear-gradient(-225deg, ${theme('colors.primary.green.dark')} 0%, ${theme(
         'colors.primary.green.light'
       )} 100%)`,
-      iron: `linear-gradient(-180deg, ${theme('gradientColorStops.iron')} 0%, ${theme(
+      iron: `linear-gradient(${theme('gradientColorStops.iron')} 0%, ${theme(
         'gradientColorStops.eastSide'
       )} 100%)`,
-      lavender: `linear-gradient(-180deg, ${theme('gradientColorStops.lavender')} 0%, ${theme(
+      lavender: `linear-gradient(${theme('gradientColorStops.lavender')} 0%, ${theme(
         'gradientColorStops.jagger'
       )} 100%)`,
-      moonRaker: `linear-gradient(-180deg, ${theme(
-        'gradientColorStops.neutrals.white'
-      )} 0%, ${theme('gradientColorStops.moonRaker')} 100%)`,
+      moonRaker: `linear-gradient(${theme('gradientColorStops.neutrals.white')} 0%, ${theme(
+        'gradientColorStops.moonRaker'
+      )} 100%)`,
       pink: `linear-gradient(-135deg, ${theme('gradientColorStops.hibiscus.DEFAULT')} 0%, ${theme(
         'gradientColorStops.grape'
       )} 100%)`,
-      purple: `linear-gradient(-135deg, ${theme('gradientColorStops.vividViolet.dark')} 0%, ${theme(
+      purple: `linear-gradient(${theme('gradientColorStops.vividViolet.dark')} 0%, ${theme(
         'gradientColorStops.jagger'
       )} 100%)`,
       red: `linear-gradient(-225deg, ${theme('colors.primary.red.dark')} 0%, ${theme(
@@ -245,7 +245,7 @@ module.exports = {
   },
   variants: {
     extend: {
-      backgroundImage: ['focus-within', 'hover'],
+      backgroundImage: ['focus-within', 'hover', 'disabled'],
       borderRadius: ['focus'],
       gradientColorStops: ['focus-within'],
     },
@@ -277,8 +277,15 @@ module.exports = {
             backgroundImage: theme('gradients.lavender'),
           },
           '&:focus': {
-            border: `2px solid ${theme('colors.neutrals.white')}`, // TODO: replace with border from theme once defined
-            boxShadow: `0px 0px 0px 2px rgba(138, 53, 183, 0.7), 0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
+            boxShadow: `0px 0px 0px 2px ${theme(
+              'colors.neutrals.white'
+            )}, 0px 0px 0px 4px rgba(138, 53, 183, 0.7), 0px 1px 2px 0px rgba(0, 0, 0, 0.1)`, // TODO: replace with shadow from theme once defined
+          },
+          '&:disabled': {
+            backgroundImage: 'none',
+            backgroundColor: theme('colors.neutrals.mobster'),
+            color: theme('colors.neutrals.white'),
+            cursor: 'not-allowed',
           },
         },
         '.btn-inverse': {
@@ -343,6 +350,7 @@ module.exports = {
           color: theme('colors.neutrals.white'),
           fontSize: theme('fontSize.base'),
           fontWeight: theme('fontWeight.bold'),
+          cursor: 'not-allowed',
         },
         '.btn-loading': {
           height: theme('spacing.11'),

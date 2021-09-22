@@ -5,26 +5,22 @@
 -->
 
 <template>
-  <svg
-    v-bind="$attrs"
-    class="w-8 h-8 text-neutrals-white animate-spin"
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-  >
-    <circle
-      class="opacity-25"
-      cx="12"
-      cy="12"
-      r="10"
-      stroke="currentColor"
-      stroke-width="4"
-    ></circle>
-    <path
-      class="opacity-75"
-      fill="currentColor"
-      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-    ></path>
+  <svg class="animate-spin" width="48" height="48" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="a" x1="45.116%" y1="0%" x2="45.116%" y2="100%">
+        <stop stop-color="#8631A0" offset="0%" />
+        <stop stop-color="#360B4C" offset="100%" />
+      </linearGradient>
+    </defs>
+    <g transform="translate(3 3)" stroke-width="6" fill="none" fill-rule="evenodd">
+      <circle stroke="#C7C3C8" cx="21" cy="21" r="21" />
+      <path
+        d="M42 21C42 9.402 32.598 0 21 0"
+        stroke="url(#a)"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </g>
   </svg>
 </template>
 
