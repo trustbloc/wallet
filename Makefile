@@ -124,7 +124,7 @@ mock-demo-login-consent-docker:
 mock-images: mock-demo-login-consent-docker
 
 .PHONY: automation-test
-automation-test: clean wallet-web-docker wallet-server-docker generate-test-keys mock-images
+automation-test: clean wallet-server-docker wallet-web-docker mock-images generate-test-keys
 	@scripts/run_ui_automation.sh
 
 .PHONY: clean

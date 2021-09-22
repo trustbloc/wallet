@@ -77,6 +77,17 @@ exports.changeLocale = async () => {
   await _changeLocale();
 };
 
+exports.validateCredentialDetails = async (vcData) => {
+  for (const data of vcData) {
+    // TODO need a better way to validate name and value matches rather than text existance on the screen
+    const name = await $("td*=" + data.name);
+    await name.waitForExist();
+
+    const val = await $("td*=" + data.value);
+    await val.waitForExist();
+  }
+};
+
 /*************************** Helper functions ******************************/
 
 async function _didAuth({ method = "trustbloc" } = {}) {
@@ -231,7 +242,7 @@ async function _createOrbDID() {
   await settingsTab.waitForExist();
   await settingsTab.click();
 
-  const createOrbTab = await $('span*=Create ORB Digital Identity');
+  const createOrbTab = await $("span*=Create ORB Digital Identity");
   await createOrbTab.waitForClickable();
   await createOrbTab.click();
 

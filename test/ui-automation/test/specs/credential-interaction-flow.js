@@ -55,6 +55,14 @@ credential.set("PermanentResidentCard", {
     },
     type: ["VerifiableCredential", "PermanentResidentCard"],
   },
+  vcSubjectData: [
+    { name: "Given Name", value: "Louis" },
+    { name: "Family Name", value: "Pasteur" },
+    { name: "Gender", value: "Male" },
+    { name: "Date of birth", value: "1958-07-17" },
+    { name: "Country of Birth", value: "Bahamas" },
+    { name: "Resident Since", value: "2015-01-01" },
+  ],
   vpRequest: {
     type: "QueryByExample",
     credentialQuery: {
@@ -128,6 +136,19 @@ credential.set("VaccinationCertificate", {
     },
     type: ["VerifiableCredential", "VaccinationCertificate"],
   },
+  vcSubjectData: [
+    { name: "Given Name", value: "Louis" },
+    { name: "Family Name", value: "Pasteur" },
+    { name: "Gender", value: "Male" },
+    { name: "Date of Birth", value: "1958-07-17" },
+    { name: "Administering Centre", value: "FEMA" },
+    { name: "Batch Number", value: "1183738569" },
+    { name: "Vaccination Country", value: "US" },
+    { name: "Date of Vaccination", value: "2021-02-01" },
+    { name: "Health Professional", value: "FEMA" },
+    { name: "Vaccination Code", value: "J07BX03" },
+    { name: "Product Name", value: "Moderna Biotech" },
+  ],
   vpRequest: {
     type: "QueryByFrame",
     credentialQuery: {
@@ -195,6 +216,10 @@ credential.set("BookingReference", {
     },
     type: ["VerifiableCredential", "BookingReferenceCredential"],
   },
+  vcSubjectData: [
+    { name: "Reference Number", value: "W7X 9T3" },
+    { name: "Issued By", value: "Taylor Chartered Flights" },
+  ],
   vpRequest: {
     type: "QueryByExample",
     credentialQuery: {
@@ -210,7 +235,7 @@ credential.set("BookingReference", {
   },
 });
 
-describe("TrustBloc Wallet - Store/Share credential flow", () => {
+describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   const ctx = {
     email: `ui-aut-${new Date().getTime()}@test.com`,
   };
@@ -311,6 +336,8 @@ describe("TrustBloc Wallet - Store/Share credential flow", () => {
         name: browser.config.walletName,
       });
 
+      await wallet.validateCredentialDetails(value.vcSubjectData);
+
       await wallet.storeCredentials(ctx);
       await browser.switchToFrame(null);
 
@@ -331,9 +358,15 @@ describe("TrustBloc Wallet - Store/Share credential flow", () => {
     for (const [key, value] of credential.entries()) {
       console.log("validate vc in wallet : start ", key);
 
-      const vcName = await $("div*=" + value.name);
+      const vcName = await $("span*=" + value.name);
       await vcName.waitForExist();
       await vcName.click();
+
+      await wallet.validateCredentialDetails(value.vcSubjectData);
+
+      const credTab = await $("span*=Credentials");
+      await credTab.waitForExist();
+      await credTab.click();
 
       console.log("validate vc in wallet : end ", key);
     }
@@ -355,10 +388,26 @@ describe("TrustBloc Wallet - Store/Share credential flow", () => {
     await wallet.signIn(ctx);
   });
 
-  it(`Create Orb DID`, async function () {
+  it(`User validates the saved credential from mock issuer (after sign-in)`, async function () {
     this.timeout(90000);
 
-    await wallet.createOrbDID();
+    await browser.navigateTo(browser.config.walletURL);
+
+    for (const [key, value] of credential.entries()) {
+      console.log("validate vc in wallet : start ", key);
+
+      const vcName = await $("span*=" + value.name);
+      await vcName.waitForExist();
+      await vcName.click();
+
+      await wallet.validateCredentialDetails(value.vcSubjectData);
+
+      const credTab = await $("span*=Credentials");
+      await credTab.waitForExist();
+      await credTab.click();
+
+      console.log("validate vc in wallet : end ", key);
+    }
   });
 
   it(`User shares the saved credential with mock verifier`, async function () {
@@ -395,6 +444,13 @@ describe("TrustBloc Wallet - Store/Share credential flow", () => {
       await chapi.chooseWallet({
         name: browser.config.walletName,
       });
+
+      // TODO https://github.com/trustbloc/wallet/issues/1124 VC Name mismatch between dashboard screen and CHAPI share
+      // const vcName = await $("span*=" + value.name);
+      // await vcName.waitForExist();
+      // await vcName.click();
+
+      // await wallet.validateCredentialDetails(value.vcSubjectData);
 
       await wallet.presentCredentials(ctx);
       await browser.switchToFrame(null);
