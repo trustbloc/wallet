@@ -211,20 +211,6 @@ jobs:
           username: ${{ secrets.CR_USER }}
           password: ${{ secrets.CR_PAT }}
 
-      - name: Build and Push container wallet-web image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./images/wallet-web/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            ALPINE_VER=3.12
-            GO_VER=1.16
-          push: true
-          tags: |
-            ${{ env.WALLET_WEB_IMAGE_PREFIX }}:${{ env.IMAGE_TAG }}
-            ${{ env.WALLET_WEB_IMAGE_PREFIX }}:latest
-
       - name: Build and Push wallet-server image
         uses: docker/build-push-action@v2
         with:
@@ -238,3 +224,17 @@ jobs:
           tags: |
             ${{ env.WALLET_SERVER_IMAGE_PREFIX }}:${{ env.IMAGE_TAG }}
             ${{ env.WALLET_SERVER_IMAGE_PREFIX }}:latest
+
+      - name: Build and Push wallet-web image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./images/wallet-web/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            ALPINE_VER=3.12
+            GO_VER=1.16
+          push: true
+          tags: |
+            ${{ env.WALLET_WEB_IMAGE_PREFIX }}:${{ env.IMAGE_TAG }}
+            ${{ env.WALLET_WEB_IMAGE_PREFIX }}:latest
