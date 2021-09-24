@@ -209,8 +209,8 @@
                 <!-- TODO: move this to reusable components -->
                 <table class="w-full border-t border-neutrals-chatelle">
                   <tr
-                    v-for="(property, index) of credential.properties"
-                    :key="index"
+                    v-for="(property, key) of credential.properties"
+                    :key="key"
                     class="border-b border-neutrals-thistle border-dotted"
                   >
                     <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
@@ -265,12 +265,10 @@ import { CredentialManager } from '@trustbloc/wallet-sdk';
 import { normalizeQuery, getCredentialType, getCredentialDisplayData } from './mixins';
 import { mapGetters } from 'vuex';
 import Spinner from '@/components/Spinner/Spinner.vue';
-// import CredentialPreview from '@/components/CredentialPreview/CredentialPreview.vue';
 import credentialDisplayData from '@/config/credentialDisplayData';
 
 export default {
   components: {
-    // CredentialPreview,
     Spinner,
   },
   data() {

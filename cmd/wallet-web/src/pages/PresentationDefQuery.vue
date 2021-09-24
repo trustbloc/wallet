@@ -5,172 +5,326 @@
 -->
 
 <template>
-  <div v-if="loading" class="w-screen" style="margin-top: 20%; height: 200px">
-    <div class="justify-center md-layout">
-      <md-progress-spinner
-        :md-diameter="100"
-        class="md-accent"
-        :md-stroke="10"
-        md-mode="indeterminate"
-      ></md-progress-spinner>
+  <!-- Loading state -->
+  <div v-if="loading" class="flex justify-center items-start w-screen h-screen">
+    <div
+      class="
+        flex
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-80
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+      "
+    >
+      <Spinner />
     </div>
   </div>
-  <div v-else class="flex flex-col items-center w-screen md-layout">
-    <div class="md-layout-item">
-      <div v-if="errors.length">
-        <b>Failed with following error(s):</b>
-        <md-field style="margin-top: -15px">
-          <ul>
-            <li v-for="error in errors" :key="error" style="color: #9d0006">{{ error }}</li>
-          </ul>
-        </md-field>
+  <!-- Sharing State -->
+  <div v-else-if="sharing" class="flex justify-center items-start w-screen h-screen">
+    <div
+      class="
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-80
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+        flex flex-col
+      "
+    >
+      <Spinner />
+      <span class="mt-8 text-base text-neutrals-dark">{{
+        $t('CHAPI.Share.sharingCredential')
+      }}</span>
+    </div>
+  </div>
+  <!-- Error State -->
+  <div
+    v-else-if="!showCredentialsMissing && errors.length"
+    class="flex justify-center items-start w-screen h-screen"
+  >
+    <div
+      class="
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-auto
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+        flex flex-col
+      "
+    >
+      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
+        <img src="@/assets/img/icons-error.svg" />
+        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
+          $t('CHAPI.Share.Error.heading')
+        }}</span>
+        <span class="text-lg text-center text-neutrals-medium">{{
+          $t('CHAPI.Share.Error.body')
+        }}</span>
       </div>
-
-      <div>
-        <h4 class="md-subheading">This verifier would like you to share below information,</h4>
+      <div
+        class="
+          justify-center
+          items-center
+          pt-4
+          pr-5
+          pb-4
+          pl-5
+          w-full
+          bg-neutrals-magnolia
+          flex flex-row
+          border-t border-neutrals-thistle
+        "
+      >
+        <button id="share-credentials-ok-btn" class="btn-primary" @click="cancel">
+          {{ $t('CHAPI.Share.Error.tryAgain') }}
+        </button>
       </div>
-
-      <div style="padding-bottom: 10px">
-        <governance :govn-v-c="govnVC" :request-origin="requestOrigin" :issuer="false" />
+    </div>
+  </div>
+  <!-- Credentials Missing State -->
+  <div v-else-if="showCredentialsMissing" class="flex justify-center items-start w-screen h-screen">
+    <div
+      class="
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-auto
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+        flex flex-col
+      "
+    >
+      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
+        <img src="@/assets/img/icons-error.svg" />
+        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
+          $t('CHAPI.Share.CredentialsMissing.heading')
+        }}</span>
+        <span class="text-lg text-center text-neutrals-medium">{{
+          $t('CHAPI.Share.CredentialsMissing.body')
+        }}</span>
       </div>
-
-      <md-card v-for="requirement in requirements" :key="requirement.name" :value="requirement">
-        <md-card-expand>
-          <div class="md-title" style="margin-left: 10px; margin-top: 10px">
-            {{ requirement.name }}
+      <div
+        class="
+          justify-center
+          items-center
+          pt-4
+          pr-5
+          pb-4
+          pl-5
+          w-full
+          bg-neutrals-magnolia
+          flex flex-row
+          border-t border-neutrals-thistle
+        "
+      >
+        <button id="share-credentials-ok-btn" class="btn-outline" @click="cancel">
+          {{ $t('CHAPI.Share.CredentialsMissing.ok') }}
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Main State -->
+  <div
+    v-else
+    class="flex overflow-scroll justify-center items-start w-screen h-screen max-h-screen"
+  >
+    <div class="w-full max-w-md bg-gray-light md:border md:border-t-0 border-neutrals-black">
+      <div class="p-5">
+        <!-- Heading -->
+        <div class="flex flex-row justify-start items-start mb-4 w-full">
+          <div class="flex-none w-12 h-12 border-opacity-10">
+            <!-- TODO: issue-1055 Read meta data from external urls -->
+            <img src="@/assets/img/generic-issuer-icon.svg" />
           </div>
-          <md-card-actions md-alignment="space-between">
-            <div class="md-subhead">{{ requirement.purpose }}</div>
-            <md-card-expand-trigger>
-              <md-button class="md-icon-button">
-                <md-icon>keyboard_arrow_down</md-icon>
-              </md-button>
-            </md-card-expand-trigger>
-          </md-card-actions>
-
-          <md-card-expand-content>
-            <md-card-content>
-              {{ requirement.rule }}
-              <ul>
-                <li v-for="descriptor in requirement.descriptors" :key="descriptor.name">
-                  <b>{{ descriptor.name }} </b>{{ descriptor.purpose }}
-                  <ul>
-                    <li v-for="constraint in descriptor.constraints" :key="constraint">
-                      {{ constraint }}
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </md-card-content>
-          </md-card-expand-content>
-        </md-card-expand>
-      </md-card>
-
-      <div v-if="!credentialWarning.length">
-        <div v-if="credsFound">
-          <p id="result-header-1">
-            <md-icon style="color: #0e9a00; height: 40px; font-size: 20px !important">done</md-icon>
-            Found {{ credsFound }} stored credential{{ credsFound > 1 ? 's' : '' }} matching above
-            criteria in your wallet,
-          </p>
-
-          <md-list class="md-triple-line" style="margin-top: -10px">
-            <div v-for="(vc, key) in vcsFound" :key="key">
-              <div :id="'vc-' + key">
-                <md-list-item v-if="!isManifest(vc)">
-                  <md-icon class="md-primary md-size-2x">perm_identity</md-icon>
-
-                  <div class="md-list-item-text">
-                    <span>{{ vc.name }}</span>
-                    <div class="md-subhead">{{ vc.description }}</div>
-                  </div>
-
-                  <md-checkbox :id="'select-vc-' + key" v-model="selectedVCs[key]"></md-checkbox>
-                </md-list-item>
-              </div>
+          <div class="flex flex-col pl-3">
+            <span
+              class="flex-1 mb-1 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
+            >
+              <!-- TODO: issue-1055 Read meta data from external urls -->
+              Verifier
+            </span>
+            <div class="flex flex-row justify-center items-center">
+              <img src="@/assets/img/small-lock-icon.svg" />
+              <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
+                {{ requestOrigin }}
+              </span>
             </div>
-          </md-list>
+          </div>
         </div>
 
-        <div v-if="credsFound && issuersFound" style="margin: 30px"></div>
+        <span class="text-neutrals-dark">{{
+          $tc('CHAPI.Share.headline', credsFound.length, { issuer: 'Verifier' })
+        }}</span>
+        <div
+          v-if="credsFound.length"
+          class="flex flex-col justify-start items-center mt-6 mb-6 w-full"
+        >
+          <ul class="space-y-5 w-full">
+            <li v-for="(credential, index) in credsFound" :key="index">
+              <!-- Credential Preview -->
+              <button
+                :class="[
+                  `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
+                  credential.brandColor.length
+                    ? `bg-gradient-${credential.brandColor} border-neutrals-black border-opacity-10 focus-within:ring-primary-${credential.brandColor}`
+                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
+                ]"
+                @click="toggleDetails(credential)"
+              >
+                <div class="flex-none w-12 h-12 border-opacity-10">
+                  <img :src="require(`@/assets/img/${credential.icon}`)" />
+                </div>
+                <div class="flex-grow p-4">
+                  <span
+                    :class="[
+                      `text-sm md:text-base font-bold text-left overflow-ellipsis`,
+                      credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
+                    ]"
+                  >
+                    {{ credential.title }}
+                  </span>
+                </div>
+              </button>
+              <!-- Credential Details -->
+              <div
+                v-if="credential.showDetails"
+                class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full details"
+              >
+                <span class="py-3 text-base font-bold text-neutrals-dark">What's being shared</span>
 
-        <div v-if="issuersFound">
+                <!-- TODO: move this to reusable components -->
+                <table class="w-full border-t border-neutrals-chatelle">
+                  <tr
+                    v-for="(property, key) of credential.properties"
+                    :key="key"
+                    class="border-b border-neutrals-thistle border-dotted"
+                  >
+                    <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
+                    <td
+                      v-if="property.type != 'image'"
+                      class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+                    >
+                      {{ property.value }}
+                    </td>
+                    <td
+                      v-if="property.type === 'image'"
+                      class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+                    >
+                      <img :src="property.value" class="w-20 h-20" />
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div v-if="credsFound.length && issuersFound.length" style="margin: 30px"></div>
+
+        <!-- Issuers Container -->
+        <div v-if="issuersFound.length">
           <p id="result-header-2">
-            <md-icon style="color: #0e9a00; height: 40px; font-size: 20px !important">done</md-icon>
-            Found {{ issuersFound }} issuer{{ issuersFound > 1 ? 's' : '' }} who can issue
-            credentials matching above criteria in your wallet,
+            Found {{ issuersFound.length }} issuer{{ issuersFound.length > 1 ? 's' : '' }} who can
+            issue credentials matching above criteria in your wallet:
           </p>
 
-          <md-list class="md-triple-line" style="margin-top: -10px">
-            <div v-for="(vc, key) in vcsFound" :key="key">
-              <div :id="'vc-' + key">
-                <md-list-item v-if="isManifest(vc)">
-                  <md-icon class="md-primary md-size-2x">security</md-icon>
-
-                  <div class="md-list-item-text">
-                    <span>{{ vc.name }}</span>
-                    <div class="md-subhead">{{ vc.description }}</div>
-                  </div>
-
-                  <md-checkbox :id="'select-vc-' + key" v-model="selectedVCs[key]"></md-checkbox>
-                </md-list-item>
-              </div>
-            </div>
-          </md-list>
-        </div>
-
-        <div class="flex justify-between">
-          <md-button
-            id="share-credentials"
-            class="md-button md-info md-square md-theme-default md-large-size-100 md-size-100"
-            :disabled="isShareDisabled"
-            @click="createPresentation"
-            >Share
-          </md-button>
-          <md-button id="cancelBtn" class="md-cancel-text" @click="cancel"> Decline </md-button>
+          <ul>
+            <li
+              v-for="(issuer, key) in issuersFound"
+              :id="'issuer-' + key"
+              :key="key"
+              class="
+                group
+                items-center
+                p-5
+                mb-5
+                w-full
+                h-20
+                md:h-24
+                rounded-xl
+                border
+                focus-within:ring-2 focus-within:ring-offset-2
+                flex flex-col
+              "
+            >
+              <span class="text-lg font-bold">{{ issuer.name }}</span>
+              <span class="text-sm md:text-base">{{ issuer.description }}</span>
+            </li>
+          </ul>
         </div>
       </div>
 
-      <div v-else>
-        <div>
-          <md-empty-state
-            md-icon="devices_other"
-            md-label="No credentials found"
-            :md-description="credentialWarning"
-          >
-            <md-button class="md-primary md-raised" @click="noCredential">Close</md-button>
-          </md-empty-state>
-        </div>
+      <!-- Bottom Buttons Container -->
+      <div
+        class="
+          sticky
+          bottom-0
+          justify-between
+          items-center
+          pt-4
+          pr-5
+          pb-4
+          pl-5
+          w-full
+          bg-neutrals-magnolia
+          flex flex-row
+          border-t border-neutrals-thistle
+        "
+      >
+        <button id="cancelBtn" class="btn-outline" @click="cancel">
+          {{ $t('CHAPI.Share.decline') }}
+        </button>
+        <button id="share-credentials" class="btn-primary" @click="createPresentation">
+          {{ $t('CHAPI.Share.share') }}
+        </button>
       </div>
     </div>
   </div>
 </template>
 <script>
-import { filterCredentialsByType, getCredentialType, WalletGetByQuery } from './mixins';
-import Governance from './Governance.vue';
+import {
+  filterCredentialsByType,
+  getCredentialType,
+  getCredentialDisplayData,
+  WalletGetByQuery,
+} from './mixins';
 import { mapGetters } from 'vuex';
+import Spinner from '@/components/Spinner/Spinner.vue';
+import credentialDisplayData from '@/config/credentialDisplayData';
 
-const warning = 'No credentials found in your wallet for information asked above';
 const manifestCredType = 'IssuerManifestCredential';
 
 export default {
-  components: { Governance },
+  components: { Spinner },
   data() {
     return {
-      vcsFound: [],
-      selectedVCs: [],
       errors: [],
       requestOrigin: '',
       loading: true,
-      credentialWarning: '',
-      searched: [],
-      reason: '',
-      requirements: [],
-      govnVC: null,
+      sharing: false,
+      credsFound: [],
+      issuersFound: [],
     };
   },
+  computed: {
+    showCredentialsMissing() {
+      return this.credsFound.length === 0;
+    },
+  },
   created: async function () {
-    let { user, token } = this.getCurrentUser().profile;
+    const { user, token } = this.getCurrentUser().profile;
     this.wallet = new WalletGetByQuery(
       this.getAgentInstance(),
       this.$parent.protocolHandler,
@@ -180,41 +334,39 @@ export default {
     // make sure mediator is connected
     await this.wallet.connectMediator();
 
-    // TODO handling multiple governance VCs
-    this.govnVC = this.wallet.govnVC;
     this.requestOrigin = this.$parent.protocolHandler.requestor();
-    this.requirements = this.wallet.requirementDetails();
 
     try {
       this.presentation = await this.wallet.getPresentationSubmission(token);
     } catch (e) {
-      this.credentialWarning = 'Some unexpected error occurred, please try again later';
+      this.errors.push(e);
+      console.error('get credentials failed,', e);
       this.loading = false;
       return;
     }
-
-    let vcsFound = [];
-    this.presentation.verifiableCredential.forEach(function (vc) {
-      vcsFound.push(vc);
+    const credentials = this.presentation.verifiableCredential;
+    const credsFound = filterCredentialsByType(credentials, [manifestCredType]);
+    const issuersFound = filterCredentialsByType(credentials, [manifestCredType], true);
+    credsFound.map((credential) => {
+      const manifest = this.getManifest(credential);
+      const processedCredential = this.getCredentialDisplayData(credential, manifest);
+      this.credsFound.push({ ...processedCredential, showDetails: false });
     });
-
+    issuersFound.map((credential) => {
+      const manifest = this.getManifest(credential);
+      const processedCredential = this.getCredentialDisplayData(credential, manifest);
+      this.issuersFound.push({ ...processedCredential, showDetails: false });
+    });
     this.loading = false;
-
-    if (vcsFound.length == 0) {
-      this.credentialWarning = warning;
-      return;
-    }
-
-    this.vcsFound = vcsFound;
-    this.credsFound = filterCredentialsByType(vcsFound, [manifestCredType]).length;
-    this.issuersFound = filterCredentialsByType(vcsFound, [manifestCredType], true).length;
   },
   methods: {
     ...mapGetters(['getCurrentUser', 'getAgentOpts']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
+    toggleDetails(credential) {
+      credential.showDetails = !credential.showDetails;
+    },
     createPresentation: async function () {
-      this.loading = true;
-      this.errors = [];
+      this.sharing = true;
       try {
         await this.wallet.createAndSendPresentation(
           this.getCurrentUser(),
@@ -223,23 +375,23 @@ export default {
         );
       } catch (e) {
         console.error(e);
-        this.errors.push('failed to share credential, please try again later.');
+        this.errors.push('share credentials failed,', e);
+        this.sharing = false;
       }
-      this.loading = false;
+      this.sharing = false;
     },
     cancel: function () {
       this.wallet.cancel();
     },
-    noCredential: function () {
-      this.wallet.sendNoCredentials();
+    getCredentialType: function (vc) {
+      return getCredentialType(vc.type);
     },
-    isManifest(vc) {
-      return getCredentialType(vc.type) == manifestCredType;
+    getCredentialDisplayData: function (vc, manifestCredential) {
+      return getCredentialDisplayData(vc, manifestCredential);
     },
-  },
-  computed: {
-    isShareDisabled() {
-      return this.selectedVCs.length == 0;
+    getManifest: function (credential) {
+      const currentCredentialType = this.getCredentialType(credential);
+      return credentialDisplayData[currentCredentialType] || credentialDisplayData.fallback;
     },
   },
 };
