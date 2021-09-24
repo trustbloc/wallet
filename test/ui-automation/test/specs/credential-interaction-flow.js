@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 "use strict";
 
-const { chapi, wallet } = require("../helpers");
+import { chapi, wallet } from "../helpers";
 
 const credential = new Map();
 credential.set("PermanentResidentCard", {
