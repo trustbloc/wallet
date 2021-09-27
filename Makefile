@@ -120,8 +120,13 @@ mock-demo-login-consent-docker:
 	@echo "Building login consent server for demo..."
 	@cd test/mock/demo-login-consent-server && docker build -f image/Dockerfile --build-arg GO_VER=$(GO_VER) --build-arg ALPINE_VER=$(ALPINE_VER) -t edgeagent/demologinconsent:latest .
 
+.PHONY: mock-adapter
+mock-adapter:
+	@echo "Building mock adapter for demo..."
+	@cd test/mock/adapter && docker build -f image/Dockerfile --build-arg GO_VER=$(GO_VER) --build-arg ALPINE_VER=$(ALPINE_VER) -t edgeagent/mockadapter:latest .
+
 .PHONY: mock-images
-mock-images: mock-demo-login-consent-docker
+mock-images: mock-adapter mock-demo-login-consent-docker
 
 .PHONY: automation-test
 automation-test: clean wallet-server-docker wallet-web-docker mock-images generate-test-keys

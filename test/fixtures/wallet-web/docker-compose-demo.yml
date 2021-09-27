@@ -1,0 +1,25 @@
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: "2"
+
+services:
+  mock-adapter.example.com:
+    container_name: mock-adapter.example.com
+    image: ${MOCK_ADAPTER_IMAGE}:latest
+    environment:
+      - DEMO_PORT=8094
+      - EXTRERAL_URL=https://demo-adapter.trustbloc.local:8094
+      - INTERNAL_DIDCOMM_HOST=0.0.0.0:8095
+      - EXTERNAL_DIDCOMM_HOST=https://demo-adapter.trustbloc.local:8095
+      - TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - TLS_KEY_FILE=/etc/tls/ec-key.pem
+      - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
+      - RESOLVER_URL=http://uni-resolver-web.trustbloc.local:9080
+    ports:
+      - 8094:8094
+      - 8095:8095
+    volumes:
+      - ../keys/tls:/etc/tls

@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-version: '2'
+version: "2"
 
 services:
   wallet.trustbloc.local:
@@ -35,7 +35,7 @@ services:
       # then add images under /test/fixtures/wallet-web/static/images
       - STATIC_ASSETS_URL=
       # Disabled remote context download for this wallet for better performance.
-#      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
+  #      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
 
   wallet-2.trustbloc.local:
     container_name: wallet-2.trustbloc.local
@@ -75,7 +75,7 @@ services:
       - HUB_ROUTER_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - HUB_ROUTER_TLS_SERVE_KEY=/etc/tls/ec-key.pem
       - HUB_ROUTER_DIDCOMM_HTTP_HOST=${HUB_ROUTER_HOST}:${HUB_ROUTER_HTTP_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://localhost:${HUB_ROUTER_HTTP_INBOUND_PORT}
+      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://hub-router.trustbloc.local:${HUB_ROUTER_HTTP_INBOUND_PORT}
       - HUB_ROUTER_DIDCOMM_WS_HOST=${HUB_ROUTER_HOST}:${HUB_ROUTER_WS_INBOUND_PORT}
       - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${HUB_ROUTER_WS_INBOUND_PORT}
       - HUB_ROUTER_DSN_PERSISTENT=mem://tests
@@ -114,7 +114,6 @@ services:
     command: /bin/sh -c "hub-router start"
     volumes:
       - ../keys/tls:/etc/tls
-
 
   sidetree:
     container_name: testnet.orb.local

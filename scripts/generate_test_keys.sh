@@ -32,7 +32,8 @@ DNS.10 = hub-router.trustbloc.local
 DNS.11 = uni-resolver-web.trustbloc.local
 DNS.12 = edv-oathkeeper-proxy.trustbloc.local
 DNS.13 = bdd-edv-oathkeeper-proxy.trustbloc.local
-DNS.14 = file-server.trustbloc.local" >> "$tmp"
+DNS.14 = file-server.trustbloc.local
+DNS.15 = demo-adapter.trustbloc.local" >> "$tmp"
 
 CERT_CA="test/fixtures/keys/tls/ec-cacert.pem"
 if [ ! -f "$CERT_CA" ]; then
