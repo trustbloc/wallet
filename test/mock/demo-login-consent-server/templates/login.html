@@ -28,6 +28,34 @@ SPDX-License-Identifier: Apache-2.0
         .inputColor{
             background-color: #eeeaee
         }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #8631a0;
+            width: 30px;
+            height: 30px;
+            -webkit-animation: spin 2s linear infinite; /* Safari */
+            animation: spin 2s linear infinite;
+        }
+
+        /* Safari */
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 
 </head>
@@ -59,10 +87,16 @@ SPDX-License-Identifier: Apache-2.0
                     id="password" name='password' type="password" value="f00B@r!23">
                         </div>
 
-                        <div class="flex items-center justify-center">
-                            <button class="gradient text-sm sm:text-xs rounded-md text-white mb-8 h-10 px-8 shadow-lg" type='submit' id="accept" name='btn_login'>
-                                Sign In
+                        <div class="flex items-center justify-center" id="btn_login">
+                            <button class="gradient rounded-md mb-8 h-10 px-8 shadow-lg"
+                                    type='submit'
+                                    id="accept" onclick="signIn()"> Sign in
                             </button>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <div class="gradient rounded-md mb-8 py-2 h-10 px-10 shadow-lg hidden" id="spinner">
+                                <div class="loader"></div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -78,6 +112,12 @@ SPDX-License-Identifier: Apache-2.0
 
     function setRandomEmail() {
         document.getElementById("email").value = randomemailprefix + randomnumber + randomemailsuffix;
+    }
+
+    function signIn() {
+        document.getElementById("spinner").style.display = 'block';
+        document.getElementById("btn_login").style.display = 'none';
+        document.getElementById("myForm").action = '/login';
     }
 </script>
 </body>
