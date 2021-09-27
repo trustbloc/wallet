@@ -62,7 +62,7 @@
       "
     >
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
-        <img src="@/assets/img/icons-warning.svg" />
+        <img src="@/assets/img/icons-error.svg" />
         <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
           $t('CHAPI.Share.Error.heading')
         }}</span>
@@ -106,7 +106,7 @@
       "
     >
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
-        <img src="@/assets/img/icons-warning.svg" />
+        <img src="@/assets/img/icons-error.svg" />
         <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
           $t('CHAPI.Share.CredentialsMissing.heading')
         }}</span>
