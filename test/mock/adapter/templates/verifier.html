@@ -1,0 +1,37 @@
+<!--
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+ -->
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <title>Demo Verifier</title>
+  </head>
+
+  <body>
+    <h1>Demo Verifier Adapter</h1>
+
+    <h2>WACI Share Demo</h2>
+    <form action="/waci-share">
+      <label>Wallet URL</label><br />
+      <input
+        type="text"
+        id="walletURL"
+        name="walletURL"
+        value="https://wallet.trustbloc.local:8091"
+        size="50"
+      />
+      <br />
+      <input type="submit" value="Demo" />
+
+      <br />
+      <br />
+
+      {{.Msg}}
+    </form>
+  </body>
+</html>
