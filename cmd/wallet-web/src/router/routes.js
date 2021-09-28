@@ -105,13 +105,13 @@ export default [
     component: load('Signup'),
   },
   {
-    path: '*',
-    name: 'PageNotFound',
-    component: load('PageNotFound'),
-  },
-  {
     path: 'needauth',
     name: 'block-no-auth',
     component: load('BlockNoAuth'),
+  },
+  {
+    path: '*',
+    name: 'PageNotFound',
+    component: load('PageNotFound'),
   },
 ];
