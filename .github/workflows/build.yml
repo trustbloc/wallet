@@ -144,6 +144,11 @@ jobs:
           make automation-test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: logs
+          path: test/fixtures/wallet-web/docker-compose.log
 
   Publish:
     name: Publish image

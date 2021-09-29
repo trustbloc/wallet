@@ -18,19 +18,20 @@ import (
 	"github.com/hyperledger/aries-framework-go/component/storageutil/mem"
 	"github.com/hyperledger/aries-framework-go/pkg/client/didexchange"
 	"github.com/hyperledger/aries-framework-go/pkg/client/presentproof"
+	"github.com/hyperledger/aries-framework-go/pkg/common/log"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/common/service"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/decorator"
 	presentproofsvc "github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/presentproof"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/presexch"
+	arieslog "github.com/hyperledger/aries-framework-go/spi/log"
 	"github.com/hyperledger/aries-framework-go/spi/storage"
-	"github.com/trustbloc/edge-core/pkg/log"
 )
 
 const (
 	verifierHTML = "./templates/verifier.html"
 )
 
-var logger = log.New("edge-adapter/rp-operations")
+var logger = log.New("mock-adapter")
 
 type verifierApp struct {
 	agent *didComm
@@ -38,6 +39,8 @@ type verifierApp struct {
 }
 
 func startVerifierApp(agent *didComm, router *mux.Router) error {
+	log.SetLevel("", arieslog.DEBUG)
+
 	prov := mem.NewProvider()
 
 	store, err := prov.OpenStore("verifier")
