@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/hyperledger/aries-framework-go-ext/component/vdr/orb"
 	"github.com/hyperledger/aries-framework-go/component/storageutil/mem"
 	"github.com/hyperledger/aries-framework-go/pkg/client/didexchange"
 	"github.com/hyperledger/aries-framework-go/pkg/client/outofband"
@@ -19,7 +20,6 @@ import (
 	arieshttp "github.com/hyperledger/aries-framework-go/pkg/didcomm/transport/http"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/aries"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/aries/defaults"
-	"github.com/hyperledger/aries-framework-go/pkg/vdr/httpbinding"
 )
 
 type didComm struct {
@@ -49,13 +49,15 @@ func startAriesAgent() (*didComm, error) {
 
 	opts = append(opts, aries.WithOutboundTransports(outbound))
 
-	universalResolverVDRI, resErr := httpbinding.New(os.Getenv(resolverURL),
-		httpbinding.WithAccept(acceptsDID), httpbinding.WithTLSConfig(tlsConfig))
-	if resErr != nil {
-		return nil, fmt.Errorf("failed to create new universal resolver vdri: %w", resErr)
+	vdri, err := orb.New(nil,
+		orb.WithTLSConfig(tlsConfig),
+		orb.WithDomain(os.Getenv(orbDomainEnvKey)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to init orb VDR: %w", err)
 	}
 
-	opts = append(opts, aries.WithVDR(universalResolverVDRI))
+	opts = append(opts, aries.WithVDR(vdri))
 
 	framework, err := aries.New(opts...)
 	if err != nil {
@@ -90,8 +92,4 @@ func startAriesAgent() (*didComm, error) {
 		DIDExchClient:      didExClient,
 		PresentProofClient: presentProofClient,
 	}, nil
-}
-
-func acceptsDID(method string) bool {
-	return method == "orb"
 }

@@ -63,7 +63,10 @@ cd $ROOT/test/ui-automation
 npm run test && npm run report
 if [ $? -ne 0 ]
 then
-    exit 1
+	cd $ROOT/test/fixtures/wallet-web
+	docker-compose -f docker-compose-demo.yml -f docker-compose-server.yml -f docker-compose-web.yml logs  --no-color >& docker-compose.log
+    
+	exit 1
 fi
 
 echo "stopping containers..."
