@@ -346,17 +346,12 @@ export default {
     }
     const credentials = this.presentation.verifiableCredential;
     const credsFound = filterCredentialsByType(credentials, [manifestCredType]);
-    const issuersFound = filterCredentialsByType(credentials, [manifestCredType], true);
     credsFound.map((credential) => {
       const manifest = this.getManifest(credential);
       const processedCredential = this.getCredentialDisplayData(credential, manifest);
       this.credsFound.push({ ...processedCredential, showDetails: false });
     });
-    issuersFound.map((credential) => {
-      const manifest = this.getManifest(credential);
-      const processedCredential = this.getCredentialDisplayData(credential, manifest);
-      this.issuersFound.push({ ...processedCredential, showDetails: false });
-    });
+    this.issuersFound = filterCredentialsByType(credentials, [manifestCredType], true);
     this.loading = false;
   },
   methods: {
