@@ -101,6 +101,7 @@
                     flex flex-wrap
                   "
                   @click="beginOIDCLogin(provider.id)"
+                  @keyup.enter="beginOIDCLogin(provider.id)"
                 >
                   <img class="inline-block object-contain mr-2 max-h-6" :src="provider.logoURL" />
                   <span id="signUpText" class="flex flex-wrap">{{ provider.signUpText }}</span>

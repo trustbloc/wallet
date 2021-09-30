@@ -22,7 +22,8 @@
     <button
       class="flex flex-row justify-start items-center px-10 w-full h-16"
       type="button"
-      @click="signout"
+      @click="signout()"
+      @keyup.enter="signout()"
     >
       <img src="@/assets/img/signout.svg" />
       <span class="ml-4 text-lg font-bold text-neutrals-white">{{ i18n.signout }}</span>
