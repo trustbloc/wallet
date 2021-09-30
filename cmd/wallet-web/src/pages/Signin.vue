@@ -43,7 +43,6 @@
           flex flex-col
         "
       >
-        <!-- TODO: add href url to the root component once it is implemented -->
         <Logo class="py-12" />
         <div class="items-center mb-10 md:mb-8 text-center">
           <span class="text-2xl md:text-4xl font-bold text-neutrals-white">
@@ -72,6 +71,7 @@
               flex flex-wrap
             "
             @click="beginOIDCLogin(provider.id)"
+            @keyup.enter="beginOIDCLogin(provider.id)"
           >
             <img class="inline-block object-contain mr-2 max-h-6" :src="provider.logoURL" />
             <span class="flex flex-wrap">{{ provider.signInText }}</span>

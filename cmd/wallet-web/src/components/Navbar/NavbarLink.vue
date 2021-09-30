@@ -28,6 +28,7 @@
       class="flex flex-row justify-start items-center px-10 w-full h-16 cursor-pointer"
       v-bind="$attrs"
       @click="handleClick($attrs)"
+      @keyup.enter="handleClick($attrs)"
     >
       <img v-if="icon" :src="iconUrl" class="w-8 h-8" />
       <div v-else class="w-8 h-8" />
