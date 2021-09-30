@@ -53,6 +53,15 @@ const vc = {
   type: ["VerifiableCredential", "PermanentResidentCard"],
 };
 
+const vcSubjectData = [
+  { name: "Given Name", value: "Louis" },
+  { name: "Family Name", value: "Pasteur" },
+  { name: "Gender", value: "Male" },
+  { name: "Date of birth", value: "1958-07-17" },
+  { name: "Country of Birth", value: "Bahamas" },
+  { name: "Resident Since", value: "2015-01-01" },
+];
+
 describe("TrustBloc Wallet - WACI Share flow", () => {
   const ctx = {
     email: `ui-aut-${new Date().getTime()}@test.com`,
@@ -142,6 +151,12 @@ describe("TrustBloc Wallet - WACI Share flow", () => {
     const waciShareDemoBtn = await $("#waci-share-demo");
     await waciShareDemoBtn.waitForExist();
     await waciShareDemoBtn.click();
+
+    const vcName = await $("span*=" + vc.name);
+    await vcName.waitForExist();
+    await vcName.click();
+
+    await wallet.validateCredentialDetails(vcSubjectData);
 
     const shareBtn = await $("#share-credentials");
     await shareBtn.waitForExist();
