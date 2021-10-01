@@ -70,19 +70,13 @@ export class WalletGetByQuery {
     return this.presenationExchange.createPresentationSubmission(vcs);
   }
 
-  async createAndSendPresentation(user, presentationSubmission, selectedIndexes) {
-    // remove unselected VCs from final presentation submission and get authorization credentials for matched manifests.
-    if (selectedIndexes && selectedIndexes.length > 0) {
+  async createAndSendPresentation(user, presentationSubmission) {
+    if (this.invitation.length > 0) {
       // eslint-disable-next-line no-param-reassign
-      presentationSubmission = retainOnlySelected(presentationSubmission, selectedIndexes);
-
-      if (this.invitation.length > 0) {
-        // eslint-disable-next-line no-param-reassign
-        presentationSubmission = await this._getAuthorizationCredentials(
-          presentationSubmission,
-          user.profile
-        );
-      }
+      presentationSubmission = await this._getAuthorizationCredentials(
+        presentationSubmission,
+        user.profile
+      );
     }
 
     let { controller, proofType, verificationMethod } = user.preference;
