@@ -363,11 +363,7 @@ export default {
     createPresentation: async function () {
       this.sharing = true;
       try {
-        await this.wallet.createAndSendPresentation(
-          this.getCurrentUser(),
-          this.presentation,
-          this.selectedVCs
-        );
+        await this.wallet.createAndSendPresentation(this.getCurrentUser(), this.presentation);
       } catch (e) {
         console.error(e);
         this.errors.push('share credentials failed,', e);
