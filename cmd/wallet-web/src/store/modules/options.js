@@ -153,6 +153,7 @@ export default {
             storageType: defaultAgentStartupOpts.storageType,
             kmsType: defaultAgentStartupOpts.kmsType,
             localKMSScret: defaultAgentStartupOpts.localKMSPassphrase,
+            staticAssetsUrl: 'https://localhost:8091',
           },
           bootstrap: {
             user,
@@ -318,6 +319,14 @@ export default {
     },
     getStaticAssetsUrl(state) {
       return state.agentOpts['staticAssetsUrl'];
+    },
+    async getCredentialManifestData(state) {
+      let staticUrl = state.agentOpts['staticAssetsUrl'];
+      if (staticUrl) {
+        const response = await axios.get(`${staticUrl}/config/credentialDisplayData.json`);
+        return response.data;
+      }
+      return require('@/config/credentialDisplayData.js').default;
     },
   },
 };
