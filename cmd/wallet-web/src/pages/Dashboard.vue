@@ -45,6 +45,7 @@
         </div>
         <ul class="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-8 my-8">
           <li v-for="(processedCredential, index) in processedCredentials" :key="index">
+            <!-- todo  load credential images from external source -->
             <credential-preview
               :id="processedCredential.id"
               :brand-color="processedCredential.brandColor"
@@ -79,7 +80,6 @@ import { mapActions, mapGetters } from 'vuex';
 import CredentialPreview from '@/components/CredentialPreview/CredentialPreview';
 import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
 import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
-import credentialDisplayData from '@/config/credentialDisplayData';
 import useBreakpoints from '@/plugins/breakpoints.js';
 
 const filterBy = ['IssuerManifestCredential', 'GovernanceCredential'];
@@ -96,6 +96,7 @@ export default {
       username: '',
       agent: null,
       breakpoints: useBreakpoints(),
+      credentialDisplayData: this.getCredentialManifestConfigData(),
     };
   },
   computed: {
@@ -114,8 +115,11 @@ export default {
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getCurrentUser', 'getAgentOpts']),
+    ...mapGetters(['getCurrentUser', 'getAgentOpts', 'getCredentialManifestData']),
     ...mapActions(['updateProcessedCredentials']),
+    getCredentialManifestConfigData: async function () {
+      return (this.credentialDisplayData = await this.getCredentialManifestData());
+    },
     fetchAllCredentials: async function (getCredential) {
       const { contents } = await getCredential;
       console.log(`found ${Object.keys(contents).length} credentials`);
@@ -147,7 +151,9 @@ export default {
     },
     getManifest: function (credential) {
       const currentCredentialType = this.getCredentialType(credential);
-      return credentialDisplayData[currentCredentialType] || credentialDisplayData.fallback;
+      return (
+        this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
+      );
     },
   },
 };
