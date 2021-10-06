@@ -186,7 +186,7 @@
                 @click="toggleDetails(credential)"
               >
                 <div class="flex-none w-12 h-12 border-opacity-10">
-                  <img :src="require(`@/assets/img/${credential.icon}`)" />
+                  <img :src="getCrendentialIcon(credential.icon)" />
                 </div>
                 <div class="flex-grow p-4">
                   <span
@@ -262,10 +262,14 @@
 </template>
 <script>
 import { CredentialManager } from '@trustbloc/wallet-sdk';
-import { normalizeQuery, getCredentialType, getCredentialDisplayData } from './mixins';
+import {
+  normalizeQuery,
+  getCredentialType,
+  getCredentialDisplayData,
+  getCrendentialIcon,
+} from './mixins';
 import { mapGetters } from 'vuex';
 import Spinner from '@/components/Spinner/Spinner.vue';
-import credentialDisplayData from '@/config/credentialDisplayData';
 
 export default {
   components: {
@@ -278,6 +282,7 @@ export default {
       loading: true,
       sharing: false,
       processedCredentials: [],
+      credentialDisplayData: {},
     };
   },
   computed: {
@@ -291,6 +296,7 @@ export default {
     const query = normalizeQuery(this.protocolHandler.getEventData().query);
     const { user, token } = this.getCurrentUser().profile;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
+    this.credentialDisplayData = await this.getCredentialManifestData();
 
     try {
       const { results } = await this.credentialManager.query(token, query);
@@ -313,7 +319,10 @@ export default {
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getCurrentUser']),
+    ...mapGetters(['getCurrentUser', 'getCredentialManifestData', 'getStaticAssetsUrl']),
+    getCrendentialIcon: function (icon) {
+      return getCrendentialIcon(this.getStaticAssetsUrl(), icon);
+    },
     toggleDetails(credential) {
       credential.showDetails = !credential.showDetails;
     },
@@ -366,7 +375,9 @@ export default {
     },
     getManifest: function (credential) {
       const currentCredentialType = this.getCredentialType(credential);
-      return credentialDisplayData[currentCredentialType] || credentialDisplayData.fallback;
+      return (
+        this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
+      );
     },
   },
 };

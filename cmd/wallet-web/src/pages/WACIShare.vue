@@ -180,7 +180,7 @@
                 @click="toggleDetails(credential)"
               >
                 <div class="flex-none w-12 h-12 border-opacity-10">
-                  <img :src="require(`@/assets/img/${credential.icon}`)" />
+                  <img :src="getCrendentialIcon(credential.icon)" />
                 </div>
                 <div class="flex-grow p-4">
                   <span
@@ -255,10 +255,9 @@
 </template>
 <script>
 import { DIDComm } from '@trustbloc/wallet-sdk';
-import { wait, getCredentialType, getCredentialDisplayData } from './mixins';
+import { wait, getCredentialType, getCredentialDisplayData, getCrendentialIcon } from './mixins';
 import { mapGetters } from 'vuex';
 import Spinner from '@/components/Spinner/Spinner.vue';
-import credentialDisplayData from '@/config/credentialDisplayData';
 
 export default {
   components: {
@@ -271,6 +270,7 @@ export default {
       loading: true,
       sharing: false,
       processedCredentials: [],
+      credentialDisplayData: {},
     };
   },
   computed: {
@@ -283,6 +283,7 @@ export default {
     this.protocolHandler = this.$parent.protocolHandler;
     const invitation = this.protocolHandler.message();
     const { user, token } = this.getCurrentUser().profile;
+    this.credentialDisplayData = await this.getCredentialManifestData();
 
     //initiate credential share flow.
     this.didcomm = new DIDComm({ agent: this.getAgentInstance(), user });
@@ -308,7 +309,10 @@ export default {
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getCurrentUser']),
+    ...mapGetters(['getCurrentUser', 'getCredentialManifestData', 'getStaticAssetsUrl']),
+    getCrendentialIcon: function (icon) {
+      return getCrendentialIcon(this.getStaticAssetsUrl(), icon);
+    },
     toggleDetails(credential) {
       credential.showDetails = !credential.showDetails;
     },
@@ -370,7 +374,9 @@ export default {
     },
     getManifest: function (credential) {
       const currentCredentialType = this.getCredentialType(credential);
-      return credentialDisplayData[currentCredentialType] || credentialDisplayData.fallback;
+      return (
+        this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
+      );
     },
   },
 };

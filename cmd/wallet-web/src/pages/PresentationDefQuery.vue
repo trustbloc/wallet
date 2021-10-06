@@ -184,7 +184,7 @@
                 @click="toggleDetails(credential)"
               >
                 <div class="flex-none w-12 h-12 border-opacity-10">
-                  <img :src="require(`@/assets/img/${credential.icon}`)" />
+                  <img :src="getCrendentialIcon(credential.icon)" />
                 </div>
                 <div class="flex-grow p-4">
                   <span
@@ -302,7 +302,6 @@ import {
 } from './mixins';
 import { mapGetters } from 'vuex';
 import Spinner from '@/components/Spinner/Spinner.vue';
-import credentialDisplayData from '@/config/credentialDisplayData';
 
 const manifestCredType = 'IssuerManifestCredential';
 
@@ -316,6 +315,7 @@ export default {
       sharing: false,
       credsFound: [],
       issuersFound: [],
+      credentialDisplayData: {},
     };
   },
   computed: {
@@ -333,6 +333,7 @@ export default {
     );
     // make sure mediator is connected
     await this.wallet.connectMediator();
+    this.credentialDisplayData = await this.getCredentialManifestData();
 
     this.requestOrigin = this.$parent.protocolHandler.requestor();
 
@@ -355,7 +356,12 @@ export default {
     this.loading = false;
   },
   methods: {
-    ...mapGetters(['getCurrentUser', 'getAgentOpts']),
+    ...mapGetters([
+      'getCurrentUser',
+      'getAgentOpts',
+      'getCredentialManifestData',
+      'getStaticAssetsUrl',
+    ]),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     toggleDetails(credential) {
       credential.showDetails = !credential.showDetails;
@@ -377,12 +383,17 @@ export default {
     getCredentialType: function (vc) {
       return getCredentialType(vc.type);
     },
+    getCrendentialIcon: function (icon) {
+      return getCrendentialIcon(this.getStaticAssetsUrl(), icon);
+    },
     getCredentialDisplayData: function (vc, manifestCredential) {
       return getCredentialDisplayData(vc, manifestCredential);
     },
     getManifest: function (credential) {
       const currentCredentialType = this.getCredentialType(credential);
-      return credentialDisplayData[currentCredentialType] || credentialDisplayData.fallback;
+      return (
+        this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
+      );
     },
   },
 };
