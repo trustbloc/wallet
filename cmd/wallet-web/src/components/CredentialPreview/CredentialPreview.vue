@@ -15,7 +15,7 @@
     ]"
   >
     <div class="flex-none w-12 h-12 border-opacity-10">
-      <img :src="require(`@/assets/img/${icon}`)" />
+      <img :src="credentialIcon" />
     </div>
     <div class="flex-grow p-4">
       <span
@@ -49,6 +49,9 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+import { getCrendentialIcon } from '@/pages/mixins';
+
 export default {
   name: 'CredentialPreview',
   props: {
@@ -67,6 +70,18 @@ export default {
     title: {
       type: String,
       required: true,
+    },
+  },
+  data() {
+    return {
+      credentialIcon: this.getCrendentialIcon(),
+    };
+  },
+  methods: {
+    ...mapGetters(['getStaticAssetsUrl']),
+    // Get credential icon based on docker configuration
+    getCrendentialIcon: function () {
+      return getCrendentialIcon(this.getStaticAssetsUrl(), this.icon);
     },
   },
 };

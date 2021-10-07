@@ -125,6 +125,9 @@ export class Setup {
         getAgentOpts(state) {
           return agentStartupOpts;
         },
+        getCredentialManifestData(state) {
+          return require('@/config/credentialDisplayData.js').default;
+        },
       },
       modules: {
         agent: {

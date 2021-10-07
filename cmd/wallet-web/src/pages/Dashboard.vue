@@ -96,7 +96,7 @@ export default {
       username: '',
       agent: null,
       breakpoints: useBreakpoints(),
-      credentialDisplayData: this.getCredentialManifestConfigData(),
+      credentialDisplayData: '',
     };
   },
   computed: {
@@ -107,19 +107,17 @@ export default {
       return this.$t('Credentials');
     },
   },
-  created: function () {
+  created: async function () {
     let { user, token } = this.getCurrentUser().profile;
     this.username = this.getCurrentUser().username;
     let credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
     this.fetchAllCredentials(credentialManager.getAll(token));
+    this.credentialDisplayData = await this.getCredentialManifestData();
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser', 'getAgentOpts', 'getCredentialManifestData']),
     ...mapActions(['updateProcessedCredentials']),
-    getCredentialManifestConfigData: async function () {
-      return (this.credentialDisplayData = await this.getCredentialManifestData());
-    },
     fetchAllCredentials: async function (getCredential) {
       const { contents } = await getCredential;
       console.log(`found ${Object.keys(contents).length} credentials`);

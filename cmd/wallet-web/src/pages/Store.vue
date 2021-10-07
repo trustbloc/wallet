@@ -35,7 +35,7 @@
               @click="toggleDetails(credential)"
             >
               <div class="flex-none w-12 h-12 border-opacity-10">
-                <img :src="require(`@/assets/img/${credential.icon}`)" />
+                <img :src="getCrendentialIcon(credential.icon)" />
               </div>
               <div class="flex-grow p-4">
                 <span
@@ -135,9 +135,14 @@
 </template>
 
 <script>
-import { CHAPIEventHandler, getCredentialType, getCredentialDisplayData, isVPType } from './mixins';
+import {
+  CHAPIEventHandler,
+  getCredentialType,
+  getCredentialDisplayData,
+  getCrendentialIcon,
+  isVPType,
+} from './mixins';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
-import credentialDisplayData from '@/config/credentialDisplayData';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -146,6 +151,7 @@ export default {
       processedCredentials: [],
       errors: [],
       selectedVault: 'Default Vault',
+      credentialDisplayData: '',
     };
   },
   computed: {
@@ -166,12 +172,13 @@ export default {
     const { user } = this.getCurrentUser().profile;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
 
+    this.credentialDisplayData = await this.getCredentialManifestData();
     // prepare cards
     this.prepareCards(data);
     this.presentation = data;
   },
   methods: {
-    ...mapGetters(['getCurrentUser']),
+    ...mapGetters(['getCurrentUser', 'getStaticAssetsUrl', 'getCredentialManifestData']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     toggleDetails(credential) {
       credential.showDetails = !credential.showDetails;
@@ -212,12 +219,18 @@ export default {
     getCredentialType: function (vc) {
       return getCredentialType(vc.type);
     },
+    getCrendentialIcon: function (icon) {
+      return getCrendentialIcon(this.getStaticAssetsUrl(), icon);
+    },
     getCredentialDisplayData: function (vc, manifestCredential) {
       return getCredentialDisplayData(vc, manifestCredential);
     },
     getManifest: function (credential) {
       const currentCredentialType = this.getCredentialType(credential);
-      return credentialDisplayData[currentCredentialType] || credentialDisplayData.fallback;
+      console.log('what is this waheguru 2', this.credentialDisplayData);
+      return (
+        this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
+      );
     },
   },
 };

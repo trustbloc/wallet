@@ -27,7 +27,7 @@
         ]"
       >
         <div class="flex-none w-12 h-12 border-opacity-10">
-          <img :src="require(`@/assets/img/${icon}`)" />
+          <img :src="credentialIcon" />
         </div>
         <span
           :class="[
@@ -117,6 +117,8 @@
 
 <script>
 import useBreakpoints from '@/plugins/breakpoints.js';
+import { mapGetters } from 'vuex';
+import { getCrendentialIcon } from '@/pages/mixins';
 
 export default {
   name: 'Banner',
@@ -141,6 +143,7 @@ export default {
   data() {
     return {
       breakpoints: useBreakpoints(),
+      credentialIcon: this.getCrendentialIcon(),
     };
   },
   computed: {
@@ -153,6 +156,12 @@ export default {
         month: 'long',
         day: 'numeric',
       });
+    },
+  },
+  methods: {
+    ...mapGetters(['getStaticAssetsUrl']),
+    getCrendentialIcon: function () {
+      return getCrendentialIcon(this.getStaticAssetsUrl(), this.icon);
     },
   },
 };
