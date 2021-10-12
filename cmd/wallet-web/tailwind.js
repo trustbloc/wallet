@@ -61,6 +61,7 @@ module.exports = {
           light: '#e10003',
         },
         valencia: '#d24343',
+        vampire: '#b51313',
       },
       gray: {
         light: '#f4f1f5',

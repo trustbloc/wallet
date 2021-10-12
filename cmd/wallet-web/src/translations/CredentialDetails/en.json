@@ -7,5 +7,10 @@
     "vault": "Vault"
   },
   "verifiedInformation": "Verified information",
-  "saveCredential": "Save credential"
+  "saveCredential": "Save credential",
+  "toolTipLabel": "Manage credential",
+  "allVaultLabel": "All Vaults",
+  "renameCredential": "Rename Credential",
+  "moveCredential": "Move Credential",
+  "deleteCredential": "Delete Credential"
 }

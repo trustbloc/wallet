@@ -7,5 +7,10 @@
     "vault": "Chambre forte"
   },
   "verifiedInformation": "Information vérifiée",
-  "saveCredential": "Sauvegarder la preuve d’identité"
+  "saveCredential": "Sauvegarder la preuve d’identité",
+  "toolTipLabel": "Gérer l’identifiant",
+  "allVaultLabel": "Ajouter une chambre forte",
+  "renameCredential": "Renommer l’identifiant",
+  "moveCredential": "Déplacer l’identifiant",
+  "deleteCredential": "Supprimer l’identifiant"
 }

@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <div class="flex flex-col justify-start px-3 md:px-0 w-full">
+  <div class="flex flex-col justify-start px-3 md:px-0 pt-10 w-full">
     <div class="flex flex-col justify-start items-start w-full root-container">
       <div
         :class="[
