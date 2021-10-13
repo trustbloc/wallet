@@ -119,6 +119,8 @@ module.exports = {
       eastSide: '#c082cc',
       grape: '#49205e',
       haiti: '#261131',
+      harold: '#a095a5',
+      hummer: '#9e95a3',
       hibiscus: {
         DEFAULT: '#cd3a67',
         dark: '#cc3566',
@@ -157,6 +159,9 @@ module.exports = {
       )} 100%)`,
       green: `linear-gradient(-225deg, ${theme('colors.primary.green.dark')} 0%, ${theme(
         'colors.primary.green.light'
+      )} 100%)`,
+      haroldLight: `linear-gradient(-135deg, ${theme('gradientColorStops.harold')} 0%, ${theme(
+        'gradientColorStops.hummer'
       )} 100%)`,
       iron: `linear-gradient(${theme('gradientColorStops.iron')} 0%, ${theme(
         'gradientColorStops.eastSide'
@@ -210,6 +215,7 @@ module.exports = {
         'gradient-boatBlue': theme('gradients.boatBlue'),
         'gradient-cobalt': theme('gradients.cobalt'),
         'gradient-dark': theme('gradients.dark'),
+        'gradient-harold': theme('gradients.haroldLight'),
         'gradient-full': theme('gradients.full'),
         'gradient-green': theme('gradients.green'),
         'gradient-pink': theme('gradients.pink'),
