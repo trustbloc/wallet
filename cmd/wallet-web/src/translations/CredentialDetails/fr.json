@@ -12,5 +12,8 @@
   "allVaultLabel": "Ajouter une chambre forte",
   "renameCredential": "Renommer l’identifiant",
   "moveCredential": "Déplacer l’identifiant",
-  "deleteCredential": "Supprimer l’identifiant"
+  "deleteCredential": "Supprimer l’identifiant",
+  "ddeleteButtonLabel": "Supprimer",
+  "deleteButtonCancel": "Annuler",
+  "deleteCredentialConfirmMessage": "Vous ne pourrez plus partager cet preuve d’identité."
 }

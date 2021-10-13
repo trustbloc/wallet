@@ -42,7 +42,7 @@
       </div>
     </button>
     <div v-if="showFlyoutMenuList" id="flyoutMenuList" class="relative">
-      <flyout-menu-list />
+      <flyout-menu-list :credential-id="credentialId" />
     </div>
   </div>
 </template>
@@ -61,6 +61,9 @@ export default {
     type: {
       type: String,
       default: 'default',
+    },
+    credentialId: {
+      type: String,
     },
   },
   data() {

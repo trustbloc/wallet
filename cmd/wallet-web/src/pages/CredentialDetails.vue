@@ -13,7 +13,7 @@
       <div
         class="inline-flex items-center rounded-lg border border-neutrals-chatelle bg-transparent"
       >
-        <flyout-menu type="outline" />
+        <flyout-menu type="outline" :credential-id="credential.id" />
       </div>
     </div>
     <banner

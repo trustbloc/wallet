@@ -45,7 +45,6 @@
         </div>
         <ul class="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-8 my-8">
           <li v-for="(processedCredential, index) in processedCredentials" :key="index">
-            <!-- todo  load credential images from external source -->
             <credential-preview
               :id="processedCredential.id"
               :brand-color="processedCredential.brandColor"
@@ -120,7 +119,7 @@ export default {
     ...mapActions(['updateProcessedCredentials']),
     fetchAllCredentials: async function (getCredential) {
       const { contents } = await getCredential;
-      console.log(`found ${Object.keys(contents).length} credentials`);
+      console.log(`found ${Object.keys(contents).length}  credentials`);
       const _filter = (id) => {
         return !contents[id].type.some((t) => filterBy.includes(t));
       };
