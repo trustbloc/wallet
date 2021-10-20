@@ -128,10 +128,3 @@ export default {
   top: -5rem; /* 80px */
 }
 </style>
-
-<!-- TODO: remove after sass styles are deleted -->
-<style>
-.locale-switcher > span {
-  color: #fff;
-}
-</style>

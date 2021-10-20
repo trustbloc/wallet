@@ -5,163 +5,122 @@
 -->
 
 <template>
-  <div class="content">
-    <div class="px-12 md-layout">
-      <div class="md-layout-item">
-        <md-card>
-          <md-card-header style="background-color: #00bcd4">
-            <h3 class="title">
-              <md-icon>fingerprint</md-icon>
-              Wallet Operations
-            </h3>
-          </md-card-header>
+  <div>
+    <h3 class="mb-5 font-bold text-neutrals-dark">Wallet Operations</h3>
+    <div id="#ivc">
+      <textarea id="vcDataTextArea" v-model="interopData" rows="15" class="w-full" />
+      <div class="flex flex-col justify-start items-start my-4">
+        <span class="mb-2 font-bold">Sample requests:</span>
+        <div class="w-full">
+          <button
+            id="store-vc-sample-1"
+            class="m-1 btn-outline"
+            @click="prefillRequest('vp', 'store')"
+          >
+            Store Presentation (Sample 1)
+          </button>
+          <button
+            id="store-vc-sample-2"
+            class="m-1 btn-outline"
+            @click="prefillRequest('vp2', 'store')"
+          >
+            Store Presentation (Sample 2)
+          </button>
+          <button id="req-vp" class="m-1 btn-outline" @click="prefillRequest('getvp', 'get')">
+            Request Presentation
+          </button>
+          <button id="sel-disclosure" class="m-1 btn-outline" @click="prefillRequest('bbs', 'get')">
+            Selective Disclosure
+          </button>
+          <button
+            id="multi-query-1"
+            class="m-1 btn-outline"
+            @click="prefillRequest('multiQ1', 'get')"
+          >
+            Multiple Query - 1
+          </button>
+          <button
+            id="multi-query-2"
+            class="m-1 btn-outline"
+            @click="prefillRequest('multiQ2', 'get')"
+          >
+            Multiple Query - 2
+          </button>
+          <button
+            id="multi-query-3"
+            class="m-1 btn-outline"
+            @click="prefillRequest('multiQ3', 'get')"
+          >
+            Multiple Query - 3
+          </button>
+          <button id="pexq" class="m-1 btn-outline" @click="prefillRequest('pexq', 'get')">
+            Presentation Exchange Query
+          </button>
+          <button
+            id="pexq-didcomm"
+            class="m-1 btn-outline"
+            @click="prefillRequest('pexq-didcomm', 'get')"
+          >
+            Presentation Exchange Query With DIDComm
+          </button>
+          <button
+            id="pexq-didcomm-govnvc"
+            class="m-1 btn-outline"
+            @click="prefillRequest('pexq-didcomm-govnvc', 'get')"
+          >
+            Presentation Exchange Query With DIDComm & Governance VC
+          </button>
+          <button id="didauth" class="m-1 btn-outline" @click="prefillRequest('didauth', 'get')">
+            DID Auth
+          </button>
+          <button id="didconn" class="m-1 btn-outline" @click="prefillRequest('didconn', 'get')">
+            DID Connect
+          </button>
+          <button
+            id="didconn-manifest"
+            class="m-1 btn-outline"
+            @click="prefillRequest('didconn-manifest', 'get')"
+          >
+            DID Connect with manifest
+          </button>
+          <button
+            id="didconn-manifest-usrc"
+            class="m-1 btn-outline"
+            @click="prefillRequest('didconn-manifest-usrc', 'get')"
+          >
+            DID Connect with manifest and user credential
+          </button>
+          <button
+            id="didconn-manifest-usrc-govvc"
+            class="m-1 btn-outline"
+            @click="prefillRequest('didconn-manifest-usrc-govvc', 'get')"
+          >
+            DID Connect with manifest, user credential and governance VC
+          </button>
+          <button class="m-1 btn-outline" @click="prefillRequest('waci-credential-share', 'get')">
+            WACI Credential Share
+          </button>
+        </div>
+      </div>
 
-          <md-card-content>
-            <div id="#ivc">
-              <md-textarea
-                id="vcDataTextArea"
-                v-model="interopData"
-                rows="15"
-                style="width: 100%"
-              />
-              <br />
-              <div>
-                <b>Sample requests:</b>
-                <md-chip
-                  id="store-vc-sample-1"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('vp', 'store')"
-                  >Store Presentation (Sample 1)
-                </md-chip>
-                <md-chip
-                  id="store-vc-sample-2"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('vp2', 'store')"
-                  >Store Presentation (Sample 2)
-                </md-chip>
-                <md-chip
-                  id="req-vp"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('getvp', 'get')"
-                  >Request Presentation
-                </md-chip>
-                <md-chip
-                  id="sel-disclosure"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('bbs', 'get')"
-                  >Selective Disclosure
-                </md-chip>
-                <md-chip
-                  id="multi-query-1"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('multiQ1', 'get')"
-                  >Multiple Query - 1
-                </md-chip>
-                <md-chip
-                  id="multi-query-2"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('multiQ2', 'get')"
-                  >Multiple Query - 2
-                </md-chip>
-                <md-chip
-                  id="multi-query-3"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('multiQ3', 'get')"
-                  >Multiple Query - 3
-                </md-chip>
-                <md-chip
-                  id="pexq"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('pexq', 'get')"
-                  >Presentation Exchange Query
-                </md-chip>
-                <md-chip
-                  id="pexq-didcomm"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('pexq-didcomm', 'get')"
-                  >Presentation Exchange Query With DIDComm
-                </md-chip>
-                <md-chip
-                  id="pexq-didcomm-govnvc"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('pexq-didcomm-govnvc', 'get')"
-                  >Presentation Exchange Query With DIDComm & Governance VC
-                </md-chip>
-                <md-chip
-                  id="didauth"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('didauth', 'get')"
-                  >DID Auth</md-chip
-                >
-                <md-chip
-                  id="didconn"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('didconn', 'get')"
-                  >DID Connect
-                </md-chip>
-                <md-chip
-                  id="didconn-manifest"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('didconn-manifest', 'get')"
-                  >DID Connect with manifest
-                </md-chip>
-                <md-chip
-                  id="didconn-manifest-usrc"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('didconn-manifest-usrc', 'get')"
-                  >DID Connect with manifest and user credential
-                </md-chip>
-                <md-chip
-                  id="didconn-manifest-usrc-govvc"
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('didconn-manifest-usrc-govvc', 'get')"
-                  >DID Connect with manifest, user credential and governance VC
-                </md-chip>
-                <md-chip
-                  class="request-sample"
-                  md-clickable
-                  @click="prefillRequest('waci-credential-share', 'get')"
-                  >WACI Credential Share
-                </md-chip>
-              </div>
+      <div class="flex flex-col justify-start items-start">
+        <span class="mb-2 font-bold">Wallet Operations:</span>
+        <div class="flex flex-row justify-start items-center space-x-2 w-full">
+          <button id="store-btn" class="btn-primary" :disabled="disableStore" @click="store">
+            Store
+          </button>
+          <button id="get-btn" class="btn-primary" :disabled="disableGet" @click="get">Get</button>
+        </div>
+      </div>
 
-              <div>
-                <b>Wallet Operations:</b>
-                <br />
-                <md-button class="md-success" :disabled="disableStore" @click="store"
-                  >Store
-                </md-button>
-                &nbsp;
-                <md-button class="md-success" :disabled="disableGet" @click="get">Get </md-button>
-              </div>
-
-              <div v-if="responses.length" style="color: #0e9a00">
-                <p v-for="response in responses" :key="response">{{ response }}</p>
-              </div>
-              <div v-if="errors.length" style="color: #fb4934">
-                <b>Please correct the following error(s):</b>
-                <ul>
-                  <li v-for="error in errors" :key="error">{{ error }}</li>
-                </ul>
-              </div>
-            </div>
-          </md-card-content>
-        </md-card>
+      <div v-if="responses.length" style="color: #0e9a00">
+        <p v-for="response in responses" :key="response">{{ response }}</p>
+      </div>
+      <div v-if="errors.length" style="color: #fb4934">
+        <b>Please correct the following error(s):</b>
+        <ul>
+          <li v-for="error in errors" :key="error">{{ error }}</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -246,8 +205,3 @@ export default {
   },
 };
 </script>
-<style lang="css">
-.request-sample {
-  margin: 2px;
-}
-</style>

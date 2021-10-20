@@ -14,9 +14,6 @@ import * as webCredentialHandler from 'web-credential-handler';
 import { mapActions, mapGetters } from 'vuex';
 import VueCookies from 'vue-cookies';
 import '@/assets/css/tailwind.css';
-import VueMaterial from 'vue-material';
-import 'vue-material/dist/vue-material.css';
-import './assets/scss/material-dashboard.scss';
 import i18n from './plugins/i18n';
 import supportedLocales from '@/config/supportedLocales';
 import { updateI18nLocale } from '@/plugins/i18n';
@@ -30,7 +27,6 @@ Vue.prototype.$webCredentialHandler = webCredentialHandler;
 Vue.use(VueRouter);
 Vue.use(VueCookies);
 Vue.$cookies.config('7d');
-Vue.use(VueMaterial);
 Vue.component(
   'ToastNotification',
   require('./components/ToastNotification/ToastNotification').default

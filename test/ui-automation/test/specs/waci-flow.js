@@ -113,7 +113,7 @@ describe("TrustBloc Wallet - WACI Share flow", () => {
     await sampleText.clearValue();
     await sampleText.addValue(vprs);
 
-    const storeButton = await $("button*=Store");
+    const storeButton = await $("#store-btn");
     await storeButton.waitForClickable();
     await storeButton.click();
 

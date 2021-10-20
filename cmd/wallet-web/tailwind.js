@@ -271,7 +271,7 @@ module.exports = {
     plugin(function ({ addComponents, theme }) {
       const buttons = {
         '.btn-primary': {
-          height: theme('spacing.11'),
+          minHeight: theme('spacing.11'),
           padding: `0 ${theme('spacing.8')}`,
           borderRadius: theme('borderRadius.lg'),
           backgroundImage: theme('gradients.purple'),
@@ -296,7 +296,7 @@ module.exports = {
           },
         },
         '.btn-inverse': {
-          height: theme('spacing.11'),
+          minHeight: theme('spacing.11'),
           padding: `0 ${theme('spacing.8')}`,
           borderRadius: theme('borderRadius.lg'),
           backgroundImage: theme('gradients.moonRaker'),
@@ -314,7 +314,7 @@ module.exports = {
           },
         },
         '.btn-outline': {
-          height: theme('spacing.11'),
+          minHeight: theme('spacing.11'),
           padding: `0 ${theme('spacing.8')}`,
           border: `1px solid ${theme('colors.neutrals.chatelle')}`, // TODO: replace with border from theme once defined
           borderRadius: theme('borderRadius.lg'),
@@ -331,7 +331,7 @@ module.exports = {
           },
         },
         '.btn-danger': {
-          height: theme('spacing.11'),
+          minHeight: theme('spacing.11'),
           padding: `0 ${theme('spacing.8')}`,
           borderRadius: theme('borderRadius.lg'),
           backgroundImage: theme('gradients.cinnabar'),
@@ -349,7 +349,7 @@ module.exports = {
           },
         },
         '.btn-disabled': {
-          height: theme('spacing.11'),
+          minHeight: theme('spacing.11'),
           padding: `0 ${theme('spacing.8')}`,
           borderRadius: theme('borderRadius.lg'),
           backgroundColor: theme('colors.neutrals.mobster'),
@@ -360,7 +360,7 @@ module.exports = {
           cursor: 'not-allowed',
         },
         '.btn-loading': {
-          height: theme('spacing.11'),
+          minHeight: theme('spacing.11'),
           padding: `0 ${theme('spacing.8')}`,
           borderRadius: theme('borderRadius.lg'),
           backgroundImage: theme('gradients.purple'),

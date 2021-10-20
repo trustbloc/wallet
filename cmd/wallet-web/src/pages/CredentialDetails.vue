@@ -7,8 +7,7 @@
   <div class="flex flex-col justify-start items-start py-6 px-3">
     <div class="flex flex-row justify-between items-center mb-4 w-full">
       <div class="flex flex-grow">
-        <!-- TODO: remove m-0 and font-bold once vue-material is scrapped -->
-        <h3 class="m-0 font-bold text-neutrals-dark">{{ i18n.heading }}</h3>
+        <h3 class="text-neutrals-dark">{{ i18n.heading }}</h3>
       </div>
       <div
         class="inline-flex items-center rounded-lg border border-neutrals-chatelle bg-transparent"
