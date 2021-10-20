@@ -298,6 +298,7 @@ import {
   filterCredentialsByType,
   getCredentialType,
   getCredentialDisplayData,
+  getCrendentialIcon,
   WalletGetByQuery,
 } from './mixins';
 import { mapGetters } from 'vuex';
@@ -315,7 +316,7 @@ export default {
       sharing: false,
       credsFound: [],
       issuersFound: [],
-      credentialDisplayData: {},
+      credentialDisplayData: '',
     };
   },
   computed: {

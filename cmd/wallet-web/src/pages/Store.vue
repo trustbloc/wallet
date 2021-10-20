@@ -227,7 +227,6 @@ export default {
     },
     getManifest: function (credential) {
       const currentCredentialType = this.getCredentialType(credential);
-      console.log('what is this waheguru 2', this.credentialDisplayData);
       return (
         this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
       );

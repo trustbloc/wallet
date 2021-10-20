@@ -48,7 +48,7 @@ let defaultAgentStartupOpts = {
   edvBatchSize: 0,
   didAnchorOrigin: 'origin',
   sidetreeToken: '',
-  hubAuthURL: '',
+  hubAuthURL: 'https://localhost:8044',
   staticAssetsUrl: '',
 };
 
