@@ -288,7 +288,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
     await didAuthBtn.waitForExist();
     await didAuthBtn.click();
 
-    const storeButton = await $("button*=Get");
+    const storeButton = await $("#get-btn");
     await storeButton.waitForClickable();
     await storeButton.click();
 
@@ -328,7 +328,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
       await sampleText.clearValue();
       await sampleText.addValue(vprs);
 
-      const storeButton = await $("button*=Store");
+      const storeButton = await $("#store-btn");
       await storeButton.waitForClickable();
       await storeButton.click();
 
@@ -437,7 +437,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
       await sampleText.clearValue();
       await sampleText.addValue(vprs);
 
-      const getButton = await $("button*=Get");
+      const getButton = await $("#get-btn");
       await getButton.waitForClickable();
       await getButton.click();
 
