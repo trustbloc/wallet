@@ -13,4 +13,5 @@ exports.config = {
   walletName: "TrustBloc Wallet",
   walletURL: "https://wallet.trustbloc.local:8091",
   demoVerifierURL: "https://demo-adapter.trustbloc.local:8094/verifier",
+  webWalletURL: "https://demo-adapter.trustbloc.local:8094/web-wallet",
 };

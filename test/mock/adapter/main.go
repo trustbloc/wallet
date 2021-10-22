@@ -34,6 +34,10 @@ func main() {
 
 	router := mux.NewRouter()
 
+	fs := http.FileServer(http.Dir("templates"))
+	router.PathPrefix("/css/").Handler(fs)
+	router.Handle("/", fs)
+
 	// host demo sample ui pages
 	err = startVerifierApp(agent, router)
 	if err != nil {

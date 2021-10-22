@@ -97,7 +97,7 @@ describe("TrustBloc Wallet - WACI Share flow", () => {
 
   it(`User Stores Permanent Resident Card Credential`, async function () {
     // mock issuer (wallet page with sample requests)
-    await browser.navigateTo(browser.config.walletURL + "/web-wallet");
+    await browser.navigateTo(browser.config.webWalletURL);
 
     const vcSampleBtn = await $("#store-vc-sample-1");
     await vcSampleBtn.waitForExist();
