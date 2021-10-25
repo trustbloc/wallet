@@ -23,6 +23,12 @@ export default [
         meta: { requiresAuth: true },
       },
       {
+        path: 'vaults',
+        name: 'vaults',
+        component: load('Vaults'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: 'credentials/:id',
         name: 'credential-details',
         component: load('CredentialDetails'),
