@@ -27,6 +27,7 @@ server {
     }
 
     location /manifest.json {
+        root ${STATIC_ASSETS};
         add_header 'Access-Control-Allow-Origin' "*" always;
         add_header 'Access-Control-Allow-Methods' 'GET' always;
     }
