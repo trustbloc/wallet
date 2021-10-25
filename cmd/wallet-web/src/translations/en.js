@@ -7,6 +7,7 @@ import Footer from './Footer/en.json';
 import Signin from './Signin/en.json';
 import Signout from './Signout/en.json';
 import Signup from './Signup/en.json';
+import Vaults from './Vaults/en.json';
 
 export default {
   App,
@@ -18,4 +19,5 @@ export default {
   Signin,
   Signout,
   Signup,
+  Vaults,
 };
