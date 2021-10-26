@@ -88,6 +88,23 @@ exports.validateCredentialDetails = async (vcData) => {
   }
 };
 
+exports.deleteCredential = async () => {
+  const flyoutMenuImage = await $("#flyoutMenuId");
+  await flyoutMenuImage.waitForExist();
+  await flyoutMenuImage.waitForClickable();
+  await flyoutMenuImage.click();
+
+  const deleteCredentialList = await $("#deleteCredential");
+  await deleteCredentialList.waitForExist();
+  await deleteCredentialList.waitForClickable();
+  await deleteCredentialList.click();
+
+  const deleteButton = await $("#deleteButton");
+  await deleteButton.waitForExist();
+  await deleteButton.waitForClickable();
+  await deleteButton.click();
+};
+
 /*************************** Helper functions ******************************/
 
 async function _didAuth({ method = "trustbloc" } = {}) {
