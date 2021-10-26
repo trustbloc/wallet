@@ -35,7 +35,11 @@
       @focus="showTooltip = !showTooltip"
     >
       <div class="flex-none p-2">
-        <img src="@/assets/img/more-icon.svg" @click="showFlyoutMenuList = !showFlyoutMenuList" />
+        <img
+          id="flyoutMenuId"
+          src="@/assets/img/more-icon.svg"
+          @click="showFlyoutMenuList = !showFlyoutMenuList"
+        />
       </div>
       <div v-if="showTooltip" id="tooltip">
         <tool-tip :tool-tip-label="i18n.toolTipLabel"></tool-tip>

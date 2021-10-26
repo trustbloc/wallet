@@ -16,9 +16,15 @@
     "
   >
     <div class="p-4 text-base text-start">
-      <button class="block pb-2 font-bold">{{ i18n.renameCredential }}</button>
-      <button class="block pb-2 font-bold">{{ i18n.moveCredential }}</button>
-      <button class="block font-bold text-primary-vampire" @click="toggleDeleteCredentialModal()">
+      <button id="renameCredential" class="block pb-2 font-bold">
+        {{ i18n.renameCredential }}
+      </button>
+      <button id="moveCredential" class="block pb-2 font-bold">{{ i18n.moveCredential }}</button>
+      <button
+        id="deleteCredential"
+        class="block font-bold text-primary-vampire"
+        @click="toggleDeleteCredentialModal()"
+      >
         {{ i18n.deleteCredential }}
       </button>
     </div>
@@ -89,6 +95,7 @@
           <button
             class="order-first md:order-last lg:order-last w-full md:w-auto lg:w-auto btn-danger"
             type="button"
+            id="deleteButton"
             @click="deleteCredential(credentialId)"
           >
             {{ i18n.deleteButtonLabel }}
