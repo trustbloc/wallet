@@ -93,9 +93,9 @@
             {{ i18n.deleteButtonCancel }}
           </button>
           <button
+            id="deleteButton"
             class="order-first md:order-last lg:order-last w-full md:w-auto lg:w-auto btn-danger"
             type="button"
-            id="deleteButton"
             @click="deleteCredential(credentialId)"
           >
             {{ i18n.deleteButtonLabel }}

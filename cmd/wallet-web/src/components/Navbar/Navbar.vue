@@ -75,7 +75,6 @@
           >© {{ date }} TrustBloc</span
         >
         <span class="px-2 opacity-60">･</span>
-        <!-- TODO: remove locale-switcher class after sass styles are deleted -->
         <locale-switcher
           class="
             text-neutrals-white
@@ -85,7 +84,6 @@
             hover:opacity-100
             focus:opacity-100
             underline-white
-            locale-switcher
           "
         />
       </div>
