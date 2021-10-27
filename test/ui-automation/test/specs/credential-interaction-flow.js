@@ -282,7 +282,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
     this.timeout(90000);
 
     // mock issuer (wallet page with sample requests)
-    await browser.navigateTo(browser.config.walletURL + "/web-wallet");
+    await browser.navigateTo(browser.config.webWalletURL);
 
     const didAuthBtn = await $("#didauth");
     await didAuthBtn.waitForExist();
@@ -310,7 +310,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
 
     for (const [key, value] of credential.entries()) {
       // mock issuer (wallet page with sample requests)
-      await browser.navigateTo(browser.config.walletURL + "/web-wallet");
+      await browser.navigateTo(browser.config.webWalletURL);
 
       console.log("save vc : start ", key);
 
@@ -415,7 +415,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
 
     for (const [key, value] of credential.entries()) {
       // mock verifier (wallet page with sample requests)
-      await browser.navigateTo(browser.config.walletURL + "/web-wallet");
+      await browser.navigateTo(browser.config.webWalletURL);
 
       console.log("share vc : start ", key);
 
@@ -477,14 +477,13 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
 
       await wallet.validateCredentialDetails(value.vcSubjectData);
       console.log("validate vc in wallet : end ", key);
-      await wallet.deleteCredential()
+      await wallet.deleteCredential();
     }
 
     let isEmpty = credential.entries().length === 0;
-    console.log("length", isEmpty)
+    console.log("length", isEmpty);
     expect(isEmpty).toHaveValue("0");
   });
-
 
   it(`User Sign Out (${ctx.email})`, async function () {
     this.timeout(90000);

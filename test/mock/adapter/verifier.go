@@ -28,7 +28,8 @@ import (
 )
 
 const (
-	verifierHTML = "./templates/verifier.html"
+	verifierHTML  = "./templates/verifier.html"
+	webWalletHTML = "./templates/webWallet.html"
 )
 
 var logger = log.New("mock-adapter")
@@ -65,6 +66,7 @@ func startVerifierApp(agent *didComm, router *mux.Router) error {
 	go listenForDIDCommMsg(actionCh)
 
 	router.HandleFunc("/verifier", app.login)
+	router.HandleFunc("/web-wallet", app.webWallet)
 	router.HandleFunc("/waci-share", app.waci)
 	router.HandleFunc("/waci-share/{id}", app.waciShareCallback)
 
@@ -73,6 +75,10 @@ func startVerifierApp(agent *didComm, router *mux.Router) error {
 
 func (v *verifierApp) login(w http.ResponseWriter, r *http.Request) {
 	loadTemplate(w, verifierHTML, nil)
+}
+
+func (v *verifierApp) webWallet(w http.ResponseWriter, r *http.Request) {
+	loadTemplate(w, webWalletHTML, nil)
 }
 
 func (v *verifierApp) waci(w http.ResponseWriter, r *http.Request) {
