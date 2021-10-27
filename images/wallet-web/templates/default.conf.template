@@ -32,6 +32,14 @@ server {
         add_header 'Access-Control-Allow-Methods' 'GET' always;
     }
 
+    location /favicon.ico {
+        root ${STATIC_ASSETS};
+    }
+
+    location /favicon.png {
+        root ${STATIC_ASSETS};
+    }
+
     location ~ agent-js-worker\.wasm$ {
         gzip_static on;
         types {
