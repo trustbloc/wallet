@@ -338,8 +338,10 @@ export default {
       const { profile, preference } = this.getCurrentUser();
       const { controller, proofType, verificationMethod } = preference;
 
+      let ack;
+
       try {
-        await this.didcomm.completeCredentialShare(
+        ack = await this.didcomm.completeCredentialShare(
           profile.token,
           this.threadID,
           this.presentations,
@@ -348,7 +350,7 @@ export default {
             proofType,
             verificationMethod,
           },
-          true
+          { waitForDone: true }
         );
       } catch (e) {
         this.errors.push(e);
@@ -357,10 +359,12 @@ export default {
         return;
       }
 
-      //TODO this delay to be removed once we have WACI ack feature available for present proof.
-      await wait(2000);
+      let { status, url } = ack;
 
-      this.protocolHandler.done();
+      // TODO check if status="FAIL", then should redirect to generic error screen, it means WACI flow didn't succeed
+
+      this.protocolHandler.done(url);
+
       this.sharing = false;
     },
     cancel() {

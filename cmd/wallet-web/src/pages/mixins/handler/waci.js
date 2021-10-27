@@ -33,15 +33,13 @@ export class WACIRedirectHandler {
     return 'requestor';
   }
 
-  done() {
-    // redirect to `redirectURL` with status success
-    //TODO add status code
-    window.location.href = this.redirect;
+  done(url = this.redirect) {
+    // redirect to `url` with status success
+    window.location.href = url;
   }
 
   cancel() {
     // redirect to `redirectURL` with status error
-    //TODO add status code
     window.location.href = this.redirect;
   }
 }
