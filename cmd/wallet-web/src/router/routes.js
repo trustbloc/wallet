@@ -41,11 +41,6 @@ export default [
         meta: { requiresAuth: true, signin: true, disableCHAPI: true },
       },
       {
-        path: 'web-wallet',
-        name: 'web-wallet',
-        component: load('demos/WebWallet'),
-      },
-      {
         path: 'did-management',
         name: 'did-management',
         component: load('DIDManagement'),
