@@ -16,17 +16,9 @@ import { WACIRedirectHandler } from './mixins';
 
 function findForm(query) {
   // for now, implemented only one form and handler
-  let protocolHandler;
-
-  if (query.redirect) {
-    protocolHandler = new WACIRedirectHandler(query.oob, query.redirect);
-  } else {
-    throw 'unable to find protocol handler.';
-  }
-
   return {
     component: WACIShareForm,
-    protocolHandler,
+    protocolHandler: new WACIRedirectHandler(query.oob, query.redirect),
   };
 }
 
