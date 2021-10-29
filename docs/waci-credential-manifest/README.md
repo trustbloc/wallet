@@ -23,7 +23,7 @@ structure from
 but makes use of elements from the
 [DIDComm v2.0](https://github.com/decentralized-identity/didcomm-messaging)
 messaging protocol, along with
-[Aries Issue Credential](https://github.com/hyperledger/aries-rfcs/tree/main/features/0453-issue-credential-v2/README.md)
+[Issue Credential v3](./issue_credential/README.md)
 message formats and
 [DIF Credential Manifest](https://identity.foundation/credential-manifest/)
 data objects. This version of the specification also restricts itself to
