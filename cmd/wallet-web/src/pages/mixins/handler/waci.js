@@ -20,7 +20,7 @@ const base64url = require('base64url');
 export class WACIRedirectHandler {
   constructor(oob, redirect) {
     this.oob = JSON.parse(base64url.decode(oob));
-    this.redirect = base64url.decode(redirect);
+    this.redirect = redirect ? base64url.decode(redirect) : redirect;
   }
 
   message() {
