@@ -16,6 +16,7 @@
         <img src="@/assets/img/icons-sm--chevron-down-icon.svg" />
       </div>
     </button>
+    <!-- TODO: Issue-1193 Refactor outline vault to accomdate both credential and vault flyout" -->
     <button
       v-if="type === 'outline'"
       id="outline"
@@ -31,43 +32,43 @@
         border border-neutrals-chatelle
         hover:border-neutrals-mountainMist-light
       "
-      @mouseover="showTooltip = !showTooltip"
       @focus="showTooltip = !showTooltip"
     >
       <div class="flex-none p-2">
         <img
           id="flyoutMenuId"
           src="@/assets/img/more-icon.svg"
-          @click="showFlyoutMenuList = !showFlyoutMenuList"
+          @click="toggleFlyoutMenuList"
+          @mouseover="showTooltip = !showTooltip"
         />
       </div>
       <div v-if="showTooltip" id="tooltip">
         <tool-tip :tool-tip-label="i18n.toolTipLabel"></tool-tip>
       </div>
     </button>
-    <div v-if="showFlyoutMenuList" id="flyoutMenuList" class="relative">
-      <flyout-menu-list :credential-id="credentialId" />
+    <div
+      v-if="showFlyoutMenuList"
+      id="flyoutMenuList"
+      class="relative"
+      @click.prevent="toggleFlyoutMenuList"
+    >
+      <slot />
     </div>
   </div>
 </template>
 
 <script>
 import ToolTip from '@/components/ToolTip/ToolTip.vue';
-import FlyoutMenuList from '@/components/FlyoutMenu/FlyoutMenuList.vue';
 
 export default {
   name: 'FlyoutMenu',
   components: {
     ToolTip,
-    FlyoutMenuList,
   },
   props: {
     type: {
       type: String,
       default: 'default',
-    },
-    credentialId: {
-      type: String,
     },
   },
   data() {
@@ -83,6 +84,23 @@ export default {
   computed: {
     i18n() {
       return this.$t('CredentialDetails');
+    },
+  },
+  mounted() {
+    document.addEventListener('click', this.close);
+  },
+  beforeDestroy() {
+    document.removeEventListener('click', this.close);
+  },
+  methods: {
+    toggleFlyoutMenuList(e) {
+      this.showFlyoutMenuList = !this.showFlyoutMenuList;
+      this.showTooltip = false;
+    },
+    close(e) {
+      if (!this.$el.contains(e.target)) {
+        this.showFlyoutMenuList = false;
+      }
     },
   },
 };

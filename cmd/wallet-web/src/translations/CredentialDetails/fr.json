@@ -13,7 +13,7 @@
   "renameCredential": "Renommer l’identifiant",
   "moveCredential": "Déplacer l’identifiant",
   "deleteCredential": "Supprimer l’identifiant",
-  "ddeleteButtonLabel": "Supprimer",
+  "deleteButtonLabel": "Supprimer",
   "deleteButtonCancel": "Annuler",
   "deleteCredentialConfirmMessage": "Vous ne pourrez plus partager cet preuve d’identité."
 }

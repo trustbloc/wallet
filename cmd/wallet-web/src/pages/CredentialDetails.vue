@@ -12,7 +12,28 @@
       <div
         class="inline-flex items-center rounded-lg border border-neutrals-chatelle bg-transparent"
       >
-        <flyout-menu type="outline" :credential-id="credential.id" />
+        <flyout-menu type="outline">
+          <flyout-menu-list>
+            <flyout-menu-button
+              id="renameCredential"
+              :text="i18n.renameCredential"
+              color="neutrals-medium"
+            />
+            <flyout-menu-button
+              id="moveCredential"
+              :text="i18n.moveCredential"
+              color="neutrals-medium"
+            />
+            <flyout-menu-button
+              id="deleteCredential"
+              :text="i18n.deleteCredential"
+              color="primary-vampire"
+              @click="openDeleteCredential"
+            >
+            </flyout-menu-button>
+          </flyout-menu-list>
+        </flyout-menu>
+        <ModalRoot />
       </div>
     </div>
     <banner
@@ -48,8 +69,14 @@
 </template>
 
 <script>
+import { ModalBus } from '@/EventBus';
+import ModalRoot from '@/components/Modal/Modal';
+import DeleteCredential from '@/components/Modal/Credential/Delete';
 import Banner from '@/components/CredentialDetails/Banner';
 import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
+import FlyoutMenuList from '@/components/FlyoutMenu/FlyoutMenuList';
+import FlyoutMenuButton from '@/components/FlyoutMenu/FlyoutMenuButton';
+
 import { mapGetters } from 'vuex';
 
 export default {
@@ -57,6 +84,14 @@ export default {
   components: {
     Banner,
     FlyoutMenu,
+    FlyoutMenuList,
+    FlyoutMenuButton,
+    ModalRoot,
+  },
+  data: function () {
+    return {
+      modalAuth: false,
+    };
   },
   computed: {
     i18n() {
@@ -65,6 +100,15 @@ export default {
     ...mapGetters(['getProcessedCredentialByID']),
     credential() {
       return this.getProcessedCredentialByID(this.$route.params.id);
+    },
+  },
+  methods: {
+    // Add modal bus event for other modal like rename, move credential etc
+    openDeleteCredential() {
+      ModalBus.$emit('open', {
+        component: DeleteCredential,
+        props: { credentialId: this.credential.id },
+      });
     },
   },
 };
