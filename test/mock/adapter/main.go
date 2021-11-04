@@ -22,7 +22,8 @@ const (
 	tlsKeyFileEnvKey          = "TLS_KEY_FILE"
 	tlsCertFileEnvKey         = "TLS_CERT_FILE"
 	tlsCACertsEnvKey          = "TLS_CACERTS"
-	orbDomainEnvKey           = "testnet.orb.local"
+	orbDomainEnvKey           = "ORB_DOMAIN"
+	contextProviderEnvKey     = "CONTEXT_PROVIDER_URL"
 )
 
 func main() {

@@ -63,7 +63,7 @@ func startVerifierApp(agent *didComm, router *mux.Router) error {
 		return fmt.Errorf("failed to register action events on present-proof-client : %w", err)
 	}
 
-	go listenForDIDCommMsg(actionCh)
+	go listenForDIDCommMsg(actionCh, store)
 
 	router.HandleFunc("/verifier", app.login)
 	router.HandleFunc("/web-wallet", app.webWallet)
@@ -101,21 +101,10 @@ func (v *verifierApp) waci(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = v.store.Put(inv.ID, invBytes)
-	if err != nil {
-		handleError(w, http.StatusInternalServerError,
-			fmt.Sprintf("failed to store invitation data : %s", err))
+	redirectURL := fmt.Sprintf("%s/waci?oob=%s", r.FormValue("walletURL"),
+		base64.URLEncoding.EncodeToString(invBytes))
 
-		return
-	}
-
-	callbackURL := os.Getenv(demoExternalURLEnvKey) + "/waci-share/" + inv.ID
-
-	redirectURL := fmt.Sprintf("%s/waci?oob=%s&redirect=%s", r.FormValue("walletURL"),
-		base64.URLEncoding.EncodeToString(invBytes),
-		base64.URLEncoding.EncodeToString([]byte(callbackURL)))
-
-	logger.Infof("waci redirect : url=%s oob-invitation=%s callbackURL=%s", redirectURL, string(invBytes), callbackURL)
+	logger.Infof("waci redirect : url=%s oob-invitation=%s", redirectURL, string(invBytes))
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
@@ -135,7 +124,7 @@ func (v *verifierApp) waciShareCallback(w http.ResponseWriter, r *http.Request) 
 	loadTemplate(w, verifierHTML, map[string]interface{}{"Msg": "Successfully Received Presentation"})
 }
 
-func listenForDIDCommMsg(actionCh chan service.DIDCommAction) {
+func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Store) {
 	for action := range actionCh {
 		logger.Infof("received action message : type=%s", action.Message.Type())
 
@@ -143,6 +132,32 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction) {
 		case didexchange.RequestMsgType:
 			action.Continue(nil)
 		case presentproofsvc.ProposePresentationMsgTypeV2:
+			thID, err := action.Message.ThreadID()
+			if err != nil {
+				logger.Errorf("failed to get thread ID", err)
+				action.Stop(nil)
+			}
+
+			pd := &presexch.PresentationDefinition{
+				ID:   uuid.NewString(),
+				Name: "Demo Verifier",
+				InputDescriptors: []*presexch.InputDescriptor{
+					{ID: uuid.NewString(), Schema: []*presexch.Schema{{URI: "https://w3id.org/citizenship#PermanentResidentCard"}}},
+				},
+			}
+
+			pdBytes, err := json.Marshal(pd)
+			if err != nil {
+				logger.Errorf("unable to marshal presentation definition bytes", err)
+				action.Stop(nil)
+			}
+
+			err = store.Put(thID, pdBytes)
+			if err != nil {
+				logger.Errorf("failed to save presentation definition", err)
+				action.Stop(nil)
+			}
+
 			continueArg := presentproof.WithRequestPresentation(&presentproof.RequestPresentation{
 				Comment: "Request Presentation",
 				RequestPresentationsAttach: []decorator.Attachment{
@@ -156,21 +171,29 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction) {
 						}{
 							Challenge: uuid.NewString(),
 							Domain:    uuid.NewString(),
-							PD: &presexch.PresentationDefinition{
-								ID:   uuid.NewString(),
-								Name: "Demo Verifier",
-								InputDescriptors: []*presexch.InputDescriptor{
-									{ID: uuid.NewString(), Schema: []*presexch.Schema{{URI: "https://w3id.org/citizenship#PermanentResidentCard"}}},
-								},
-							}},
+							PD:        pd},
 						},
 					},
 				},
+				WillConfirm: true,
 			})
 
 			action.Continue(continueArg)
 		case presentproofsvc.PresentationMsgTypeV2:
-			action.Continue(nil)
+			thID, err := action.Message.ThreadID()
+			if err != nil {
+				logger.Errorf("failed to get thread ID", err)
+				action.Stop(nil)
+			}
+
+			action.Continue(presentproofsvc.WithProperties(
+				map[string]interface{}{
+					"~web-redirect": &decorator.WebRedirect{
+						Status: "OK",
+						URL:    os.Getenv(demoExternalURLEnvKey) + "/waci-share/" + thID,
+					},
+				},
+			))
 		default:
 			action.Stop(nil)
 		}
