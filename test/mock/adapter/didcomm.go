@@ -18,8 +18,12 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/client/outofband"
 	"github.com/hyperledger/aries-framework-go/pkg/client/presentproof"
 	arieshttp "github.com/hyperledger/aries-framework-go/pkg/didcomm/transport/http"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/ld"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/ldcontext/remote"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/aries"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/aries/defaults"
+	"github.com/hyperledger/aries-framework-go/spi/storage"
+	tlsutils "github.com/trustbloc/edge-core/pkg/utils/tls"
 )
 
 type didComm struct {
@@ -29,8 +33,10 @@ type didComm struct {
 }
 
 func startAriesAgent() (*didComm, error) {
+	storeProvider := mem.NewProvider()
+
 	var opts []aries.Option
-	opts = append(opts, aries.WithStoreProvider(mem.NewProvider()))
+	opts = append(opts, aries.WithStoreProvider(storeProvider))
 
 	opts = append(opts, defaults.WithInboundHTTPAddr(os.Getenv(didCommInternalHostEnvKey),
 		os.Getenv(didCommExternalHostEnvKey), os.Getenv(tlsCertFileEnvKey),
@@ -58,6 +64,24 @@ func startAriesAgent() (*didComm, error) {
 	}
 
 	opts = append(opts, aries.WithVDR(vdri))
+
+	if ctxURL := os.Getenv(contextProviderEnvKey); ctxURL != "" {
+		if caCerts := os.Getenv(tlsCACertsEnvKey); caCerts != "" {
+			rootCAs, err := tlsutils.GetCertPool(true, []string{caCerts})
+			if err != nil {
+				panic("failed to setup root ca, " + err.Error())
+			}
+
+			docLoader, err := createJSONLDDocumentLoader(storeProvider, &tls.Config{RootCAs: rootCAs, MinVersion: tls.VersionTLS12}, ctxURL)
+			if err != nil {
+				panic("failed to setup document loader, " + err.Error())
+			}
+
+			opts = append(opts, aries.WithJSONLDDocumentLoader(docLoader))
+		} else {
+			opts = append(opts, aries.WithJSONLDContextProviderURL(ctxURL))
+		}
+	}
 
 	framework, err := aries.New(opts...)
 	if err != nil {
@@ -92,4 +116,35 @@ func startAriesAgent() (*didComm, error) {
 		DIDExchClient:      didExClient,
 		PresentProofClient: presentProofClient,
 	}, nil
+}
+
+func createJSONLDDocumentLoader(store storage.Provider, tlsConfig *tls.Config,
+	providerURL string) (*ld.DocumentLoader, error) {
+	var loaderOpts []ld.DocumentLoaderOpts
+
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: tlsConfig,
+		},
+	}
+
+	if providerURL != "" {
+		loaderOpts = append(loaderOpts,
+			ld.WithRemoteProvider(
+				remote.NewProvider(providerURL, remote.WithHTTPClient(httpClient)),
+			),
+		)
+	}
+
+	ldStore, err := NewLDStoreProvider(store)
+	if err != nil {
+		return nil, fmt.Errorf("failed to init LD store provider: %w", err)
+	}
+
+	loader, err := ld.NewDocumentLoader(ldStore, loaderOpts...)
+	if err != nil {
+		return nil, fmt.Errorf("new document loader: %w", err)
+	}
+
+	return loader, nil
 }

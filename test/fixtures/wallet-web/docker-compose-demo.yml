@@ -18,6 +18,7 @@ services:
       - TLS_KEY_FILE=/etc/tls/ec-key.pem
       - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
       - ORB_DOMAIN=testnet.orb.local
+      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
     ports:
       - 8094:8094
       - 8095:8095
