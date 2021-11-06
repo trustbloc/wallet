@@ -9,22 +9,27 @@
     <div class="mb-8 w-full">
       <h3 class="text-neutrals-dark">{{ $t('Vaults.heading') }}</h3>
     </div>
-    <div class="px-6 w-64 h-auto bg-neutrals-white rounded-xl">
-      <div class="pt-5">
-        <div class="flex justify-center items-center w-12 h-12 bg-gradient-pink rounded-full">
-          <img class="w-6 h-5" src="@/assets/img/vaults.svg" alt="Vault Icon" />
-        </div>
-      </div>
-      <div class="pb-4 space-y-1">
-        <span class="block pt-4 text-lg font-bold"> {{ $t('Vaults.allVaults') }}</span>
-        <span class="block text-sm text-neutrals-medium">
-          {{
-            $tc('Vaults.foundCredentials', credentialsFound, {
-              credentialLength: credentialsFound,
-            })
-          }}
-        </span>
-      </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 xl:gap-8">
+      <vault-card
+        color="pink"
+        :num-of-creds="
+          $tc('Vaults.foundCredentials', credentialsFound, {
+            credentialLength: credentialsFound,
+          })
+        "
+        :name="$t('Vaults.allVaults')"
+      />
+      <!--Issue-1198 Add flyout menu to default and other vaults -->
+      <vault-card
+        :num-of-creds="
+          $tc('Vaults.foundCredentials', credentialsFound, {
+            credentialLength: credentialsFound,
+          })
+        "
+        :name="$t('Vaults.defaultVault')"
+      />
+      <!-- TODO: Issue-1194 Implement Add Vault -->
+      <vault-card type="addNew" :name="$t('Vaults.addVault')" />
     </div>
   </div>
 </template>
@@ -33,9 +38,13 @@
 import { CredentialManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
 import useBreakpoints from '@/plugins/breakpoints';
+import VaultCard from '@/components/VaultCard/VaultCard';
 
 export default {
   name: 'Vaults',
+  components: {
+    VaultCard,
+  },
   data() {
     return {
       credentialsFound: '',
