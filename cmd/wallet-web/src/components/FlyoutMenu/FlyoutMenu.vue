@@ -31,14 +31,15 @@
         border border-neutrals-chatelle
         hover:border-neutrals-mountainMist-light
       "
-      @mouseover="showTooltip = !showTooltip"
       @focus="showTooltip = !showTooltip"
     >
       <div class="flex-none p-2">
+        <!-- TODO: Issue-816 Implement svg color change on hover -->
         <img
           id="flyoutMenuId"
           src="@/assets/img/more-icon.svg"
-          @click="showFlyoutMenuList = !showFlyoutMenuList"
+          @click="toggleFlyoutMenuList"
+          @mouseover="showTooltip = !showTooltip"
         />
       </div>
       <div v-if="showTooltip" id="tooltip">
@@ -83,6 +84,23 @@ export default {
   computed: {
     i18n() {
       return this.$t('CredentialDetails');
+    },
+  },
+  mounted() {
+    document.addEventListener('click', this.close);
+  },
+  beforeDestroy() {
+    document.removeEventListener('click', this.close);
+  },
+  methods: {
+    toggleFlyoutMenuList() {
+      this.showFlyoutMenuList = !this.showFlyoutMenuList;
+      this.showTooltip = false;
+    },
+    close(e) {
+      if (!this.$el.contains(e.target)) {
+        this.showFlyoutMenuList = false;
+      }
     },
   },
 };
