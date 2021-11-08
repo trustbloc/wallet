@@ -1,5 +1,7 @@
 {
   "heading": "Chambres fortes",
   "allVaults": "Toutes les chambres fortes",
+  "defaultVault": "Chambre forte par défaut",
+  "addVault": "Ajouter une chambre forte",
   "foundCredentials": "{credentialLength} Identifiant | {credentialLength} Identifiants"
 }

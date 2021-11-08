@@ -12,7 +12,7 @@
       px-6
       md:bg-onboarding
       flex flex-col
-      min-w-screen min-h-screen
+      min-h-screen
       bg-scroll bg-no-repeat bg-neutrals-softWhite bg-onboarding-sm
     "
   >
@@ -49,7 +49,7 @@
             {{ i18n.heading }}
           </span>
         </div>
-        <div class="flex justify-center content-center py-24 w-full min-h-xl">
+        <div class="flex justify-center content-center py-24 w-full">
           <Spinner v-if="loading" />
           <button
             v-for="(provider, index) in providers"

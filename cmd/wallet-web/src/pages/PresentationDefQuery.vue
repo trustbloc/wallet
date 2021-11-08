@@ -200,7 +200,7 @@
               <!-- Credential Details -->
               <div
                 v-if="credential.showDetails"
-                class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full details"
+                class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full"
               >
                 <span class="py-3 text-base font-bold text-neutrals-dark">What's being shared</span>
 

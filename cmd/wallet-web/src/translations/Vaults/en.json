@@ -1,5 +1,7 @@
 {
   "heading": "Vaults",
   "allVaults": "All Vaults",
+  "defaultVault": "Default Vault",
+  "addVault": "Add Vault",
   "foundCredentials": "{credentialLength} Credential | {credentialLength} Credentials"
 }

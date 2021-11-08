@@ -12,10 +12,9 @@
       bg-neutrals-white
       rounded-lg
       shadow-xl
-      bg-white
     "
   >
-    <div class="p-4 text-base text-start">
+    <div class="p-4 text-base">
       <button id="renameCredential" class="block pb-2 font-bold">
         {{ i18n.renameCredential }}
       </button>
@@ -52,7 +51,7 @@
               </g>
             </svg>
           </div>
-          <span class="pt-5 pb-3 text-lg font-bold text-neutrals-dark align-center">
+          <span class="pt-5 pb-3 text-lg font-bold text-neutrals-dark">
             {{ i18n.deleteCredential }}?
           </span>
           <div class="relative flex-auto">

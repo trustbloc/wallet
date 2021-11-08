@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <div class="col-full">
+  <div>
     <h1>Not Found</h1>
     <p>
       Ooops, we couldn't find what you are looking for. Why don't you

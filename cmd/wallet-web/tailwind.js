@@ -20,6 +20,7 @@ module.exports = {
         lilacSoft: '#edeaee',
         magnolia: '#fbf8fc',
         medium: '#6c6d7c',
+        moist: '#f5f4f6',
         mischka: '#dcdadd',
         mobster: '#7b6f7f',
         mountainMist: {
