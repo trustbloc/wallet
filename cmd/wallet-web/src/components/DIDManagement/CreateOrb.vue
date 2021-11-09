@@ -100,7 +100,7 @@ export default {
     ...mapActions(['refreshUserPreference']),
     updateAllDIDs: async function () {
       const { contents } = await this.didManager.getAllDIDs(this.getCurrentUser().profile.token);
-      const newAllDIDs = Object.keys(contents).map((k) => contents[k].DIDDocument);
+      const newAllDIDs = Object.keys(contents).map((k) => contents[k].didDocument);
       this.$emit('update:allDIDs', newAllDIDs);
     },
     createDID: async function () {
@@ -121,7 +121,7 @@ export default {
         return;
       }
 
-      this.didDocTextArea = `Created ${docRes.DIDDocument.id}`;
+      this.didDocTextArea = `Created ${docRes.didDocument.id}`;
       this.createDIDSuccess = true;
       this.loading = false;
       await this.updateAllDIDs();

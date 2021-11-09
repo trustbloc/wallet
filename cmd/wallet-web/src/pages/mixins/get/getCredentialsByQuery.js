@@ -131,7 +131,7 @@ export class WalletGetByQuery {
       ? JSON.parse(String.fromCharCode.apply(String, didDocRes.response.message.data.didDoc))
       : didDocRes.response.message.data.didDoc;
 
-    let peerDID = (await this.didManager.createPeerDID(token)).DIDDocument;
+    let peerDID = (await this.didManager.createPeerDID(token)).didDocument;
     let agent = this.agent;
     let credManager = this.credentialManager;
     let acceptCredPool = new Map();

@@ -91,7 +91,7 @@ export class Setup {
     });
 
     this.preference = {
-      controller: docRes.DIDDocument.id,
+      controller: docRes.didDocument.id,
       proofType: 'Ed25519Signature2018',
     };
 
