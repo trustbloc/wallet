@@ -69,7 +69,7 @@ export class RegisterWallet {
     let docres = await didManager.createOrbDID(token, {
       purposes: ['authentication', 'assertionMethod'],
     });
-    let controller = docres.DIDDocument.id;
+    let controller = docres.didDocument.id;
 
     let walletUser = new WalletUser({ agent: this.agent, user });
     await walletUser.savePreferences(token, { name, controller, proofType });
