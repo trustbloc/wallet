@@ -69,7 +69,14 @@ export class RegisterWallet {
     let docres = await didManager.createOrbDID(token, {
       purposes: ['authentication', 'assertionMethod'],
     });
+
     let controller = docres.didDocument.id;
+
+    console.info('check equivalentId array');
+    if (docres.didDocumentMetadata.equivalentId >= 1) {
+      controller = docres.didDocumentMetadata.equivalentId[0];
+      console.info('use equivalentId'.controller);
+    }
 
     let walletUser = new WalletUser({ agent: this.agent, user });
     await walletUser.savePreferences(token, { name, controller, proofType });
