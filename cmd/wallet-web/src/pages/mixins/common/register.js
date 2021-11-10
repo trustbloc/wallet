@@ -71,7 +71,7 @@ export class RegisterWallet {
     });
 
     let controller = docres.didDocument.id;
-
+    console.info(JSON.stringify(docres));
     console.info('check equivalentId array');
     if (docres.didDocumentMetadata.equivalentId >= 1) {
       controller = docres.didDocumentMetadata.equivalentId[0];
