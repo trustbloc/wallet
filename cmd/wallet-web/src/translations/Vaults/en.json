@@ -3,5 +3,10 @@
   "allVaults": "All Vaults",
   "defaultVault": "Default Vault",
   "addVault": "Add Vault",
+  "cancel": "Cancel",
+  "add": "Add",
+  "addHelperMessage": "Use letters and/or numbers",
+  "addlabel": "Vault Name",
+  "placeholderLabel": "Enter a name for your vault . . .",
   "foundCredentials": "{credentialLength} Credential | {credentialLength} Credentials"
 }

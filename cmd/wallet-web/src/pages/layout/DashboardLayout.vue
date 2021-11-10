@@ -37,12 +37,12 @@
             icon="credentials.svg"
           />
           <!-- TODO: uncomment once vault component is ready and move this to the upper order -->
-          <!--          <navbar-link
+          <navbar-link
             id="navbar-link-vaults"
             :to="{ name: 'vaults' }"
             :heading="i18n.vaults"
             icon="vaults.svg"
-          />-->
+          />
           <!-- TODO: uncomment once corresponding components are ready -->
           <!-- <navbar-link id="navbar-link-account" :to="{ name: 'account' }" :heading="i18n.account" icon="profile.svg" /> -->
           <!-- TODO: link to actual settings once implemented -->

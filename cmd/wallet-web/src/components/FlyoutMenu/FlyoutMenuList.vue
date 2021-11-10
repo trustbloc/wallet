@@ -30,7 +30,16 @@
     <!-- todo move to components folder-->
     <div
       v-if="showDeleteCredentialModal"
-      class="flex overflow-y-auto fixed inset-0 z-50 justify-center items-center bg-gradient-harold"
+      class="
+        flex
+        overflow-y-auto
+        fixed
+        inset-0
+        z-50
+        justify-center
+        items-center
+        bg-neutrals-dark bg-opacity-50
+      "
     >
       <div class="relative mx-6 lg:mx-auto max-w-6xl bg-neutrals-white rounded-2xl modal-width">
         <!--content-->
