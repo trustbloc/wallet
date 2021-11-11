@@ -72,10 +72,9 @@ export class RegisterWallet {
 
     let controller = docres.didDocument.id;
 
-    console.info('check equivalentId array');
     if (docres.didDocumentMetadata.equivalentId && docres.didDocumentMetadata.equivalentId.length) {
       controller = docres.didDocumentMetadata.equivalentId[0];
-      console.info('use equivalentId'.controller);
+      console.info('use equivalentId ' + controller);
     }
 
     let walletUser = new WalletUser({ agent: this.agent, user });
