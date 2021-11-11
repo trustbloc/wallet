@@ -48,7 +48,7 @@ let defaultAgentStartupOpts = {
   edvBatchSize: 0,
   didAnchorOrigin: 'origin',
   sidetreeToken: '',
-  hubAuthURL: 'https://localhost:8044',
+  hubAuthURL: '',
   staticAssetsUrl: '',
 };
 
@@ -148,14 +148,15 @@ export default {
           user = profile ? profile.user : user;
         }
 
+        // dev mode agent opts
+        agentOpts.walletMediatorURL = 'https://localhost:10093';
+        agentOpts.hubAuthURL = 'https://localhost:8044';
+
         profileOpts = {
           config: {
             storageType: defaultAgentStartupOpts.storageType,
             kmsType: defaultAgentStartupOpts.kmsType,
             localKMSScret: defaultAgentStartupOpts.localKMSPassphrase,
-            staticAssetsUrl: 'https://localhost:8091',
-            walletMediatorURL: 'https://localhost:10063',
-            hubAuthURL: 'https://localhost:8044',
           },
           bootstrap: {
             user,
