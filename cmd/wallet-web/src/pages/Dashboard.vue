@@ -93,6 +93,7 @@ export default {
     return {
       processedCredentials: [],
       username: '',
+      vaultName: '',
       agent: null,
       breakpoints: useBreakpoints(),
       credentialDisplayData: '',

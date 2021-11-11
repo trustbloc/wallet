@@ -6,7 +6,7 @@
         md:flex-col
         px-6
         w-full
-        md:w-64
+        xl:w-64
         h-20
         md:h-auto
         bg-neutrals-white
@@ -35,7 +35,7 @@
       class="
         px-6
         w-full
-        md:w-64
+        xl:w-64
         h-24
         md:h-full
         bg-neutrals-moist
@@ -50,6 +50,7 @@
             class="w-6 h-5 text-primary-purple"
             src="@/assets/img/icons-sm--plus-icon.svg"
             alt="Add Icon"
+            @click="showAddVault = !showAddVault"
           />
         </div>
       </div>
@@ -59,12 +60,15 @@
         >
       </div>
     </div>
+    <add-vault v-show="showAddVault" @closeAddVault="showAddVault = false" />
   </div>
 </template>
 
 <script>
+import AddVault from '@/components/Modal/AddVault';
 export default {
   name: 'VaultCard',
+  components: { AddVault },
   props: {
     color: {
       type: String,
@@ -76,12 +80,17 @@ export default {
     },
     numOfCreds: {
       type: String,
-      required: true,
+      default: '0',
     },
     type: {
       type: String,
       default: 'regular',
     },
+  },
+  data() {
+    return {
+      showAddVault: false,
+    };
   },
 };
 </script>

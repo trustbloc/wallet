@@ -3,5 +3,10 @@
   "allVaults": "Toutes les chambres fortes",
   "defaultVault": "Chambre forte par défaut",
   "addVault": "Ajouter une chambre forte",
+  "cancel": "Annuler",
+  "add": "Ajouter",
+  "addHelperMessage": "Utiliser des lettres et/ou des chiffres",
+  "addlabel": "Nom de la chambre forte",
+  "placeholderLabel": "Entrez un nom...",
   "foundCredentials": "{credentialLength} Identifiant | {credentialLength} Identifiants"
 }

@@ -380,12 +380,13 @@ module.exports = {
           flexDirection: 'column',
           justifyContent: 'flex-start',
           alignItems: 'flex-start',
+          width: '100%',
 
           '& input': {
             height: theme('spacing.15'),
-            width: 342,
             padding: `26px ${theme('spacing.16')} 10px ${theme('spacing.4')}`,
             backgroundColor: theme('colors.neutrals.bonjour'),
+            width: '100%',
             border: 'none',
             borderBottom: `2px solid ${theme('colors.neutrals.mountainMist.light')}`,
             borderRadius: `6px 6px 0px 0px`,
@@ -428,6 +429,18 @@ module.exports = {
             paddingLeft: theme('spacing.4'),
             transition: `top .2s`,
             top: 17,
+          },
+
+          '& .input-wordlimit': {
+            position: `absolute`,
+            height: theme('spacing.14'),
+            right: theme('spacing.4'),
+            color: theme('colors.neutrals.medium'),
+            fontSize: theme('fontSize.sm'),
+            top: 1,
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
           },
 
           '& .input-helper': {
