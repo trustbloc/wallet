@@ -9,7 +9,7 @@
     <div class="mb-8 w-full">
       <h3 class="text-neutrals-dark">{{ $t('Vaults.heading') }}</h3>
     </div>
-    <div :key="vaults" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-8 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-8 w-full">
       <vault-card
         color="pink"
         :num-of-creds="
@@ -31,7 +31,7 @@
       <vault-card type="addNew" :name="$t('Vaults.addVault')" class="grid order-last" />
       <div v-for="(vault, index) in vaults" :key="index">
         <!-- TODO: Issue-1215 Add credentials found in the vault -->
-        <vault-card :name="vault" class="grid order-last" />
+        <vault-card :name="vault.name" class="grid order-last" />
       </div>
     </div>
   </div>
@@ -73,13 +73,7 @@ export default {
     fetchAllVaults: async function (token, collectionManager) {
       const { contents } = await collectionManager.getAll(token);
       console.log(`found ${Object.keys(contents).length} vaults`);
-
-      const collections = Object.keys(contents);
-
-      collections.map(async (id) => {
-        const vault = await collectionManager.get(token, id);
-        this.vaults.push(vault.content.name);
-      });
+      this.vaults = Object.values(contents).map((vault) => vault);
     },
   },
 };
