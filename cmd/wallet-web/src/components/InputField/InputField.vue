@@ -12,7 +12,7 @@
       :disabled="!characterCount"
       v-on="$listeners"
       @input="$emit('update', $event.target.value)"
-      @keyup="characterCount()"
+      @keyup="characterCount"
     />
     <label :for="'input-' + label" class="input-label">{{ label }}</label>
     <span class="input-helper">{{ helperMessage }}</span>
