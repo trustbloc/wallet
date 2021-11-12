@@ -50,6 +50,7 @@ let defaultAgentStartupOpts = {
   sidetreeToken: '',
   hubAuthURL: '',
   staticAssetsUrl: '',
+  unanchoredDIDMaxLifeTime: 0,
 };
 
 export default {
@@ -269,6 +270,10 @@ export default {
           'edvBatchSize' in agentOpts
             ? agentOpts['edvBatchSize']
             : defaultAgentStartupOpts['edvBatchSize'],
+        unanchoredDIDMaxLifeTime:
+          'unanchoredDIDMaxLifeTime' in agentOpts
+            ? agentOpts['unanchoredDIDMaxLifeTime']
+            : defaultAgentStartupOpts['unanchoredDIDMaxLifeTime'],
         useEDVBcacheSizeatch:
           'cacheSize' in agentOpts ? agentOpts['cacheSize'] : defaultAgentStartupOpts['cacheSize'],
         didAnchorOrigin:
