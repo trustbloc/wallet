@@ -10,9 +10,9 @@
         <img src="@/assets/img/icons-sm--vault-icon.svg" />
       </div>
       <div class="flex-grow pl-2 text-left">
-        <span class="text-sm font-bold text-neutrals-dark">{{ i18n.allVaultLabel }}</span>
+        <span class="text-sm font-bold text-neutrals-dark truncate">{{ i18n.allVaultLabel }}</span>
       </div>
-      <div class="flex-none w-6 h-6">
+      <div class="flex flex-none justify-end w-6 h-6">
         <img src="@/assets/img/icons-sm--chevron-down-icon.svg" />
       </div>
     </button>
@@ -69,6 +69,7 @@ export default {
     },
     credentialId: {
       type: String,
+      default: '',
     },
   },
   data() {
