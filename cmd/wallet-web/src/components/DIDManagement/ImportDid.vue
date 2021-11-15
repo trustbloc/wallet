@@ -116,9 +116,7 @@ export default {
     ...mapGetters(['getCurrentUser']),
     updateAllDIDs: async function () {
       const { contents } = await this.didManager.getAllDIDs(this.getCurrentUser().profile.token);
-      const newAllDIDs = Object.keys(contents).map(
-        (k) => contents[k].didDocument || contents[k].DIDDocument
-      );
+      const newAllDIDs = Object.keys(contents).map((k) => contents[k].didDocument);
       this.$emit('update:allDIDs', newAllDIDs);
     },
     saveAnyDID: async function () {
