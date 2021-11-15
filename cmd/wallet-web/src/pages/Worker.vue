@@ -18,8 +18,6 @@ export default {
       console.error('Error in loadOnce:', e);
     }
 
-    console.log('Worker Polyfill loaded..!!');
-
     return this.$webCredentialHandler.activateHandler({
       mediatorOrigin: opts.credentialMediatorURL,
       get(event) {

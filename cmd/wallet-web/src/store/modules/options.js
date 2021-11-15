@@ -4,6 +4,8 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
+import { toRaw } from 'vue';
+
 const axios = require('axios').default;
 
 const agentOptsLocation = (l) => `${l}/walletconfig/agent`;
@@ -58,7 +60,6 @@ export default {
     async initOpts({ commit, getters, dispatch }, location = window.location.origin) {
       let agentOpts = {};
       let profileOpts = {};
-
       if (process.env.NODE_ENV === 'production') {
         // call service to get the agent opts
         await axios
@@ -311,7 +312,7 @@ export default {
   },
   getters: {
     getAgentOpts(state) {
-      return state.agentOpts;
+      return toRaw(state.agentOpts);
     },
     getProfileOpts(state) {
       return state.profileOpts;

@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 import { CHAPIEventHandler } from './chapi';
 import { normalizeQuery, wait } from '../common/helper';
 import jp from 'jsonpath';
-const base64url = require('base64url');
+const { Base64 } = require('js-base64');
 
 /**
  * WACIRedirectHandler handles WACI events for redirect flows.
@@ -19,8 +19,8 @@ const base64url = require('base64url');
  */
 export class WACIRedirectHandler {
   constructor(oob, redirect) {
-    this.oob = JSON.parse(base64url.decode(oob));
-    this.redirect = redirect ? base64url.decode(redirect) : redirect;
+    this.oob = JSON.parse(Base64.decode(oob));
+    this.redirect = redirect ? Base64.decode(redirect) : redirect;
   }
 
   message() {

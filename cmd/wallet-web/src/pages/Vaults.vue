@@ -7,28 +7,28 @@
 <template>
   <div class="py-6 px-3">
     <div class="mb-8 w-full">
-      <h3 class="text-neutrals-dark">{{ $t('Vaults.heading') }}</h3>
+      <h3 class="text-neutrals-dark">{{ t('Vaults.heading') }}</h3>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-8 w-full">
       <vault-card
         color="pink"
         :num-of-creds="
-          $tc('Vaults.foundCredentials', credentialsFound, {
+          t('Vaults.foundCredentials', credentialsFound, {
             credentialLength: credentialsFound,
           })
         "
-        :name="$t('Vaults.allVaults')"
+        :name="t('Vaults.allVaults')"
       />
       <!--TODO: Issue-1198 Add flyout menu to default and other vaults -->
       <vault-card
         :num-of-creds="
-          $tc('Vaults.foundCredentials', credentialsFound, {
+          t('Vaults.foundCredentials', credentialsFound, {
             credentialLength: credentialsFound,
           })
         "
-        :name="$t('Vaults.defaultVault')"
+        :name="t('Vaults.defaultVault')"
       />
-      <vault-card type="addNew" :name="$t('Vaults.addVault')" class="grid order-last" />
+      <vault-card type="addNew" :name="t('Vaults.addVault')" class="grid order-last" />
       <div v-for="(vault, index) in vaults" :key="index">
         <!-- TODO: Issue-1215 Add credentials found in the vault -->
         <vault-card :name="vault.name" class="grid order-last" />
@@ -40,13 +40,17 @@
 <script>
 import { CredentialManager, CollectionManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
-import useBreakpoints from '@/plugins/breakpoints';
 import VaultCard from '@/components/Vaults/VaultCard';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'Vaults',
   components: {
     VaultCard,
+  },
+  setup() {
+    const { t } = useI18n();
+    return { t };
   },
   data() {
     return {

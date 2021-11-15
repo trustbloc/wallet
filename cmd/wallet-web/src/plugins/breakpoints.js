@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import { reactive } from 'vue';
 import resolveConfig from 'tailwindcss/resolveConfig';
 import tailwindConfig from '../../tailwind.js';
 
@@ -10,7 +10,7 @@ Object.keys(theme.screens).map((key) =>
   Object.defineProperty(screens, key, { value: parseFloat(theme.screens[key]) })
 );
 
-const breakpoints = Vue.observable({
+const breakpoints = reactive({
   xs: true,
   sm: false,
   md: false,

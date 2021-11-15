@@ -56,16 +56,19 @@
       </div>
       <div class="flex justify-center">
         <span class="block pt-2 pb-4 text-base font-bold text-neutrals-dark">
-          {{ $t('Vaults.addVault') }}</span
+          {{ t('Vaults.addVault') }}</span
         >
       </div>
     </div>
-    <add-vault v-show="showAddVault" @closeAddVault="showAddVault = false" />
+    <add-vault v-if="showAddVault" @close="showAddVault = false" />
   </div>
 </template>
 
 <script>
+import { ref } from 'vue';
 import AddVault from '@/components/Modal/AddVault';
+import { useI18n } from 'vue-i18n';
+
 export default {
   name: 'VaultCard',
   components: { AddVault },
@@ -87,9 +90,13 @@ export default {
       default: 'regular',
     },
   },
+  setup() {
+    const { t } = useI18n();
+    return { t };
+  },
   data() {
     return {
-      showAddVault: false,
+      showAddVault: ref(false),
     };
   },
 };

@@ -1,6 +1,6 @@
 <template>
   <div class="relative top-6 right-32 w-40">
-    <div class="py-1 px-2 text-neutrals-white bg-neutrals-dark rounded-lg align-center">
+    <div class="py-1 px-2 text-left text-neutrals-white bg-neutrals-dark rounded-lg">
       <span class="absolute triangle"></span>
       {{ toolTipLabel }}
     </div>
@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  name: 'Tooltip.vue',
+  name: 'ToolTip',
   props: {
     toolTipLabel: {
       type: String,

@@ -10,9 +10,9 @@
       justify-between
       items-center
       px-6
+      min-h-screen
       md:bg-onboarding
       flex flex-col
-      min-h-screen
       bg-scroll bg-no-repeat bg-neutrals-softWhite bg-onboarding-sm
     "
   >
@@ -20,8 +20,8 @@
       <!--Trustbloc Sign-up provider div -->
       <toast-notification
         v-if="systemError"
-        :title="i18n.errorToast.title"
-        :description="i18n.errorToast.description"
+        :title="t('Signin.errorToast.title')"
+        :description="t('Signin.errorToast.description')"
         type="error"
       ></toast-notification>
       <div
@@ -46,7 +46,7 @@
         <Logo class="py-12" />
         <div class="items-center mb-10 md:mb-8 text-center">
           <span class="text-2xl md:text-4xl font-bold text-neutrals-white">
-            {{ i18n.heading }}
+            {{ t('Signin.heading') }}
           </span>
         </div>
         <div class="flex justify-center content-center py-24 w-full">
@@ -79,9 +79,9 @@
         </div>
         <div class="py-10 md:py-12 text-center">
           <p class="text-base font-normal text-neutrals-softWhite">
-            {{ i18n.redirect }}
+            {{ t('Signin.redirect') }}
             <router-link class="text-primary-blue whitespace-nowrap underline-blue" to="signup">{{
-              i18n.signup
+              t('Signin.signup')
             }}</router-link>
           </p>
         </div>
@@ -100,12 +100,17 @@ import Spinner from '@/components/Spinner/Spinner.vue';
 import useBreakpoints from '@/plugins/breakpoints.js';
 import { mapActions, mapGetters } from 'vuex';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 
 export default {
   components: {
     Footer,
     Logo,
     Spinner,
+  },
+  setup() {
+    const { t } = useI18n();
+    return { t };
   },
   data() {
     return {
@@ -117,9 +122,6 @@ export default {
     };
   },
   computed: {
-    i18n() {
-      return this.$t('Signin');
-    },
     isLoggedIn() {
       return this.isUserLoggedIn();
     },
@@ -128,22 +130,23 @@ export default {
     },
   },
   watch: {
-    async isLoggedIn() {
-      // watch for use login state and proceed with load OIDC user step.
-      if (this.isUserLoggedIn()) {
-        await this.refreshOpts();
-        try {
-          await this.loadOIDCUser();
-        } catch (e) {
-          this.systemError = true;
-          this.loading = false;
+    isLoggedIn: {
+      async handler() {
+        // watch for use login state and proceed with load OIDC user step.
+        if (this.isLoggedIn) {
+          await this.refreshOpts();
+          try {
+            await this.loadOIDCUser();
+          } catch (e) {
+            this.systemError = true;
+            this.loading = false;
+          }
+          if (this.getCurrentUser()) {
+            await this.finishOIDCLogin();
+            this.handleSuccess();
+          }
         }
-
-        if (this.getCurrentUser()) {
-          await this.finishOIDCLogin();
-          this.handleSuccess();
-        }
-      }
+      },
     },
     isSuspended() {
       this.loading = false;
@@ -158,14 +161,14 @@ export default {
     const redirect = this.$route.params['redirect'];
     this.redirect = redirect
       ? {
-          name: redirect.name,
-          params: { ...this.$route.params, locale: this.$store.getters.getLocale.base },
-          query: this.$route.params.query,
+          name: redirect,
+          params: { locale: this.$store.getters.getLocale.base },
+          query: this.$route.query,
         }
       : {
           name: 'dashboard',
-          params: { ...this.$route.params, locale: this.$store.getters.getLocale.base },
-          query: this.$route.params.query,
+          params: { locale: this.$store.getters.getLocale.base },
+          query: this.$route.query,
         };
 
     console.debug('redirecting to', this.redirect);

@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import Vue from 'vue';
+import { nextTick } from 'vue';
 import { shallowMount } from '@vue/test-utils';
 import Store from '../../src/pages/Store.vue';
 import {
@@ -66,7 +66,7 @@ describe('saving a credential into wallet', function () {
 
   it('saved credential into wallet successfully !', async () => {
     wrapper.find('#storeVCBtn').trigger('click');
-    await Vue.nextTick();
+    await nextTick();
 
     const resp = await response;
     expect(resp.dataType).to.equal('response');
@@ -108,7 +108,7 @@ describe('saving multiple credentials into wallet', function () {
 
   it('saved credentials in wallet successfully', async () => {
     wrapper.find('#storeVCBtn').trigger('click');
-    await Vue.nextTick();
+    await nextTick();
 
     const resp = await response;
     expect(resp.dataType).to.equal('response');

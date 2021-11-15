@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import Vue from 'vue';
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import Get from '../../src/pages/Get.vue';
 import MultipleQuery from '../../src/pages/MultipleQuery.vue';
@@ -100,7 +100,7 @@ describe.skip('sharing a credential from wallet - QueryByExample', function () {
     let btn = query.find('#share-credentials');
     btn.trigger('click');
 
-    await Vue.nextTick();
+    await nextTick();
 
     const result = await response;
     console.log('response from wallet', result);
@@ -172,7 +172,7 @@ describe.skip('sharing a credential from wallet - PresentationExchange', functio
     let btn = query.find('#share-credentials');
     btn.trigger('click');
 
-    await Vue.nextTick();
+    await nextTick();
 
     const result = await response;
     console.log('response from wallet', result);
@@ -280,7 +280,7 @@ describe.skip('sharing multiple credentials from wallet - MultiQuery (QueryByExa
     let btn = query.find('#share-credentials');
     btn.trigger('click');
 
-    await Vue.nextTick();
+    await nextTick();
 
     const result = await response;
     console.log('response from wallet', result);

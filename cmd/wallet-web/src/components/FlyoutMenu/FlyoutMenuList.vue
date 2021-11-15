@@ -16,15 +16,17 @@
   >
     <div class="p-4 text-base">
       <button id="renameCredential" class="block pb-2 font-bold">
-        {{ i18n.renameCredential }}
+        {{ t('CredentialDetails.renameCredential') }}
       </button>
-      <button id="moveCredential" class="block pb-2 font-bold">{{ i18n.moveCredential }}</button>
+      <button id="moveCredential" class="block pb-2 font-bold">
+        {{ t('CredentialDetails.moveCredential') }}
+      </button>
       <button
         id="deleteCredential"
         class="block font-bold text-primary-vampire"
         @click="toggleDeleteCredentialModal()"
       >
-        {{ i18n.deleteCredential }}
+        {{ t('CredentialDetails.deleteCredential') }}
       </button>
     </div>
     <!-- todo move to components folder-->
@@ -61,11 +63,11 @@
             </svg>
           </div>
           <span class="pt-5 pb-3 text-lg font-bold text-neutrals-dark">
-            {{ i18n.deleteCredential }}?
+            {{ t('CredentialDetails.deleteCredential') }}?
           </span>
           <div class="relative flex-auto">
-            <p class="pb-12 text-base text-center text-neutrals-medium lg:text-start">
-              {{ i18n.deleteCredentialConfirmMessage }}
+            <p class="pb-12 text-base text-center lg:text-left text-neutrals-medium">
+              {{ t('CredentialDetails.deleteCredentialConfirmMessage') }}
             </p>
           </div>
         </div>
@@ -85,11 +87,11 @@
             pt-4
             pb-5
             text-center
+            md:text-left
+            lg:text-left
             bg-neutrals-magnolia
             rounded-b-2xl
             flex flex-col
-            lg:text-start
-            md:text-start
             border-t border-0 border-neutrals-lilacSoft
           "
         >
@@ -98,7 +100,7 @@
             type="button"
             @click="toggleDeleteCredentialModal()"
           >
-            {{ i18n.deleteButtonCancel }}
+            {{ t('CredentialDetails.deleteButtonCancel') }}
           </button>
           <button
             id="deleteButton"
@@ -106,7 +108,7 @@
             type="button"
             @click="deleteCredential(credentialId)"
           >
-            {{ i18n.deleteButtonLabel }}
+            {{ t('CredentialDetails.deleteButtonLabel') }}
           </button>
         </div>
       </div>
@@ -117,14 +119,20 @@
 <script>
 import { mapGetters } from 'vuex';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
-import base64url from 'base64url';
+import { decode } from 'js-base64';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'FlyoutMenuList',
   props: {
     credentialId: {
       type: String,
+      required: true,
     },
+  },
+  setup() {
+    const { t, locale } = useI18n();
+    return { t, locale };
   },
   data() {
     return {
@@ -132,20 +140,15 @@ export default {
       agent: null,
     };
   },
-  computed: {
-    i18n() {
-      return this.$t('CredentialDetails');
-    },
-  },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser']),
     async deleteCredential(credentialID) {
-      let { user, token } = this.getCurrentUser().profile;
-      let credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-      const credID = base64url.decode(credentialID);
+      const { user, token } = this.getCurrentUser().profile;
+      const credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
+      const credID = decode(credentialID);
       try {
-        let resp = await credentialManager.remove(token, credID);
+        await credentialManager.remove(token, credID);
         this.$router.push({ name: 'dashboard' });
       } catch (e) {
         console.error('failed to remove credential:', e);

@@ -76,12 +76,17 @@ import { mapGetters } from 'vuex';
 
 export default {
   name: 'ImportDid',
+  model: {
+    prop: 'allDIDs',
+    event: 'update',
+  },
   props: {
     allDIDs: {
       type: Array,
       required: true,
     },
   },
+  emits: ['update:allDIDs'],
   data() {
     return {
       anyDidDocTextArea: '',
@@ -111,7 +116,9 @@ export default {
     ...mapGetters(['getCurrentUser']),
     updateAllDIDs: async function () {
       const { contents } = await this.didManager.getAllDIDs(this.getCurrentUser().profile.token);
-      const newAllDIDs = Object.keys(contents).map((k) => contents[k].didDocument);
+      const newAllDIDs = Object.keys(contents).map(
+        (k) => contents[k].didDocument || contents[k].DIDDocument
+      );
       this.$emit('update:allDIDs', newAllDIDs);
     },
     saveAnyDID: async function () {

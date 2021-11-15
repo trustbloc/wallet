@@ -4,14 +4,11 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import Vue from 'vue';
-import VueRouter from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import Root from './Root';
 import store from '@/store';
 import routes from './routes';
 import supportedLocales from '@/config/supportedLocales';
-
-Vue.use(VueRouter);
 
 // Creates regex (en|fr)
 function getLocaleRegex() {
@@ -22,9 +19,8 @@ function getLocaleRegex() {
   return `(${reg})`;
 }
 
-const router = new VueRouter({
-  mode: 'history',
-  base: `${__webpack_public_path__}`,
+const router = createRouter({
+  history: createWebHistory(__webpack_public_path__),
   routes: [
     {
       path: `/:locale${getLocaleRegex()}?`,
@@ -49,12 +45,11 @@ router.beforeEach((to, from, next) => {
       router.replace({
         name: to.meta.signin ? 'signin' : 'signup',
         params: {
-          ...router.history.current.params,
+          ...router.currentRoute._value.params,
           locale: locale.base,
-          redirect: { name: to.name },
-          query: to.query,
-          meta: to.meta,
+          redirect: to.name,
         },
+        meta: to.meta,
       });
       next();
       return;
@@ -67,7 +62,7 @@ router.beforeEach((to, from, next) => {
       router.replace({
         name: 'block-no-auth',
         params: {
-          ...router.history.current.params,
+          ...router.currentRoute._value.params,
           locale: locale.base,
           redirect: { name: 'signup' },
         },
@@ -76,14 +71,15 @@ router.beforeEach((to, from, next) => {
       return;
     }
   } else {
-    if (locale.id !== router.history.pending.params.locale) {
+    if (to.params.locale && to.params.locale !== locale.id) {
       router.replace({
-        name: router.history.pending.name,
+        name: to.params.name,
         params: {
-          ...router.history.pending.params,
+          ...router.currentRoute._value.params,
+          ...to.params,
           locale: locale.base,
         },
-        query: router.history.pending.query,
+        query: to.query,
       });
       next();
       return;

@@ -19,8 +19,8 @@
     <div class="flex flex-col flex-grow justify-center items-center">
       <toast-notification
         v-if="systemError"
-        :title="i18n.errorToast.title"
-        :description="i18n.errorToast.description"
+        :title="t('Signup.errorToast.title')"
+        :description="t('Signup.errorToast.description')"
         type="error"
       ></toast-notification>
       <div
@@ -52,21 +52,21 @@
             <div class="flex overflow-y-auto flex-1 items-center mb-8 max-w-full">
               <img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-1.svg" />
               <span class="pl-5 text-base text-neutrals-white align-middle">
-                {{ i18n.leftContainer.span1 }}
+                {{ t('Signup.leftContainer.span1') }}
               </span>
             </div>
 
             <div class="flex overflow-y-auto flex-1 items-center mb-8 max-w-full">
               <img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-2.svg" />
               <span class="pl-5 text-base text-neutrals-white align-middle">
-                {{ i18n.leftContainer.span2 }}
+                {{ t('Signup.leftContainer.span2') }}
               </span>
             </div>
 
             <div class="flex overflow-y-auto flex-1 items-center max-w-full">
               <img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-3.svg" />
               <span class="pl-5 text-base text-neutrals-white align-middle">
-                {{ i18n.leftContainer.span3 }}
+                {{ t('Signup.leftContainer.span3') }}
               </span>
             </div>
           </div>
@@ -76,7 +76,7 @@
               <Logo class="md:hidden justify-center my-2 mt-12" />
               <div class="items-center mb-10 text-center">
                 <h1 class="text-2xl md:text-4xl font-bold text-neutrals-white">
-                  {{ i18n.heading }}
+                  {{ t('Signup.heading') }}
                 </h1>
               </div>
               <div class="flex justify-center content-center py-24 w-full">
@@ -109,11 +109,11 @@
               </div>
               <div class="py-10 md:pt-12 md:pb-0 text-center">
                 <p class="text-base font-normal text-neutrals-white">
-                  {{ i18n.redirect }}
+                  {{ t('Signup.redirect') }}
                   <router-link
                     class="text-primary-blue whitespace-nowrap underline-blue"
                     to="signin"
-                    >{{ i18n.signin }}</router-link
+                    >{{ t('Signup.signin') }}</router-link
                   >
                 </p>
               </div>
@@ -135,12 +135,17 @@ import Spinner from '@/components/Spinner/Spinner.vue';
 import useBreakpoints from '@/plugins/breakpoints.js';
 import { mapActions, mapGetters } from 'vuex';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 
 export default {
   components: {
     Footer,
     Logo,
     Spinner,
+  },
+  setup() {
+    const { t } = useI18n();
+    return { t };
   },
   data() {
     return {
@@ -152,9 +157,6 @@ export default {
     };
   },
   computed: {
-    i18n() {
-      return this.$t('Signup');
-    },
     isLoggedIn() {
       return this.isUserLoggedIn();
     },
@@ -163,21 +165,23 @@ export default {
     },
   },
   watch: {
-    async isLoggedIn() {
-      // watch for use login state and proceed with load OIDC user step.
-      if (this.isUserLoggedIn()) {
-        await this.refreshOpts();
-        try {
-          await this.loadOIDCUser();
-        } catch (e) {
-          this.systemError = true;
-          this.loading = false;
+    isLoggedIn: {
+      async handler() {
+        // watch for use login state and proceed with load OIDC user step.
+        if (this.isLoggedIn) {
+          await this.refreshOpts();
+          try {
+            await this.loadOIDCUser();
+          } catch (e) {
+            this.systemError = true;
+            this.loading = false;
+          }
+          if (this.getCurrentUser()) {
+            await this.finishOIDCLogin();
+            this.handleSuccess();
+          }
         }
-        if (this.getCurrentUser()) {
-          await this.finishOIDCLogin();
-          this.handleSuccess();
-        }
-      }
+      },
     },
     isSuspended() {
       this.loading = false;
@@ -192,14 +196,14 @@ export default {
     const redirect = this.$route.params['redirect'];
     this.redirect = redirect
       ? {
-          name: redirect.name,
-          params: { ...this.$route.params, locale: this.$store.getters.getLocale.base },
-          query: this.$route.params.query,
+          name: redirect,
+          params: { locale: this.$store.getters.getLocale.base },
+          query: this.$route.query,
         }
       : {
           name: 'dashboard',
-          params: { ...this.$route.params, locale: this.$store.getters.getLocale.base },
-          query: this.$route.params.query,
+          params: { locale: this.$store.getters.getLocale.base },
+          query: this.$route.query,
         };
 
     console.debug('redirecting to', this.redirect);
@@ -283,7 +287,6 @@ export default {
     async registerUser(user) {
       if (!user.preference) {
         this.startUserSetup();
-
         let user = this.getCurrentUser();
         // first time login, register this user
         await new RegisterWallet(this.getAgentInstance(), this.getAgentOpts()).register(

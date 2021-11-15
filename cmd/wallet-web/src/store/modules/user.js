@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import * as Agent from '@trustbloc/agent-sdk-web';
 import { WalletUser } from '@trustbloc/wallet-sdk';
+import { toRaw } from 'vue';
 
 export const parseTIme = (ns) => parseInt(ns) * 60 * 10 ** 9;
 
@@ -150,8 +151,8 @@ export default {
         ? {
             username: state.username,
             setupStatus: state.setupStatus,
-            profile: state.profile,
-            preference: state.preference,
+            profile: toRaw(state.profile),
+            preference: toRaw(state.preference),
           }
         : undefined;
     },
@@ -218,11 +219,15 @@ export default {
             'db-namespace': rootState.user.username,
           });
 
-          let agent = await new Agent.Framework(opts);
-          commit('setInstance', { instance: agent, user: rootState.user.username });
-          // TODO to be moved from here to 'loadOIDCUser' in case server based universal wallet.
-          await dispatch('unlockWallet');
-          commit('startAllNotifiers');
+          try {
+            let agent = await new Agent.Framework(opts);
+            commit('setInstance', { instance: agent, user: rootState.user.username });
+            // TODO to be moved from here to 'loadOIDCUser' in case server based universal wallet.
+            await dispatch('unlockWallet');
+            commit('startAllNotifiers');
+          } catch (e) {
+            console.error(e);
+          }
         },
         async unlockWallet({ state, rootGetters, dispatch }) {
           // create wallet profile if it doesn't exist

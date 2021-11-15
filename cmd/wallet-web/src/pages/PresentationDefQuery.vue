@@ -40,7 +40,7 @@
     >
       <Spinner />
       <span class="mt-8 text-base text-neutrals-dark">{{
-        $t('CHAPI.Share.sharingCredential')
+        t('CHAPI.Share.sharingCredential')
       }}</span>
     </div>
   </div>
@@ -65,10 +65,10 @@
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
         <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
-          $t('CHAPI.Share.Error.heading')
+          t('CHAPI.Share.Error.heading')
         }}</span>
         <span class="text-lg text-center text-neutrals-medium">{{
-          $t('CHAPI.Share.Error.body')
+          t('CHAPI.Share.Error.body')
         }}</span>
       </div>
       <div
@@ -86,7 +86,7 @@
         "
       >
         <button id="share-credentials-ok-btn" class="btn-primary" @click="cancel">
-          {{ $t('CHAPI.Share.Error.tryAgain') }}
+          {{ t('CHAPI.Share.Error.tryAgain') }}
         </button>
       </div>
     </div>
@@ -109,10 +109,10 @@
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
         <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
-          $t('CHAPI.Share.CredentialsMissing.heading')
+          t('CHAPI.Share.CredentialsMissing.heading')
         }}</span>
         <span class="text-lg text-center text-neutrals-medium">{{
-          $t('CHAPI.Share.CredentialsMissing.body')
+          t('CHAPI.Share.CredentialsMissing.body')
         }}</span>
       </div>
       <div
@@ -130,7 +130,7 @@
         "
       >
         <button id="share-credentials-ok-btn" class="btn-outline" @click="cancel">
-          {{ $t('CHAPI.Share.CredentialsMissing.ok') }}
+          {{ t('CHAPI.Share.CredentialsMissing.ok') }}
         </button>
       </div>
     </div>
@@ -165,7 +165,7 @@
         </div>
 
         <span class="text-neutrals-dark">{{
-          $tc('CHAPI.Share.headline', credsFound.length, { issuer: 'Verifier' })
+          t('CHAPI.Share.headline', credsFound.length, { issuer: 'Verifier' })
         }}</span>
         <div
           v-if="credsFound.length"
@@ -284,10 +284,10 @@
         "
       >
         <button id="cancelBtn" class="btn-outline" @click="cancel">
-          {{ $t('CHAPI.Share.decline') }}
+          {{ t('CHAPI.Share.decline') }}
         </button>
         <button id="share-credentials" class="btn-primary" @click="createPresentation">
-          {{ $t('CHAPI.Share.share') }}
+          {{ t('CHAPI.Share.share') }}
         </button>
       </div>
     </div>
@@ -303,11 +303,16 @@ import {
 } from './mixins';
 import { mapGetters } from 'vuex';
 import Spinner from '@/components/Spinner/Spinner.vue';
+import { useI18n } from 'vue-i18n';
 
 const manifestCredType = 'IssuerManifestCredential';
 
 export default {
   components: { Spinner },
+  setup() {
+    const { t } = useI18n();
+    return { t };
+  },
   data() {
     return {
       errors: [],

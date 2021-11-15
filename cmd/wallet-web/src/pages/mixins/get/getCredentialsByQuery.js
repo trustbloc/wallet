@@ -71,31 +71,35 @@ export class WalletGetByQuery {
   }
 
   async createAndSendPresentation(user, presentationSubmission) {
-    if (this.invitation.length > 0) {
-      // eslint-disable-next-line no-param-reassign
-      presentationSubmission = await this._getAuthorizationCredentials(
-        presentationSubmission,
-        user.profile
-      );
-    }
-
-    let { controller, proofType, verificationMethod } = user.preference;
-    let { domain, challenge } = this.protocolHandler.getEventData();
-    let { token } = user.profile;
-
-    let { presentation } = await this.credentialManager.present(
-      token,
-      { presentation: presentationSubmission },
-      {
-        controller,
-        proofType,
-        verificationMethod,
-        domain,
-        challenge,
+    try {
+      if (this.invitation.length > 0) {
+        // eslint-disable-next-line no-param-reassign
+        presentationSubmission = await this._getAuthorizationCredentials(
+          presentationSubmission,
+          user.profile
+        );
       }
-    );
 
-    this.protocolHandler.present(presentation);
+      let { controller, proofType, verificationMethod } = user.preference;
+      let { domain, challenge } = this.protocolHandler.getEventData();
+      let { token } = user.profile;
+
+      let { presentation } = await this.credentialManager.present(
+        token,
+        { presentation: presentationSubmission },
+        {
+          controller,
+          proofType,
+          verificationMethod,
+          domain,
+          challenge,
+        }
+      );
+
+      this.protocolHandler.present(presentation);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   cancel() {

@@ -8,7 +8,9 @@ const { alias } = require('./alias.config');
 const path = require('path');
 
 module.exports = {
-  chainWebpack: (config) => config.resolve.symlinks(false),
+  chainWebpack: (config) => {
+    config.resolve.symlinks(false);
+  },
   runtimeCompiler: true,
 
   configureWebpack: {

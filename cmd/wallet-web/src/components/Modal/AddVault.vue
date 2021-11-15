@@ -43,7 +43,7 @@
         "
       >
         <span class="text-lg font-bold text-neutrals-dark">
-          {{ $t('Vaults.addVault') }}
+          {{ t('Vaults.addVault') }}
         </span>
         <div>
           <!-- TODO: use inline svg instead once https://github.com/trustbloc/edge-agent/issues/816 is fixed -->
@@ -57,10 +57,10 @@
       </div>
       <div class="flex items-center px-8 pt-10 w-full">
         <input-field
-          :helper-message="$t('Vaults.addHelperMessage')"
-          :label="$t('Vaults.addlabel')"
           v-model="vaultName"
-          :placeholder="$t('Vaults.placeholderLabel')"
+          :helper-message="t('Vaults.addHelperMessage')"
+          :label="t('Vaults.addlabel')"
+          :placeholder="t('Vaults.placeholderLabel')"
           type="text"
           maxlength="42"
           @update="receivedVaultName($event)"
@@ -89,7 +89,7 @@
         "
       >
         <button class="w-full md:w-auto lg:w-auto btn-outline" type="button" @click="closeModal">
-          {{ $t('Vaults.cancel') }}
+          {{ t('Vaults.cancel') }}
         </button>
         <button
           id="deleteButton"
@@ -97,7 +97,7 @@
           type="button"
           @click="addVault"
         >
-          {{ $t('Vaults.add') }}
+          {{ t('Vaults.add') }}
         </button>
       </div>
     </div>
@@ -108,9 +108,16 @@
 import InputField from '@/components/InputField/InputField';
 import { CollectionManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
+import { useI18n } from 'vue-i18n';
+
 export default {
   name: 'AddVault',
   components: { InputField },
+  emits: ['close'],
+  setup() {
+    const { t } = useI18n();
+    return { t };
+  },
   data() {
     return {
       vaultName: '',
@@ -120,7 +127,7 @@ export default {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser']),
     closeModal() {
-      this.$emit('closeAddVault');
+      this.$emit('close');
     },
     receivedVaultName(data) {
       this.vaultName = data;

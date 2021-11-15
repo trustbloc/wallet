@@ -111,7 +111,7 @@ export default [
     component: load('BlockNoAuth'),
   },
   {
-    path: '*',
+    path: 'pathMatch(.*)*',
     name: 'PageNotFound',
     component: load('PageNotFound'),
   },

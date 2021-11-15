@@ -72,12 +72,17 @@ export default {
   components: {
     Spinner,
   },
+  model: {
+    prop: 'allDIDs',
+    event: 'update',
+  },
   props: {
     allDIDs: {
       type: Array,
       required: true,
     },
   },
+  emits: ['update:allDIDs'],
   data() {
     return {
       didDocTextArea: '',
@@ -100,7 +105,9 @@ export default {
     ...mapActions(['refreshUserPreference']),
     updateAllDIDs: async function () {
       const { contents } = await this.didManager.getAllDIDs(this.getCurrentUser().profile.token);
-      const newAllDIDs = Object.keys(contents).map((k) => contents[k].didDocument);
+      const newAllDIDs = Object.keys(contents).map(
+        (k) => contents[k].didDocument || contents[k].DIDDocument
+      );
       this.$emit('update:allDIDs', newAllDIDs);
     },
     createDID: async function () {

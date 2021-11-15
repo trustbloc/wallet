@@ -12,13 +12,13 @@
         <flyout-menu />
       </div>
       <div class="items-start">
-        <h3 class="mx-6 mb-5 font-bold text-neutrals-dark">{{ i18n.credentials }}</h3>
+        <h3 class="mx-6 mb-5 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
       </div>
     </div>
     <!-- Desktop Dashboard Layout -->
     <div v-else class="flex justify-between items-center mb-8 w-full align-middle">
       <div class="flex flex-grow">
-        <h3 class="m-0 font-bold text-neutrals-dark">{{ i18n.credentials }}</h3>
+        <h3 class="m-0 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
       </div>
       <div
         class="
@@ -41,7 +41,9 @@
       <span id="dashboard-success-msg" class="px-8" />
       <div v-if="processedCredentials.length" class="mx-6 md:mx-0">
         <div class="md:mx-0 mb-5">
-          <span class="text-xl font-bold text-neutrals-dark">{{ i18n.defaultVault }}</span>
+          <span class="text-xl font-bold text-neutrals-dark">{{
+            t('Credentials.defaultVault')
+          }}</span>
         </div>
         <ul class="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-8 my-8">
           <li v-for="(processedCredential, index) in processedCredentials" :key="index">
@@ -62,10 +64,12 @@
           <img src="@/assets/img/icons-md--credentials-icon.svg" />
         </div>
         <div class="flex justify-center">
-          <span class="text-base font-bold text-neutrals-medium"> {{ i18n.error }}</span>
+          <span class="text-base font-bold text-neutrals-medium">
+            {{ t('Credentials.error') }}</span
+          >
         </div>
         <div class="flex justify-center">
-          <span class="text-base text-neutrals-medium"> {{ i18n.description }}</span>
+          <span class="text-base text-neutrals-medium"> {{ t('Credentials.description') }}</span>
         </div>
       </div>
     </div>
@@ -80,6 +84,7 @@ import CredentialPreview from '@/components/CredentialPreview/CredentialPreview'
 import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
 import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
 import useBreakpoints from '@/plugins/breakpoints.js';
+import { useI18n } from 'vue-i18n';
 
 const filterBy = ['IssuerManifestCredential', 'GovernanceCredential'];
 export default {
@@ -88,6 +93,10 @@ export default {
     CredentialPreview,
     SkeletonLoader,
     FlyoutMenu,
+  },
+  setup() {
+    const { t } = useI18n();
+    return { t };
   },
   data() {
     return {
@@ -103,9 +112,6 @@ export default {
     loadingStatus() {
       return this.getCurrentUser() ? this.getCurrentUser().setupStatus : null;
     },
-    i18n() {
-      return this.$t('Credentials');
-    },
   },
   created: async function () {
     let { user, token } = this.getCurrentUser().profile;
@@ -120,7 +126,6 @@ export default {
     ...mapActions(['updateProcessedCredentials']),
     fetchAllCredentials: async function (getCredential) {
       const { contents } = await getCredential;
-      console.log(`found ${Object.keys(contents).length}  credentials`);
       const _filter = (id) => {
         return !contents[id].type.some((t) => filterBy.includes(t));
       };
@@ -128,8 +133,6 @@ export default {
       const credentials = Object.keys(contents)
         .filter(_filter)
         .map((id) => contents[id]);
-
-      console.debug(`showing ${credentials.length} credentials`);
 
       credentials.map((credential) => {
         const manifest = this.getManifest(credential);

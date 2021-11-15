@@ -6,10 +6,10 @@
 
 <template>
   <div class="flex flex-col justify-start items-start w-full">
-    <tabs>
-      <tab title="Digital Identity Preference"><preferences :all-d-i-ds.sync="allDIDs" /></tab>
-      <tab title="Create ORB Digital Identity"><create-orb :all-d-i-ds.sync="allDIDs" /></tab>
-      <tab title="Import Any Digital Identity"><import-did :all-d-i-ds.sync="allDIDs" /></tab>
+    <tabs :tabs="tabs">
+      <template #tabPanel-0><preferences v-model:allDIDs="allDIDs" /></template>
+      <template #tabPanel-1><create-orb v-model:allDIDs="allDIDs" /></template>
+      <template #tabPanel-2><import-did v-model:allDIDs="allDIDs" /></template>
     </tabs>
   </div>
 </template>
@@ -18,7 +18,6 @@
 import CreateOrb from '@/components/DIDManagement/CreateOrb.vue';
 import ImportDid from '@/components/DIDManagement/ImportDid.vue';
 import Preferences from '@/components/DIDManagement/Preferences.vue';
-import Tab from '@/components/TabbedInterface/Tab.vue';
 import Tabs from '@/components/TabbedInterface/Tabs.vue';
 
 export default {
@@ -27,12 +26,16 @@ export default {
     CreateOrb,
     ImportDid,
     Preferences,
-    Tab,
     Tabs,
   },
   data: function () {
     return {
       allDIDs: [],
+      tabs: [
+        'Digital Identity Preference',
+        'Create ORB Digital Identity',
+        'Import Any Digital Identity',
+      ],
     };
   },
 };
