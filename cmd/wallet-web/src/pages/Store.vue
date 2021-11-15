@@ -154,9 +154,6 @@ export default {
       credentialDisplayData: '',
     };
   },
-  computed: {
-    // Todo issue 1075 add ii8n support : failing UI Test
-  },
   created: async function () {
     // Load the Credentials
     this.credentialEvent = new CHAPIEventHandler(
@@ -196,8 +193,6 @@ export default {
           this.processedCredentials.push({ ...credential, showDetails: false });
         });
       }
-
-      console.log('processedCredentials', JSON.stringify(this.processedCredentials, null, 2));
     },
     store: function () {
       this.errors.length = 0;

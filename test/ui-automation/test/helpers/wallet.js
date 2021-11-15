@@ -223,7 +223,7 @@ async function _importDID({ method }) {
   await settingsTab.waitForExist();
   await settingsTab.click();
 
-  const importDID = await $("li*=Import Any Digital Identity");
+  const importDID = await $("label*=Import Any Digital Identity");
   await importDID.waitForExist();
   await importDID.click();
 
@@ -259,7 +259,7 @@ async function _createOrbDID() {
   await settingsTab.waitForExist();
   await settingsTab.click();
 
-  const createOrbTab = await $("span*=Create ORB Digital Identity");
+  const createOrbTab = await $("label*=Create ORB Digital Identity");
   await createOrbTab.waitForClickable();
   await createOrbTab.click();
 
@@ -287,7 +287,7 @@ async function _updatePreferences() {
   await settingsTab.waitForExist();
   await settingsTab.click();
 
-  const preferences = await $("li*=Digital Identity Preference");
+  const preferences = await $("label*=Digital Identity Preference");
   await preferences.waitForExist();
   await preferences.click();
 

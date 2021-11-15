@@ -7,12 +7,12 @@
 <template>
   <div v-show="close" :class="classname">
     <div class="xs:flex-none px-4">
-      <img class="sm:w-10 h-6 sm:h-8 w-7" :src="icon" />
+      <img class="w-8 sm:w-10 h-6 sm:h-8" :src="icon" />
     </div>
     <div class="flex-col">
-      <span class="text-sm xs:text-lg font-bold leading-relaxed align-left">{{ title }}</span>
+      <span class="text-sm xs:text-lg font-bold leading-relaxed text-left">{{ title }}</span>
       <div>
-        <span class="text-xs xs:text-sm leading-6 align-left">{{ description }}</span>
+        <span class="text-xs xs:text-sm leading-6 text-left">{{ description }}</span>
       </div>
     </div>
     <div class="xs:flex-none px-4 align-middle">
@@ -27,9 +27,18 @@
 export default {
   name: 'ToastNotification',
   props: {
-    title: String,
-    description: String,
-    type: String,
+    title: {
+      type: String,
+      default: '',
+    },
+    description: {
+      type: String,
+      default: '',
+    },
+    type: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {

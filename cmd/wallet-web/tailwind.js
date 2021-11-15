@@ -11,6 +11,7 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     colors: {
+      transparent: 'transparent',
       neutrals: {
         black: '#000000',
         bonjour: '#eeeaee',

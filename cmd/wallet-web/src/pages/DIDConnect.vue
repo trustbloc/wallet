@@ -20,7 +20,7 @@
             <li v-for="error in errors" :key="error" class="text-primary-valencia">{{ error }}</li>
           </ul>
         </div>
-        <div class="p-5 text-neutrals-dark font-sm">
+        <div class="p-5 text-sm text-neutrals-dark">
           {{ issuerName }} wants to connect to your wallet.
         </div>
 
@@ -33,13 +33,13 @@
             </div>
             <div class="flex flex-col">
               <span
-                class="flex-1 pl-4 font-bold text-left text-neutrals-dark overflow-ellipsis font-sm"
+                class="flex-1 pl-4 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
               >
                 {{ issuerName }}
               </span>
               <div class="flex flex-row justify-center items-center pl-4">
                 <img src="@/assets/img/small-lock-icon.svg" />
-                <span class="flex-1 pl-1 text-left text-neutrals-medium overflow-ellipsis font-xs">
+                <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
                   {{ requestOrigin }}
                 </span>
               </div>
@@ -57,14 +57,14 @@
             </div>
             <div class="flex flex-col">
               <span
-                class="flex-1 pl-4 font-bold text-left text-neutrals-dark overflow-ellipsis font-sm"
+                class="flex-1 pl-4 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
               >
                 <!-- todo still have to finalize the text of the title-->
                 TrustBloc Digital Identity Wallet'
               </span>
               <div class="flex flex-row justify-center items-center pl-4">
                 <img src="@/assets/img/small-lock-icon.svg" />
-                <span class="flex-1 pl-1 text-left text-neutrals-medium overflow-ellipsis font-xs">
+                <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
                   {{ walletUrl }}
                 </span>
               </div>
@@ -83,8 +83,7 @@
   </div>
 </template>
 <script>
-import { DIDConn, getCredentialDisplayData } from './mixins';
-import { scraper } from '@/pages/mixins';
+import { DIDConn } from './mixins';
 import Spinner from '@/components/Spinner/Spinner.vue';
 import Header from '@/components/Header/Header.vue';
 import { mapGetters } from 'vuex';
@@ -113,7 +112,7 @@ export default {
       return document.querySelector("link[rel~='icon']").href;
     },
     issuerName() {
-      // todo issue-1055 read from external meta data
+      // TODO: issue-1055 read from external meta data
       return 'Issuer';
     },
   },

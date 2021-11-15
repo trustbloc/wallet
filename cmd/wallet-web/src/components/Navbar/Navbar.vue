@@ -44,7 +44,7 @@
           cursor-pointer
           underline-white
         "
-        >{{ i18n.privacyPolicy }}</span
+        >{{ t('Footer.privacyPolicy') }}</span
       >
       <span
         tabindex="0"
@@ -57,7 +57,7 @@
           cursor-pointer
           underline-white
         "
-        >{{ i18n.terms }}</span
+        >{{ t('Footer.terms') }}</span
       >
       <div class="flex flex-row justify-start items-center my-6">
         <span
@@ -94,6 +94,7 @@
 import Logo from '@/components/Logo/Logo.vue';
 import Signout from '@/components/Signout/Signout.vue';
 import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher.vue';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'Navbar',
@@ -102,15 +103,14 @@ export default {
     Logo,
     LocaleSwitcher,
   },
+  setup() {
+    const { t } = useI18n();
+    return { t };
+  },
   data() {
     return {
       date: new Date().getFullYear(),
     };
-  },
-  computed: {
-    i18n() {
-      return this.$t('Footer');
-    },
   },
 };
 </script>

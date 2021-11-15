@@ -4,9 +4,9 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import Vue from 'vue';
+import { reactive } from 'vue';
 
-export const navbarStore = Vue.observable({
+export const navbarStore = reactive({
   isNavbarOpen: false,
   currentPage: '',
 });

@@ -26,7 +26,7 @@
       @keyup.enter="signout()"
     >
       <img src="@/assets/img/signout.svg" />
-      <span class="ml-4 text-lg font-bold text-neutrals-white">{{ i18n.signout }}</span>
+      <span class="ml-4 text-lg font-bold text-neutrals-white">{{ t('Signout.signout') }}</span>
     </button>
   </div>
 </template>
@@ -34,13 +34,13 @@
 <script>
 import { CHAPIHandler } from '@/pages/mixins';
 import { mapActions, mapGetters } from 'vuex';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'Signout',
-  computed: {
-    i18n() {
-      return this.$t('Signout');
-    },
+  setup() {
+    const { t } = useI18n();
+    return { t };
   },
   created: function () {
     this.chapi = new CHAPIHandler(
@@ -61,7 +61,7 @@ export default {
 
       await Promise.all(actions);
 
-      this.$router.push({ name: 'signin', params: this.$route.params });
+      this.$router.push({ name: 'signin' });
     },
   },
 };

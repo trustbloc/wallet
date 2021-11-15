@@ -8,9 +8,7 @@ module.exports = {
     },
   },
   extends: [
-    // TODO: Switch to the following after upgrading to Vue.js 3.x
-    // 'plugin:vue/vue3-recommended'
-    'plugin:vue/recommended',
+    'plugin:vue/vue3-recommended',
     'plugin:tailwindcss/recommended',
     'plugin:eslint-comments/recommended',
     'plugin:i18n-json/recommended',
@@ -19,6 +17,12 @@ module.exports = {
   plugins: ['vue', 'tailwindcss', 'eslint-comments', 'i18n-json', 'prettier'],
   // Default rules for any file we lint
   rules: {
+    'vue/multi-word-component-names': [
+      'warn',
+      {
+        ignores: [],
+      },
+    ],
     /**
      * Force prettier formatting
      */

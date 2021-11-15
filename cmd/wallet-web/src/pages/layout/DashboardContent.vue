@@ -5,9 +5,7 @@
 -->
 
 <template>
-  <transition name="fade" mode="out-in">
-    <router-view />
-  </transition>
+  <router-view></router-view>
 </template>
 
 <script>

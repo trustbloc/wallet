@@ -42,7 +42,7 @@
     >
       <Spinner />
       <span class="mt-8 text-base text-neutrals-dark">{{
-        $t('CHAPI.Share.sharingCredential')
+        t('CHAPI.Share.sharingCredential')
       }}</span>
     </div>
     <!-- Error State -->
@@ -64,10 +64,10 @@
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
         <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
-          $t('CHAPI.Share.Error.heading')
+          t('CHAPI.Share.Error.heading')
         }}</span>
         <span class="text-lg text-center text-neutrals-medium">{{
-          $t('CHAPI.Share.Error.body')
+          t('CHAPI.Share.Error.body')
         }}</span>
       </div>
       <div
@@ -85,7 +85,7 @@
         "
       >
         <button id="share-credentials-ok-btn" class="btn-primary" @click="cancel">
-          {{ $t('CHAPI.Share.Error.tryAgain') }}
+          {{ t('CHAPI.Share.Error.tryAgain') }}
         </button>
       </div>
     </div>
@@ -108,10 +108,10 @@
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
         <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
-          $t('CHAPI.Share.CredentialsMissing.heading')
+          t('CHAPI.Share.CredentialsMissing.heading')
         }}</span>
         <span class="text-lg text-center text-neutrals-medium">{{
-          $t('CHAPI.Share.CredentialsMissing.body')
+          t('CHAPI.Share.CredentialsMissing.body')
         }}</span>
       </div>
       <div
@@ -129,7 +129,7 @@
         "
       >
         <button id="share-credentials-ok-btn" class="btn-outline" @click="cancel">
-          {{ $t('CHAPI.Share.CredentialsMissing.ok') }}
+          {{ t('CHAPI.Share.CredentialsMissing.ok') }}
         </button>
       </div>
     </div>
@@ -159,7 +159,7 @@
         </div>
 
         <span class="text-neutrals-dark">{{
-          $tc('CHAPI.Share.headline', processedCredentials.length, { issuer: 'Requestor' })
+          t('CHAPI.Share.headline', processedCredentials.length, { issuer: 'Requestor' })
         }}</span>
 
         <!-- Credentials Preview -->
@@ -203,8 +203,8 @@
                 <!-- TODO: move this to reusable components -->
                 <table class="w-full border-t border-neutrals-chatelle">
                   <tr
-                    v-for="(property, index) of credential.properties"
-                    :key="index"
+                    v-for="(property, key) of credential.properties"
+                    :key="key"
                     class="border-b border-neutrals-thistle border-dotted"
                   >
                     <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
@@ -244,24 +244,30 @@
         "
       >
         <button id="cancelBtn" class="btn-outline" @click="cancel">
-          {{ $t('CHAPI.Share.decline') }}
+          {{ t('CHAPI.Share.decline') }}
         </button>
         <button id="share-credentials" class="btn-primary" @click="share">
-          {{ $t('CHAPI.Share.share') }}
+          {{ t('CHAPI.Share.share') }}
         </button>
       </div>
     </div>
   </div>
 </template>
 <script>
+import { toRaw } from 'vue';
 import { DIDComm } from '@trustbloc/wallet-sdk';
-import { wait, getCredentialType, getCredentialDisplayData, getCrendentialIcon } from './mixins';
+import { getCredentialType, getCredentialDisplayData, getCrendentialIcon } from './mixins';
 import { mapGetters } from 'vuex';
 import Spinner from '@/components/Spinner/Spinner.vue';
+import { useI18n } from 'vue-i18n';
 
 export default {
   components: {
     Spinner,
+  },
+  setup() {
+    const { t } = useI18n();
+    return { t };
   },
   data() {
     return {
@@ -281,7 +287,7 @@ export default {
   created: async function () {
     this.loading = true;
     this.protocolHandler = this.$parent.protocolHandler;
-    const invitation = this.protocolHandler.message();
+    const invitation = toRaw(this.protocolHandler.message());
     const { user, token } = this.getCurrentUser().profile;
     this.credentialDisplayData = await this.getCredentialManifestData();
 

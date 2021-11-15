@@ -9,6 +9,7 @@
     <div class="flex flex-col justify-start items-start w-full">
       <label for="did-selector" class="mb-1 text-base">Update Identity:</label>
       <select
+        v-if="allDIDs.length"
         id="did-selector"
         v-model="selectedDID"
         class="mb-5 w-full max-w-full border-b"
@@ -61,7 +62,7 @@
       :disabled="!preferencesChanged"
       :loading="loading"
       type="primary"
-      @click.native="updatePreferences()"
+      @click="updatePreferences()"
     >
       <span>Update Preferences</span>
     </styled-button>
@@ -83,12 +84,17 @@ export default {
   components: {
     StyledButton,
   },
+  model: {
+    prop: 'allDIDs',
+    event: 'update',
+  },
   props: {
     allDIDs: {
       type: Array,
       required: true,
     },
   },
+  emits: ['update:allDIDs'],
   data() {
     return {
       keyID: '',
@@ -131,7 +137,9 @@ export default {
     ...mapActions(['refreshUserPreference']),
     listDIDs: async function () {
       const { contents } = await this.didManager.getAllDIDs(this.getCurrentUser().profile.token);
-      const newAllDIDs = Object.keys(contents).map((k) => contents[k].didDocument);
+      const newAllDIDs = Object.keys(contents).map(
+        (k) => contents[k].didDocument || contents[k].DIDDocument
+      );
       this.$emit('update:allDIDs', newAllDIDs);
       if (this.selectedDID === '') this.didSelected(newAllDIDs[0].id);
     },

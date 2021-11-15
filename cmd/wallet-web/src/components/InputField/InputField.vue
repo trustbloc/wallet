@@ -10,7 +10,6 @@
       :id="'input-' + label"
       v-bind="$attrs"
       :disabled="!characterCount"
-      v-on="$listeners"
       @input="$emit('update', $event.target.value)"
       @keyup="characterCount"
     />
@@ -19,7 +18,7 @@
     <div class="fader" />
     <!-- TODO: use inline svg instead once https://github.com/trustbloc/edge-agent/issues/816 is fixed -->
     <img src="@/assets/img/danger-icon.svg" />
-    <label class="input-wordlimit">{{ characterCount }}</label>
+    <span class="input-wordlimit">{{ characterCount }}</span>
   </div>
 </template>
 
@@ -45,6 +44,7 @@ export default {
       default: '',
     },
   },
+  emits: ['update'],
   computed: {
     characterCount() {
       return this.value

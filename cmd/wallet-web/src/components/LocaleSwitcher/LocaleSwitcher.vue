@@ -35,8 +35,8 @@ export default {
         await updateI18nLocale(newLocale.id);
         store.dispatch('setLocale', newLocale);
         this.$router.replace({
-          name: this.$router.history.current.name,
-          params: { ...this.$router.history.current.params, locale: newLocale.base },
+          name: this.$router.currentRoute._value.name,
+          params: { ...this.$router.currentRoute._value.params, locale: newLocale.base },
         });
       }
     },

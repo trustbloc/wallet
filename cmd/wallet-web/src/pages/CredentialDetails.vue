@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
 -->
 <template>
-  <div class="flex flex-col justify-start items-start py-6 px-3">
+  <!-- TODO: add a loading state -->
+  <div v-if="credential" class="flex flex-col justify-start items-start py-6 px-3">
     <div class="flex flex-row justify-between items-center mb-4 w-full">
       <div class="flex flex-grow">
-        <h3 class="text-neutrals-dark">{{ i18n.heading }}</h3>
+        <h3 class="text-neutrals-dark">{{ t('CredentialDetails.heading') }}</h3>
       </div>
       <div
-        class="inline-flex items-center rounded-lg border border-neutrals-chatelle bg-transparent"
+        class="inline-flex items-center bg-transparent rounded-lg border border-neutrals-chatelle"
       >
         <flyout-menu type="outline" :credential-id="credential.id" />
       </div>
@@ -23,7 +24,9 @@
     />
     <!-- List of Credential Details -->
     <div class="flex flex-col justify-start items-start mt-8 md:mt-2 w-full">
-      <span class="mb-5 text-xl font-bold text-neutrals-dark">{{ i18n.verifiedInformation }}</span>
+      <span class="mb-5 text-xl font-bold text-neutrals-dark">{{
+        t('CredentialDetails.verifiedInformation')
+      }}</span>
       <table class="w-full border-t border-neutrals-chatelle">
         <tr
           v-for="(property, index) of credential.properties"
@@ -51,6 +54,7 @@
 import Banner from '@/components/CredentialDetails/Banner';
 import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
 import { mapGetters } from 'vuex';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'CredentialDetails',
@@ -58,10 +62,11 @@ export default {
     Banner,
     FlyoutMenu,
   },
+  setup() {
+    const { t } = useI18n();
+    return { t };
+  },
   computed: {
-    i18n() {
-      return this.$t('CredentialDetails');
-    },
     ...mapGetters(['getProcessedCredentialByID']),
     credential() {
       return this.getProcessedCredentialByID(this.$route.params.id);

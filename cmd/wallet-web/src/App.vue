@@ -16,17 +16,9 @@
 
 <script>
 import Spinner from '@/components/Spinner/Spinner.vue';
-import EventBus from '@/EventBus';
 
 export default {
   components: { Spinner },
-  data: function () {
-    return { isLoading: true };
-  },
-  mounted() {
-    EventBus.$on('i18n-load-start', () => (this.isLoading = true));
-    EventBus.$on('i18n-load-complete', () => (this.isLoading = false));
-  },
 };
 </script>
 

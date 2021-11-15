@@ -19,26 +19,26 @@
             <li v-for="error in errors" :key="error" class="text-primary-valencia">{{ error }}</li>
           </ul>
         </div>
-        <!-- todo issue-1055 Read meta data from external urls -->
-        <div class="p-5 text-neutrals-dark font-sm">Issuer wants to connect to your wallet.</div>
+        <!-- TODO: issue-1055 Read meta data from external urls -->
+        <div class="p-5 text-sm text-neutrals-dark">Issuer wants to connect to your wallet.</div>
 
         <hr class="mx-5 border border-neutrals-thistle" />
         <div class="py-6 px-5">
           <div class="flex z-10 flex-row justify-start items-center p-5 w-full">
             <div class="flex-none w-12 h-12 border-opacity-10">
-              <!-- todo issue-1055 Read meta data from external urls -->
+              <!-- TODO: issue-1055 Read meta data from external urls -->
               <img src="@/assets/img/generic-issuer-icon.svg" />
             </div>
             <div class="flex flex-col">
               <span
-                class="flex-1 pl-4 font-bold text-left text-neutrals-dark overflow-ellipsis font-sm"
+                class="flex-1 pl-4 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
               >
-                <!-- todo issue-1055 Read meta data from external urls -->
+                <!-- TODO: issue-1055 Read meta data from external urls -->
                 Issuer
               </span>
               <div class="flex flex-row justify-center items-center pl-4">
                 <img src="@/assets/img/small-lock-icon.svg" />
-                <span class="flex-1 pl-1 text-left text-neutrals-medium overflow-ellipsis font-xs">
+                <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
                   {{ requestOrigin }}
                 </span>
               </div>
@@ -56,13 +56,13 @@
             </div>
             <div class="flex flex-col">
               <span
-                class="flex-1 pl-4 font-bold text-left text-neutrals-dark overflow-ellipsis font-sm"
+                class="flex-1 pl-4 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
               >
                 TrustBloc Wallet
               </span>
               <div class="flex flex-row justify-center items-center pl-4">
                 <img src="@/assets/img/small-lock-icon.svg" />
-                <span class="flex-1 pl-1 text-left text-neutrals-medium overflow-ellipsis font-xs">
+                <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
                   {{ walletUrl }}
                 </span>
               </div>
@@ -121,7 +121,7 @@ export default {
       this.presentation = results[0];
     } catch (e) {
       console.error('failed to prepare DIDAuth response:', e);
-      // TODO https://github.com/trustbloc/wallet/issues/1067 DIDAuth query failure
+      // TODO: https://github.com/trustbloc/wallet/issues/1067 DIDAuth query failure
       // this.errors.push('failed to handle request, try again later.');
       this.loading = false;
     }

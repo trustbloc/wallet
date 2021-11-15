@@ -31,7 +31,7 @@
 const BUTTON_TYPES = ['primary', 'inverse', 'outline', 'danger'];
 
 export default {
-  name: 'Preferences',
+  name: 'StyledButton',
   props: {
     loading: {
       type: Boolean,

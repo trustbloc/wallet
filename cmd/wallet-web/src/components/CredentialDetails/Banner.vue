@@ -55,7 +55,7 @@
         <table v-if="breakpoints.xs || breakpoints.sm" class="w-full text-left">
           <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">
             <th>
-              {{ i18n.addedOn }}
+              {{ t('CredentialDetails.Banner.addedOn') }}
             </th>
           </tr>
           <tr class="flex flex-1 mb-4 text-neutrals-medium">
@@ -65,7 +65,7 @@
           </tr>
           <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">
             <th>
-              {{ i18n.expiresOn }}
+              {{ t('CredentialDetails.Banner.expiresOn') }}
             </th>
           </tr>
           <tr class="flex flex-1 mb-4 text-neutrals-medium">
@@ -74,7 +74,7 @@
 
           <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">
             <th>
-              {{ i18n.lastUsed }}
+              {{ t('CredentialDetails.Banner.lastUsed') }}
             </th>
           </tr>
           <tr class="flex flex-1 mb-4 text-neutrals-medium">
@@ -83,7 +83,7 @@
 
           <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">
             <th>
-              {{ i18n.vault }}
+              {{ t('CredentialDetails.Banner.vault') }}
             </th>
           </tr>
           <tr class="flex flex-1 text-neutrals-medium">
@@ -93,10 +93,10 @@
         <table v-else class="w-full text-left">
           <thead class="font-bold text-neutrals-dark">
             <tr class="flex">
-              <th class="flex-1">{{ i18n.addedOn }}</th>
-              <th class="flex-1">{{ i18n.expiresOn }}</th>
-              <th class="flex-1">{{ i18n.lastUsed }}</th>
-              <th class="flex-1">{{ i18n.vault }}</th>
+              <th class="flex-1">{{ t('CredentialDetails.Banner.addedOn') }}</th>
+              <th class="flex-1">{{ t('CredentialDetails.Banner.expiresOn') }}</th>
+              <th class="flex-1">{{ t('CredentialDetails.Banner.lastUsed') }}</th>
+              <th class="flex-1">{{ t('CredentialDetails.Banner.vault') }}</th>
             </tr>
           </thead>
           <tbody class="text-neutrals-medium">
@@ -119,6 +119,7 @@
 import useBreakpoints from '@/plugins/breakpoints.js';
 import { mapGetters } from 'vuex';
 import { getCrendentialIcon } from '@/pages/mixins';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'Banner',
@@ -140,6 +141,10 @@ export default {
       required: true,
     },
   },
+  setup() {
+    const { t, locale } = useI18n();
+    return { t, locale };
+  },
   data() {
     return {
       breakpoints: useBreakpoints(),
@@ -147,11 +152,8 @@ export default {
     };
   },
   computed: {
-    i18n() {
-      return this.$t('CredentialDetails.Banner');
-    },
     addedOn() {
-      return new Date(this.issuanceDate).toLocaleDateString(this.$i18n.locale, {
+      return new Date(this.issuanceDate).toLocaleDateString(this.locale, {
         year: 'numeric',
         month: 'long',
         day: 'numeric',

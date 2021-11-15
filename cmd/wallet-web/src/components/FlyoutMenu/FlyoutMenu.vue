@@ -10,7 +10,9 @@
         <img src="@/assets/img/icons-sm--vault-icon.svg" />
       </div>
       <div class="flex-grow pl-2 text-left">
-        <span class="text-sm font-bold text-neutrals-dark truncate">{{ i18n.allVaultLabel }}</span>
+        <span class="text-sm font-bold text-neutrals-dark truncate">{{
+          t('CredentialDetails.allVaultLabel')
+        }}</span>
       </div>
       <div class="flex flex-none justify-end w-6 h-6">
         <img src="@/assets/img/icons-sm--chevron-down-icon.svg" />
@@ -43,7 +45,7 @@
         />
       </div>
       <div v-if="showTooltip" id="tooltip">
-        <tool-tip :tool-tip-label="i18n.toolTipLabel"></tool-tip>
+        <tool-tip :tool-tip-label="t('CredentialDetails.toolTipLabel')"></tool-tip>
       </div>
     </button>
     <div v-if="showFlyoutMenuList" id="flyoutMenuList" class="relative">
@@ -55,6 +57,7 @@
 <script>
 import ToolTip from '@/components/ToolTip/ToolTip.vue';
 import FlyoutMenuList from '@/components/FlyoutMenu/FlyoutMenuList.vue';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'FlyoutMenu',
@@ -72,6 +75,10 @@ export default {
       default: '',
     },
   },
+  setup() {
+    const { t, locale } = useI18n();
+    return { t, locale };
+  },
   data() {
     return {
       toolTipLabel: {
@@ -82,15 +89,10 @@ export default {
       showFlyoutMenuList: false,
     };
   },
-  computed: {
-    i18n() {
-      return this.$t('CredentialDetails');
-    },
-  },
   mounted() {
     document.addEventListener('click', this.close);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     document.removeEventListener('click', this.close);
   },
   methods: {
