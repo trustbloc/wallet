@@ -12,33 +12,24 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-8 w-full">
       <vault-card
         color="pink"
-        :num-of-creds="
-          t('Vaults.foundCredentials', credentialsFound, {
-            credentialLength: credentialsFound,
-          })
-        "
+        :num-of-creds="t('Vaults.foundCredentials', numofCreds)"
         :name="t('Vaults.allVaults')"
       />
-      <!--TODO: Issue-1198 Add flyout menu to default and other vaults -->
-      <vault-card
-        :num-of-creds="
-          t('Vaults.foundCredentials', credentialsFound, {
-            credentialLength: credentialsFound,
-          })
-        "
-        :name="t('Vaults.defaultVault')"
-      />
+      <!--TODO: Issue-1198 Add flyout menu to default and other vaults create this vault-->
       <vault-card type="addNew" :name="t('Vaults.addVault')" class="grid order-last" />
       <div v-for="(vault, index) in vaults" :key="index">
-        <!-- TODO: Issue-1215 Add credentials found in the vault -->
-        <vault-card :name="vault.name" class="grid order-last" />
+        <vault-card
+          :name="vault.name"
+          :num-of-creds="t('Vaults.foundCredentials', vault.numofCreds)"
+          class="grid order-last"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { CredentialManager, CollectionManager } from '@trustbloc/wallet-sdk';
+import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
 import VaultCard from '@/components/Vaults/VaultCard';
 import { useI18n } from 'vue-i18n';
@@ -54,30 +45,42 @@ export default {
   },
   data() {
     return {
-      credentialsFound: '',
+      numofCreds: 0,
       vaults: [],
     };
   },
-  created: function () {
+  created: async function () {
     const { user, token } = this.getCurrentUser().profile;
     this.username = this.getCurrentUser().username;
     const credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-    this.fetchAllCredentials(credentialManager.getAll(token));
+    // Fetch all the credentials stored.
+    // TODO: Issue-1250 Refactor to not to save credentials without vault ID.
+    await this.fetchAllCredentials(credentialManager.getAll(token));
 
     const collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
-    this.fetchAllVaults(token, collectionManager);
+    this.fetchAllVaultsAndCredentials(token, collectionManager, credentialManager);
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser']),
     fetchAllCredentials: async function (getCredential) {
       const { contents } = await getCredential;
-      this.credentialsFound = Object.keys(contents).length;
+      this.numofCreds = Object.keys(contents).length;
     },
-    fetchAllVaults: async function (token, collectionManager) {
+    fetchAllVaultsAndCredentials: async function (token, collectionManager, credentialManager) {
+      // Fetch the list of the vaults/collections.
       const { contents } = await collectionManager.getAll(token);
       console.log(`found ${Object.keys(contents).length} vaults`);
-      this.vaults = Object.values(contents).map((vault) => vault);
+
+      const vaultCred = Object.values(contents);
+      vaultCred.forEach(async (vault) => {
+        // Fetch the credentials stored inside the specific vault
+        // TODO: #1236 Revisit the solution to avoid getting all the credentials
+        await credentialManager.getAll(token, { collectionID: vault.id }).then((result) => {
+          vault['numofCreds'] = Object.values(result.contents).length;
+          this.vaults.push(vault);
+        });
+      });
     },
   },
 };

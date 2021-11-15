@@ -8,5 +8,6 @@
   "addHelperMessage": "Use letters and/or numbers",
   "addlabel": "Vault Name",
   "placeholderLabel": "Enter a name for your vault . . .",
-  "foundCredentials": "{credentialLength} Credential | {credentialLength} Credentials"
+  "foundCredentials": "{n} Credential | {n} Credentials",
+  "selectVault": "Select Vault"
 }

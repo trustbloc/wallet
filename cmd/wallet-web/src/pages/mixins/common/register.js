@@ -4,7 +4,12 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import { WalletUser, DIDManager, connectToMediator } from '@trustbloc/wallet-sdk';
+import {
+  CollectionManager,
+  connectToMediator,
+  DIDManager,
+  WalletUser,
+} from '@trustbloc/wallet-sdk';
 
 const proofType = 'Ed25519Signature2018';
 const waitForStateComplete = true;
@@ -18,6 +23,7 @@ export class RegisterWallet {
   constructor(agent, opts) {
     this.agent = agent;
     this.didManager = new DIDManager(agent, opts);
+    this.collectionManager = new CollectionManager(agent, opts);
     this.mediatorEndpoint = opts.walletMediatorURL;
   }
 
@@ -26,7 +32,11 @@ export class RegisterWallet {
     // register mediator, create and save DID
     let failure;
     try {
-      await Promise.all([this._connectToMediator(), this._assignDID(profile)]);
+      await Promise.all([
+        this._connectToMediator(),
+        this._assignDID(profile),
+        this._createDefaultVault(profile),
+      ]);
     } catch (e) {
       console.error('failed to setup wallet user', e);
       failure = e;
@@ -80,5 +90,15 @@ export class RegisterWallet {
     let walletUser = new WalletUser({ agent: this.agent, user });
     await walletUser.savePreferences(token, { name, controller, proofType });
     console.timeEnd('time tracking: create did time');
+  }
+
+  async _createDefaultVault(profile) {
+    let { user, token } = profile;
+    let name = 'Default Vault';
+    let collectionManager = new CollectionManager({ agent: this.agent, user });
+    let vaultID = await collectionManager.create(token, { name });
+    if (vaultID) {
+      console.info('Default vault is created');
+    }
   }
 }
