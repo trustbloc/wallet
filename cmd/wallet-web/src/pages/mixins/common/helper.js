@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import jp from 'jsonpath';
-const { Base64 } = require('js-base64');
+const { encodeURI } = require('js-base64');
 import { PresentationExchange } from './presentationExchange';
 
 var flatten = require('flat');
@@ -199,7 +199,7 @@ function getTermInContext(ctxObj, term) {
 
 // function to get the credential display data
 export function getCredentialDisplayData(vc, manifest, skipEmpty = true) {
-  const id = Base64.encode(populatePath(vc, manifest.id));
+  const id = encodeURI(populatePath(vc, manifest.id));
   const brandColor = manifest.brandColor || '';
   const issuanceDate = populatePath(vc, manifest.issuanceDate);
   const title = populatePath(vc, manifest.title.path) || manifest.title.fallback;
