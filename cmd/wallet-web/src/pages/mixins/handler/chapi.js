@@ -4,6 +4,8 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
+import { toRaw } from 'vue';
+
 const responses = {
   DONE: 'response',
   PRESENT: 'VerifiablePresentation',
@@ -29,8 +31,11 @@ export class CHAPIEventHandler {
       return this.credEvent.credential;
     }
 
-    let { query, challenge, domain, invitation, credentials } =
-      this.credEvent.credentialRequestOptions.web.VerifiablePresentation;
+    // TODO: Find a way to get raw value without `toRaw`
+    let { query, challenge, domain, invitation, credentials } = toRaw(
+      this.credEvent.credentialRequestOptions.web.VerifiablePresentation
+    );
+    console.log('invitation', invitation);
     return { query, challenge, domain, invitation, credentials };
   }
 

@@ -79,6 +79,7 @@
   </div>
 </template>
 <script>
+import { toRaw } from 'vue';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
 import Spinner from '@/components/Spinner/Spinner.vue';
 import Header from '@/components/Header/Header.vue';
@@ -108,9 +109,10 @@ export default {
   },
   created: async function () {
     this.protocolHandler = this.$parent.protocolHandler;
-    let { query } = this.protocolHandler.getEventData();
+    const eventData = this.protocolHandler.getEventData();
+    const query = toRaw(eventData.query);
 
-    let { user, token } = this.getCurrentUser().profile;
+    const { user, token } = this.getCurrentUser().profile;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
 
     try {
@@ -140,7 +142,7 @@ export default {
 
       let { profile, preference } = this.getCurrentUser();
       let { controller, proofType, verificationMethod } = preference;
-      let { domain, challenge } = this.protocolHandler.getEventData();
+      let { domain, challenge } = toRaw(this.protocolHandler.getEventData());
 
       let { presentation } = await this.credentialManager.present(
         profile.token,
