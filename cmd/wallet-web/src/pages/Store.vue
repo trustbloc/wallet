@@ -135,6 +135,7 @@
 </template>
 
 <script>
+import { toRaw } from 'vue';
 import {
   CHAPIEventHandler,
   getCredentialType,
@@ -159,7 +160,7 @@ export default {
     this.credentialEvent = new CHAPIEventHandler(
       await this.$webCredentialHandler.receiveCredentialEvent()
     );
-    const { dataType, data } = this.credentialEvent.getEventData();
+    const { dataType, data } = toRaw(this.credentialEvent.getEventData());
 
     if (!isVPType(dataType)) {
       this.errors.push(`unknown credential data type '${dataType}'`);

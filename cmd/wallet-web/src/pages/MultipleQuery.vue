@@ -336,7 +336,7 @@ export default {
       this.sharing = true;
       const { profile, preference } = this.getCurrentUser();
       const { controller, proofType, verificationMethod } = preference;
-      const { domain, challenge } = this.protocolHandler.getEventData();
+      const { domain, challenge } = toRaw(this.protocolHandler.getEventData());
 
       const _present = async (presentation) => {
         return (
