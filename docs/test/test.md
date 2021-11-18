@@ -1,8 +1,7 @@
-# Edge Agent - Test
+# Wallet - Test
 
 ## Prerequisites (General)
 
-- Vue.js
 - Go 1.16
 - Npm 7
 - Node 16
