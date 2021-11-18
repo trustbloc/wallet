@@ -34,7 +34,7 @@ CREATE DATABASE authresthydra;
 GRANT ALL PRIVILEGES ON authresthydra.* TO 'authresthydra'@'%';
 
 /*
-edge agent rest
+Wallet server rest
 */
 CREATE USER 'edgeagent'@'%' IDENTIFIED BY 'edgeagent-secret-pw';
 GRANT ALL PRIVILEGES ON `edgeagent\_%`.* TO 'edgeagent'@'%';

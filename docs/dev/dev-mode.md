@@ -1,4 +1,4 @@
-# Edge Agent - Dev Mode
+# Wallet - Dev Mode
 
 ## Prerequisites 
 
