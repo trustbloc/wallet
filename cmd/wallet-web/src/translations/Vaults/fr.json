@@ -8,5 +8,6 @@
   "addHelperMessage": "Utiliser des lettres et/ou des chiffres",
   "addlabel": "Nom de la chambre forte",
   "placeholderLabel": "Entrez un nom...",
-  "foundCredentials": "{credentialLength} Identifiant | {credentialLength} Identifiants"
+  "foundCredentials": "{n} Identifiant | {n} Identifiants",
+  "selectVault": "Sélectionner la chambre forte"
 }

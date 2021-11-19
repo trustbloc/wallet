@@ -66,15 +66,15 @@
                   border-b border-neutrals-dark
                 "
               >
-                <label for="select-key" class="mb-1 text-sm font-bold text-neutrals-dark"
-                  >Select Vault</label
-                >
-                <select
-                  v-model="selectedVault"
-                  class="mb-1 w-full max-w-full text-base text-neutrals-dark bg-neutrals-lilacSoft"
-                >
-                  <option>Default Vault</option>
-                </select>
+                <label for="select-key" class="mb-1 text-sm font-bold text-neutrals-dark">{{
+                  t('Vaults.selectVault')
+                }}</label>
+                <custom-select
+                  id="valutOptions"
+                  :options="vaults"
+                  default="Default Vault"
+                  @selected="vaultSelected"
+                ></custom-select>
               </div>
 
               <span class="py-3 text-base font-bold text-neutrals-dark">Verified Information</span>
@@ -135,23 +135,30 @@
 </template>
 
 <script>
-import { toRaw } from 'vue';
 import {
   CHAPIEventHandler,
-  getCredentialType,
   getCredentialDisplayData,
+  getCredentialType,
   getCrendentialIcon,
   isVPType,
 } from './mixins';
-import { CredentialManager } from '@trustbloc/wallet-sdk';
+import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
+import CustomSelect from '@/components/CustomSelect/CustomSelect';
+import { useI18n } from 'vue-i18n';
 
 export default {
+  components: { CustomSelect },
+  setup() {
+    const { t } = useI18n();
+    return { t };
+  },
   data() {
     return {
       processedCredentials: [],
       errors: [],
-      selectedVault: 'Default Vault',
+      vaults: [],
+      selectedVault: '',
       credentialDisplayData: '',
     };
   },
@@ -160,20 +167,22 @@ export default {
     this.credentialEvent = new CHAPIEventHandler(
       await this.$webCredentialHandler.receiveCredentialEvent()
     );
-    const { dataType, data } = toRaw(this.credentialEvent.getEventData());
+    const { dataType, data } = this.credentialEvent.getEventData();
 
     if (!isVPType(dataType)) {
       this.errors.push(`unknown credential data type '${dataType}'`);
       return;
     }
 
-    const { user } = this.getCurrentUser().profile;
+    const { user, token } = this.getCurrentUser().profile;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
 
     this.credentialDisplayData = await this.getCredentialManifestData();
     // prepare cards
     this.prepareCards(data);
     this.presentation = data;
+    const collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
+    this.fetchAllVaults(token, collectionManager);
   },
   methods: {
     ...mapGetters(['getCurrentUser', 'getStaticAssetsUrl', 'getCredentialManifestData']),
@@ -200,7 +209,13 @@ export default {
       const { token } = this.getCurrentUser().profile;
 
       this.credentialManager
-        .save(token, { presentation: this.presentation })
+        .save(
+          token,
+          {
+            presentation: this.presentation,
+          },
+          { collection: this.selectedVault }
+        )
         .then(() => {
           this.credentialEvent.done();
         })
@@ -208,6 +223,9 @@ export default {
           console.error(e);
           this.errors.push(`failed to save credential`);
         });
+    },
+    vaultSelected: function (e) {
+      this.selectedVault = e;
     },
     cancel: function () {
       this.credentialEvent.cancel();
@@ -227,6 +245,10 @@ export default {
         this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
       );
     },
+    fetchAllVaults: async function (token, collectionManager) {
+      const { contents } = await collectionManager.getAll(token);
+      this.vaults = Object.values(contents).map((vault) => vault);
+    },
   },
 };
 </script>
@@ -235,9 +257,11 @@ export default {
 .chapi-container {
   width: 28rem;
 }
+
 .credentialPreviewContainer:not(:focus-within):hover {
   box-shadow: 0px 4px 12px 0px rgba(25, 12, 33, 0.1);
 }
+
 .footerContainer {
   box-shadow: inset 0px 1px 0px 0px rgb(219, 215, 220);
 }

@@ -11,7 +11,7 @@
       v-bind="$attrs"
       :disabled="!characterCount"
       @input="$emit('update', $event.target.value)"
-      @keyup="characterCount"
+      @keyup.enter="characterCount"
     />
     <label :for="'input-' + label" class="input-label">{{ label }}</label>
     <span class="input-helper">{{ helperMessage }}</span>

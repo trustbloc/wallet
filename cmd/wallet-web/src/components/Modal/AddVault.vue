@@ -61,6 +61,7 @@
           :helper-message="t('Vaults.addHelperMessage')"
           :label="t('Vaults.addlabel')"
           :placeholder="t('Vaults.placeholderLabel')"
+          :value="vaultName"
           type="text"
           maxlength="42"
           @update="receivedVaultName($event)"

@@ -83,7 +83,7 @@ export default {
     },
     numOfCreds: {
       type: String,
-      default: '0',
+      default: null,
     },
     type: {
       type: String,
