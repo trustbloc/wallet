@@ -7,16 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 import { nextTick } from 'vue';
 import { shallowMount } from '@vue/test-utils';
 import Store from '../../src/pages/Store.vue';
-import {
-  testConfig,
-  getTestData,
-  Setup,
-  loadFrameworks,
-  MockCredentialHandler,
-  localVue,
-  promiseWhen,
-} from '../common';
+import { getTestData, Setup, MockCredentialHandler, promiseWhen } from '../common';
 import { expect } from 'chai';
+import i18n from '../../src/plugins/i18n';
 
 const SAVE_CRED_USER = 'save_cred_user';
 
@@ -47,11 +40,14 @@ describe('saving a credential into wallet', function () {
   // mount vue component
   let wrapper;
   before(function () {
+    const store = setup.getStateStore();
     wrapper = shallowMount(Store, {
-      localVue,
-      store: setup.getStateStore(),
-      mocks: {
-        $webCredentialHandler: credHandler,
+      global: {
+        plugins: [store, i18n],
+        mocks: {
+          $webCredentialHandler: credHandler,
+          t: () => '',
+        },
       },
     });
   });
@@ -64,8 +60,8 @@ describe('saving a credential into wallet', function () {
     expect(wrapper.vm.processedCredentials).to.have.lengthOf(1);
   });
 
-  it('saved credential into wallet successfully !', async () => {
-    wrapper.find('#storeVCBtn').trigger('click');
+  it('saved credential into wallet successfully!', async () => {
+    wrapper.find('button.btn-primary').trigger('click');
     await nextTick();
 
     const resp = await response;
@@ -89,11 +85,14 @@ describe('saving multiple credentials into wallet', function () {
   // mount vue component
   let wrapper;
   before(function () {
+    const store = setup.getStateStore();
     wrapper = shallowMount(Store, {
-      localVue,
-      store: setup.getStateStore(),
-      mocks: {
-        $webCredentialHandler: credHandler,
+      global: {
+        plugins: [store, i18n],
+        mocks: {
+          $webCredentialHandler: credHandler,
+          t: () => '',
+        },
       },
     });
   });
@@ -107,7 +106,7 @@ describe('saving multiple credentials into wallet', function () {
   });
 
   it('saved credentials in wallet successfully', async () => {
-    wrapper.find('#storeVCBtn').trigger('click');
+    wrapper.find('button.btn-primary').trigger('click');
     await nextTick();
 
     const resp = await response;

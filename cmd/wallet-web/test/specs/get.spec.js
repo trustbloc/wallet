@@ -8,16 +8,9 @@ import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import Get from '../../src/pages/Get.vue';
 import MultipleQuery from '../../src/pages/MultipleQuery.vue';
-import {
-  testConfig,
-  getTestData,
-  Setup,
-  loadFrameworks,
-  MockCredentialHandler,
-  localVue,
-  promiseWhen,
-} from '../common';
+import { getTestData, Setup, MockCredentialHandler, promiseWhen } from '../common';
 import { expect } from 'chai';
+import i18n from '../../src/plugins/i18n';
 
 const GET_CRED_USER = 'get_cred_user';
 
@@ -75,11 +68,14 @@ describe.skip('sharing a credential from wallet - QueryByExample', function () {
   // mount vue component
   let wrapper;
   before(async function () {
+    const store = setup.getStateStore();
     wrapper = mount(Get, {
-      localVue,
-      store: setup.getStateStore(),
-      mocks: {
-        $webCredentialHandler: credHandler,
+      global: {
+        plugins: [store, i18n],
+        mocks: {
+          $webCredentialHandler: credHandler,
+          t: () => '',
+        },
       },
     });
   });
@@ -147,11 +143,14 @@ describe.skip('sharing a credential from wallet - PresentationExchange', functio
   // mount vue component
   let wrapper;
   before(async function () {
+    const store = setup.getStateStore();
     wrapper = mount(Get, {
-      localVue,
-      store: setup.getStateStore(),
-      mocks: {
-        $webCredentialHandler: credHandler,
+      global: {
+        plugins: [store, i18n],
+        mocks: {
+          $webCredentialHandler: credHandler,
+          t: () => '',
+        },
       },
     });
   });
@@ -254,12 +253,15 @@ describe.skip('sharing multiple credentials from wallet - MultiQuery (QueryByExa
   // mount vue component
   let wrapper;
   before(async function () {
+    const store = setup.getStateStore();
     await setup.saveCredentials(udcBBSVC);
     wrapper = mount(Get, {
-      localVue,
-      store: setup.getStateStore(),
-      mocks: {
-        $webCredentialHandler: credHandler,
+      global: {
+        plugins: [store, i18n],
+        mocks: {
+          $webCredentialHandler: credHandler,
+          t: () => '',
+        },
       },
     });
   });

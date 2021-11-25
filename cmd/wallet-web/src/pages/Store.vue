@@ -144,7 +144,7 @@ import {
 } from './mixins';
 import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
-import CustomSelect from '@/components/CustomSelect/CustomSelect';
+import CustomSelect from '@/components/CustomSelect/CustomSelect.vue';
 import { useI18n } from 'vue-i18n';
 
 export default {

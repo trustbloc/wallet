@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 const { VueLoaderPlugin } = require('vue-loader');
+const webpack = require('webpack');
 
 const { alias } = require('./alias.config');
 
@@ -25,11 +26,20 @@ module.exports = {
         test: /\.css$/,
         use: ['vue-style-loader', 'css-loader'],
       },
+      {
+        test: /\.(svg|png)/,
+        type: 'asset/inline',
+      },
     ],
   },
   resolve: {
     alias,
   },
-  plugins: [new VueLoaderPlugin()],
+  plugins: [
+    new VueLoaderPlugin(),
+    new webpack.DefinePlugin({
+      process: { env: {} },
+    }),
+  ],
   devtool: 'inline-cheap-module-source-map',
 };
