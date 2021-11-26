@@ -44,7 +44,7 @@ unit-test:
 .PHONY: wallet-web-test
 wallet-web-test:
 	@set -e
-	# @cd cmd/wallet-web && npm install && npm run test
+	@cd cmd/wallet-web && npm install && npm run test
 
 .PHONY: wallet-web-prettier-check
 wallet-web-prettier-check:

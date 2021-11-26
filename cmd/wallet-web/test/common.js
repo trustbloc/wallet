@@ -6,8 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import * as Agent from '@trustbloc/agent-sdk-web';
 import { DIDManager, WalletUser, CredentialManager } from '@trustbloc/wallet-sdk';
-import Vuex from 'vuex';
-import { createLocalVue } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 var uuid = require('uuid/v4');
 
@@ -23,9 +22,6 @@ testConfig.walletUserPassphrase = uuid();
 console.debug('test configuration:', JSON.stringify(testConfig, null, 2));
 
 const { agentStartupOpts } = testConfig;
-
-export const localVue = createLocalVue();
-localVue.use(Vuex);
 
 // loads testdata from fixtures and returns JSON parsed response.
 export function getTestData(filename) {
@@ -80,7 +76,6 @@ export class Setup {
       agent: this.agent,
       user: this.user,
     }).unlock({ localKMSPassphrase: testConfig.walletUserPassphrase });
-
     this.token = token;
   }
 
@@ -122,6 +117,9 @@ export class Setup {
             preference,
           };
         },
+        getStaticAssetsUrl(state) {
+          return '';
+        },
         getAgentOpts(state) {
           return agentStartupOpts;
         },
@@ -145,7 +143,7 @@ export class Setup {
       },
     };
 
-    return new Vuex.Store(store);
+    return createStore(store);
   }
 }
 
