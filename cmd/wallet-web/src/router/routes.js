@@ -14,18 +14,18 @@ export default [
     path: '',
     name: 'DashboardLayout',
     component: load('layout/DashboardLayout'),
-    redirect: 'dashboard',
+    redirect: 'vaults',
     children: [
-      {
-        path: 'dashboard',
-        name: 'dashboard',
-        component: load('Dashboard'),
-        meta: { requiresAuth: true },
-      },
       {
         path: 'vaults',
         name: 'vaults',
         component: load('Vaults'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'credentials',
+        name: 'credentials',
+        component: load('Credentials'),
         meta: { requiresAuth: true },
       },
       {

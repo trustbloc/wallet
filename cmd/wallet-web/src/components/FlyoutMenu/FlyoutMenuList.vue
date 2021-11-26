@@ -149,7 +149,7 @@ export default {
       const credID = decode(credentialID);
       try {
         await credentialManager.remove(token, credID);
-        this.$router.push({ name: 'dashboard' });
+        this.$router.push({ name: 'credentials' });
       } catch (e) {
         console.error('failed to remove credential:', e);
       }

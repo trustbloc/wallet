@@ -166,7 +166,7 @@ export default {
           query: this.$route.query,
         }
       : {
-          name: 'dashboard',
+          name: 'vaults',
           params: { locale: this.$store.getters.getLocale.base },
           query: this.$route.query,
         };

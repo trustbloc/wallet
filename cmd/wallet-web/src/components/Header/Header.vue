@@ -32,15 +32,19 @@
         <Logo class="z-10 h-6" />
       </div>
       <navbar>
-        <!-- TODO: bring link to vault on top once the component is implemented -->
         <navbar-link
-          id="navbar-link-dashboard"
-          :to="{ name: 'dashboard' }"
+          id="navbar-link-vaults"
+          :to="{ name: 'vaults' }"
+          :heading="t('DashboardLayout.vaults')"
+          icon="vaults.svg"
+        />
+        <navbar-link
+          id="navbar-link-credentials"
+          :to="{ name: 'credentials' }"
           :heading="t('DashboardLayout.credentials')"
           icon="credentials.svg"
         />
         <!-- TODO: uncomment once corresponding components are ready -->
-        <!-- <navbar-link id="navbar-link-vaults" :to="{ name: 'vaults' }" :heading="t('DashboardLayout.vaults')" icon="vaults.svg" /> -->
         <!-- <navbar-link id="navbar-link-account" :to="{ name: 'account' }" :heading="t('DashboardLayout.account')" icon="profile.svg" /> -->
         <!-- TODO: link to actual settings once implemented -->
         <navbar-link

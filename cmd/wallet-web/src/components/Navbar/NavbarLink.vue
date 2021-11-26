@@ -24,6 +24,7 @@
     ]"
   >
     <a
+      :id="id"
       tabindex="0"
       class="flex flex-row justify-start items-center px-10 w-full h-16 cursor-pointer"
       v-bind="$attrs"

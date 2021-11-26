@@ -6,7 +6,7 @@
 
 <template>
   <div>
-    <!-- Mobile Dashboard Layout -->
+    <!-- Mobile Credentials Layout -->
     <div v-if="breakpoints.xs || breakpoints.sm" class="flex flex-col justify-start w-screen">
       <div class="bg-neutrals-white border border-neutrals-chatelle">
         <flyout-menu />
@@ -15,7 +15,7 @@
         <h3 class="mx-6 mb-5 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
       </div>
     </div>
-    <!-- Desktop Dashboard Layout -->
+    <!-- Desktop Credentials Layout -->
     <div v-else class="flex justify-between items-center mb-8 w-full align-middle">
       <div class="flex flex-grow">
         <h3 class="m-0 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
@@ -37,8 +37,7 @@
       <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
       communication.
     </span>
-    <div v-else>
-      <span id="dashboard-success-msg" class="px-8" />
+    <div v-else id="loaded-credentials-container">
       <div v-if="processedCredentials.length" class="mx-6 md:mx-0">
         <div class="md:mx-0 mb-5">
           <span class="text-xl font-bold text-neutrals-dark">{{
@@ -88,7 +87,7 @@ import { useI18n } from 'vue-i18n';
 
 const filterBy = ['IssuerManifestCredential', 'GovernanceCredential'];
 export default {
-  name: 'Dashboard',
+  name: 'Credentials',
   components: {
     CredentialPreview,
     SkeletonLoader,
