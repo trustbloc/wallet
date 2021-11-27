@@ -135,13 +135,17 @@ export default {
     },
     addVault() {
       // Integration with collections API.
-      let { user, token } = this.getCurrentUser().profile;
-      this.username = this.getCurrentUser().username;
-      let collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
+      const { user, token } = this.getCurrentUser().profile;
+      const collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
       const name = this.vaultName;
-      const id = collectionManager.create(token, { name });
-      if (id) {
-        this.closeModal();
+      try {
+        const id = collectionManager.create(token, { name });
+        if (id) {
+          this.closeModal();
+        }
+        // TODO: add an error state to display in the UI
+      } catch (e) {
+        console.error('Error creating a new vault:', e);
       }
     },
   },
