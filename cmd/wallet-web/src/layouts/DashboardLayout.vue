@@ -12,7 +12,7 @@
       class="flex flex-col justify-start items-center w-screen bg-neutrals-softWhite"
     >
       <Header />
-      <dashboard-content v-if="!isNavbarOpen" class="w-screen h-screen bg-neutrals-softWhite" />
+      <router-view v-if="!isNavbarOpen" class="w-screen h-screen bg-neutrals-softWhite" />
     </div>
 
     <!-- Desktop Dashboard Layout -->
@@ -51,13 +51,12 @@
           icon="settings.svg"
         />
       </navbar>
-      <dashboard-content class="flex flex-col flex-grow py-12 px-16" />
+      <router-view class="flex flex-col flex-grow py-12 px-16" />
     </div>
   </div>
 </template>
 
 <script>
-import DashboardContent from './DashboardContent.vue';
 import Header from '@/components/Header/Header.vue';
 import Navbar from '@/components/Navbar/Navbar.vue';
 import NavbarLink from '@/components/Navbar/NavbarLink.vue';
@@ -68,7 +67,6 @@ import { useI18n } from 'vue-i18n';
 export default {
   name: 'DashboardLayout',
   components: {
-    DashboardContent,
     Header,
     Navbar,
     NavbarLink,

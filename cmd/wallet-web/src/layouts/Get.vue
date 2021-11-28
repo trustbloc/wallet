@@ -10,12 +10,12 @@
   </div>
 </template>
 <script>
-import DIDAuthForm from './DIDAuth.vue';
-import DIDConnectForm from './DIDConnect.vue';
-import PresentationDefQueryForm from './PresentationDefQuery.vue';
-import MultipleQueryForm from './MultipleQuery.vue';
-import WACIShareForm from './WACIShare.vue';
-import { extractQueryTypes, WACIPolyfillHandler, CHAPIEventHandler } from './mixins';
+import DIDAuthForm from '@/pages/DIDAuth.vue';
+import DIDConnectForm from '@/pages/DIDConnect.vue';
+import PresentationDefQueryForm from '@/pages/PresentationDefQuery.vue';
+import MultipleQueryForm from '@/pages/MultipleQuery.vue';
+import WACIShareForm from '@/pages/WACIShare.vue';
+import { extractQueryTypes, WACIPolyfillHandler, CHAPIEventHandler } from '@/utils/mixins';
 
 const QUERY_FORMS = [
   {

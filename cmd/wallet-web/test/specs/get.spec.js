@@ -6,11 +6,11 @@ SPDX-License-Identifier: Apache-2.0
 
 import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
-import Get from '../../src/pages/Get.vue';
-import MultipleQuery from '../../src/pages/MultipleQuery.vue';
+import Get from '@/layouts/Get.vue';
+import MultipleQuery from '@/pages/MultipleQuery.vue';
 import { getTestData, Setup, MockCredentialHandler, promiseWhen } from '../common';
 import { expect } from 'chai';
-import i18n from '../../src/plugins/i18n';
+import i18n from '@/plugins/i18n';
 
 const GET_CRED_USER = 'get_cred_user';
 

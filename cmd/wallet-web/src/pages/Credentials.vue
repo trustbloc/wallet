@@ -77,7 +77,7 @@
 
 <script>
 import { CredentialManager } from '@trustbloc/wallet-sdk';
-import { getCredentialDisplayData, getCredentialType } from '@/pages/mixins';
+import { getCredentialType, getCredentialDisplayData } from '@/utils/mixins';
 import { mapActions, mapGetters } from 'vuex';
 import CredentialPreview from '@/components/CredentialPreview/CredentialPreview';
 import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
