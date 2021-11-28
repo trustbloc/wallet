@@ -20,7 +20,7 @@
     "
   >
     <button
-      class="flex flex-row justify-start items-center px-10 w-full h-16"
+      class="flex flex-row justify-start items-center px-10 w-full h-16 focus:outline-none"
       type="button"
       @click="signout()"
       @keyup.enter="signout()"
