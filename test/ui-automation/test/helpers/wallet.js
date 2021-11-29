@@ -21,8 +21,8 @@ exports.init = async ({ email }) => {
   // register chapi
   await allow();
 
-  // wait for dashboard
-  await _waitForDashboard();
+  // wait for credentials to load
+  await _waitForCredentials();
 
   signedUpUserEmail = email;
 };
@@ -203,11 +203,13 @@ async function _getThirdPartyLogin(email) {
   });
 }
 
-async function _waitForDashboard() {
+async function _waitForCredentials() {
   await browser.waitUntil(async () => {
-    let didResponse = await $("#dashboard-success-msg");
+    const credentialsLink = await $("#navbar-link-credentials");
+    await credentialsLink.click();
+    let didResponse = await $("#loaded-credentials-container");
     await didResponse.waitForExist({ timeout, interval: 5000 });
-    expect(didResponse).toHaveText("Successfully setup your user");
+    expect(didResponse).toBeDisplayed();
     return true;
   });
 }

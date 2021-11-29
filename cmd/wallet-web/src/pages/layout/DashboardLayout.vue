@@ -36,8 +36,8 @@
           icon="vaults.svg"
         />
         <navbar-link
-          id="navbar-link-dashboard"
-          :to="{ name: 'dashboard' }"
+          id="navbar-link-credentials"
+          :to="{ name: 'credentials' }"
           :heading="t('DashboardLayout.credentials')"
           icon="credentials.svg"
         />

@@ -37,6 +37,7 @@ export default {
       default: null,
     },
   },
+  emits: ['selected'],
   data() {
     return {
       selected: this.default,

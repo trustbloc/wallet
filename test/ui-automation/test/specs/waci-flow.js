@@ -133,7 +133,7 @@ describe("TrustBloc Wallet - WACI Share flow", () => {
   it(`User validates the saved credential from mock issuer`, async function () {
     this.timeout(90000);
 
-    await browser.navigateTo(browser.config.walletURL);
+    await browser.navigateTo(`${browser.config.walletURL}/credentials`);
 
     const vcName = await $("span*=" + vc.name);
     await vcName.waitForExist();

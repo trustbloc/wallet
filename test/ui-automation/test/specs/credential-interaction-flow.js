@@ -353,7 +353,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   it(`User validates the saved credential from mock issuer`, async function () {
     this.timeout(90000);
 
-    await browser.navigateTo(browser.config.walletURL);
+    await browser.navigateTo(`${browser.config.walletURL}/credentials`);
 
     for (const [key, value] of credential.entries()) {
       console.log("validate vc in wallet : start ", key);
@@ -391,7 +391,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   it(`User validates the saved credential from mock issuer (after sign-in)`, async function () {
     this.timeout(90000);
 
-    await browser.navigateTo(browser.config.walletURL);
+    await browser.navigateTo(`${browser.config.walletURL}/credentials`);
 
     for (const [key, value] of credential.entries()) {
       console.log("validate vc in wallet : start ", key);
@@ -445,7 +445,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
         name: browser.config.walletName,
       });
 
-      // TODO https://github.com/trustbloc/wallet/issues/1124 VC Name mismatch between dashboard screen and CHAPI share
+      // TODO https://github.com/trustbloc/wallet/issues/1124 VC Name mismatch between credentials screen and CHAPI share
       // const vcName = await $("span*=" + value.name);
       // await vcName.waitForExist();
       // await vcName.click();
@@ -466,7 +466,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   it(`User deletes the saved credential`, async function () {
     this.timeout(90000);
 
-    await browser.navigateTo(browser.config.walletURL);
+    await browser.navigateTo(`${browser.config.walletURL}/credentials`);
 
     for (const [key, value] of credential.entries()) {
       console.log("validate vc in wallet : start ", key);

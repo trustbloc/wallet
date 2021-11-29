@@ -9,7 +9,7 @@
     <h1>Not Found</h1>
     <p>
       Ooops, we couldn't find what you are looking for. Why don't you
-      <router-link :to="{ name: 'dashboard' }"> go home instead? </router-link>
+      <router-link :to="{ name: 'vaults' }"> go home instead? </router-link>
     </p>
   </div>
 </template>
