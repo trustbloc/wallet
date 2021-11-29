@@ -42,6 +42,7 @@
           hover:opacity-100
           focus:opacity-100
           cursor-pointer
+          focus:outline-none
           underline-white
         "
         >{{ t('Footer.privacyPolicy') }}</span
@@ -55,6 +56,7 @@
           hover:opacity-100
           focus:opacity-100
           cursor-pointer
+          focus:outline-none
           underline-white
         "
         >{{ t('Footer.terms') }}</span
@@ -68,8 +70,8 @@
             ring-primary-blue
             opacity-60
             hover:opacity-100
-            focus:opacity-100
             cursor-pointer
+            focus:opacity-100 focus:outline-none
             underline-white
           "
           >© {{ date }} TrustBloc</span
@@ -82,7 +84,7 @@
             ring-primary-blue
             opacity-60
             hover:opacity-100
-            focus:opacity-100
+            focus:opacity-100 focus:outline-none
             underline-white
           "
         />

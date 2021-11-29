@@ -7,7 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 const plugin = require('tailwindcss/plugin');
 
 module.exports = {
-  purge: [],
+  purge: {
+    // Uncomment the following line to enable purging in dev mode (e.g. for testing)
+    // enabled: true,
+    content: ['./src/**/*.html', './src/**/*.vue', '../../test/**/*.html'],
+    // Safe-listing several classes which we have to supply dynamic strings to (`bg-gradient-${color}`, etc.)
+    options: { safelist: [/bg-gradient-.*/, /ring-primary-.*/] },
+  },
   darkMode: false, // or 'media' or 'class'
   theme: {
     colors: {
