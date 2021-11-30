@@ -73,7 +73,7 @@
                   id="valutOptions"
                   :options="vaults"
                   default="Default Vault"
-                  @selected="vaultSelected"
+                  @selected="setSelectedVault"
                 ></custom-select>
               </div>
 
@@ -207,7 +207,6 @@ export default {
     store: function () {
       this.errors.length = 0;
       const { token } = this.getCurrentUser().profile;
-
       this.credentialManager
         .save(
           token,
@@ -224,7 +223,7 @@ export default {
           this.errors.push(`failed to save credential`);
         });
     },
-    vaultSelected: function (e) {
+    setSelectedVault: function (e) {
       this.selectedVault = e;
     },
     cancel: function () {
@@ -248,6 +247,9 @@ export default {
     fetchAllVaults: async function (token, collectionManager) {
       const { contents } = await collectionManager.getAll(token);
       this.vaults = Object.values(contents).map((vault) => vault);
+      // Default vault is selected vault by default, it is created on wallet setup and must be only one.
+      const defaultVaultId = this.vaults.find((vault) => vault.name === 'Default Vault').id;
+      this.setSelectedVault(defaultVaultId);
     },
   },
 };
