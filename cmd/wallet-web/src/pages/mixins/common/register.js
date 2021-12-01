@@ -83,7 +83,14 @@ export class RegisterWallet {
     let controller = docres.didDocument.id;
 
     if (docres.didDocumentMetadata.equivalentId && docres.didDocumentMetadata.equivalentId.length) {
+      await didManger.wallet.remove(token, {contentID:controller})
+
       controller = docres.didDocumentMetadata.equivalentId[0];
+
+      let httpsDoc = await didManager.resolveOrbDID(token,controller)
+
+      await didManager.saveDID(token,{content:httpsDoc})
+
       console.info('use equivalentId ' + controller);
     }
 
