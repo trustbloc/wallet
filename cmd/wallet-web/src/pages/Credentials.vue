@@ -77,7 +77,7 @@
 
 <script>
 import { CredentialManager } from '@trustbloc/wallet-sdk';
-import { getCredentialType, getCredentialDisplayData } from '@/pages/mixins';
+import { getCredentialDisplayData, getCredentialType } from '@/pages/mixins';
 import { mapActions, mapGetters } from 'vuex';
 import CredentialPreview from '@/components/CredentialPreview/CredentialPreview';
 import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
@@ -101,7 +101,6 @@ export default {
     return {
       processedCredentials: [],
       username: '',
-      vaultName: '',
       agent: null,
       breakpoints: useBreakpoints(),
       credentialDisplayData: '',
@@ -116,7 +115,9 @@ export default {
     let { user, token } = this.getCurrentUser().profile;
     this.username = this.getCurrentUser().username;
     let credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-    this.fetchAllCredentials(credentialManager.getAll(token));
+    this.fetchAllCredentials(
+      credentialManager.getAll(token, { collectionID: this.$route.params.vaultId })
+    );
     this.credentialDisplayData = await this.getCredentialManifestData();
   },
   methods: {
