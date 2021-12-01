@@ -16,14 +16,14 @@
         :name="t('Vaults.allVaults')"
       />
       <!--TODO: Issue-1198 Add flyout menu to default and other vaults create this vault-->
+      <vault-card
+        v-for="(vault, index) in vaults"
+        :key="index"
+        :name="vault.name"
+        :num-of-creds="t('Vaults.foundCredentials', vault.numofCreds)"
+        :vault-id="vault.id"
+      />
       <vault-card type="addNew" :name="t('Vaults.addVault')" class="grid order-last" />
-      <div v-for="(vault, index) in vaults" :key="index">
-        <vault-card
-          :name="vault.name"
-          :num-of-creds="t('Vaults.foundCredentials', vault.numofCreds)"
-          class="grid order-last"
-        />
-      </div>
     </div>
   </div>
 </template>
