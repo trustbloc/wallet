@@ -1,7 +1,7 @@
 <template>
   <router-link
-    :to="{ name: 'credentials', params: { vaultId } }"
     v-if="type === 'regular'"
+    :to="{ name: 'credentials', params: { vaultId } }"
     class="
       md:flex-col
       px-6
@@ -9,9 +9,9 @@
       h-auto
       md:h-40
       bg-neutrals-white
+      rounded-xl
       border border-neutrals-dark border-opacity-20
       vaultContainer
-      rounded-xl
       flex flex-row
     "
   >
@@ -34,7 +34,11 @@
   <div v-else-if="type === 'addNew'">
     <button
       class="
+        justify-center
+        items-center
         px-6
+        pt-4
+        md:pt-5
         w-full
         xl:w-64
         h-24
@@ -43,14 +47,10 @@
         rounded-xl
         border border-neutrals-dark border-opacity-10
         flex flex-col
-        justify-center
-        items-center
-        pt-4
-        md:pt-5
       "
       @click="showAddVault = !showAddVault"
     >
-      <div class="w-8 h-8 bg-neutrals-white rounded-full flex justify-center items-center">
+      <div class="flex justify-center items-center w-8 h-8 bg-neutrals-white rounded-full">
         <img
           class="w-6 h-5 text-primary-purple"
           src="@/assets/img/icons-sm--plus-icon.svg"

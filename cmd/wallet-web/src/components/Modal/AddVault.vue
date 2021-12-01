@@ -110,6 +110,7 @@ import InputField from '@/components/InputField/InputField';
 import { CollectionManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
+import { vaultsMutations } from '@/pages/Vaults.vue';
 
 export default {
   name: 'AddVault',
@@ -133,14 +134,15 @@ export default {
     receivedVaultName(data) {
       this.vaultName = data;
     },
-    addVault() {
+    async addVault() {
       // Integration with collections API.
       const { user, token } = this.getCurrentUser().profile;
       const collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
       const name = this.vaultName;
       try {
-        const id = collectionManager.create(token, { name });
+        const id = await collectionManager.create(token, { name });
         if (id) {
+          vaultsMutations.setVaultsOutdated(true);
           this.closeModal();
         }
         // TODO: add an error state to display in the UI
