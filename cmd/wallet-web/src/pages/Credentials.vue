@@ -32,7 +32,7 @@
         <flyout-menu />
       </div>
     </div>
-    <skeleton-loader v-if="loadingStatus === 'inProgress'" type="vault" />
+    <skeleton-loader v-if="loading" type="vault" />
     <span v-else-if="loadingStatus === 'failed'">
       <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
       communication.
@@ -40,9 +40,7 @@
     <div v-else id="loaded-credentials-container">
       <div v-if="processedCredentials.length" class="mx-6 md:mx-0">
         <div class="md:mx-0 mb-5">
-          <span class="text-xl font-bold text-neutrals-dark">{{
-            t('Credentials.defaultVault')
-          }}</span>
+          <span class="text-xl font-bold text-neutrals-dark">{{ selectedVault.name }}</span>
         </div>
         <ul class="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-8 my-8">
           <li v-for="(processedCredential, index) in processedCredentials" :key="index">
@@ -76,7 +74,7 @@
 </template>
 
 <script>
-import { CredentialManager } from '@trustbloc/wallet-sdk';
+import { CredentialManager, CollectionManager } from '@trustbloc/wallet-sdk';
 import { getCredentialType, getCredentialDisplayData } from '@/utils/mixins';
 import { mapActions, mapGetters } from 'vuex';
 import CredentialPreview from '@/components/CredentialPreview/CredentialPreview';
@@ -104,6 +102,8 @@ export default {
       agent: null,
       breakpoints: useBreakpoints(),
       credentialDisplayData: '',
+      selectedVault: { id: this.$route.params.vaultId, name: '' },
+      loading: true,
     };
   },
   computed: {
@@ -112,20 +112,26 @@ export default {
     },
   },
   created: async function () {
-    let { user, token } = this.getCurrentUser().profile;
+    const { user, token } = this.getCurrentUser().profile;
+    this.token = token;
     this.username = this.getCurrentUser().username;
-    let credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-    this.fetchAllCredentials(
-      credentialManager.getAll(token, { collectionID: this.$route.params.vaultId })
+    this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
+    this.collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
+    this.fetchCredentials(
+      this.credentialManager.getAll(token, { collectionID: this.selectedVault.id })
     );
     this.credentialDisplayData = await this.getCredentialManifestData();
+    if (this.selectedVault.id) await this.fetchSelectedVault();
+    this.loading = false;
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser', 'getAgentOpts', 'getCredentialManifestData']),
     ...mapActions(['updateProcessedCredentials']),
-    fetchAllCredentials: async function (getCredential) {
-      const { contents } = await getCredential;
+    fetchCredentials: async function () {
+      const { contents } = await this.credentialManager.getAll(this.token, {
+        collectionID: this.$route.params.vaultId,
+      });
       const _filter = (id) => {
         return !contents[id].type.some((t) => filterBy.includes(t));
       };
@@ -143,6 +149,12 @@ export default {
       this.updateProcessedCredentials(this.processedCredentials);
 
       console.debug(`showing ${this.processedCredentials.length} credentials`);
+    },
+    fetchSelectedVault: async function () {
+      const {
+        content: { id, name },
+      } = await this.collectionManager.get(this.token, this.$route.params.vaultId);
+      this.selectedVault = { id, name };
     },
     getCredentialType: function (vc) {
       return getCredentialType(vc.type);

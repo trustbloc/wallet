@@ -71,10 +71,6 @@ export default {
       return require(`@/assets/img/${this.icon}`);
     },
     currentPage() {
-      const routerPage = this.$router.currentRoute._value.name;
-      if (`navbar-link-${routerPage}` !== navbarStore.currentPage) {
-        this.setCurrentPage(routerPage);
-      }
       return navbarStore.currentPage;
     },
   },
@@ -82,13 +78,8 @@ export default {
     toggleNavbar() {
       navbarMutations.toggleNavbar();
     },
-    setCurrentPage(newPage) {
-      navbarMutations.setCurrentPage(`navbar-link-${newPage}`);
-    },
     handleClick(attrs) {
-      if (this.$router.currentRoute._value.name !== attrs.to.name) {
-        this.$router.push({ name: attrs.to.name }).then(() => this.setCurrentPage(attrs.to.name));
-      }
+      this.$router.push({ name: attrs.to.name });
       this.toggleNavbar();
     },
   },
