@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import { matchTypeInContext } from '../../src/pages/mixins/common/helper.js';
+import { matchTypeInContext } from '@/utils/mixins/common/helper.js';
 import { getTestData } from '../common';
 import { expect } from 'chai';
 

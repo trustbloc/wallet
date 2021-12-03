@@ -50,7 +50,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { getCrendentialIcon } from '@/pages/mixins';
+import { getCrendentialIcon } from '@/utils/mixins';
 
 export default {
   name: 'CredentialPreview',

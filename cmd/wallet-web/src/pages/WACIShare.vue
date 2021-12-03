@@ -256,7 +256,7 @@
 <script>
 import { toRaw } from 'vue';
 import { DIDComm } from '@trustbloc/wallet-sdk';
-import { getCredentialType, getCredentialDisplayData, getCrendentialIcon } from './mixins';
+import { getCredentialType, getCredentialDisplayData, getCrendentialIcon } from '@/utils/mixins';
 import { mapGetters } from 'vuex';
 import Spinner from '@/components/Spinner/Spinner.vue';
 import { useI18n } from 'vue-i18n';

@@ -8,7 +8,7 @@
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
-  name: 'LoginRedirect',
+  name: 'LoginHandle',
   props: {
     provider: {
       type: String,

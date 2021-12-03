@@ -11,8 +11,8 @@
 </template>
 
 <script>
-import WACIShareForm from './WACIShare.vue';
-import { WACIRedirectHandler } from './mixins';
+import WACIShareForm from '@/pages/WACIShare.vue';
+import { WACIRedirectHandler } from '@/utils/mixins';
 
 function findForm(query) {
   // for now, implemented only one form and handler

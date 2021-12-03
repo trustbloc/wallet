@@ -83,7 +83,7 @@
   </div>
 </template>
 <script>
-import { DIDConn } from './mixins';
+import { DIDConn } from '@/utils/mixins';
 import Spinner from '@/components/Spinner/Spinner.vue';
 import Header from '@/components/Header/Header.vue';
 import { mapGetters } from 'vuex';
