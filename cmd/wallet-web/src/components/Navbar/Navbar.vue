@@ -93,6 +93,8 @@
   </div>
 </template>
 <script>
+import { watchEffect } from 'vue';
+import { navbarMutations } from '@/components/Navbar';
 import Logo from '@/components/Logo/Logo.vue';
 import Signout from '@/components/Signout/Signout.vue';
 import LocaleSwitcher from '@/components/LocaleSwitcher/LocaleSwitcher.vue';
@@ -113,6 +115,16 @@ export default {
     return {
       date: new Date().getFullYear(),
     };
+  },
+  created: function () {
+    watchEffect(() => {
+      this.setCurrentPage(this.$route.name);
+    });
+  },
+  methods: {
+    setCurrentPage(newPage) {
+      navbarMutations.setCurrentPage(`navbar-link-${newPage}`);
+    },
   },
 };
 </script>
