@@ -9,5 +9,7 @@
   "addlabel": "Nom de la chambre forte",
   "placeholderLabel": "Entrez un nom...",
   "foundCredentials": "{n} Identifiant | {n} Identifiants",
-  "selectVault": "Sélectionner la chambre forte"
+  "selectVault": "Sélectionner la chambre forte",
+  "renameVault": "Renommer la chambre forte",
+  "deleteVault": "Supprimer la chambre forte"
 }

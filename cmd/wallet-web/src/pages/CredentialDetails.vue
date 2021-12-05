@@ -13,7 +13,28 @@
       <div
         class="inline-flex items-center bg-transparent rounded-lg border border-neutrals-chatelle"
       >
-        <flyout-menu type="outline" :credential-id="credential.id" />
+        <flyout-menu id="credFlyoutMenu" type="outline">
+          <flyout-menu-list>
+            <flyout-menu-button
+              id="renameCredential"
+              :text="t('CredentialDetails.renameCredential')"
+              color="neutrals-medium"
+            />
+            <flyout-menu-button
+              id="moveCredential"
+              :text="t('CredentialDetails.moveCredential')"
+              color="neutrals-medium"
+            />
+            <flyout-menu-button
+              id="deleteCredential"
+              :text="t('CredentialDetails.deleteCredential')"
+              color="primary-vampire"
+              @click="toggleDelete"
+            >
+            </flyout-menu-button>
+          </flyout-menu-list>
+        </flyout-menu>
+        <delete-credential :show="showModal" :credential-id="credential.id" />
       </div>
     </div>
     <banner
@@ -51,20 +72,37 @@
 </template>
 
 <script>
-import Banner from '@/components/CredentialDetails/Banner';
-import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
+import Banner from '@/components/CredentialDetails/Banner.vue';
+import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu.vue';
+import FlyoutMenuList from '@/components/FlyoutMenu/FlyoutMenuList.vue';
+import FlyoutMenuButton from '@/components/FlyoutMenu/FlyoutMenuButton.vue';
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
+import DeleteCredential from '@/components/CredentialDetails/DeleteCredentialModal.vue';
+import { ref } from 'vue';
 
 export default {
   name: 'CredentialDetails',
   components: {
+    DeleteCredential,
     Banner,
     FlyoutMenu,
+    FlyoutMenuList,
+    FlyoutMenuButton,
   },
   setup() {
     const { t } = useI18n();
-    return { t };
+    const showModal = ref(false);
+
+    function toggleDelete() {
+      showModal.value = !showModal.value;
+    }
+
+    return {
+      t,
+      showModal,
+      toggleDelete,
+    };
   },
   computed: {
     ...mapGetters(['getProcessedCredentialByID']),

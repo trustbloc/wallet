@@ -1,8 +1,8 @@
 <template>
-  <router-link
+  <div
     v-if="type === 'regular'"
-    :to="{ name: 'credentials', params: { vaultId } }"
     class="
+      relative
       md:flex-col
       px-6
       xl:w-64
@@ -15,22 +15,26 @@
       flex flex-row
     "
   >
-    <div class="pt-5">
+    <router-link
+      :to="{ name: 'credentials', params: { vaultId } }"
+      class="flex flex-row md:flex-col pt-5"
+    >
       <div
         :class="[`flex justify-center items-center w-12 h-12 bg-gradient-${color} rounded-full`]"
       >
         <img class="w-6 h-5" src="@/assets/img/vaults.svg" alt="Vault Icon" />
       </div>
-    </div>
-    <div>
       <div class="px-3 md:px-0 pb-4">
         <span class="block pt-4 text-lg font-bold text-neutrals-dark"> {{ name }}</span>
         <span class="block text-sm font-bold text-neutrals-medium">
           {{ numOfCreds }}
         </span>
       </div>
+    </router-link>
+    <div class="flex absolute right-4 pt-4 rounded">
+      <slot />
     </div>
-  </router-link>
+  </div>
   <div v-else-if="type === 'addNew'">
     <button
       class="
@@ -67,12 +71,14 @@
 
 <script>
 import { ref } from 'vue';
-import AddVault from '@/components/Modal/AddVault';
+import AddVault from '@/components/Vaults/AddVaultModal.vue';
 import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'VaultCard',
-  components: { AddVault },
+  components: {
+    AddVault,
+  },
   props: {
     color: {
       type: String,
