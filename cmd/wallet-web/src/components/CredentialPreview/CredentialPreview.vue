@@ -6,7 +6,6 @@
 
 <template>
   <router-link
-    :to="{ name: 'credential-details', params: { id } }"
     :class="[
       `group inline-flex items-center rounded-xl py-6 pl-5 pr-3 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
       brandColor.length

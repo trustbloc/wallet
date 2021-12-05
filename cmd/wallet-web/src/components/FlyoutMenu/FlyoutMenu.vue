@@ -7,8 +7,8 @@
   <div class="h-11">
     <!--Todo make flyout icon and text configurable -->
     <button
-      :id="id"
       v-if="type === 'default'"
+      :id="id"
       class="inline-flex items-center py-2 px-3 w-screen md:w-auto"
     >
       <div class="flex-none w-6 h-6">
@@ -24,8 +24,8 @@
       </div>
     </button>
     <button
-      :id="id"
       v-if="type === 'outline'"
+      :id="id"
       class="
         w-11
         h-11
@@ -52,8 +52,8 @@
       <tool-tip v-if="showTooltip" :tool-tip-label="t('CredentialDetails.toolTipLabel')" />
     </button>
     <button
-      :id="id"
       v-if="type === 'vault'"
+      :id="id"
       class="
         w-8
         h-8

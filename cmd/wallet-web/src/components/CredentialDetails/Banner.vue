@@ -87,7 +87,7 @@
             </th>
           </tr>
           <tr class="flex flex-1 text-neutrals-medium">
-            <td>Default Vault</td>
+            <td>{{ vaultName }}</td>
           </tr>
         </table>
         <table v-else class="w-full text-left">
@@ -106,7 +106,7 @@
               </td>
               <td class="flex-1">N/A</td>
               <td class="flex-1">Never</td>
-              <td class="flex-1">Default Vault</td>
+              <td class="flex-1">{{ vaultName }}</td>
             </tr>
           </tbody>
         </table>
@@ -137,6 +137,10 @@ export default {
       required: true,
     },
     issuanceDate: {
+      type: String,
+      required: true,
+    },
+    vaultName: {
       type: String,
       required: true,
     },
