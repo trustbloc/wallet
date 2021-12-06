@@ -25,10 +25,10 @@ type kmsSigner struct {
 	httpClient common.HTTPClient
 	keystoreID string
 	keyID      string
-	header     *hubKMSHeader
+	header     *kmsHeader
 }
 
-func newKMSSigner(baseURL, keystoreID, keyID string, h *hubKMSHeader, httpClient common.HTTPClient) *kmsSigner {
+func newKMSSigner(baseURL, keystoreID, keyID string, h *kmsHeader, httpClient common.HTTPClient) *kmsSigner {
 	return &kmsSigner{
 		baseURL:    baseURL,
 		httpClient: httpClient,
@@ -40,19 +40,20 @@ func newKMSSigner(baseURL, keystoreID, keyID string, h *hubKMSHeader, httpClient
 
 func (a *kmsSigner) Sign(data []byte) ([]byte, error) {
 	reqBytes, err := json.Marshal(signReq{
-		Message: base64.URLEncoding.EncodeToString(data),
+		Message: data,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("marshal create sign req : %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(context.TODO(),
-		http.MethodPost, a.baseURL+fmt.Sprintf(signEndpoint, a.keystoreID, a.keyID), bytes.NewBuffer(reqBytes))
+		http.MethodPost, a.baseURL+fmt.Sprintf(signPath, a.keystoreID, a.keyID), bytes.NewBuffer(reqBytes))
 	if err != nil {
 		return nil, err
 	}
 
-	addAuthZKMSHeaders(req, a.header)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", a.header.accessToken))
+	req.Header.Set("Secret-Share", base64.StdEncoding.EncodeToString(a.header.secretShare))
 
 	resp, _, err := common.SendHTTPRequest(req, a.httpClient, http.StatusOK, logger)
 	if err != nil {
@@ -62,13 +63,8 @@ func (a *kmsSigner) Sign(data []byte) ([]byte, error) {
 	var parsedResp signResp
 
 	if errUnmarshal := json.Unmarshal(resp, &parsedResp); errUnmarshal != nil {
-		return nil, fmt.Errorf("failed to unmarshal sign resp: %w", errUnmarshal)
+		return nil, fmt.Errorf("unmarshal sign resp: %w", errUnmarshal)
 	}
 
-	signatureBytes, err := base64.URLEncoding.DecodeString(parsedResp.Signature)
-	if err != nil {
-		return nil, err
-	}
-
-	return signatureBytes, nil
+	return parsedResp.Signature, nil
 }

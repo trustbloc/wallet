@@ -5,7 +5,7 @@
       "url": "https://ops-kms.trustbloc.local:8075"
     },
     "match": {
-      "url": "https://oathkeeper-ops-keyserver.trustbloc.local:4462/kms/keystores",
+      "url": "https://oathkeeper-ops-keyserver.trustbloc.local:4462/v1/keystores",
       "methods": ["POST"]
     },
     "authenticators": [{
@@ -24,8 +24,8 @@
       "url": "https://ops-kms.trustbloc.local:8075"
     },
     "match": {
-      "url": "https://oathkeeper-ops-keyserver.trustbloc.local:4462/kms/keystores/<*>",
-      "methods": ["POST", "GET"]
+      "url": "https://oathkeeper-ops-keyserver.trustbloc.local:4462/v1/keystores/<*>",
+      "methods": ["POST", "PUT", "GET"]
     },
     "authenticators": [{
       "handler": "noop"
