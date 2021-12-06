@@ -9,5 +9,7 @@
   "addlabel": "Vault Name",
   "placeholderLabel": "Enter a name for your vault . . .",
   "foundCredentials": "{n} Credential | {n} Credentials",
-  "selectVault": "Select Vault"
+  "selectVault": "Select Vault",
+  "renameVault": "Rename Vault",
+  "deleteVault": "Delete Vault"
 }

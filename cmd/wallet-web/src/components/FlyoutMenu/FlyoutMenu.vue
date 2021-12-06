@@ -1,11 +1,12 @@
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
 <template>
   <div class="h-11">
     <!--Todo make flyout icon and text configurable -->
-    <button
-      v-if="type === 'default'"
-      id="default"
-      class="inline-flex items-center py-2 px-3 w-screen md:w-auto"
-    >
+    <button v-if="type === 'default'" class="inline-flex items-center py-2 px-3 w-screen md:w-auto">
       <div class="flex-none w-6 h-6">
         <img src="@/assets/img/icons-sm--vault-icon.svg" />
       </div>
@@ -20,7 +21,6 @@
     </button>
     <button
       v-if="type === 'outline'"
-      id="outline"
       class="
         w-11
         h-11
@@ -33,46 +33,57 @@
         border border-neutrals-chatelle
         hover:border-neutrals-mountainMist-light
       "
-      @focus="showTooltip = !showTooltip"
+      @focus="showTooltip = false"
     >
-      <div class="flex-none p-2">
-        <!-- TODO: Issue-816 Implement svg color change on hover -->
-        <img
-          id="flyoutMenuId"
-          src="@/assets/img/more-icon.svg"
-          @click="toggleFlyoutMenuList"
-          @mouseover="showTooltip = !showTooltip"
-        />
-      </div>
-      <div v-if="showTooltip" id="tooltip">
-        <tool-tip :tool-tip-label="t('CredentialDetails.toolTipLabel')"></tool-tip>
-      </div>
+      <!-- TODO: Issue-816 Implement svg color change on hover -->
+      <img
+        :id="id"
+        alt="flyout menu icon"
+        class="p-2"
+        src="@/assets/img/more-icon.svg"
+        @click="toggleFlyoutMenuList"
+        @mouseover="showTooltip = true"
+        @mouseout="showTooltip = false"
+      />
+      <tool-tip v-if="showTooltip" :tool-tip-label="t('CredentialDetails.toolTipLabel')" />
     </button>
-    <div v-if="showFlyoutMenuList" id="flyoutMenuList" class="relative">
-      <flyout-menu-list :credential-id="credentialId" />
+    <button
+      v-if="type === 'vault'"
+      class="
+        w-8
+        h-8
+        bg-neutrals-white
+        hover:bg-neutrals-softWhite
+        focus:bg-neutrals-mischka
+        rounded-full
+      "
+    >
+      <!-- TODO: Issue-816 Implement svg color change on hover -->
+      <img class="p-2" src="@/assets/img/more-icon.svg" @click="toggleFlyoutMenuList" />
+    </button>
+    <div v-if="showFlyoutMenuList" class="relative" @click.prevent="toggleFlyoutMenuList">
+      <slot />
     </div>
   </div>
 </template>
 
 <script>
 import ToolTip from '@/components/ToolTip/ToolTip.vue';
-import FlyoutMenuList from '@/components/FlyoutMenu/FlyoutMenuList.vue';
 import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'FlyoutMenu',
   components: {
     ToolTip,
-    FlyoutMenuList,
   },
   props: {
     type: {
       type: String,
       default: 'default',
     },
-    credentialId: {
+    id: {
       type: String,
-      default: '',
+      required: true,
     },
   },
   setup() {

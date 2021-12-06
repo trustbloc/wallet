@@ -15,14 +15,43 @@
         :num-of-creds="t('Vaults.foundCredentials', numOfCreds)"
         :name="t('Vaults.allVaults')"
       />
-      <!--TODO: Issue-1198 Add flyout menu to default and other vaults create this vault-->
+      <!--TODO: Issue-1198 Add flyout menu to default and other vaults create this vault -->
       <vault-card
         v-for="(vault, index) in vaults"
         :key="index"
         :name="vault.name"
         :num-of-creds="t('Vaults.foundCredentials', vault.numOfCreds)"
         :vault-id="vault.id"
-      />
+      >
+        <slot v-if="vault.name == 'Default Vault'">
+          <flyout-menu type="vault">
+            <flyout-menu-list>
+              <flyout-menu-button
+                id="renameVault"
+                :text="t('Vaults.renameVault')"
+                color="neutrals-medium"
+              />
+            </flyout-menu-list>
+          </flyout-menu>
+        </slot>
+        <slot v-else>
+          <flyout-menu id="vaultFlyoutMenu" type="vault">
+            <flyout-menu-list>
+              <flyout-menu-button
+                id="renameVault"
+                :text="t('Vaults.renameVault')"
+                color="neutrals-medium"
+              />
+              <flyout-menu-button
+                id="deleteVault"
+                :text="t('Vaults.deleteVault')"
+                color="primary-vampire"
+              />
+            </flyout-menu-list>
+          </flyout-menu>
+        </slot>
+      </vault-card>
+
       <vault-card type="addNew" :name="t('Vaults.addVault')" class="grid order-last" />
     </div>
   </div>
@@ -34,6 +63,9 @@ import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
 import VaultCard from '@/components/Vaults/VaultCard';
 import { useI18n } from 'vue-i18n';
+import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
+import FlyoutMenuList from '@/components/FlyoutMenu/FlyoutMenuList';
+import FlyoutMenuButton from '@/components/FlyoutMenu/FlyoutMenuButton';
 
 export const vaultsStore = reactive({
   vaultsOutdated: false,
@@ -49,6 +81,9 @@ export default {
   name: 'Vaults',
   components: {
     VaultCard,
+    FlyoutMenu,
+    FlyoutMenuList,
+    FlyoutMenuButton,
   },
   setup() {
     const { t } = useI18n();

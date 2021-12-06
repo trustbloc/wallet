@@ -89,7 +89,7 @@ exports.validateCredentialDetails = async (vcData) => {
 };
 
 exports.deleteCredential = async () => {
-  const flyoutMenuImage = await $("#flyoutMenuId");
+  const flyoutMenuImage = await $("#credFlyoutMenu");
   await flyoutMenuImage.waitForExist();
   await flyoutMenuImage.waitForClickable();
   await flyoutMenuImage.click();
