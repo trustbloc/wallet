@@ -24,7 +24,7 @@
         :vault-id="vault.id"
       >
         <slot v-if="vault.name == 'Default Vault'">
-          <flyout-menu type="vault">
+          <flyout-menu id="vaults-flyout-menu-default" type="vault">
             <flyout-menu-list>
               <flyout-menu-button
                 id="renameVault"
@@ -35,15 +35,15 @@
           </flyout-menu>
         </slot>
         <slot v-else>
-          <flyout-menu id="vaultFlyoutMenu" type="vault">
+          <flyout-menu :id="`vaults-flyout-menu-${vault.id.slice(-5)}`" type="vault">
             <flyout-menu-list>
               <flyout-menu-button
-                id="renameVault"
+                :id="`rename-vault-${vault.id.slice(-5)}`"
                 :text="t('Vaults.renameVault')"
                 color="neutrals-medium"
               />
               <flyout-menu-button
-                id="deleteVault"
+                :id="`delete-vault-${vault.id.slice(-5)}`"
                 :text="t('Vaults.deleteVault')"
                 color="primary-vampire"
               />

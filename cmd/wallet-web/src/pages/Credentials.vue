@@ -9,7 +9,7 @@
     <!-- Mobile Credentials Layout -->
     <div v-if="breakpoints.xs || breakpoints.sm" class="flex flex-col justify-start w-screen">
       <div class="bg-neutrals-white border border-neutrals-chatelle">
-        <flyout-menu />
+        <flyout-menu id="credentials-flyout-menu-mobile" />
       </div>
       <div class="items-start">
         <h3 class="mx-6 mb-5 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
@@ -29,14 +29,10 @@
           border border-neutrals-chatelle
         "
       >
-        <flyout-menu />
+        <flyout-menu id="credentials-flyout-menu-desktop" />
       </div>
     </div>
     <skeleton-loader v-if="loading" type="vault" />
-    <span v-else-if="loadingStatus === 'failed'">
-      <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
-      communication.
-    </span>
     <div v-else id="loaded-credentials-container">
       <div v-if="processedCredentials.length" class="mx-6 md:mx-0">
         <div class="md:mx-0 mb-5">
@@ -74,8 +70,8 @@
 </template>
 
 <script>
-import { CredentialManager, CollectionManager } from '@trustbloc/wallet-sdk';
-import { getCredentialType, getCredentialDisplayData } from '@/utils/mixins';
+import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
+import { getCredentialDisplayData, getCredentialType } from '@/utils/mixins';
 import { mapActions, mapGetters } from 'vuex';
 import CredentialPreview from '@/components/CredentialPreview/CredentialPreview';
 import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
