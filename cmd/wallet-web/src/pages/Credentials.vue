@@ -32,22 +32,41 @@
         <flyout-menu id="credentials-flyout-menu-desktop" />
       </div>
     </div>
+    <!-- Loading State -->
     <skeleton-loader v-if="loading" type="vault" />
+    <!-- Error State -->
+    <span v-else-if="loadingStatus === 'failed'">
+      <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
+      communication.
+    </span>
+    <!-- Main State -->
     <div v-else id="loaded-credentials-container">
-      <div v-if="processedCredentials.length" class="mx-6 md:mx-0">
-        <div class="md:mx-0 mb-5">
-          <span class="text-xl font-bold text-neutrals-dark">{{ selectedVault.name }}</span>
+      <div v-if="credentialsFound" class="mx-6 md:mx-0">
+        <div v-for="(vault, key) in vaults" :key="key">
+          <div v-if="vault.credentials.length">
+            <div class="md:mx-0 mb-5">
+              <span class="text-xl font-bold text-neutrals-dark">{{ vault.name }}</span>
+            </div>
+            <ul class="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-8 my-8">
+              <li v-for="(credential, index) in vault.credentials" :key="index">
+                <credential-preview
+                  :id="credential.id"
+                  :to="{
+                    name: 'credential-details',
+                    params: {
+                      id: credential.id.slice(-5),
+                      fullCredId: credential.id,
+                      vaultName: vault.name,
+                    },
+                  }"
+                  :brand-color="credential.brandColor"
+                  :icon="credential.icon"
+                  :title="credential.title"
+                />
+              </li>
+            </ul>
+          </div>
         </div>
-        <ul class="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-8 my-8">
-          <li v-for="(processedCredential, index) in processedCredentials" :key="index">
-            <credential-preview
-              :id="processedCredential.id"
-              :brand-color="processedCredential.brandColor"
-              :icon="processedCredential.icon"
-              :title="processedCredential.title"
-            />
-          </li>
-        </ul>
       </div>
       <div
         v-else
@@ -70,9 +89,9 @@
 </template>
 
 <script>
-import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
-import { getCredentialDisplayData, getCredentialType } from '@/utils/mixins';
-import { mapActions, mapGetters } from 'vuex';
+import { CredentialManager, CollectionManager } from '@trustbloc/wallet-sdk';
+import { getCredentialType, getCredentialDisplayData } from '@/utils/mixins';
+import { mapGetters } from 'vuex';
 import CredentialPreview from '@/components/CredentialPreview/CredentialPreview';
 import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
 import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
@@ -88,18 +107,15 @@ export default {
     FlyoutMenu,
   },
   setup() {
+    const breakpoints = useBreakpoints();
     const { t } = useI18n();
-    return { t };
+    return { breakpoints, t };
   },
   data() {
     return {
-      processedCredentials: [],
-      username: '',
-      agent: null,
-      breakpoints: useBreakpoints(),
-      credentialDisplayData: '',
-      selectedVault: { id: this.$route.params.vaultId, name: '' },
       loading: true,
+      vaults: [],
+      credentialsFound: false,
     };
   },
   computed: {
@@ -113,44 +129,63 @@ export default {
     this.username = this.getCurrentUser().username;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
     this.collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
-    this.fetchCredentials(
-      this.credentialManager.getAll(token, { collectionID: this.selectedVault.id })
-    );
     this.credentialDisplayData = await this.getCredentialManifestData();
-    if (this.selectedVault.id) await this.fetchSelectedVault();
+    await this.fetchVaults(this.$route.params.vaultId);
     this.loading = false;
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser', 'getAgentOpts', 'getCredentialManifestData']),
-    ...mapActions(['updateProcessedCredentials']),
-    fetchCredentials: async function () {
-      const { contents } = await this.credentialManager.getAll(this.token, {
-        collectionID: this.$route.params.vaultId,
-      });
-      const _filter = (id) => {
-        return !contents[id].type.some((t) => filterBy.includes(t));
-      };
+    fetchCredentials: async function (vaultId) {
+      try {
+        const { contents } = await this.credentialManager.getAll(this.token, {
+          collectionID: vaultId,
+        });
+        if (!contents) return;
 
-      const credentials = Object.keys(contents)
-        .filter(_filter)
-        .map((id) => contents[id]);
+        const _filter = (id) => {
+          return !contents[id].type.some((t) => filterBy.includes(t));
+        };
 
-      credentials.map((credential) => {
-        const manifest = this.getManifest(credential);
-        const processedCredential = this.getCredentialDisplayData(credential, manifest);
-        this.processedCredentials.push(processedCredential);
-      });
+        const credentials = Object.keys(contents)
+          .filter(_filter)
+          .map((id) => contents[id]);
 
-      this.updateProcessedCredentials(this.processedCredentials);
-
-      console.debug(`showing ${this.processedCredentials.length} credentials`);
+        return credentials.map((credential) => {
+          const manifest = this.getManifest(credential);
+          return this.getCredentialDisplayData(credential, manifest);
+        });
+      } catch (e) {
+        console.error(`failed to fetch credentials for vault ${vaultId}:`, e);
+      }
     },
-    fetchSelectedVault: async function () {
-      const {
-        content: { id, name },
-      } = await this.collectionManager.get(this.token, this.$route.params.vaultId);
-      this.selectedVault = { id, name };
+    // Fetching vaults (specific one, if vaultId is provided, otherwise all of them)
+    fetchVaults: async function (vaultId) {
+      this.vaults = [];
+      if (vaultId) {
+        try {
+          const { content: vault } = await this.collectionManager.get(this.token, vaultId);
+          this.vaults = [vault];
+        } catch (e) {
+          console.error(`failed to fetch vault ${vaultId}:`, e);
+        }
+      } else {
+        try {
+          const { contents: rawVaults } = await this.collectionManager.getAll(this.token);
+          const vaults = Object.values(rawVaults);
+          this.vaults = vaults;
+        } catch (e) {
+          console.error('failed to fetch vaults:', e);
+        }
+      }
+
+      this.vaults = await Promise.all(
+        this.vaults.map(async (vault) => {
+          const credentials = await this.fetchCredentials(vault.id);
+          if (credentials && credentials.length) this.credentialsFound = true;
+          return { ...vault, credentials };
+        })
+      );
     },
     getCredentialType: function (vc) {
       return getCredentialType(vc.type);

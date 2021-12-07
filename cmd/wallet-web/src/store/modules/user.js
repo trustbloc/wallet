@@ -17,7 +17,6 @@ export default {
     loggedIn: false,
     logInSuspended: false,
     chapi: false,
-    processedCredentials: [], // TODO to be removed
   },
   mutations: {
     setUser(state, val) {
@@ -32,10 +31,6 @@ export default {
       state.preference = val;
       localStorage.setItem('preference', JSON.stringify(val));
     },
-    setProcessedCredentials(state, val) {
-      state.processedCredentials = val;
-      localStorage.setItem('processedCredentials', JSON.stringify(val));
-    },
     setUserSetupStatus(state, val) {
       state.setupStatus = val;
       localStorage.setItem('setupStatus', val);
@@ -49,14 +44,12 @@ export default {
       state.setupStatus = null;
       state.profile = null;
       state.loggedIn = false;
-      state.processedCredentials = [];
       state.chapi = false;
 
       localStorage.removeItem('user');
       localStorage.removeItem('setupStatus');
       localStorage.removeItem('profile');
       localStorage.removeItem('preference');
-      localStorage.removeItem('processedCredentials');
       localStorage.removeItem('chapi');
     },
     loadUser(state) {
@@ -64,7 +57,6 @@ export default {
       state.setupStatus = localStorage.getItem('setupStatus');
       state.profile = JSON.parse(localStorage.getItem('profile'));
       state.preference = JSON.parse(localStorage.getItem('preference'));
-      state.processedCredentials = JSON.parse(localStorage.getItem('processedCredentials'));
       state.chapi = JSON.parse(localStorage.getItem('chapi'));
     },
     setUserLoggedIn(state) {
@@ -138,9 +130,6 @@ export default {
     updateLoginSuspended({ commit }) {
       commit('setLogInSuspended');
     },
-    updateProcessedCredentials({ commit }, processedCredentials) {
-      commit('setProcessedCredentials', processedCredentials);
-    },
     activateCHAPI({ commit }) {
       commit('setCHAPI', true);
     },
@@ -161,10 +150,6 @@ export default {
     },
     isLoginSuspended(state) {
       return state.logInSuspended;
-    },
-    getProcessedCredentialByID: (state) => (id) => {
-      state.processedCredentials = JSON.parse(localStorage.getItem('processedCredentials'));
-      return state.processedCredentials.find((credential) => credential.id === id);
     },
     isCHAPI(state) {
       return state.chapi;
