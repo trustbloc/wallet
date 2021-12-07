@@ -6,7 +6,11 @@
 <template>
   <div class="h-11">
     <!--Todo make flyout icon and text configurable -->
-    <button v-if="type === 'default'" class="inline-flex items-center py-2 px-3 w-screen md:w-auto">
+    <button
+      :id="id"
+      v-if="type === 'default'"
+      class="inline-flex items-center py-2 px-3 w-screen md:w-auto"
+    >
       <div class="flex-none w-6 h-6">
         <img src="@/assets/img/icons-sm--vault-icon.svg" />
       </div>
@@ -20,6 +24,7 @@
       </div>
     </button>
     <button
+      :id="id"
       v-if="type === 'outline'"
       class="
         w-11
@@ -33,21 +38,21 @@
         border border-neutrals-chatelle
         hover:border-neutrals-mountainMist-light
       "
+      @click="toggleFlyoutMenuList"
       @focus="showTooltip = false"
     >
       <!-- TODO: Issue-816 Implement svg color change on hover -->
       <img
-        :id="id"
         alt="flyout menu icon"
         class="p-2"
         src="@/assets/img/more-icon.svg"
-        @click="toggleFlyoutMenuList"
         @mouseover="showTooltip = true"
         @mouseout="showTooltip = false"
       />
       <tool-tip v-if="showTooltip" :tool-tip-label="t('CredentialDetails.toolTipLabel')" />
     </button>
     <button
+      :id="id"
       v-if="type === 'vault'"
       class="
         w-8
