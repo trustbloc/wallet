@@ -5,7 +5,7 @@
       "url": "https://authz-kms.trustbloc.local:8076"
     },
     "match": {
-      "url": "https://oathkeeper-auth-keyserver.trustbloc.local:4461/kms/keystores",
+      "url": "https://oathkeeper-auth-keyserver.trustbloc.local:4461/v1/keystores",
       "methods": ["POST"]
     },
     "authenticators": [{
@@ -16,7 +16,7 @@
         "handler": "header",
         "config": {
           "headers": {
-            "Hub-Kms-User": "{{ print .Subject }}"
+            "Auth-User": "{{ print .Subject }}"
           }
         }
       }
@@ -31,7 +31,7 @@
       "url": "https://authz-kms.trustbloc.local:8076"
     },
     "match": {
-      "url": "https://oathkeeper-auth-keyserver.trustbloc.local:4461/kms/keystores/<*>",
+      "url": "https://oathkeeper-auth-keyserver.trustbloc.local:4461/v1/keystores/<*>",
       "methods": ["POST", "GET"]
     },
     "authenticators": [{
@@ -42,7 +42,7 @@
         "handler": "header",
         "config": {
           "headers": {
-            "Hub-Kms-User": "{{ print .Subject }}"
+            "Auth-User": "{{ print .Subject }}"
           }
         }
       }

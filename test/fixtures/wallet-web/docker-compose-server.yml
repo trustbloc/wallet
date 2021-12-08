@@ -283,35 +283,26 @@ services:
 
   authz-kms.example.com:
     container_name: authz-kms.trustbloc.local
-    image: ${HUB_KMS_IMAGE}:${HUB_KMS_IMAGE_TAG}
+    image: ${KMS_IMAGE}:${KMS_IMAGE_TAG}
     environment:
-      - KMS_HOST_URL=${HUB_KMS_HOST}:${DEMO_AUTHZ_HUB_KMS_PORT}
+      - KMS_HOST=${KMS_HOST}:${DEMO_AUTHZ_KMS_PORT}
+      - KMS_BASE_URL=https://oathkeeper-auth-keyserver.trustbloc.local:4461
       - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
       - KMS_TLS_SYSTEMCERTPOOL=true
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
       - KMS_DATABASE_TYPE=mongodb
       - KMS_DATABASE_URL=${EDV_DATABASE_URL}
-      - KMS_DATABASE_PREFIX=authzkeystore_
-      - KMS_SECRET_LOCK_KEY_PATH=/etc/tls/service-lock.key
-      - KMS_PRIMARY_KEY_DATABASE_TYPE=mongodb
-      - KMS_PRIMARY_KEY_DATABASE_URL=${EDV_DATABASE_URL}
-      - KMS_PRIMARY_KEY_DATABASE_PREFIX=authzkmspk_
-      - KMS_LOCAL_KMS_DATABASE_TYPE=mongodb
-      - KMS_LOCAL_KMS_DATABASE_URL=${EDV_DATABASE_URL}
-      - KMS_LOCAL_KMS_DATABASE_PREFIX=authzkmslocal_
-      - KMS_KEY_MANAGER_STORAGE_TYPE=mongodb
-      - KMS_KEY_MANAGER_STORAGE_URL=${EDV_DATABASE_URL}
-      - KMS_KEY_MANAGER_STORAGE_PREFIX=authzkmskm_
-      - KMS_HUB_AUTH_URL=https://hub-auth.trustbloc.local:8044
-      - KMS_HUB_AUTH_API_TOKEN=test_token
-      - KMS_BASE_URL=https://oathkeeper-auth-keyserver.trustbloc.local:4461
+      - KMS_DATABASE_PREFIX=authzkms_
+      - KMS_SECRET_LOCK_TYPE=local
+      - KMS_SECRET_LOCK_KEY_PATH=/etc/tls/secret-lock.key
+      - KMS_AUTH_SERVER_URL=https://hub-auth.trustbloc.local:8044
+      - KMS_AUTH_SERVER_TOKEN=test_token
       - KMS_CACHE_EXPIRATION=10m
       - KMS_LOG_LEVEL=debug
     ports:
-      - ${DEMO_AUTHZ_HUB_KMS_PORT}:${DEMO_AUTHZ_HUB_KMS_PORT}
-    entrypoint: ""
-    command: /bin/sh -c "sleep 30;kms-rest start"
+      - ${DEMO_AUTHZ_KMS_PORT}:${DEMO_AUTHZ_KMS_PORT}
+    command: start
     volumes:
       - ../keys/tls:/etc/tls
     depends_on:
@@ -319,32 +310,24 @@ services:
 
   ops-kms.example.com:
     container_name: ops-kms.trustbloc.local
-    image: ${HUB_KMS_IMAGE}:${HUB_KMS_IMAGE_TAG}
+    image: ${KMS_IMAGE}:${KMS_IMAGE_TAG}
     environment:
-      - KMS_HOST_URL=${HUB_KMS_HOST}:${DEMO_OPS_HUB_KMS_PORT}
+      - KMS_HOST=${KMS_HOST}:${DEMO_OPS_KMS_PORT}
+      - KMS_BASE_URL=https://oathkeeper-ops-keyserver.trustbloc.local:4462
       - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
       - KMS_DATABASE_TYPE=mongodb
       - KMS_DATABASE_URL=${EDV_DATABASE_URL}
-      - KMS_DATABASE_PREFIX=keystore
-      - KMS_SECRET_LOCK_KEY_PATH=/etc/tls/service-lock.key
-      - KMS_PRIMARY_KEY_DATABASE_TYPE=mongodb
-      - KMS_PRIMARY_KEY_DATABASE_URL=${EDV_DATABASE_URL}
-      - KMS_PRIMARY_KEY_DATABASE_PREFIX=kmspk_
-      - KMS_LOCAL_KMS_DATABASE_TYPE=mongodb
-      - KMS_LOCAL_KMS_DATABASE_URL=${EDV_DATABASE_URL}
-      - KMS_LOCAL_KMS_DATABASE_PREFIX=kmslocal_
-      - KMS_KEY_MANAGER_STORAGE_TYPE=edv
-      - KMS_KEY_MANAGER_STORAGE_URL=https://edv.trustbloc.local:${EDV_PORT}
+      - KMS_DATABASE_PREFIX=opskms_
+      - KMS_SECRET_LOCK_TYPE=local
+      - KMS_SECRET_LOCK_KEY_PATH=/etc/tls/secret-lock.key
       - KMS_ZCAP_ENABLE=true
-      - KMS_BASE_URL=https://oathkeeper-ops-keyserver.trustbloc.local:4462
       - KMS_CACHE_EXPIRATION=10m
       - KMS_LOG_LEVEL=debug
     ports:
-      - ${DEMO_OPS_HUB_KMS_PORT}:${DEMO_OPS_HUB_KMS_PORT}
-    entrypoint: ""
-    command: /bin/sh -c "sleep 30;kms-rest start"
+      - ${DEMO_OPS_KMS_PORT}:${DEMO_OPS_KMS_PORT}
+    command: start
     volumes:
       - ../keys/tls:/etc/tls
     depends_on:

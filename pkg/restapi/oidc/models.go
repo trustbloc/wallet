@@ -5,33 +5,40 @@ SPDX-License-Identifier: Apache-2.0
 
 package oidc
 
-import (
-	"encoding/json"
-)
+type createKeyStoreReq struct {
+	Controller string      `json:"controller"`
+	EDV        *edvOptions `json:"edv"`
+}
 
-type createKeystoreReq struct {
-	Controller string `json:"controller,omitempty"`
-	VaultID    string `json:"vaultID,omitempty"`
+type edvOptions struct {
+	VaultURL   string `json:"vault_url"`
+	Capability []byte `json:"capability"`
+}
+
+type createKeyStoreResp struct {
+	KeyStoreURL string `json:"key_store_url"`
+	Capability  []byte `json:"capability"`
+}
+
+type createDIDResp struct {
+	DID string `json:"did"`
 }
 
 type createKeyReq struct {
-	KeyType string `json:"keyType,omitempty"`
+	KeyType string `json:"key_type"`
 }
 
-type exportKeyResp struct {
-	PublicKey string `json:"publicKey,omitempty"`
-}
-
-type updateCapabilityReq struct {
-	EDVCapability json.RawMessage `json:"edvCapability,omitempty"`
+type createKeyResp struct {
+	KeyURL    string `json:"key_url"`
+	PublicKey []byte `json:"public_key"`
 }
 
 type signReq struct {
-	Message string `json:"message,omitempty"`
+	Message []byte `json:"message"`
 }
 
 type signResp struct {
-	Signature string `json:"signature,omitempty"`
+	Signature []byte `json:"signature"`
 }
 
 // BootstrapData user bootsrap data.
@@ -61,10 +68,10 @@ type secretRequest struct {
 	Secret []byte `json:"secret,omitempty"`
 }
 
-type hubKMSHeader struct {
-	secretShare string
+type kmsHeader struct {
 	userSub     string
 	accessToken string
+	secretShare []byte
 }
 
 type userConfig struct {

@@ -53,7 +53,8 @@ openssl x509 -req -in test/fixtures/keys/tls/ec-key.csr -CA test/fixtures/keys/t
 mkdir -p test/fixtures/keys/session_cookies
 openssl rand -out test/fixtures/keys/session_cookies/auth.key 32
 openssl rand -out test/fixtures/keys/session_cookies/enc.key 32
-openssl rand 32 | base64 | sed 's/+/-/g; s/\//_/g' > test/fixtures/keys/tls/service-lock.key
+
+openssl rand 32 | base64 | sed 's/+/-/g; s/\//_/g' > test/fixtures/keys/tls/secret-lock.key
 
 mkdir -p test/fixtures/keys/device
 openssl ecparam -name prime256v1 -genkey -noout -out test/fixtures/keys/device/ec-cakey.pem
