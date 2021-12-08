@@ -5,14 +5,14 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import { createApp } from 'vue';
-import store from './store';
-import App from './App.vue';
-import router from './router/index';
+import { mapActions, mapGetters } from 'vuex';
 import * as polyfill from 'credential-handler-polyfill';
 import * as webCredentialHandler from 'web-credential-handler';
-import { mapActions, mapGetters } from 'vuex';
-import '@/assets/css/tailwind.css';
 import i18n from './plugins/i18n';
+import store from './store';
+import router from './router/index';
+import '@/assets/css/tailwind.css';
+import App from './App.vue';
 import getStartingLocale from '@/utils/i18n/getStartingLocale.js';
 import { updateI18nLocale } from '@/plugins/i18n';
 

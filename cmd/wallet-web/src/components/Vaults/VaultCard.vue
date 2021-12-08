@@ -31,7 +31,7 @@
         </span>
       </div>
     </router-link>
-    <div class="flex absolute right-4 pt-4 rounded">
+    <div class="absolute right-4 pt-4">
       <slot />
     </div>
   </div>

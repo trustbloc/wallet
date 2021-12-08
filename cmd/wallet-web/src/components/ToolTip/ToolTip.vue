@@ -1,9 +1,33 @@
 <template>
-  <div class="relative top-6 right-32 w-40">
-    <div class="py-1 px-2 text-left text-neutrals-white bg-neutrals-dark rounded-lg">
-      <span class="absolute triangle"></span>
-      {{ toolTipLabel }}
-    </div>
+  <div
+    class="
+      inline-flex
+      absolute
+      top-14
+      right-0
+      z-20
+      justify-center
+      py-1
+      px-5
+      bg-neutrals-dark
+      rounded-lg
+    "
+  >
+    <div
+      class="
+        absolute
+        z-10
+        bg-neutrals-dark
+        rounded-sm
+        transform
+        rotate-45
+        border-8 border-neutrals-dark
+        triangle
+      "
+    />
+    <span class="z-20 text-sm text-center text-neutrals-white whitespace-nowrap">{{
+      toolTipLabel
+    }}</span>
   </div>
 </template>
 
@@ -21,10 +45,7 @@ export default {
 
 <style scoped>
 .triangle {
-  border-width: 0 6px 9px;
-  border-bottom-color: #190c21;
-  top: -9px;
-  left: 132px;
-  transform: translate-x(-50%);
+  top: -4px;
+  right: 20px;
 }
 </style>

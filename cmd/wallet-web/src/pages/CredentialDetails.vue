@@ -10,32 +10,51 @@
       <div class="flex flex-grow">
         <h3 class="text-neutrals-dark">{{ t('CredentialDetails.heading') }}</h3>
       </div>
-      <div
-        class="inline-flex items-center bg-transparent rounded-lg border border-neutrals-chatelle"
-      >
-        <flyout-menu id="credFlyoutMenu" type="outline">
-          <flyout-menu-list>
-            <flyout-menu-button
+      <flyout :tool-tip-label="t('CredentialDetails.toolTipLabel')">
+        <template #button="{ toggleFlyoutMenu, setShowTooltip }">
+          <button
+            id="credential-details-flyout-button"
+            class="
+              w-11
+              h-11
+              bg-neutrals-white
+              rounded-lg
+              focus:border-neutrals-chatelle
+              focus:ring-2
+              focus:ring-primary-purple
+              focus:ring-opacity-70
+              focus-within:ring-offset-2
+              outline-none
+              border border-neutrals-chatelle
+              hover:border-neutrals-mountainMist-light
+            "
+            @click="toggleFlyoutMenu()"
+            @focus="setShowTooltip(false)"
+            @mouseover="setShowTooltip(true)"
+            @mouseout="setShowTooltip(false)"
+          >
+            <img alt="flyout menu icon" class="p-2" src="@/assets/img/more-icon.svg" />
+          </button>
+        </template>
+        <template #menu>
+          <flyout-menu>
+            <flyout-button
               id="renameCredential"
               :text="t('CredentialDetails.renameCredential')"
-              color="neutrals-medium"
+              class="text-neutrals-medium"
             />
-            <flyout-menu-button
-              id="moveCredential"
-              :text="t('CredentialDetails.moveCredential')"
-              color="neutrals-medium"
-            />
-            <flyout-menu-button
+            <flyout-button id="moveCredential" :text="t('CredentialDetails.moveCredential')" />
+            <flyout-button
               id="deleteCredential"
               :text="t('CredentialDetails.deleteCredential')"
-              color="primary-vampire"
+              class="text-primary-vampire"
               @click="toggleDelete"
             >
-            </flyout-menu-button>
-          </flyout-menu-list>
-        </flyout-menu>
-        <delete-credential :show="showModal" :credential-id="credential.id" />
-      </div>
+            </flyout-button>
+          </flyout-menu>
+        </template>
+      </flyout>
+      <delete-credential :show="showModal" :credential-id="credential.id" />
     </div>
     <banner
       :brand-color="credential.brandColor"
@@ -80,19 +99,19 @@ import { CredentialManager } from '@trustbloc/wallet-sdk';
 import { decode } from 'js-base64';
 import { getCredentialType, getCredentialDisplayData } from '@/utils/mixins';
 import Banner from '@/components/CredentialDetails/Banner.vue';
-import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu.vue';
-import FlyoutMenuList from '@/components/FlyoutMenu/FlyoutMenuList.vue';
-import FlyoutMenuButton from '@/components/FlyoutMenu/FlyoutMenuButton.vue';
+import Flyout from '@/components/Flyout/Flyout.vue';
+import FlyoutMenu from '@/components/Flyout/FlyoutMenu.vue';
+import FlyoutButton from '@/components/Flyout/FlyoutButton.vue';
 import DeleteCredential from '@/components/CredentialDetails/DeleteCredentialModal.vue';
 
 export default {
   name: 'CredentialDetails',
   components: {
-    DeleteCredential,
     Banner,
+    Flyout,
     FlyoutMenu,
-    FlyoutMenuList,
-    FlyoutMenuButton,
+    FlyoutButton,
+    DeleteCredential,
   },
   setup() {
     const { t } = useI18n();
@@ -122,7 +141,7 @@ export default {
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
     this.credentialDisplayData = await this.getCredentialManifestData();
     try {
-      this.credential = await this.fetchCredential(this.$route.params.fullCredId);
+      this.credential = await this.fetchCredential(this.$route.params.id);
     } catch (e) {
       console.error('failed to fetch a credential:', e);
     }

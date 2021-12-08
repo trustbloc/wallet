@@ -23,33 +23,66 @@
         :num-of-creds="t('Vaults.foundCredentials', vault.numOfCreds)"
         :vault-id="vault.id"
       >
-        <slot v-if="vault.name == 'Default Vault'">
-          <flyout-menu id="vaults-flyout-menu-default" type="vault">
-            <flyout-menu-list>
-              <flyout-menu-button
+        <flyout v-if="vault.name == 'Default Vault'">
+          <template #button="{ toggleFlyoutMenu }">
+            <button
+              id="vaults-flyout-menu-button-default"
+              class="
+                w-8
+                h-8
+                bg-neutrals-white
+                hover:bg-neutrals-softWhite
+                focus:bg-neutrals-mischka
+                rounded-full
+              "
+              @click="toggleFlyoutMenu()"
+            >
+              <img class="p-2" src="@/assets/img/more-icon.svg" />
+            </button>
+          </template>
+          <template #menu>
+            <flyout-menu>
+              <flyout-button
                 id="renameVault"
                 :text="t('Vaults.renameVault')"
-                color="neutrals-medium"
+                class="text-neutrals-medium"
               />
-            </flyout-menu-list>
-          </flyout-menu>
-        </slot>
-        <slot v-else>
-          <flyout-menu :id="`vaults-flyout-menu-${vault.id.slice(-5)}`" type="vault">
-            <flyout-menu-list>
-              <flyout-menu-button
-                :id="`rename-vault-${vault.id.slice(-5)}`"
+            </flyout-menu>
+          </template>
+        </flyout>
+
+        <flyout v-else>
+          <template #button="{ toggleFlyoutMenu }">
+            <button
+              id="vaults-flyout-menu-button-default"
+              class="
+                w-8
+                h-8
+                bg-neutrals-white
+                hover:bg-neutrals-softWhite
+                focus:bg-neutrals-mischka
+                rounded-full
+              "
+              @click="toggleFlyoutMenu()"
+            >
+              <img class="p-2" src="@/assets/img/more-icon.svg" />
+            </button>
+          </template>
+          <template #menu>
+            <flyout-menu>
+              <flyout-button
+                id="renameVault"
                 :text="t('Vaults.renameVault')"
-                color="neutrals-medium"
+                class="text-neutrals-medium"
               />
-              <flyout-menu-button
+              <flyout-button
                 :id="`delete-vault-${vault.id.slice(-5)}`"
                 :text="t('Vaults.deleteVault')"
-                color="primary-vampire"
+                class="text-primary-vampire"
               />
-            </flyout-menu-list>
-          </flyout-menu>
-        </slot>
+            </flyout-menu>
+          </template>
+        </flyout>
       </vault-card>
 
       <vault-card type="addNew" :name="t('Vaults.addVault')" class="grid order-last" />
@@ -61,11 +94,11 @@
 import { reactive, watchEffect } from 'vue';
 import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
-import VaultCard from '@/components/Vaults/VaultCard';
 import { useI18n } from 'vue-i18n';
-import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
-import FlyoutMenuList from '@/components/FlyoutMenu/FlyoutMenuList';
-import FlyoutMenuButton from '@/components/FlyoutMenu/FlyoutMenuButton';
+import VaultCard from '@/components/Vaults/VaultCard.vue';
+import Flyout from '@/components/Flyout/Flyout.vue';
+import FlyoutMenu from '@/components/Flyout/FlyoutMenu.vue';
+import FlyoutButton from '@/components/Flyout/FlyoutButton.vue';
 
 export const vaultsStore = reactive({
   vaultsOutdated: false,
@@ -81,9 +114,9 @@ export default {
   name: 'Vaults',
   components: {
     VaultCard,
+    Flyout,
     FlyoutMenu,
-    FlyoutMenuList,
-    FlyoutMenuButton,
+    FlyoutButton,
   },
   setup() {
     const { t } = useI18n();
