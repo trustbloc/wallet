@@ -17,6 +17,8 @@ export default {
     loggedIn: false,
     logInSuspended: false,
     chapi: false,
+    selectedVaultId: null,
+    selectedCredentialId: null,
   },
   mutations: {
     setUser(state, val) {
@@ -39,18 +41,36 @@ export default {
       state.chapi = val;
       localStorage.setItem('chapi', JSON.stringify(val));
     },
+    setUserLoggedIn(state) {
+      state.loggedIn = true;
+    },
+    setLogInSuspended(state) {
+      state.logInSuspended = true;
+    },
+    setSelectedVaultId(state, val) {
+      state.selectedVaultId = val;
+      localStorage.setItem('selectedVaultId', val);
+    },
+    setSelectedCredentialId(state, val) {
+      state.selectedCredentialId = val;
+      localStorage.setItem('selectedCredentialId', val);
+    },
     clearUser(state) {
       state.username = null;
       state.setupStatus = null;
       state.profile = null;
       state.loggedIn = false;
       state.chapi = false;
+      state.selectedVaultId = null;
+      state.selectedCredentialId = null;
 
       localStorage.removeItem('user');
       localStorage.removeItem('setupStatus');
       localStorage.removeItem('profile');
       localStorage.removeItem('preference');
       localStorage.removeItem('chapi');
+      localStorage.removeItem('selectedVaultId');
+      localStorage.removeItem('selectedCredentialId');
     },
     loadUser(state) {
       state.username = localStorage.getItem('user');
@@ -58,12 +78,8 @@ export default {
       state.profile = JSON.parse(localStorage.getItem('profile'));
       state.preference = JSON.parse(localStorage.getItem('preference'));
       state.chapi = JSON.parse(localStorage.getItem('chapi'));
-    },
-    setUserLoggedIn(state) {
-      state.loggedIn = true;
-    },
-    setLogInSuspended(state) {
-      state.logInSuspended = true;
+      state.selectedVaultId = localStorage.getItem('selectedVaultId');
+      state.selectedCredentialId = localStorage.getItem('selectedCredentialId');
     },
   },
   actions: {
@@ -133,6 +149,12 @@ export default {
     activateCHAPI({ commit }) {
       commit('setCHAPI', true);
     },
+    updateSelectedVaultId({ commit }, selectedVaultId) {
+      commit('setSelectedVaultId', selectedVaultId);
+    },
+    updateSelectedCredentialId({ commit }, selectedCredentialId) {
+      commit('setSelectedCredentialId', selectedCredentialId);
+    },
   },
   getters: {
     getCurrentUser(state) {
@@ -153,6 +175,12 @@ export default {
     },
     isCHAPI(state) {
       return state.chapi;
+    },
+    getSelectedVaultId(state) {
+      return state.selectedVaultId;
+    },
+    getSelectedCredentialId(state) {
+      return state.selectedCredentialId;
     },
   },
   modules: {
