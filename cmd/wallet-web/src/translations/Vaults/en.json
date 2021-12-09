@@ -11,5 +11,7 @@
   "foundCredentials": "{n} Credential | {n} Credentials",
   "selectVault": "Select Vault",
   "renameVault": "Rename Vault",
-  "deleteVault": "Delete Vault"
+  "deleteVault": "Delete Vault",
+  "deleteVaultButton": "Delete",
+  "deleteVaultConfirmMessage": "Deleting this vault will delete the credentials within it as well."
 }

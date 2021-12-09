@@ -123,6 +123,10 @@
     <!-- Loading State -->
     <skeleton-loader v-if="loading" type="vault" />
     <!-- Error State -->
+    <span v-else-if="loadingStatus === 'failed'">
+      <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
+      communication.
+    </span>
     <!-- Main State -->
     <div v-else id="loaded-credentials-container">
       <div v-if="credentialsFound" class="mx-6 md:mx-0">
@@ -172,10 +176,10 @@
 </template>
 
 <script>
-import {CollectionManager, CredentialManager} from '@trustbloc/wallet-sdk';
-import {mapGetters} from 'vuex';
-import {useI18n} from 'vue-i18n';
-import {getCredentialDisplayData, getCredentialType} from '@/utils/mixins';
+import { CredentialManager, CollectionManager } from '@trustbloc/wallet-sdk';
+import { mapGetters } from 'vuex';
+import { useI18n } from 'vue-i18n';
+import { getCredentialType, getCredentialDisplayData } from '@/utils/mixins';
 import useBreakpoints from '@/plugins/breakpoints.js';
 import CredentialPreview from '@/components/CredentialPreview/CredentialPreview.vue';
 import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader.vue';

@@ -79,8 +79,10 @@
                 :id="`delete-vault-${vault.id.slice(-5)}`"
                 :text="t('Vaults.deleteVault')"
                 class="text-primary-vampire"
+                @click="toggleDeleteVault"
               />
             </flyout-menu>
+            <delete-vault :show="showModal" :vault-id="vault.id" />
           </template>
         </flyout>
       </vault-card>
@@ -91,7 +93,7 @@
 </template>
 
 <script>
-import { reactive, watchEffect } from 'vue';
+import { reactive, ref, watchEffect } from 'vue';
 import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
@@ -99,6 +101,7 @@ import VaultCard from '@/components/Vaults/VaultCard.vue';
 import Flyout from '@/components/Flyout/Flyout.vue';
 import FlyoutMenu from '@/components/Flyout/FlyoutMenu.vue';
 import FlyoutButton from '@/components/Flyout/FlyoutButton.vue';
+import DeleteVault from '@/components/Vaults/DeleteVaultModal.vue';
 
 export const vaultsStore = reactive({
   vaultsOutdated: false,
@@ -117,10 +120,21 @@ export default {
     Flyout,
     FlyoutMenu,
     FlyoutButton,
+    DeleteVault,
   },
   setup() {
     const { t } = useI18n();
-    return { t };
+    const showModal = ref(false);
+
+    function toggleDeleteVault() {
+      showModal.value = !showModal.value;
+    }
+
+    return {
+      t,
+      showModal,
+      toggleDeleteVault,
+    };
   },
   data() {
     return {
