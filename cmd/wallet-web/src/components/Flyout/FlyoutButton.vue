@@ -4,23 +4,22 @@
  * SPDX-License-Identifier: Apache-2.0
 -->
 <template>
-  <button :id="id" :class="[`block font-bold text-${color}`]" @click="$emit('click', $event)">
+  <button
+    :id="id"
+    class="flex justify-start items-center py-2 px-4 w-full text-base font-bold"
+    @click="$emit('click', $event)"
+  >
     {{ text }}
-    <slot />
   </button>
 </template>
 
 <script>
 export default {
-  name: 'FlyoutMenuButton',
+  name: 'FlyoutButton',
   props: {
     text: {
       type: String,
       required: true,
-    },
-    color: {
-      type: String,
-      default: 'neutrals-medium',
     },
     id: {
       type: String,

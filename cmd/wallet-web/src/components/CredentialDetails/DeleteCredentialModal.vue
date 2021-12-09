@@ -46,7 +46,7 @@
             </p>
           </div>
         </div>
-        <!--footer-->
+        <!-- Buttons Container -->
         <div
           class="
             md:flex-row

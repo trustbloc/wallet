@@ -10,7 +10,7 @@
       right-0
       z-20
       mt-2
-      w-max
+      w-48
       text-neutrals-medium
       bg-neutrals-white
       rounded-lg
@@ -18,7 +18,7 @@
       flyout-box
     "
   >
-    <ul class="p-4 space-y-2 text-base">
+    <ul class="py-2">
       <slot />
     </ul>
   </div>
@@ -26,7 +26,7 @@
 
 <script>
 export default {
-  name: 'FlyoutMenuList',
+  name: 'FlyoutMenu',
 };
 </script>
 <style scoped>

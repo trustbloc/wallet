@@ -8,9 +8,57 @@
   <div>
     <!-- Mobile Credentials Layout -->
     <div v-if="breakpoints.xs || breakpoints.sm" class="flex flex-col justify-start w-screen">
-      <div class="bg-neutrals-white border border-neutrals-chatelle">
-        <flyout-menu id="credentials-flyout-menu-mobile" />
-      </div>
+      <flyout :tool-tip-label="t('Credentials.switchVaults')">
+        <template #button="{ toggleFlyoutMenu, setShowTooltip }">
+          <button
+            id="credentials-flyout-menu-button-mobile"
+            class="
+              inline-flex
+              justify-between
+              items-center
+              px-3
+              w-screen
+              md:w-auto
+              h-11
+              bg-neutrals-white
+              md:rounded-lg
+              focus:ring-primary-purple focus:ring-opacity-70 focus:ring-2
+              focus-within:ring-offset-2
+              outline-none
+              border border-neutrals-chatelle
+              hover:border-neutrals-mountainMist-light
+            "
+            @click="toggleFlyoutMenu()"
+            @focus="setShowTooltip(false)"
+            @mouseover="setShowTooltip(true)"
+            @mouseout="setShowTooltip(false)"
+          >
+            <img class="w-6 h-6" src="@/assets/img/icons-sm--vault-icon.svg" />
+            <span class="flex-grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">{{
+              t('CredentialDetails.allVaultLabel')
+            }}</span>
+            <img class="w-6 h-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
+          </button>
+        </template>
+        <template #menu>
+          <flyout-menu>
+            <flyout-button
+              id="flyout-menu-select-all-vaults"
+              :text="t('Vaults.allVaults')"
+              class="font-bold text-neutrals-dark"
+              :class="!selectedVault.length && 'bg-neutrals-softWhite'"
+            />
+            <div class="my-1 mx-4 h-px bg-neutrals-thistle" />
+            <flyout-button
+              v-for="(vault, key) in vaults"
+              :id="`flyout-menu-select-${vault.id.slice(-5)}`"
+              :key="key"
+              :text="vault.name"
+              class="text-neutrals-medium"
+            />
+          </flyout-menu>
+        </template>
+      </flyout>
       <div class="items-start">
         <h3 class="mx-6 mb-5 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
       </div>
@@ -20,17 +68,57 @@
       <div class="flex flex-grow">
         <h3 class="m-0 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
       </div>
-      <div
-        class="
-          inline-flex
-          items-center
-          bg-neutrals-white
-          rounded-lg
-          border border-neutrals-chatelle
-        "
-      >
-        <flyout-menu id="credentials-flyout-menu-desktop" />
-      </div>
+      <flyout :tool-tip-label="t('Credentials.switchVaults')">
+        <template #button="{ toggleFlyoutMenu, setShowTooltip }">
+          <button
+            id="credentials-flyout-menu-button-desktop"
+            class="
+              inline-flex
+              justify-between
+              items-center
+              px-3
+              w-screen
+              md:w-auto
+              h-11
+              bg-neutrals-white
+              md:rounded-lg
+              focus:ring-primary-purple focus:ring-opacity-70 focus:ring-2
+              focus-within:ring-offset-2
+              outline-none
+              border border-neutrals-chatelle
+              hover:border-neutrals-mountainMist-light
+            "
+            @click="toggleFlyoutMenu()"
+            @focus="setShowTooltip(false)"
+            @mouseover="setShowTooltip(true)"
+            @mouseout="setShowTooltip(false)"
+          >
+            <img class="w-6 h-6" src="@/assets/img/icons-sm--vault-icon.svg" />
+            <span class="flex-grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">{{
+              t('CredentialDetails.allVaultLabel')
+            }}</span>
+            <img class="w-6 h-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
+          </button>
+        </template>
+        <template #menu>
+          <flyout-menu>
+            <flyout-button
+              id="flyout-menu-select-all-vaults"
+              :text="t('Vaults.allVaults')"
+              class="font-bold text-neutrals-dark"
+              :class="!selectedVault.length && 'bg-neutrals-softWhite'"
+            />
+            <div class="my-1 mx-4 h-px bg-neutrals-thistle" />
+            <flyout-button
+              v-for="(vault, key) in vaults"
+              :id="`flyout-menu-select-${vault.id.slice(-5)}`"
+              :key="key"
+              :text="vault.name"
+              class="text-neutrals-medium"
+            />
+          </flyout-menu>
+        </template>
+      </flyout>
     </div>
     <!-- Loading State -->
     <skeleton-loader v-if="loading" type="vault" />
@@ -54,8 +142,7 @@
                   :to="{
                     name: 'credential-details',
                     params: {
-                      id: credential.id.slice(-5),
-                      fullCredId: credential.id,
+                      id: credential.id,
                       vaultName: vault.name,
                     },
                   }"
@@ -90,13 +177,15 @@
 
 <script>
 import { CredentialManager, CollectionManager } from '@trustbloc/wallet-sdk';
-import { getCredentialType, getCredentialDisplayData } from '@/utils/mixins';
 import { mapGetters } from 'vuex';
-import CredentialPreview from '@/components/CredentialPreview/CredentialPreview';
-import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader';
-import FlyoutMenu from '@/components/FlyoutMenu/FlyoutMenu';
-import useBreakpoints from '@/plugins/breakpoints.js';
 import { useI18n } from 'vue-i18n';
+import { getCredentialType, getCredentialDisplayData } from '@/utils/mixins';
+import useBreakpoints from '@/plugins/breakpoints.js';
+import CredentialPreview from '@/components/CredentialPreview/CredentialPreview.vue';
+import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader.vue';
+import Flyout from '@/components/Flyout/Flyout.vue';
+import FlyoutMenu from '@/components/Flyout/FlyoutMenu.vue';
+import FlyoutButton from '@/components/Flyout/FlyoutButton.vue';
 
 const filterBy = ['IssuerManifestCredential', 'GovernanceCredential'];
 export default {
@@ -104,7 +193,9 @@ export default {
   components: {
     CredentialPreview,
     SkeletonLoader,
+    Flyout,
     FlyoutMenu,
+    FlyoutButton,
   },
   setup() {
     const breakpoints = useBreakpoints();
@@ -116,6 +207,7 @@ export default {
       loading: true,
       vaults: [],
       credentialsFound: false,
+      selectedVault: '',
     };
   },
   computed: {
