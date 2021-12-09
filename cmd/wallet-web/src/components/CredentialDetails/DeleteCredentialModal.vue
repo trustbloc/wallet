@@ -4,21 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
 -->
 <template>
-  <modal>
-    <div
-      v-if="showModal"
-      class="
-        flex
-        overflow-y-auto
-        fixed
-        inset-0
-        z-50
-        justify-center
-        items-center
-        bg-neutrals-dark bg-opacity-50
-      "
-    >
-      <div class="relative mx-6 lg:mx-auto max-w-6xl bg-neutrals-white rounded-2xl modal-width">
+  <modal  v-if="showModal">
         <!--content-->
         <div class="flex relative flex-col items-center px-8 pt-10 w-full">
           <div class="flex justify-center items-center w-15 h-15 bg-primary-valencia rounded-full">
@@ -66,30 +52,29 @@
             border-t border-0 border-neutrals-lilacSoft
           "
         >
-          <button class="w-full md:w-auto lg:w-auto btn-outline" type="button" @click="closeModal">
-            {{ t('CredentialDetails.deleteButtonCancel') }}
-          </button>
-          <button
+          <styled-button class="btn-outline" type="outline" @click="closeModal">
+            {{ t('App.cancel') }}
+          </styled-button>
+          <styled-button
             id="deleteButton"
-            class="order-first md:order-last lg:order-last w-full md:w-auto lg:w-auto btn-danger"
-            type="button"
+            class="order-first md:order-last lg:order-last"
+            type="danger"
             @click="deleteCredential(credentialId)"
           >
             {{ t('CredentialDetails.deleteButtonLabel') }}
-          </button>
+          </styled-button>
         </div>
-      </div>
-    </div>
   </modal>
 </template>
 
 <script>
 import Modal from '@/components/Modal/Modal.vue';
-import { ref, watch } from 'vue';
-import { mapGetters } from 'vuex';
-import { CredentialManager } from '@trustbloc-cicd/wallet-sdk';
-import { decode } from 'js-base64';
-import { useI18n } from 'vue-i18n';
+import {ref, watch} from 'vue';
+import {mapGetters} from 'vuex';
+import {CredentialManager} from '@trustbloc-cicd/wallet-sdk';
+import {decode} from 'js-base64';
+import {useI18n} from 'vue-i18n';
+import StyledButton from "@/components/StyledButton/StyledButton";
 
 const props = {
   target: {
@@ -108,6 +93,7 @@ const props = {
 export default {
   name: 'DeleteCredentialModal',
   components: {
+    StyledButton,
     Modal,
   },
   props,
