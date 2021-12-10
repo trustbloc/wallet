@@ -24,23 +24,23 @@
           </svg>
         </div>
         <span class="pt-5 pb-3 text-lg font-bold text-neutrals-dark">
-          {{ t('CredentialDetails.deleteCredential') }}?
+          {{ t('Vaults.deleteVault') }}?
         </span>
         <div class="relative flex-auto">
           <p class="pb-12 text-base text-center text-neutrals-medium">
-            {{ t('CredentialDetails.deleteCredentialConfirmMessage') }}
+            {{ t('Vaults.deleteVaultConfirmMessage') }}
           </p>
         </div>
       </div>
     </template>
+    <!-- Buttons Container -->
     <template #actionButton>
       <styled-button
-        id="delete-credential-button"
-        class="order-first md:order-last w-full md:w-auto"
+        class="order-first md:order-last lg:order-last w-full md:w-auto lg:w-auto"
         type="danger"
-        @click="deleteCredential(credentialId)"
+        @click="deleteVault(vaultId)"
       >
-        {{ t('CredentialDetails.deleteButtonLabel') }}
+        {{ t('Vaults.deleteVaultButton') }}
       </styled-button>
     </template>
   </modal>
@@ -50,8 +50,7 @@
 import Modal from '@/components/Modal/Modal.vue';
 import { ref, watch } from 'vue';
 import { mapGetters } from 'vuex';
-import { CredentialManager } from '@trustbloc-cicd/wallet-sdk';
-import { decode } from 'js-base64';
+import { CollectionManager } from '@trustbloc-cicd/wallet-sdk';
 import { useI18n } from 'vue-i18n';
 import StyledButton from '@/components/StyledButton/StyledButton';
 
@@ -60,7 +59,7 @@ const props = {
     type: String,
     default: 'body',
   },
-  credentialId: {
+  vaultId: {
     type: String,
     required: true,
   },
@@ -70,7 +69,7 @@ const props = {
   },
 };
 export default {
-  name: 'DeleteCredentialModal',
+  name: 'DeleteVaultModal',
   components: {
     StyledButton,
     Modal,
@@ -99,15 +98,15 @@ export default {
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser']),
-    async deleteCredential(credentialID) {
+    async deleteVault(vaultID) {
       const { user, token } = this.getCurrentUser().profile;
-      const credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-      const credID = decode(credentialID);
+      const collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
       try {
-        await credentialManager.remove(token, credID);
-        this.$router.push({ name: 'credentials' });
+        await collectionManager.remove(token, vaultID);
+        this.$router.push({ name: 'vaults' });
+        // TODO: Issue-1309 Auto refresh on deleting vault by triggering vuex state
       } catch (e) {
-        console.error('failed to remove credential:', e);
+        console.error('failed to remove vault:', e);
       }
     },
   },

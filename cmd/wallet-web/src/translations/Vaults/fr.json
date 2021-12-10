@@ -11,5 +11,7 @@
   "foundCredentials": "{n} Identifiant | {n} Identifiants",
   "selectVault": "Sélectionner la chambre forte",
   "renameVault": "Renommer la chambre forte",
-  "deleteVault": "Supprimer la chambre forte"
+  "deleteVault": "Supprimer la chambre forte",
+  "deleteVaultButton": "Supprimer",
+  "deleteVaultConfirmMessage": "En supprimant cette chambre forte, vous supprimerez aussi les identifiants qui s’y trouvent."
 }

@@ -14,6 +14,5 @@
   "moveCredential": "Move Credential",
   "deleteCredential": "Delete Credential",
   "deleteButtonLabel": "Delete",
-  "deleteButtonCancel": "Cancel",
   "deleteCredentialConfirmMessage": "You'll no longer be able to share this credential."
 }
