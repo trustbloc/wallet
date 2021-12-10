@@ -19,8 +19,8 @@
       "
       @click.self="close"
     >
-      <div class="flex-grow mx-6 lg:mx-auto max-w-lg bg-neutrals-white rounded-2xl relative">
-        <button v-if="showCloseButton" class="pt-3 pr-3 w-10 h-10 right-0 absolute">
+      <div class="relative flex-grow mx-6 lg:mx-auto max-w-lg bg-neutrals-white rounded-2xl">
+        <button v-if="showCloseButton" class="absolute right-0 pt-3 pr-3 w-10 h-10">
           <!-- TODO: use inline svg instead once https://github.com/trustbloc/edge-agent/issues/816 is fixed -->
           <img
             class="w-6 h-6 cursor-pointer"

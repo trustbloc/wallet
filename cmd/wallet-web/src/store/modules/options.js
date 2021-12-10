@@ -330,7 +330,7 @@ export default {
       return state.agentOpts['staticAssetsUrl'];
     },
     async getCredentialManifestData(state) {
-      let staticUrl = state.agentOpts['staticAssetsUrl'];
+      const staticUrl = state.agentOpts['staticAssetsUrl'];
       if (staticUrl) {
         const response = await axios.get(`${staticUrl}/config/credentialDisplayData.json`);
         return response.data;

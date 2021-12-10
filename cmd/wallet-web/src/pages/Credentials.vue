@@ -35,7 +35,7 @@
           >
             <img class="w-6 h-6" src="@/assets/img/icons-sm--vault-icon.svg" />
             <span class="flex-grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">{{
-              t('CredentialDetails.allVaultLabel')
+              selectedVaultName
             }}</span>
             <img class="w-6 h-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
           </button>
@@ -46,15 +46,17 @@
               id="flyout-menu-select-all-vaults"
               :text="t('Vaults.allVaults')"
               class="font-bold text-neutrals-dark"
-              :class="!selectedVault.length && 'bg-neutrals-softWhite'"
+              :class="!selectedVaultId && 'bg-neutrals-softWhite'"
             />
             <div class="my-1 mx-4 h-px bg-neutrals-thistle" />
             <flyout-button
-              v-for="(vault, key) in vaults"
+              v-for="(vault, key) in allVaults"
               :id="`flyout-menu-select-${vault.id.slice(-5)}`"
               :key="key"
               :text="vault.name"
               class="text-neutrals-medium"
+              :class="selectedVaultId === vault.id && 'bg-neutrals-softWhite'"
+              @click="setSelectedVaultId(vault.id)"
             />
           </flyout-menu>
         </template>
@@ -95,26 +97,39 @@
           >
             <img class="w-6 h-6" src="@/assets/img/icons-sm--vault-icon.svg" />
             <span class="flex-grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">{{
-              t('CredentialDetails.allVaultLabel')
+              selectedVaultName
             }}</span>
             <img class="w-6 h-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
           </button>
         </template>
-        <template #menu>
+        <template #menu="{ toggleFlyoutMenu }">
           <flyout-menu>
             <flyout-button
               id="flyout-menu-select-all-vaults"
               :text="t('Vaults.allVaults')"
               class="font-bold text-neutrals-dark"
-              :class="!selectedVault.length && 'bg-neutrals-softWhite'"
+              :class="!selectedVaultId && 'bg-neutrals-softWhite'"
+              @click="
+                () => {
+                  toggleFlyoutMenu();
+                  setSelectedVaultId(null);
+                }
+              "
             />
             <div class="my-1 mx-4 h-px bg-neutrals-thistle" />
             <flyout-button
-              v-for="(vault, key) in vaults"
+              v-for="(vault, key) in allVaults"
               :id="`flyout-menu-select-${vault.id.slice(-5)}`"
               :key="key"
               :text="vault.name"
               class="text-neutrals-medium"
+              :class="selectedVaultId && selectedVaultId === vault.id && 'bg-neutrals-softWhite'"
+              @click="
+                () => {
+                  toggleFlyoutMenu();
+                  setSelectedVaultId(vault.id);
+                }
+              "
             />
           </flyout-menu>
         </template>
@@ -123,14 +138,14 @@
     <!-- Loading State -->
     <skeleton-loader v-if="loading" type="vault" />
     <!-- Error State -->
-    <span v-else-if="loadingStatus === 'failed'">
+    <span v-else-if="userSetupStatus === 'failed'">
       <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
       communication.
     </span>
     <!-- Main State -->
     <div v-else id="loaded-credentials-container">
       <div v-if="credentialsFound" class="mx-6 md:mx-0">
-        <div v-for="(vault, key) in vaults" :key="key">
+        <div v-for="(vault, key) in selectedVaults" :key="key">
           <div v-if="vault.credentials.length">
             <div class="md:mx-0 mb-5">
               <span class="text-xl font-bold text-neutrals-dark">{{ vault.name }}</span>
@@ -177,7 +192,8 @@
 
 <script>
 import { CredentialManager, CollectionManager } from '@trustbloc/wallet-sdk';
-import { mapGetters } from 'vuex';
+import { computed } from 'vue';
+import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { getCredentialType, getCredentialDisplayData } from '@/utils/mixins';
 import useBreakpoints from '@/plugins/breakpoints.js';
@@ -198,37 +214,49 @@ export default {
     FlyoutButton,
   },
   setup() {
+    const store = useStore();
+    const agentInstance = computed(() => store.getters['agent/getInstance']);
+    const selectedVaultId = computed(() => store.getters.getSelectedVaultId);
+    const currentUser = computed(() => store.getters.getCurrentUser);
+    const userSetupStatus = currentUser.value ? currentUser.value.setupStatus : null;
+    const getCredentialManifestData = () => store.getters.getCredentialManifestData;
+    const updateSelectedVaultId = (selectedVaultId) =>
+      store.dispatch('updateSelectedVaultId', selectedVaultId);
     const breakpoints = useBreakpoints();
     const { t } = useI18n();
-    return { breakpoints, t };
+    return {
+      agentInstance,
+      breakpoints,
+      currentUser,
+      getCredentialManifestData,
+      selectedVaultId,
+      t,
+      userSetupStatus,
+      updateSelectedVaultId,
+    };
   },
   data() {
     return {
       loading: true,
-      vaults: [],
+      allVaults: [], // vaults to display in the flyout
+      selectedVaults: [], // vaults to display in the main view along with credentials stored in each
       credentialsFound: false,
-      selectedVault: '',
+      selectedVaultName: null,
     };
   },
-  computed: {
-    loadingStatus() {
-      return this.getCurrentUser() ? this.getCurrentUser().setupStatus : null;
-    },
-  },
   created: async function () {
-    const { user, token } = this.getCurrentUser().profile;
+    const { user, token } = this.currentUser.profile;
     this.token = token;
-    this.username = this.getCurrentUser().username;
-    this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-    this.collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
+    this.username = this.currentUser.username;
+    this.credentialManager = new CredentialManager({ agent: this.agentInstance, user });
+    this.collectionManager = new CollectionManager({ agent: this.agentInstance, user });
     this.credentialDisplayData = await this.getCredentialManifestData();
-    await this.fetchVaults(this.$route.params.vaultId);
+    await this.fetchVaults();
     this.loading = false;
   },
   methods: {
-    ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getCurrentUser', 'getAgentOpts', 'getCredentialManifestData']),
     fetchCredentials: async function (vaultId) {
+      this.loading = true;
       try {
         const { contents } = await this.credentialManager.getAll(this.token, {
           collectionID: vaultId,
@@ -250,34 +278,54 @@ export default {
       } catch (e) {
         console.error(`failed to fetch credentials for vault ${vaultId}:`, e);
       }
+      this.loading = false;
     },
     // Fetching vaults (specific one, if vaultId is provided, otherwise all of them)
-    fetchVaults: async function (vaultId) {
-      this.vaults = [];
-      if (vaultId) {
+    fetchVaults: async function () {
+      this.loading = true;
+      this.credentialsFound = false;
+      this.selectedVaults = [];
+      this.allVaults = [];
+      // Fetch all vaults
+      try {
+        const { contents: rawVaults } = await this.collectionManager.getAll(this.token);
+        const vaults = Object.values(rawVaults);
+        this.allVaults = vaults;
+        // If user did not select any vault then we display all vaults in the main view
+        if (!this.selectedVaultId) this.selectedVaults = vaults;
+      } catch (e) {
+        console.error('failed to fetch vaults:', e);
+      }
+      // If selected, fetch only these vaults to display in the main view
+      if (this.selectedVaultId) {
         try {
-          const { content: vault } = await this.collectionManager.get(this.token, vaultId);
-          this.vaults = [vault];
+          const { content: vault } = await this.collectionManager.get(
+            this.token,
+            this.selectedVaultId
+          );
+          this.selectedVaults = [vault];
         } catch (e) {
-          console.error(`failed to fetch vault ${vaultId}:`, e);
-        }
-      } else {
-        try {
-          const { contents: rawVaults } = await this.collectionManager.getAll(this.token);
-          const vaults = Object.values(rawVaults);
-          this.vaults = vaults;
-        } catch (e) {
-          console.error('failed to fetch vaults:', e);
+          console.error(`failed to fetch vault ${this.selectedVaultId}:`, e);
         }
       }
 
-      this.vaults = await Promise.all(
-        this.vaults.map(async (vault) => {
+      // Determine which name to display in the flyout as selected vault
+      this.selectedVaultName =
+        this.selectedVaultId && this.selectedVaults.length
+          ? this.selectedVaults[0].name
+          : this.t('CredentialDetails.allVaultLabel');
+
+      // Fetch and save all credentials stored inside each of the vaults to be displayed in the main view
+      this.selectedVaults = await Promise.all(
+        this.selectedVaults.map(async (vault) => {
           const credentials = await this.fetchCredentials(vault.id);
+          // If any of the vaults selected to be displayed has at least one credential, we will render it
+          // Otherwise, we will display an empty state
           if (credentials && credentials.length) this.credentialsFound = true;
           return { ...vault, credentials };
         })
       );
+      this.loading = false;
     },
     getCredentialType: function (vc) {
       return getCredentialType(vc.type);
@@ -290,6 +338,12 @@ export default {
       return (
         this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
       );
+    },
+    setSelectedVaultId: async function (id) {
+      if (this.selectedVaultId !== id) {
+        this.updateSelectedVaultId(id);
+        await this.fetchVaults();
+      }
     },
   },
 };
