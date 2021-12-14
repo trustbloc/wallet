@@ -72,6 +72,7 @@ func main() {
 	http.HandleFunc("/consent", c.consent)
 
 	http.Handle("/img/", http.FileServer(http.Dir("templates")))
+	http.Handle("/css/", http.FileServer(http.Dir("templates")))
 
 	fmt.Println(http.ListenAndServe(":"+port, nil))
 }
