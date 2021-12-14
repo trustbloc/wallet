@@ -48,11 +48,11 @@
 
 <script>
 import Modal from '@/components/Modal/Modal.vue';
-import { ref, watch } from 'vue';
 import { mapGetters } from 'vuex';
 import { CollectionManager } from '@trustbloc-cicd/wallet-sdk';
 import { useI18n } from 'vue-i18n';
 import StyledButton from '@/components/StyledButton/StyledButton';
+import { ref, watch } from 'vue';
 
 const props = {
   target: {
@@ -103,7 +103,7 @@ export default {
       const collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
       try {
         await collectionManager.remove(token, vaultID);
-        this.$router.push({ name: 'vaults' });
+        this.showModal = false;
         // TODO: Issue-1309 Auto refresh on deleting vault by triggering vuex state
       } catch (e) {
         console.error('failed to remove vault:', e);

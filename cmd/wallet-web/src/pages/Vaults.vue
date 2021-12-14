@@ -79,16 +79,15 @@
                 :id="`delete-vault-${vault.id.slice(-5)}`"
                 :text="t('Vaults.deleteVault')"
                 class="text-primary-vampire"
-                @click="toggleDeleteVault"
+                @click="toggleDeleteVault(vault.id)"
               />
             </flyout-menu>
-            <delete-vault :show="showModal" :vault-id="vault.id" />
           </template>
         </flyout>
       </vault-card>
-
       <vault-card type="addNew" :name="t('Vaults.addVault')" class="grid order-last" />
     </div>
+    <delete-vault :show="showModal" :vault-id="this.selectedVaultId" />
   </div>
 </template>
 
@@ -125,14 +124,17 @@ export default {
   setup() {
     const { t } = useI18n();
     const showModal = ref(false);
+    const selectedVaultId = ref('');
 
-    function toggleDeleteVault() {
+    function toggleDeleteVault(vaultId) {
+      selectedVaultId.value = vaultId;
       showModal.value = !showModal.value;
     }
 
     return {
       t,
       showModal,
+      selectedVaultId,
       toggleDeleteVault,
     };
   },

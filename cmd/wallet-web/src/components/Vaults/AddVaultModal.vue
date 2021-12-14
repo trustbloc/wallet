@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <modal :show="showModal">
+  <modal :show="showModal" :show-close-button="true">
     <template #content>
       <!--content-->
       <div
@@ -22,15 +22,6 @@
         <span class="text-lg font-bold text-neutrals-dark">
           {{ t('Vaults.addVault') }}
         </span>
-        <div>
-          <!-- TODO: use inline svg instead once https://github.com/trustbloc/edge-agent/issues/816 is fixed -->
-          <img
-            class="w-6 h-6 cursor-pointer"
-            src="@/assets/img/Icons-sm--close-icon.svg"
-            alt="Close Icon"
-            @click="closeModal"
-          />
-        </div>
       </div>
       <div class="flex items-center px-8 pt-10 w-full">
         <input-field
@@ -78,7 +69,6 @@ export default {
   name: 'AddVault',
   components: { StyledButton, InputField, Modal },
   props,
-  emits: ['close'],
   setup(props) {
     const { t } = useI18n();
     const showModal = ref(false);
@@ -102,9 +92,6 @@ export default {
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser']),
-    closeModal() {
-      this.$emit('close');
-    },
     receivedVaultName(data) {
       this.vaultName = data;
     },
@@ -117,7 +104,7 @@ export default {
         const id = await collectionManager.create(token, { name });
         if (id) {
           vaultsMutations.setVaultsOutdated(true);
-          this.closeModal();
+          this.showModal = false;
         }
         // TODO: add an error state to display in the UI
       } catch (e) {
