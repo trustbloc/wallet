@@ -65,7 +65,7 @@
         {{ t('Vaults.addVault') }}</span
       >
     </button>
-    <add-vault :show="showAddVault" @close="showAddVault = false" />
+    <add-vault :show="showAddVault" />
   </div>
 </template>
 
