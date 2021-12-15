@@ -15,22 +15,21 @@
       flex flex-row
     "
   >
-    <router-link
-      :to="{ name: 'credentials', params: { vaultId } }"
-      class="flex flex-row md:flex-col pt-5"
-    >
-      <div
-        :class="[`flex justify-center items-center w-12 h-12 bg-gradient-${color} rounded-full`]"
-      >
-        <img class="w-6 h-5" src="@/assets/img/vaults.svg" alt="Vault Icon" />
+    <app-link :to="{ name: 'credentials', params: { vaultId } }" @click="handleClick">
+      <div class="flex flex-row md:flex-col pt-5">
+        <div
+          :class="[`flex justify-center items-center w-12 h-12 bg-gradient-${color} rounded-full`]"
+        >
+          <img class="w-6 h-5" src="@/assets/img/vaults.svg" alt="Vault Icon" />
+        </div>
+        <div class="px-3 md:px-0 pb-4">
+          <span class="block pt-4 text-lg font-bold text-neutrals-dark"> {{ name }}</span>
+          <span class="block text-sm font-bold text-neutrals-medium">
+            {{ numOfCreds }}
+          </span>
+        </div>
       </div>
-      <div class="px-3 md:px-0 pb-4">
-        <span class="block pt-4 text-lg font-bold text-neutrals-dark"> {{ name }}</span>
-        <span class="block text-sm font-bold text-neutrals-medium">
-          {{ numOfCreds }}
-        </span>
-      </div>
-    </router-link>
+    </app-link>
     <div class="absolute right-4 pt-4">
       <slot />
     </div>
@@ -72,12 +71,15 @@
 <script>
 import { ref } from 'vue';
 import AddVault from '@/components/Vaults/AddVaultModal.vue';
+import AppLink from '@/components/AppLink/AppLink.vue';
 import { useI18n } from 'vue-i18n';
+import { mapActions } from 'vuex';
 
 export default {
   name: 'VaultCard',
   components: {
     AddVault,
+    AppLink,
   },
   props: {
     color: {
@@ -109,6 +111,13 @@ export default {
     return {
       showAddVault: ref(false),
     };
+  },
+  methods: {
+    ...mapActions(['updateSelectedVaultId']),
+    handleClick: function () {
+      this.updateSelectedVaultId(this.vaultId);
+      this.$router.push({ name: 'credentials', params: { vaultId: this.vaultId } });
+    },
   },
 };
 </script>

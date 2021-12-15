@@ -78,8 +78,14 @@ export default {
       state.profile = JSON.parse(localStorage.getItem('profile'));
       state.preference = JSON.parse(localStorage.getItem('preference'));
       state.chapi = JSON.parse(localStorage.getItem('chapi'));
-      state.selectedVaultId = localStorage.getItem('selectedVaultId');
-      state.selectedCredentialId = localStorage.getItem('selectedCredentialId');
+      state.selectedVaultId =
+        localStorage.getItem('selectedVaultId') === 'null'
+          ? null
+          : localStorage.getItem('selectedVaultId');
+      state.selectedCredentialId =
+        localStorage.getItem('selectedCredentialId') === 'null'
+          ? null
+          : localStorage.getItem('selectedCredentialId');
     },
   },
   actions: {

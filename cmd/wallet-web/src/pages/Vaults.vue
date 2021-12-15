@@ -23,7 +23,7 @@
         :num-of-creds="t('Vaults.foundCredentials', vault.numOfCreds)"
         :vault-id="vault.id"
       >
-        <flyout v-if="vault.name == 'Default Vault'">
+        <flyout v-if="vault.name === 'Default Vault'">
           <template #button="{ toggleFlyoutMenu }">
             <button
               id="vaults-flyout-menu-button-default"
@@ -87,7 +87,7 @@
       </vault-card>
       <vault-card type="addNew" :name="t('Vaults.addVault')" class="grid order-last" />
     </div>
-    <delete-vault :show="showModal" :vault-id="this.selectedVaultId" />
+    <delete-vault :show="showModal" :vault-id="selectedVaultId" />
   </div>
 </template>
 
