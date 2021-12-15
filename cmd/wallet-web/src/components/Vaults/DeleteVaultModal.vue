@@ -33,11 +33,11 @@
         </div>
       </div>
     </template>
-    <!-- Buttons Container -->
     <template #actionButton>
       <styled-button
         class="order-first md:order-last lg:order-last w-full md:w-auto lg:w-auto"
         type="danger"
+        :loading="loading"
         @click="deleteVault(vaultId)"
       >
         {{ t('Vaults.deleteVaultButton') }}
@@ -47,35 +47,38 @@
 </template>
 
 <script>
-import Modal from '@/components/Modal/Modal.vue';
-import { mapGetters } from 'vuex';
+import { computed, ref, watch } from 'vue';
+import { useStore } from 'vuex';
 import { CollectionManager } from '@trustbloc-cicd/wallet-sdk';
 import { useI18n } from 'vue-i18n';
+import { vaultsMutations } from '@/pages/Vaults.vue';
+import Modal from '@/components/Modal/Modal.vue';
 import StyledButton from '@/components/StyledButton/StyledButton';
-import { ref, watch } from 'vue';
 
-const props = {
-  target: {
-    type: String,
-    default: 'body',
-  },
-  vaultId: {
-    type: String,
-    required: true,
-  },
-  show: {
-    type: Boolean,
-    default: false,
-  },
-};
 export default {
   name: 'DeleteVaultModal',
   components: {
     StyledButton,
     Modal,
   },
-  props,
+  props: {
+    target: {
+      type: String,
+      default: 'body',
+    },
+    vaultId: {
+      type: String,
+      required: true,
+    },
+    show: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup(props) {
+    const store = useStore();
+    const agentInstance = computed(() => store.getters['agent/getInstance']);
+    const currentUser = computed(() => store.getters.getCurrentUser);
     const { t } = useI18n();
     const showModal = ref(false);
     watch(
@@ -85,28 +88,25 @@ export default {
       }
     );
 
-    return {
-      t,
-      showModal,
-    };
+    return { agentInstance, currentUser, showModal, t };
   },
   data() {
     return {
-      agent: null,
+      loading: false,
     };
   },
   methods: {
-    ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getCurrentUser']),
-    async deleteVault(vaultID) {
-      const { user, token } = this.getCurrentUser().profile;
-      const collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
+    async deleteVault(vaultId) {
+      this.loading = true;
+      const { user, token } = this.currentUser.profile;
+      const collectionManager = new CollectionManager({ agent: this.agentInstance, user });
       try {
-        await collectionManager.remove(token, vaultID);
+        await collectionManager.remove(token, vaultId);
+        vaultsMutations.setVaultsOutdated(true);
         this.showModal = false;
-        // TODO: Issue-1309 Auto refresh on deleting vault by triggering vuex state
+        this.loading = false;
       } catch (e) {
-        console.error('failed to remove vault:', e);
+        console.error('Error removing a vault:', e);
       }
     },
   },
