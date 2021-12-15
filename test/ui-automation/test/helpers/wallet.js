@@ -89,7 +89,7 @@ exports.validateCredentialDetails = async (vcData) => {
 };
 
 exports.deleteCredential = async () => {
-  const flyoutMenuImage = await $("#credFlyoutMenu");
+  const flyoutMenuImage = await $("#credential-details-flyout-button");
   await flyoutMenuImage.waitForExist();
   await flyoutMenuImage.waitForClickable();
   await flyoutMenuImage.click();
@@ -99,7 +99,7 @@ exports.deleteCredential = async () => {
   await deleteCredentialList.waitForClickable();
   await deleteCredentialList.click();
 
-  const deleteButton = await $("#deleteButton");
+  const deleteButton = await $("#delete-credential-button");
   await deleteButton.waitForExist();
   await deleteButton.waitForClickable();
   await deleteButton.click();

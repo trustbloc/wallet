@@ -468,21 +468,20 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
 
     await browser.navigateTo(`${browser.config.walletURL}/credentials`);
 
-    // for (const [key, value] of credential.entries()) {
-    //   console.log("validate vc in wallet : start ", key);
+    for (const [key, value] of credential.entries()) {
+      console.log("validate vc in wallet : start ", key);
 
-    //   const vcName = await $("span*=" + value.name);
-    //   await vcName.waitForExist();
-    //   await vcName.click();
+      const vcName = await $("span*=" + value.name);
+      await vcName.waitForExist();
+      await vcName.click();
 
-    //   await wallet.validateCredentialDetails(value.vcSubjectData);
-    //   console.log("validate vc in wallet : end ", key);
-    //   await wallet.deleteCredential();
-    // }
+      await wallet.validateCredentialDetails(value.vcSubjectData);
+      console.log("validate vc in wallet : end ", key);
+      await wallet.deleteCredential();
+    }
 
-    // let isEmpty = credential.entries().length === 0;
-    // console.log("length", isEmpty);
-    // expect(isEmpty).toHaveValue("0");
+    const isEmpty = credential.entries().length === 0;
+    expect(isEmpty).toHaveValue("0");
   });
 
   it(`User Sign Out (${ctx.email})`, async function () {
