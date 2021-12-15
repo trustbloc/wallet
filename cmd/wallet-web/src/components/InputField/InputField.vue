@@ -9,8 +9,9 @@
     <input
       :id="'input-' + label"
       v-bind="$attrs"
+      :name="name"
       :disabled="!characterCount"
-      @input="$emit('update', $event.target.value)"
+      @input="onInput"
       @keyup.enter="characterCount"
     />
     <label :for="'input-' + label" class="input-label">{{ label }}</label>
@@ -33,7 +34,7 @@ export default {
   props: {
     label: {
       type: String,
-      default: '',
+      required: true,
     },
     helperMessage: {
       type: String,
@@ -41,15 +42,23 @@ export default {
     },
     value: {
       type: String,
-      default: '',
+      required: true,
     },
   },
-  emits: ['update'],
+  emits: ['input'],
   computed: {
     characterCount() {
       return this.value
         ? this.value.length + '/' + this.$attrs['maxlength']
         : 0 + '/' + this.$attrs['maxlength'];
+    },
+    name() {
+      return this.label.toLowerCase();
+    },
+  },
+  methods: {
+    onInput: function (event) {
+      this.$emit('input', event.target.value);
     },
   },
 };
