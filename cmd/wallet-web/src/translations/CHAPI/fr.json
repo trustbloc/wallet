@@ -14,5 +14,12 @@
       "body": "Something went wrong. Please, try again.",
       "tryAgain": "Try Again"
     }
+  },
+  "Issue": {
+    "Error": {
+      "heading": "Error",
+      "body": "Something went wrong. Please, try again.",
+      "tryAgain": "Try Again"
+    }
   }
 }

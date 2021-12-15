@@ -50,7 +50,7 @@
 import Modal from '@/components/Modal/Modal.vue';
 import { ref, watch } from 'vue';
 import { mapGetters } from 'vuex';
-import { CredentialManager } from '@trustbloc-cicd/wallet-sdk';
+import { CredentialManager } from '@trustbloc/wallet-sdk';
 import { decode } from 'js-base64';
 import { useI18n } from 'vue-i18n';
 import StyledButton from '@/components/StyledButton/StyledButton';

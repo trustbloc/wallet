@@ -49,7 +49,7 @@
 <script>
 import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
-import { CollectionManager } from '@trustbloc-cicd/wallet-sdk';
+import { CollectionManager } from '@trustbloc/wallet-sdk';
 import { useI18n } from 'vue-i18n';
 import { vaultsMutations } from '@/pages/Vaults.vue';
 import Modal from '@/components/Modal/Modal.vue';
