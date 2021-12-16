@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/hyperledger/aries-framework-go/pkg/client/issuecredential"
+
 	"github.com/hyperledger/aries-framework-go-ext/component/vdr/orb"
 	"github.com/hyperledger/aries-framework-go/component/storageutil/mem"
 	"github.com/hyperledger/aries-framework-go/pkg/client/didexchange"
@@ -27,9 +29,10 @@ import (
 )
 
 type didComm struct {
-	OOBClient          *outofband.Client
-	DIDExchClient      *didexchange.Client
-	PresentProofClient *presentproof.Client
+	OOBClient             *outofband.Client
+	DIDExchClient         *didexchange.Client
+	PresentProofClient    *presentproof.Client
+	IssueCredentialClient *issuecredential.Client
 }
 
 func startAriesAgent() (*didComm, error) {
@@ -111,10 +114,17 @@ func startAriesAgent() (*didComm, error) {
 		return nil, fmt.Errorf("failed to create presentproof-client: %w", err)
 	}
 
+	// issue-credential client
+	issueCredentialClient, err := issuecredential.New(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create issuecredential-client: %w", err)
+	}
+
 	return &didComm{
-		OOBClient:          oobClient,
-		DIDExchClient:      didExClient,
-		PresentProofClient: presentProofClient,
+		OOBClient:             oobClient,
+		DIDExchClient:         didExClient,
+		PresentProofClient:    presentProofClient,
+		IssueCredentialClient: issueCredentialClient,
 	}, nil
 }
 
