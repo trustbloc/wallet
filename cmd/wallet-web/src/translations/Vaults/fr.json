@@ -1,17 +1,18 @@
 {
-  "heading": "Chambres fortes",
-  "allVaults": "Toutes les chambres fortes",
-  "defaultVault": "Chambre forte par défaut",
-  "addVault": "Ajouter une chambre forte",
-  "cancel": "Annuler",
   "add": "Ajouter",
   "addHelperMessage": "Utiliser des lettres et/ou des chiffres",
   "addlabel": "Nom de la chambre forte",
-  "placeholderLabel": "Entrez un nom...",
-  "foundCredentials": "{n} Identifiant | {n} Identifiants",
-  "selectVault": "Sélectionner la chambre forte",
-  "renameVault": "Renommer la chambre forte",
+  "addVault": "Ajouter une chambre forte",
+  "allVaults": "Toutes les chambres fortes",
+  "cancel": "Annuler",
+  "defaultVault": "Chambre forte par défaut",
   "deleteVault": "Supprimer la chambre forte",
   "deleteVaultButton": "Supprimer",
-  "deleteVaultConfirmMessage": "En supprimant cette chambre forte, vous supprimerez aussi les identifiants qui s’y trouvent."
+  "deleteVaultConfirmMessage": "En supprimant cette chambre forte, vous supprimerez aussi les identifiants qui s’y trouvent.",
+  "foundCredentials": "{n} Identifiant | {n} Identifiants",
+  "heading": "Chambres fortes",
+  "placeholderLabel": "Entrez un nom...",
+  "rename": "Renommer",
+  "renameVault": "Renommer la chambre forte",
+  "selectVault": "Sélectionner la chambre forte"
 }

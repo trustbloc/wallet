@@ -41,6 +41,7 @@
             </button>
           </template>
           <template #menu>
+            <!--TODO Issue-1339 Enable rename feature for default vault @click="toggleRenameModal(vault.id)"-->
             <flyout-menu>
               <flyout-button
                 id="renameVault"
@@ -74,12 +75,13 @@
                 id="renameVault"
                 :text="t('Vaults.renameVault')"
                 class="text-neutrals-medium"
+                @click="toggleRenameModal(vault.id, vault.name)"
               />
               <flyout-button
                 :id="`delete-vault-${vault.id.slice(-5)}`"
                 :text="t('Vaults.deleteVault')"
                 class="text-primary-vampire"
-                @click="toggleDeleteVault(vault.id)"
+                @click="toggleDeleteModal(vault.id)"
               />
             </flyout-menu>
           </template>
@@ -87,7 +89,12 @@
       </vault-card>
       <vault-card type="addNew" :name="t('Vaults.addVault')" class="grid order-last" />
     </div>
-    <delete-vault :show="showModal" :vault-id="selectedVaultId" />
+    <delete-vault :show="showDeleteModal" :vault-id="selectedVaultId" />
+    <rename-vault
+      :show="showRenameModal"
+      :vault-id="selectedVaultId"
+      :selected-vault-name="selectedVaultName"
+    />
   </div>
 </template>
 
@@ -96,11 +103,12 @@ import { reactive, ref, watchEffect } from 'vue';
 import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
-import VaultCard from '@/components/Vaults/VaultCard.vue';
-import Flyout from '@/components/Flyout/Flyout.vue';
-import FlyoutMenu from '@/components/Flyout/FlyoutMenu.vue';
-import FlyoutButton from '@/components/Flyout/FlyoutButton.vue';
-import DeleteVault from '@/components/Vaults/DeleteVaultModal.vue';
+import DeleteVault from '@/components/Vaults/DeleteVaultModal';
+import Flyout from '@/components/Flyout/Flyout';
+import FlyoutMenu from '@/components/Flyout/FlyoutMenu';
+import FlyoutButton from '@/components/Flyout/FlyoutButton';
+import RenameVault from '@/components/Vaults/RenameVaultModal';
+import VaultCard from '@/components/Vaults/VaultCard';
 
 export const vaultsStore = reactive({
   vaultsOutdated: false,
@@ -115,6 +123,7 @@ export const vaultsMutations = {
 export default {
   name: 'Vaults',
   components: {
+    RenameVault,
     VaultCard,
     Flyout,
     FlyoutMenu,
@@ -123,19 +132,29 @@ export default {
   },
   setup() {
     const { t } = useI18n();
-    const showModal = ref(false);
+    const showDeleteModal = ref(false);
+    const showRenameModal = ref(false);
     const selectedVaultId = ref('');
-
-    function toggleDeleteVault(vaultId) {
+    const selectedVaultName = ref('');
+    function toggleDeleteModal(vaultId, vaultName) {
       selectedVaultId.value = vaultId;
-      showModal.value = !showModal.value;
+      showDeleteModal.value = !showDeleteModal.value;
+    }
+
+    function toggleRenameModal(vaultId, vaultName) {
+      selectedVaultId.value = vaultId;
+      selectedVaultName.value = vaultName;
+      showRenameModal.value = !showRenameModal.value;
     }
 
     return {
       t,
-      showModal,
+      showDeleteModal,
+      showRenameModal,
       selectedVaultId,
-      toggleDeleteVault,
+      selectedVaultName,
+      toggleDeleteModal,
+      toggleRenameModal,
     };
   },
   data() {
