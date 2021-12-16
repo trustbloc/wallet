@@ -1,17 +1,18 @@
 {
-  "heading": "Vaults",
-  "allVaults": "All Vaults",
-  "defaultVault": "Default Vault",
-  "addVault": "Add Vault",
-  "cancel": "Cancel",
   "add": "Add",
   "addHelperMessage": "Use letters and/or numbers",
   "addlabel": "Vault Name",
-  "placeholderLabel": "Enter a name for your vault . . .",
-  "foundCredentials": "{n} Credential | {n} Credentials",
-  "selectVault": "Select Vault",
-  "renameVault": "Rename Vault",
+  "addVault": "Add Vault",
+  "allVaults": "All Vaults",
+  "cancel": "Cancel",
+  "defaultVault": "Default Vault",
   "deleteVault": "Delete Vault",
   "deleteVaultButton": "Delete",
-  "deleteVaultConfirmMessage": "Deleting this vault will delete the credentials within it as well."
+  "deleteVaultConfirmMessage": "Deleting this vault will delete the credentials within it as well.",
+  "foundCredentials": "{n} Credential | {n} Credentials",
+  "heading": "Vaults",
+  "placeholderLabel": "Enter a name for your vault . . .",
+  "rename": "Rename",
+  "renameVault": "Rename Vault",
+  "selectVault": "Select Vault"
 }

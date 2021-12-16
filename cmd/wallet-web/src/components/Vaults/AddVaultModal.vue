@@ -37,9 +37,10 @@
     </template>
     <template #actionButton>
       <styled-button
-        class="order-first md:order-last lg:order-last"
+        class="order-first md:order-last w-full md:w-auto"
         type="primary"
         @click="addVault"
+        :loading="loading"
       >
         {{ t('Vaults.add') }}
       </styled-button>

@@ -3,44 +3,46 @@
  *
  * SPDX-License-Identifier: Apache-2.0
 -->
+
 <template>
-  <modal :show="showModal">
+  <modal :show="showModal" :show-close-button="true">
     <template #content>
-      <div class="flex relative flex-col items-center px-8 pt-10 w-full">
-        <div class="flex justify-center items-center w-15 h-15 bg-primary-valencia rounded-full">
-          <svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
-            <g transform="translate(3 6)" fill="none" fill-rule="evenodd">
-              <rect stroke="#ffffff" stroke-width="2" x="1" y="1" width="24" height="19" rx="4" />
-              <ellipse fill="#ffffff" cx="8" cy="13" rx="4" ry="2" />
-              <circle fill="#ffffff" cx="8" cy="8" r="2" />
-              <path
-                stroke="#ffffff"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M16 8h5M16 13h2"
-              />
-            </g>
-          </svg>
-        </div>
-        <span class="pt-5 pb-3 text-lg font-bold text-neutrals-dark">
-          {{ t('Vaults.deleteVault') }}?
+      <div
+        class="
+          flex
+          justify-between
+          items-center
+          py-4
+          px-8
+          w-full
+          border-b-2 border-neutrals-thistle
+        "
+      >
+        <span class="text-lg font-bold text-neutrals-dark">
+          {{ t('Vaults.renameVault') }}
         </span>
-        <div class="relative flex-auto">
-          <p class="pb-12 text-base text-center text-neutrals-medium">
-            {{ t('Vaults.deleteVaultConfirmMessage') }}
-          </p>
-        </div>
+      </div>
+      <div class="flex items-center px-8 pt-10 w-full">
+        <input-field
+          v-model="vaultName"
+          :helper-message="t('Vaults.addHelperMessage')"
+          :label="t('Vaults.addlabel')"
+          :placeholder="t('Vaults.placeholderLabel')"
+          :value="vaultName"
+          type="text"
+          maxlength="42"
+          @input="updateVaultName($event)"
+        />
       </div>
     </template>
     <template #actionButton>
       <styled-button
         class="order-first md:order-last w-full md:w-auto"
-        type="danger"
+        type="primary"
         :loading="loading"
-        @click="deleteVault(vaultId)"
+        @click="renameVault(vaultId)"
       >
-        {{ t('Vaults.deleteVaultButton') }}
+        {{ t('Vaults.rename') }}
       </styled-button>
     </template>
   </modal>
@@ -53,26 +55,24 @@ import { CollectionManager } from '@trustbloc/wallet-sdk';
 import { useI18n } from 'vue-i18n';
 import { vaultsMutations } from '@/pages/Vaults.vue';
 import Modal from '@/components/Modal/Modal.vue';
+import InputField from '@/components/InputField/InputField';
 import StyledButton from '@/components/StyledButton/StyledButton';
 
 export default {
-  name: 'DeleteVaultModal',
-  components: {
-    StyledButton,
-    Modal,
-  },
+  name: 'RenameVaultModal',
+  components: { StyledButton, InputField, Modal },
   props: {
-    target: {
-      type: String,
-      default: 'body',
+    show: {
+      type: Boolean,
+      default: false,
     },
     vaultId: {
       type: String,
       required: true,
     },
-    show: {
-      type: Boolean,
-      default: false,
+    selectedVaultName: {
+      type: String,
+      required: true,
     },
   },
   setup(props) {
@@ -92,21 +92,30 @@ export default {
   },
   data() {
     return {
+      vaultName: '',
       loading: false,
     };
   },
   methods: {
-    async deleteVault(vaultId) {
+    updateVaultName(name) {
+      this.vaultName = name;
+    },
+    async renameVault(vaultId) {
       this.loading = true;
+      if (this.selectedVaultName === this.vaultName) {
+        this.loading = false;
+        this.showModal = false;
+      }
       const { user, token } = this.currentUser.profile;
       const collectionManager = new CollectionManager({ agent: this.agentInstance, user });
       try {
-        await collectionManager.remove(token, vaultId);
+        await collectionManager.update(token, vaultId, { name: this.vaultName });
         vaultsMutations.setVaultsOutdated(true);
         this.showModal = false;
         this.loading = false;
+        // TODO: add an error state to display in the UI
       } catch (e) {
-        console.error('Error removing a vault:', e);
+        console.error('Error while renaming vault:', e);
       }
     },
   },
