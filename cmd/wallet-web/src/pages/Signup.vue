@@ -74,12 +74,12 @@
           <div class="md:block object-none object-center col-span-1">
             <div class="px-6 md:pt-16 md:pr-0 md:pb-12 md:pl-16">
               <Logo class="md:hidden justify-center my-2 mt-12" />
-              <div class="items-center mb-10 text-center">
+              <div class="items-center pb-6 text-center">
                 <h1 class="text-2xl md:text-4xl font-bold text-neutrals-white">
                   {{ t('Signup.heading') }}
                 </h1>
               </div>
-              <div class="flex justify-center content-center py-24 w-full">
+              <div class="grid grid-cols-1 gap-5 w-full h-64 mb-8 content-center">
                 <Spinner v-if="loading" />
                 <button
                   v-for="(provider, index) in providers"
@@ -89,9 +89,6 @@
                     items-center
                     py-2
                     px-4
-                    mb-4
-                    w-full
-                    max-w-xs
                     h-11
                     text-sm
                     font-bold
@@ -103,11 +100,11 @@
                   @click="beginOIDCLogin(provider.id)"
                   @keyup.enter="beginOIDCLogin(provider.id)"
                 >
-                  <img class="inline-block object-contain mr-2 max-h-6" :src="provider.logoURL" />
+                  <img class="mr-2 h-6" :src="provider.logoURL" />
                   <span id="signUpText" class="flex flex-wrap">{{ provider.signUpText }}</span>
                 </button>
               </div>
-              <div class="py-10 md:pt-12 md:pb-0 text-center">
+              <div class="text-center mb-8">
                 <p class="text-base font-normal text-neutrals-white">
                   {{ t('Signup.redirect') }}
                   <router-link

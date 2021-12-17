@@ -49,7 +49,7 @@
             {{ t('Signin.heading') }}
           </span>
         </div>
-        <div class="flex justify-center content-center py-24 w-full">
+        <div class="grid grid-cols-1 gap-5 w-full sm:px-32 h-64 mb-12 items-center content-center">
           <Spinner v-if="loading" />
           <button
             v-for="(provider, index) in providers"
@@ -59,9 +59,6 @@
               items-center
               py-2
               px-4
-              mb-4
-              w-full
-              max-w-xs
               h-11
               text-sm
               font-bold
@@ -73,11 +70,11 @@
             @click="beginOIDCLogin(provider.id)"
             @keyup.enter="beginOIDCLogin(provider.id)"
           >
-            <img class="inline-block object-contain mr-2 max-h-6" :src="provider.logoURL" />
+            <img class="mr-2 max-h-6" :src="provider.logoURL" />
             <span class="flex flex-wrap">{{ provider.signInText }}</span>
           </button>
         </div>
-        <div class="py-10 md:py-12 text-center">
+        <div class="text-center mb-8">
           <p class="text-base font-normal text-neutrals-softWhite">
             {{ t('Signin.redirect') }}
             <router-link class="text-primary-blue whitespace-nowrap underline-blue" to="signup">{{
