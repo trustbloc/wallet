@@ -40,7 +40,7 @@ func main() {
 	router.Handle("/", fs)
 
 	// host demo sample ui pages
-	err = startVerifierApp(agent, router)
+	err = startAdapterApp(agent, router)
 	if err != nil {
 		panic(fmt.Errorf("failed to get verifier-app : %w", err))
 	}
