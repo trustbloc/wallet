@@ -77,9 +77,9 @@
         <div class="text-center mb-8">
           <p class="text-base font-normal text-neutrals-softWhite">
             {{ t('Signin.redirect') }}
-            <router-link class="text-primary-blue whitespace-nowrap underline-blue" to="signup">{{
-              t('Signin.signup')
-            }}</router-link>
+            <router-link class="text-primary-blue whitespace-nowrap underline-blue" to="signup"
+              >{{ t('Signin.signup') }}
+            </router-link>
           </p>
         </div>
       </div>
@@ -170,8 +170,8 @@ export default {
 
     console.debug('redirecting to', this.redirect);
 
-    // meta info related to intended target
-    this.meta = this.$route.params.meta || {};
+    // if intended target doesn't require CHAPI.
+    this.disableCHAPI = this.$route.params.disableCHAPI;
 
     // load user.
     this.loadUser();
@@ -234,8 +234,8 @@ export default {
       let user = this.getCurrentUser();
       this.registerUser(user);
 
-      if (!this.breakpoints.xs && !this.breakpoints.sm && !this.meta.disableCHAPI) {
-        // all credential handlers registration should happen here, ex: CHAPI, WACI etc
+      if (!this.breakpoints.xs && !this.breakpoints.sm && !this.disableCHAPI) {
+        // all credential handlers registration should happen here, ex: CHAPI etc
         let chapi = new CHAPIHandler(
           this.$polyfill,
           this.$webCredentialHandler,

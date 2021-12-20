@@ -42,14 +42,16 @@ router.beforeEach((to, from, next) => {
       next();
       return;
     } else {
+      const { signin, disableCHAPI } = to.meta;
       router.replace({
-        name: to.meta.signin ? 'signin' : 'signup',
+        name: signin ? 'signin' : 'signup',
         params: {
           ...router.currentRoute._value.params,
           locale: locale.base,
           redirect: to.name,
+          disableCHAPI,
         },
-        meta: to.meta,
+        query: to.query,
       });
       next();
       return;
