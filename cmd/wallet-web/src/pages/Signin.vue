@@ -225,6 +225,8 @@ export default {
     fetchProviders: async function () {
       await axios.get(this.hubAuthURL() + '/oauth2/providers').then((response) => {
         this.providers = response.data.authProviders;
+        // Sort the list of the providers based on the order property in the object.
+        this.providers.sort((prov1, prov2) => prov1.order - prov2.order);
       });
     },
     finishOIDCLogin: async function () {
