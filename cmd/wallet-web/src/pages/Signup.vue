@@ -87,8 +87,6 @@
                   :key="index"
                   class="
                     items-center
-                    py-2
-                    px-4
                     h-11
                     text-sm
                     font-bold
@@ -100,8 +98,7 @@
                   @click="beginOIDCLogin(provider.id)"
                   @keyup.enter="beginOIDCLogin(provider.id)"
                 >
-                  <img class="mr-2 h-6" :src="provider.logoURL" />
-                  <span id="signUpText" class="flex flex-wrap">{{ provider.signUpText }}</span>
+                  <img :id="provider.id" :src="provider.signUpLogoUrl" />
                 </button>
               </div>
               <div class="text-center mb-8">
