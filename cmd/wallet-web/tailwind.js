@@ -398,16 +398,15 @@ module.exports = {
             borderBottom: `2px solid ${theme('colors.neutrals.mountainMist.light')}`,
             borderRadius: `6px 6px 0px 0px`,
             color: theme('colors.neutrals.dark'),
+            outline: 'none',
+            marginBottom: 5,
 
             '&:focus': {
               borderColor: theme('colors.primary.purple.DEFAULT'),
             },
 
-            '&:invalid': {
+            '&:invalid:not(:placeholder-shown)': {
               borderColor: theme('colors.primary.valencia'),
-              '& ~ img': {
-                visibility: 'visible',
-              },
             },
           },
 
@@ -438,8 +437,8 @@ module.exports = {
             top: 17,
           },
 
-          '& .input-wordlimit': {
-            position: `absolute`,
+          '& .input-word-limit': {
+            position: 'absolute',
             height: theme('spacing.14'),
             right: theme('spacing.4'),
             color: theme('colors.neutrals.medium'),
@@ -455,11 +454,10 @@ module.exports = {
             fontSize: theme('fontSize.sm'),
             display: 'flex',
             alignItems: 'center',
-            marginTop: 5,
           },
 
           '& .fader': {
-            position: `absolute`,
+            position: 'absolute',
             top: 1,
             right: theme('spacing.16'),
             background: `linear-gradient(90deg, rgba(238, 234, 238, 0) 0%, rgb(238, 234, 238) 100%)`,
@@ -471,9 +469,8 @@ module.exports = {
             alignItems: 'center',
           },
 
-          '& img': {
-            visibility: 'hidden',
-            position: `absolute`,
+          '& .danger-icon, .checkmark-icon': {
+            position: 'absolute',
             top: 18,
             right: theme('spacing.3'),
           },

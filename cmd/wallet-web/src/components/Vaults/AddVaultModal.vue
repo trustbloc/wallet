@@ -19,19 +19,26 @@
         "
       >
         <span class="text-lg font-bold text-neutrals-dark">
-          {{ t('Vaults.addVault') }}
+          {{ t('Vaults.AddModal.addVault') }}
         </span>
       </div>
       <div class="flex items-center px-8 pt-10 w-full">
         <input-field
           v-model="vaultName"
-          :helper-message="t('Vaults.addHelperMessage')"
-          :label="t('Vaults.addlabel')"
-          :placeholder="t('Vaults.placeholderLabel')"
-          :value="vaultName"
           type="text"
+          :label="t('Vaults.label')"
+          :value="vaultName"
+          :helper-message="t('Vaults.helperMessage')"
+          :error-message="errorMessage"
+          :placeholder="t('Vaults.placeholderLabel')"
+          pattern="^[a-zA-Z\d]+$"
+          required
+          :empty-error="t('Vaults.emptyError')"
+          minlength="1"
           maxlength="42"
-          @input="updateVaultName($event)"
+          :submitted="submitted"
+          autocomplete="off"
+          @input="updateVaultName"
         />
       </div>
     </template>
@@ -39,10 +46,10 @@
       <styled-button
         class="order-first md:order-last w-full md:w-auto"
         type="primary"
-        @click="addVault"
         :loading="loading"
+        @click="addVault"
       >
-        {{ t('Vaults.add') }}
+        {{ t('Vaults.AddModal.add') }}
       </styled-button>
     </template>
   </modal>
@@ -86,26 +93,55 @@ export default {
     return {
       vaultName: '',
       loading: false,
+      submitted: false,
+      nameValid: false,
     };
   },
+  computed: {
+    errorMessage() {
+      if (this.submitted && !this.vaultName.length) {
+        return this.t('Vaults.emptyError');
+      } else if (!this.nameValid) {
+        return this.t('Vaults.patternError');
+        // TODO: issue-1359 - check if name already exists
+      } else if (false) {
+        return this.t('Vaults.alreadyExistsError');
+      } else return '';
+    },
+  },
+  watch: {
+    showModal: function () {
+      if (!this.showModal.value) {
+        this.submitted = false;
+        this.vaultName = '';
+      }
+    },
+  },
   methods: {
-    updateVaultName(name) {
+    updateVaultName({ name, valid }) {
       this.vaultName = name;
+      this.nameValid = valid;
+      this.submitted = false;
     },
     async addVault() {
-      this.loading = true;
-      const { user, token } = this.currentUser.profile;
-      const collectionManager = new CollectionManager({ agent: this.agentInstance, user });
-      try {
-        const id = await collectionManager.create(token, { name: this.vaultName });
-        if (id) {
-          vaultsMutations.setVaultsOutdated(true);
-          this.showModal = false;
-          this.loading = false;
+      this.submitted = true;
+      if (this.vaultName.length && this.nameValid) {
+        this.loading = true;
+        const { user, token } = this.currentUser.profile;
+        const collectionManager = new CollectionManager({ agent: this.agentInstance, user });
+        // await new Promise((resolve) => setTimeout(resolve, 100000));
+        try {
+          const id = await collectionManager.create(token, { name: this.vaultName });
+          if (id) {
+            vaultsMutations.setVaultsOutdated(true);
+            this.showModal = false;
+            this.loading = false;
+            this.submitted = false;
+          }
+          // TODO: add an error state to display in the UI
+        } catch (e) {
+          console.error('Error creating a new vault:', e);
         }
-        // TODO: add an error state to display in the UI
-      } catch (e) {
-        console.error('Error creating a new vault:', e);
       }
     },
   },

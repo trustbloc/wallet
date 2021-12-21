@@ -19,14 +19,14 @@
         "
       >
         <span class="text-lg font-bold text-neutrals-dark">
-          {{ t('Vaults.renameVault') }}
+          {{ t('Vaults.RenameModal.renameVault') }}
         </span>
       </div>
       <div class="flex items-center px-8 pt-10 w-full">
         <input-field
           v-model="vaultName"
-          :helper-message="t('Vaults.addHelperMessage')"
-          :label="t('Vaults.addlabel')"
+          :helper-message="t('Vaults.helperMessage')"
+          :label="t('Vaults.label')"
           :placeholder="t('Vaults.placeholderLabel')"
           :value="vaultName"
           type="text"
@@ -42,7 +42,7 @@
         :loading="loading"
         @click="renameVault(vaultId)"
       >
-        {{ t('Vaults.rename') }}
+        {{ t('Vaults.RenameModal.rename') }}
       </styled-button>
     </template>
   </modal>

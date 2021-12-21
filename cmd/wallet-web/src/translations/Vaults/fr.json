@@ -1,18 +1,26 @@
 {
-  "add": "Ajouter",
-  "addHelperMessage": "Utiliser des lettres et/ou des chiffres",
-  "addlabel": "Nom de la chambre forte",
   "addVault": "Ajouter une chambre forte",
-  "allVaults": "Toutes les chambres fortes",
-  "cancel": "Annuler",
-  "defaultVault": "Chambre forte par défaut",
+  "renameVault": "Renommer la chambre forte",
   "deleteVault": "Supprimer la chambre forte",
-  "deleteVaultButton": "Supprimer",
-  "deleteVaultConfirmMessage": "En supprimant cette chambre forte, vous supprimerez aussi les identifiants qui s’y trouvent.",
+  "selectVault": "Sélectionner la chambre forte",
+  "allVaults": "Toutes les chambres fortes",
+  "defaultVault": "Chambre forte par défaut",
   "foundCredentials": "{n} Identifiant | {n} Identifiants",
   "heading": "Chambres fortes",
   "placeholderLabel": "Entrez un nom...",
-  "rename": "Renommer",
-  "renameVault": "Renommer la chambre forte",
-  "selectVault": "Sélectionner la chambre forte"
+  "label": "Nom de la chambre forte",
+  "helperMessage": "Utiliser des lettres et/ou des chiffres",
+  "patternError": "Vous devez utiliser des lettres (A à Z) ou des chiffres (1 à 9).",
+  "emptyError": "",
+  "alreadyExistsError": "Ce nom est déjà associé à une chambre forte. Veuillez en inscrire un autre.",
+  "AddModal": {
+    "add": "Ajouter"
+  },
+  "RenameModal": {
+    "rename": "Renommer"
+  },
+  "DeleteModal": {
+    "deleteVaultButton": "Supprimer",
+    "deleteVaultConfirmMessage": "En supprimant cette chambre forte, vous supprimerez aussi les identifiants qui s’y trouvent."
+  }
 }
