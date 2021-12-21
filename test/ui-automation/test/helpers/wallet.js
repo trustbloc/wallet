@@ -31,6 +31,10 @@ exports.signIn = async () => {
   await _signIn(signedUpUserEmail);
 };
 
+exports.performSignIn = async (email=signedUpUserEmail) => {
+  await _performSignIn(email);
+};
+
 exports.createOrbDID = async () => {
   await _createOrbDID();
 };
@@ -152,6 +156,17 @@ async function _signIn(signedUpUserEmail) {
   const signInLink = await $("a*=Sign in");
   await signInLink.waitForExist();
   await signInLink.click();
+  await browser.waitUntil(async () => {
+    const signInButton = await $("button*=Demo Sign-In Partner");
+    await signInButton.waitForExist();
+    await signInButton.click();
+    await _getThirdPartyLogin(signedUpUserEmail);
+    return true;
+  });
+  return true;
+}
+
+async function _performSignIn(signedUpUserEmail) {
   await browser.waitUntil(async () => {
     const signInButton = await $("button*=Demo Sign-In Partner");
     await signInButton.waitForExist();

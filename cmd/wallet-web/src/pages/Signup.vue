@@ -205,8 +205,8 @@ export default {
 
     console.debug('redirecting to', this.redirect);
 
-    // meta info related to intended target
-    this.meta = this.$route.params.meta || {};
+    // if intended target doesn't require CHAPI.
+    this.disableCHAPI = this.$route.params.disableCHAPI;
 
     // load user.
     this.loadUser();
@@ -269,7 +269,7 @@ export default {
       let user = this.getCurrentUser();
       this.registerUser(user);
 
-      if (!this.breakpoints.xs && !this.breakpoints.sm && !this.meta.disableCHAPI) {
+      if (!this.breakpoints.xs && !this.breakpoints.sm && !this.disableCHAPI) {
         // all credential handlers registration should happen here, ex: CHAPI, WACI etc
         let chapi = new CHAPIHandler(
           this.$polyfill,
