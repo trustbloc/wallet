@@ -361,6 +361,8 @@ func createIssueCredentialMsg(sampleUDCVC []byte, redirect string) (*issuecreden
 		return nil, err
 	}
 
+	vc.ID = fmt.Sprintf("http://example.com/vcs/" + uuid.NewString())
+
 	return &issuecredential.IssueCredentialParams{
 		Type: issuecredential.IssueCredentialMsgTypeV2,
 		Formats: []issuecredential.Format{{
