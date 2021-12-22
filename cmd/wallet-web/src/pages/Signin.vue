@@ -49,7 +49,18 @@
             {{ t('Signin.heading') }}
           </span>
         </div>
-        <div class="grid grid-cols-1 gap-5 w-full sm:px-32 h-64 mb-12 items-center content-center">
+        <div
+          class="
+            grid grid-cols-1
+            gap-5
+            w-full
+            sm:px-32
+            h-64
+            mb-12
+            content-center
+            justify-items-center
+          "
+        >
           <Spinner v-if="loading" />
           <button
             v-for="(provider, index) in providers"
@@ -57,6 +68,7 @@
             :key="index"
             class="
               items-center
+              w-full
               h-11
               text-sm
               font-bold
