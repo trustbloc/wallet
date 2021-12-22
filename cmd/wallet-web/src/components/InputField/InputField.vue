@@ -79,7 +79,7 @@ export default {
     const input = ref(null);
     const pattern = new RegExp(attrs['pattern']);
     const valid = computed(() => {
-      return pattern.test(value.value);
+      return pattern.test(value.value.trim().replace(/  +/g, ' '));
     });
 
     onMounted(() => {
@@ -101,7 +101,6 @@ export default {
     onInput: function (event) {
       this.$emit('input', {
         name: event.target.value,
-        valid: this.pattern.test(event.target.value),
       });
     },
   },

@@ -64,7 +64,7 @@
         {{ t('Vaults.AddModal.addVault') }}</span
       >
     </button>
-    <add-vault :show="showAddVault" />
+    <add-vault :show="showAddVault" :existing-names="existingNames" />
   </div>
 </template>
 
@@ -100,6 +100,10 @@ export default {
     },
     vaultId: {
       type: String,
+      default: null,
+    },
+    existingNames: {
+      type: Array,
       default: null,
     },
   },

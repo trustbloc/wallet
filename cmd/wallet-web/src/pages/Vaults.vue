@@ -87,7 +87,12 @@
           </template>
         </flyout>
       </vault-card>
-      <vault-card type="addNew" :name="t('Vaults.AddModal.addVault')" class="grid order-last" />
+      <vault-card
+        type="addNew"
+        :name="t('Vaults.AddModal.addVault')"
+        :existing-names="existingNames"
+        class="grid order-last"
+      />
     </div>
     <delete-vault :show="showDeleteModal" :vault-id="selectedVaultId" />
     <rename-vault
@@ -162,6 +167,11 @@ export default {
       numOfCreds: 0,
       vaults: [],
     };
+  },
+  computed: {
+    existingNames() {
+      return this.vaults.map((vault) => vault.name);
+    },
   },
   created: async function () {
     const { user, token } = this.getCurrentUser().profile;
