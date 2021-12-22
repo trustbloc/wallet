@@ -79,7 +79,9 @@
                   {{ t('Signup.heading') }}
                 </h1>
               </div>
-              <div class="grid grid-cols-1 gap-5 w-full h-64 mb-8 content-center">
+              <div
+                class="grid grid-cols-1 gap-5 w-full h-64 mb-8 content-center justify-items-center"
+              >
                 <Spinner v-if="loading" />
                 <button
                   v-for="(provider, index) in providers"
@@ -87,6 +89,7 @@
                   :key="index"
                   class="
                     items-center
+                    w-full
                     h-11
                     text-sm
                     font-bold
