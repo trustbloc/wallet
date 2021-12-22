@@ -45,7 +45,7 @@
             <flyout-menu>
               <flyout-button
                 id="renameVault"
-                :text="t('Vaults.renameVault')"
+                :text="t('Vaults.RenameModal.renameVault')"
                 class="text-neutrals-medium"
               />
             </flyout-menu>
@@ -73,13 +73,13 @@
             <flyout-menu>
               <flyout-button
                 id="renameVault"
-                :text="t('Vaults.renameVault')"
+                :text="t('Vaults.RenameModal.renameVault')"
                 class="text-neutrals-medium"
                 @click="toggleRenameModal(vault.id, vault.name)"
               />
               <flyout-button
                 :id="`delete-vault-${vault.id.slice(-5)}`"
-                :text="t('Vaults.deleteVault')"
+                :text="t('Vaults.DeleteModal.deleteVault')"
                 class="text-primary-vampire"
                 @click="toggleDeleteModal(vault.id)"
               />
@@ -87,7 +87,7 @@
           </template>
         </flyout>
       </vault-card>
-      <vault-card type="addNew" :name="t('Vaults.addVault')" class="grid order-last" />
+      <vault-card type="addNew" :name="t('Vaults.AddModal.addVault')" class="grid order-last" />
     </div>
     <delete-vault :show="showDeleteModal" :vault-id="selectedVaultId" />
     <rename-vault

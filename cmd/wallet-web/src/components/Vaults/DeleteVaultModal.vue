@@ -24,11 +24,11 @@
           </svg>
         </div>
         <span class="pt-5 pb-3 text-lg font-bold text-neutrals-dark">
-          {{ t('Vaults.deleteVault') }}?
+          {{ t('Vaults.DeleteModal.deleteVault') }}?
         </span>
         <div class="relative flex-auto">
           <p class="pb-12 text-base text-center text-neutrals-medium">
-            {{ t('Vaults.deleteVaultConfirmMessage') }}
+            {{ t('Vaults.DeleteModal.deleteVaultConfirmMessage') }}
           </p>
         </div>
       </div>
@@ -40,7 +40,7 @@
         :loading="loading"
         @click="deleteVault(vaultId)"
       >
-        {{ t('Vaults.deleteVaultButton') }}
+        {{ t('Vaults.DeleteModal.deleteVaultButton') }}
       </styled-button>
     </template>
   </modal>

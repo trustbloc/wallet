@@ -61,7 +61,7 @@
         />
       </div>
       <span class="block pt-2 pb-4 text-base font-bold text-neutrals-dark">
-        {{ t('Vaults.addVault') }}</span
+        {{ t('Vaults.AddModal.addVault') }}</span
       >
     </button>
     <add-vault :show="showAddVault" />

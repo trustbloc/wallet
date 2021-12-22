@@ -1,18 +1,26 @@
 {
-  "add": "Add",
-  "addHelperMessage": "Use letters and/or numbers",
-  "addlabel": "Vault Name",
-  "addVault": "Add Vault",
+  "selectVault": "Select Vault",
   "allVaults": "All Vaults",
-  "cancel": "Cancel",
   "defaultVault": "Default Vault",
-  "deleteVault": "Delete Vault",
-  "deleteVaultButton": "Delete",
-  "deleteVaultConfirmMessage": "Deleting this vault will delete the credentials within it as well.",
   "foundCredentials": "{n} Credential | {n} Credentials",
   "heading": "Vaults",
   "placeholderLabel": "Enter a name for your vault . . .",
-  "rename": "Rename",
-  "renameVault": "Rename Vault",
-  "selectVault": "Select Vault"
+  "label": "Vault Name",
+  "helperMessage": "Use letters and/or numbers",
+  "patternError": "Must use letters (A-Z) and/or numbers (1-9)",
+  "emptyError": "Can't be empty. Please enter a name.",
+  "alreadyExistsError": "There's already a vault with that name. Try something else.",
+  "AddModal": {
+    "add": "Add",
+    "addVault": "Add Vault"
+  },
+  "RenameModal": {
+    "rename": "Rename",
+    "renameVault": "Rename Vault"
+  },
+  "DeleteModal": {
+    "deleteVault": "Delete Vault",
+    "deleteVaultButton": "Delete",
+    "deleteVaultConfirmMessage": "Deleting this vault will delete the credentials within it as well."
+  }
 }
