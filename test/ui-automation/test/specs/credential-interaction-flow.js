@@ -385,7 +385,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
     await browser.navigateTo(browser.config.walletURL);
 
     // 2. Sign In to the registered Wallet (register/sign-up/etc.)
-    await wallet.signIn(ctx);
+    await wallet.signIn(ctx.email);
   });
 
   it(`User validates the saved credential from mock issuer (after sign-in)`, async function () {

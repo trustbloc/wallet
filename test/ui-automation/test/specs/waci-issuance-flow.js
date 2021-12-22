@@ -42,13 +42,40 @@ describe("TrustBloc Wallet - WACI Issuance flow", () => {
   });
 
 
-  it(`User offered to save credential through WACI-Issuance (Redirect) : user signed-in`, async function () {
+  it(`User offered to save credential through WACI-Issuance (Redirect) : user (${ctx.email}) signed-in`, async function () {
     // demo issuer page
     await browser.navigateTo(browser.config.demoIssuerURL);
 
     const waciIssuanceDemoBtn = await $("#waci-issuance-demo");
     await waciIssuanceDemoBtn.waitForExist();
     await waciIssuanceDemoBtn.click();
+
+    // accept store credential
+    const storeButton = await $("#storeVCBtn");
+    await storeButton.waitForClickable();
+    await storeButton.click();
+
+    // success message
+    const getSuccessMsg = await $("b*=Successfully Sent Credential to holder");
+    await getSuccessMsg.waitForExist();
+  });
+
+  it(`User signs out - (${ctx.email})`, async function () {
+    // wallet
+    await browser.navigateTo(browser.config.walletURL);
+
+    await wallet.logout(ctx);
+  });
+
+  it(`User offered to save credential through WACI-Issuance (Redirect) : user (${ctx.email}) not signed-in`, async function () {
+    // demo issuer page
+    await browser.navigateTo(browser.config.demoIssuerURL);
+
+    const waciIssuanceDemoBtn = await $("#waci-issuance-demo");
+    await waciIssuanceDemoBtn.waitForExist();
+    await waciIssuanceDemoBtn.click();
+
+    await wallet.performSignIn(ctx.email, true);
 
     // accept store credential
     const storeButton = await $("#storeVCBtn");
