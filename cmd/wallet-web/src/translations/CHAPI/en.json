@@ -1,9 +1,10 @@
 {
   "Share": {
+    "shareCredential": "Share credential",
     "headline": "{issuer} wants you to share this credential | {issuer} wants you to share these credentials",
     "decline": "Decline",
     "share": "Share",
-    "sharingCredential": "Sharing credential...",
+    "sharingCredential": "Sharing credential . . .",
     "CredentialsMissing": {
       "heading": "Missing credentials",
       "body": "Make sure you have the required credentials in your wallet and try again.",

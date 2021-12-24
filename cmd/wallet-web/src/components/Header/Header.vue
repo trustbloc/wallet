@@ -11,7 +11,8 @@
       v-if="!isNavbarOpen"
       class="flex relative flex-col justify-center items-center p-6 w-full h-auto bg-gradient-dark"
     >
-      <div class="absolute w-full bg-gradient-full opacity-40 oval oval-navbar-closed" />
+      <slot v-if="hasCustomGradient" name="gradientContainer" />
+      <div v-else class="absolute w-full opacity-40 bg-gradient-full oval oval-navbar-closed" />
       <div class="flex flex-row justify-center items-center">
         <button v-if="!isNavbarHidden" class="absolute left-6 z-10" @click="toggleNavbar">
           <img src="@/assets/img/menu-icon.svg" />
@@ -71,6 +72,12 @@ export default {
     Logo,
     Navbar,
     NavbarLink,
+  },
+  props: {
+    hasCustomGradient: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup() {
     const { t } = useI18n();

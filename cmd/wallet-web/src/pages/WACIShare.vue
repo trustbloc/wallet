@@ -5,105 +5,43 @@
 -->
 
 <template>
-  <div class="flex justify-center items-start w-full">
+  <div class="flex overflow-hidden relative justify-start items-start w-full h-full">
     <!-- Loading State -->
-    <div
-      v-if="loading"
-      class="
-        flex
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-80
-        bg-gray-light
-        rounded-lg
-        md:border
-        border-neutrals-chatelle
-      "
-    >
+    <div v-if="loading" class="flex flex-grow justify-center items-center w-full h-full">
       <Spinner />
     </div>
     <!-- Sharing State -->
     <div
       v-else-if="sharing"
-      class="
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-80
-        bg-gray-light
-        rounded-lg
-        md:border
-        border-neutrals-chatelle
-        flex flex-col
-      "
+      class="flex flex-col flex-grow justify-center items-center w-full h-full"
     >
       <Spinner />
-      <span class="mt-8 text-base text-neutrals-dark">{{
+      <span class="mt-8 text-base md:text-lg text-neutrals-dark">{{
         t('CHAPI.Share.sharingCredential')
       }}</span>
     </div>
     <!-- Error State -->
     <div
       v-else-if="errors.length"
-      class="
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-auto
-        bg-gray-light
-        rounded-lg
-        md:border
-        border-neutrals-chatelle
-        flex flex-col
-      "
+      class="flex flex-col flex-grow justify-center items-center w-full h-full"
     >
-      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
+      <div class="flex flex-col flex-grow justify-center items-center w-full h-full">
         <img src="@/assets/img/icons-error.svg" />
-        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
+        <span class="mt-6 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
           t('CHAPI.Share.Error.heading')
         }}</span>
-        <span class="text-lg text-center text-neutrals-medium">{{
+        <span class="w-full text-lg text-center text-neutrals-medium">{{
           t('CHAPI.Share.Error.body')
         }}</span>
-      </div>
-      <div
-        class="
-          justify-center
-          items-center
-          pt-4
-          pr-5
-          pb-4
-          pl-5
-          w-full
-          bg-neutrals-magnolia
-          flex flex-row
-          border-t border-neutrals-thistle
-        "
-      >
-        <button id="share-credentials-ok-btn" class="btn-primary" @click="cancel">
+        <styled-button id="share-credentials-ok-btn" type="primary" class="mt-6" @click="cancel">
           {{ t('CHAPI.Share.Error.tryAgain') }}
-        </button>
+        </styled-button>
       </div>
     </div>
     <!-- Credentials Missing State -->
     <div
       v-else-if="showCredentialsMissing"
-      class="
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-auto
-        bg-gray-light
-        rounded-lg
-        md:border
-        border-neutrals-chatelle
-        flex flex-col
-      "
+      class="flex flex-col flex-grow justify-center items-center w-full h-full"
     >
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
@@ -113,9 +51,133 @@
         <span class="text-lg text-center text-neutrals-medium">{{
           t('CHAPI.Share.CredentialsMissing.body')
         }}</span>
+        <styled-button id="share-credentials-ok-btn" type="outline" class="mt-6" @click="cancel">
+          {{ t('CHAPI.Share.CredentialsMissing.ok') }}
+        </styled-button>
       </div>
+    </div>
+    <!-- Main State -->
+    <div
+      v-else
+      class="flex overflow-hidden flex-col flex-grow justify-between items-center w-full h-full"
+    >
+      <div class="overflow-auto w-full flex justify-center">
+        <div
+          class="
+            flex-grow
+            justify-start
+            items-start
+            pt-8
+            pr-5
+            pb-8
+            pl-5
+            md:pr-0 md:pl-0
+            w-full
+            max-w-3xl
+            h-full
+            flex flex-col
+          "
+        >
+          <span class="mb-6 text-3xl font-bold">{{ t('CHAPI.Share.shareCredential') }}</span>
+          <div class="flex flex-row justify-start items-start mb-4 w-full">
+            <div class="flex-none w-12 h-12 border-opacity-10">
+              <!-- todo issue-1055 Read meta data from external urls -->
+              <img src="@/assets/img/generic-issuer-icon.svg" />
+            </div>
+            <div class="flex flex-col pl-3">
+              <span
+                class="flex-1 mb-1 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
+              >
+                <!-- todo issue-1055 Read meta data from external urls -->
+                Requestor
+              </span>
+              <div class="flex flex-row justify-center items-center">
+                <img src="@/assets/img/small-lock-icon.svg" />
+                <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
+                  {{ requestOrigin }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <span class="text-neutrals-dark">{{
+            t('CHAPI.Share.headline', processedCredentials.length, { issuer: 'Requestor' })
+          }}</span>
+
+          <!-- Credentials Preview -->
+          <div
+            v-if="processedCredentials.length"
+            class="flex flex-col justify-start items-center mt-6 mb-6 w-full"
+          >
+            <ul class="space-y-5 w-full">
+              <li v-for="(credential, index) in processedCredentials" :key="index">
+                <!-- Credential Preview -->
+                <button
+                  :class="[
+                    `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
+                    credential.brandColor.length
+                      ? `bg-gradient-${credential.brandColor} border-neutrals-chatelle border-opacity-10 focus-within:ring-primary-${credential.brandColor}`
+                      : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
+                  ]"
+                  @click="toggleDetails(credential)"
+                >
+                  <div class="flex-none w-12 h-12 border-opacity-10">
+                    <img :src="getCrendentialIcon(credential.icon)" />
+                  </div>
+                  <div class="flex flex-grow p-4">
+                    <span
+                      :class="[
+                        `text-sm md:text-base font-bold text-left overflow-ellipsis`,
+                        credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
+                      ]"
+                    >
+                      {{ credential.title }}
+                    </span>
+                  </div>
+                </button>
+                <!-- Credential Details -->
+                <div
+                  v-if="credential.showDetails"
+                  class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full"
+                >
+                  <span class="py-3 text-base font-bold text-neutrals-dark"
+                    >What's being shared</span
+                  >
+
+                  <!-- TODO: move this to reusable components -->
+                  <table class="w-full border-t border-neutrals-chatelle">
+                    <tr
+                      v-for="(property, key) of credential.properties"
+                      :key="key"
+                      class="border-b border-neutrals-thistle border-dotted"
+                    >
+                      <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
+                      <td
+                        v-if="property.type != 'image'"
+                        class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+                      >
+                        {{ property.value }}
+                      </td>
+                      <td
+                        v-if="property.type === 'image'"
+                        class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+                      >
+                        <img :src="property.value" class="w-20 h-20" />
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <div
         class="
+          sticky
+          bottom-0
+          z-20
           justify-center
           items-center
           pt-4
@@ -128,142 +190,31 @@
           border-t border-neutrals-thistle
         "
       >
-        <button id="share-credentials-ok-btn" class="btn-outline" @click="cancel">
-          {{ t('CHAPI.Share.CredentialsMissing.ok') }}
-        </button>
-      </div>
-    </div>
-    <!-- Main State -->
-    <div v-else class="w-full max-w-md bg-gray-light rounded-lg md:border border-neutrals-chatelle">
-      <div class="p-5">
-        <!-- Heading -->
-        <div class="flex flex-row justify-start items-start mb-4 w-full">
-          <div class="flex-none w-12 h-12 border-opacity-10">
-            <!-- todo issue-1055 Read meta data from external urls -->
-            <img src="@/assets/img/generic-issuer-icon.svg" />
-          </div>
-          <div class="flex flex-col pl-3">
-            <span
-              class="flex-1 mb-1 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
-            >
-              <!-- todo issue-1055 Read meta data from external urls -->
-              Requestor
-            </span>
-            <div class="flex flex-row justify-center items-center">
-              <img src="@/assets/img/small-lock-icon.svg" />
-              <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
-                {{ requestOrigin }}
-              </span>
-            </div>
-          </div>
+        <div class="flex flex-row flex-grow justify-between items-center w-full max-w-3xl">
+          <styled-button id="cancelBtn" type="outline" @click="cancel">
+            {{ t('CHAPI.Share.decline') }}
+          </styled-button>
+          <styled-button id="share-credentials" type="primary" @click="share">
+            {{ t('CHAPI.Share.share') }}
+          </styled-button>
         </div>
-
-        <span class="text-neutrals-dark">{{
-          t('CHAPI.Share.headline', processedCredentials.length, { issuer: 'Requestor' })
-        }}</span>
-
-        <!-- Credentials Preview -->
-        <div
-          v-if="processedCredentials.length"
-          class="flex flex-col justify-start items-center mt-6 mb-6 w-full"
-        >
-          <ul class="space-y-5 w-full">
-            <li v-for="(credential, index) in processedCredentials" :key="index">
-              <!-- Credential Preview -->
-              <button
-                :class="[
-                  `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
-                  credential.brandColor.length
-                    ? `bg-gradient-${credential.brandColor} border-neutrals-chatelle border-opacity-10 focus-within:ring-primary-${credential.brandColor}`
-                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
-                ]"
-                @click="toggleDetails(credential)"
-              >
-                <div class="flex-none w-12 h-12 border-opacity-10">
-                  <img :src="getCrendentialIcon(credential.icon)" />
-                </div>
-                <div class="flex-grow p-4">
-                  <span
-                    :class="[
-                      `text-sm md:text-base font-bold text-left overflow-ellipsis`,
-                      credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
-                    ]"
-                  >
-                    {{ credential.title }}
-                  </span>
-                </div>
-              </button>
-              <!-- Credential Details -->
-              <div
-                v-if="credential.showDetails"
-                class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full"
-              >
-                <span class="py-3 text-base font-bold text-neutrals-dark">What's being shared</span>
-
-                <!-- TODO: move this to reusable components -->
-                <table class="w-full border-t border-neutrals-chatelle">
-                  <tr
-                    v-for="(property, key) of credential.properties"
-                    :key="key"
-                    class="border-b border-neutrals-thistle border-dotted"
-                  >
-                    <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
-                    <td
-                      v-if="property.type != 'image'"
-                      class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
-                    >
-                      {{ property.value }}
-                    </td>
-                    <td
-                      v-if="property.type === 'image'"
-                      class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
-                    >
-                      <img :src="property.value" class="w-20 h-20" />
-                    </td>
-                  </tr>
-                </table>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div
-        class="
-          justify-between
-          items-center
-          pt-4
-          pr-5
-          pb-4
-          pl-5
-          w-full
-          bg-neutrals-magnolia
-          rounded-b-lg
-          flex flex-row
-          border-t border-neutrals-thistle
-        "
-      >
-        <button id="cancelBtn" class="btn-outline" @click="cancel">
-          {{ t('CHAPI.Share.decline') }}
-        </button>
-        <button id="share-credentials" class="btn-primary" @click="share">
-          {{ t('CHAPI.Share.share') }}
-        </button>
       </div>
     </div>
   </div>
 </template>
 <script>
 import { toRaw } from 'vue';
+import { mapGetters } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import { DIDComm } from '@trustbloc/wallet-sdk';
 import { getCredentialType, getCredentialDisplayData, getCrendentialIcon } from '@/utils/mixins';
-import { mapGetters } from 'vuex';
 import Spinner from '@/components/Spinner/Spinner.vue';
-import { useI18n } from 'vue-i18n';
+import StyledButton from '@/components/StyledButton/StyledButton.vue';
 
 export default {
   components: {
     Spinner,
+    StyledButton,
   },
   setup() {
     const { t } = useI18n();

@@ -1,5 +1,6 @@
 {
   "Share": {
+    "shareCredential": "Partager preuve d’identité",
     "headline": "{issuer} veut que vous lui transmettiez cette preuve d’identité : | {issuer} veut que vous lui transmettiez ces preuves d’identité :",
     "decline": "Refuser",
     "share": "Transmettre",
