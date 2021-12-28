@@ -31,7 +31,7 @@
           :helper-message="t('Vaults.helperMessage')"
           :error-message="errorMessage"
           :placeholder="t('Vaults.placeholderLabel')"
-          pattern="^[a-zA-Z\d]+$"
+          :pattern="pattern"
           required
           :empty-error="t('Vaults.emptyError')"
           minlength="1"
@@ -73,6 +73,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    existingNames: {
+      type: Array,
+      required: true,
+    },
   },
   setup(props) {
     const store = useStore();
@@ -94,19 +98,43 @@ export default {
       vaultName: '',
       loading: false,
       submitted: false,
-      nameValid: false,
     };
   },
   computed: {
     errorMessage() {
-      if (this.submitted && !this.vaultName.length) {
+      if (this.submitted && this.nameEmpty) {
         return this.t('Vaults.emptyError');
       } else if (!this.nameValid) {
         return this.t('Vaults.patternError');
-        // TODO: issue-1359 - check if name already exists
-      } else if (false) {
+      } else if (this.nameAlreadyExists) {
         return this.t('Vaults.alreadyExistsError');
       } else return '';
+    },
+    // Returns true if the length of the trimmed name is 0
+    nameEmpty() {
+      return this.vaultName.trim().replace(/ +/g, '\\s+').length === 0;
+    },
+    // Returns true if the name only contains letters, numbers or whitespace characters
+    nameValid() {
+      const re = new RegExp('^[a-zA-Z\\d]+(?:[a-zA-Z\\d\\s]+)*$');
+      return re.test(this.vaultName.trim().replace(/  +/g, ' '));
+    },
+    // Returns true if the trimmed name matches one of the existing vaults' names
+    nameAlreadyExists() {
+      let existingNamesRegex = `(?=^${this.existingNames[0].replace(/ +/g, '\\s+')}$)`;
+      this.existingNames.map((name) => {
+        existingNamesRegex += `|(?=^${name.replace(/ +/g, '\\s+')}$)`;
+      });
+      const re = new RegExp(existingNamesRegex);
+      return re.test(this.vaultName.trim().replace(/  +/g, ' '));
+    },
+    // Returns a string regex to pass down to the InputField's pattern attribute
+    pattern() {
+      let existingNamesRegex = '';
+      this.existingNames.map((name) => {
+        existingNamesRegex += `(?!^${name.replace(/ +/g, '\\s+')}$)`;
+      });
+      return `${existingNamesRegex}(^[a-zA-Z\\d]+(?:[a-zA-Z\\d\\s]+)*$)`;
     },
   },
   watch: {
@@ -118,20 +146,20 @@ export default {
     },
   },
   methods: {
-    updateVaultName({ name, valid }) {
+    updateVaultName({ name }) {
       this.vaultName = name;
-      this.nameValid = valid;
       this.submitted = false;
     },
     async addVault() {
       this.submitted = true;
-      if (this.vaultName.length && this.nameValid) {
+      if (this.vaultName.length && this.nameValid && !this.nameAlreadyExists) {
         this.loading = true;
         const { user, token } = this.currentUser.profile;
         const collectionManager = new CollectionManager({ agent: this.agentInstance, user });
-        // await new Promise((resolve) => setTimeout(resolve, 100000));
         try {
-          const id = await collectionManager.create(token, { name: this.vaultName });
+          const id = await collectionManager.create(token, {
+            name: this.vaultName.trim().replace(/  +/g, ' '),
+          });
           if (id) {
             vaultsMutations.setVaultsOutdated(true);
             this.showModal = false;
