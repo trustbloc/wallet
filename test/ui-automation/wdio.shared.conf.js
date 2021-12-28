@@ -32,9 +32,10 @@ exports.config = {
   // directory is where your package.json resides, so `wdio` will be called from there.
   //
   specs: [
-    "./test/specs/waci-share-flow.js",
-    "./test/specs/waci-issuance-flow.js",
-    "./test/specs/credential-interaction-flow.js",
+    "./test/specs/vault-interaction-flow.js",
+    // './test/specs/waci-share-flow.js',
+    // './test/specs/waci-issuance-flow.js',
+    // './test/specs/credential-interaction-flow.js',
   ],
   // Patterns to exclude.
   exclude: [
@@ -80,7 +81,7 @@ exports.config = {
         // to run chrome headless the following flags are required
         // (see https://developers.google.com/web/updates/2017/04/headless-chrome)
         args: [
-          "--headless",
+          "--chrome",
           "--no-sandbox",
           "--disable-gpu",
           "--disable-dev-shm-usage",
