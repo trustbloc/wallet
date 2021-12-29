@@ -23,7 +23,7 @@
         :num-of-creds="t('Vaults.foundCredentials', vault.numOfCreds)"
         :vault-id="vault.id"
       >
-        <flyout v-if="vault.name === 'Default Vault'">
+        <flyout v-if="vaults.length === 1">
           <template #button="{ toggleFlyoutMenu }">
             <button
               id="vaults-flyout-menu-button-default"
@@ -41,12 +41,12 @@
             </button>
           </template>
           <template #menu>
-            <!--TODO Issue-1339 Enable rename feature for default vault @click="toggleRenameModal(vault.id)"-->
             <flyout-menu>
               <flyout-button
                 id="renameVault"
                 :text="t('Vaults.RenameModal.renameVault')"
                 class="text-neutrals-medium"
+                @click="toggleRenameModal(vault.id, vault.name)"
               />
             </flyout-menu>
           </template>
@@ -98,7 +98,7 @@
     <rename-vault
       :show="showRenameModal"
       :vault-id="selectedVaultId"
-      :selected-vault-name="selectedVaultName"
+      :existing-names="existingNames"
     />
   </div>
 </template>
@@ -140,7 +140,6 @@ export default {
     const showDeleteModal = ref(false);
     const showRenameModal = ref(false);
     const selectedVaultId = ref('');
-    const selectedVaultName = ref('');
     function toggleDeleteModal(vaultId, vaultName) {
       selectedVaultId.value = vaultId;
       showDeleteModal.value = !showDeleteModal.value;
@@ -148,7 +147,6 @@ export default {
 
     function toggleRenameModal(vaultId, vaultName) {
       selectedVaultId.value = vaultId;
-      selectedVaultName.value = vaultName;
       showRenameModal.value = !showRenameModal.value;
     }
 
@@ -157,7 +155,6 @@ export default {
       showDeleteModal,
       showRenameModal,
       selectedVaultId,
-      selectedVaultName,
       toggleDeleteModal,
       toggleRenameModal,
     };

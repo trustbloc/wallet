@@ -25,13 +25,20 @@
       <div class="flex items-center px-8 pt-10 w-full">
         <input-field
           v-model="vaultName"
-          :helper-message="t('Vaults.helperMessage')"
-          :label="t('Vaults.label')"
-          :placeholder="t('Vaults.placeholderLabel')"
-          :value="vaultName"
           type="text"
+          :label="t('Vaults.label')"
+          :value="vaultName"
+          :helper-message="t('Vaults.helperMessage')"
+          :error-message="errorMessage"
+          :placeholder="t('Vaults.placeholderLabel')"
+          :pattern="pattern"
+          required
+          :empty-error="t('Vaults.emptyError')"
+          minlength="1"
           maxlength="42"
-          @input="updateVaultName($event)"
+          :submitted="submitted"
+          autocomplete="off"
+          @input="updateVaultName"
         />
       </div>
     </template>
@@ -66,11 +73,11 @@ export default {
       type: Boolean,
       default: false,
     },
-    vaultId: {
-      type: String,
+    existingNames: {
+      type: Array,
       required: true,
     },
-    selectedVaultName: {
+    vaultId: {
       type: String,
       required: true,
     },
@@ -94,28 +101,74 @@ export default {
     return {
       vaultName: '',
       loading: false,
+      submitted: false,
     };
   },
+  computed: {
+    errorMessage() {
+      if (this.submitted && this.nameEmpty) {
+        return this.t('Vaults.emptyError');
+      } else if (!this.nameValid) {
+        return this.t('Vaults.patternError');
+      } else if (this.nameAlreadyExists) {
+        return this.t('Vaults.alreadyExistsError');
+      } else return '';
+    },
+    // Returns true if the length of the trimmed name is 0
+    nameEmpty() {
+      return this.vaultName.trim().replace(/ +/g, '\\s+').length === 0;
+    },
+    // Returns true if the name only contains letters, numbers or whitespace characters
+    nameValid() {
+      const re = new RegExp('^[a-zA-Z\\d]+(?:[a-zA-Z\\d\\s]+)*$');
+      return re.test(this.vaultName.trim().replace(/  +/g, ' '));
+    },
+    // Returns true if the trimmed name matches one of the existing vaults' names
+    nameAlreadyExists() {
+      let existingNamesRegex = `(?=^${this.existingNames[0].replace(/ +/g, '\\s+')}$)`;
+      this.existingNames.map((name) => {
+        existingNamesRegex += `|(?=^${name.replace(/ +/g, '\\s+')}$)`;
+      });
+      const re = new RegExp(existingNamesRegex);
+      return re.test(this.vaultName.trim().replace(/  +/g, ' '));
+    },
+    // Returns a string regex to pass down to the InputField's pattern attribute
+    pattern() {
+      let existingNamesRegex = '';
+      this.existingNames.map((name) => {
+        existingNamesRegex += `(?!^${name.replace(/ +/g, '\\s+')}$)`;
+      });
+      return `${existingNamesRegex}(^[a-zA-Z\\d]+(?:[a-zA-Z\\d\\s]+)*$)`;
+    },
+  },
+  watch: {
+    showModal: function () {
+      if (!this.showModal.value) {
+        this.submitted = false;
+        this.vaultName = '';
+      }
+    },
+  },
   methods: {
-    updateVaultName(name) {
+    updateVaultName({ name }) {
       this.vaultName = name;
+      this.submitted = false;
     },
     async renameVault(vaultId) {
-      this.loading = true;
-      if (this.selectedVaultName === this.vaultName) {
-        this.loading = false;
-        this.showModal = false;
-      }
-      const { user, token } = this.currentUser.profile;
-      const collectionManager = new CollectionManager({ agent: this.agentInstance, user });
-      try {
-        await collectionManager.update(token, vaultId, { name: this.vaultName });
-        vaultsMutations.setVaultsOutdated(true);
-        this.showModal = false;
-        this.loading = false;
-        // TODO: add an error state to display in the UI
-      } catch (e) {
-        console.error('Error while renaming vault:', e);
+      this.submitted = true;
+      if (this.vaultName.length && this.nameValid && !this.nameAlreadyExists) {
+        this.loading = true;
+        const { user, token } = this.currentUser.profile;
+        const collectionManager = new CollectionManager({ agent: this.agentInstance, user });
+        try {
+          await collectionManager.update(token, vaultId, { name: this.vaultName });
+          vaultsMutations.setVaultsOutdated(true);
+          this.showModal = false;
+          this.loading = false;
+          this.submitted = false;
+        } catch (e) {
+          console.error('Error while renaming vault:', e);
+        }
       }
     },
   },
