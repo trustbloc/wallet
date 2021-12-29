@@ -166,7 +166,6 @@ export default {
             this.loading = false;
             this.submitted = false;
           }
-          // TODO: add an error state to display in the UI
         } catch (e) {
           console.error('Error creating a new vault:', e);
         }
