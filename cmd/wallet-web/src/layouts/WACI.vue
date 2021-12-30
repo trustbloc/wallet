@@ -5,17 +5,37 @@
 -->
 
 <template>
-  <div>
-    <component :is="component"></component>
+  <div
+    class="
+      flex-grow
+      justify-start
+      items-center
+      mx-auto
+      max-w-7xl
+      h-screen
+      max-h-screen
+      flex flex-col
+      shadow-main-container
+    "
+  >
+    <Header :has-custom-gradient="true">
+      <template #gradientContainer>
+        <div class="absolute h-15 bg-gradient-full oval" />
+      </template>
+    </Header>
+    <component :is="component" class="z-10 flex-grow h-full bg-neutrals-softWhite"></component>
+    <Footer class="sticky bottom-0 z-20 border-t border-neutrals-thistle bg-neutrals-magnolia" />
   </div>
 </template>
 
 <script>
+import { extractOOBGoalCode } from '@trustbloc/wallet-sdk';
+import { WACIRedirectHandler } from '@/utils/mixins';
+import { decode } from 'js-base64';
 import WACIShareForm from '@/pages/WACIShare.vue';
 import WACIIssuanceForm from '@/pages/WACIIssue.vue';
-import { WACIRedirectHandler } from '@/utils/mixins';
-import { extractOOBGoalCode } from '@trustbloc/wallet-sdk';
-const { Base64 } = require('js-base64');
+import Header from '@/components/Header/Header.vue';
+import Footer from '@/components/Footer/Footer.vue';
 
 function findForm(query) {
   if (!query.oob) {
@@ -23,7 +43,7 @@ function findForm(query) {
     throw 'access denied, oob invitation missing';
   }
 
-  const invitation = JSON.parse(Base64.decode(query.oob));
+  const invitation = JSON.parse(decode(query.oob));
 
   switch (extractOOBGoalCode(invitation)) {
     case 'streamlined-vc':
@@ -46,6 +66,10 @@ function findForm(query) {
 }
 
 export default {
+  components: {
+    Header,
+    Footer,
+  },
   data() {
     return {
       component: null,
@@ -60,3 +84,13 @@ export default {
   },
 };
 </script>
+<style>
+.oval {
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  filter: blur(50px);
+  width: 15.625rem; /* 250px */
+  top: 2.0625rem; /* 33px */
+}
+</style>

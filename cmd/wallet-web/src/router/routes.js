@@ -35,18 +35,18 @@ export default [
         meta: { requiresAuth: true },
       },
       {
-        path: 'waci',
-        name: 'waci',
-        component: load('layouts/WACI'),
-        meta: { requiresAuth: true, signin: true, disableCHAPI: true },
-      },
-      {
         path: 'did-management',
         name: 'did-management',
         component: load('pages/DIDManagement'),
         meta: { requiresAuth: true },
       },
     ],
+  },
+  {
+    path: 'waci',
+    name: 'waci',
+    component: load('layouts/WACI'),
+    meta: { requiresAuth: true, signin: true, disableCHAPI: true, isNavbarHidden: true },
   },
   {
     path: 'StoreInWallet',

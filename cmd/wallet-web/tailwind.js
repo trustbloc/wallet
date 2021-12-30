@@ -158,7 +158,7 @@ module.exports = {
       dark: `linear-gradient(-135deg, ${theme('gradientColorStops.haiti')} 0%, ${theme(
         'gradientColorStops.ebony'
       )} 100%)`,
-      full: `linear-gradient(-225deg, ${theme('gradientColorStops.apricot')} 0%, ${theme(
+      full: `linear-gradient(153deg, ${theme('gradientColorStops.apricot')} 0%, ${theme(
         'gradientColorStops.hibiscus.dark'
       )} 26%, ${theme('gradientColorStops.copperfield')} 47%, ${theme(
         'gradientColorStops.vividViolet.DEFAULT'
