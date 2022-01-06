@@ -8,6 +8,8 @@ SPDX-License-Identifier: Apache-2.0
 
 const constants = require("./constants");
 const {allow} = require("./chapi");
+const {wallet} = require("./index");
+const {expect} = require("chai");
 
 const DIDS = constants.dids;
 const timeout = 60000;
@@ -57,6 +59,30 @@ exports.storeCredentials = async () => {
 
 exports.presentCredentials = async () => {
     await _sendCredentials();
+};
+
+exports.addNewVault = async () => {
+    await _addNewVault();
+};
+
+exports.vaultNameInput = async (vaultName) => {
+    await _vaultNameInput(vaultName);
+};
+
+exports.createVault = async () => {
+    await _createVault();
+};
+
+exports.cancelAddVault = async () => {
+    await _cancelAddVault();
+};
+
+exports.validationError = async (msg) => {
+    await _validationError(msg);
+};
+
+exports.validateUserInput = async (vaultName, errMsg) => {
+    await _validateUserInput(vaultName, errMsg);
 };
 
 exports.didConnect = async () => {
@@ -320,3 +346,51 @@ async function _updatePreferences() {
 
     // TODO validate success message
 }
+
+async function _addNewVault() {
+    // User click on Add Vault button
+    const addVaultButton = await $("#addNew");
+    await addVaultButton.waitForExist();
+    await addVaultButton.click();
+
+    const addVaultModal = await $("#modal");
+    expect(addVaultModal).exist
+}
+
+async function _vaultNameInput(vaultName){
+    // User enters vault name
+    const addVaultInput = await $("#input-Name");
+    await addVaultInput.click();
+    await addVaultInput.clearValue();
+    await addVaultInput.addValue(vaultName);
+}
+
+async function _createVault(){
+    const addAction = await $('.btn-primary*=Add')
+    await addAction.click();
+}
+
+async function _validationError(msg){
+    const dangerIcon = await $('.danger-icon')
+    await dangerIcon.waitForExist();
+
+    const errorMsg = await $('.text-primary-vampire')
+    expect(errorMsg).toHaveValue(msg);
+}
+
+async function _cancelAddVault() {
+    const cancelVaultButton = await $('.btn-outline*=Cancel');
+    await cancelVaultButton.click();
+    expect(browser.config.walletURL).toHaveValue("vaults");
+}
+
+async function _validateUserInput(vaultName, errMsg) {
+    await _addNewVault();
+    await _vaultNameInput(vaultName);
+    await _createVault();
+
+    // Look for danger icon
+    await _validationError(errMsg)
+    await _cancelAddVault();
+}
+
