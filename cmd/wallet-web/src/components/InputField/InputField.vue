@@ -7,7 +7,7 @@
 <template>
   <div class="input-container">
     <input
-      :id="'input-' + label"
+      :id="`input-${label.slice(6)}`"
       ref="input"
       v-bind="$attrs"
       :name="name"
@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { computed, onMounted, toRefs, watchEffect, ref } from 'vue';
+import { computed, onMounted, ref, toRefs, watchEffect } from 'vue';
 
 export default {
   name: 'InputField',
