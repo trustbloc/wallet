@@ -88,6 +88,7 @@
         </flyout>
       </vault-card>
       <vault-card
+        id="add-new-vault-button"
         type="addNew"
         :name="t('Vaults.AddModal.addVault')"
         :existing-names="existingNames"

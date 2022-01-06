@@ -35,6 +35,7 @@ exports.config = {
     "./test/specs/waci-share-flow.js",
     "./test/specs/waci-issuance-flow.js",
     "./test/specs/credential-interaction-flow.js",
+    "./test/specs/vault-interaction-flow.js",
   ],
   // Patterns to exclude.
   exclude: [

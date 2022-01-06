@@ -7,7 +7,7 @@
 <template>
   <div class="input-container">
     <input
-      :id="'input-' + label"
+      :id="id"
       ref="input"
       v-bind="$attrs"
       :name="name"
@@ -20,7 +20,9 @@
     <span v-if="valid || (!submitted && !value.length)" class="input-helper">{{
       helperMessage
     }}</span>
-    <span v-else class="text-sm font-bold text-primary-vampire">{{ errorMessage }}</span>
+    <span v-else :id="`${id}-error-msg`" class="text-sm font-bold text-primary-vampire">{{
+      errorMessage
+    }}</span>
     <div class="fader" />
     <!-- TODO: use inline svg instead once https://github.com/trustbloc/edge-agent/issues/816 is fixed -->
     <img
@@ -38,7 +40,7 @@
 </template>
 
 <script>
-import { computed, onMounted, toRefs, watchEffect, ref } from 'vue';
+import { computed, onMounted, ref, toRefs, watchEffect } from 'vue';
 
 export default {
   name: 'InputField',
@@ -76,6 +78,9 @@ export default {
       value ? value.value.length + '/' + attrs['maxlength'] : 0 + '/' + attrs['maxlength']
     );
     const name = computed(() => label.value.toLowerCase());
+    const id = computed(() => {
+      return 'input-' + label.value.replaceAll(/\s+/g, '');
+    });
     const input = ref(null);
     const pattern = new RegExp(attrs['pattern']);
     const valid = computed(() => {
@@ -90,7 +95,7 @@ export default {
       });
     });
 
-    return { characterCount, input, name, pattern, valid };
+    return { characterCount, input, name, pattern, valid, id };
   },
   data() {
     return {

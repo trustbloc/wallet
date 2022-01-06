@@ -59,6 +59,30 @@ exports.presentCredentials = async () => {
     await _sendCredentials();
 };
 
+exports.addNewVault = async (vaultName) => {
+    await _addNewVault(vaultName);
+};
+
+exports.vaultNameInput = async (vaultName) => {
+    await _vaultNameInput(vaultName);
+};
+
+exports.createVault = async () => {
+    await _createVault();
+};
+
+exports.cancelAddVault = async () => {
+    await _cancelAddVault();
+};
+
+exports.validationError = async (msg) => {
+    await _validationError(msg);
+};
+
+exports.validateUserInput = async (vaultName, errMsg) => {
+    await _validateUserInput(vaultName, errMsg);
+};
+
 exports.didConnect = async () => {
     const didConnectBtn = await $("#didconnect");
     await didConnectBtn.waitForExist();
@@ -320,3 +344,47 @@ async function _updatePreferences() {
 
     // TODO validate success message
 }
+
+async function _addNewVault(vaultName) {
+    // User click on Add Vault button
+    await browser.refresh();
+    await browser.pause(9000);
+    const addVaultButton = await $("#add-new-vault-button");
+    await addVaultButton.click();
+    await _vaultNameInput(vaultName);
+    await _createVault();
+}
+
+async function _vaultNameInput(vaultName){
+    // User enters vault name
+    const addVaultInput = await $("#input-VaultName");
+    await addVaultInput.click();
+    await addVaultInput.setValue(vaultName);
+}
+
+async function _createVault(){
+    const addAction = await $('.btn-primary*=Add')
+    await addAction.click();
+}
+
+async function _validationError(msg){
+    const errorMsg = await $("#input-VaultName-error-msg")
+    expect(errorMsg).toHaveValue(msg);
+
+    const dangerIcon = await $('.danger-icon')
+    await dangerIcon.waitForExist();
+}
+
+async function _cancelAddVault() {
+    const cancelVaultButton = await $('.btn-outline*=Cancel');
+    await cancelVaultButton.click();
+    expect(browser.config.walletURL).toHaveValue("vaults");
+}
+
+async function _validateUserInput(vaultName, errMsg) {
+    await _addNewVault(vaultName);
+    // Look for danger icon
+    await _validationError(errMsg)
+    await _cancelAddVault();
+}
+
