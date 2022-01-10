@@ -24,7 +24,7 @@ export SHELL	:= /bin/bash
 export TERM		:= xterm-256color
 
 .PHONY: all
-all: clean checks unit-test
+all: clean checks unit-test automation-test
 
 .PHONY: checks
 checks: license lint
