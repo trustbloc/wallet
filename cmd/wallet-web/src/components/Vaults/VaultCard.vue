@@ -34,8 +34,8 @@
       <slot />
     </div>
   </div>
-  <div v-else-if="type === 'addNew'">
-    <button
+  <div v-else-if="type === 'addNew'" class="relative">
+    <div
       class="
         justify-center
         items-center
@@ -51,7 +51,6 @@
         border border-neutrals-dark border-opacity-10
         flex flex-col
       "
-      @click="showAddVault = !showAddVault"
     >
       <div class="flex justify-center items-center w-8 h-8 bg-neutrals-white rounded-full">
         <img
@@ -63,7 +62,12 @@
       <span class="block pt-2 pb-4 text-base font-bold text-neutrals-dark">
         {{ t('Vaults.AddModal.addVault') }}</span
       >
-    </button>
+    </div>
+    <button
+      :id="id"
+      @click="showAddVault = !showAddVault"
+      class="absolute top-0 left-0 z-0 w-full h-full cursor-pointer"
+    />
     <add-vault :show="showAddVault" :existing-names="existingNames" />
   </div>
 </template>
@@ -82,6 +86,10 @@ export default {
     AppLink,
   },
   props: {
+    id: {
+      type: String,
+      default: '',
+    },
     color: {
       type: String,
       default: 'purple',
