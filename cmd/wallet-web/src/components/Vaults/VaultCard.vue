@@ -15,7 +15,7 @@
       flex flex-row
     "
   >
-    <app-link :to="{ name: 'credentials', params: { vaultId } }" @click="handleClick">
+    <app-link :id="id" :to="{ name: 'credentials', params: { vaultId } }" @click="handleClick">
       <div class="flex flex-row md:flex-col pt-5">
         <div
           :class="[`flex justify-center items-center w-12 h-12 bg-gradient-${color} rounded-full`]"

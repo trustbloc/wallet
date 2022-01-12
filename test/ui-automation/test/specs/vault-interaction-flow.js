@@ -85,5 +85,37 @@ describe("TrustBloc Wallet - Add/Rename/Delete Vault flow", () => {
         await wallet.validateUserInput(invalidVaultName, "Must use letters (A-Z) and/or numbers (1-9)" );
         await wallet.validateUserInput(validVaultName, "There's already a vault with that name. Try something else." );
     });
-    //TODO: Issue-1393 Add locale support and test scenario for vault name with the spaces. 
+    it(`User enter vault name with spaces`, async function () {
+        // vault name with multiple trailing spaces
+        await wallet.validateVaultNameWithSpaces('Testing Vault with trailing spaces   ', 'Testing Vault with trailing spaces');
+        // vault name with repetitive spaces
+        await wallet.validateVaultNameWithSpaces('Testing Vault   with repetitive spaces', 'Testing Vault with repetitive spaces');
+        // vault name with leading spaces
+        await wallet.validateVaultNameWithSpaces('   Testing Vault with leading spaces', 'Testing Vault with leading spaces');
+        // vault name with all the spaces combined
+        await wallet.validateVaultNameWithSpaces('   Testing    vault  with  all   spaces   ', 'Testing vault with all spaces');
+    });
+    it(`User changes vault locale (${ctx.email})`, async function () {
+        this.timeout(90000);
+
+        // 1. Navigate to Wallet Website
+        await browser.navigateTo(browser.config.walletURL);
+
+        // 2. Change locale
+        const localeSwitcherLink = await $("a*=Français");
+        await localeSwitcherLink.waitForExist();
+        await localeSwitcherLink.click();
+        await browser.waitUntil(async () => {
+            // Verifying lang attribute is set to French on the page
+            await expect(browser).toHaveUrlContaining(browser.config.walletURLFrench);
+            const headingLink = await $("h3*=Chambres fortes");
+            expect(headingLink).toHaveValue("Chambres fortes");
+            const addVaultButton = await $("#add-new-vault-button");
+            expect(addVaultButton).toHaveValue("Ajouter une chambre forte");
+            const allVaultsButton = await $("#all-vaults-button");
+            expect(allVaultsButton).toHaveValue("Toutes les chambres fortes");
+            return true;
+        });
+    });
+
 });

@@ -14,10 +14,12 @@
   "emptyError": "",
   "alreadyExistsError": "Ce nom est déjà associé à une chambre forte. Veuillez en inscrire un autre.",
   "AddModal": {
-    "add": "Ajouter"
+    "add": "Ajouter",
+    "addVault": "Ajouter une chambre forte"
   },
   "RenameModal": {
-    "rename": "Renommer"
+    "rename": "Renommer",
+    "renameVault": "Renommer la chambre forte"
   },
   "DeleteModal": {
     "deleteVaultButton": "Supprimer",
