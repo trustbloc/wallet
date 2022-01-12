@@ -79,6 +79,10 @@ exports.validationError = async (msg) => {
     await _validationError(msg);
 };
 
+exports.validateVaultNameWithSpaces = async (actualVal, expectedVal) => {
+    await _validateVaultNameWithSpaces(actualVal, expectedVal);
+};
+
 exports.validateUserInput = async (vaultName, errMsg) => {
     await _validateUserInput(vaultName, errMsg);
 };
@@ -388,3 +392,11 @@ async function _validateUserInput(vaultName, errMsg) {
     await _cancelAddVault();
 }
 
+async function _validateVaultNameWithSpaces(actualVal, expectedVal){
+    await _addNewVault(actualVal);
+    await browser.pause(3000);
+    const vaultCard = await $('.vaultContainer');
+    await vaultCard.waitForExist();
+    expect(vaultCard).toHaveValue(expectedVal);
+    await browser.refresh();
+}
