@@ -100,76 +100,27 @@
             </div>
           </div>
 
-          <span class="text-neutrals-dark">{{
+          <span class="text-sm text-neutrals-dark">{{
             t('CHAPI.Share.headline', processedCredentials.length, { issuer: 'Requestor' })
           }}</span>
 
-          <!-- Credentials Preview -->
-          <div
-            v-if="processedCredentials.length"
-            class="flex flex-col justify-start items-center mt-6 mb-6 w-full"
-          >
-            <ul class="space-y-5 w-full">
+          <!-- Single Credential Preview (with details) -->
+          <credential-preview
+            v-if="processedCredentials.length === 1"
+            :credential="processedCredentials[0]"
+          />
+          <!-- List of Credential Banners (Links to Details for each) -->
+          <!-- TODO: issue-1391 -->
+          <!-- <ul v-else-if="processedCredentials.length" class="space-y-5 w-full">
               <li v-for="(credential, index) in processedCredentials" :key="index">
-                <!-- Credential Preview -->
-                <button
-                  :class="[
-                    `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
-                    credential.brandColor.length
-                      ? `bg-gradient-${credential.brandColor} border-neutrals-chatelle border-opacity-10 focus-within:ring-primary-${credential.brandColor}`
-                      : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
-                  ]"
-                  @click="toggleDetails(credential)"
-                >
-                  <div class="flex-none w-12 h-12 border-opacity-10">
-                    <img :src="getCrendentialIcon(credential.icon)" />
-                  </div>
-                  <div class="flex flex-grow p-4">
-                    <span
-                      :class="[
-                        `text-sm md:text-base font-bold text-left overflow-ellipsis`,
-                        credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
-                      ]"
-                    >
-                      {{ credential.title }}
-                    </span>
-                  </div>
-                </button>
-                <!-- Credential Details -->
-                <div
-                  v-if="credential.showDetails"
-                  class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full"
-                >
-                  <span class="py-3 text-base font-bold text-neutrals-dark"
-                    >What's being shared</span
-                  >
-
-                  <!-- TODO: move this to reusable components -->
-                  <table class="w-full border-t border-neutrals-chatelle">
-                    <tr
-                      v-for="(property, key) of credential.properties"
-                      :key="key"
-                      class="border-b border-neutrals-thistle border-dotted"
-                    >
-                      <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
-                      <td
-                        v-if="property.type != 'image'"
-                        class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
-                      >
-                        {{ property.value }}
-                      </td>
-                      <td
-                        v-if="property.type === 'image'"
-                        class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
-                      >
-                        <img :src="property.value" class="w-20 h-20" />
-                      </td>
-                    </tr>
-                  </table>
-                </div>
+                <credential-banner
+                  :id="credential.id"
+                  :brand-color="credential.brandColor"
+                  :icon="credential.icon"
+                  :title="credential.title"
+                />
               </li>
-            </ul>
-          </div>
+            </ul> -->
         </div>
       </div>
 
@@ -203,18 +154,22 @@
   </div>
 </template>
 <script>
-import { toRaw } from 'vue';
+import { ErrorCodes, toRaw } from 'vue';
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { DIDComm } from '@trustbloc/wallet-sdk';
-import { getCredentialType, getCredentialDisplayData, getCrendentialIcon } from '@/utils/mixins';
+import { getCredentialType, getCredentialDisplayData, getCredentialIcon } from '@/utils/mixins';
 import Spinner from '@/components/Spinner/Spinner.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
+// import CredentialBanner from '@/components/WACI/CredentialBanner.vue';
+import CredentialPreview from '@/components/WACI/CredentialPreview.vue';
 
 export default {
   components: {
     Spinner,
     StyledButton,
+    // CredentialBanner,
+    CredentialPreview,
   },
   setup() {
     const { t } = useI18n();
@@ -254,7 +209,11 @@ export default {
       this.threadID = threadID;
       this.presentations = presentations;
     } catch (e) {
-      this.errors.push('Error initiating credential share');
+      if (e.includes('12009')) {
+        this.showCredentialsMissing = true;
+      } else {
+        this.errors.push('Error initiating credential share');
+      }
       console.error('initiating credential share failed,', e);
       this.loading = false;
       return;
@@ -267,11 +226,8 @@ export default {
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser', 'getCredentialManifestData', 'getStaticAssetsUrl']),
-    getCrendentialIcon: function (icon) {
-      return getCrendentialIcon(this.getStaticAssetsUrl(), icon);
-    },
-    toggleDetails(credential) {
-      credential.showDetails = !credential.showDetails;
+    getCredentialIcon: function (icon) {
+      return getCredentialIcon(this.getStaticAssetsUrl(), icon);
     },
     prepareRecords: function (presentations) {
       try {
@@ -282,7 +238,9 @@ export default {
         credentials.map((credential) => {
           const manifest = this.getManifest(credential);
           const processedCredential = this.getCredentialDisplayData(credential, manifest);
-          this.processedCredentials.push({ ...processedCredential, showDetails: false });
+          // TODO: issue1410 - add logic to retrieve the list of vaults in which the credential is stored
+          const vaultName = 'Unavailable';
+          this.processedCredentials.push({ ...processedCredential, vaultName });
         });
       } catch (e) {
         this.errors.push('No credentials found matching requested criteria.');

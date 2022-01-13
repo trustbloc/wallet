@@ -184,7 +184,7 @@
                 @click="toggleDetails(credential)"
               >
                 <div class="flex-none w-12 h-12 border-opacity-10">
-                  <img :src="getCrendentialIcon(credential.icon)" />
+                  <img :src="getCredentialIcon(credential.icon)" />
                 </div>
                 <div class="flex-grow p-4">
                   <span
@@ -298,7 +298,7 @@ import {
   filterCredentialsByType,
   getCredentialType,
   getCredentialDisplayData,
-  getCrendentialIcon,
+  getCredentialIcon,
   WalletGetByQuery,
 } from '@/utils/mixins';
 import { mapGetters } from 'vuex';
@@ -389,8 +389,8 @@ export default {
     getCredentialType: function (vc) {
       return getCredentialType(vc.type);
     },
-    getCrendentialIcon: function (icon) {
-      return getCrendentialIcon(this.getStaticAssetsUrl(), icon);
+    getCredentialIcon: function (icon) {
+      return getCredentialIcon(this.getStaticAssetsUrl(), icon);
     },
     getCredentialDisplayData: function (vc, manifestCredential) {
       return getCredentialDisplayData(vc, manifestCredential);

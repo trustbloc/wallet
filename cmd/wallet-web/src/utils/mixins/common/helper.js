@@ -265,7 +265,7 @@ export function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function getCrendentialIcon(staticAssetsUrl, icon) {
+export function getCredentialIcon(staticAssetsUrl, icon) {
   if (staticAssetsUrl) {
     return `${staticAssetsUrl}/images/icons/${icon}`;
   }
