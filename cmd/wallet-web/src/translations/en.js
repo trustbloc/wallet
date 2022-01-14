@@ -9,6 +9,7 @@ import Signin from './Signin/en.json';
 import Signout from './Signout/en.json';
 import Signup from './Signup/en.json';
 import Vaults from './Vaults/en.json';
+import WACI from './WACI/en.json';
 
 export default {
   App,
@@ -22,4 +23,5 @@ export default {
   Signout,
   Signup,
   Vaults,
+  WACI,
 };

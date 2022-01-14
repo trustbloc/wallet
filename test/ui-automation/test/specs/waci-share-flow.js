@@ -162,6 +162,10 @@ describe("TrustBloc Wallet - WACI Share flow", () => {
     await shareBtn.waitForExist();
     await shareBtn.click();
 
+    const okBtn = await $("#share-credentials-ok-btn");
+    await okBtn.waitForExist();
+    await okBtn.click();
+
     const getSuccessMsg = await $("b*=Successfully Received Presentation");
     await getSuccessMsg.waitForExist();
   });

@@ -58,7 +58,7 @@
     </div>
     <!-- Main State -->
     <div
-      v-else
+      v-else-if="!sharedSuccessfully"
       class="flex overflow-hidden flex-col flex-grow justify-between items-center w-full h-full"
     >
       <div class="overflow-auto w-full flex justify-center">
@@ -151,10 +151,35 @@
         </div>
       </div>
     </div>
+    <div v-else class="flex flex-col flex-grow justify-center items-center w-full h-full">
+      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
+        <img src="@/assets/img/icons-circle-check.svg" />
+        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
+          t('WACI.Share.success', processedCredentials.length)
+        }}</span>
+        <span class="text-lg text-center text-neutrals-medium">{{
+          t(
+            'WACI.Share.message',
+            {
+              subject:
+                processedCredentials.length === 1
+                  ? processedCredentials[0].title
+                  : processedCredentials.length,
+              // TODO: issue-1055 Read meta data from external urls
+              requestor: 'Requestor',
+            },
+            processedCredentials.length
+          )
+        }}</span>
+        <styled-button id="share-credentials-ok-btn" type="primary" class="mt-6" @click="finish">
+          {{ t('WACI.Share.ok') }}
+        </styled-button>
+      </div>
+    </div>
   </div>
 </template>
 <script>
-import { ErrorCodes, toRaw } from 'vue';
+import { toRaw } from 'vue';
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { DIDComm } from '@trustbloc/wallet-sdk';
@@ -183,6 +208,7 @@ export default {
       sharing: false,
       processedCredentials: [],
       credentialDisplayData: {},
+      sharedSuccessfully: false,
     };
   },
   computed: {
@@ -272,13 +298,15 @@ export default {
         return;
       }
 
-      let { status, url } = ack;
-
+      const { status, url } = ack;
+      this.redirectUrl = url;
       // TODO check if status="FAIL", then should redirect to generic error screen, it means WACI flow didn't succeed
-
-      this.protocolHandler.done(url);
+      if (status === 'OK') this.sharedSuccessfully = true;
 
       this.sharing = false;
+    },
+    finish() {
+      this.protocolHandler.done(this.redirectUrl);
     },
     cancel() {
       this.protocolHandler.cancel();
