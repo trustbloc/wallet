@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -41,8 +42,8 @@ var (
 	//go:embed sampledata/fulfillment_dl_vp.json
 	fulfillmentDrivingLicenseVP []byte
 
-	//go:embed sampledata/sample_udcvc.json
-	universityDegreeVC []byte
+	//go:embed sampledata/sample_udc_fulfillment.json
+	universityDegreeFulFillment []byte
 )
 
 const (
@@ -295,7 +296,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				action.Stop(nil)
 			}
 
-			issueCredMsg, err := createIssueCredentialMsg(universityDegreeVC, os.Getenv(demoExternalURLEnvKey)+"/waci-issuance/"+thID)
+			issueCredMsg, err := createIssueCredentialMsg(universityDegreeFulFillment, os.Getenv(demoExternalURLEnvKey)+"/waci-issuance/"+thID)
 			if err != nil {
 				logger.Errorf("failed to prepare issue credential message", err)
 				action.Stop(nil)
@@ -353,27 +354,29 @@ func createOfferCredentialMsg(manifest, fulfillmentVP []byte) (*issuecredential.
 	}, nil
 }
 
-func createIssueCredentialMsg(sampleUDCVC []byte, redirect string) (*issuecredential.IssueCredentialParams, error) {
+func createIssueCredentialMsg(vp []byte, redirect string) (*issuecredential.IssueCredentialParams, error) {
 	attachID := uuid.New().String()
 
-	vc, err := verifiable.ParseCredential([]byte(sampleUDCVC), verifiable.WithJSONLDDocumentLoader(ld.NewDefaultDocumentLoader(nil)))
+	// change ID
+	vpStr := strings.ReplaceAll(string(vp), "http://example.gov/credentials/3732", "http://example.gov/credentials/"+uuid.NewString())
+
+	presentation, err := verifiable.ParsePresentation([]byte(vpStr), verifiable.WithPresDisabledProofCheck(),
+		verifiable.WithPresJSONLDDocumentLoader(ld.NewDefaultDocumentLoader(nil)))
 	if err != nil {
 		return nil, err
 	}
-
-	vc.ID = fmt.Sprintf("http://example.com/vcs/" + uuid.NewString())
 
 	return &issuecredential.IssueCredentialParams{
 		Type: issuecredential.IssueCredentialMsgTypeV2,
 		Formats: []issuecredential.Format{{
 			AttachID: attachID,
-			Format:   "aries/ld-proof-vc@v1.0",
+			Format:   "dif/credential-manifest/fulfillment@v1.0",
 		}},
 		Attachments: []decorator.GenericAttachment{{
 			ID:        attachID,
 			MediaType: "application/ld+json",
 			Data: decorator.AttachmentData{
-				JSON: vc,
+				JSON: presentation,
 			},
 		}},
 		WebRedirect: &decorator.WebRedirect{
