@@ -1,0 +1,38 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1", "https://identity.foundation/credential-manifest/fulfillment/v1"],
+  "credential_fulfillment": {
+    "descriptor_map": [{
+      "format": "ldp_vc",
+      "id": "udc_output",
+      "path": "$.verifiableCredential[0]"
+    }], "id": "a30e3b91-fb77-4d22-95fa-871689c322e2", "manifest_id": "dcc75a16-19f5-4273-84ce-4da69ee2b7fe"
+  },
+  "proof": {
+    "created": "2022-01-14T13:53:49.219598-05:00",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "1aw6mepaiUlsC9nYOmH3CBc3S2yldJttZ3arx2zWgyXiZNfSCz2Jr7kcINrVpwmLJELO-eUWpsiapfLzK0RQCQ",
+    "type": "Ed25519Signature2018",
+    "verificationMethod": "did:key:z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5#z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5"
+  },
+  "type": ["VerifiablePresentation", "CredentialFulfillment"],
+  "verifiableCredential": [{
+    "@context": ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1"],
+    "credentialSubject": {
+      "degree": {"degree": "MIT", "type": "BachelorDegree"},
+      "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
+      "name": "Jayden Doe",
+      "spouse": "did:example:c276e12ec21ebfeb1f712ebc6f1"
+    },
+    "id": "http://example.gov/credentials/3732",
+    "issuanceDate": "2020-03-16T22:37:26.544Z",
+    "issuer": {"id": "did:key:z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5", "name": "University"},
+    "proof": {
+      "created": "2022-01-14T13:47:26.919638-05:00",
+      "proofPurpose": "assertionMethod",
+      "proofValue": "VQVRC7m6wsqM093wJ1K8fvr20lnhXptPb5LYmaQ6jc4uT-P92HKmaLytb-7DXU08E4oLvel-_XMzzXleTLz7Ag",
+      "type": "Ed25519Signature2018",
+      "verificationMethod": "did:key:z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5#z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5"
+    },
+    "type": ["VerifiableCredential", "UniversityDegreeCredential"]
+  }]
+}
