@@ -26,10 +26,9 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/vdr/fingerprint"
 	ariesstorage "github.com/hyperledger/aries-framework-go/spi/storage"
 	"github.com/igor-pavlenko/httpsignatures-go"
+	"github.com/lafriks/go-shamir"
 	"github.com/piprate/json-gold/ld"
 	"github.com/trustbloc/edge-core/pkg/log"
-	"github.com/trustbloc/edge-core/pkg/sss"
-	"github.com/trustbloc/edge-core/pkg/sss/base"
 	"github.com/trustbloc/edge-core/pkg/zcapld"
 	"github.com/trustbloc/edv/pkg/client"
 	"github.com/trustbloc/edv/pkg/restapi/models"
@@ -120,7 +119,6 @@ type Operation struct {
 	oidcClient      oidc.Client
 	walletDashboard string
 	tlsConfig       *tls.Config
-	secretSplitter  sss.SecretSplitter
 	httpClient      common.HTTPClient
 	keyEDVClient    edvClient
 	keyServer       *KeyServerConfig
@@ -139,7 +137,6 @@ func New(config *Config) (*Operation, error) {
 		},
 		walletDashboard: config.WalletDashboard,
 		tlsConfig:       config.TLSConfig,
-		secretSplitter:  &base.Splitter{},
 		httpClient:      &http.Client{Transport: &http.Transport{TLSClientConfig: config.TLSConfig}},
 		keyEDVClient: client.New(
 			config.KeyServer.KeyEDVURL,
@@ -534,7 +531,7 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 		return "", fmt.Errorf("create user secret key : %w", err)
 	}
 
-	secrets, err := o.secretSplitter.Split(b, 2, 2)
+	secrets, err := shamir.Split(b, 2, 2)
 	if err != nil {
 		return "", fmt.Errorf("split user secret: %w", err)
 	}

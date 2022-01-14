@@ -532,18 +532,6 @@ func TestOperation_OIDCCallbackHandler(t *testing.T) { //nolint: gocritic,gocogn
 		require.Contains(t, w.Body.String(), "create authz key:")
 	})
 
-	t.Run("failure to split secret", func(t *testing.T) {
-		state := uuid.New().String()
-		ops := setupOnboardingTest(t, state)
-		ops.secretSplitter = &mockSplitter{SplitErr: errors.New("secret split error")}
-
-		w := httptest.NewRecorder()
-		ops.oidcCallbackHandler(w, newOIDCCallbackRequest(uuid.New().String(), state))
-
-		require.Equal(t, http.StatusInternalServerError, w.Code)
-		require.Contains(t, w.Body.String(), "split user secret")
-	})
-
 	t.Run("failure to post secret", func(t *testing.T) {
 		state := uuid.New().String()
 		ops := setupOnboardingTest(t, state)
@@ -1309,19 +1297,6 @@ type mockHTTPClient struct {
 
 func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	return m.DoFunc(req)
-}
-
-type mockSplitter struct {
-	SplitErr   error
-	CombineErr error
-}
-
-func (m *mockSplitter) Split(secret []byte, numParts, threshold int) ([][]byte, error) {
-	return nil, m.SplitErr
-}
-
-func (m *mockSplitter) Combine(secretParts [][]byte) ([]byte, error) {
-	return nil, m.CombineErr
 }
 
 type mockEDVClient struct {

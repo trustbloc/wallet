@@ -12,18 +12,19 @@ require (
 	github.com/duo-labs/webauthn v0.0.0-20200714211715-1daaee874e43
 	github.com/duo-labs/webauthn.io v0.0.0-20200929144140-c031a3e0f95d
 	github.com/fxamacker/cbor/v2 v2.2.0
-	github.com/google/uuid v1.2.0
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/sessions v1.2.1
-	github.com/hyperledger/aries-framework-go v0.1.8-0.20211203093644-b7d189cc06f4
+	github.com/hyperledger/aries-framework-go v0.1.8-0.20220113090443-b751c0ae7b22
 	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210916154931-0196c3a2d102
 	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210916154931-0196c3a2d102
 	github.com/hyperledger/aries-framework-go/test/component v0.0.0-20210820175050-dcc7a225178d // indirect
 	github.com/igor-pavlenko/httpsignatures-go v0.0.23
+	github.com/lafriks/go-shamir v1.1.0
 	github.com/piprate/json-gold v0.4.1-0.20210813112359-33b90c4ca86c
 	github.com/stretchr/testify v1.7.0
-	github.com/trustbloc/edge-core v0.1.7
+	github.com/trustbloc/edge-core v0.1.8-0.20220113141450-e19ffd091d98
 	github.com/trustbloc/edv v0.1.7
-	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
+	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 )
 
 // Added redirect as a workaround for https://github.com/duo-labs/webauthn/issues/76
