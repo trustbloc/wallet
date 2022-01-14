@@ -1,5 +1,6 @@
 {
   "Share": {
+    "whatIsShared": "Information transmise",
     "success": "Preuve d'identité transmise | Preuves d'identité transmises",
     "message": "Vous avez transmis votre {subject} à {requestor}. | Vous avez transmis {subject} preuves d'identité à {requestor}.",
     "ok": "OK"

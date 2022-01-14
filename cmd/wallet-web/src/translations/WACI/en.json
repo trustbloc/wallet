@@ -1,5 +1,6 @@
 {
   "Share": {
+    "whatIsShared": "What's being shared",
     "success": "Credential shared | Credentials shared",
     "message": "You shared your {subject} with {requestor}. | You shared {subject} with {requestor}.",
     "ok": "OK"

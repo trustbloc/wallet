@@ -61,7 +61,9 @@
   </div>
   <!-- Credential Details -->
   <div class="flex flex-col justify-start items-start w-full">
-    <span class="py-4 pl-3 text-xl font-bold text-neutrals-dark">What's being shared</span>
+    <span class="py-4 pl-3 text-xl font-bold text-neutrals-dark">{{
+      t('WACI.Share.whatIsShared')
+    }}</span>
     <table class="w-full border-t border-neutrals-chatelle">
       <tr
         v-for="(property, key) of credential.properties"
@@ -91,16 +93,15 @@ import { mapGetters } from 'vuex';
 import { getCredentialIcon } from '@/utils/mixins';
 
 export default {
-  name: 'CredentialPreview',
+  name: 'CredentialOverview',
   props: {
     credential: {
       type: Object,
       required: true,
     },
   },
-  setup(props) {
+  setup() {
     const { t } = useI18n();
-    console.log('credential:', props.credential);
     return { t };
   },
   computed: {

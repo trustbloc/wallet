@@ -104,8 +104,8 @@
             t('CHAPI.Share.headline', { issuer: 'Requestor' }, processedCredentials.length)
           }}</span>
 
-          <!-- Single Credential Preview (with details) -->
-          <credential-preview
+          <!-- Single Credential Overview (with details) -->
+          <credential-overview
             v-if="processedCredentials.length === 1"
             :credential="processedCredentials[0]"
           />
@@ -187,14 +187,14 @@ import { getCredentialType, getCredentialDisplayData, getCredentialIcon } from '
 import Spinner from '@/components/Spinner/Spinner.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
 // import CredentialBanner from '@/components/WACI/CredentialBanner.vue';
-import CredentialPreview from '@/components/WACI/CredentialPreview.vue';
+import CredentialOverview from '@/components/WACI/CredentialOverview.vue';
 
 export default {
   components: {
     Spinner,
     StyledButton,
     // CredentialBanner,
-    CredentialPreview,
+    CredentialOverview,
   },
   setup() {
     const { t } = useI18n();
