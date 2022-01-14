@@ -101,7 +101,7 @@
           </div>
 
           <span class="text-sm text-neutrals-dark">{{
-            t('CHAPI.Share.headline', processedCredentials.length, { issuer: 'Requestor' })
+            t('CHAPI.Share.headline', { issuer: 'Requestor' }, processedCredentials.length)
           }}</span>
 
           <!-- Single Credential Preview (with details) -->
@@ -209,9 +209,7 @@ export default {
       this.threadID = threadID;
       this.presentations = presentations;
     } catch (e) {
-      if (e.includes('12009')) {
-        this.showCredentialsMissing = true;
-      } else {
+      if (!e.message.includes('12009')) {
         this.errors.push('Error initiating credential share');
       }
       console.error('initiating credential share failed,', e);
