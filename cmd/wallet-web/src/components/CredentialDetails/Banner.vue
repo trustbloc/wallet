@@ -118,7 +118,7 @@
 <script>
 import useBreakpoints from '@/plugins/breakpoints.js';
 import { mapGetters } from 'vuex';
-import { getCrendentialIcon } from '@/utils/mixins';
+import { getCredentialIcon } from '@/utils/mixins';
 import { useI18n } from 'vue-i18n';
 
 export default {
@@ -152,7 +152,7 @@ export default {
   data() {
     return {
       breakpoints: useBreakpoints(),
-      credentialIcon: this.getCrendentialIcon(),
+      credentialIcon: this.getCredentialIcon(),
     };
   },
   computed: {
@@ -166,8 +166,8 @@ export default {
   },
   methods: {
     ...mapGetters(['getStaticAssetsUrl']),
-    getCrendentialIcon: function () {
-      return getCrendentialIcon(this.getStaticAssetsUrl(), this.icon);
+    getCredentialIcon: function () {
+      return getCredentialIcon(this.getStaticAssetsUrl(), this.icon);
     },
   },
 };

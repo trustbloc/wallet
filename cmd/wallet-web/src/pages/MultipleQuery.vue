@@ -186,7 +186,7 @@
                 @click="toggleDetails(credential)"
               >
                 <div class="flex-none w-12 h-12 border-opacity-10">
-                  <img :src="getCrendentialIcon(credential.icon)" />
+                  <img :src="getCredentialIcon(credential.icon)" />
                 </div>
                 <div class="flex-grow p-4">
                   <span
@@ -267,7 +267,7 @@ import {
   normalizeQuery,
   getCredentialType,
   getCredentialDisplayData,
-  getCrendentialIcon,
+  getCredentialIcon,
 } from '@/utils/mixins';
 import { mapGetters } from 'vuex';
 import Spinner from '@/components/Spinner/Spinner.vue';
@@ -326,8 +326,8 @@ export default {
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser', 'getCredentialManifestData', 'getStaticAssetsUrl']),
-    getCrendentialIcon: function (icon) {
-      return getCrendentialIcon(this.getStaticAssetsUrl(), icon);
+    getCredentialIcon: function (icon) {
+      return getCredentialIcon(this.getStaticAssetsUrl(), icon);
     },
     toggleDetails(credential) {
       credential.showDetails = !credential.showDetails;
