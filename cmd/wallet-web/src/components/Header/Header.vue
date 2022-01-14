@@ -11,6 +11,9 @@
       v-if="!isNavbarOpen"
       class="flex relative flex-col justify-center items-center p-6 w-full h-auto bg-gradient-dark"
     >
+      <div class="flex absolute left-6 flex-row justify-start items-center">
+        <slot name="leftButtonContainer" />
+      </div>
       <slot v-if="hasCustomGradient" name="gradientContainer" />
       <div v-else class="absolute w-full bg-gradient-full opacity-40 oval oval-navbar-closed" />
       <div class="flex flex-row justify-center items-center">
@@ -25,7 +28,7 @@
       v-else
       class="flex relative flex-col justify-center items-center p-6 w-full h-full bg-gradient-dark"
     >
-      <div class="absolute w-full bg-gradient-full opacity-40 oval oval-navbar-open" />
+      <div class="absolute w-full opacity-40 bg-gradient-full oval oval-navbar-open" />
       <div class="flex flex-row justify-center items-center">
         <button class="absolute left-6 z-10" @click="toggleNavbar">
           <img src="@/assets/img/close.svg" />

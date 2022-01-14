@@ -47,6 +47,18 @@ export default [
     name: 'waci',
     component: load('layouts/WACI'),
     meta: { requiresAuth: true, signin: true, disableCHAPI: true, isNavbarHidden: true },
+    children: [
+      {
+        path: 'share',
+        name: 'share',
+        component: load('layouts/WACIShareLayout'),
+      },
+      {
+        path: 'issue',
+        name: 'issue',
+        component: load('pages/WACIIssue'),
+      },
+    ],
   },
   {
     path: 'StoreInWallet',

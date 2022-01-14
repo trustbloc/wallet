@@ -1,10 +1,10 @@
 {
   "Share": {
-    "shareCredential": "Partager preuve d’identité",
+    "shareCredential": "Partager preuve d’identité | Partager preuve d’identité",
     "headline": "{issuer} veut que vous lui transmettiez cette preuve d’identité : | {issuer} veut que vous lui transmettiez ces preuves d’identité :",
     "decline": "Refuser",
     "share": "Transmettre",
-    "sharingCredential": "Transmission de la preuve d’identité . . .",
+    "sharingCredential": "Transmission de la preuve d’identité . . . | Transmission des preuves d’identité . . .",
     "CredentialsMissing": {
       "heading": "Preuves d’identité manquantes",
       "body": "Vérifiez que votre portefeuille contient bien les preuves d’identité voulues et réessayez.",

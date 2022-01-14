@@ -20,7 +20,7 @@
           bg-neutrals-white
           rounded-xl
           border`,
-        credential.brandColor.length
+        credential?.brandColor.length
           ? `bg-gradient-${credential.brandColor} border-neutrals-black border-opacity-10`
           : `bg-neutrals-white border-neutrals-thistle`,
       ]"
@@ -31,9 +31,9 @@
       <span
         :class="[
           `flex-1 pl-4 font-bold text-left text-sm overflow-ellipsis`,
-          credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
+          credential?.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
         ]"
-        >{{ credential.title }}</span
+        >{{ credential?.title }}</span
       >
     </div>
     <slot name="bannerBottomContainer" />
@@ -67,7 +67,7 @@ export default {
     ...mapGetters(['getStaticAssetsUrl']),
     // Get credential icon based on docker configuration
     getCredentialIcon: function () {
-      return getCredentialIcon(this.getStaticAssetsUrl(), this.credential.icon);
+      return getCredentialIcon(this.getStaticAssetsUrl(), this.credential?.icon);
     },
   },
 };

@@ -11,21 +11,21 @@
     }}</span>
     <table class="w-full border-t border-neutrals-chatelle">
       <tr
-        v-for="(property, key) of credential.properties"
+        v-for="(property, key) of credential?.properties"
         :key="key"
         class="border-b border-neutrals-thistle border-dotted"
       >
-        <td class="py-4 pr-6 pl-3 w-2/5 text-neutrals-medium whitespace-nowrap">
-          {{ property.label }}
+        <td class="py-4 pr-6 pl-3 w-2/5 whitespace-nowrap text-neutrals-medium">
+          {{ property?.label }}
         </td>
         <td
-          v-if="property.type === 'image'"
-          class="py-4 pr-6 pl-3 w-3/5 text-neutrals-dark break-words"
+          v-if="property?.type === 'image'"
+          class="py-4 pr-6 pl-3 w-3/5 break-words text-neutrals-dark"
         >
-          <img :src="property.value" class="w-20 h-20" />
+          <img :src="property?.value" class="w-20 h-20" />
         </td>
-        <td v-else class="py-4 pr-6 pl-3 w-3/5 text-neutrals-dark break-words">
-          {{ property.value }}
+        <td v-else class="py-4 pr-6 pl-3 w-3/5 break-words text-neutrals-dark">
+          {{ property?.value }}
         </td>
       </tr>
     </table>
