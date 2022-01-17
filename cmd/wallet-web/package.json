@@ -37,7 +37,7 @@
     "@vue/cli-plugin-eslint": "^5.0.0-rc.1",
     "@vue/cli-plugin-router": "^5.0.0-beta.7",
     "@vue/cli-service": "^5.0.0-beta.7",
-    "@vue/test-utils": "^2.0.0-rc.16",
+    "@vue/test-utils": "^2.0.0-rc.18",
     "autoprefixer": "^10.4.0",
     "axios": "^0.21.1",
     "babel-loader": "^8.2.3",
