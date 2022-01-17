@@ -1,5 +1,5 @@
 import supportedLocales from '@/config/supportedLocales';
-import getBrowserLocale from '@/utils/i18n/getBrowserLocale';
+import getBrowserLocale from '@/mixins/i18n/getBrowserLocale';
 import router from '@/router/index';
 
 // Returns locale configuration. By default, try VUE_APP_I18N_LOCALE. As fallback, use 'en'.

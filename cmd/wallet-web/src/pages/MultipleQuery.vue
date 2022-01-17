@@ -268,7 +268,7 @@ import {
   getCredentialType,
   getCredentialDisplayData,
   getCredentialIcon,
-} from '@/utils/mixins';
+} from '@/mixins';
 import { mapGetters } from 'vuex';
 import Spinner from '@/components/Spinner/Spinner.vue';
 import { useI18n } from 'vue-i18n';

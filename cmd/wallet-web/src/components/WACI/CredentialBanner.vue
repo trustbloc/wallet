@@ -32,7 +32,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { getCredentialIcon } from '@/utils/mixins';
+import { getCredentialIcon } from '@/mixins';
 
 export default {
   name: 'CredentialBanner',

@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { CHAPIHandler } from '@/utils/mixins';
+import { CHAPIHandler } from '@/mixins';
 import { mapActions, mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
 

@@ -124,7 +124,7 @@
 </template>
 
 <script>
-import { CHAPIHandler, RegisterWallet } from '@/utils/mixins';
+import { CHAPIHandler, RegisterWallet } from '@/mixins';
 import { DeviceLogin } from '@trustbloc/wallet-sdk';
 import Footer from '@/components/Footer/Footer.vue';
 import Logo from '@/components/Logo/Logo.vue';

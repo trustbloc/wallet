@@ -15,7 +15,7 @@ import DIDConnectForm from '@/pages/DIDConnect.vue';
 import PresentationDefQueryForm from '@/pages/PresentationDefQuery.vue';
 import MultipleQueryForm from '@/pages/MultipleQuery.vue';
 import WACIShareForm from '@/pages/WACIShare.vue';
-import { extractQueryTypes, WACIPolyfillHandler, CHAPIEventHandler } from '@/utils/mixins';
+import { extractQueryTypes, WACIPolyfillHandler, CHAPIEventHandler } from '@/mixins';
 
 const QUERY_FORMS = [
   {

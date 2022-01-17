@@ -183,7 +183,7 @@ import { toRaw } from 'vue';
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { DIDComm } from '@trustbloc/wallet-sdk';
-import { getCredentialType, getCredentialDisplayData, getCredentialIcon } from '@/utils/mixins';
+import { getCredentialType, getCredentialDisplayData, getCredentialIcon } from '@/mixins';
 import Spinner from '@/components/Spinner/Spinner.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
 // import CredentialBanner from '@/components/WACI/CredentialBanner.vue';

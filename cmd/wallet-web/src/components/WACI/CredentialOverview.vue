@@ -90,7 +90,7 @@
 <script>
 import { useI18n } from 'vue-i18n';
 import { mapGetters } from 'vuex';
-import { getCredentialIcon } from '@/utils/mixins';
+import { getCredentialIcon } from '@/mixins';
 
 export default {
   name: 'CredentialOverview',

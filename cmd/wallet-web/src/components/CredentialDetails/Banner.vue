@@ -118,7 +118,7 @@
 <script>
 import useBreakpoints from '@/plugins/breakpoints.js';
 import { mapGetters } from 'vuex';
-import { getCredentialIcon } from '@/utils/mixins';
+import { getCredentialIcon } from '@/mixins';
 import { useI18n } from 'vue-i18n';
 
 export default {

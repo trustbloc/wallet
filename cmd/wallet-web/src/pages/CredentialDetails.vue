@@ -97,7 +97,7 @@ import { useI18n } from 'vue-i18n';
 import { mapGetters } from 'vuex';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
 import { decode } from 'js-base64';
-import { getCredentialType, getCredentialDisplayData } from '@/utils/mixins';
+import { getCredentialType, getCredentialDisplayData } from '@/mixins';
 import Banner from '@/components/CredentialDetails/Banner.vue';
 import Flyout from '@/components/Flyout/Flyout.vue';
 import FlyoutMenu from '@/components/Flyout/FlyoutMenu.vue';

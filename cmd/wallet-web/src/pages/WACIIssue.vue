@@ -203,12 +203,7 @@
 </template>
 
 <script>
-import {
-  getCredentialDisplayData,
-  getCredentialType,
-  getCredentialIcon,
-  isVPType,
-} from '@/utils/mixins';
+import { getCredentialDisplayData, getCredentialType, getCredentialIcon, isVPType } from '@/mixins';
 import { toRaw } from 'vue';
 import { mapGetters } from 'vuex';
 import { CollectionManager, DIDComm } from '@trustbloc/wallet-sdk';

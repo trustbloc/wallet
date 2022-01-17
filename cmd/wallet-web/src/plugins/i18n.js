@@ -1,6 +1,6 @@
 import { nextTick } from 'vue';
 import { createI18n } from 'vue-i18n';
-import { setDocumentLang, setDocumentTitle } from '@/utils/i18n/document';
+import { setDocumentLang, setDocumentTitle } from '@/mixins/i18n/document';
 
 const loadedLanguages = [];
 
