@@ -1,8 +1,17 @@
 {
+  "ok": "OK",
   "Share": {
     "whatIsShared": "Information transmise",
     "success": "Preuve d'identité transmise | Preuves d'identité transmises",
-    "message": "Vous avez transmis votre {subject} à {requestor}. | Vous avez transmis {subject} preuves d'identité à {requestor}.",
-    "ok": "OK"
+    "message": "Vous avez transmis votre {subject} à {requestor}. | Vous avez transmis {subject} preuves d'identité à {requestor}."
+  },
+  "Issue": {
+    "save": "Sauvegarder",
+    "saveCredential": "Sauvegarder la preuve d’identité",
+    "verifiedInformation": "Information vérifiée",
+    "success": "Preuve d’identité sauvegardée",
+    "message": "Votre {subject} se trouve désormais dans votre portefeuille.",
+    "viewCredential": "Afficher la preuve d’identité",
+    "savingCredential": "Enregistrement de la preuve d’identité . . ."
   }
 }

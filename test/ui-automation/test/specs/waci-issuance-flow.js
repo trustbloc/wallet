@@ -41,7 +41,6 @@ describe("TrustBloc Wallet - WACI Issuance flow", () => {
     await new Promise((resolve) => setTimeout(resolve, 8000));
   });
 
-
   it(`User offered to save credential through WACI-Issuance (Redirect) : user (${ctx.email}) signed-in`, async function () {
     // demo issuer page
     await browser.navigateTo(browser.config.demoIssuerURL);
@@ -54,6 +53,10 @@ describe("TrustBloc Wallet - WACI Issuance flow", () => {
     const storeButton = await $("#storeVCBtn");
     await storeButton.waitForClickable();
     await storeButton.click();
+
+    const okBtn = await $("#issue-credentials-ok-btn");
+    await okBtn.waitForExist();
+    await okBtn.click();
 
     // success message
     const getSuccessMsg = await $("b*=Successfully Sent Credential to holder");
@@ -82,6 +85,10 @@ describe("TrustBloc Wallet - WACI Issuance flow", () => {
     await storeButton.waitForClickable();
     await storeButton.click();
 
+    const okBtn = await $("#issue-credentials-ok-btn");
+    await okBtn.waitForExist();
+    await okBtn.click();
+
     // success message
     const getSuccessMsg = await $("b*=Successfully Sent Credential to holder");
     await getSuccessMsg.waitForExist();
@@ -93,5 +100,4 @@ describe("TrustBloc Wallet - WACI Issuance flow", () => {
 
     await wallet.logout(ctx);
   });
-
 });
