@@ -141,7 +141,7 @@ import {
   getCredentialType,
   getCredentialIcon,
   isVPType,
-} from '@/utils/mixins';
+} from '@/mixins';
 import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
 import CustomSelect from '@/components/CustomSelect/CustomSelect.vue';

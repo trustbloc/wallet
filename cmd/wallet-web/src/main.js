@@ -13,7 +13,7 @@ import store from './store';
 import router from './router/index';
 import '@/assets/css/tailwind.css';
 import App from './App.vue';
-import getStartingLocale from '@/utils/i18n/getStartingLocale.js';
+import getStartingLocale from '@/mixins/i18n/getStartingLocale.js';
 import { updateI18nLocale } from '@/plugins/i18n';
 
 // Get starting locale, set it in i18n and in the store

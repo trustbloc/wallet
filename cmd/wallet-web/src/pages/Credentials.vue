@@ -195,7 +195,7 @@ import { CredentialManager, CollectionManager } from '@trustbloc/wallet-sdk';
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
-import { getCredentialType, getCredentialDisplayData } from '@/utils/mixins';
+import { getCredentialType, getCredentialDisplayData } from '@/mixins';
 import useBreakpoints from '@/plugins/breakpoints.js';
 import CredentialPreview from '@/components/CredentialPreview/CredentialPreview.vue';
 import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader.vue';

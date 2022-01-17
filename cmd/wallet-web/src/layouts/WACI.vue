@@ -30,7 +30,7 @@
 
 <script>
 import { extractOOBGoalCode } from '@trustbloc/wallet-sdk';
-import { WACIRedirectHandler } from '@/utils/mixins';
+import { WACIRedirectHandler } from '@/mixins';
 import { decode } from 'js-base64';
 import WACIShareForm from '@/pages/WACIShare.vue';
 import WACIIssuanceForm from '@/pages/WACIIssue.vue';

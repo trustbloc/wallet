@@ -76,7 +76,7 @@
 <script>
 import { DIDManager, WalletUser } from '@trustbloc/wallet-sdk';
 import { mapActions, mapGetters } from 'vuex';
-import { getDIDVerificationMethod } from '@/utils/mixins';
+import { getDIDVerificationMethod } from '@/mixins';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
 
 export default {
