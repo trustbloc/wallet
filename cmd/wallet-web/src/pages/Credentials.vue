@@ -62,7 +62,7 @@
         </template>
       </flyout>
       <div class="items-start">
-        <h3 class="mx-6 mb-5 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
+        <h3 class="my-5 mx-6 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
       </div>
     </div>
     <!-- Desktop Credentials Layout -->
