@@ -23,7 +23,21 @@
         <div class="absolute h-15 bg-gradient-full oval" />
       </template>
     </Header>
-    <component :is="component" class="z-10 flex-grow h-full bg-neutrals-softWhite"></component>
+    <component
+      :is="component"
+      class="
+        overflow-hidden
+        relative
+        z-10
+        flex-grow
+        justify-start
+        items-start
+        w-full
+        h-full
+        flex flex-col
+        bg-neutrals-softWhite
+      "
+    />
     <Footer class="sticky bottom-0 z-20 border-t border-neutrals-thistle bg-neutrals-magnolia" />
   </div>
 </template>

@@ -1,8 +1,17 @@
 {
+  "ok": "OK",
   "Share": {
     "whatIsShared": "What's being shared",
     "success": "Credential shared | Credentials shared",
-    "message": "You shared your {subject} with {requestor}. | You shared {subject} with {requestor}.",
-    "ok": "OK"
+    "message": "You shared your {subject} with {requestor}. | You shared {subject} with {requestor}."
+  },
+  "Issue": {
+    "save": "Save",
+    "saveCredential": "Save credential",
+    "verifiedInformation": "Verified information",
+    "success": "Credential saved",
+    "message": "Your {subject} is now in your wallet.",
+    "viewCredential": "View Credential",
+    "savingCredential": "Saving Credential . . ."
   }
 }

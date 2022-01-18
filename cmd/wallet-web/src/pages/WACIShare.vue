@@ -5,113 +5,134 @@
 -->
 
 <template>
-  <div class="flex overflow-hidden relative justify-start items-start w-full h-full">
+  <div
+    v-if="!showMainState"
+    class="flex flex-col flex-grow justify-center items-center w-full h-full"
+  >
     <!-- Loading State -->
-    <div v-if="loading" class="flex flex-grow justify-center items-center w-full h-full">
-      <Spinner />
-    </div>
+    <WACI-loading v-if="loading" />
+
     <!-- Sharing State -->
-    <div
-      v-else-if="sharing"
-      class="flex flex-col flex-grow justify-center items-center w-full h-full"
-    >
-      <Spinner />
-      <span class="mt-8 text-base md:text-lg text-neutrals-dark">{{
-        t('CHAPI.Share.sharingCredential')
-      }}</span>
-    </div>
+    <WACI-loading v-else-if="sharing" :message="t('CHAPI.Share.sharingCredential')" />
+
     <!-- Error State -->
-    <div
-      v-else-if="errors.length"
-      class="flex flex-col flex-grow justify-center items-center w-full h-full"
-    >
-      <div class="flex flex-col flex-grow justify-center items-center w-full h-full">
-        <img src="@/assets/img/icons-error.svg" />
-        <span class="mt-6 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
-          t('CHAPI.Share.Error.heading')
-        }}</span>
-        <span class="w-full text-lg text-center text-neutrals-medium">{{
-          t('CHAPI.Share.Error.body')
-        }}</span>
-        <styled-button id="share-credentials-ok-btn" type="primary" class="mt-6" @click="cancel">
-          {{ t('CHAPI.Share.Error.tryAgain') }}
-        </styled-button>
-      </div>
-    </div>
+    <WACI-error v-else-if="errors.length" @click="cancel" />
+
     <!-- Credentials Missing State -->
-    <div
-      v-else-if="showCredentialsMissing"
-      class="flex flex-col flex-grow justify-center items-center w-full h-full"
-    >
-      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
-        <img src="@/assets/img/icons-error.svg" />
-        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
-          t('CHAPI.Share.CredentialsMissing.heading')
-        }}</span>
-        <span class="text-lg text-center text-neutrals-medium">{{
-          t('CHAPI.Share.CredentialsMissing.body')
-        }}</span>
-        <styled-button id="share-credentials-ok-btn" type="outline" class="mt-6" @click="cancel">
-          {{ t('CHAPI.Share.CredentialsMissing.ok') }}
-        </styled-button>
-      </div>
-    </div>
-    <!-- Main State -->
-    <div
-      v-else-if="!sharedSuccessfully"
-      class="flex overflow-hidden flex-col flex-grow justify-between items-center w-full h-full"
-    >
-      <div class="overflow-auto w-full flex justify-center">
-        <div
-          class="
-            flex-grow
-            justify-start
-            items-start
-            pt-8
-            pr-5
-            pb-8
-            pl-5
-            md:pr-0 md:pl-0
-            w-full
-            max-w-3xl
-            h-full
-            flex flex-col
-          "
-        >
-          <span class="mb-6 text-3xl font-bold">{{ t('CHAPI.Share.shareCredential') }}</span>
-          <div class="flex flex-row justify-start items-start mb-4 w-full">
-            <div class="flex-none w-12 h-12 border-opacity-10">
+    <WACI-credentials-missing v-else-if="showCredentialsMissing" @click="cancel" />
+
+    <!-- Success State -->
+    <WACI-success
+      v-else-if="sharedSuccessfully"
+      id="share-credentials-ok-btn"
+      :heading="t('WACI.Share.success', processedCredentials.length)"
+      :message="
+        t(
+          'WACI.Share.message',
+          {
+            subject:
+              processedCredentials.length === 1
+                ? processedCredentials[0].title
+                : processedCredentials.length,
+            // TODO: issue-1055 Read meta data from external urls
+            requestor: 'Requestor',
+          },
+          processedCredentials.length
+        )
+      "
+      :button-label="t('WACI.ok')"
+      @click="finish"
+    />
+  </div>
+
+  <!-- Main State -->
+  <div
+    v-else
+    class="flex overflow-hidden flex-col flex-grow justify-between items-center w-full h-full"
+  >
+    <div class="flex overflow-auto justify-center w-full">
+      <div
+        class="
+          flex-grow
+          justify-start
+          items-start
+          pt-8
+          pr-5
+          pb-8
+          pl-5
+          md:pr-0 md:pl-0
+          w-full
+          max-w-3xl
+          h-full
+          flex flex-col
+        "
+      >
+        <span class="mb-6 text-3xl font-bold">{{ t('CHAPI.Share.shareCredential') }}</span>
+        <div class="flex flex-row justify-start items-start mb-4 w-full">
+          <div class="flex-none w-12 h-12 border-opacity-10">
+            <!-- todo issue-1055 Read meta data from external urls -->
+            <img src="@/assets/img/generic-issuer-icon.svg" />
+          </div>
+          <div class="flex flex-col pl-3">
+            <span
+              class="flex-1 mb-1 text-sm font-bold text-left overflow-ellipsis text-neutrals-dark"
+            >
               <!-- todo issue-1055 Read meta data from external urls -->
-              <img src="@/assets/img/generic-issuer-icon.svg" />
-            </div>
-            <div class="flex flex-col pl-3">
-              <span
-                class="flex-1 mb-1 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
-              >
-                <!-- todo issue-1055 Read meta data from external urls -->
-                Requestor
+              Requestor
+            </span>
+            <div class="flex flex-row justify-center items-center">
+              <img src="@/assets/img/small-lock-icon.svg" />
+              <span class="flex-1 pl-1 text-xs text-left overflow-ellipsis text-neutrals-medium">
+                {{ requestOrigin }}
               </span>
-              <div class="flex flex-row justify-center items-center">
-                <img src="@/assets/img/small-lock-icon.svg" />
-                <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
-                  {{ requestOrigin }}
-                </span>
-              </div>
             </div>
           </div>
+        </div>
 
-          <span class="text-sm text-neutrals-dark">{{
-            t('CHAPI.Share.headline', { issuer: 'Requestor' }, processedCredentials.length)
-          }}</span>
+        <span class="text-sm text-neutrals-dark">{{
+          t('CHAPI.Share.headline', { issuer: 'Requestor' }, processedCredentials.length)
+        }}</span>
 
-          <!-- Single Credential Overview (with details) -->
-          <credential-overview
-            v-if="processedCredentials.length === 1"
-            :credential="processedCredentials[0]"
-          />
-          <!-- List of Credential Banners (Links to Details for each) -->
-          <!-- TODO: issue-1391 -->
-          <!-- <ul v-else-if="processedCredentials.length" class="space-y-5 w-full">
+        <!-- Single Credential Overview (with details) -->
+        <credential-overview
+          v-if="processedCredentials.length === 1"
+          class="my-5 waci-share-credential-overview-root"
+          :credential="processedCredentials[0]"
+        >
+          <template #bannerBottomContainer>
+            <div
+              class="
+                absolute
+                justify-start
+                items-start
+                px-5
+                pb-3
+                w-full
+                rounded-b-xl
+                pt-13
+                bg-neutrals-white
+                flex flex-row
+                waci-share-credential-overview-vault
+              "
+            >
+              <span class="flex text-sm font-bold text-neutrals-dark">
+                {{ t('CredentialDetails.Banner.vault') }}
+              </span>
+              <span class="flex ml-3 text-sm text-neutrals-medium">
+                {{ processedCredentials[0].vaultName }}
+              </span>
+            </div>
+          </template>
+          <template #credentialDetails>
+            <credential-details-table
+              :heading="t('WACI.Share.whatIsShared')"
+              :credential="processedCredentials[0]"
+            />
+          </template>
+        </credential-overview>
+        <!-- List of Credential Banners (Links to Details for each) -->
+        <!-- TODO: issue-1391 -->
+        <!-- <ul v-else-if="processedCredentials.length" class="space-y-5 w-full">
               <li v-for="(credential, index) in processedCredentials" :key="index">
                 <credential-banner
                   :id="credential.id"
@@ -121,61 +142,21 @@
                 />
               </li>
             </ul> -->
-        </div>
       </div>
+    </div>
 
-      <div
-        class="
-          sticky
-          bottom-0
-          z-20
-          justify-center
-          items-center
-          pt-4
-          pr-5
-          pb-4
-          pl-5
-          w-full
-          bg-neutrals-magnolia
-          flex flex-row
-          border-t border-neutrals-thistle
-        "
-      >
-        <div class="flex flex-row flex-grow justify-between items-center w-full max-w-3xl">
-          <styled-button id="cancelBtn" type="outline" @click="cancel">
-            {{ t('CHAPI.Share.decline') }}
-          </styled-button>
-          <styled-button id="share-credentials" type="primary" @click="share">
-            {{ t('CHAPI.Share.share') }}
-          </styled-button>
-        </div>
-      </div>
-    </div>
-    <div v-else class="flex flex-col flex-grow justify-center items-center w-full h-full">
-      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
-        <img src="@/assets/img/icons-circle-check.svg" />
-        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
-          t('WACI.Share.success', processedCredentials.length)
-        }}</span>
-        <span class="text-lg text-center text-neutrals-medium">{{
-          t(
-            'WACI.Share.message',
-            {
-              subject:
-                processedCredentials.length === 1
-                  ? processedCredentials[0].title
-                  : processedCredentials.length,
-              // TODO: issue-1055 Read meta data from external urls
-              requestor: 'Requestor',
-            },
-            processedCredentials.length
-          )
-        }}</span>
-        <styled-button id="share-credentials-ok-btn" type="primary" class="mt-6" @click="finish">
-          {{ t('WACI.Share.ok') }}
+    <WACI-action-buttons-container>
+      <template #leftButton>
+        <styled-button id="cancelBtn" type="outline" @click="cancel">
+          {{ t('CHAPI.Share.decline') }}
         </styled-button>
-      </div>
-    </div>
+      </template>
+      <template #rightButton>
+        <styled-button id="share-credentials" type="primary" @click="share">
+          {{ t('CHAPI.Share.share') }}
+        </styled-button>
+      </template>
+    </WACI-action-buttons-container>
   </div>
 </template>
 <script>
@@ -184,17 +165,27 @@ import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { DIDComm } from '@trustbloc/wallet-sdk';
 import { getCredentialType, getCredentialDisplayData, getCredentialIcon } from '@/mixins';
-import Spinner from '@/components/Spinner/Spinner.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
 // import CredentialBanner from '@/components/WACI/CredentialBanner.vue';
 import CredentialOverview from '@/components/WACI/CredentialOverview.vue';
+import WACIActionButtonsContainer from '@/components/WACI/WACIActionButtonsContainer.vue';
+import WACICredentialsMissing from '@/components/WACI/WACICredentialsMissing.vue';
+import WACIError from '@/components/WACI/WACIError.vue';
+import WACILoading from '@/components/WACI/WACILoading.vue';
+import WACISuccess from '@/components/WACI/WACISuccess.vue';
+import CredentialDetailsTable from '@/components/WACI/CredentialDetailsTable.vue';
 
 export default {
   components: {
-    Spinner,
-    StyledButton,
     // CredentialBanner,
+    CredentialDetailsTable,
     CredentialOverview,
+    StyledButton,
+    WACIActionButtonsContainer,
+    WACICredentialsMissing,
+    WACIError,
+    WACILoading,
+    WACISuccess,
   },
   setup() {
     const { t } = useI18n();
@@ -214,6 +205,15 @@ export default {
   computed: {
     showCredentialsMissing() {
       return this.processedCredentials.length === 0;
+    },
+    showMainState() {
+      return (
+        !this.loading &&
+        !this.errors.length &&
+        !this.sharing &&
+        !this.showCredentialsMissing &&
+        !this.sharedSuccessfully
+      );
     },
   },
   created: async function () {
@@ -306,7 +306,7 @@ export default {
       this.sharing = false;
     },
     finish() {
-      this.protocolHandler.done(this.redirectUrl);
+      this.protocolHandler.done(this.redirectUrl ? this.redirectUrl : window.location.origin);
     },
     cancel() {
       this.protocolHandler.cancel();
@@ -326,3 +326,14 @@ export default {
   },
 };
 </script>
+<style>
+.waci-share-credential-overview-root {
+  padding-bottom: 2.5rem;
+}
+.waci-share-credential-overview-vault {
+  top: 2.5rem;
+  left: 0;
+  /* TODO: replace with tailwind shadow once defined in config */
+  box-shadow: 0px 2px 12px 0px rgba(25, 12, 33, 0.1);
+}
+</style>
