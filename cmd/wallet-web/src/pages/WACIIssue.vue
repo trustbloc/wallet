@@ -198,7 +198,7 @@ export default {
 
     // Await here to allow these operations to run asynchronously along with the didcomm request
     this.credentialDisplayData = await credManifest;
-    this.setSelectedVault = await defVault;
+    this.setSelectedVault(await defVault);
 
     // prepare cards
     this.prepareCards();
