@@ -21,7 +21,7 @@ require (
 	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210916154931-0196c3a2d102
 	github.com/hyperledger/aries-framework-go/spi v0.0.0-20211206182816-9cdcbcd09dc2
 	github.com/piprate/json-gold v0.4.1-0.20210813112359-33b90c4ca86c
-	github.com/rs/cors v1.7.0
+	github.com/rs/cors v1.8.2
 	github.com/spf13/cobra v1.3.0
 	github.com/stretchr/testify v1.7.0
 	github.com/trustbloc/edge-agent v0.0.0-00010101000000-000000000000
