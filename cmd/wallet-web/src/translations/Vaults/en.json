@@ -22,5 +22,17 @@
     "deleteVault": "Delete Vault",
     "deleteVaultButton": "Delete",
     "deleteVaultConfirmMessage": "Deleting this vault will delete the credentials within it as well."
+  },
+  "WelcomeBanner": {
+    "heading": "Welcome to TrustBloc",
+    "subheading": "Here are some things you can do to get started:",
+    "AddAVault": {
+      "heading": "Add a vault",
+      "message": "TrustBloc stores the credentials you add in secure vaults. Create different vaults to keep your credentials organized."
+    },
+    "AddACredential": {
+      "heading": "Add a credential",
+      "message": "Add credentials to your vaults and use them to verify your identity. You're in control of what information gets shared."
+    }
   }
 }

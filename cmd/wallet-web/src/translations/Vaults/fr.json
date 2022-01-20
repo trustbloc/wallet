@@ -24,5 +24,17 @@
   "DeleteModal": {
     "deleteVaultButton": "Supprimer",
     "deleteVaultConfirmMessage": "En supprimant cette chambre forte, vous supprimerez aussi les identifiants qui s’y trouvent."
+  },
+  "WelcomeBanner": {
+    "heading": "Bienvenue dans TrustBloc",
+    "subheading": "Voici par quoi commencer :",
+    "AddAVault": {
+      "heading": "Ajouter une chambre forte",
+      "message": "TrustBloc enregistre les identifiants que vous ajoutez dans des chambres fortes sécurisées. Vous pouvez créer différentes chambres fortes pour organiser le tout."
+    },
+    "AddACredential": {
+      "heading": "Ajouter un identifiant",
+      "message": "Ajoutez des identifiants à vos chambres fortes et servez-vous-en pour vérifier votre identité. Vous décidez des renseignements qui sont communiqués."
+    }
   }
 }
