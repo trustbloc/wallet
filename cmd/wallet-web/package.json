@@ -18,7 +18,7 @@
   "dependencies": {
     "@trustbloc-cicd/agent-sdk-web": "0.1.8-snapshot-7914e4c",
     "@trustbloc-cicd/wallet-sdk": "0.1.8-snapshot-7914e4c",
-    "ajv": "^8.6.2",
+    "ajv": "^8.9.0",
     "credential-handler-polyfill": "^2.1.0",
     "flat": "^5.0.2",
     "js-base64": "^3.7.2",
