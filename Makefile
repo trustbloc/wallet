@@ -6,9 +6,9 @@
 WALLET_SERVER_PATH	= cmd/wallet-server
 
 # GO version
-ALPINE_VER ?= 3.12
+ALPINE_VER ?= 3.15
 GO_TAGS    ?=
-GO_VER     ?= 1.16
+GO_VER     ?= 1.17
 
 # open API configuration
 OPENAPI_SPEC_PATH=build/rest/openapi/spec
