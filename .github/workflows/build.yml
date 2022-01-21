@@ -7,7 +7,7 @@
 name: "Wallet CI"
 
 env:
-  GO_VERSION: 1.16
+  GO_VERSION: 1.17
 
 on:
   push:
@@ -157,10 +157,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Setup Go 1.16
+      - name: Setup Go 1.17
         uses: actions/setup-go@v2
         with:
-          go-version: 1.16
+          go-version: 1.17
 
       - uses: actions/checkout@v2
         with:
@@ -225,7 +225,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           build-args: |
             ALPINE_VER=3.12
-            GO_VER=1.16
+            GO_VER=1.17
           push: true
           tags: |
             ${{ env.WALLET_SERVER_IMAGE_PREFIX }}:${{ env.IMAGE_TAG }}
@@ -239,7 +239,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           build-args: |
             ALPINE_VER=3.12
-            GO_VER=1.16
+            GO_VER=1.17
           push: true
           tags: |
             ${{ env.WALLET_WEB_IMAGE_PREFIX }}:${{ env.IMAGE_TAG }}
