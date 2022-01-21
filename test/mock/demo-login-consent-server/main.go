@@ -189,7 +189,7 @@ func (c *consentServer) login(w http.ResponseWriter, req *http.Request) {
 		}
 
 		// fetching the request url from the valid login request to fetch provider (custom parameter)
-		providerID, err := c.fetchProviderFromURL(resp.Payload.RequestURL)
+		providerID, err := c.fetchProviderFromURL(*resp.Payload.RequestURL)
 		if err != nil {
 			fmt.Fprintf(w, "Failed to fetch the provider name: %s", err.Error())
 			w.WriteHeader(http.StatusBadRequest)
@@ -321,7 +321,7 @@ func (c *consentServer) acceptLoginRequest(w http.ResponseWriter, req *http.Requ
 
 	loginOKRequest.SetBody(b)
 	loginOKRequest.SetTimeout(timeout)
-	loginOKRequest.LoginChallenge = resp.Payload.Challenge
+	loginOKRequest.LoginChallenge = *resp.Payload.Challenge
 
 	loginOKResponse, err := c.hydraClient.Admin.AcceptLoginRequest(loginOKRequest)
 	if err != nil {
@@ -331,7 +331,7 @@ func (c *consentServer) acceptLoginRequest(w http.ResponseWriter, req *http.Requ
 		return
 	}
 
-	http.Redirect(w, req, loginOKResponse.Payload.RedirectTo, http.StatusFound)
+	http.Redirect(w, req, *loginOKResponse.Payload.RedirectTo, http.StatusFound)
 }
 
 func (c *consentServer) showConsentPage(w http.ResponseWriter, req *http.Request) { // nolint: gocyclo
@@ -447,8 +447,10 @@ func (c *consentServer) acceptConsentRequest(w http.ResponseWriter, req *http.Re
 		GrantScope:               req.Form["grant_scope"],
 		GrantAccessTokenAudience: getConsentRequestResponse.Payload.RequestedAccessTokenAudience,
 		Remember:                 remember,
-		HandledAt:                strfmt.DateTime(time.Now()),
+		HandledAt:                 models.NullTime(time.Now()),
 	}
+
+	strfmt.NewDateTime()
 
 	consentOKRequest := admin.NewAcceptConsentRequestParamsWithHTTPClient(c.httpClient)
 	consentOKRequest.SetBody(b)
@@ -463,7 +465,7 @@ func (c *consentServer) acceptConsentRequest(w http.ResponseWriter, req *http.Re
 		return
 	}
 
-	http.Redirect(w, req, consentOKResponse.Payload.RedirectTo, http.StatusFound)
+	http.Redirect(w, req, *consentOKResponse.Payload.RedirectTo, http.StatusFound)
 }
 
 func (c *consentServer) rejectConsentRequest(w http.ResponseWriter, req *http.Request) {
@@ -486,7 +488,7 @@ func (c *consentServer) rejectConsentRequest(w http.ResponseWriter, req *http.Re
 		return
 	}
 
-	http.Redirect(w, req, consentDenyResponse.Payload.RedirectTo, http.StatusFound)
+	http.Redirect(w, req, *consentDenyResponse.Payload.RedirectTo, http.StatusFound)
 }
 
 // authLogin authenticates user login credentials,
