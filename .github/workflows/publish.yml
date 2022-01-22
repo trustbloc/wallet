@@ -62,7 +62,7 @@ jobs:
           file: ./images/wallet-server/Dockerfile
           platforms: linux/amd64,linux/arm64
           build-args: |
-            ALPINE_VER=3.12
+            ALPINE_VER=3.15
             GO_VER=1.17
           push: true
           tags: |
@@ -76,7 +76,7 @@ jobs:
           file: ./images/wallet-web/Dockerfile
           platforms: linux/amd64,linux/arm64
           build-args: |
-            ALPINE_VER=3.12
+            ALPINE_VER=3.15
             GO_VER=1.17
           push: true
           tags: |
