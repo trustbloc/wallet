@@ -17,7 +17,7 @@
         <button v-if="!isNavbarHidden" class="absolute left-6 z-10" @click="toggleNavbar">
           <img src="@/assets/img/menu-icon.svg" />
         </button>
-        <Logo class="z-10 h-6" />
+        <Logo class="z-10 h-6 cursor-pointer" @click="$router.push({ name: 'vaults' })" />
       </div>
     </div>
     <!-- Navbar Open -->
@@ -30,7 +30,15 @@
         <button class="absolute left-6 z-10" @click="toggleNavbar">
           <img src="@/assets/img/close.svg" />
         </button>
-        <Logo class="z-10 h-6" />
+        <Logo
+          class="z-10 h-6 cursor-pointer"
+          @click="
+            () => {
+              $router.push({ name: 'vaults' });
+              toggleNavbar();
+            }
+          "
+        />
       </div>
       <navbar>
         <navbar-link
