@@ -13,9 +13,9 @@ require (
 	github.com/fxamacker/cbor/v2 v2.4.0
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/sessions v1.2.1
-	github.com/hyperledger/aries-framework-go v0.1.8-0.20220113090443-b751c0ae7b22
-	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20210916154931-0196c3a2d102
-	github.com/hyperledger/aries-framework-go/spi v0.0.0-20210916154931-0196c3a2d102
+	github.com/hyperledger/aries-framework-go v0.1.8-0.20220126164804-6041c17d6e59
+	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20220126164804-6041c17d6e59
+	github.com/hyperledger/aries-framework-go/spi v0.0.0-20220126164804-6041c17d6e59
 	github.com/igor-pavlenko/httpsignatures-go v0.0.23
 	github.com/lafriks/go-shamir v1.1.0
 	github.com/piprate/json-gold v0.4.1-0.20210813112359-33b90c4ca86c

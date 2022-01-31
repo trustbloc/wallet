@@ -51,14 +51,14 @@
         </div>
         <div
           class="
-            grid grid-cols-1
             gap-5
-            w-full
-            sm:px-32
-            h-64
-            mb-12
-            content-center
             justify-items-center
+            content-center
+            sm:px-32
+            mb-12
+            w-full
+            h-64
+            grid grid-cols-1
           "
         >
           <Spinner v-if="loading" />
@@ -83,7 +83,7 @@
             <img :id="provider.id" :src="provider.signInLogoUrl" />
           </button>
         </div>
-        <div class="text-center mb-8">
+        <div class="mb-8 text-center">
           <p class="text-base font-normal text-neutrals-softWhite">
             {{ t('Signin.redirect') }}
             <router-link class="text-primary-blue whitespace-nowrap underline-blue" to="signup"

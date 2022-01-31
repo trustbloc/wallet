@@ -1,3 +1,8 @@
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
 <template>
   <div
     v-if="type === 'regular'"
@@ -65,8 +70,8 @@
     </div>
     <button
       :id="id"
-      @click="showAddVault = !showAddVault"
       class="absolute top-0 left-0 z-0 w-full h-full cursor-pointer"
+      @click="showAddVault = !showAddVault"
     />
     <add-vault :show="showAddVault" :existing-names="existingNames" />
   </div>

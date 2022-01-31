@@ -15,7 +15,7 @@
         <div class="inline-flex mb-2">
           <img src="@/assets/img/vault-icon-colored.svg" />
           <span
-            class="flex items-center pl-3 text-base font-bold whitespace-nowrap text-neutrals-dark"
+            class="flex items-center pl-3 text-base font-bold text-neutrals-dark whitespace-nowrap"
             >{{ t('Vaults.WelcomeBanner.AddAVault.heading') }}</span
           >
         </div>
@@ -27,7 +27,7 @@
         <div class="inline-flex mb-2">
           <img src="@/assets/img/credential-icon-colored.svg" />
           <span
-            class="flex items-center pl-3 text-base font-bold whitespace-nowrap text-neutrals-dark"
+            class="flex items-center pl-3 text-base font-bold text-neutrals-dark whitespace-nowrap"
             >{{ t('Vaults.WelcomeBanner.AddACredential.heading') }}</span
           >
         </div>

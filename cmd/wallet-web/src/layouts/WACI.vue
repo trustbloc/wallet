@@ -14,8 +14,8 @@
       max-w-7xl
       h-screen
       max-h-screen
-      flex flex-col
       shadow-main-container
+      flex flex-col
     "
   >
     <Header :has-custom-gradient="true">
@@ -34,11 +34,11 @@
         items-start
         w-full
         h-full
-        flex flex-col
         bg-neutrals-softWhite
+        flex flex-col
       "
     />
-    <Footer class="sticky bottom-0 z-20 border-t border-neutrals-thistle bg-neutrals-magnolia" />
+    <Footer class="sticky bottom-0 z-20 bg-neutrals-magnolia border-t border-neutrals-thistle" />
   </div>
 </template>
 

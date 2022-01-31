@@ -80,7 +80,7 @@
                 </h1>
               </div>
               <div
-                class="grid grid-cols-1 gap-5 w-full h-64 mb-8 content-center justify-items-center"
+                class="grid grid-cols-1 gap-5 justify-items-center content-center mb-8 w-full h-64"
               >
                 <Spinner v-if="loading" />
                 <button
@@ -104,7 +104,7 @@
                   <img :id="provider.id" :src="provider.signUpLogoUrl" />
                 </button>
               </div>
-              <div class="text-center mb-8">
+              <div class="mb-8 text-center">
                 <p class="text-base font-normal text-neutrals-white">
                   {{ t('Signup.redirect') }}
                   <router-link
