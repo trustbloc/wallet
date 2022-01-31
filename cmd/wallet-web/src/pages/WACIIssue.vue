@@ -69,8 +69,8 @@
                 px-4
                 mt-5
                 w-full
-                rounded-t-lg
                 bg-neutrals-lilacSoft
+                rounded-t-lg
                 flex flex-col flex-grow
                 border-b border-neutrals-dark
               "

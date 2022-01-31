@@ -75,14 +75,14 @@
           </div>
           <div class="flex flex-col pl-3">
             <span
-              class="flex-1 mb-1 text-sm font-bold text-left overflow-ellipsis text-neutrals-dark"
+              class="flex-1 mb-1 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
             >
               <!-- todo issue-1055 Read meta data from external urls -->
               Requestor
             </span>
             <div class="flex flex-row justify-center items-center">
               <img src="@/assets/img/small-lock-icon.svg" />
-              <span class="flex-1 pl-1 text-xs text-left overflow-ellipsis text-neutrals-medium">
+              <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
                 {{ requestOrigin }}
               </span>
             </div>
@@ -106,11 +106,11 @@
                 justify-start
                 items-start
                 px-5
+                pt-13
                 pb-3
                 w-full
-                rounded-b-xl
-                pt-13
                 bg-neutrals-white
+                rounded-b-xl
                 flex flex-row
                 waci-share-credential-overview-vault
               "
