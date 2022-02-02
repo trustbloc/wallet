@@ -13,7 +13,10 @@
     <WACI-loading v-if="loading" />
 
     <!-- Sharing State -->
-    <WACI-loading v-else-if="sharing" :message="t('CHAPI.Share.sharingCredential')" />
+    <WACI-loading
+      v-else-if="sharing"
+      :message="t('CHAPI.Share.sharingCredential', processedCredentials.length)"
+    />
 
     <!-- Error State -->
     <WACI-error v-else-if="errors.length" @click="cancel" />
@@ -67,7 +70,9 @@
           flex flex-col
         "
       >
-        <span class="mb-6 text-3xl font-bold">{{ t('CHAPI.Share.shareCredential') }}</span>
+        <span class="mb-6 text-3xl font-bold">{{
+          t('CHAPI.Share.shareCredential', processedCredentials.length)
+        }}</span>
         <div class="flex flex-row justify-start items-start mb-4 w-full">
           <div class="flex-none w-12 h-12 border-opacity-10">
             <!-- todo issue-1055 Read meta data from external urls -->
@@ -130,18 +135,19 @@
             />
           </template>
         </credential-overview>
+
         <!-- List of Credential Banners (Links to Details for each) -->
-        <!-- TODO: issue-1391 -->
-        <!-- <ul v-else-if="processedCredentials.length" class="space-y-5 w-full">
-              <li v-for="(credential, index) in processedCredentials" :key="index">
-                <credential-banner
-                  :id="credential.id"
-                  :brand-color="credential.brandColor"
-                  :icon="credential.icon"
-                  :title="credential.title"
-                />
-              </li>
-            </ul> -->
+        <ul v-else-if="processedCredentials.length > 1" class="mt-6 space-y-5 w-full">
+          <li v-for="(credential, index) in processedCredentials" :key="index">
+            <credential-banner
+              :id="credential.id"
+              :brand-color="credential.brandColor"
+              :icon="credential.icon"
+              :title="credential.title"
+              @click="handleOverviewClick(credential.id)"
+            />
+          </li>
+        </ul>
       </div>
     </div>
 
@@ -165,8 +171,10 @@ import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { DIDComm } from '@trustbloc/wallet-sdk';
 import { getCredentialType, getCredentialDisplayData, getCredentialIcon } from '@/mixins';
+import { WACIStore, WACIMutations } from '@/layouts/WACI.vue';
+import { WACIShareLayoutMutations } from '@/layouts/WACIShareLayout.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
-// import CredentialBanner from '@/components/WACI/CredentialBanner.vue';
+import CredentialBanner from '@/components/WACI/CredentialBanner.vue';
 import CredentialOverview from '@/components/WACI/CredentialOverview.vue';
 import WACIActionButtonsContainer from '@/components/WACI/WACIActionButtonsContainer.vue';
 import WACICredentialsMissing from '@/components/WACI/WACICredentialsMissing.vue';
@@ -174,10 +182,11 @@ import WACIError from '@/components/WACI/WACIError.vue';
 import WACILoading from '@/components/WACI/WACILoading.vue';
 import WACISuccess from '@/components/WACI/WACISuccess.vue';
 import CredentialDetailsTable from '@/components/WACI/CredentialDetailsTable.vue';
+import WACIShareOverview from '@/pages/WACIShareOverview.vue';
 
 export default {
   components: {
-    // CredentialBanner,
+    CredentialBanner,
     CredentialDetailsTable,
     CredentialOverview,
     StyledButton,
@@ -218,7 +227,7 @@ export default {
   },
   created: async function () {
     this.loading = true;
-    this.protocolHandler = this.$parent.protocolHandler;
+    this.protocolHandler = WACIStore.protocolHandler;
     const invitation = toRaw(this.protocolHandler.message());
     const { user, token } = this.getCurrentUser().profile;
     this.credentialDisplayData = await this.getCredentialManifestData();
@@ -245,6 +254,7 @@ export default {
 
     this.prepareRecords(this.presentations);
     this.requestOrigin = this.protocolHandler.requestor();
+    WACIMutations.setProcessedCredentials(this.processedCredentials);
     this.loading = false;
   },
   methods: {
@@ -322,6 +332,10 @@ export default {
       return (
         this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
       );
+    },
+    handleOverviewClick: function (id) {
+      WACIMutations.setSelectedCredentialId(id);
+      WACIShareLayoutMutations.setComponent(WACIShareOverview);
     },
   },
 };

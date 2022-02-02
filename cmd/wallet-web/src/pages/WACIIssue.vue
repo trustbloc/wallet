@@ -118,6 +118,7 @@ import { mapGetters } from 'vuex';
 import { CollectionManager, DIDComm } from '@trustbloc/wallet-sdk';
 import { useI18n } from 'vue-i18n';
 import { getCredentialDisplayData, getCredentialType, getCredentialIcon } from '@/mixins';
+import { WACIStore } from '@/layouts/WACI.vue';
 import CustomSelect from '@/components/CustomSelect/CustomSelect.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
 import CredentialOverview from '@/components/WACI/CredentialOverview.vue';
@@ -164,7 +165,7 @@ export default {
   },
   created: async function () {
     this.loading = true;
-    this.protocolHandler = this.$parent.protocolHandler;
+    this.protocolHandler = WACIStore.protocolHandler;
     const invitation = toRaw(this.protocolHandler.message());
     const { user, token } = this.getCurrentUser().profile;
     const credManifest = this.getCredentialManifestData();
