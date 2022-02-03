@@ -1,0 +1,52 @@
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: "2"
+
+services:
+  sidetree:
+    container_name: testnet.orb.local
+    image: ${SIDETREE_MOCK_IMAGE}:${SIDETREE_MOCK_IMAGE_TAG}
+    environment:
+      - SIDETREE_MOCK_TLS_CERTIFICATE=/etc/sidetree/tls/ec-pubCert.pem
+      - SIDETREE_MOCK_TLS_KEY=/etc/sidetree/tls/ec-key.pem
+      - SIDETREE_MOCK_HOST=0.0.0.0
+      - SIDETREE_MOCK_PORT=443
+      - SIDETREE_MOCK_DID_NAMESPACE=did:orb
+      - SIDETREE_MOCK_DID_ALIASES=did:orb:testnet.orb.local
+      - SIDETREE_MOCK_EXTERNAL_ENDPOINT=https://testnet.orb.local
+      - SIDETREE_MOCK_WELLKNOWN_PATH=did-orb
+    ports:
+      - 443:443
+    volumes:
+      - ../keys/tls:/etc/sidetree/tls
+
+  uni-resolver-web.trustbloc.local:
+    container_name: uni-resolver-web.trustbloc.local
+    image: universalresolver/uni-resolver-web:latest
+    ports:
+      - "9080:8080"
+    volumes:
+      - ./config.json:/opt/uni-resolver-java/uni-resolver-web/config.json
+
+  driver-did-key:
+    image: universalresolver/driver-did-key:latest
+    ports:
+      - "8098:8080"
+
+  file-server.trustbloc.local: # file server for hosting static resources (e.g. JSON-LD contexts)
+    container_name: file-server.trustbloc.local
+    image: halverneus/static-file-server:latest
+    environment:
+      - PORT=12096
+      - FOLDER=/data
+      - TLS_CERT=/etc/tls/ec-pubCert.pem
+      - TLS_KEY=/etc/tls/ec-key.pem
+      - CORS=true
+    ports:
+      - 12096:12096
+    volumes:
+      - ./static/contexts:/data
+      - ../keys/tls:/etc/tls

@@ -14,7 +14,13 @@ ROOT=`pwd`
 npm -v
 echo "starting containers..."
 cd $ROOT/test/fixtures/wallet-web
-(source .env && docker-compose -f docker-compose-demo.yml -f docker-compose-server.yml -f docker-compose-web.yml down && docker-compose -f docker-compose-demo.yml -f docker-compose-server.yml -f docker-compose-web.yml up  --force-recreate -d)
+(
+  source .env &&
+  docker-compose -f docker-compose-deps.yml -f docker-compose-demo.yml -f docker-compose-server.yml -f docker-compose-web.yml down &&
+  docker-compose -f docker-compose-deps.yml -f docker-compose-server.yml up  --force-recreate -d &&
+  sleep 2 &&
+  docker-compose -f docker-compose-demo.yml -f docker-compose-web.yml up  --force-recreate -d
+)
 
 sleep 45
 
@@ -65,7 +71,7 @@ if [ $? -ne 0 ]
 then
 	cd $ROOT/test/fixtures/wallet-web
 	docker-compose -f docker-compose-demo.yml -f docker-compose-server.yml -f docker-compose-web.yml logs  --no-color >& docker-compose.log
-    
+
 	exit 1
 fi
 

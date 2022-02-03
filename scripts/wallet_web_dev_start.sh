@@ -12,7 +12,11 @@ ROOT=`pwd`
 
 echo "starting containers..."
 cd $ROOT/test/fixtures/wallet-web
-(source .env && docker-compose -f docker-compose-demo.yml -f docker-compose-server.yml -f docker-compose-web.yml down && docker-compose -f docker-compose-demo.yml -f docker-compose-server.yml -f docker-compose-web.yml up --force-recreate -d)
+(
+  source .env &&
+  docker-compose -f docker-compose-deps.yml -f docker-compose-demo.yml -f docker-compose-server.yml -f docker-compose-web.yml down &&
+  docker-compose -f docker-compose-deps.yml -f docker-compose-demo.yml -f docker-compose-server.yml -f docker-compose-web.yml up --force-recreate -d
+)
 
 echo "waiting for containers to start..."
 sleep 15
