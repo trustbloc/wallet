@@ -148,7 +148,7 @@ describe("TrustBloc Wallet - WACI Share flow", () => {
     // demo verifier page
     await browser.navigateTo(browser.config.demoVerifierURL);
 
-    const waciShareDemoBtn = await $("#waci-share-demo");
+    const waciShareDemoBtn = await $("#waci-share-demo-v2");
     await waciShareDemoBtn.waitForExist();
     await waciShareDemoBtn.click();
 

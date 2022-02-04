@@ -66,7 +66,7 @@ if [ $? -ne 0 ]
 then
 	cd $ROOT/test/fixtures/wallet-web
 	docker-compose -f docker-compose-demo.yml -f docker-compose-server.yml -f docker-compose-web.yml logs  --no-color >& docker-compose.log
-    
+
 	exit 1
 fi
 

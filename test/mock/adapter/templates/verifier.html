@@ -10,13 +10,18 @@ SPDX-License-Identifier: Apache-2.0
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
     <title>Demo Verifier</title>
+    <script type="text/javascript">
+      function submitAction( action ){
+        document.getElementById("waci-share-form").action = action
+      }
+    </script>
   </head>
 
   <body>
     <h1>Demo Verifier Adapter</h1>
 
     <h2>WACI Share Demo</h2>
-    <form action="/waci-share">
+    <form action="" id="waci-share-form">
       <label>Wallet URL</label><br />
       <input
         type="text"
@@ -27,8 +32,10 @@ SPDX-License-Identifier: Apache-2.0
       />
       <br />
       <br />
-      <input type="submit" id="waci-share-demo" value="Demo" />
+      <input type="submit" id="waci-share-demo" value="Demo" onclick="javascript:submitAction('/waci-share')"/>
+      <input type="submit" id="waci-share-demo-v2" value="Demo V2" onclick="javascript:submitAction('/waci-share-v2')"/>
     </form>
+
 
     <br />
     <br />
