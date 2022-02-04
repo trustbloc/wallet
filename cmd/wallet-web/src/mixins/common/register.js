@@ -33,7 +33,7 @@ export class RegisterWallet {
     let failure;
     try {
       await Promise.all([
-        this._connectToMediator(),
+        this._connectToMediator(true),
         this._assignDID(profile),
         this._createDefaultVault(profile),
       ]);
@@ -49,11 +49,14 @@ export class RegisterWallet {
     }
   }
 
-  async _connectToMediator() {
+  async _connectToMediator(isDIDCommV2 = false) {
     console.time('time tracking: register mediator time');
     if (this.mediatorEndpoint) {
       try {
-        await connectToMediator(this.agent, this.mediatorEndpoint, { waitForStateComplete });
+        await connectToMediator(this.agent, this.mediatorEndpoint, {
+          waitForStateComplete,
+          isDIDCommV2,
+        });
 
         console.debug(`registered with mediator successfully for user`);
       } catch (e) {

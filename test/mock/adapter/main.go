@@ -24,6 +24,9 @@ const (
 	tlsCACertsEnvKey          = "TLS_CACERTS"
 	orbDomainEnvKey           = "ORB_DOMAIN"
 	contextProviderEnvKey     = "CONTEXT_PROVIDER_URL"
+	useDIDCommV2EnvKey        = "USE_DIDCOMM_V2"
+	keyTypeEnvKey             = "KEY_TYPE"
+	keyAgreementTypeEnvKey    = "KEY_AGREEMENT_TYPE"
 )
 
 func main() {

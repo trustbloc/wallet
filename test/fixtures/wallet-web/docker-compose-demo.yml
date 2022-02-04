@@ -17,8 +17,12 @@ services:
       - TLS_CACERTS=/etc/tls/ec-cacert.pem
       - TLS_KEY_FILE=/etc/tls/ec-key.pem
       - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
-      - ORB_DOMAIN=testnet.orb.local
+      - ORB_DOMAIN=https://testnet.orb.local
+      - ROUTER_DOMAIN=https://hub-router.trustbloc.local:${HUB_ROUTER_HTTP_INBOUND_PORT}
       - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
+      - USE_DIDCOMM_V2=true
+      - KEY_TYPE=${MOCK_ADAPTER_KEY_TYPE}
+      - KEY_AGREEMENT_TYPE=${MOCK_ADAPTER_KEY_AGREEMENT_TYPE}
     ports:
       - 8094:8094
       - 8095:8095

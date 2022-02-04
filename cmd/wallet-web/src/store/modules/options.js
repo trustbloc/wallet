@@ -53,6 +53,9 @@ let defaultAgentStartupOpts = {
   hubAuthURL: '',
   staticAssetsUrl: '',
   unanchoredDIDMaxLifeTime: 0,
+  'media-type-profiles': '',
+  'key-type': '',
+  'key-agreement-type': [],
 };
 
 export default {
@@ -77,6 +80,15 @@ export default {
         agentOpts['context-provider-url'] = agentOpts['context-provider-url']
           ? agentOpts['context-provider-url'].split(',')
           : [];
+
+        // wallet supoprting both didcomm v1 and didcomm V2 profiles
+        let mediaTypeProfiles = ['didcomm/aip2;env=rfc19', 'didcomm/v2'];
+        let keyType = 'ed25519';
+        let keyAgreementType = 'p256kw';
+
+        agentOpts['media-type-profiles'] = mediaTypeProfiles;
+        agentOpts['key-type'] = keyType;
+        agentOpts['key-agreement-type'] = keyAgreementType;
 
         const client = axios.create({
           withCredentials: true,
@@ -156,6 +168,14 @@ export default {
         // dev mode agent opts
         agentOpts.walletMediatorURL = 'https://localhost:10093';
         agentOpts.hubAuthURL = 'https://localhost:8044';
+
+        let mediaTypeProfiles = ['didcomm/aip2;env=rfc19', 'didcomm/v2'];
+        let keyType = 'ed25519';
+        let keyAgreementType = 'p256kw';
+
+        agentOpts['media-type-profiles'] = mediaTypeProfiles;
+        agentOpts['key-type'] = keyType;
+        agentOpts['key-agreement-type'] = keyAgreementType;
 
         profileOpts = {
           config: {
@@ -298,6 +318,16 @@ export default {
           'staticAssetsUrl' in agentOpts
             ? agentOpts['staticAssetsUrl']
             : defaultAgentStartupOpts['staticAssetsUrl'],
+        'media-type-profiles':
+          'media-type-profiles' in agentOpts
+            ? agentOpts['media-type-profiles']
+            : defaultAgentStartupOpts['media-type-profiles'],
+        'key-type':
+          'key-type' in agentOpts ? agentOpts['key-type'] : defaultAgentStartupOpts['key-type'],
+        'key-agreement-type':
+          'key-agreement-type' in agentOpts
+            ? agentOpts['key-agreement-type']
+            : defaultAgentStartupOpts['key-agreement-type'],
       });
 
       commit('updateProfileOpts', profileOpts);

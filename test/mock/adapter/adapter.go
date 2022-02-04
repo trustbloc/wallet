@@ -22,12 +22,14 @@ import (
 	"github.com/hyperledger/aries-framework-go/component/storageutil/mem"
 	"github.com/hyperledger/aries-framework-go/pkg/client/didexchange"
 	"github.com/hyperledger/aries-framework-go/pkg/client/outofband"
+	"github.com/hyperledger/aries-framework-go/pkg/client/outofbandv2"
 	"github.com/hyperledger/aries-framework-go/pkg/client/presentproof"
 	"github.com/hyperledger/aries-framework-go/pkg/common/log"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/common/service"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/decorator"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/issuecredential"
 	presentproofsvc "github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/presentproof"
+	"github.com/hyperledger/aries-framework-go/pkg/didcomm/transport"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/cm"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/presexch"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
@@ -94,6 +96,7 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 	router.HandleFunc("/issuer", app.issuer)
 	router.HandleFunc("/web-wallet", app.webWallet)
 	router.HandleFunc("/waci-share", app.waciShare)
+	router.HandleFunc("/waci-share-v2", app.waciShareV2)
 	router.HandleFunc("/waci-share/{id}", app.waciShareCallback)
 	router.HandleFunc("/waci-issuance", app.waciIssuance)
 	router.HandleFunc("/waci-issuance/{id}", app.waciIssuanceCallback)
@@ -118,6 +121,35 @@ func (v *adapterApp) waciShare(w http.ResponseWriter, r *http.Request) {
 
 	// generate OOB invitation
 	inv, err := v.agent.OOBClient.CreateInvitation(nil, outofband.WithGoal("share-vp", "streamlined-vp"))
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to create oob invitation : %s", err))
+
+		return
+	}
+
+	invBytes, err := json.Marshal(inv)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to unmarshal invitation : %s", err))
+
+		return
+	}
+
+	redirectURL := fmt.Sprintf("%s/waci?oob=%s", r.FormValue("walletURL"),
+		base64.URLEncoding.EncodeToString(invBytes))
+
+	logger.Infof("waci redirect : url=%s oob-invitation=%s", redirectURL, string(invBytes))
+
+	http.Redirect(w, r, redirectURL, http.StatusFound)
+}
+
+func (v *adapterApp) waciShareV2(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	// generate OOB V2 invitation
+	inv, err := v.agent.OOBV2Client.CreateInvitation(outofbandv2.WithAccept(transport.MediaTypeDIDCommV2Profile),
+		outofbandv2.WithFrom(v.agent.OrbDIDV2), outofbandv2.WithGoal("share-vp", "streamlined-vp"))
 	if err != nil {
 		handleError(w, http.StatusInternalServerError,
 			fmt.Sprintf("failed to create oob invitation : %s", err))
@@ -206,7 +238,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 		switch action.Message.Type() {
 		case didexchange.RequestMsgType:
 			action.Continue(nil)
-		case presentproofsvc.ProposePresentationMsgTypeV2:
+		case presentproofsvc.ProposePresentationMsgTypeV2, presentproofsvc.ProposePresentationMsgTypeV3:
 			thID, err := action.Message.ThreadID()
 			if err != nil {
 				logger.Errorf("failed to get thread ID", err)
