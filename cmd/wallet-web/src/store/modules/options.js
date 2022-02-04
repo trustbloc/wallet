@@ -53,6 +53,9 @@ let defaultAgentStartupOpts = {
   hubAuthURL: '',
   staticAssetsUrl: '',
   unanchoredDIDMaxLifeTime: 0,
+  'media-type-profiles': ['didcomm/aip2;env=rfc19', 'didcomm/v2'],
+  'key-type': 'ed25519',
+  'key-agreement-type': 'p256kw',
 };
 
 export default {
@@ -66,8 +69,8 @@ export default {
         await axios
           .get(agentOptsLocation(location))
           .then((resp) => {
+            console.log('successfully fetched agent start up options: ', resp.data);
             agentOpts = resp.data;
-            console.log('successfully fetched agent start up options: ', agentOpts);
           })
           .catch((err) => {
             console.log('error fetching start up options - using default options : errMsg=', err);
@@ -77,6 +80,11 @@ export default {
         agentOpts['context-provider-url'] = agentOpts['context-provider-url']
           ? agentOpts['context-provider-url'].split(',')
           : [];
+        agentOpts['media-type-profiles'] = agentOpts['media-type-profiles']
+          ? agentOpts['media-type-profiles'].split(',')
+          : ['didcomm/aip2;env=rfc19', 'didcomm/v2'];
+
+        console.log('agent opts processed', JSON.stringify(agentOpts, null, 2));
 
         const client = axios.create({
           withCredentials: true,
@@ -110,9 +118,9 @@ export default {
               agentOpts.edvOpsKIDURL = data.bootstrap.edvOpsKIDURL;
               agentOpts.edvHMACKIDURL = data.bootstrap.edvHMACKIDURL;
 
-              console.log('ops key store url : ' + agentOpts.opsKeyStoreURL);
-              console.log('edv ops key url : ' + agentOpts.edvOpsKIDURL);
-              console.log('edv ops key url : ' + agentOpts.edvHMACKIDURL);
+              console.log('ops key store url : ', agentOpts.opsKeyStoreURL);
+              console.log('edv ops key url : ', agentOpts.edvOpsKIDURL);
+              console.log('edv ops key url : ', agentOpts.edvHMACKIDURL);
             }
 
             // TODO to be removed after universal wallet migration
@@ -298,6 +306,16 @@ export default {
           'staticAssetsUrl' in agentOpts
             ? agentOpts['staticAssetsUrl']
             : defaultAgentStartupOpts['staticAssetsUrl'],
+        'media-type-profiles':
+          'media-type-profiles' in agentOpts
+            ? agentOpts['media-type-profiles']
+            : defaultAgentStartupOpts['media-type-profiles'],
+        'key-type':
+          'key-type' in agentOpts ? agentOpts['key-type'] : defaultAgentStartupOpts['key-type'],
+        'key-agreement-type':
+          'key-agreement-type' in agentOpts
+            ? agentOpts['key-agreement-type']
+            : defaultAgentStartupOpts['key-agreement-type'],
       });
 
       commit('updateProfileOpts', profileOpts);

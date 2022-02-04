@@ -26,12 +26,15 @@ services:
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
       - STORAGE_TYPE=edv
-      - KMS_TYPE=webkms
+      - KMS_TYPE=local
       - USE_EDV_CACHE=true
       - EDV_CLEAR_CACHE=10m
       - USE_EDV_BATCH=true
       - STATIC_ASSETS=/etc/static
       - STATIC_ASSETS_URL=https://wallet.trustbloc.local:8091
+      - DIDCOMM_MEDIA_TYPE_PROFILES=didcomm/v2
+      - DIDCOMM_KEY_TYPE=ecdsap256ieee1363
+      - DIDCOMM_KEY_AGREEMENT_TYPE=p256kw
       # Disabled remote context download for this wallet for better performance.
   #      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
 
@@ -55,13 +58,16 @@ services:
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
       - STORAGE_TYPE=edv
-      - KMS_TYPE=webkms
+      - KMS_TYPE=local
       - USE_EDV_CACHE=true
       - EDV_CLEAR_CACHE=10m
       - USE_EDV_BATCH=true
       - STATIC_ASSETS=/etc/static
       - STATIC_ASSETS_URL=
       - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
+      - DIDCOMM_MEDIA_TYPE_PROFILES=didcomm/v2
+      - DIDCOMM_KEY_TYPE=ecdsap256ieee1363
+      - DIDCOMM_KEY_AGREEMENT_TYPE=p256kw
 
   hub-router.trustbloc.local:
     container_name: hub-router.trustbloc.local
@@ -76,6 +82,11 @@ services:
       - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://hub-router.trustbloc.local:${HUB_ROUTER_HTTP_INBOUND_PORT}
       - HUB_ROUTER_DIDCOMM_WS_HOST=${HUB_ROUTER_HOST}:${HUB_ROUTER_WS_INBOUND_PORT}
       - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${HUB_ROUTER_WS_INBOUND_PORT}
+      - HUB_ROUTER_HTTP_RESOLVER=orb@https://testnet.orb.local/sidetree/v1/identifiers
+      - HUB_ROUTER_DIDCOMM_V2=true
+      - HUB_ROUTER_ORB_DOMAINS=${HUB_ROUTER_ORB_DOMAINS}
+      - HUB_ROUTER_KEY_TYPE=${HUB_ROUTER_V2_KEY_TYPE}
+      - HUB_ROUTER_KEY_AGREEMENT_TYPE=${HUB_ROUTER_V2_KEY_AGREEMENT_TYPE}
       - HUB_ROUTER_DSN_PERSISTENT=mem://tests
       - HUB_ROUTER_DSN_TRANSIENT=mem://tests
       - HUB_ROUTER_DSN_TIMEOUT=45
@@ -101,6 +112,11 @@ services:
       - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://localhost:${HUB_ROUTER2_HTTP_INBOUND_PORT}
       - HUB_ROUTER_DIDCOMM_WS_HOST=${HUB_ROUTER2_HOST}:${HUB_ROUTER2_WS_INBOUND_PORT}
       - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${HUB_ROUTER2_WS_INBOUND_PORT}
+      - HUB_ROUTER_HTTP_RESOLVER=orb@https://testnet.orb.local/sidetree/v1/identifiers
+      - HUB_ROUTER_DIDCOMM_V2=true
+      - HUB_ROUTER_ORB_DOMAINS=${HUB_ROUTER2_ORB_DOMAINS}
+      - HUB_ROUTER_KEY_TYPE=${HUB_ROUTER2_V2_KEY_TYPE}
+      - HUB_ROUTER_KEY_AGREEMENT_TYPE=${HUB_ROUTER2_V2_KEY_AGREEMENT_TYPE}
       - HUB_ROUTER_DSN_PERSISTENT=mem://tests
       - HUB_ROUTER_DSN_TRANSIENT=mem://tests
       - HUB_ROUTER_DSN_TIMEOUT=45
