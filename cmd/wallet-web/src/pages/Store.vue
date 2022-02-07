@@ -141,6 +141,7 @@ import {
   getCredentialType,
   getCredentialIcon,
   isVPType,
+  prepareCredentialManifest,
 } from '@/mixins';
 import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
@@ -185,7 +186,12 @@ export default {
     this.fetchAllVaults(token, collectionManager);
   },
   methods: {
-    ...mapGetters(['getCurrentUser', 'getStaticAssetsUrl', 'getCredentialManifestData']),
+    ...mapGetters([
+      'getCurrentUser',
+      'getStaticAssetsUrl',
+      'getCredentialManifestData',
+      'getCredentialManifests',
+    ]),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     toggleDetails(credential) {
       credential.showDetails = !credential.showDetails;
@@ -206,14 +212,17 @@ export default {
     },
     store: function () {
       this.errors.length = 0;
+
       const { token } = this.getCurrentUser().profile;
+      const manifest = prepareCredentialManifest(this.presentation, this.getCredentialManifests());
+
       this.credentialManager
         .save(
           token,
           {
             presentation: this.presentation,
           },
-          { collection: this.selectedVault }
+          { collection: this.selectedVault, manifest }
         )
         .then(() => {
           this.credentialEvent.done();

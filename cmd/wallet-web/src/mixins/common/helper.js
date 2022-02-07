@@ -9,6 +9,7 @@ const { encodeURI } = require('js-base64');
 import { PresentationExchange } from './presentationExchange';
 
 var flatten = require('flat');
+var uuid = require('uuid/v4');
 
 const ALL_ICONS = [
   'account_box',
@@ -270,4 +271,84 @@ export function getCredentialIcon(staticAssetsUrl, icon) {
     return `${staticAssetsUrl}/images/icons/${icon}`;
   }
   return `${require('@/assets/img/credential--generic-icon.svg')}`;
+}
+
+/**
+ *  Finds matching credential manifest output descriptors from given list of manifest mappings.
+ *
+ *  If found, prepares fresh credential manifest from output descriptors found.
+ *  If not found, creates fresh credential manifest using all fields found in credential subject of credential.
+ *
+ */
+export function prepareCredentialManifest(presentation, manifestDictionary) {
+  const _findOutputDescriptor = (ctxmap, credential) => {
+    if (!ctxmap) {
+      return;
+    }
+
+    for (let ctx of credential['@context']) {
+      if (ctxmap[ctx]) {
+        return ctxmap[ctx];
+      }
+    }
+  };
+
+  let credentialManifest = {
+    id: uuid(),
+    version: '0.1.0',
+    output_descriptors: [],
+  };
+
+  let fulfillment = {
+    id: uuid(),
+    manifest_id: credentialManifest.id,
+    descriptor_map: [],
+  };
+
+  presentation.verifiableCredential.forEach((credential, index) => {
+    // find output descriptor for given credential type.
+    let entry = _findOutputDescriptor(
+      manifestDictionary[getCredentialType(credential.type)],
+      credential
+    );
+    if (entry) {
+      credentialManifest.output_descriptors.push(...entry['output_descriptors']);
+    } else {
+      // find default output descriptor
+      entry = _findOutputDescriptor(manifestDictionary['VerifiableCredential'], credential);
+
+      if (entry) {
+        // populate output descriptor properties
+        for (let k of Object.keys(credential.credentialSubject)) {
+          entry.output_descriptors[0].display.properties.push({
+            path: [`$.credentialSubject.${k}`],
+            schema: {
+              type: 'string',
+            },
+            label: k,
+          });
+        }
+
+        credentialManifest.output_descriptors.push(...entry['output_descriptors']);
+      } else {
+        console.error(
+          "couldn't find default credential manifest for given credential",
+          credential['@context'],
+          credential['type']
+        );
+        throw "couldn't find default credential manifest for given credential";
+      }
+    }
+
+    // prepare fulfillment,
+    fulfillment.descriptor_map.push({
+      id: entry['output_descriptors'][0].id,
+      format: 'ldp_vc',
+      path: `$.verifiableCredential[${index}]`,
+    });
+  });
+
+  presentation['credential_fulfillment'] = fulfillment;
+
+  return credentialManifest;
 }

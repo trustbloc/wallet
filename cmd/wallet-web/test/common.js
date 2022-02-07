@@ -96,10 +96,14 @@ export class Setup {
     );
   }
 
-  async saveCredentials(...credentials) {
-    await new CredentialManager({ agent: this.agent, user: this.user }).save(this.token, {
-      credentials,
-    });
+  async saveCredentials(credentials, { manifest, descriptorMap }) {
+    await new CredentialManager({ agent: this.agent, user: this.user }).save(
+      this.token,
+      {
+        credentials,
+      },
+      { manifest, descriptorMap }
+    );
   }
 
   getStateStore() {
@@ -125,6 +129,9 @@ export class Setup {
         },
         getCredentialManifestData(state) {
           return require('@/config/credentialDisplayData.js').default;
+        },
+        getCredentialManifests(state) {
+          return getTestData('credential-output-descriptors.json');
         },
       },
       modules: {

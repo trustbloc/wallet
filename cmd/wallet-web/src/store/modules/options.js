@@ -60,6 +60,7 @@ export default {
     async initOpts({ commit, getters, dispatch }, location = window.location.origin) {
       let agentOpts = {};
       let profileOpts = {};
+      let readCredentialManifests;
       if (process.env.NODE_ENV === 'production') {
         // call service to get the agent opts
         await axios
@@ -80,6 +81,8 @@ export default {
         const client = axios.create({
           withCredentials: true,
         });
+
+        readCredentialManifests = readManifests(agentOpts['staticAssetsUrl']);
 
         await client
           .get(`${agentOpts['edge-agent-server']}/oidc/userinfo`)
@@ -165,6 +168,8 @@ export default {
             tokenExpiry: '10',
           },
         };
+
+        readCredentialManifests = readManifests();
       }
 
       commit('updateAgentOpts', {
@@ -296,6 +301,9 @@ export default {
       });
 
       commit('updateProfileOpts', profileOpts);
+
+      const manifests = await readCredentialManifests;
+      commit('updateCredentialManifests', manifests);
     },
   },
   mutations: {
@@ -305,10 +313,14 @@ export default {
     updateProfileOpts(state, opts) {
       state.profileOpts = opts;
     },
+    updateCredentialManifests(state, manifests) {
+      state.credentialManifests = manifests;
+    },
   },
   state: {
     agentOpts: {},
     profileOpts: {},
+    credentialManifests: {},
   },
   getters: {
     getAgentOpts(state) {
@@ -329,6 +341,12 @@ export default {
     getStaticAssetsUrl(state) {
       return state.agentOpts['staticAssetsUrl'];
     },
+    getCredentialManifests(state) {
+      return toRaw(state.credentialManifests);
+    },
+    /*
+      @deprecated, to be removed
+     */
     async getCredentialManifestData(state) {
       const staticUrl = state.agentOpts['staticAssetsUrl'];
       if (staticUrl) {
@@ -338,4 +356,20 @@ export default {
       return require('@/config/credentialDisplayData.js').default;
     },
   },
+};
+
+const readManifests = async (staticUrl) => {
+  if (staticUrl) {
+    try {
+      const response = await axios.get(`${staticUrl}/config/credential-output-descriptors.json`);
+      return response.data;
+    } catch (e) {
+      console.warn(e);
+      console.warn(
+        'unable to read credential manifests from remote location, switching to default manifests'
+      );
+    }
+  }
+
+  return require('@/config/credential-output-descriptors.json');
 };

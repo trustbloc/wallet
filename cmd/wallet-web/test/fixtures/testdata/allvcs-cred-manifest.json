@@ -1,0 +1,125 @@
+{
+  "id": "xee75a16-19f5-4273-84ce-5da69ee2b9gf",
+  "version": "0.1.0",
+  "issuer": {
+    "id": "did:example:123?linked-domains=3",
+    "name": "Example Authority",
+    "styles": {}
+  },
+  "output_descriptors": [
+    {
+      "id": "udc_output",
+      "schema": "https://www.w3.org/2018/credentials/examples/v1",
+      "display": {
+        "title": {
+          "path": ["$.title", "$.vc.title"],
+          "schema": {
+            "type": "string"
+          },
+          "fallback": "Bachelor's Degree"
+        },
+        "subtitle": {
+          "path": ["$.minor", "$.vc.minor"],
+          "schema": {
+            "type": "string"
+          },
+          "fallback": ""
+        },
+        "description": {
+          "text": "Awarded for completing a four year program at Example University."
+        },
+        "properties": [
+          {
+            "path": ["$.name", "$.credentialSubject.name"],
+            "schema": {
+              "type": "string"
+            },
+            "fallback": "Not Applicable",
+            "label": "Degree Holder's name"
+          },
+          {
+            "path": ["$.credentialSubject.degree.type"],
+            "schema": {
+              "type": "string"
+            },
+            "fallback": "Unknown",
+            "label": "Degree"
+          }
+        ]
+      },
+      "styles": {
+        "thumbnail": {
+          "uri": "http://example-university.org/logo.png",
+          "alt": "Example University logo"
+        },
+        "hero": {
+          "uri": "http://example-university.org/hero.png",
+          "alt": "Example University students in graduation ceremony"
+        },
+        "background": {
+          "color": "#ff0000"
+        },
+        "text": {
+          "color": "#d4d400"
+        }
+      }
+    },
+    {
+      "id": "prc_output",
+      "schema": "https://w3id.org/citizenship/v1",
+      "display": {
+        "title": {
+          "path": ["$.name", "$.vc.name"],
+          "schema": {
+            "type": "string"
+          },
+          "fallback": "Permanent Resident Card"
+        },
+        "subtitle": {
+          "path": ["$.description", "$.vc.description"],
+          "schema": {
+            "type": "string"
+          },
+          "fallback": ""
+        },
+        "description": {
+          "text": "PR card of John Smith."
+        },
+        "properties": [
+          {
+            "path": ["$.credentialSubject.givenName"],
+            "schema": {
+              "type": "string"
+            },
+            "fallback": "Not Applicable",
+            "label": "Card Holder's first name"
+          },
+          {
+            "path": ["$.credentialSubject.familyName"],
+            "schema": {
+              "type": "string"
+            },
+            "fallback": "Unknown",
+            "label": "Card Holder's family name"
+          }
+        ]
+      },
+      "styles": {
+        "thumbnail": {
+          "uri": "http://example-university.org/logo.png",
+          "alt": "Example University logo"
+        },
+        "hero": {
+          "uri": "http://example-university.org/hero.png",
+          "alt": "Example University students in graduation ceremony"
+        },
+        "background": {
+          "color": "#ff0000"
+        },
+        "text": {
+          "color": "#d4d400"
+        }
+      }
+    }
+  ]
+}

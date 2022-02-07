@@ -25,8 +25,23 @@ before(async function () {
 
   let prcVC = getTestData('prc-vc.json');
   let udcVC = getTestData('udc-vc.json');
+  let manifest = getTestData('allvcs-cred-manifest.json');
 
-  await setup.saveCredentials(prcVC, udcVC);
+  await setup.saveCredentials([prcVC, udcVC], {
+    manifest,
+    descriptorMap: [
+      {
+        id: 'prc_output',
+        format: 'ldp_vc',
+        path: '$[0]',
+      },
+      {
+        id: 'udc_output',
+        format: 'ldp_vc',
+        path: '$[1]',
+      },
+    ],
+  });
 });
 
 after(function () {
@@ -254,7 +269,21 @@ describe.skip('sharing multiple credentials from wallet - MultiQuery (QueryByExa
   let wrapper;
   before(async function () {
     const store = setup.getStateStore();
-    await setup.saveCredentials(udcBBSVC);
+    // prepare manifest
+    let manifest = getTestData('allvcs-cred-manifest.json');
+    manifest.id = uuid();
+
+    await setup.saveCredentials([udcBBSVC], {
+      manifest,
+      descriptorMap: [
+        {
+          id: 'udc_output',
+          format: 'ldp_vc',
+          path: '$[0]',
+        },
+      ],
+    });
+
     wrapper = mount(Get, {
       global: {
         plugins: [store, i18n],
