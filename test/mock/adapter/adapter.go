@@ -282,7 +282,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				action.Stop(nil)
 			}
 
-			offerCredMsg, err := createOfferCredentialMsg(validCredentialManifest, fulfillmentDrivingLicenseVP)
+			offerCredMsg, err := createOfferCredentialMsg(validCredentialManifest, fulfillmentDrivingLicenseVP, thID)
 			if err != nil {
 				logger.Errorf("failed to prepare offer credential message", err)
 				action.Stop(nil)
@@ -296,7 +296,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				action.Stop(nil)
 			}
 
-			issueCredMsg, err := createIssueCredentialMsg(universityDegreeFulFillment, os.Getenv(demoExternalURLEnvKey)+"/waci-issuance/"+thID)
+			issueCredMsg, err := createIssueCredentialMsg(universityDegreeFulFillment, os.Getenv(demoExternalURLEnvKey)+"/waci-issuance/"+thID, thID)
 			if err != nil {
 				logger.Errorf("failed to prepare issue credential message", err)
 				action.Stop(nil)
@@ -309,7 +309,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 	}
 }
 
-func createOfferCredentialMsg(manifest, fulfillmentVP []byte) (*issuecredential.OfferCredentialParams, error) {
+func createOfferCredentialMsg(manifest, fulfillmentVP []byte, thID string) (*issuecredential.OfferCredentialParams, error) {
 	var credentialManifest cm.CredentialManifest
 
 	err := json.Unmarshal(manifest, &credentialManifest)
@@ -317,7 +317,12 @@ func createOfferCredentialMsg(manifest, fulfillmentVP []byte) (*issuecredential.
 		return nil, err
 	}
 
-	vp, err := verifiable.ParsePresentation([]byte(fulfillmentVP), verifiable.WithPresJSONLDDocumentLoader(ld.NewDefaultDocumentLoader(nil)))
+	// change manifest ID and also update fulfillment with new ID (to make test run multiple times)
+	credentialManifest.ID = thID
+	fulfillmentVPStr := strings.ReplaceAll(string(fulfillmentVP), `"manifest_id": "dcc75a16-19f5-4273-84ce-4da69ee2b7fe"`,
+		fmt.Sprintf(`"manifest_id": "%s"`, thID))
+
+	vp, err := verifiable.ParsePresentation([]byte(fulfillmentVPStr), verifiable.WithPresJSONLDDocumentLoader(ld.NewDefaultDocumentLoader(nil)))
 	if err != nil {
 		return nil, err
 	}
@@ -340,7 +345,11 @@ func createOfferCredentialMsg(manifest, fulfillmentVP []byte) (*issuecredential.
 				ID:        attachID1,
 				MediaType: "application/json",
 				Data: decorator.AttachmentData{
-					JSON: credentialManifest,
+					JSON: struct {
+						Manifest cm.CredentialManifest `json:"credential_manifest,omitempty"`
+					}{
+						Manifest: credentialManifest,
+					},
 				},
 			},
 			{
@@ -354,11 +363,13 @@ func createOfferCredentialMsg(manifest, fulfillmentVP []byte) (*issuecredential.
 	}, nil
 }
 
-func createIssueCredentialMsg(vp []byte, redirect string) (*issuecredential.IssueCredentialParams, error) {
+func createIssueCredentialMsg(vp []byte, redirect, thID string) (*issuecredential.IssueCredentialParams, error) {
 	attachID := uuid.New().String()
 
-	// change ID
+	// change ID & manifest ID
 	vpStr := strings.ReplaceAll(string(vp), "http://example.gov/credentials/3732", "http://example.gov/credentials/"+uuid.NewString())
+	vpStr = strings.ReplaceAll(string(vpStr), `"manifest_id": "dcc75a16-19f5-4273-84ce-4da69ee2b7fe"`,
+		fmt.Sprintf(`"manifest_id": "%s"`, thID))
 
 	presentation, err := verifiable.ParsePresentation([]byte(vpStr), verifiable.WithPresDisabledProofCheck(),
 		verifiable.WithPresJSONLDDocumentLoader(ld.NewDefaultDocumentLoader(nil)))

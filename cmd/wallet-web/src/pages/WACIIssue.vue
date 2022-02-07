@@ -174,7 +174,7 @@ export default {
 
     this.didcomm = new DIDComm({ agent: this.getAgentInstance(), user });
     try {
-      const { threadID, presentations, fulfillment, domain, challenge, error } =
+      const { threadID, presentations, fulfillment, manifest, domain, challenge, error } =
         await this.didcomm.initiateCredentialIssuance(token, invitation, {
           userAnyRouterConnection: true,
         });
@@ -191,7 +191,7 @@ export default {
       }
 
       // TODO: [Issue#1336] - read manifest, presentations, normalized, comment, fields to enhance UI
-      this.interactionData = { threadID, fulfillment, domain, challenge, error };
+      this.interactionData = { threadID, fulfillment, domain, challenge, error, manifest };
     } catch (e) {
       this.handleError(e);
       return;
@@ -234,7 +234,7 @@ export default {
       const { profile, preference } = this.getCurrentUser();
       const { controller, proofType, verificationMethod } = preference;
 
-      const { threadID, presentations, domain, challenge } = this.interactionData;
+      const { threadID, manifest, presentations, domain, challenge } = this.interactionData;
 
       let ack;
       try {
@@ -242,6 +242,7 @@ export default {
           profile.token,
           threadID,
           presentations && presentations.length > 0 ? presentations[0] : null,
+          manifest,
           {
             controller,
             proofType,
