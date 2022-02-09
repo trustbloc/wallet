@@ -214,7 +214,11 @@ export default {
       this.errors.length = 0;
 
       const { token } = this.getCurrentUser().profile;
-      const manifest = prepareCredentialManifest(this.presentation, this.getCredentialManifests());
+      const manifest = prepareCredentialManifest(
+        this.presentation,
+        this.getCredentialManifests(),
+        this.credentialEvent.requestor()
+      );
 
       this.credentialManager
         .save(
