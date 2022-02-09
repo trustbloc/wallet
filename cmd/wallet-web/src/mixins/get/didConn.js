@@ -70,7 +70,7 @@ export class DIDConn {
     let saveQueue = [];
     if (this.manifestVC) {
       saveQueue.push(
-        this.credentialManager.saveManifestCredential(
+        this.credentialManager.saveManifestVC(
           this.profile.token,
           this.manifestVC,
           connection.result.ConnectionID

@@ -280,7 +280,7 @@ export function getCredentialIcon(staticAssetsUrl, icon) {
  *  If not found, creates fresh credential manifest using all fields found in credential subject of credential.
  *
  */
-export function prepareCredentialManifest(presentation, manifestDictionary) {
+export function prepareCredentialManifest(presentation, manifestDictionary, issuer) {
   const _findOutputDescriptor = (ctxmap, credential) => {
     if (!ctxmap) {
       return;
@@ -295,6 +295,9 @@ export function prepareCredentialManifest(presentation, manifestDictionary) {
 
   let credentialManifest = {
     id: uuid(),
+    issuer: {
+      id: issuer || uuid(),
+    },
     version: '0.1.0',
     output_descriptors: [],
   };
