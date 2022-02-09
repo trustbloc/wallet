@@ -9,14 +9,19 @@ SPDX-License-Identifier: Apache-2.0
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
-    <title>Demo Verifier</title>
+    <title>Demo Issuer</title>
+    <script type="text/javascript">
+      function submitAction( action ){
+        document.getElementById("waci-issuance-form").action = action
+      }
+    </script>
   </head>
 
   <body>
     <h1>Demo Issuer Adapter</h1>
 
     <h2>WACI Issuance Demo</h2>
-    <form action="/waci-issuance">
+    <form action="" id="waci-issuance-form">
       <label>Wallet URL</label><br />
       <input
         type="text"
@@ -27,7 +32,8 @@ SPDX-License-Identifier: Apache-2.0
       />
       <br />
       <br />
-      <input type="submit" id="waci-issuance-demo" value="Demo" />
+      <input type="submit" id="waci-issuance-demo" value="Demo" onclick="javascript:submitAction('/waci-issuance')" />
+      <input type="submit" id="waci-issuance-demo-v2" value="Demo V2" onclick="javascript:submitAction('/waci-issuance-v2')" />
     </form>
 
     <br />
