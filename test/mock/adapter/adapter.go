@@ -99,6 +99,7 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 	router.HandleFunc("/waci-share-v2", app.waciShareV2)
 	router.HandleFunc("/waci-share/{id}", app.waciShareCallback)
 	router.HandleFunc("/waci-issuance", app.waciIssuance)
+	router.HandleFunc("/waci-issuance-v2", app.waciIssuanceV2)
 	router.HandleFunc("/waci-issuance/{id}", app.waciIssuanceCallback)
 
 	return nil
@@ -128,20 +129,7 @@ func (v *adapterApp) waciShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	invBytes, err := json.Marshal(inv)
-	if err != nil {
-		handleError(w, http.StatusInternalServerError,
-			fmt.Sprintf("failed to unmarshal invitation : %s", err))
-
-		return
-	}
-
-	redirectURL := fmt.Sprintf("%s/waci?oob=%s", r.FormValue("walletURL"),
-		base64.URLEncoding.EncodeToString(invBytes))
-
-	logger.Infof("waci redirect : url=%s oob-invitation=%s", redirectURL, string(invBytes))
-
-	http.Redirect(w, r, redirectURL, http.StatusFound)
+	v.waciInvitationRedirect(w, r, inv)
 }
 
 func (v *adapterApp) waciShareV2(w http.ResponseWriter, r *http.Request) {
@@ -157,20 +145,7 @@ func (v *adapterApp) waciShareV2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	invBytes, err := json.Marshal(inv)
-	if err != nil {
-		handleError(w, http.StatusInternalServerError,
-			fmt.Sprintf("failed to unmarshal invitation : %s", err))
-
-		return
-	}
-
-	redirectURL := fmt.Sprintf("%s/waci?oob=%s", r.FormValue("walletURL"),
-		base64.URLEncoding.EncodeToString(invBytes))
-
-	logger.Infof("waci redirect : url=%s oob-invitation=%s", redirectURL, string(invBytes))
-
-	http.Redirect(w, r, redirectURL, http.StatusFound)
+	v.waciInvitationRedirect(w, r, inv)
 }
 
 func (v *adapterApp) waciIssuance(w http.ResponseWriter, r *http.Request) {
@@ -184,6 +159,28 @@ func (v *adapterApp) waciIssuance(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	v.waciInvitationRedirect(w, r, inv)
+}
+
+func (v *adapterApp) waciIssuanceV2(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	// generate OOB V2 invitation
+	inv, err := v.agent.OOBV2Client.CreateInvitation(outofbandv2.WithAccept(transport.MediaTypeDIDCommV2Profile),
+		outofbandv2.WithFrom(v.agent.OrbDIDV2), outofbandv2.WithGoal("issue-vc", "streamlined-vc"))
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to create oob invitation : %s", err))
+
+		return
+	}
+
+	v.waciInvitationRedirect(w, r, inv)
+}
+
+func (v *adapterApp) waciInvitationRedirect(w http.ResponseWriter, r *http.Request, inv interface{}) {
+	r.ParseForm()
 
 	invBytes, err := json.Marshal(inv)
 	if err != nil {
@@ -286,7 +283,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 			})
 
 			action.Continue(continueArg)
-		case presentproofsvc.PresentationMsgTypeV2:
+		case presentproofsvc.PresentationMsgTypeV2, presentproofsvc.PresentationMsgTypeV3:
 			thID, err := action.Message.ThreadID()
 			if err != nil {
 				logger.Errorf("failed to get thread ID", err)
@@ -301,7 +298,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 					},
 				},
 			))
-		case issuecredential.ProposeCredentialMsgTypeV2:
+		case issuecredential.ProposeCredentialMsgTypeV2, issuecredential.ProposeCredentialMsgTypeV3:
 			thID, err := action.Message.ThreadID()
 			if err != nil {
 				logger.Errorf("failed to get thread ID", err)
@@ -321,7 +318,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 			}
 
 			action.Continue(issuecredential.WithOfferCredential(offerCredMsg))
-		case issuecredential.RequestCredentialMsgTypeV2:
+		case issuecredential.RequestCredentialMsgTypeV2, issuecredential.RequestCredentialMsgTypeV3:
 			thID, err := action.Message.ThreadID()
 			if err != nil {
 				logger.Errorf("failed to get thread ID", err)
@@ -371,6 +368,7 @@ func createOfferCredentialMsg(manifest, fulfillmentVP []byte) (*issuecredential.
 			{
 				ID:        attachID1,
 				MediaType: "application/json",
+				Format:    format1,
 				Data: decorator.AttachmentData{
 					JSON: struct {
 						Manifest cm.CredentialManifest `json:"credential_manifest,omitempty"`
@@ -381,6 +379,7 @@ func createOfferCredentialMsg(manifest, fulfillmentVP []byte) (*issuecredential.
 			},
 			{
 				ID:        attachID2,
+				Format:    format2,
 				MediaType: "application/json",
 				Data: decorator.AttachmentData{
 					JSON: vp,
@@ -402,14 +401,17 @@ func createIssueCredentialMsg(vp []byte, redirect string) (*issuecredential.Issu
 		return nil, err
 	}
 
+	format := "dif/credential-manifest/fulfillment@v1.0"
+
 	return &issuecredential.IssueCredentialParams{
 		Type: issuecredential.IssueCredentialMsgTypeV2,
 		Formats: []issuecredential.Format{{
 			AttachID: attachID,
-			Format:   "dif/credential-manifest/fulfillment@v1.0",
+			Format:   format,
 		}},
 		Attachments: []decorator.GenericAttachment{{
 			ID:        attachID,
+			Format:    format,
 			MediaType: "application/ld+json",
 			Data: decorator.AttachmentData{
 				JSON: presentation,
