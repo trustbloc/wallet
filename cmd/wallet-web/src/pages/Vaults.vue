@@ -58,6 +58,7 @@
         <!--TODO: Issue-1198 Add flyout menu to default and other vaults create this vault -->
         <vault-card
           v-for="(vault, index) in vaults"
+          :id="`vault-card-${vault.name.replaceAll(' ', '-')}`"
           :key="index"
           :name="vault.name"
           :num-of-creds="t('Vaults.foundCredentials', vault.numOfCreds)"

@@ -73,7 +73,7 @@
       class="absolute top-0 left-0 z-0 w-full h-full cursor-pointer"
       @click="showAddVault = !showAddVault"
     />
-    <add-vault :show="showAddVault" :existing-names="existingNames" />
+    <add-vault :show="showAddVault" :existing-names="existingNames" @close="handleClose" />
   </div>
 </template>
 
@@ -134,6 +134,9 @@ export default {
     handleClick: function () {
       this.updateSelectedVaultId(this.vaultId);
       this.$router.push({ name: 'credentials', params: { vaultId: this.vaultId } });
+    },
+    handleClose: function () {
+      this.showAddVault = false;
     },
   },
 };

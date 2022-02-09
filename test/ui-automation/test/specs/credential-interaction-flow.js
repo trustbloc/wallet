@@ -249,38 +249,32 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   beforeEach(function () {});
 
   it(`User Sign up (${ctx.email})`, async function () {
-    this.timeout(90000);
-
     // 1. Navigate to Wallet Website
     await browser.navigateTo(browser.config.walletURL);
 
     // 2. Initialize Wallet (register/sign-up/etc.)
-    await wallet.init(ctx);
+    await wallet.signUp(ctx);
+
+    const credentialsLink = $("#navbar-link-credentials");
+    await credentialsLink.waitForExist();
+    await credentialsLink.click();
   });
 
   it(`Create Orb DID`, async function () {
-    this.timeout(90000);
-
     await wallet.createOrbDID();
   });
 
   it(`Import DID Key (JWK key format)`, async function () {
-    this.timeout(90000);
-
     await wallet.importDID({ method: "key" });
   });
 
   // TODO add case to import DID with Base58 key format
 
   it(`Update Digital Identity preferences`, async function () {
-    this.timeout(90000);
-
     await wallet.updatePreferences();
   });
 
   it(`User performs DID Auth with mock issuer`, async function () {
-    this.timeout(90000);
-
     // mock issuer (wallet page with sample requests)
     await browser.navigateTo(browser.config.webWalletURL);
 
@@ -306,8 +300,6 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   });
 
   it(`User stores credential from mock issuer`, async function () {
-    this.timeout(300000);
-
     for (const [key, value] of credential.entries()) {
       // mock issuer (wallet page with sample requests)
       await browser.navigateTo(browser.config.webWalletURL);
@@ -351,8 +343,6 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   });
 
   it(`User validates the saved credential from mock issuer`, async function () {
-    this.timeout(90000);
-
     await browser.navigateTo(`${browser.config.walletURL}/credentials`);
 
     for (const [key, value] of credential.entries()) {
@@ -373,25 +363,18 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   });
 
   it(`User Sign Out (${ctx.email})`, async function () {
-    this.timeout(90000);
-
     await wallet.logout(ctx);
   });
 
   it(`User Sign in (${ctx.email})`, async function () {
-    this.timeout(90000);
-
-    // 1. Navigate to Wallet Website
-    await browser.navigateTo(browser.config.walletURL);
-
-    // 2. Sign In to the registered Wallet (register/sign-up/etc.)
+    // Sign In to the registered Wallet
     await wallet.signIn(ctx.email);
   });
 
   it(`User validates the saved credential from mock issuer (after sign-in)`, async function () {
-    this.timeout(90000);
-
-    await browser.navigateTo(`${browser.config.walletURL}/credentials`);
+    const credentialsLink = $("#navbar-link-credentials");
+    await credentialsLink.waitForExist();
+    await credentialsLink.click();
 
     for (const [key, value] of credential.entries()) {
       console.log("validate vc in wallet : start ", key);
@@ -411,8 +394,6 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   });
 
   it(`User shares the saved credential with mock verifier`, async function () {
-    this.timeout(300000);
-
     for (const [key, value] of credential.entries()) {
       // mock verifier (wallet page with sample requests)
       await browser.navigateTo(browser.config.webWalletURL);
@@ -464,8 +445,6 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
     }
   });
   it(`User deletes the saved credential`, async function () {
-    this.timeout(90000);
-
     await browser.navigateTo(`${browser.config.walletURL}/credentials`);
 
     for (const [key, value] of credential.entries()) {
@@ -485,18 +464,10 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   });
 
   it(`User Sign Out (${ctx.email})`, async function () {
-    this.timeout(90000);
-
     await wallet.logout(ctx);
   });
 
   it(`User changes locale (${ctx.email})`, async function () {
-    this.timeout(90000);
-
-    // 1. Navigate to Wallet Website
-    await browser.navigateTo(browser.config.walletURL);
-
-    // 2. Change locale
     await wallet.changeLocale();
   });
 });

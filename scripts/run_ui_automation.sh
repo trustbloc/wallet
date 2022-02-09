@@ -65,7 +65,7 @@ healthCheck demo-login-app http://localhost:3300/login 200
 
 echo "running tests..."
 cd $ROOT/test/ui-automation
-npm run test && npm run report
+npm run test
 if [ $? -ne 0 ]
 then
 	cd $ROOT/test/fixtures/wallet-web
