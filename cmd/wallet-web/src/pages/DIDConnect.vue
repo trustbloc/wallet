@@ -121,7 +121,8 @@ export default {
       this.getAgentInstance(),
       this.getCurrentUser().profile,
       this.getAgentOpts(),
-      this.$parent.protocolHandler
+      this.$parent.protocolHandler,
+      this.getCredentialManifests()
     );
 
     this.requestOrigin = this.$parent.protocolHandler.requestor();
@@ -133,7 +134,7 @@ export default {
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getCurrentUser', 'getAgentOpts']),
+    ...mapGetters(['getCurrentUser', 'getAgentOpts', 'getCredentialManifests']),
     cancel: function () {
       this.wallet.cancel();
     },

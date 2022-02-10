@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import { CHAPIEventHandler } from '../';
+import { CHAPIEventHandler, prepareCredentialManifest } from '../';
 import { BlindedRouter, CredentialManager, DIDComm } from '@trustbloc/wallet-sdk';
 import jp from 'jsonpath';
 
@@ -21,7 +21,7 @@ var blindedRoutingDisabled = {
  * @class
  */
 export class DIDConn {
-  constructor(agent, profile, startupOpts, protocolHandler) {
+  constructor(agent, profile, startupOpts, protocolHandler, manifestConfig) {
     this.didcomm = new DIDComm({ agent, user: profile.user });
     this.blindedRouter = startupOpts.blindedRouting
       ? new BlindedRouter(agent)
@@ -57,6 +57,8 @@ export class DIDConn {
       credentials,
       `$[?(@.type.indexOf('${governanceCredType}') == -1 && @.type.indexOf('${manifestCredType}') == -1)]`
     );
+
+    this.manifestConfig = manifestConfig;
   }
 
   async connect(preference) {
@@ -78,8 +80,23 @@ export class DIDConn {
       );
     }
     if (this.userCredentials.length > 0) {
+      const presentation = {
+        '@context': [
+          'https://www.w3.org/2018/credentials/v1',
+          'https://identity.foundation/credential-manifest/fulfillment/v1',
+        ],
+        type: ['VerifiablePresentation', 'CredentialFulfillment'],
+        verifiableCredential: this.userCredentials,
+      };
+
+      const manifest = prepareCredentialManifest(
+        presentation,
+        this.manifestConfig,
+        this.protocolHandler.requestor()
+      );
+
       saveQueue.push(
-        this.credentialManager.save(this.profile.token, { credentials: this.userCredentials })
+        this.credentialManager.save(this.profile.token, { presentation }, { manifest })
       );
     }
     await Promise.all(saveQueue);
