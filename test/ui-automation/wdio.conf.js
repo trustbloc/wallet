@@ -10,7 +10,8 @@ import {config} from "./wdio.shared.conf";
 
 exports.config = {
   ...config,
-  walletName: "TrustBloc Wallet",
+  // TODO: changed this to url - fix wallet name issue
+  walletName: "wallet.trustbloc.local",
   walletURL: "https://wallet.trustbloc.local:8091",
   walletURLFrench: "https://wallet.trustbloc.local:8091/fr/",
   demoVerifierURL: "https://demo-adapter.trustbloc.local:8094/verifier",
