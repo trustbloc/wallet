@@ -56,7 +56,8 @@ healthCheck() {
 # healthcheck
 healthCheck wallet-web https://wallet.trustbloc.local:8091/healthcheck 200
 healthCheck wallet-web-2 https://wallet-2.trustbloc.local:8071/healthcheck 200
-healthCheck wallet-server https://localhost:8090/healthcheck 200
+healthCheck wallet-server https://wallet-server.trustbloc.local:8090/healthcheck 200
+healthCheck hub-auth https://hub-auth.trustbloc.local:8044/healthcheck 200
 
 echo "running tests..."
 cd $ROOT/test/ui-automation
