@@ -83,13 +83,13 @@ describe("TrustBloc Wallet - WACI Share flow", () => {
   });
 
   it(`User Sign up (${ctx.email})`, async function () {
-    this.timeout(90000);
-
     // 1. Navigate to Wallet Website
     await browser.navigateTo(browser.config.walletURL);
 
     // 2. Initialize Wallet (register/sign-up/etc.)
-    await wallet.init(ctx);
+    await wallet.signUp(ctx);
+
+    await wallet.waitForCredentials();
 
     // TODO - https://github.com/trustbloc/wallet/issues/1140 Dashboard loads before router connection is setup
     await new Promise((resolve) => setTimeout(resolve, 8000));
@@ -131,8 +131,6 @@ describe("TrustBloc Wallet - WACI Share flow", () => {
   });
 
   it(`User validates the saved credential from mock issuer`, async function () {
-    this.timeout(90000);
-
     await browser.navigateTo(`${browser.config.walletURL}/credentials`);
 
     const vcName = await $("span*=" + vc.name);
@@ -171,9 +169,7 @@ describe("TrustBloc Wallet - WACI Share flow", () => {
   });
 
   it(`User signs out`, async function () {
-    // wallet
     await browser.navigateTo(browser.config.walletURL);
-
     await wallet.logout(ctx);
   });
 });

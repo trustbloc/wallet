@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <modal :show="showModal" :show-close-button="true">
+  <modal :show="showModal" :show-close-button="true" @close="handleClose">
     <template #content>
       <div
         class="
@@ -78,6 +78,7 @@ export default {
       required: true,
     },
   },
+  emits: ['close'],
   setup(props) {
     const store = useStore();
     const agentInstance = computed(() => store.getters['agent/getInstance']);
@@ -165,11 +166,16 @@ export default {
             this.showModal = false;
             this.loading = false;
             this.submitted = false;
+            this.$emit('close');
           }
         } catch (e) {
           console.error('Error creating a new vault:', e);
         }
       }
+    },
+    handleClose() {
+      this.showModal = false;
+      this.$emit('close');
     },
   },
 };

@@ -19,14 +19,13 @@
       "
       @click.self="close"
     >
-      <div class="relative flex-grow mx-6 lg:mx-auto max-w-lg bg-neutrals-white rounded-2xl">
-        <button v-if="showCloseButton" class="absolute right-0 pt-3 pr-3 w-10 h-10">
+      <div class="relative flex-grow mx-6 lg:mx-auto max-w-lg rounded-2xl bg-neutrals-white">
+        <button v-if="showCloseButton" class="absolute right-0 pt-3 pr-3 w-10 h-10" @click="close">
           <!-- TODO: use inline svg instead once https://github.com/trustbloc/edge-agent/issues/816 is fixed -->
           <img
             class="w-6 h-6 cursor-pointer"
             src="@/assets/img/Icons-sm--close-icon.svg"
             alt="Close Icon"
-            @click="showModal = false"
           />
         </button>
         <slot name="content" />
@@ -43,14 +42,14 @@
             pt-4
             pb-5
             text-center
-            bg-neutrals-magnolia
             rounded-b-2xl
+            bg-neutrals-magnolia
             flex flex-col
             modal-footer
             border-t border-0 border-neutrals-lilacSoft
           "
         >
-          <styled-button type="outline" class="w-full md:w-auto" @click="showModal = false">
+          <styled-button type="outline" class="w-full md:w-auto" @click="close">
             {{ t('Modal.cancel') }}
           </styled-button>
           <slot name="actionButton" />
@@ -84,6 +83,7 @@ export default {
       default: false,
     },
   },
+  emits: ['close'],
   setup(props) {
     const { t } = useI18n();
     const showModal = ref(false);
@@ -101,7 +101,10 @@ export default {
   },
   methods: {
     close() {
-      if (this.showCloseButton) this.showModal = false;
+      if (this.showCloseButton) {
+        this.showModal = false;
+        this.$emit('close');
+      }
     },
   },
 };

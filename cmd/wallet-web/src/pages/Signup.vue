@@ -86,6 +86,7 @@
                 <button
                   v-for="(provider, index) in providers"
                   v-else
+                  :id="provider.id"
                   :key="index"
                   class="
                     items-center
@@ -101,7 +102,7 @@
                   @click="beginOIDCLogin(provider.id)"
                   @keyup.enter="beginOIDCLogin(provider.id)"
                 >
-                  <img :id="provider.id" :src="provider.signUpLogoUrl" />
+                  <img :src="provider.signUpLogoUrl" />
                 </button>
               </div>
               <div class="mb-8 text-center">
