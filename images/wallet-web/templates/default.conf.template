@@ -88,7 +88,10 @@ server {
             "sidetreeToken":"${SIDETREE_TOKEN}",
             "hubAuthURL":"${HTTP_SERVER_HUB_AUTH_URL}",
             "staticAssetsUrl": "${STATIC_ASSETS_URL}",
-            "context-provider-url":"${CONTEXT_PROVIDER_URL}"
+            "context-provider-url":"${CONTEXT_PROVIDER_URL}",
+            "media-type-profiles": "${DIDCOMM_MEDIA_TYPE_PROFILES}",
+            "key-type": "${DIDCOMM_KEY_TYPE}",
+            "key-agreement-type": "${DIDCOMM_KEY_AGREEMENT_TYPE}"
         }';
     }
 }

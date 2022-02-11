@@ -72,7 +72,7 @@ describe("TrustBloc Wallet - WACI Issuance flow", () => {
     // demo issuer page
     await browser.navigateTo(browser.config.demoIssuerURL);
 
-    const waciIssuanceDemoBtn = await $("#waci-issuance-demo");
+    const waciIssuanceDemoBtn = await $("#waci-issuance-demo-v2");
     await waciIssuanceDemoBtn.waitForExist();
     await waciIssuanceDemoBtn.click();
 

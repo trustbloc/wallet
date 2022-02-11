@@ -53,7 +53,11 @@ export class RegisterWallet {
     console.time('time tracking: register mediator time');
     if (this.mediatorEndpoint) {
       try {
-        await connectToMediator(this.agent, this.mediatorEndpoint, { waitForStateComplete });
+        // TODO to be figured out, reuse medaitor connection for V1 & V2 versions of DIDComm.
+        await connectToMediator(this.agent, this.mediatorEndpoint, {
+          waitForStateComplete,
+          isDIDCommV2: true,
+        });
 
         console.debug(`registered with mediator successfully for user`);
       } catch (e) {
