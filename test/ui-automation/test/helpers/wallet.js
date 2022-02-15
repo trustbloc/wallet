@@ -61,6 +61,10 @@ exports.addNewVault = async (vaultName) => {
   await _addNewVault(vaultName);
 };
 
+exports.renameVault = async (oldName, newName) => {
+  await _renameVault(oldName, newName);
+};
+
 exports.vaultNameInput = async (vaultName) => {
   await _vaultNameInput(vaultName);
 };
@@ -396,4 +400,18 @@ async function _validateVaultNameWithSpaces(actualVal, expectedVal) {
   await _addNewVault(actualVal);
   const vaultCard = await $(`#vault-card-${expectedVal.replaceAll(" ", "-")}`);
   await vaultCard.waitForExist();
+}
+
+async function _renameVault(oldName, newName) {
+  const vaultFlyoutButton = await $(
+    `#vaults-flyout-menu-button-${oldName.replaceAll(" ", "-")}`
+  );
+  await vaultFlyoutButton.waitForExist();
+  await vaultFlyoutButton.click();
+  const renameVaultButton = await $("#renameVault");
+  await renameVaultButton.waitForExist();
+  await renameVaultButton.click();
+  await _vaultNameInput(newName);
+  const renameButton = await $(".btn-primary*=Rename");
+  await renameButton.click();
 }

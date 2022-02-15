@@ -67,7 +67,7 @@
           <flyout v-if="vaults.length === 1">
             <template #button="{ toggleFlyoutMenu }">
               <button
-                id="vaults-flyout-menu-button-default"
+                :id="`vaults-flyout-menu-button-${vault.name.replaceAll(' ', '-')}`"
                 class="
                   w-8
                   h-8
@@ -96,7 +96,7 @@
           <flyout v-else>
             <template #button="{ toggleFlyoutMenu }">
               <button
-                id="vaults-flyout-menu-button-default"
+                :id="`vaults-flyout-menu-button-${vault.name.replaceAll(' ', '-')}`"
                 class="
                   w-8
                   h-8
@@ -137,11 +137,16 @@
         />
       </div>
     </div>
-    <delete-vault :show="showDeleteModal" :vault-id="selectedVaultId" />
+    <delete-vault
+      :show="showDeleteModal"
+      :vault-id="selectedVaultId"
+      @close="handleDeleteModalClose"
+    />
     <rename-vault
       :show="showRenameModal"
       :vault-id="selectedVaultId"
       :existing-names="existingNames"
+      @close="handleRenameModalClose"
     />
   </div>
 </template>
@@ -279,6 +284,12 @@ export default {
       } catch (e) {
         console.error('error updating user preferences', e);
       }
+    },
+    handleRenameModalClose: function () {
+      this.showRenameModal = false;
+    },
+    handleDeleteModalClose: function () {
+      this.showDeleteModal = false;
     },
   },
 };
