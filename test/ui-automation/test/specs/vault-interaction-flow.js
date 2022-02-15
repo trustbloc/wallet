@@ -58,14 +58,14 @@ describe("TrustBloc Wallet - Add/Rename/Delete Vault flow", () => {
     await browser.maximizeWindow();
   });
 
-  it(`User Sign up (${ctx.email})`, async function () {
+  it(`User signs up (${ctx.email})`, async function () {
     // 1. Navigate to Wallet Website
     await browser.navigateTo(browser.config.walletURL);
 
     // 2. Initialize Wallet (register/sign-up/etc.)
     await wallet.signUp(ctx);
   });
-  it(`User successfully add vaults`, async function () {
+  it(`User successfully adds vaults`, async function () {
     for (const [key, value] of vault.entries()) {
       await wallet.addNewVault(key);
       const vaultCard = await $(
@@ -74,7 +74,7 @@ describe("TrustBloc Wallet - Add/Rename/Delete Vault flow", () => {
       await vaultCard.waitForExist();
     }
   });
-  it(`Error handling of invalid user input`, async function () {
+  it(`User enters invalid vault name`, async function () {
     await wallet.validateUserInput("", "Can't be empty. Please enter a name.");
     await wallet.validateUserInput(
       invalidVaultName,
@@ -85,7 +85,7 @@ describe("TrustBloc Wallet - Add/Rename/Delete Vault flow", () => {
       "There's already a vault with that name. Try something else."
     );
   });
-  it(`User enter vault name with spaces`, async function () {
+  it(`User enters vault name with spaces`, async function () {
     // vault name with multiple trailing spaces
     await wallet.validateVaultNameWithSpaces(
       "Testing Vault with trailing spaces   ",
@@ -106,6 +106,15 @@ describe("TrustBloc Wallet - Add/Rename/Delete Vault flow", () => {
       "   Testing    vault  with  all   spaces   ",
       "Testing vault with all spaces"
     );
+  });
+  it("User successfully renames vaults", async function () {
+    for (const [key, value] of vault.entries()) {
+      await wallet.renameVault(key, `${key} renamed`);
+      const vaultCard = await $(
+        `#vault-card-${value.name.replaceAll(" ", "-")}-renamed`
+      );
+      await vaultCard.waitForExist();
+    }
   });
   it(`User changes vault locale (${ctx.email})`, async function () {
     const localeSwitcherLink = await $("a*=Français");

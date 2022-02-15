@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
 -->
 <template>
-  <modal :show="showModal">
+  <modal :show="showModal" @close="handleClose">
     <template #content>
       <div class="flex relative flex-col items-center px-8 pt-10 w-full">
         <div class="flex justify-center items-center w-15 h-15 bg-primary-valencia rounded-full">
@@ -75,6 +75,7 @@ export default {
       default: false,
     },
   },
+  emits: ['close'],
   setup(props) {
     const store = useStore();
     const agentInstance = computed(() => store.getters['agent/getInstance']);
@@ -105,9 +106,14 @@ export default {
         vaultsMutations.setVaultsOutdated(true);
         this.showModal = false;
         this.loading = false;
+        this.$emit('close');
       } catch (e) {
         console.error('Error removing a vault:', e);
       }
+    },
+    handleClose() {
+      this.showModal = false;
+      this.$emit('close');
     },
   },
 };
