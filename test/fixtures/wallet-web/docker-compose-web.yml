@@ -26,7 +26,7 @@ services:
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
       - STORAGE_TYPE=edv
-      - KMS_TYPE=local
+      - KMS_TYPE=webkms
       - USE_EDV_CACHE=true
       - EDV_CLEAR_CACHE=10m
       - USE_EDV_BATCH=true
@@ -58,7 +58,7 @@ services:
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
       - EDV_SERVER_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
       - STORAGE_TYPE=edv
-      - KMS_TYPE=local
+      - KMS_TYPE=webkms
       - USE_EDV_CACHE=true
       - EDV_CLEAR_CACHE=10m
       - USE_EDV_BATCH=true
