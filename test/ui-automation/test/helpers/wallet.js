@@ -65,6 +65,10 @@ exports.renameVault = async (oldName, newName) => {
   await _renameVault(oldName, newName);
 };
 
+exports.removeVault = async (name) => {
+  await _removeVault(name);
+};
+
 exports.vaultNameInput = async (vaultName) => {
   await _vaultNameInput(vaultName);
 };
@@ -413,5 +417,18 @@ async function _renameVault(oldName, newName) {
   await renameVaultButton.click();
   await _vaultNameInput(newName);
   const renameButton = await $(".btn-primary*=Rename");
+  await renameButton.click();
+}
+
+async function _removeVault(name) {
+  const vaultFlyoutButton = await $(
+    `#vaults-flyout-menu-button-${name.replaceAll(" ", "-")}`
+  );
+  await vaultFlyoutButton.waitForExist();
+  await vaultFlyoutButton.click();
+  const renameVaultButton = await $("#delete-vault-flyout-button");
+  await renameVaultButton.waitForExist();
+  await renameVaultButton.click();
+  const renameButton = await $(".btn-danger*=Delete");
   await renameButton.click();
 }

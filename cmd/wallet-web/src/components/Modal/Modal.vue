@@ -49,7 +49,7 @@
             border-t border-0 border-neutrals-lilacSoft
           "
         >
-          <styled-button type="outline" class="w-full md:w-auto" @click="close">
+          <styled-button type="outline" class="w-full md:w-auto" @click="cancel">
             {{ t('Modal.cancel') }}
           </styled-button>
           <slot name="actionButton" />
@@ -105,6 +105,10 @@ export default {
         this.showModal = false;
         this.$emit('close');
       }
+    },
+    cancel() {
+      this.showModal = false;
+      this.$emit('close');
     },
   },
 };

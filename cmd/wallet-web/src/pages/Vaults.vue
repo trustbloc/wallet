@@ -7,7 +7,7 @@
 <template>
   <div>
     <welcome-banner
-      v-if="!skipWelcomeMsg && !skippedLocally"
+      v-if="!skipWelcomeMsg && !skippedLocally && !loading"
       class="md:mb-10"
       @click="updateUserPreferences"
     >
@@ -46,7 +46,10 @@
       <h3 v-else class="w-full text-neutrals-dark">
         {{ t('Vaults.heading') }}
       </h3>
+      <div v-if="loading"></div>
       <div
+        v-else
+        id="vaults-loaded"
         class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-8 mt-6 md:mt-8 w-full"
       >
         <vault-card
@@ -119,7 +122,7 @@
                   @click="toggleRenameModal(vault.id, vault.name)"
                 />
                 <flyout-button
-                  :id="`delete-vault-${vault.id.slice(-5)}`"
+                  id="delete-vault-flyout-button"
                   :text="t('Vaults.DeleteModal.deleteVault')"
                   class="text-primary-vampire"
                   @click="toggleDeleteModal(vault.id)"
@@ -221,6 +224,7 @@ export default {
       numOfCreds: 0,
       vaults: [],
       skippedLocally: false,
+      loading: true,
     };
   },
   computed: {
@@ -240,10 +244,13 @@ export default {
     // TODO: Issue-1250 Refactor to not to save credentials without vault ID.
     await this.getNumOfCreds();
     await this.fetchVaults();
+    this.loading = false;
     watchEffect(async () => {
       if (vaultsStore.vaultsOutdated) {
+        this.loading = true;
         await this.fetchVaults();
         vaultsMutations.setVaultsOutdated(false);
+        this.loading = false;
       }
     });
   },
