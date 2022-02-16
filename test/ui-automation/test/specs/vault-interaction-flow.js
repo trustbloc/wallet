@@ -50,7 +50,7 @@ describe("TrustBloc Wallet - Add/Rename/Delete Vault flow", () => {
   const ctx = {
     email: `ui-aut-${new Date().getTime()}@test.com`,
   };
-  const validVaultName = "Test Vault 4";
+  const validVaultName = "Default Vault";
   const invalidVaultName = "Vault!@";
   // runs once before the first test in this block
   before(async () => {
@@ -72,6 +72,26 @@ describe("TrustBloc Wallet - Add/Rename/Delete Vault flow", () => {
         `#vault-card-${value.name.replaceAll(" ", "-")}`
       );
       await vaultCard.waitForExist();
+    }
+  });
+  it("User successfully renames vaults", async function () {
+    for (const [key, value] of vault.entries()) {
+      await wallet.renameVault(key, `${key} renamed`);
+      const vaultCard = await $(
+        `#vault-card-${value.name.replaceAll(" ", "-")}-renamed`
+      );
+      await vaultCard.waitForExist();
+    }
+  });
+  it("User successfully removes vaults", async function () {
+    // Number of vault cards
+    let numOfVaults = vault.entries().length + 3;
+    for (const [key, value] of vault.entries()) {
+      await wallet.removeVault(`${key} renamed`);
+      const vaultsLoadedContainer = await $("#vaults-loaded");
+      await vaultsLoadedContainer.waitForExist();
+      numOfVaults -= 1;
+      await expect(vaultsLoadedContainer).toHaveChildren(numOfVaults);
     }
   });
   it(`User enters invalid vault name`, async function () {
@@ -106,15 +126,6 @@ describe("TrustBloc Wallet - Add/Rename/Delete Vault flow", () => {
       "   Testing    vault  with  all   spaces   ",
       "Testing vault with all spaces"
     );
-  });
-  it("User successfully renames vaults", async function () {
-    for (const [key, value] of vault.entries()) {
-      await wallet.renameVault(key, `${key} renamed`);
-      const vaultCard = await $(
-        `#vault-card-${value.name.replaceAll(" ", "-")}-renamed`
-      );
-      await vaultCard.waitForExist();
-    }
   });
   it(`User changes vault locale (${ctx.email})`, async function () {
     const localeSwitcherLink = await $("a*=Français");
