@@ -170,6 +170,6 @@ describe("TrustBloc Wallet - WACI Share flow", () => {
 
   it(`User signs out`, async function () {
     await browser.navigateTo(browser.config.walletURL);
-    await wallet.logout(ctx);
+    await wallet.signOut(ctx);
   });
 });

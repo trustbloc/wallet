@@ -65,7 +65,7 @@ describe("TrustBloc Wallet - WACI Issuance flow", () => {
 
   it(`User signs out - (${ctx.email})`, async function () {
     await browser.navigateTo(browser.config.walletURL);
-    await wallet.logout(ctx);
+    await wallet.signOut(ctx);
   });
 
   it(`User offered to save credential through WACI-Issuance (Redirect) : user (${ctx.email}) not signed-in`, async function () {
@@ -94,6 +94,6 @@ describe("TrustBloc Wallet - WACI Issuance flow", () => {
 
   it(`User signs out`, async function () {
     await browser.navigateTo(browser.config.walletURL);
-    await wallet.logout(ctx);
+    await wallet.signOut(ctx);
   });
 });

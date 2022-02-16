@@ -65,6 +65,14 @@ describe("TrustBloc Wallet - Add/Rename/Delete Vault flow", () => {
     // 2. Initialize Wallet (register/sign-up/etc.)
     await wallet.signUp(ctx);
   });
+  it(`User dismisses welcome message banner`, async function () {
+    const welcomeMessageCloseButton = await $("#welcome-banner-close-button");
+    await welcomeMessageCloseButton.waitForExist();
+    await welcomeMessageCloseButton.click();
+    const dashboardContent = await $("#dashboard-content");
+    await dashboardContent.waitForExist();
+    await expect(dashboardContent).toHaveChildren(1);
+  });
   it(`User successfully adds vaults`, async function () {
     for (const [key, value] of vault.entries()) {
       await wallet.addNewVault(key);
@@ -131,15 +139,19 @@ describe("TrustBloc Wallet - Add/Rename/Delete Vault flow", () => {
     const localeSwitcherLink = await $("a*=Français");
     await localeSwitcherLink.waitForExist();
     await localeSwitcherLink.click();
-    await browser.waitUntil(async () => {
-      await expect(browser).toHaveUrlContaining(browser.config.walletURLFrench);
-      const headingLink = await $("h3*=Chambres fortes");
-      expect(headingLink).toExist();
-      const addVaultButton = await $("#add-new-vault-button");
-      expect(addVaultButton).toHaveValue("Ajouter une chambre forte");
-      const allVaultsButton = await $("#all-vaults-button");
-      expect(allVaultsButton).toHaveValue("Toutes les chambres fortes");
-      return true;
-    });
+    await expect(browser).toHaveUrlContaining(browser.config.walletURLFrench);
+    const headingLink = await $("h3*=Chambres fortes");
+    await expect(headingLink).toExist();
+    const addVaultCard = await $("span*=Ajouter une chambre forte");
+    await expect(addVaultCard).toExist();
+    const allVaultsButton = await $("span*=Toutes les chambres fortes");
+    await expect(allVaultsButton).toExist();
+  });
+  it("User validates dismissed welcome banner", async function () {
+    await wallet.signOut(ctx);
+    await wallet.signIn(ctx.email);
+    const dashboardContent = await $("#dashboard-content");
+    await dashboardContent.waitForExist();
+    await expect(dashboardContent).toHaveChildren(1);
   });
 });
