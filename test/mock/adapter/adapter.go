@@ -246,7 +246,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				ID:   uuid.NewString(),
 				Name: "Demo Verifier",
 				InputDescriptors: []*presexch.InputDescriptor{
-					{ID: uuid.NewString(), Schema: []*presexch.Schema{{URI: "https://w3id.org/citizenship#PermanentResidentCard"}}},
+					{ID: uuid.NewString(), Schema: []*presexch.Schema{{URI: "https://www.w3.org/2018/credentials#VerifiableCredential"}}},
 				},
 			}
 
