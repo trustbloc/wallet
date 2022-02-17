@@ -261,8 +261,8 @@ export default {
     ...mapActions(['refreshUserPreference']),
     getNumOfCreds: async function () {
       // Fetching all credentials
-      const { contents: credentials } = await this.credentialManager.getAll(this.token);
-      this.numOfCreds = Object.keys(credentials).length;
+      const credentials = await this.credentialManager.getAllCredentialMetadata(this.token);
+      this.numOfCreds = credentials.length;
     },
     fetchVaults: async function () {
       this.vaults = [];
@@ -276,9 +276,9 @@ export default {
         // Fetching all credentials stored inside each vault
         // TODO: #1236 Revisit the solution to avoid getting all the credentials
         await this.credentialManager
-          .getAll(this.token, { collectionID: vault.id })
-          .then(({ contents: credentials }) => {
-            vault['numOfCreds'] = Object.keys(credentials).length;
+          .getAllCredentialMetadata(this.token, { collection: vault.id })
+          .then((credentials) => {
+            vault['numOfCreds'] = credentials.length;
             this.vaults.push(vault);
           });
       });
