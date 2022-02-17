@@ -8,6 +8,7 @@
   <div>
     <welcome-banner
       v-if="!skipWelcomeMsg && !skippedLocally && !loading"
+      id="welcome-banner-close-button"
       class="md:mb-10"
       @click="updateUserPreferences"
     >

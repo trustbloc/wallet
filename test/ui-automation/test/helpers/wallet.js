@@ -107,8 +107,8 @@ exports.didConnect = async () => {
   await successMsg.waitForExist();
 };
 
-exports.logout = async () => {
-  await _logoutWallet();
+exports.signOut = async () => {
+  await _signOutWallet();
 };
 
 exports.checkStoredCredentials = async () => {
@@ -177,12 +177,12 @@ async function _getSignUp(email) {
   await _getThirdPartyLogin(email);
 }
 
-async function _logoutWallet() {
-  const logOutButton = await $("button*=Sign Out");
-  await logOutButton.waitForExist();
-  await logOutButton.click();
+async function _signOutWallet() {
+  const signOutButton = await $("#signout-button");
+  await signOutButton.waitForExist();
+  await signOutButton.click();
 
-  // wait for logout to complele and go to signup page
+  // wait for signout to complete and go to signup page
   await browser.waitUntil(async () => {
     const headingLink = await $("h1*=Sign up.");
     expect(headingLink).toHaveValue("Sign up.");

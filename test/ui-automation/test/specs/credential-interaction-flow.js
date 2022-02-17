@@ -363,7 +363,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   });
 
   it(`User Sign Out (${ctx.email})`, async function () {
-    await wallet.logout(ctx);
+    await wallet.signOut(ctx);
   });
 
   it(`User Sign in (${ctx.email})`, async function () {
@@ -464,7 +464,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   });
 
   it(`User Sign Out (${ctx.email})`, async function () {
-    await wallet.logout(ctx);
+    await wallet.signOut(ctx);
   });
 
   it(`User changes locale (${ctx.email})`, async function () {
