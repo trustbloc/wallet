@@ -1,0 +1,62 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://identity.foundation/credential-manifest/fulfillment/v1"
+  ],
+  "credential_fulfillment": {
+    "descriptor_map": [
+      {
+        "format": "ldp_vc",
+        "id": "prc_output",
+        "path": "$.verifiableCredential[0]"
+      }
+    ],
+    "id": "a30e3b91-fb77-4d22-95fa-871689c322e2",
+    "manifest_id": "dcc75a16-19f5-4273-84ce-4da69ee2b7fe"
+  },
+  "proof": {
+    "created": "2022-02-17T12:18:39.469357-05:00",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "4C5cEKivqzrtBjYv8lwVOKFnZ0aC7E8NAce8m5TlnRNc7kbBf65R3D-UtbEyqlmFjEVgH1F_Z_GIVp37nnLpCg",
+    "type": "Ed25519Signature2018",
+    "verificationMethod": "did:key:z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5#z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5"
+  },
+  "type": ["VerifiablePresentation", "CredentialFulfillment"],
+  "verifiableCredential": [
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://w3id.org/citizenship/v1"
+      ],
+      "credentialSubject": {
+        "birthCountry": "Bahamas",
+        "birthDate": "1958-07-17",
+        "commuterClassification": "C1",
+        "familyName": "SMITH",
+        "gender": "Male",
+        "givenName": "JOHN",
+        "id": "did:example:b34ca6cd37bbf23",
+        "image": "data:image/png;base64,iVBORw0KGgokJggg==",
+        "lprCategory": "C09",
+        "lprNumber": "999-999-999",
+        "residentSince": "2015-01-01",
+        "type": ["PermanentResident", "Person"]
+      },
+      "description": "Government of Example Permanent Resident Card.",
+      "expirationDate": "2029-12-03T12:19:52Z",
+      "id": "https://issuer.oidp.uscis.gov/credentials/83627465",
+      "identifier": "83627465",
+      "issuanceDate": "2019-12-03T12:19:52Z",
+      "issuer": "did:example:b34ca6cd37bbf23",
+      "name": "Permanent Resident Card",
+      "proof": {
+        "created": "2022-02-17T12:17:22.06378-05:00",
+        "proofPurpose": "assertionMethod",
+        "proofValue": "zLadPnThywxH1wIXh8ydGE68yQFUIYjbRoIDcxVz3tF3GXT2HLRM1FSaKv79ra-2l2eZuJT1l2TjbVEL6SjyDA",
+        "type": "Ed25519Signature2018",
+        "verificationMethod": "did:key:z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5#z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5"
+      },
+      "type": ["VerifiableCredential", "PermanentResidentCard"]
+    }
+  ]
+}

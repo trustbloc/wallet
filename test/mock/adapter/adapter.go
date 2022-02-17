@@ -41,11 +41,11 @@ var (
 	//go:embed sampledata/credential_manifest.json
 	validCredentialManifest []byte
 
-	//go:embed sampledata/fulfillment_dl_vp.json
-	fulfillmentDrivingLicenseVP []byte
+	//go:embed sampledata/sample_prc_fulfillment_unsigned.json
+	prcFulFillmentUnsigned []byte
 
-	//go:embed sampledata/sample_udc_fulfillment.json
-	universityDegreeFulFillment []byte
+	//go:embed sampledata/sample_prc_fulfillment.json
+	prcFulFillment []byte
 )
 
 const (
@@ -246,7 +246,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				ID:   uuid.NewString(),
 				Name: "Demo Verifier",
 				InputDescriptors: []*presexch.InputDescriptor{
-					{ID: uuid.NewString(), Schema: []*presexch.Schema{{URI: "https://www.w3.org/2018/credentials#VerifiableCredential"}}},
+					{ID: uuid.NewString(), Schema: []*presexch.Schema{{URI: "https://w3id.org/citizenship#PermanentResidentCard"}}},
 				},
 			}
 
@@ -311,7 +311,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				action.Stop(nil)
 			}
 
-			offerCredMsg, err := createOfferCredentialMsg(validCredentialManifest, fulfillmentDrivingLicenseVP)
+			offerCredMsg, err := createOfferCredentialMsg(validCredentialManifest, prcFulFillmentUnsigned)
 			if err != nil {
 				logger.Errorf("failed to prepare offer credential message", err)
 				action.Stop(nil)
@@ -325,7 +325,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				action.Stop(nil)
 			}
 
-			issueCredMsg, err := createIssueCredentialMsg(universityDegreeFulFillment, os.Getenv(demoExternalURLEnvKey)+"/waci-issuance/"+thID)
+			issueCredMsg, err := createIssueCredentialMsg(prcFulFillment, os.Getenv(demoExternalURLEnvKey)+"/waci-issuance/"+thID)
 			if err != nil {
 				logger.Errorf("failed to prepare issue credential message", err)
 				action.Stop(nil)
