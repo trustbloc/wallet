@@ -8,10 +8,15 @@ SPDX-License-Identifier: Apache-2.0
 
 const { wallet } = require("../helpers");
 
-const v2 = 'v2'
+const v2 = "v2";
 
 const vcSubjectData = [
-  { name: "Degree Category", value: "BachelorDegree" },
+  { name: "Given Name", value: "JOHN" },
+  { name: "Family Name", value: "SMITH" },
+  { name: "Gender", value: "Male" },
+  { name: "Date of birth", value: "1958-07-17" },
+  { name: "Country of Birth", value: "Bahamas" },
+  { name: "Resident Since", value: "2015-01-01" },
 ];
 
 describe("TrustBloc Wallet - WACI flow", function () {
@@ -31,10 +36,9 @@ describe("TrustBloc Wallet - WACI flow", function () {
   });
 
   describe(v2, function () {
-    waciFlow(v2)
-  })
-})
-
+    waciFlow(v2);
+  });
+});
 
 async function waciFlow(version) {
   const ctx = {
@@ -58,7 +62,7 @@ async function waciFlow(version) {
     // demo issuer page
     await browser.navigateTo(browser.config.demoIssuerURL);
 
-    let waciIssuanceDemoBtn
+    let waciIssuanceDemoBtn;
 
     if (version === v2) {
       waciIssuanceDemoBtn = await $("#waci-issuance-demo-v2");
@@ -85,7 +89,7 @@ async function waciFlow(version) {
     // demo verifier page
     await browser.navigateTo(browser.config.demoVerifierURL);
 
-    let waciShareDemoBtn
+    let waciShareDemoBtn;
 
     if (version === v2) {
       waciShareDemoBtn = await $("#waci-share-demo-v2");
@@ -94,7 +98,7 @@ async function waciFlow(version) {
     await waciShareDemoBtn.waitForExist();
     await waciShareDemoBtn.click();
 
-    const vcName = await $("span*=Bachelor Degree");
+    const vcName = await $("span*=Permanent Resident Card");
     await vcName.waitForExist();
 
     await wallet.validateCredentialDetails(vcSubjectData);
@@ -115,5 +119,4 @@ async function waciFlow(version) {
     await browser.navigateTo(browser.config.walletURL);
     await wallet.signOut(ctx);
   });
-
 }
