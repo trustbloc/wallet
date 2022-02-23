@@ -53,8 +53,8 @@ let defaultAgentStartupOpts = {
   hubAuthURL: '',
   staticAssetsUrl: '',
   unanchoredDIDMaxLifeTime: 0,
-  'media-type-profiles': ['didcomm/aip2;env=rfc19', 'didcomm/v2'],
-  'key-type': 'ed25519',
+  'media-type-profiles': ['didcomm/aip2;env=rfc587', 'didcomm/v2'],
+  'key-type': 'ecdsap256ieee1363',
   'key-agreement-type': 'p256kw',
 };
 
