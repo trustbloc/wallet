@@ -105,7 +105,7 @@ func startAriesAgent() (*didComm, error) {
 		keyAgrT kms.KeyType
 	)
 
-	// add "didcomm/aip2;env=rfc19" & "didcomm/v2" media type profiles.
+	// add "didcomm/aip2;env=rfc587" & "didcomm/v2" media type profiles.
 	opts = append(opts, aries.WithMediaTypeProfiles([]string{transport.MediaTypeDIDCommV2Profile, transport.MediaTypeAIP2RFC0587Profile}))
 
 	// if keyTypeEnvKey and KeyAgreementTypeEnvKey are found, then override agent's options

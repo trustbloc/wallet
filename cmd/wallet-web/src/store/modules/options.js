@@ -82,7 +82,7 @@ export default {
           : [];
         agentOpts['media-type-profiles'] = agentOpts['media-type-profiles']
           ? agentOpts['media-type-profiles'].split(',')
-          : ['didcomm/aip2;env=rfc19', 'didcomm/v2'];
+          : ['didcomm/aip2;env=rfc587', 'didcomm/v2'];
 
         console.log('agent opts processed', JSON.stringify(agentOpts, null, 2));
 
