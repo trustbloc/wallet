@@ -48,7 +48,10 @@ export class WalletGetByQuery {
     );
     this.govnVC = govnVCs.length > 0 ? govnVCs[0] : undefined;
 
-    this.blindedRouter = opts.blindedRouting ? new BlindedRouter(agent) : blindedRoutingDisabled;
+    this.blindedRouter = blindedRoutingDisabled;
+    if (opts.blindedRouting === true) {
+      this.blindedRouter = new BlindedRouter(agent);
+    }
     this.didManager = new DIDManager({ agent, user });
     this.didcomm = new DIDComm({ agent, user });
     this.credentialManager = new CredentialManager({ agent, user });
