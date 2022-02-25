@@ -23,9 +23,12 @@ var blindedRoutingDisabled = {
 export class DIDConn {
   constructor(agent, profile, startupOpts, protocolHandler, manifestConfig) {
     this.didcomm = new DIDComm({ agent, user: profile.user });
-    this.blindedRouter = startupOpts.blindedRouting
-      ? new BlindedRouter(agent)
-      : blindedRoutingDisabled;
+
+    this.blindedRouter = blindedRoutingDisabled;
+    if (startupOpts.blindedRouting === true) {
+      this.blindedRouter = new BlindedRouter(agent);
+    }
+
     this.protocolHandler = protocolHandler;
     this.credentialManager = new CredentialManager({ agent, user: profile.user });
     this.profile = profile;
