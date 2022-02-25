@@ -139,6 +139,13 @@ const (
 		"pkg/framework/aries/framework.go#L165-L168." +
 		" Alternatively, this can be set with the following environment variable: " + agentTransportReturnRouteEnvKey
 
+	// websocket read limit flag.
+	agentWebSocketReadLimitFlagName  = "web-socket-read-limit"
+	agentWebSocketReadLimitEnvKey    = "ARIESD_WEB_SOCKET_READ_LIMIT"
+	agentWebSocketReadLimitFlagUsage = "WebSocket read limit sets the custom max number of bytes to" +
+		" read for a single message when WebSocket transport is used. Defaults to 32KB." +
+		" Alternatively, this can be set with the following environment variable: " + agentWebSocketReadLimitEnvKey
+
 	// remote JSON-LD context provider url flag.
 	agentContextProviderFlagName  = "context-provider-url"
 	agentContextProviderEnvKey    = "ARIESD_CONTEXT_PROVIDER_URL"
@@ -172,6 +179,7 @@ type agentParameters struct {
 	contextProviderURLs  []string
 	msgHandler           command.MessageHandler
 	dbParam              *dbParam
+	websocketReadLimit   int64
 }
 
 type dbParam struct {
@@ -252,6 +260,11 @@ func getAgentParams(cmd *cobra.Command) (*agentParameters, error) {
 		return nil, err
 	}
 
+	websocketReadLimit, err := getWebSocketReadLimit(cmd)
+	if err != nil {
+		return nil, err
+	}
+
 	return &agentParameters{
 		token:                token,
 		inboundHostInternals: inboundHosts,
@@ -265,6 +278,7 @@ func getAgentParams(cmd *cobra.Command) (*agentParameters, error) {
 		outboundTransports:   outboundTransports,
 		transportReturnRoute: transportReturnRoute,
 		contextProviderURLs:  contextProviderURLs,
+		websocketReadLimit:   websocketReadLimit,
 	}, nil
 }
 
@@ -305,6 +319,25 @@ func getDBParam(cmd *cobra.Command) (*dbParam, error) {
 	dbParam.timeout = uint64(t)
 
 	return dbParam, nil
+}
+
+func getWebSocketReadLimit(cmd *cobra.Command) (int64, error) {
+	readLimitVal, err := cmdutils.GetUserSetVarFromString(cmd, agentWebSocketReadLimitFlagName,
+		agentWebSocketReadLimitEnvKey, true)
+	if err != nil {
+		return 0, err
+	}
+
+	var readLimit int64
+
+	if readLimitVal != "" {
+		readLimit, err = strconv.ParseInt(readLimitVal, 10, 64)
+		if err != nil {
+			return 0, fmt.Errorf("failed to parse web socket read limit %s: %w", readLimitVal, err)
+		}
+	}
+
+	return readLimit, nil
 }
 
 func createAgentFlags(cmd *cobra.Command) {
@@ -358,6 +391,9 @@ func createAgentFlags(cmd *cobra.Command) {
 
 	// remote JSON-LD context provider url flag
 	cmd.Flags().StringSliceP(agentContextProviderFlagName, "", []string{}, agentContextProviderFlagUsage)
+
+	// websocket read limit flag
+	cmd.Flags().StringP(agentWebSocketReadLimitFlagName, "", "", agentWebSocketReadLimitFlagUsage)
 }
 
 func createStoreProviders(params *dbParam) (ariesstorage.Provider, error) {
@@ -392,7 +428,7 @@ func createStoreProviders(params *dbParam) (ariesstorage.Provider, error) {
 	return store, nil
 }
 
-func createAriesAgent(parameters *httpServerParameters) (*context.Provider, error) {
+func createAriesAgent(parameters *httpServerParameters) (*context.Provider, error) { //nolint:funlen //ignore
 	agentParams := parameters.agent
 
 	var opts []aries.Option
@@ -409,7 +445,8 @@ func createAriesAgent(parameters *httpServerParameters) (*context.Provider, erro
 	}
 
 	inboundTransportOpt, err := getInboundTransportOpts(agentParams.inboundHostInternals,
-		agentParams.inboundHostExternals, parameters.tls.certFile, parameters.tls.keyFile)
+		agentParams.inboundHostExternals, parameters.tls.certFile, parameters.tls.keyFile,
+		agentParams.websocketReadLimit)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start aries agent rest on port [%s], failed to inbound tranpsort opt : %w",
 			parameters.hostURL, err)
@@ -426,7 +463,8 @@ func createAriesAgent(parameters *httpServerParameters) (*context.Provider, erro
 		opts = append(opts, aries.WithVDR(VDRs[i]))
 	}
 
-	outboundTransportOpts, err := getOutboundTransportOpts(agentParams.outboundTransports)
+	outboundTransportOpts, err := getOutboundTransportOpts(agentParams.outboundTransports,
+		agentParams.websocketReadLimit)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start aries agent rest on port [%s], failed to outbound transport opts : %w",
 			parameters.hostURL, err)
@@ -455,7 +493,7 @@ func createAriesAgent(parameters *httpServerParameters) (*context.Provider, erro
 }
 
 func getInboundTransportOpts(inboundHostInternals, inboundHostExternals []string, certFile,
-	keyFile string) ([]aries.Option, error) {
+	keyFile string, websocketReadLimit int64) ([]aries.Option, error) {
 	internalHost, err := getInboundSchemeToURLMap(inboundHostInternals)
 	if err != nil {
 		return nil, fmt.Errorf("inbound internal host : %w", err)
@@ -473,7 +511,8 @@ func getInboundTransportOpts(inboundHostInternals, inboundHostExternals []string
 		case httpProtocol:
 			opts = append(opts, defaults.WithInboundHTTPAddr(host, externalHost[scheme], certFile, keyFile))
 		case websocketProtocol:
-			opts = append(opts, defaults.WithInboundWSAddr(host, externalHost[scheme], certFile, keyFile))
+			opts = append(opts, defaults.WithInboundWSAddr(host, externalHost[scheme], certFile, keyFile,
+				websocketReadLimit))
 		default:
 			return nil, fmt.Errorf("inbound transport [%s] not supported", scheme)
 		}
@@ -554,7 +593,7 @@ func createVDRs(resolvers []string, trustblocDomain string) ([]vdr.VDR, error) {
 	return VDRs, nil
 }
 
-func getOutboundTransportOpts(outboundTransports []string) ([]aries.Option, error) {
+func getOutboundTransportOpts(outboundTransports []string, websocketReadLimit int64) ([]aries.Option, error) {
 	var opts []aries.Option
 
 	var transports []transport.OutboundTransport
@@ -569,7 +608,13 @@ func getOutboundTransportOpts(outboundTransports []string) ([]aries.Option, erro
 
 			transports = append(transports, outbound)
 		case websocketProtocol:
-			transports = append(transports, ws.NewOutbound())
+			var outboundOpts []ws.OutboundClientOpt
+
+			if websocketReadLimit > 0 {
+				outboundOpts = append(outboundOpts, ws.WithOutboundReadLimit(websocketReadLimit))
+			}
+
+			transports = append(transports, ws.NewOutbound(outboundOpts...))
 		default:
 			return nil, fmt.Errorf("outbound transport [%s] not supported", outboundTransport)
 		}

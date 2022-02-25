@@ -148,6 +148,7 @@ func validArgs(t *testing.T) map[string]string {
 		hubAuthURLFlagName:                "http://localhost",
 		databaseTypeFlagName:              "mem",
 		agentTransportReturnRouteFlagName: "all",
+		agentWebSocketReadLimitFlagName:   "65536",
 		sessionCookieMaxAgeFlagName:       "100",
 	}
 }
@@ -291,6 +292,20 @@ func TestStartCmdWithInvalidAgentArgs(t *testing.T) {
 		require.Contains(t, err.Error(), "failed to configure router")
 	})
 
+	t.Run("test invalid web socket read limit", func(t *testing.T) {
+		startCmd := GetStartCmd(&mockServer{})
+
+		argMap := validArgs(t)
+		argMap[agentWebSocketReadLimitFlagName] = "invalid"
+		args := argArray(argMap)
+
+		startCmd.SetArgs(args)
+
+		err := startCmd.Execute()
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "failed to parse web socket read limit")
+	})
+
 	t.Run("test invalid webhook URL", func(t *testing.T) {
 		startCmd := GetStartCmd(&mockServer{})
 
@@ -395,7 +410,7 @@ func TestInboundTransportOpts(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			_, err := getInboundTransportOpts(test.internal, test.external, "", "")
+			_, err := getInboundTransportOpts(test.internal, test.external, "", "", 0)
 
 			if test.error != "" {
 				require.Error(t, err)
@@ -408,10 +423,10 @@ func TestInboundTransportOpts(t *testing.T) {
 }
 
 func TestGetOutboundTransportOpts(t *testing.T) {
-	_, err := getOutboundTransportOpts([]string{"ws", "http"})
+	_, err := getOutboundTransportOpts([]string{"ws", "http"}, 0)
 	require.NoError(t, err)
 
-	_, err = getOutboundTransportOpts([]string{"xyz", "http"})
+	_, err = getOutboundTransportOpts([]string{"xyz", "http"}, 0)
 	require.Error(t, err)
 	require.Equal(t, err.Error(), "outbound transport [xyz] not supported")
 }

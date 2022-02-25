@@ -35,6 +35,7 @@ services:
       - DIDCOMM_MEDIA_TYPE_PROFILES=didcomm/aip2;env=rfc587,didcomm/v2
       - DIDCOMM_KEY_TYPE=ecdsap256ieee1363
       - DIDCOMM_KEY_AGREEMENT_TYPE=p256kw
+      - WEB_SOCKET_READ_LIMIT=131072 # 128KB
       # Disabled remote context download for this wallet for better performance.
   #      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
 
