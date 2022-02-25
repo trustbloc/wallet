@@ -56,6 +56,7 @@ let defaultAgentStartupOpts = {
   'media-type-profiles': ['didcomm/aip2;env=rfc587', 'didcomm/v2'],
   'key-type': 'ecdsap256ieee1363',
   'key-agreement-type': 'p256kw',
+  'web-socket-read-limit': 0,
 };
 
 export default {
@@ -316,6 +317,10 @@ export default {
           'key-agreement-type' in agentOpts
             ? agentOpts['key-agreement-type']
             : defaultAgentStartupOpts['key-agreement-type'],
+        'web-socket-read-limit':
+          'web-socket-read-limit' in agentOpts
+            ? agentOpts['web-socket-read-limit']
+            : defaultAgentStartupOpts['web-socket-read-limit'],
       });
 
       commit('updateProfileOpts', profileOpts);
