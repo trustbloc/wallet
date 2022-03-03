@@ -51,7 +51,7 @@
           icon="settings.svg"
         />
       </navbar>
-      <router-view id="dashboard-content" class="flex flex-col flex-grow py-12 px-16" />
+      <router-view id="dashboard-content" class="flex flex-col flex-grow md:py-12 md:px-16" />
     </div>
   </div>
 </template>

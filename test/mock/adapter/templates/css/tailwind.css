@@ -1847,7 +1847,7 @@ h6 {
   white-space: nowrap;
 }
 
-.overflow-ellipsis {
+.text-ellipsis {
   text-overflow: ellipsis;
 }
 

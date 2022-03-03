@@ -19,7 +19,7 @@
     <div class="flex flex-grow p-4">
       <span
         :class="[
-          `text-sm font-bold text-left overflow-ellipsis`,
+          `text-sm font-bold text-left text-ellipsis`,
           brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
         ]"
       >

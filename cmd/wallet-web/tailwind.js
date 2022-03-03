@@ -7,14 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 const plugin = require('tailwindcss/plugin');
 
 module.exports = {
-  purge: {
-    // Uncomment the following line to enable purging in dev mode (e.g. for testing)
-    // enabled: true,
-    content: ['./src/**/*.html', './src/**/*.vue', '../../test/**/*.html'],
-    // Safe-listing several classes which we have to supply dynamic strings to (`bg-gradient-${color}`, etc.)
-    options: { safelist: [/bg-gradient-.*/, /ring-primary-.*/] },
-  },
-  darkMode: false, // or 'media' or 'class'
+  // Uncomment the following line to enable purging in dev mode (e.g. for testing)
+  // enabled: true,
+  content: ['./src/**/*.{html,vue}', '../../test/**/*.html'],
+  // Safe-listing several classes which we have to supply dynamic strings to (`bg-gradient-${color}`, etc.)
+  safelist: [{ pattern: /bg-gradient-.*/, variants: ['focus'] }, { pattern: /ring-primary-.*/ }],
   theme: {
     colors: {
       transparent: 'transparent',
@@ -256,13 +253,6 @@ module.exports = {
       screens: {
         xs: '350px',
       },
-    },
-  },
-  variants: {
-    extend: {
-      backgroundImage: ['focus-within', 'hover', 'disabled'],
-      borderRadius: ['focus'],
-      gradientColorStops: ['focus-within'],
     },
   },
   plugins: [

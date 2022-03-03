@@ -38,7 +38,7 @@
         id="delete-credential-button"
         class="order-first md:order-last w-full md:w-auto"
         type="danger"
-        @click="deleteCredential(credentialId)"
+        @click="deleteCredential()"
       >
         {{ t('CredentialDetails.deleteButtonLabel') }}
       </styled-button>
@@ -51,31 +51,29 @@ import Modal from '@/components/Modal/Modal.vue';
 import { ref, watch } from 'vue';
 import { mapGetters } from 'vuex';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
-import { decode } from 'js-base64';
 import { useI18n } from 'vue-i18n';
 import StyledButton from '@/components/StyledButton/StyledButton';
 
-const props = {
-  target: {
-    type: String,
-    default: 'body',
-  },
-  credentialId: {
-    type: String,
-    required: true,
-  },
-  show: {
-    type: Boolean,
-    default: false,
-  },
-};
 export default {
   name: 'DeleteCredentialModal',
   components: {
     StyledButton,
     Modal,
   },
-  props,
+  props: {
+    target: {
+      type: String,
+      default: 'body',
+    },
+    credentialId: {
+      type: String,
+      required: true,
+    },
+    show: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup(props) {
     const { t } = useI18n();
     const showModal = ref(false);
@@ -87,8 +85,9 @@ export default {
     );
 
     return {
-      t,
+      props,
       showModal,
+      t,
     };
   },
   data() {
@@ -99,12 +98,11 @@ export default {
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser']),
-    async deleteCredential(credentialID) {
+    async deleteCredential() {
       const { user, token } = this.getCurrentUser().profile;
       const credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-      const credID = decode(credentialID);
       try {
-        await credentialManager.remove(token, credID);
+        await credentialManager.remove(token, this.props.credentialId);
         this.$router.push({ name: 'credentials' });
       } catch (e) {
         console.error('failed to remove credential:', e);

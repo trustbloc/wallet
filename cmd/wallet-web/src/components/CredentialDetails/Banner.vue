@@ -8,8 +8,8 @@
   <div class="flex flex-col justify-start px-3 md:px-0 pt-10 w-full">
     <div class="flex flex-col justify-start items-start w-full root-container">
       <div
-        :class="[
-          `flex
+        class="
+          flex
           z-10
           flex-row
           justify-start
@@ -18,24 +18,25 @@
           px-5
           w-full
           h-24
-          bg-neutrals-white
           rounded-xl
-          border `,
-          brandColor.length
-            ? `bg-gradient-${brandColor} border-neutrals-black border-opacity-10`
-            : `bg-neutrals-white border-neutrals-thistle`,
-        ]"
+          border
+        "
+        :class="
+          styles.background.color !== '#fff'
+            ? `border-neutrals-black border-opacity-10`
+            : `border-neutrals-thistle`
+        "
+        :style="`background-color: ${styles.background.color}`"
       >
         <div class="flex-none w-12 h-12 border-opacity-10">
           <img :src="credentialIcon" />
         </div>
         <span
-          :class="[
-            `flex-1 pl-4 font-bold text-left text-sm md:text-base overflow-ellipsis`,
-            brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
-          ]"
-          >{{ title }}</span
+          class="flex-1 pl-4 text-sm md:text-base font-bold text-left text-ellipsis"
+          :style="`color: ${styles.text.color}`"
         >
+          {{ title }}
+        </span>
       </div>
       <div
         class="
@@ -124,12 +125,8 @@ import { useI18n } from 'vue-i18n';
 export default {
   name: 'Banner',
   props: {
-    brandColor: {
-      type: String,
-      required: true,
-    },
-    icon: {
-      type: String,
+    styles: {
+      type: Object,
       required: true,
     },
     title: {
@@ -167,7 +164,7 @@ export default {
   methods: {
     ...mapGetters(['getStaticAssetsUrl']),
     getCredentialIcon: function () {
-      return getCredentialIcon(this.getStaticAssetsUrl(), this.icon);
+      return getCredentialIcon(this.getStaticAssetsUrl(), this.styles.thumbnail.uri);
     },
   },
 };

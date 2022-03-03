@@ -15,7 +15,7 @@ const vcSubjectData = [
   { name: "Given Name", value: "JOHN" },
   { name: "Family Name", value: "SMITH" },
   { name: "Gender", value: "Male" },
-  { name: "Date of birth", value: "1958-07-17" },
+  { name: "Date of Birth", value: "1958-07-17" },
   { name: "Country of Birth", value: "Bahamas" },
   { name: "Resident Since", value: "2015-01-01" },
 ];
@@ -41,7 +41,7 @@ describe("TrustBloc Wallet - WACI flow", function () {
       email: `ui-aut-v1-${new Date().getTime()}@test.com`,
     };
 
-    waciFlow(v1,ctx);
+    waciFlow(v1, ctx);
   });
 
   describe(v2, function () {
@@ -49,12 +49,11 @@ describe("TrustBloc Wallet - WACI flow", function () {
       email: `ui-aut-v2-${new Date().getTime()}@test.com`,
     };
 
-    waciFlow(v2,ctx);
+    waciFlow(v2, ctx);
   });
-
 });
 
-async function waciFlow(version,ctx) {
+async function waciFlow(version, ctx) {
   it(`User Sign up (${ctx.email})`, async function () {
     await browser.reloadSession();
     await browser.maximizeWindow();

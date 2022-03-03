@@ -57,8 +57,7 @@
       <delete-credential :show="showModal" :credential-id="credential.id" />
     </div>
     <banner
-      :brand-color="credential.brandColor"
-      :icon="credential.icon"
+      :styles="credential.styles"
       :title="credential.title"
       :issuance-date="credential.issuanceDate"
       :vault-name="vaultName"
@@ -76,14 +75,14 @@
         >
           <!-- TODO: Add the dropdown for the nested credentials 1016 -->
           <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
-          <td v-if="property.type != 'image'" class="py-4 pr-6 pl-3 text-neutrals-dark break-words">
-            {{ property.value }}
-          </td>
           <td
-            v-if="property.type === 'image'"
+            v-if="property.schema.format === 'image/png'"
             class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
           >
             <img :src="property.value" class="w-20 h-20" />
+          </td>
+          <td v-else class="py-4 pr-6 pl-3 text-neutrals-dark break-words">
+            {{ property.value }}
           </td>
         </tr>
       </table>
@@ -97,7 +96,6 @@ import { useI18n } from 'vue-i18n';
 import { mapGetters } from 'vuex';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
 import { decode } from 'js-base64';
-import { getCredentialType, getCredentialDisplayData } from '@/mixins';
 import Banner from '@/components/CredentialDetails/Banner.vue';
 import Flyout from '@/components/Flyout/Flyout.vue';
 import FlyoutMenu from '@/components/Flyout/FlyoutMenu.vue';
@@ -135,13 +133,17 @@ export default {
     };
   },
   created: async function () {
-    const { user, token } = this.getCurrentUser().profile;
-    this.token = token;
-    this.username = this.getCurrentUser().username;
+    const { profile, username } = this.getCurrentUser();
+    this.token = profile.token;
+    const user = profile.user;
+    this.username = username;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-    this.credentialDisplayData = await this.getCredentialManifestData();
     try {
-      this.credential = await this.fetchCredential(this.$route.params.id);
+      const { id, issuanceDate, resolved } = await this.credentialManager.getCredentialMetadata(
+        this.token,
+        decode(this.$route.params.id)
+      );
+      this.credential = { id, issuanceDate, ...resolved[0] };
     } catch (e) {
       console.error('failed to fetch a credential:', e);
     }
@@ -149,24 +151,7 @@ export default {
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getCurrentUser', 'getAgentOpts', 'getCredentialManifestData']),
-    fetchCredential: async function (id) {
-      const { content: credential } = await this.credentialManager.get(this.token, decode(id));
-      const manifest = this.getManifest(credential);
-      return this.getCredentialDisplayData(credential, manifest);
-    },
-    getCredentialType: function (vc) {
-      return getCredentialType(vc.type);
-    },
-    getCredentialDisplayData: function (vc, manifestCredential) {
-      return getCredentialDisplayData(vc, manifestCredential);
-    },
-    getManifest: function (credential) {
-      const currentCredentialType = this.getCredentialType(credential);
-      return (
-        this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
-      );
-    },
+    ...mapGetters(['getCurrentUser']),
   },
 };
 </script>

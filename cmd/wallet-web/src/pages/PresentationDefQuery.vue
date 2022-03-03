@@ -149,15 +149,13 @@
             <img src="@/assets/img/generic-issuer-icon.svg" />
           </div>
           <div class="flex flex-col pl-3">
-            <span
-              class="flex-1 mb-1 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
-            >
+            <span class="flex-1 mb-1 text-sm font-bold text-left text-neutrals-dark text-ellipsis">
               <!-- TODO: issue-1055 Read meta data from external urls -->
               Verifier
             </span>
             <div class="flex flex-row justify-center items-center">
               <img src="@/assets/img/small-lock-icon.svg" />
-              <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
+              <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium text-ellipsis">
                 {{ requestOrigin }}
               </span>
             </div>
@@ -189,7 +187,7 @@
                 <div class="flex-grow p-4">
                   <span
                     :class="[
-                      `text-sm md:text-base font-bold text-left overflow-ellipsis`,
+                      `text-sm md:text-base font-bold text-left text-ellipsis`,
                       credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
                     ]"
                   >
