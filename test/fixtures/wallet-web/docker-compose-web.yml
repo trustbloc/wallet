@@ -145,18 +145,6 @@ services:
     volumes:
       - ../keys/tls:/etc/sidetree/tls
 
-  uni-resolver-web.trustbloc.local:
-    container_name: uni-resolver-web.trustbloc.local
-    image: universalresolver/uni-resolver-web:latest
-    ports:
-      - "9080:8080"
-    volumes:
-      - ./config.json:/opt/uni-resolver-java/uni-resolver-web/config.json
-
-  driver-did-key:
-    image: universalresolver/driver-did-key:latest
-    ports:
-      - "8098:8080"
 
   file-server.trustbloc.local: # file server for hosting static resources (e.g. JSON-LD contexts)
     container_name: file-server.trustbloc.local
