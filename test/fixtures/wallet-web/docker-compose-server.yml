@@ -155,16 +155,6 @@ services:
     depends_on:
       - mongodb.example.com
 
-  dns-proxy-server:
-    image: defreitas/dns-proxy-server:latest
-    hostname: dns.mageddo
-    ports:
-      - "5380:5380"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /etc/resolv.conf:/etc/resolv.conf
-
-
   hub-auth.rest.example.com:
     container_name: hub-auth.trustbloc.local
     image: ${AUTH_REST_IMAGE}:${AUTH_REST_IMAGE_TAG}
