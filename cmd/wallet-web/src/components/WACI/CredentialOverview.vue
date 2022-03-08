@@ -30,7 +30,7 @@
       </div>
       <span
         :class="[
-          `flex-1 pl-4 font-bold text-left text-sm overflow-ellipsis`,
+          `flex-1 pl-4 font-bold text-left text-sm text-ellipsis`,
           credential?.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
         ]"
         >{{ credential?.title }}</span

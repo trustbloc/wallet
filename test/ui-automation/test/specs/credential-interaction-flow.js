@@ -59,7 +59,7 @@ credential.set("PermanentResidentCard", {
     { name: "Given Name", value: "Louis" },
     { name: "Family Name", value: "Pasteur" },
     { name: "Gender", value: "Male" },
-    { name: "Date of birth", value: "1958-07-17" },
+    { name: "Date of Birth", value: "1958-07-17" },
     { name: "Country of Birth", value: "Bahamas" },
     { name: "Resident Since", value: "2015-01-01" },
   ],

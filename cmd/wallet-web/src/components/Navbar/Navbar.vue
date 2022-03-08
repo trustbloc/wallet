@@ -9,7 +9,7 @@
     class="
       relative
       flex-col
-      md:flex-grow-0
+      md:grow-0
       justify-between
       w-screen
       min-w-80

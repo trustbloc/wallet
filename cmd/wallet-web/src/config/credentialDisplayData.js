@@ -30,7 +30,7 @@ export default {
       },
       birthDate: {
         path: ['$.credentialSubject.birthDate'],
-        label: 'Date of birth',
+        label: 'Date of Birth',
         type: 'date',
         format: 'yyyy-mm-dd',
       },

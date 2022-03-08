@@ -33,13 +33,13 @@
             </div>
             <div class="flex flex-col">
               <span
-                class="flex-1 pl-4 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
+                class="flex-1 pl-4 text-sm font-bold text-left text-neutrals-dark text-ellipsis"
               >
                 {{ issuerName }}
               </span>
               <div class="flex flex-row justify-center items-center pl-4">
                 <img src="@/assets/img/small-lock-icon.svg" />
-                <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
+                <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium text-ellipsis">
                   {{ requestOrigin }}
                 </span>
               </div>
@@ -57,14 +57,14 @@
             </div>
             <div class="flex flex-col">
               <span
-                class="flex-1 pl-4 text-sm font-bold text-left text-neutrals-dark overflow-ellipsis"
+                class="flex-1 pl-4 text-sm font-bold text-left text-neutrals-dark text-ellipsis"
               >
                 <!-- todo still have to finalize the text of the title-->
                 TrustBloc Digital Identity Wallet'
               </span>
               <div class="flex flex-row justify-center items-center pl-4">
                 <img src="@/assets/img/small-lock-icon.svg" />
-                <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium overflow-ellipsis">
+                <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium text-ellipsis">
                   {{ walletUrl }}
                 </span>
               </div>
