@@ -15,11 +15,11 @@ exports.config = {
     "./test/specs/vault-interaction-flow.js",
   ],
   // Maximum number of total parallel running workers
-  maxInstances: 5,
+  maxInstances: 1,
   capabilities: [
     {
       // Maximum number of total parallel running workers per capability
-      maxInstances: 5,
+      maxInstances: 1,
       browserName: "chrome",
       "goog:chromeOptions": {
         // to run chrome headless the following flags are required
