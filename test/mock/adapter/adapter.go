@@ -49,8 +49,16 @@ var (
 )
 
 const (
-	verifierHTML  = "./templates/verifier.html"
-	issuerHTML    = "./templates/issuer.html"
+	// issuer html templates
+	issuerHTML     = "./templates/issuer/issuer.html"
+	waciIssuerHTML = "./templates/issuer/waci-issuer.html"
+
+	// verifier html templates
+	verifierHTML     = "./templates/verifier/verifier.html"
+	waciVerifierHTML = "./templates/verifier/waci-verifier.html"
+	oidcVerifierHTML = "./templates/verifier/oidc-verifier.html"
+
+	// CHAPI html templates
 	webWalletHTML = "./templates/webWallet.html"
 )
 
@@ -92,31 +100,55 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 
 	go listenForDIDCommMsg(actionCh, store)
 
-	router.HandleFunc("/verifier", app.verifier)
+	// issuer routes
 	router.HandleFunc("/issuer", app.issuer)
+	router.HandleFunc("/issuer/waci", app.waciIssuer)
+	router.HandleFunc("/issuer/waci-issuance", app.waciIssuance)
+	router.HandleFunc("/issuer/waci-issuance-v2", app.waciIssuanceV2)
+	router.HandleFunc("/issuer/waci-issuance/{id}", app.waciIssuanceCallback)
+
+	// verifier routes
+	router.HandleFunc("/verifier", app.verifier)
+	router.HandleFunc("/verifier/waci", app.waciVerifier)
+	router.HandleFunc("/verifier/verifier/oidc", app.oidcVerifier)
+	router.HandleFunc("/verifier/waci-share", app.waciShare)
+	router.HandleFunc("/verifier/waci-share-v2", app.waciShareV2)
+	router.HandleFunc("/verifier/waci-share/{id}", app.waciShareCallback)
+
+	// CHAPI flow routes
 	router.HandleFunc("/web-wallet", app.webWallet)
-	router.HandleFunc("/waci-share", app.waciShare)
-	router.HandleFunc("/waci-share-v2", app.waciShareV2)
-	router.HandleFunc("/waci-share/{id}", app.waciShareCallback)
-	router.HandleFunc("/waci-issuance", app.waciIssuance)
-	router.HandleFunc("/waci-issuance-v2", app.waciIssuanceV2)
-	router.HandleFunc("/waci-issuance/{id}", app.waciIssuanceCallback)
 
 	return nil
 }
 
-func (v *adapterApp) verifier(w http.ResponseWriter, r *http.Request) {
-	loadTemplate(w, verifierHTML, nil)
-}
-
+// issuer html template endpoints
 func (v *adapterApp) issuer(w http.ResponseWriter, r *http.Request) {
 	loadTemplate(w, issuerHTML, nil)
 }
 
+func (v *adapterApp) waciIssuer(w http.ResponseWriter, r *http.Request) {
+	loadTemplate(w, waciIssuerHTML, nil)
+}
+
+// verifier html template endpoints
+func (v *adapterApp) verifier(w http.ResponseWriter, r *http.Request) {
+	loadTemplate(w, verifierHTML, nil)
+}
+
+func (v *adapterApp) waciVerifier(w http.ResponseWriter, r *http.Request) {
+	loadTemplate(w, waciVerifierHTML, nil)
+}
+
+func (v *adapterApp) oidcVerifier(w http.ResponseWriter, r *http.Request) {
+	loadTemplate(w, oidcVerifierHTML, nil)
+}
+
+// chapi html template endpoints
 func (v *adapterApp) webWallet(w http.ResponseWriter, r *http.Request) {
 	loadTemplate(w, webWalletHTML, nil)
 }
 
+// data endpoints
 func (v *adapterApp) waciShare(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
@@ -210,7 +242,7 @@ func (v *adapterApp) waciShareCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	loadTemplate(w, verifierHTML, map[string]interface{}{"Msg": "Successfully Received Presentation"})
+	loadTemplate(w, waciVerifierHTML, map[string]interface{}{"Msg": "Successfully Received Presentation"})
 }
 
 func (v *adapterApp) waciIssuanceCallback(w http.ResponseWriter, r *http.Request) {
@@ -225,7 +257,7 @@ func (v *adapterApp) waciIssuanceCallback(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	loadTemplate(w, issuerHTML, map[string]interface{}{"Msg": "Successfully Sent Credential to holder"})
+	loadTemplate(w, waciIssuerHTML, map[string]interface{}{"Msg": "Successfully Sent Credential to holder"})
 }
 
 func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Store) {
@@ -294,7 +326,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				map[string]interface{}{
 					"~web-redirect": &decorator.WebRedirect{
 						Status: "OK",
-						URL:    os.Getenv(demoExternalURLEnvKey) + "/waci-share/" + thID,
+						URL:    os.Getenv(demoExternalURLEnvKey) + "/verifier/waci-share/" + thID,
 					},
 				},
 			))
@@ -325,7 +357,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				action.Stop(nil)
 			}
 
-			issueCredMsg, err := createIssueCredentialMsg(prcFulFillment, os.Getenv(demoExternalURLEnvKey)+"/waci-issuance/"+thID)
+			issueCredMsg, err := createIssueCredentialMsg(prcFulFillment, os.Getenv(demoExternalURLEnvKey)+"/issuer/waci-issuance/"+thID)
 			if err != nil {
 				logger.Errorf("failed to prepare issue credential message", err)
 				action.Stop(nil)

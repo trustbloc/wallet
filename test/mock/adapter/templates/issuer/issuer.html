@@ -1,0 +1,30 @@
+<!--
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+ -->
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <title>Demo Issuer</title>
+    <script type="text/javascript">
+      function submitAction( action ){
+        document.getElementById("waci-issuance-form").action = action
+      }
+    </script>
+  </head>
+
+  <body>
+    <h1>Demo Issuer</h1>
+
+    <h3>Please click below links to test different issuance flows</h3>
+    
+    <ul>
+      <li id="waci"><a href="/issuer/waci">Wallet and Credential Interaction (WACI)</a></li>
+      <li id="chapi"><a href="/web-wallet">Credential Handler API (CHAPI)</a></li>
+    </ul>
+</body>
+</html>

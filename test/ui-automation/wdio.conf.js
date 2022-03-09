@@ -8,13 +8,16 @@ SPDX-License-Identifier: Apache-2.0
 
 import {config} from "./wdio.shared.conf";
 
+const mockDemoDomain = "https://demo-adapter.trustbloc.local:8094"
+
+
 exports.config = {
   ...config,
   // TODO: changed this to url - fix wallet name issue
   walletName: "wallet.trustbloc.local",
   walletURL: "https://wallet.trustbloc.local:8091",
   walletURLFrench: "https://wallet.trustbloc.local:8091/fr/",
-  demoVerifierURL: "https://demo-adapter.trustbloc.local:8094/verifier",
-  demoIssuerURL: "https://demo-adapter.trustbloc.local:8094/issuer",
-  webWalletURL: "https://demo-adapter.trustbloc.local:8094/web-wallet",
+  waciDemoVerifierURL:  mockDemoDomain + "/verifier/waci",
+  waciDemoIssuerURL: mockDemoDomain + "/issuer/waci",
+  chapiDemoURL: mockDemoDomain + "/web-wallet",
 };

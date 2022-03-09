@@ -18,9 +18,8 @@ SPDX-License-Identifier: Apache-2.0
   </head>
 
   <body>
-    <h1>Demo Issuer Adapter</h1>
+    <h1>WACI Issuance Demo</h1>
 
-    <h2>WACI Issuance Demo</h2>
     <form action="" id="waci-issuance-form">
       <label>Wallet URL</label><br />
       <input
@@ -32,8 +31,8 @@ SPDX-License-Identifier: Apache-2.0
       />
       <br />
       <br />
-      <input type="submit" id="waci-issuance-demo" value="Demo" onclick="javascript:submitAction('/waci-issuance')" />
-      <input type="submit" id="waci-issuance-demo-v2" value="Demo V2" onclick="javascript:submitAction('/waci-issuance-v2')" />
+      <input type="submit" id="waci-issuance-demo" value="Demo (DIDComm v1)" onclick="javascript:submitAction('/issuer/waci-issuance')" />
+      <input type="submit" id="waci-issuance-demo-v2" value="Demo (DIDComm v2)" onclick="javascript:submitAction('/issuer/waci-issuance-v2')" />
     </form>
 
     <br />
