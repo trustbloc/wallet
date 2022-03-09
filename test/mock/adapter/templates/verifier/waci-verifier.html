@@ -1,0 +1,43 @@
+<!--
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+ -->
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <title>Demo Verifier</title>
+    <script type="text/javascript">
+      function submitAction( action ){
+        document.getElementById("waci-share-form").action = action
+      }
+    </script>
+  </head>
+
+  <body>
+    <h1>WACI Share Demo</h1>
+
+    <form action="" id="waci-share-form">
+      <label>Wallet URL</label><br />
+      <input
+        type="text"
+        id="walletURL"
+        name="walletURL"
+        value="https://wallet.trustbloc.local:8091"
+        size="50"
+      />
+      <br />
+      <br />
+      <input type="submit" id="waci-share-demo" value="Demo (DIDComm v1)" onclick="javascript:submitAction('/verifier/waci-share')"/>
+      <input type="submit" id="waci-share-demo-v2" value="Demo (DIDComm v2)" onclick="javascript:submitAction('/verifier/waci-share-v2')"/>
+    </form>
+
+    <br />
+    <br />
+
+    <b>{{.Msg}} </b>
+  </body>
+</html>

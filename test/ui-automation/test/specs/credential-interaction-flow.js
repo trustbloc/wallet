@@ -276,7 +276,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
 
   it(`User performs DID Auth with mock issuer`, async function () {
     // mock issuer (wallet page with sample requests)
-    await browser.navigateTo(browser.config.webWalletURL);
+    await browser.navigateTo(browser.config.chapiDemoURL);
 
     const didAuthBtn = await $("#didauth");
     await didAuthBtn.waitForExist();
@@ -302,7 +302,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   it(`User stores credential from mock issuer`, async function () {
     for (const [key, value] of credential.entries()) {
       // mock issuer (wallet page with sample requests)
-      await browser.navigateTo(browser.config.webWalletURL);
+      await browser.navigateTo(browser.config.chapiDemoURL);
 
       console.log("save vc : start ", key);
 
@@ -396,7 +396,7 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   it(`User shares the saved credential with mock verifier`, async function () {
     for (const [key, value] of credential.entries()) {
       // mock verifier (wallet page with sample requests)
-      await browser.navigateTo(browser.config.webWalletURL);
+      await browser.navigateTo(browser.config.chapiDemoURL);
 
       console.log("share vc : start ", key);
 

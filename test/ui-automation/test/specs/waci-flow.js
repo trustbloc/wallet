@@ -72,7 +72,7 @@ async function waciFlow(version, ctx) {
 
   it(`User offered to save credential through WACI-Issuance (Redirect) : user (${ctx.email}) signed-in`, async function () {
     // demo issuer page
-    await browser.navigateTo(browser.config.demoIssuerURL);
+    await browser.navigateTo(browser.config.waciDemoIssuerURL);
 
     let waciIssuanceDemoBtn;
 
@@ -103,7 +103,7 @@ async function waciFlow(version, ctx) {
 
   it(`User presents credential through WACI-Share (Redirect) : already signed-in`, async function () {
     // demo verifier page
-    await browser.navigateTo(browser.config.demoVerifierURL);
+    await browser.navigateTo(browser.config.waciDemoVerifierURL);
 
     let waciShareDemoBtn;
 
