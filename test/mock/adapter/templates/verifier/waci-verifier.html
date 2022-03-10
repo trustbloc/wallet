@@ -30,6 +30,30 @@ SPDX-License-Identifier: Apache-2.0
         size="50"
       />
       <br />
+
+      <label>Presentation Exchange Query</label><br />
+      <textarea 
+        id="pEx" 
+        name="pEx" 
+        rows="4" 
+        cols="50">
+        {
+          "id":"3bc5ac72-bdd7-42de-aeba-45816cc4f776",
+          "name":"Demo Verifier",
+          "input_descriptors":[
+             {
+                "id":"c9e85b4e-496f-40c2-8572-4b35e17c7b78",
+                "schema":[
+                   {
+                      "uri":"https://w3id.org/citizenship#PermanentResidentCard"
+                   }
+                ]
+             }
+          ]
+       }      
+      </textarea>
+      <br />
+
       <br />
       <input type="submit" id="waci-share-demo" value="Demo (DIDComm v1)" onclick="javascript:submitAction('/verifier/waci-share')"/>
       <input type="submit" id="waci-share-demo-v2" value="Demo (DIDComm v2)" onclick="javascript:submitAction('/verifier/waci-share-v2')"/>
