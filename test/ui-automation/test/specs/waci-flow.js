@@ -101,6 +101,8 @@ async function waciFlow(version, ctx) {
     await getSuccessMsg.waitForExist();
   });
 
+  // TODO verify credential in wallet after save
+
   it(`User presents credential through WACI-Share (Redirect) : already signed-in`, async function () {
     // demo verifier page
     await browser.navigateTo(browser.config.waciDemoVerifierURL);

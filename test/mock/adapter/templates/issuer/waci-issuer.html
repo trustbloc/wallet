@@ -30,6 +30,139 @@ SPDX-License-Identifier: Apache-2.0
         size="50"
       />
       <br />
+
+      <label>Credential Manifest</label><br />
+      <textarea 
+        id="credManifest" 
+        name="credManifest" 
+        rows="10" 
+        cols="50">
+        {
+          "output_descriptors":[
+             {
+                "id":"prc_output",
+                "schema":"https://w3id.org/citizenship/v1",
+                "display":{
+                   "title":{
+                      "path":[
+                         "$.name"
+                      ],
+                      "fallback":"Permanent Resident Card",
+                      "schema":{
+                         "type":"string"
+                      }
+                   },
+                   "subtitle":{
+                      "path":[
+                         "$.description"
+                      ],
+                      "fallback":"Government of Example Permanent Resident Card.",
+                      "schema":{
+                         "type":"string"
+                      }
+                   },
+                   "description":{
+                      "text":"Sample Permanent Resident Card issued by Government of Example Citizenship & Immigration Services"
+                   },
+                   "properties":[
+                      {
+                         "path":[
+                            "$.credentialSubject.image"
+                         ],
+                         "schema":{
+                            "type":"string",
+                            "format":"image/png"
+                         },
+                         "label":"Card Holder"
+                      },
+                      {
+                         "path":[
+                            "$.credentialSubject.givenName"
+                         ],
+                         "schema":{
+                            "type":"string"
+                         },
+                         "label":"Given Name"
+                      },
+                      {
+                         "path":[
+                            "$.credentialSubject.familyName"
+                         ],
+                         "schema":{
+                            "type":"string"
+                         },
+                         "label":"Family Name"
+                      },
+                      {
+                         "path":[
+                            "$.credentialSubject.gender"
+                         ],
+                         "schema":{
+                            "type":"string"
+                         },
+                         "fallback":"Not disclosed",
+                         "label":"Gender"
+                      },
+                      {
+                         "path":[
+                            "$.credentialSubject.birthDate"
+                         ],
+                         "schema":{
+                            "type":"string",
+                            "format":"date"
+                         },
+                         "label":"Date of Birth"
+                      },
+                      {
+                         "path":[
+                            "$.credentialSubject.birthCountry"
+                         ],
+                         "schema":{
+                            "type":"string"
+                         },
+                         "label":"Country of Birth"
+                      },
+                      {
+                         "path":[
+                            "$.credentialSubject.residentSince"
+                         ],
+                         "schema":{
+                            "type":"string",
+                            "format":"date"
+                         },
+                         "label":"Resident Since"
+                      }
+                   ]
+                },
+                "styles":{
+                   "thumbnail":{
+                      "uri":"https://file-server.trustbloc.local:12096/images/credential--uscis-icon.svg",
+                      "alt":"Citizenship & Immigration Services"
+                   },
+                   "hero":{
+                      "uri":"https://example.com/trust.png",
+                      "alt":"Service we trust"
+                   },
+                   "background":{
+                      "color":"#2b5283"
+                   },
+                   "text":{
+                      "color":"#fff"
+                   }
+                }
+             }
+          ],
+          "id": "dcc75a16-19f5-4273-84ce-4da69ee2b7fe",
+          "version": "0.1.0",
+          "issuer": {
+            "id": "did:example:123?linked-domains=3",
+            "name": "Government of Example Immigration",
+            "styles": {}
+          }
+       }        
+      </textarea>
+      <br />
+
       <br />
       <input type="submit" id="waci-issuance-demo" value="Demo (DIDComm v1)" onclick="javascript:submitAction('/issuer/waci-issuance')" />
       <input type="submit" id="waci-issuance-demo-v2" value="Demo (DIDComm v2)" onclick="javascript:submitAction('/issuer/waci-issuance-v2')" />

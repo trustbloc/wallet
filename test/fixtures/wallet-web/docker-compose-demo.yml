@@ -6,6 +6,22 @@
 version: "2"
 
 services:
+  file-server.trustbloc.local: # file server for hosting static resources (e.g. JSON-LD contexts)
+    container_name: file-server.trustbloc.local
+    image: halverneus/static-file-server:latest
+    environment:
+      - PORT=12096
+      - FOLDER=/data
+      - TLS_CERT=/etc/tls/ec-pubCert.pem
+      - TLS_KEY=/etc/tls/ec-key.pem
+      - CORS=true
+    ports:
+      - 12096:12096
+    volumes:
+      - ./static/contexts:/data
+      - ./static/images/icons:/data/images
+      - ../keys/tls:/etc/tls
+
   mock-adapter.example.com:
     container_name: mock-adapter.example.com
     image: ${MOCK_ADAPTER_IMAGE}:latest
