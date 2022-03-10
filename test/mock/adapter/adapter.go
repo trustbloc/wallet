@@ -40,6 +40,7 @@ import (
 var (
 	//go:embed sampledata/credential_manifest.json
 	validCredentialManifest []byte
+	pdBytes                 []byte
 
 	//go:embed sampledata/sample_prc_fulfillment_unsigned.json
 	prcFulFillmentUnsigned []byte
@@ -225,7 +226,10 @@ func (v *adapterApp) waciInvitationRedirect(w http.ResponseWriter, r *http.Reque
 	redirectURL := fmt.Sprintf("%s/waci?oob=%s", r.FormValue("walletURL"),
 		base64.URLEncoding.EncodeToString(invBytes))
 
-	logger.Infof("waci redirect : url=%s oob-invitation=%s", redirectURL, string(invBytes))
+	pdBytes = []byte(r.FormValue("pEx"))
+
+	logger.Infof("waci redirect : url=%s oob-invitation=%s presentationExchange=%s",
+		redirectURL, string(invBytes), string(pdBytes))
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
@@ -274,17 +278,11 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				action.Stop(nil)
 			}
 
-			pd := &presexch.PresentationDefinition{
-				ID:   uuid.NewString(),
-				Name: "Demo Verifier",
-				InputDescriptors: []*presexch.InputDescriptor{
-					{ID: uuid.NewString(), Schema: []*presexch.Schema{{URI: "https://w3id.org/citizenship#PermanentResidentCard"}}},
-				},
-			}
+			var pd *presexch.PresentationDefinition
 
-			pdBytes, err := json.Marshal(pd)
+			err = json.Unmarshal(pdBytes, &pd)
 			if err != nil {
-				logger.Errorf("unable to marshal presentation definition bytes", err)
+				logger.Errorf("failed to unmarshal presentation definition", err)
 				action.Stop(nil)
 			}
 
@@ -307,7 +305,8 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 						}{
 							Challenge: uuid.NewString(),
 							Domain:    uuid.NewString(),
-							PD:        pd},
+							PD:        pd,
+						},
 						},
 					},
 				},

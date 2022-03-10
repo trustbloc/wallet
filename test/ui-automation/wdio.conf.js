@@ -13,8 +13,7 @@ const mockDemoDomain = "https://demo-adapter.trustbloc.local:8094"
 
 exports.config = {
   ...config,
-  // TODO: changed this to url - fix wallet name issue
-  walletName: "wallet.trustbloc.local",
+  walletName: "TrustBloc Wallet - Local",
   walletURL: "https://wallet.trustbloc.local:8091",
   walletURLFrench: "https://wallet.trustbloc.local:8091/fr/",
   waciDemoVerifierURL:  mockDemoDomain + "/verifier/waci",
