@@ -38,7 +38,6 @@ import (
 )
 
 var (
-	//go:embed sampledata/credential_manifest.json
 	validCredentialManifest []byte
 	pdBytes                 []byte
 
@@ -226,10 +225,11 @@ func (v *adapterApp) waciInvitationRedirect(w http.ResponseWriter, r *http.Reque
 	redirectURL := fmt.Sprintf("%s/waci?oob=%s", r.FormValue("walletURL"),
 		base64.URLEncoding.EncodeToString(invBytes))
 
+	validCredentialManifest = []byte(r.FormValue("credManifest"))
 	pdBytes = []byte(r.FormValue("pEx"))
 
-	logger.Infof("waci redirect : url=%s oob-invitation=%s presentationExchange=%s",
-		redirectURL, string(invBytes), string(pdBytes))
+	logger.Infof("waci redirect : url=%s oob-invitation=%s credentialManifest=%s presentationExchange=%s",
+		redirectURL, string(invBytes), string(validCredentialManifest), string(pdBytes))
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }

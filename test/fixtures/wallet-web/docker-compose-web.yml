@@ -144,19 +144,3 @@ services:
       - 443:443
     volumes:
       - ../keys/tls:/etc/sidetree/tls
-
-
-  file-server.trustbloc.local: # file server for hosting static resources (e.g. JSON-LD contexts)
-    container_name: file-server.trustbloc.local
-    image: halverneus/static-file-server:latest
-    environment:
-      - PORT=12096
-      - FOLDER=/data
-      - TLS_CERT=/etc/tls/ec-pubCert.pem
-      - TLS_KEY=/etc/tls/ec-key.pem
-      - CORS=true
-    ports:
-      - 12096:12096
-    volumes:
-      - ./static/contexts:/data
-      - ../keys/tls:/etc/tls
