@@ -110,10 +110,12 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 	// verifier routes
 	router.HandleFunc("/verifier", app.verifier)
 	router.HandleFunc("/verifier/waci", app.waciVerifier)
-	router.HandleFunc("/verifier/verifier/oidc", app.oidcVerifier)
 	router.HandleFunc("/verifier/waci-share", app.waciShare)
 	router.HandleFunc("/verifier/waci-share-v2", app.waciShareV2)
 	router.HandleFunc("/verifier/waci-share/{id}", app.waciShareCallback)
+	router.HandleFunc("/verifier/oidc", app.oidcVerifier)
+	router.HandleFunc("/verifier/oidc-share", app.oidcShare)
+	router.HandleFunc("/verifier/oidc-share/cb", app.oidcShareCallback)
 
 	// CHAPI flow routes
 	router.HandleFunc("/web-wallet", app.webWallet)
@@ -262,6 +264,47 @@ func (v *adapterApp) waciIssuanceCallback(w http.ResponseWriter, r *http.Request
 	}
 
 	loadTemplate(w, waciIssuerHTML, map[string]interface{}{"Msg": "Successfully Sent Credential to holder"})
+}
+
+func (v *adapterApp) oidcShare(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	walletURL := r.FormValue("walletURL")
+	pdBytes = []byte(r.FormValue("pEx"))
+
+	// clientID := "123"
+
+	// construct wallet auth req with PEx
+	req, err := http.NewRequest("GET", walletURL+"/oidc-share", nil)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to get interaction data : %s", err))
+
+		return
+	}
+
+	q := req.URL.Query()
+	q.Add("client_id", "demo-verifier")
+	q.Add("redirect_uri", os.Getenv(demoExternalURLEnvKey)+"/verifier/oidc-share/cb")
+	q.Add("scope", "openid")
+	q.Add("state", uuid.NewString())
+	// TODO: construct claims from PEx
+	q.Add("claims", "openid")
+
+	req.URL.RawQuery = q.Encode()
+
+	redirectURL := req.URL.String()
+
+	logger.Infof("oidc share redirect : url=%s presentationExchange=%s",
+		redirectURL, string(pdBytes))
+
+	http.Redirect(w, r, redirectURL, http.StatusFound)
+}
+
+func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
+	// TODO: validate the returned presentation
+
+	loadTemplate(w, oidcVerifierHTML, map[string]interface{}{"Msg": "Successfully Received Presentation"})
 }
 
 func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Store) {

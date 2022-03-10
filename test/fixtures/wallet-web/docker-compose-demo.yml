@@ -43,3 +43,5 @@ services:
       - 8095:8095
     volumes:
       - ../keys/tls:/etc/tls
+    depends_on:
+      - file-server.trustbloc.local
