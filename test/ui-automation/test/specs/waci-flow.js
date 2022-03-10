@@ -20,7 +20,7 @@ const vcSubjectData = [
   { name: "Resident Since", value: "2015-01-01" },
 ];
 
-describe("TrustBloc Wallet - WACI flow", function () {
+describe("TrustBloc Wallet - WACI flow", async function () {
   // runs once before the first test in this block
   before(async () => {
     await browser.reloadSession();
@@ -43,6 +43,9 @@ describe("TrustBloc Wallet - WACI flow", function () {
 
     waciFlow(v1, ctx);
   });
+
+  // sleep for 3 secs between 2 flows
+  await new Promise((resolve) => setTimeout(resolve, 3000));
 
   describe(v2, function () {
     let ctx = {
