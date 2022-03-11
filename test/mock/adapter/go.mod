@@ -14,6 +14,7 @@ require (
 	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20220126164804-6041c17d6e59
 	github.com/hyperledger/aries-framework-go/spi v0.0.0-20220126164804-6041c17d6e59
 	github.com/piprate/json-gold v0.4.1-0.20210813112359-33b90c4ca86c
+	github.com/square/go-jose v2.4.1+incompatible
 	github.com/trustbloc/edge-core v0.1.8-0.20220113141450-e19ffd091d98
 )
 
@@ -21,7 +22,7 @@ require (
 	github.com/PaesslerAG/gval v1.1.0 // indirect
 	github.com/PaesslerAG/jsonpath v0.1.1 // indirect
 	github.com/VictoriaMetrics/fastcache v1.5.7 // indirect
-	github.com/bluele/gcache v0.0.0-20190518031135-bc40bd653833 // indirect
+	github.com/bluele/gcache v0.0.2 // indirect
 	github.com/btcsuite/btcd v0.22.0-beta // indirect
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce // indirect
 	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
@@ -77,6 +78,7 @@ require (
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
 	google.golang.org/grpc v1.42.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
+	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	nhooyr.io/websocket v1.8.3 // indirect
 )
