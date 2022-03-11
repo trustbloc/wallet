@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"text/template"
 
+	"github.com/hyperledger/aries-framework-go/pkg/doc/presexch"
 	"github.com/hyperledger/aries-framework-go/pkg/store/ld"
 	"github.com/hyperledger/aries-framework-go/spi/storage"
 )
@@ -80,4 +81,20 @@ func handleError(w http.ResponseWriter, statusCode int, msg string) {
 // ErrorResponse to send error message in the response.
 type ErrorResponse struct {
 	Message string `json:"errMessage,omitempty"`
+}
+
+type OIDCAuthClaims struct {
+	VPToken *VPToken `json:"vp_token"`
+}
+
+type VPToken struct {
+	PresDef *presexch.PresentationDefinition `json:"presentation_definition"`
+}
+
+type OIDCTokenCliams struct {
+	VPToken *VPTokenClaim `json:"_vp_token"`
+}
+
+type VPTokenClaim struct {
+	PresSub *presexch.PresentationSubmission `json:"presentation_submission"`
 }

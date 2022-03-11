@@ -18,6 +18,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/piprate/json-gold/ld"
+	"github.com/square/go-jose/jwt"
 
 	"github.com/hyperledger/aries-framework-go/component/storageutil/mem"
 	"github.com/hyperledger/aries-framework-go/pkg/client/didexchange"
@@ -269,13 +270,37 @@ func (v *adapterApp) waciIssuanceCallback(w http.ResponseWriter, r *http.Request
 func (v *adapterApp) oidcShare(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
-	walletURL := r.FormValue("walletURL")
+	walletAuthURL := r.FormValue("walletAuthURL")
 	pdBytes = []byte(r.FormValue("pEx"))
 
-	// clientID := "123"
+	var pd *presexch.PresentationDefinition
+	err := json.Unmarshal(pdBytes, &pd)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to unmarshal presentation definition : %s", err))
 
+		return
+	}
+
+	authClaims := &OIDCAuthClaims{
+		VPToken: &VPToken{
+			PresDef: pd,
+		},
+	}
+
+	claimsBytes, err := json.Marshal(authClaims)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to unmarshal invitation : %s", err))
+
+		return
+	}
+
+	state := uuid.NewString()
+
+	// TODO: use OIDC client library
 	// construct wallet auth req with PEx
-	req, err := http.NewRequest("GET", walletURL+"/oidc-share", nil)
+	req, err := http.NewRequest("GET", walletAuthURL, nil)
 	if err != nil {
 		handleError(w, http.StatusInternalServerError,
 			fmt.Sprintf("failed to get interaction data : %s", err))
@@ -287,22 +312,88 @@ func (v *adapterApp) oidcShare(w http.ResponseWriter, r *http.Request) {
 	q.Add("client_id", "demo-verifier")
 	q.Add("redirect_uri", os.Getenv(demoExternalURLEnvKey)+"/verifier/oidc-share/cb")
 	q.Add("scope", "openid")
-	q.Add("state", uuid.NewString())
-	// TODO: construct claims from PEx
-	q.Add("claims", "openid")
+	q.Add("state", state)
+	q.Add("claims", string(claimsBytes))
 
 	req.URL.RawQuery = q.Encode()
 
 	redirectURL := req.URL.String()
 
-	logger.Infof("oidc share redirect : url=%s presentationExchange=%s",
-		redirectURL, string(pdBytes))
+	logger.Infof("oidc share redirect : url=%s claims=%s", redirectURL, string(claimsBytes))
+
+	err = v.store.Put(state, pdBytes)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to save state data : %s", err))
+
+		return
+	}
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
 func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
-	// TODO: validate the returned presentation
+	state := r.URL.Query().Get("state")
+
+	pdBytes, err := v.store.Get(state)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to get oidc state data : %s", err))
+
+		return
+	}
+
+	var pd *presexch.PresentationDefinition
+
+	err = json.Unmarshal(pdBytes, &pd)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to unmarshal presentation definition : %s", err))
+
+		return
+	}
+
+	idToken := r.URL.Query().Get("id_token")
+	vpToken := r.URL.Query().Get("vp_token")
+
+	logger.Infof("oidc share callback : id_token=%s vp_token=%s",
+		idToken, vpToken)
+
+	var claims *OIDCTokenCliams
+
+	token, err := jwt.ParseSigned(idToken)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to parsed token : %s", err))
+
+		return
+	}
+
+	err = token.UnsafeClaimsWithoutVerification(&claims)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to convert to claim object : %s", err))
+
+		return
+	}
+
+	presSubBytes, err := json.Marshal(claims.VPToken)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to marshal _vp_token : %s", err))
+
+		return
+	}
+
+	logger.Infof("oidc share callback : _vp_token=%v vp_token=%s", string(presSubBytes), vpToken)
+
+	_, err = verifiable.ParsePresentation([]byte(vpToken), verifiable.WithPresJSONLDDocumentLoader(ld.NewDefaultDocumentLoader(nil)))
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to validate presentation : %s", err))
+
+		return
+	}
 
 	loadTemplate(w, oidcVerifierHTML, map[string]interface{}{"Msg": "Successfully Received Presentation"})
 }
