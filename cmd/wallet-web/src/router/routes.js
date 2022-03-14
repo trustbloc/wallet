@@ -61,6 +61,19 @@ export default [
     ],
   },
   {
+    path: 'oidc-share',
+    name: 'oidc-share',
+    component: load('layouts/OIDC'),
+    meta: { requiresAuth: true, signin: true, disableCHAPI: true, isNavbarHidden: true },
+    children: [
+      {
+        path: 'share',
+        name: 'share',
+        component: load('layouts/OIDCShareLayout'),
+      },
+    ],
+  },
+  {
     path: 'StoreInWallet',
     name: 'chapi-store',
     component: load('pages/Store'),
