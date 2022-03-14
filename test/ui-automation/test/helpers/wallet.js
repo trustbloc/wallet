@@ -248,7 +248,8 @@ async function _getThirdPartyLogin(email, waci) {
   if (!waci) {
     await browser.waitUntil(async () => {
       let title = await $("iframe");
-      await title.waitForExist({ timeout, interval: 5000 });
+      await browser.pause(1000);  
+      await title.waitForExist({ timeout, interval: 2000 });
       return true;
     });
   }

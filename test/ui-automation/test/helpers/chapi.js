@@ -26,6 +26,8 @@ exports.chooseWallet = async ({ name }) => {
 
   const demoWallet = await $(`strong*=${name}`);
   await demoWallet.waitForClickable();
+  // FIXME: some issue with next button causes this to fail about 20%
+  await browser.pause(1000);  
   await demoWallet.click();
 
   const innerWalletFrame = await $("iframe");
