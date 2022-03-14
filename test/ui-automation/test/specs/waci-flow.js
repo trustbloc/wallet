@@ -58,9 +58,6 @@ describe("TrustBloc Wallet - WACI flow", async function () {
 
 async function waciFlow(version, ctx) {
   it(`User Sign up (${ctx.email})`, async function () {
-    await browser.reloadSession();
-    await browser.maximizeWindow();
-
     // 1. Navigate to Wallet Website
     await browser.navigateTo(browser.config.walletURL);
 
@@ -104,7 +101,7 @@ async function waciFlow(version, ctx) {
     await getSuccessMsg.waitForExist();
   });
 
-  // TODO verify credential in wallet after save
+  // TODO https://github.com/trustbloc/wallet/issues/1550 verify credential in wallet after save
 
   it(`User presents credential through WACI-Share (Redirect) : already signed-in`, async function () {
     // demo verifier page
