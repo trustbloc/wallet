@@ -1,0 +1,186 @@
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
+
+<template>
+  <div
+    class="
+      flex-grow
+      justify-start
+      items-center
+      mx-auto
+      max-w-7xl
+      h-screen
+      max-h-screen
+      shadow-main-container
+      flex flex-col
+    "
+  >
+    <Header :has-custom-gradient="true">
+      <template v-if="selectedCredentialId" #leftButtonContainer>
+        <button
+          class="
+            justify-start
+            items-center
+            focus:ring-2 focus:ring-primary-purple focus:ring-offset-2
+            outline-none
+            flex flex-row
+          "
+          @click="handleBackButtonClick"
+        >
+          <div class="rounded-full bg-neutrals-black">
+            <img
+              class="z-10 w-6 h-6 transform rotate-180"
+              src="@/assets/img/credential--arrow-right-icon-light.svg"
+            />
+          </div>
+          <span class="px-3 text-base font-bold text-neutrals-white">{{ t('WACI.back') }}</span>
+        </button>
+      </template>
+      <template #gradientContainer>
+        <div class="absolute h-15 bg-gradient-full oval" />
+      </template>
+    </Header>
+    <keep-alive>
+      <component
+        :is="component"
+        class="
+          overflow-hidden
+          relative
+          z-10
+          flex-grow
+          justify-start
+          items-start
+          w-full
+          h-full
+          flex flex-col
+          bg-neutrals-softWhite
+        "
+      />
+    </keep-alive>
+    <Footer class="sticky bottom-0 z-20 border-t border-neutrals-thistle bg-neutrals-magnolia" />
+  </div>
+</template>
+
+<script>
+import { reactive, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { decode } from 'js-base64';
+import { OIDCShareLayoutMutations } from '@/layouts/OIDCShareLayout.vue';
+import OIDCShareLayout from '@/layouts/OIDCShareLayout.vue';
+import OIDCShare from '@/pages/OIDCShare.vue';
+import Header from '@/components/Header/Header.vue';
+import Footer from '@/components/Footer/Footer.vue';
+
+export const OIDCStore = reactive({
+  processedCredentials: [],
+  selectedCredentialId: null,
+});
+
+export const OIDCGetters = {
+  getProcessedCredentialById(id) {
+    return OIDCStore.processedCredentials.find((credential) => credential.id === id);
+  },
+};
+
+export const OIDCMutations = {
+  setProcessedCredentials(value) {
+    OIDCStore.processedCredentials = value;
+  },
+  setSelectedCredentialId(value) {
+    OIDCStore.selectedCredentialId = value;
+  },
+};
+
+const isBase64Param = (param) => {
+  if (!param) {
+    return false;
+  }
+  try {
+    return btoa(atob(param)) === param;
+  } catch (error) {
+    return false;
+  }
+};
+
+const extractClaimsFromQuery = (claims) => {
+  let decodedClaims;
+
+  if (isBase64Param(claims)) {
+    decodedClaims = JSON.parse(decode(claims));
+  } else {
+    try {
+      decodedClaims = JSON.parse(claims);
+    } catch (error) {
+      decodedClaims = JSON.parse(JSON.stringify(claims));
+    }
+  }
+
+  return decodedClaims;
+};
+
+function findIfIssuerOrVerifier(query) {
+  // Detect if it is issuer or verifier
+  // Just verifier (share) for now
+  let sharing = true;
+  if (sharing) {
+    if (!query.claims) {
+      throw 'access denied, claims not given';
+    }
+
+    const claims = extractClaimsFromQuery(query.claims);
+
+    return {
+      component: OIDCShareLayout,
+    };
+  }
+  return {
+    component: OIDCShareLayout,
+  };
+}
+
+export default {
+  components: {
+    Header,
+    Footer,
+  },
+  setup() {
+    const { t } = useI18n();
+    const selectedCredentialId = ref(OIDCStore.selectedCredentialId);
+    watch(
+      () => OIDCStore.selectedCredentialId,
+      () => {
+        selectedCredentialId.value = OIDCStore.selectedCredentialId;
+      }
+    );
+    return { selectedCredentialId, t };
+  },
+  data() {
+    return {
+      component: null,
+    };
+  },
+  created: function () {
+    const { component } = findIfIssuerOrVerifier(this.$route.query);
+    this.component = component;
+  },
+  methods: {
+    handleBackButtonClick() {
+      OIDCShareLayoutMutations.setComponent(OIDCShare);
+      OIDCMutations.setSelectedCredentialId(null);
+    },
+  },
+};
+</script>
+<style>
+.oval {
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  filter: blur(50px);
+  width: 15.625rem; /* 250px */
+  top: 2.0625rem; /* 33px */
+}
+</style>
