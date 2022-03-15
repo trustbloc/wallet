@@ -62,7 +62,7 @@
         </template>
       </flyout>
       <div class="items-start">
-        <h3 class="my-5 mx-6 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
+        <h3 class="mx-6 mb-5 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
       </div>
     </div>
     <!-- Desktop Credentials Layout -->
@@ -161,8 +161,7 @@
                       vaultName: vault.name,
                     },
                   }"
-                  :brand-color="credential.brandColor"
-                  :icon="credential.icon"
+                  :styles="credential.styles"
                   :title="credential.title"
                 />
               </li>
@@ -191,11 +190,11 @@
 </template>
 
 <script>
-import { CredentialManager, CollectionManager } from '@trustbloc/wallet-sdk';
+import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { computed } from 'vue';
-import { useStore } from 'vuex';
+import { mapGetters, useStore } from 'vuex';
+import { encode } from 'js-base64';
 import { useI18n } from 'vue-i18n';
-import { getCredentialType, getCredentialDisplayData } from '@/mixins';
 import useBreakpoints from '@/plugins/breakpoints.js';
 import CredentialPreview from '@/components/CredentialPreview/CredentialPreview.vue';
 import SkeletonLoader from '@/components/SkeletonLoader/SkeletonLoader.vue';
@@ -242,39 +241,31 @@ export default {
       selectedVaults: [], // vaults to display in the main view along with credentials stored in each
       credentialsFound: false,
       selectedVaultName: null,
+      credential: [],
     };
   },
   created: async function () {
-    const { user, token } = this.currentUser.profile;
-    this.token = token;
-    this.username = this.currentUser.username;
+    const { profile, username } = this.getCurrentUser();
+    this.token = profile.token;
+    const user = profile.user;
+    this.username = username;
     this.credentialManager = new CredentialManager({ agent: this.agentInstance, user });
     this.collectionManager = new CollectionManager({ agent: this.agentInstance, user });
-    this.credentialDisplayData = await this.getCredentialManifestData();
     await this.fetchVaults();
     this.loading = false;
   },
   methods: {
+    ...mapGetters(['getCurrentUser']),
     fetchCredentials: async function (vaultId) {
       this.loading = true;
       try {
-        const { contents } = await this.credentialManager.getAll(this.token, {
-          collectionID: vaultId,
+        const metadataList = await this.credentialManager.getAllCredentialMetadata(this.token, {
+          collection: vaultId,
         });
-        if (!contents) return;
-
-        const _filter = (id) => {
-          return !contents[id].type.some((t) => filterBy.includes(t));
-        };
-
-        const credentials = Object.keys(contents)
-          .filter(_filter)
-          .map((id) => contents[id]);
-
-        return credentials.map((credential) => {
-          const manifest = this.getManifest(credential);
-          return this.getCredentialDisplayData(credential, manifest);
-        });
+        return metadataList.map((credential) => ({
+          id: encode(credential.id),
+          ...credential.resolved[0],
+        }));
       } catch (e) {
         console.error(`failed to fetch credentials for vault ${vaultId}:`, e);
       }
@@ -326,18 +317,6 @@ export default {
         })
       );
       this.loading = false;
-    },
-    getCredentialType: function (vc) {
-      return getCredentialType(vc.type);
-    },
-    getCredentialDisplayData: function (vc, manifestCredential) {
-      return getCredentialDisplayData(vc, manifestCredential);
-    },
-    getManifest: function (credential) {
-      const currentCredentialType = this.getCredentialType(credential);
-      return (
-        this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
-      );
     },
     setSelectedVaultId: async function (id) {
       if (this.selectedVaultId !== id) {

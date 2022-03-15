@@ -5,23 +5,23 @@
 -->
 
 <template>
+  <!--If issuer provides no styles we use #fff to apply the default styles-->
   <router-link
     :class="[
       `group outline-none inline-flex items-center rounded-xl py-6 pl-5 pr-3 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
-      brandColor.length
-        ? `bg-gradient-${brandColor} border-neutrals-black border-opacity-10 focus-within:ring-primary-${brandColor}`
-        : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
+      styles.background.color !== '#fff'
+        ? `bg-gradient-${styles.background.color} border-neutrals-black border-opacity-10 focus-within:ring-primary-${styles.background.color}`
+        : `border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
     ]"
+    :style="`background-color: ${styles.background.color}`"
   >
     <div class="flex-none w-12 h-12 border-opacity-10">
       <img :src="credentialIcon" />
     </div>
     <div class="flex-grow p-4">
       <span
-        :class="[
-          `text-sm md:text-base font-bold text-left text-ellipsis`,
-          brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
-        ]"
+        class="text-sm md:text-base font-bold text-left text-ellipsis"
+        :style="`color: ${styles.text.color}`"
       >
         {{ title }}
       </span>
@@ -29,15 +29,16 @@
     <div
       :class="[
         `flex-none w-8 h-8 rounded-full`,
-        brandColor.length
+        styles.background.color !== '#fff'
           ? `bg-neutrals-black bg-opacity-25 group-hover:bg-opacity-60`
           : `bg-neutrals-thistle`,
       ]"
+      :style="`background-color: ${styles.background.color}`"
     >
       <div class="p-1">
         <img
           :src="
-            brandColor.length
+            styles.background.color !== '#fff'
               ? require('@/assets/img/credential--arrow-right-icon-light.svg')
               : require('@/assets/img/credential--arrow-right-icon.svg')
           "
@@ -58,12 +59,8 @@ export default {
       type: String,
       required: true,
     },
-    brandColor: {
-      type: String,
-      required: true,
-    },
-    icon: {
-      type: String,
+    styles: {
+      type: Object,
       required: true,
     },
     title: {
