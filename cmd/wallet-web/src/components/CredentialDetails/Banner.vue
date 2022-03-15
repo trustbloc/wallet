@@ -29,7 +29,7 @@
         :style="`background-color: ${styles.background.color}`"
       >
         <div class="flex-none w-12 h-12 border-opacity-10">
-          <img :src="credentialIcon" />
+          <img :src="credentialIconSrc" />
         </div>
         <span
           class="flex-1 pl-4 text-sm md:text-base font-bold text-left text-ellipsis"
@@ -117,10 +117,11 @@
 </template>
 
 <script>
+import { computed } from 'vue';
+import { useStore } from 'vuex';
 import useBreakpoints from '@/plugins/breakpoints.js';
-import { mapGetters } from 'vuex';
-import { getCredentialIcon } from '@/mixins';
 import { useI18n } from 'vue-i18n';
+import { getCredentialIcon } from '@/mixins';
 
 export default {
   name: 'Banner',
@@ -142,30 +143,24 @@ export default {
       required: true,
     },
   },
-  setup() {
+  setup(props) {
+    const store = useStore();
     const { t, locale } = useI18n();
-    return { t, locale };
-  },
-  data() {
-    return {
-      breakpoints: useBreakpoints(),
-      credentialIcon: this.getCredentialIcon(),
-    };
-  },
-  computed: {
-    addedOn() {
-      return new Date(this.issuanceDate).toLocaleDateString(this.locale, {
+    const breakpoints = useBreakpoints();
+    const getStaticAssetsUrl = () => store.getters.getStaticAssetsUrl;
+    const credentialIconSrc = computed(() =>
+      props?.styles?.thumbnail?.uri?.includes('https://')
+        ? props?.styles?.thumbnail?.uri
+        : getCredentialIcon(getStaticAssetsUrl(), props?.styles?.thumbnail?.uri)
+    );
+    const addedOn = computed(() =>
+      new Date(props?.issuanceDate).toLocaleDateString(locale, {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
-      });
-    },
-  },
-  methods: {
-    ...mapGetters(['getStaticAssetsUrl']),
-    getCredentialIcon: function () {
-      return getCredentialIcon(this.getStaticAssetsUrl(), this.styles.thumbnail.uri);
-    },
+      })
+    );
+    return { addedOn, breakpoints, credentialIconSrc, t, locale };
   },
 };
 </script>

@@ -115,9 +115,8 @@
 <script>
 import { toRaw } from 'vue';
 import { mapGetters } from 'vuex';
-import { CollectionManager, DIDComm } from '@trustbloc/wallet-sdk';
+import { CredentialManager, CollectionManager, DIDComm } from '@trustbloc/wallet-sdk';
 import { useI18n } from 'vue-i18n';
-import { getCredentialDisplayData, getCredentialType, getCredentialIcon } from '@/mixins';
 import { WACIStore } from '@/layouts/WACI.vue';
 import CustomSelect from '@/components/CustomSelect/CustomSelect.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
@@ -168,10 +167,10 @@ export default {
     this.protocolHandler = WACIStore.protocolHandler;
     const invitation = toRaw(this.protocolHandler.message());
     const { user, token } = this.getCurrentUser().profile;
-    const credManifest = this.getCredentialManifestData();
+    this.token = token;
+    this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
     const collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
     const defVault = this.fetchAllVaults(token, collectionManager);
-
     this.didcomm = new DIDComm({ agent: this.getAgentInstance(), user });
     try {
       const { threadID, presentations, fulfillment, manifest, domain, challenge, error } =
@@ -189,7 +188,6 @@ export default {
         this.handleError(error);
         return;
       }
-
       // TODO: [Issue#1336] - read manifest, presentations, normalized, comment, fields to enhance UI
       this.interactionData = { threadID, fulfillment, domain, challenge, error, manifest };
     } catch (e) {
@@ -198,34 +196,22 @@ export default {
     }
 
     // Await here to allow these operations to run asynchronously along with the didcomm request
-    this.credentialDisplayData = await credManifest;
     this.setSelectedVault(await defVault);
 
     // prepare cards
-    this.prepareCards();
+    await this.prepareCards();
 
     this.loading = false;
   },
   methods: {
-    ...mapGetters(['getCurrentUser', 'getStaticAssetsUrl', 'getCredentialManifestData']),
+    ...mapGetters(['getCurrentUser']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    prepareCards: function () {
-      const { fulfillment } = this.interactionData;
-      // If only one credential then show details by default
-      if (fulfillment.verifiableCredential.length === 1) {
-        const manifest = this.getManifest(fulfillment.verifiableCredential[0]);
-        const credential = this.getCredentialDisplayData(
-          fulfillment.verifiableCredential[0],
-          manifest
-        );
-        this.processedCredentials.push({ ...credential });
-      } else {
-        fulfillment.verifiableCredential.map((vc) => {
-          const manifest = this.getManifest(vc);
-          const credential = this.getCredentialDisplayData(vc, manifest);
-          this.processedCredentials.push({ ...credential });
-        });
-      }
+    prepareCards: async function () {
+      const { fulfillment, manifest } = this.interactionData;
+      this.processedCredentials = await this.credentialManager.resolveManifest(this.token, {
+        manifest,
+        fulfillment,
+      });
     },
     save: async function () {
       this.errors.length = 0;
@@ -283,21 +269,6 @@ export default {
     },
     cancel: function () {
       this.protocolHandler.cancel();
-    },
-    getCredentialType: function (vc) {
-      return getCredentialType(vc.type);
-    },
-    getCredentialIcon: function (icon) {
-      return getCredentialIcon(this.getStaticAssetsUrl(), icon);
-    },
-    getCredentialDisplayData: function (vc, manifestCredential) {
-      return getCredentialDisplayData(vc, manifestCredential);
-    },
-    getManifest: function (credential) {
-      const currentCredentialType = this.getCredentialType(credential);
-      return (
-        this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
-      );
     },
     fetchAllVaults: async function (token, collectionManager) {
       const { contents } = await collectionManager.getAll(token);
