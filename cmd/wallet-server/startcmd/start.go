@@ -19,7 +19,6 @@ import (
 
 	"github.com/cenkalti/backoff/v4"
 	oidcp "github.com/coreos/go-oidc"
-	"github.com/duo-labs/webauthn/webauthn"
 	"github.com/gorilla/mux"
 	ariescouchdb "github.com/hyperledger/aries-framework-go-ext/component/storage/couchdb"
 	ariesmongodb "github.com/hyperledger/aries-framework-go-ext/component/storage/mongodb"
@@ -41,7 +40,6 @@ import (
 
 	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
-	"github.com/trustbloc/edge-agent/pkg/restapi/device"
 	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
 	"github.com/trustbloc/edge-agent/pkg/restapi/wallet"
 )
@@ -90,7 +88,6 @@ const (
 
 	oidcBasePath    = "/oidc/"
 	healthCheckPath = "/healthcheck"
-	deviceBasePath  = "/device/"
 	walletBasePath  = "/wallet/"
 )
 
@@ -166,24 +163,6 @@ const (
 	sessionCookieMaxAgeEnvKey = "HTTP_SERVER_COOKIE_MAXAGE"
 )
 
-// WebAuth Config.
-const (
-	webAuthRPDisplayFlagName  = "webauth-rp-displayname"
-	webAuthRPDisplayEnvKey    = "HTTP_SERVER_RP_DISPLAY_NAME"
-	webAuthRPDisplayFlagUsage = "WebAuth rp display name use to display name." +
-		" Alternatively, this can be set with the following environment variable: " + webAuthRPDisplayEnvKey
-
-	webAuthRPOriginFlagName  = "webauth-rp-origin"
-	webAuthRPOriginEnvKey    = "HTTP_SERVER_RP_ORIGIN_NAME"
-	webAuthRPOriginFlagUsage = "WebAuth rp origin url use for webauth requests ." +
-		" Alternatively, this can be set with the following environment variable: " + webAuthRPOriginEnvKey
-
-	webAuthRPIDFlagName  = "webauth-rp-id"
-	webAuthRPIDEnvKey    = "HTTP_SERVER_RP_ID"
-	webAuthRPIDFlagUsage = "WebAuth rp ID is generally the domain name for your site ." +
-		" Alternatively, this can be set with the following environment variable: " + webAuthRPIDEnvKey
-)
-
 var logger = log.New("edge-agent/wallet-server")
 
 // nolint:gochecknoglobals // this is constant map used only for internal purpose.
@@ -230,7 +209,6 @@ type httpServerParameters struct {
 	tls                  *tlsParameters
 	oidc                 *oidcParameters
 	cookie               *cookie.Config
-	webAuth              *webauthParameters
 	keyServer            *keyServerParameters
 	userEDVURL           string
 	hubAuthURL           string
@@ -250,12 +228,6 @@ type oidcParameters struct {
 	clientID     string
 	clientSecret string
 	callbackURL  string
-}
-
-type webauthParameters struct {
-	rpDisplayName string
-	rpID          string
-	rpOrigin      string
 }
 
 type keyServerParameters struct {
@@ -314,11 +286,6 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				return err
 			}
 
-			webAuthParams, err := getWebAuthParams(cmd)
-			if err != nil {
-				return err
-			}
-
 			keyServer, err := getKeyServerParams(cmd)
 			if err != nil {
 				return err
@@ -345,7 +312,6 @@ func createStartCmd(srv server) *cobra.Command { //nolint:funlen,gocyclo // no r
 				hostURL:              hostURL,
 				tls:                  tlsParams,
 				oidc:                 oidcParams,
-				webAuth:              webAuthParams,
 				cookie:               cookies,
 				keyServer:            keyServer,
 				userEDVURL:           userEDVURL,
@@ -377,7 +343,6 @@ func createFlags(startCmd *cobra.Command) {
 	createOIDCFlags(startCmd)
 	createTLSFlags(startCmd)
 	createCookieFlags(startCmd)
-	createWebAuthFlags(startCmd)
 	createAgentFlags(startCmd)
 }
 
@@ -398,12 +363,6 @@ func createCookieFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP(sessionCookieAuthKeyFlagName, "", "", sessionCookieAuthKeyFlagUsage)
 	cmd.Flags().StringP(sessionCookieEncKeyFlagName, "", "", sessionCookieEncKeyFlagUsage)
 	cmd.Flags().StringP(sessionCookieMaxAgeFlagName, "", "", sessionCookieMaxAgeFlagUsage)
-}
-
-func createWebAuthFlags(cmd *cobra.Command) {
-	cmd.Flags().StringP(webAuthRPDisplayFlagName, "", "", webAuthRPDisplayFlagUsage)
-	cmd.Flags().StringP(webAuthRPOriginFlagName, "", "", webAuthRPOriginFlagUsage)
-	cmd.Flags().StringP(webAuthRPIDFlagName, "", "", webAuthRPIDFlagUsage)
 }
 
 func getDependencyMaxRetries(cmd *cobra.Command) (uint64, error) {
@@ -490,32 +449,6 @@ func getOIDCParams(cmd *cobra.Command) (*oidcParameters, error) {
 		cmd, oidcProviderURLFlagName, oidcProviderURLEnvKey, false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to configure OIDC provider URL: %w", err)
-	}
-
-	return params, nil
-}
-
-func getWebAuthParams(cmd *cobra.Command) (*webauthParameters, error) {
-	params := &webauthParameters{}
-
-	var err error
-
-	params.rpDisplayName, err = cmdutils.GetUserSetVarFromString(
-		cmd, webAuthRPDisplayFlagName, webAuthRPDisplayEnvKey, true)
-	if err != nil {
-		return nil, fmt.Errorf("failed to configure webauth rp display name: %w", err)
-	}
-
-	params.rpID, err = cmdutils.GetUserSetVarFromString(
-		cmd, webAuthRPIDFlagName, webAuthRPIDEnvKey, true)
-	if err != nil {
-		return nil, fmt.Errorf("failed to configure webauth rpID: %w", err)
-	}
-
-	params.rpOrigin, err = cmdutils.GetUserSetVarFromString(
-		cmd, webAuthRPOriginFlagName, webAuthRPOriginEnvKey, true)
-	if err != nil {
-		return nil, fmt.Errorf("failed to configure webauth rp origin: %w", err)
 	}
 
 	return params, nil
@@ -693,14 +626,6 @@ func router(config *httpServerParameters) (http.Handler, error) {
 		return nil, fmt.Errorf("failed to add OIDC handlers: %w", err)
 	}
 
-	// device router
-	deviceRouter := root.PathPrefix(deviceBasePath).Subrouter()
-
-	err = addDeviceHandlers(deviceRouter, config, ctx.StorageProvider())
-	if err != nil {
-		return nil, fmt.Errorf("failed to add device handlers: %w", err)
-	}
-
 	// wallet agent router
 	walletHandlers, err := wallet.GetRESTHandlers(ctx, wallet.WithWebhookURLs(config.agent.webhookURLs...),
 		wallet.WithDefaultLabel(config.agent.defaultLabel), wallet.WithMessageHandler(config.agent.msgHandler))
@@ -763,38 +688,6 @@ func addOIDCHandlers(router *mux.Router, config *httpServerParameters, store ari
 	}
 
 	for _, handler := range oidcOps.GetRESTHandlers() {
-		router.HandleFunc(handler.Path(), handler.Handle()).Methods(handler.Method())
-	}
-
-	return nil
-}
-
-func addDeviceHandlers(router *mux.Router, config *httpServerParameters, store ariesstorage.Provider) error {
-	webAuthn, err := webauthn.New(&webauthn.Config{
-		RPDisplayName: config.webAuth.rpDisplayName, // Display Name for your site
-		RPID:          config.webAuth.rpID,          // Generally the domain name for your site
-		RPOrigin:      config.webAuth.rpOrigin,      // The origin URL for WebAuthn requests
-	})
-	if err != nil {
-		return fmt.Errorf("failed to init webauthn: %w", err)
-	}
-
-	deviceOps, err := device.New(&device.Config{
-		WalletDashboard: config.agentUIURL + "/dashboard",
-		TLSConfig:       config.tls.config,
-		Storage: &device.StorageConfig{
-			Storage:      store,
-			SessionStore: ariesmem.NewProvider(),
-		},
-		Cookie:     config.cookie,
-		Webauthn:   webAuthn,
-		HubAuthURL: config.hubAuthURL,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to init device ops: %w", err)
-	}
-
-	for _, handler := range deviceOps.GetRESTHandlers() {
 		router.HandleFunc(handler.Path(), handler.Handle()).Methods(handler.Method())
 	}
 

@@ -46,11 +46,6 @@ func TestListenAndServe(t *testing.T) {
 		oidc:   &oidcParameters{providerURL: mockOIDCProvider(t)},
 		tls:    &tlsParameters{},
 		cookie: &cookie.Config{},
-		webAuth: &webauthParameters{
-			rpDisplayName: "Foobar Corp.",
-			rpID:          "localhost",
-			rpOrigin:      "http://localhost",
-		},
 		keyServer: &keyServerParameters{
 			authzKMSURL: "http://localhost",
 		},
@@ -139,9 +134,6 @@ func validArgs(t *testing.T) map[string]string {
 		tlsCACertsFlagName:                cert(t),
 		sessionCookieAuthKeyFlagName:      key(t),
 		sessionCookieEncKeyFlagName:       key(t),
-		webAuthRPDisplayFlagName:          "Foobar Corp.",
-		webAuthRPIDFlagName:               "localhost",
-		webAuthRPOriginFlagName:           "http://localhost",
 		authzKMSURLFlagName:               "http://localhost",
 		opsKMSURLFlagName:                 "http://localhost",
 		keyEDVURLFlagName:                 "http://localhost",
@@ -744,15 +736,6 @@ func TestStartCmdValidArgsEnvVar(t *testing.T) {
 	require.NoError(t, err)
 
 	err = os.Setenv(sessionCookieAuthKeyEnvKey, key(t))
-	require.NoError(t, err)
-
-	err = os.Setenv(webAuthRPDisplayEnvKey, "Foobar Corp.")
-	require.NoError(t, err)
-
-	err = os.Setenv(webAuthRPIDEnvKey, "http://localhost")
-	require.NoError(t, err)
-
-	err = os.Setenv(webAuthRPOriginEnvKey, "localhost")
 	require.NoError(t, err)
 
 	err = os.Setenv(authzKMSURLEnvKey, "localhost")
