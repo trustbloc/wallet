@@ -13,7 +13,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/trustbloc/edge-agent/pkg/restapi/common"
+	"github.com/trustbloc/wallet/pkg/restapi/common"
 )
 
 func TestNewHTTPHandler(t *testing.T) {

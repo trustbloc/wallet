@@ -1,10 +1,10 @@
-[![Release](https://img.shields.io/github/release/trustbloc/edge-agent.svg?style=flat-square)](https://github.com/trustbloc/edge-agent/releases/latest)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/trustbloc/edge-agent/main/LICENSE)
-[![Godocs](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/trustbloc/edge-agent)
+[![Release](https://img.shields.io/github/release/trustbloc/wallet.svg?style=flat-square)](https://github.com/trustbloc/wallet/releases/latest)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/trustbloc/wallet/main/LICENSE)
+[![Godocs](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/trustbloc/wallet)
 
 [![Build Status](https://github.com/trustbloc/wallet/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/trustbloc/wallet/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/trustbloc/wallet/branch/main/graph/badge.svg)](https://codecov.io/gh/trustbloc/wallet)
-[![Go Report Card](https://goreportcard.com/badge/github.com/trustbloc/edge-agent)](https://goreportcard.com/report/github.com/trustbloc/edge-agent)
+[![Go Report Card](https://goreportcard.com/badge/github.com/trustbloc/wallet)](https://goreportcard.com/report/github.com/trustbloc/wallet)
 
 # Wallet
 

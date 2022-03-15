@@ -24,7 +24,7 @@
       errorMessage
     }}</span>
     <div class="fader" />
-    <!-- TODO: use inline svg instead once https://github.com/trustbloc/edge-agent/issues/816 is fixed -->
+    <!-- TODO: use inline svg instead once https://github.com/trustbloc/wallet/issues/816 is fixed -->
     <img
       v-if="(value.length && !valid) || (submitted && !valid)"
       class="danger-icon"

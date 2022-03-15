@@ -12,7 +12,7 @@ import (
 
 	ariesstorage "github.com/hyperledger/aries-framework-go/spi/storage"
 
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
+	"github.com/trustbloc/wallet/pkg/restapi/common/store"
 )
 
 const (

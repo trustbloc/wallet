@@ -34,12 +34,12 @@ import (
 	"github.com/trustbloc/edv/pkg/restapi/models"
 	"golang.org/x/oauth2"
 
-	"github.com/trustbloc/edge-agent/pkg/restapi/common"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/tokens"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
+	"github.com/trustbloc/wallet/pkg/restapi/common"
+	"github.com/trustbloc/wallet/pkg/restapi/common/oidc"
+	"github.com/trustbloc/wallet/pkg/restapi/common/store"
+	"github.com/trustbloc/wallet/pkg/restapi/common/store/cookie"
+	"github.com/trustbloc/wallet/pkg/restapi/common/store/tokens"
+	"github.com/trustbloc/wallet/pkg/restapi/common/store/user"
 )
 
 // Endpoints.
@@ -223,7 +223,7 @@ func (o *Operation) oidcLoginHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("redirected to login url: %s", redirectURL)
 }
 
-// TODO encrypt data before storing: https://github.com/trustbloc/edge-agent/issues/380
+// TODO encrypt data before storing: https://github.com/trustbloc/wallet/issues/380
 func (o *Operation) oidcCallbackHandler(w http.ResponseWriter, r *http.Request) { // nolint:funlen,gocyclo,lll // cannot reduce
 	logger.Debugf("handling oidc callback: %s", r.URL.String())
 
@@ -634,7 +634,7 @@ func (o *Operation) onboardUser(sub, accessToken string) (string, error) { // no
 
 	hmacEDVKIDURL := fmt.Sprintf("%s/keys/%s", opKeyStoreURL, hmacEDVKID)
 
-	// TODO remove OPSKMSCapability: https://github.com/trustbloc/edge-agent/issues/583.
+	// TODO remove OPSKMSCapability: https://github.com/trustbloc/wallet/issues/583.
 	data := &BootstrapData{
 		User:              uuid.NewString(),
 		UserEDVVaultURL:   userEDVVaultURL, // TODO to be removed after universal wallet migration

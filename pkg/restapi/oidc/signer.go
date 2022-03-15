@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/trustbloc/edge-agent/pkg/restapi/common"
+	"github.com/trustbloc/wallet/pkg/restapi/common"
 )
 
 type signer interface {

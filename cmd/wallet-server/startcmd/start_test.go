@@ -30,7 +30,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
 
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
+	"github.com/trustbloc/wallet/pkg/restapi/common/store/cookie"
 )
 
 type mockServer struct {

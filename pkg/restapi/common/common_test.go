@@ -22,7 +22,7 @@ import (
 	"github.com/trustbloc/edge-core/pkg/log"
 	"github.com/trustbloc/edge-core/pkg/log/mocklogger"
 
-	"github.com/trustbloc/edge-agent/pkg/restapi/common"
+	"github.com/trustbloc/wallet/pkg/restapi/common"
 )
 
 func TestWriteErrorResponsef(t *testing.T) {

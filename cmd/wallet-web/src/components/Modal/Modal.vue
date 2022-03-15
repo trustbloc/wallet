@@ -21,7 +21,7 @@
     >
       <div class="relative flex-grow mx-6 lg:mx-auto max-w-lg rounded-2xl bg-neutrals-white">
         <button v-if="showCloseButton" class="absolute right-0 pt-3 pr-3 w-10 h-10" @click="close">
-          <!-- TODO: use inline svg instead once https://github.com/trustbloc/edge-agent/issues/816 is fixed -->
+          <!-- TODO: use inline svg instead once https://github.com/trustbloc/wallet/issues/816 is fixed -->
           <img
             class="w-6 h-6 cursor-pointer"
             src="@/assets/img/Icons-sm--close-icon.svg"

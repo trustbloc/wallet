@@ -15,17 +15,17 @@ RUN apk add --no-cache \
 	libtool \
 	bash \
 	make;
-ADD . /opt/workspace/edge-agent
-WORKDIR /opt/workspace/edge-agent
+ADD . /opt/workspace/wallet
+WORKDIR /opt/workspace/wallet
 ENV EXECUTABLES go git
 
-FROM golang as edge-agent
+FROM golang as wallet
 RUN go build -o mock-server .
 
 
 FROM alpine:${ALPINE_VER}
 # copy build artifacts from build container
-COPY --from=edge-agent /opt/workspace/edge-agent/mock-server /usr/local/bin
+COPY --from=wallet /opt/workspace/wallet/mock-server /usr/local/bin
 COPY ./templates /usr/local/bin/templates
 
 # set up nsswitch.conf for Go's "netgo" implementation
