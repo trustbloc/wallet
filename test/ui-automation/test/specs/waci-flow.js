@@ -104,7 +104,15 @@ async function waciFlow(version, ctx) {
     await getSuccessMsg.waitForExist();
   });
 
-  // TODO verify credential in wallet after save
+  it(`User validates the saved credential in Wallet`, async function () {
+    await browser.navigateTo(`${browser.config.walletURL}/credentials`);
+
+    const vcName = await $("span*=Permanent Resident Card");
+    await vcName.waitForExist();
+    await vcName.click();
+
+    await wallet.validateCredentialDetails(vcSubjectData);
+  });
 
   it(`User presents credential through WACI-Share (Redirect) : already signed-in`, async function () {
     // demo verifier page
