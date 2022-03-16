@@ -38,10 +38,10 @@ import (
 	cmdutils "github.com/trustbloc/edge-core/pkg/utils/cmd"
 	tlsutils "github.com/trustbloc/edge-core/pkg/utils/tls"
 
-	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
-	"github.com/trustbloc/edge-agent/pkg/restapi/oidc"
-	"github.com/trustbloc/edge-agent/pkg/restapi/wallet"
+	oidc2 "github.com/trustbloc/wallet/pkg/restapi/common/oidc"
+	"github.com/trustbloc/wallet/pkg/restapi/common/store/cookie"
+	"github.com/trustbloc/wallet/pkg/restapi/oidc"
+	"github.com/trustbloc/wallet/pkg/restapi/wallet"
 )
 
 const (
@@ -163,7 +163,7 @@ const (
 	sessionCookieMaxAgeEnvKey = "HTTP_SERVER_COOKIE_MAXAGE"
 )
 
-var logger = log.New("edge-agent/wallet-server")
+var logger = log.New("wallet/wallet-server")
 
 // nolint:gochecknoglobals // this is constant map used only for internal purpose.
 var supportedStorageProviders = map[string]func(string, string) (ariesstorage.Provider, error){

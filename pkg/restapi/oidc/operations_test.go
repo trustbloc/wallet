@@ -34,10 +34,10 @@ import (
 	"github.com/trustbloc/edv/pkg/restapi/models"
 	"golang.org/x/oauth2"
 
-	oidc2 "github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/cookie"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/tokens"
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/store/user"
+	oidc2 "github.com/trustbloc/wallet/pkg/restapi/common/oidc"
+	"github.com/trustbloc/wallet/pkg/restapi/common/store/cookie"
+	"github.com/trustbloc/wallet/pkg/restapi/common/store/tokens"
+	"github.com/trustbloc/wallet/pkg/restapi/common/store/user"
 )
 
 func TestNew(t *testing.T) {

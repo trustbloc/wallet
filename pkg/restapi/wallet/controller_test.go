@@ -12,7 +12,7 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/framework/aries/defaults"
 	"github.com/stretchr/testify/require"
 
-	"github.com/trustbloc/edge-agent/pkg/restapi/wallet"
+	"github.com/trustbloc/wallet/pkg/restapi/wallet"
 )
 
 func TestGetRESTHandlers(t *testing.T) {

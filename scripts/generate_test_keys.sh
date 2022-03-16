@@ -8,9 +8,9 @@
 set -e
 
 
-echo "Generating edge-agent Test PKI"
+echo "Generating wallet Test PKI"
 
-cd /opt/workspace/edge-agent
+cd /opt/workspace/wallet
 mkdir -p test/fixtures/keys/tls
 tmp=$(mktemp)
 echo "subjectKeyIdentifier=hash
@@ -46,7 +46,7 @@ fi
 
 #create TLS creds
 openssl ecparam -name prime256v1 -genkey -noout -out test/fixtures/keys/tls/ec-key.pem
-openssl req -new -key test/fixtures/keys/tls/ec-key.pem -subj "/C=CA/ST=ON/O=Example Inc.:edge-agent/OU=edge-agent/CN=localhost" -out test/fixtures/keys/tls/ec-key.csr
+openssl req -new -key test/fixtures/keys/tls/ec-key.pem -subj "/C=CA/ST=ON/O=Example Inc.:wallet/OU=wallet/CN=localhost" -out test/fixtures/keys/tls/ec-key.csr
 openssl x509 -req -in test/fixtures/keys/tls/ec-key.csr -CA test/fixtures/keys/tls/ec-cacert.pem -CAkey test/fixtures/keys/tls/ec-cakey.pem -CAcreateserial -extfile "$tmp" -out test/fixtures/keys/tls/ec-pubCert.pem -days 365
 
 #create session cookie keys
@@ -60,4 +60,4 @@ mkdir -p test/fixtures/keys/device
 openssl ecparam -name prime256v1 -genkey -noout -out test/fixtures/keys/device/ec-cakey.pem
 openssl req -new -x509 -key test/fixtures/keys/device/ec-cakey.pem -subj "/C=CA/ST=ON/O=Example Auth Device Inc.:CA Sec/OU=CA Sec" -out test/fixtures/keys/device/ec-cacert.pem
 
-echo "done generating edge-agent PKI"
+echo "done generating wallet PKI"

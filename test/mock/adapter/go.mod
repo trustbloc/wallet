@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-module github.com/trustbloc/edge-agent/test/mock/adapter
+module github.com/trustbloc/wallet/test/mock/adapter
 
 go 1.17
 

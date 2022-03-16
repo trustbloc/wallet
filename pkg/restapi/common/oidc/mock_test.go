@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/oauth2"
 
-	"github.com/trustbloc/edge-agent/pkg/restapi/common/oidc"
+	"github.com/trustbloc/wallet/pkg/restapi/common/oidc"
 )
 
 func TestMockClient_FormatRequest(t *testing.T) {

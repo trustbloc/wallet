@@ -82,8 +82,8 @@ wallet-server-docker:
 generate-test-keys:
 	@mkdir -p -p test/fixtures/keys/tls
 	@docker run -i --rm \
-		-v $(abspath .):/opt/workspace/edge-agent \
-		--entrypoint "/opt/workspace/edge-agent/scripts/generate_test_keys.sh" \
+		-v $(abspath .):/opt/workspace/wallet \
+		--entrypoint "/opt/workspace/wallet/scripts/generate_test_keys.sh" \
 		frapsoft/openssl
 
 .PHONY: generate-openapi-spec

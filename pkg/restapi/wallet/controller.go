@@ -13,7 +13,7 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/controller/webnotifier"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/context"
 
-	"github.com/trustbloc/edge-agent/pkg/restapi/wallet/operation"
+	"github.com/trustbloc/wallet/pkg/restapi/wallet/operation"
 )
 
 const wsPath = "/ws"

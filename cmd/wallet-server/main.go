@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-// Package wallet-server (Wallet Server REST API) of trustbloc/edge-agent.
+// Package wallet-server (Wallet Server REST API) of trustbloc/wallet.
 //
 //
 // Terms Of Service:
@@ -27,7 +27,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/trustbloc/edge-core/pkg/log"
 
-	"github.com/trustbloc/edge-agent/cmd/wallet-server/startcmd"
+	"github.com/trustbloc/wallet/cmd/wallet-server/startcmd"
 )
 
 var logger = log.New("wallet-server")
