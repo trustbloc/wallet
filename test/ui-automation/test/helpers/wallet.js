@@ -248,7 +248,7 @@ async function _getThirdPartyLogin(email, waci) {
   if (!waci) {
     await browser.waitUntil(async () => {
       let title = await $("iframe");
-      await title.waitForExist({ timeout, interval: 5000 });
+      await title.waitForExist({ timeout : timeout, interval: 2000 });
       return true;
     });
   }
@@ -267,7 +267,7 @@ async function _waitForCredentials() {
     const credentialsLink = await $("#navbar-link-credentials");
     await credentialsLink.click();
     let didResponse = await $("#loaded-credentials-container");
-    await didResponse.waitForExist({ timeout, interval: 5000 });
+    await didResponse.waitForExist({ timeout : timeout, interval: 5000 });
     expect(didResponse).toBeDisplayed();
     return true;
   });
@@ -309,7 +309,7 @@ async function _importDID({ method }) {
 
   await browser.waitUntil(async () => {
     let didResponse = await $("#save-anydid-success");
-    await didResponse.waitForExist({ timeout, interval: 2000 });
+    await didResponse.waitForExist({ timeout : timeout, interval: 2000 });
     expect(didResponse).toHaveText("Saved your DID successfully.");
     return true;
   });
@@ -337,7 +337,7 @@ async function _createOrbDID() {
 
   await browser.waitUntil(async () => {
     let didResponse = await $("#create-did-success");
-    await didResponse.waitForExist({ timeout, interval: 2000 });
+    await didResponse.waitForExist({ timeout : timeout, interval: 5000 });
     expect(didResponse).toHaveText("Saved your DID successfully.");
     return true;
   });
