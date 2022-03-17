@@ -77,7 +77,7 @@ export default {
     ...mapGetters(['getStaticAssetsUrl']),
     // Get credential icon based on docker configuration
     getCredentialIcon: function () {
-      return getCredentialIcon(this.getStaticAssetsUrl(), this.icon);
+      return getCredentialIcon(this.getStaticAssetsUrl(), this.styles.thumbnail.uri);
     },
   },
 };
