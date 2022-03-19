@@ -11,8 +11,8 @@ SPDX-License-Identifier: Apache-2.0
     <meta charset="utf-8" />
     <title>Demo Verifier</title>
     <script type="text/javascript">
-      function submitAction( action ){
-        document.getElementById("oidc-share-form").action = action
+      function submitAction(action) {
+        document.getElementById("oidc-share-form").action = action;
       }
     </script>
   </head>
@@ -26,17 +26,13 @@ SPDX-License-Identifier: Apache-2.0
         type="text"
         id="walletAuthURL"
         name="walletAuthURL"
-        value="https://wallet.trustbloc.local:8091/oidc-share"
+        value="https://wallet.trustbloc.local:8091/oidc"
         size="50"
       />
       <br />
 
       <label>Presentation Exchange Query</label><br />
-      <textarea 
-        id="pEx" 
-        name="pEx" 
-        rows="4" 
-        cols="50">
+      <textarea id="pEx" name="pEx" rows="4" cols="50">
         {
           "id":"3bc5ac72-bdd7-42de-aeba-45816cc4f776",
           "name":"Demo Verifier",
@@ -55,7 +51,12 @@ SPDX-License-Identifier: Apache-2.0
       <br />
 
       <br />
-      <input type="submit" id="oidc-share" value="Demo" onclick="javascript:submitAction('/verifier/oidc-share')"/>
+      <input
+        type="submit"
+        id="oidc-share"
+        value="Demo"
+        onclick="javascript:submitAction('/verifier/oidc/share')"
+      />
     </form>
 
     <br />

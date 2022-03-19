@@ -115,8 +115,8 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 	router.HandleFunc("/verifier/waci-share-v2", app.waciShareV2)
 	router.HandleFunc("/verifier/waci-share/{id}", app.waciShareCallback)
 	router.HandleFunc("/verifier/oidc", app.oidcVerifier)
-	router.HandleFunc("/verifier/oidc-share", app.oidcShare)
-	router.HandleFunc("/verifier/oidc-share/cb", app.oidcShareCallback)
+	router.HandleFunc("/verifier/oidc/share", app.oidcShare)
+	router.HandleFunc("/verifier/oidc/share/cb", app.oidcShareCallback)
 
 	// CHAPI flow routes
 	router.HandleFunc("/web-wallet", app.webWallet)
@@ -310,7 +310,7 @@ func (v *adapterApp) oidcShare(w http.ResponseWriter, r *http.Request) {
 
 	q := req.URL.Query()
 	q.Add("client_id", "demo-verifier")
-	q.Add("redirect_uri", os.Getenv(demoExternalURLEnvKey)+"/verifier/oidc-share/cb")
+	q.Add("redirect_uri", os.Getenv(demoExternalURLEnvKey)+"/verifier/oidc/share/cb")
 	q.Add("scope", "openid")
 	q.Add("state", state)
 	q.Add("claims", string(claimsBytes))

@@ -61,8 +61,8 @@ export default [
     ],
   },
   {
-    path: 'oidc-share',
-    name: 'oidc-share',
+    path: 'oidc',
+    name: 'oidc',
     component: load('layouts/OIDC'),
     meta: { requiresAuth: true, signin: true, disableCHAPI: true, isNavbarHidden: true },
     children: [
