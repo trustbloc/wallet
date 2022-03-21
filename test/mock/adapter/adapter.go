@@ -389,13 +389,26 @@ func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
 
 	_, err = verifiable.ParsePresentation([]byte(vpToken), verifiable.WithPresJSONLDDocumentLoader(ld.NewDefaultDocumentLoader(nil)))
 	if err != nil {
-		handleError(w, http.StatusInternalServerError,
-			fmt.Sprintf("failed to validate presentation : %s", err))
+		loadTemplate(w, oidcVerifierHTML,
+			map[string]interface{}{
+				"ErrMsg":                    fmt.Sprintf("ERROR: failed to validate presentation : %s", err),
+				"ID_TOKEN":                  "ID_TOKEN:\n" + idToken,
+				"DECODED_VPDEF_IN_ID_TOKEN": "DECODED_VPDEF_IN_ID_TOKEN: " + string(presSubBytes),
+				"VP_TOKEN":                  "VP_TOKEN: " + string(vpToken),
+			},
+		)
 
 		return
 	}
 
-	loadTemplate(w, oidcVerifierHTML, map[string]interface{}{"Msg": "Successfully Received Presentation"})
+	loadTemplate(w, oidcVerifierHTML,
+		map[string]interface{}{
+			"Msg":                       "Successfully Received Presentation",
+			"ID_TOKEN":                  "ID_TOKEN:\n" + idToken,
+			"DECODED_VPDEF_IN_ID_TOKEN": "DECODED_VPDEF_IN_ID_TOKEN: " + string(presSubBytes),
+			"VP_TOKEN":                  "VP_TOKEN: " + string(vpToken),
+		},
+	)
 }
 
 func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Store) {
