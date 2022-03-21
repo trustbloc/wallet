@@ -23,29 +23,6 @@
 
     <!-- Credentials Missing State -->
     <WACI-credentials-missing v-else-if="showCredentialsMissing" @click="cancel" />
-
-    <!-- Success State -->
-    <WACI-success
-      v-else-if="sharedSuccessfully"
-      id="share-credentials-ok-btn"
-      :heading="t('WACI.Share.success', processedCredentials.length)"
-      :message="
-        t(
-          'WACI.Share.message',
-          {
-            subject:
-              processedCredentials.length === 1
-                ? processedCredentials[0].title
-                : processedCredentials.length,
-            // TODO: issue-1055 Read meta data from external urls
-            requestor: 'Requestor',
-          },
-          processedCredentials.length
-        )
-      "
-      :button-label="t('WACI.ok')"
-      @click="finish"
-    />
   </div>
 
   <!-- Main State -->
@@ -178,7 +155,6 @@ import WACIActionButtonsContainer from '@/components/WACI/WACIActionButtonsConta
 import WACICredentialsMissing from '@/components/WACI/WACICredentialsMissing.vue';
 import WACIError from '@/components/WACI/WACIError.vue';
 import WACILoading from '@/components/WACI/WACILoading.vue';
-import WACISuccess from '@/components/WACI/WACISuccess.vue';
 import CredentialDetailsTable from '@/components/WACI/CredentialDetailsTable.vue';
 import OIDCShareOverview from '@/pages/OIDCShareOverview.vue';
 const isBase64Param = (param) => {
@@ -201,7 +177,6 @@ export default {
     WACICredentialsMissing,
     WACIError,
     WACILoading,
-    WACISuccess,
   },
   setup() {
     const { t } = useI18n();
@@ -215,7 +190,6 @@ export default {
       sharing: false,
       processedCredentials: [],
       credentialDisplayData: {},
-      sharedSuccessfully: false,
       token: null,
     };
   },
@@ -224,13 +198,7 @@ export default {
       return this.processedCredentials.length === 0;
     },
     showMainState() {
-      return (
-        !this.loading &&
-        !this.errors.length &&
-        !this.sharing &&
-        !this.showCredentialsMissing &&
-        !this.sharedSuccessfully
-      );
+      return !this.loading && !this.errors.length && !this.sharing && !this.showCredentialsMissing;
     },
   },
   created: async function () {
@@ -326,8 +294,8 @@ export default {
 
       const { status, url } = ack;
       this.redirectUrl = url;
-      // TODO check if status="FAIL", then should redirect to generic error screen, it means WACI flow didn't succeed
-      if (status === 'OK') this.sharedSuccessfully = true;
+
+      if (status === 'OK') this.finish();
 
       this.sharing = false;
     },
