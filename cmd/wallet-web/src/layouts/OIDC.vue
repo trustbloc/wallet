@@ -67,7 +67,6 @@
 <script>
 import { reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { decode } from 'js-base64';
 import { OIDCShareLayoutMutations } from '@/layouts/OIDCShareLayout.vue';
 import OIDCShareLayout from '@/layouts/OIDCShareLayout.vue';
 import OIDCShare from '@/pages/OIDCShare.vue';
@@ -94,51 +93,20 @@ export const OIDCMutations = {
   },
 };
 
-const isBase64Param = (param) => {
-  if (!param) {
-    return false;
-  }
-  try {
-    return btoa(atob(param)) === param;
-  } catch (error) {
-    return false;
-  }
-};
+function getOIDCSharePage() {
+  return {
+    component: OIDCShareLayout,
+  };
+}
 
-const extractClaimsFromQuery = (claims) => {
-  let decodedClaims;
-
-  if (isBase64Param(claims)) {
-    decodedClaims = JSON.parse(decode(claims));
-  } else {
-    try {
-      decodedClaims = JSON.parse(claims);
-    } catch (error) {
-      decodedClaims = JSON.parse(JSON.stringify(claims));
-    }
-  }
-
-  return decodedClaims;
-};
-
-function findIfIssuerOrVerifier(query) {
+function detectOIDCComponentType() {
   // Detect if it is issuer or verifier
   // Just verifier (share) for now
   let sharing = true;
   if (sharing) {
-    if (!query.claims) {
-      throw 'access denied, claims not given';
-    }
-
-    const claims = extractClaimsFromQuery(query.claims);
-
-    return {
-      component: OIDCShareLayout,
-    };
+    return getOIDCSharePage();
   }
-  return {
-    component: OIDCShareLayout,
-  };
+  return getOIDCSharePage();
 }
 
 export default {
@@ -163,7 +131,7 @@ export default {
     };
   },
   created: function () {
-    const { component } = findIfIssuerOrVerifier(this.$route.query);
+    const { component } = detectOIDCComponentType();
     this.component = component;
   },
   methods: {

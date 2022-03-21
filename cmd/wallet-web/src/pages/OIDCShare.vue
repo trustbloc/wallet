@@ -167,8 +167,9 @@
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { getCredentialType, getCredentialDisplayData, getCredentialIcon } from '@/mixins';
+import { decode, encode } from 'js-base64';
 import { CredentialManager } from '@trustbloc-cicd/wallet-sdk';
-import { OIDCStore, OIDCMutations } from '@/layouts/OIDC.vue';
+import { OIDCMutations } from '@/layouts/OIDC.vue';
 import { OIDCShareLayoutMutations } from '@/layouts/OIDCShareLayout.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
 import CredentialBanner from '@/components/WACI/CredentialBanner.vue';
@@ -180,7 +181,16 @@ import WACILoading from '@/components/WACI/WACILoading.vue';
 import WACISuccess from '@/components/WACI/WACISuccess.vue';
 import CredentialDetailsTable from '@/components/WACI/CredentialDetailsTable.vue';
 import OIDCShareOverview from '@/pages/OIDCShareOverview.vue';
-
+const isBase64Param = (param) => {
+  if (!param) {
+    return false;
+  }
+  try {
+    return btoa(atob(param)) === param;
+  } catch (error) {
+    return false;
+  }
+};
 export default {
   components: {
     CredentialBanner,
@@ -206,6 +216,7 @@ export default {
       processedCredentials: [],
       credentialDisplayData: {},
       sharedSuccessfully: false,
+      token: null,
     };
   },
   computed: {
@@ -224,15 +235,37 @@ export default {
   },
   created: async function () {
     this.loading = true;
-    this.protocolHandler = OIDCStore.protocolHandler;
     const { user, token } = this.getCurrentUser().profile;
+    this.token = token;
     this.credentialDisplayData = await this.getCredentialManifestData();
+    const extractClaimsFromQuery = (claims) => {
+      let decodedClaims;
+
+      if (isBase64Param(claims)) {
+        decodedClaims = JSON.parse(decode(claims));
+      } else {
+        try {
+          decodedClaims = JSON.parse(claims);
+        } catch (error) {
+          decodedClaims = JSON.parse(JSON.stringify(claims));
+        }
+      }
+
+      return decodedClaims;
+    };
+    this.claims = extractClaimsFromQuery(this.$route.query.claims);
 
     //initiate credential share flow.
     try {
       const credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-      const presentations = await credentialManager.getAllCredentialMetadata(token);
-      this.presentations = presentations;
+      const { results } = await credentialManager.query(this.token, [
+        {
+          type: 'PresentationExchange',
+          credentialQuery: [this.claims.vp_token.presentation_definition],
+        },
+      ]);
+      this.presentations = results;
+      this.generateIdToken();
     } catch (e) {
       if (!e.message.includes('12009')) {
         this.errors.push('Error initiating credential share');
@@ -253,7 +286,11 @@ export default {
     getCredentialIcon: function (icon) {
       return getCredentialIcon(this.getStaticAssetsUrl(), icon);
     },
-    prepareRecords: function (credentials) {
+    prepareRecords: function (presentations) {
+      const credentials = presentations.reduce(
+        (acc, val) => acc.concat(val.verifiableCredential),
+        []
+      );
       try {
         credentials.map((credential) => {
           const manifest = this.getManifest(credential);
@@ -271,14 +308,14 @@ export default {
       this.sharing = true;
       const { profile, preference } = this.getCurrentUser();
       const { controller, proofType, verificationMethod } = preference;
-
+      const VPToken = JSON.stringify(this.claims.vp_token);
       let ack;
 
       try {
         // Using "try" because eventually we will be making an AJAX call here
         ack = {
           status: 'OK',
-          url: this.$route.query.redirect_uri,
+          url: `${this.$route.query.redirect_uri}?state=${this.$route.query.state}&id_token=${this.idToken}&vp_token=${VPToken}`,
         };
       } catch (e) {
         this.errors.push(e);
@@ -298,7 +335,7 @@ export default {
       window.location.href = this.redirectUrl;
     },
     getCredentialType: function (vc) {
-      return getCredentialType(vc.credentialType);
+      return getCredentialType(vc.type);
     },
     getCredentialDisplayData: function (vc, manifestCredential) {
       return getCredentialDisplayData(vc, manifestCredential);
@@ -308,6 +345,23 @@ export default {
       return (
         this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
       );
+    },
+    generateIdToken: function () {
+      const header = JSON.stringify({
+        alg: 'none',
+      });
+      const payload = JSON.stringify({
+        iss: this.$route.query.client_id,
+        sub: this.$route.query.client_id,
+        aud: this.$route.query.client_id,
+        iat: Date.now(),
+        exp: Date.now(),
+      });
+      const signature = JSON.stringify({});
+      const encodedHeader = encode(header).slice(0, -1);
+      const encodedPayload = encode(payload).slice(0, -1);
+      const encodedSignature = encode(signature).slice(0, -1);
+      this.idToken = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
     },
     handleOverviewClick: function (id) {
       OIDCMutations.setSelectedCredentialId(id);
