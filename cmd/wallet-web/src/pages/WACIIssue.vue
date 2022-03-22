@@ -115,7 +115,7 @@
 <script>
 import { toRaw } from 'vue';
 import { mapGetters } from 'vuex';
-import { CredentialManager, CollectionManager, DIDComm } from '@trustbloc/wallet-sdk';
+import { CollectionManager, CredentialManager, DIDComm } from '@trustbloc/wallet-sdk';
 import { useI18n } from 'vue-i18n';
 import { WACIStore } from '@/layouts/WACI.vue';
 import CustomSelect from '@/components/CustomSelect/CustomSelect.vue';

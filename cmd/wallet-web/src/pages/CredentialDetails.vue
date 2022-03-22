@@ -40,25 +40,40 @@
           <flyout-menu>
             <flyout-button
               id="renameCredential"
-              :text="t('CredentialDetails.renameCredential')"
+              :text="t('CredentialDetails.RenameModal.renameCredential')"
               class="text-neutrals-medium"
+              @click="toggleRenameModal"
             />
-            <flyout-button id="moveCredential" :text="t('CredentialDetails.moveCredential')" />
+            <flyout-button
+              id="moveCredential"
+              :text="t('CredentialDetails.MoveModal.moveCredential')"
+            />
             <flyout-button
               id="deleteCredential"
-              :text="t('CredentialDetails.deleteCredential')"
+              :text="t('CredentialDetails.DeleteModal.deleteCredential')"
               class="text-primary-vampire"
-              @click="toggleDelete"
+              @click="toggleDeleteModal"
             >
             </flyout-button>
           </flyout-menu>
         </template>
       </flyout>
-      <delete-credential :show="showModal" :credential-id="credential.id" />
+      <delete-credential
+        :show="showDeleteModal"
+        :credential-id="credential.id"
+        @close="handleDeleteModalClose"
+      />
+      <rename-credential
+        :show="showRenameModal"
+        :credential-id="credential.id"
+        :name="credential.name"
+        :vault-name="vaultName"
+        @close="handleRenameModalClose"
+      />
     </div>
     <banner
       :styles="credential.styles"
-      :title="credential.title"
+      :title="credential.name"
       :issuance-date="credential.issuanceDate"
       :vault-name="vaultName"
     />
@@ -91,7 +106,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { reactive, ref, watchEffect } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { mapGetters } from 'vuex';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
@@ -101,7 +116,17 @@ import Flyout from '@/components/Flyout/Flyout.vue';
 import FlyoutMenu from '@/components/Flyout/FlyoutMenu.vue';
 import FlyoutButton from '@/components/Flyout/FlyoutButton.vue';
 import DeleteCredential from '@/components/CredentialDetails/DeleteCredentialModal.vue';
+import RenameCredential from '@/components/CredentialDetails/RenameCredentialModal.vue';
 
+export const credentialStore = reactive({
+  credentialOutdated: false,
+});
+
+export const credentialMutations = {
+  setCredentialOutdated(value) {
+    credentialStore.credentialOutdated = value;
+  },
+};
 export default {
   name: 'CredentialDetails',
   components: {
@@ -110,19 +135,30 @@ export default {
     FlyoutMenu,
     FlyoutButton,
     DeleteCredential,
+    RenameCredential,
   },
   setup() {
     const { t } = useI18n();
-    const showModal = ref(false);
+    const showDeleteModal = ref(false);
+    const showRenameModal = ref(false);
+    const selectedCredentialId = ref('');
 
-    function toggleDelete() {
-      showModal.value = !showModal.value;
+    function toggleDeleteModal() {
+      showDeleteModal.value = !showDeleteModal.value;
+    }
+
+    function toggleRenameModal(credentialId) {
+      selectedCredentialId.value = credentialId;
+      showRenameModal.value = !showRenameModal.value;
     }
 
     return {
       t,
-      showModal,
-      toggleDelete,
+      showDeleteModal,
+      showRenameModal,
+      selectedCredentialId,
+      toggleDeleteModal,
+      toggleRenameModal,
     };
   },
   data() {
@@ -133,25 +169,42 @@ export default {
     };
   },
   created: async function () {
-    const { profile, username } = this.getCurrentUser();
-    this.token = profile.token;
-    const user = profile.user;
-    this.username = username;
-    this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-    try {
-      const { id, issuanceDate, resolved } = await this.credentialManager.getCredentialMetadata(
-        this.token,
-        decode(this.$route.params.id)
-      );
-      this.credential = { id, issuanceDate, ...resolved[0] };
-    } catch (e) {
-      console.error('failed to fetch a credential:', e);
-    }
+    await this.fetchCredential();
     this.loading = false;
+    watchEffect(async () => {
+      if (credentialStore.credentialOutdated) {
+        this.loading = true;
+        await this.fetchCredential();
+        credentialMutations.setCredentialOutdated(false);
+        this.loading = false;
+      }
+    });
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     ...mapGetters(['getCurrentUser']),
+    fetchCredential: async function () {
+      const { profile } = this.getCurrentUser();
+      this.token = profile.token;
+      const user = profile.user;
+      this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
+      try {
+        const { id, name, issuanceDate, resolved } =
+          await this.credentialManager.getCredentialMetadata(
+            this.token,
+            decode(this.$route.params.id)
+          );
+        this.credential = { id, issuanceDate, name, ...resolved[0] };
+      } catch (e) {
+        console.error('failed to fetch a credential:', e);
+      }
+    },
+    handleRenameModalClose: function () {
+      this.showRenameModal = false;
+    },
+    handleDeleteModalClose: function () {
+      this.showDeleteModal = false;
+    },
   },
 };
 </script>

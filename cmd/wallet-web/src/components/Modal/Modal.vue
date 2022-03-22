@@ -19,6 +19,9 @@
       "
       @click.self="close"
     >
+      <div class="flex overflow-y-auto fixed inset-0 justify-center items-center">
+        <slot name="errorToast" />
+      </div>
       <div class="relative flex-grow mx-6 lg:mx-auto max-w-lg rounded-2xl bg-neutrals-white">
         <button v-if="showCloseButton" class="absolute right-0 pt-3 pr-3 w-10 h-10" @click="close">
           <!-- TODO: use inline svg instead once https://github.com/trustbloc/wallet/issues/816 is fixed -->

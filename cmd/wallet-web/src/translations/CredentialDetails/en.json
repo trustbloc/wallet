@@ -1,18 +1,35 @@
 {
-  "heading": "Credentials details",
+  "allVaultLabel": "All Vaults",
   "Banner": {
     "addedOn": "Added on",
     "expiresOn": "Expires on",
     "lastUsed": "Last used",
     "vault": "Vault"
   },
-  "verifiedInformation": "Verified information",
+  "DeleteModal": {
+    "deleteCredential": "Delete Credential",
+    "deleteButtonLabel": "Delete",
+    "deleteCredentialConfirmMessage": "You'll no longer be able to share this credential."
+  },
+  "emptyError": "Can't be empty. Please enter a name.",
+  "heading": "Credentials details",
+  "helperMessage": "Use letters and/or numbers",
+  "label": "Credential Name",
+  "MoveModal": {
+    "moveCredential": "Move Credential"
+  },
+  "patternError": "Must use letters (A-Z) and/or numbers (1-9)",
+  "RenameModal": {
+    "rename": "Rename",
+    "label": "Credential Name",
+    "renameCredential": "Rename Credential",
+    "placeholderLabel": "Enter a credential name . . .",
+    "errorToast": {
+      "title": "Unable to Rename Credential",
+      "description": "Sorry, something went wrong. Please try again."
+    }
+  },
   "saveCredential": "Save credential",
   "toolTipLabel": "Manage credential",
-  "allVaultLabel": "All Vaults",
-  "renameCredential": "Rename Credential",
-  "moveCredential": "Move Credential",
-  "deleteCredential": "Delete Credential",
-  "deleteButtonLabel": "Delete",
-  "deleteCredentialConfirmMessage": "You'll no longer be able to share this credential."
+  "verifiedInformation": "Verified information"
 }

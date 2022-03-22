@@ -11,6 +11,7 @@
       ref="input"
       v-bind="$attrs"
       :name="name"
+      :value="value"
       :disabled="!characterCount"
       @input="onInput"
       @keyup.enter="characterCount"

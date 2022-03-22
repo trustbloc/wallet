@@ -157,9 +157,8 @@
 
 <script>
 import { computed, reactive, ref, watchEffect } from 'vue';
-import { useStore } from 'vuex';
 import { CollectionManager, CredentialManager, WalletUser } from '@trustbloc/wallet-sdk';
-import { mapGetters, mapActions } from 'vuex';
+import { mapActions, mapGetters, useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import useBreakpoints from '@/plugins/breakpoints.js';
 import DeleteVault from '@/components/Vaults/DeleteVaultModal';
