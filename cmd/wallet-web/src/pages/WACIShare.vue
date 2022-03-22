@@ -139,8 +139,7 @@
           <li v-for="(credential, index) in processedCredentials" :key="index">
             <credential-banner
               :id="credential.id"
-              :brand-color="credential.brandColor"
-              :icon="credential.icon"
+              :styles="credential.styles"
               :title="credential.title"
               @click="handleOverviewClick(credential.id)"
             />
@@ -167,8 +166,7 @@
 import { toRaw } from 'vue';
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
-import { DIDComm } from '@trustbloc/wallet-sdk';
-import { getCredentialType, getCredentialDisplayData, getCredentialIcon } from '@/mixins';
+import { CredentialManager, DIDComm } from '@trustbloc/wallet-sdk';
 import { WACIStore, WACIMutations } from '@/layouts/WACI.vue';
 import { WACIShareLayoutMutations } from '@/layouts/WACIShareLayout.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
@@ -205,7 +203,6 @@ export default {
       loading: true,
       sharing: false,
       processedCredentials: [],
-      credentialDisplayData: {},
       sharedSuccessfully: false,
     };
   },
@@ -228,17 +225,18 @@ export default {
     this.protocolHandler = WACIStore.protocolHandler;
     const invitation = toRaw(this.protocolHandler.message());
     const { user, token } = this.getCurrentUser().profile;
-    this.credentialDisplayData = await this.getCredentialManifestData();
-
+    this.token = token;
+    this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
     //initiate credential share flow.
     this.didcomm = new DIDComm({ agent: this.getAgentInstance(), user });
     try {
       const { threadID, presentations } = await this.didcomm.initiateCredentialShare(
         token,
         invitation,
-        { userAnyRouterConnection: true }
+        {
+          userAnyRouterConnection: true,
+        }
       );
-
       this.threadID = threadID;
       this.presentations = presentations;
     } catch (e) {
@@ -250,29 +248,29 @@ export default {
       return;
     }
 
-    this.prepareRecords(this.presentations);
+    await this.prepareRecords(this.presentations);
     this.requestOrigin = this.protocolHandler.requestor();
     WACIMutations.setProcessedCredentials(this.processedCredentials);
     this.loading = false;
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getCurrentUser', 'getCredentialManifestData', 'getStaticAssetsUrl']),
-    getCredentialIcon: function (icon) {
-      return getCredentialIcon(this.getStaticAssetsUrl(), icon);
-    },
-    prepareRecords: function (presentations) {
+    ...mapGetters(['getCurrentUser']),
+    prepareRecords: async function (presentations) {
       try {
         const credentials = presentations.reduce(
           (acc, val) => acc.concat(val.verifiableCredential),
           []
         );
-        credentials.map((credential) => {
-          const manifest = this.getManifest(credential);
-          const processedCredential = this.getCredentialDisplayData(credential, manifest);
+        await credentials.map(async (credential) => {
+          // getCredentialMetadata
+          const { id, issuanceDate, resolved } = await this.credentialManager.getCredentialMetadata(
+            this.token,
+            credential.id
+          );
           // TODO: issue1410 - add logic to retrieve the list of vaults in which the credential is stored
           const vaultName = 'Unavailable';
-          this.processedCredentials.push({ ...processedCredential, vaultName });
+          this.processedCredentials.push({ id, issuanceDate, ...resolved[0], vaultName });
         });
       } catch (e) {
         this.errors.push('No credentials found matching requested criteria.');
@@ -318,18 +316,6 @@ export default {
     },
     cancel() {
       this.protocolHandler.cancel();
-    },
-    getCredentialType: function (vc) {
-      return getCredentialType(vc.type);
-    },
-    getCredentialDisplayData: function (vc, manifestCredential) {
-      return getCredentialDisplayData(vc, manifestCredential);
-    },
-    getManifest: function (credential) {
-      const currentCredentialType = this.getCredentialType(credential);
-      return (
-        this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
-      );
     },
     handleOverviewClick: function (id) {
       WACIMutations.setSelectedCredentialId(id);

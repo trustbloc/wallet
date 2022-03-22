@@ -5,23 +5,40 @@
 -->
 
 <template>
-  <!--If issuer provides no styles we use #fff to apply the default styles-->
   <router-link
-    :class="[
-      `group outline-none inline-flex items-center rounded-xl py-6 pl-5 pr-3 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
+    class="
+      group
+      inline-flex
+      items-center
+      py-6
+      pr-3
+      pl-5
+      w-full
+      h-20
+      md:h-24
+      text-sm
+      md:text-base
+      font-bold
+      rounded-xl
+      border
+      focus-within:ring-2 focus-within:ring-offset-2
+      outline-none
+      credentialPreviewContainer
+    "
+    :class="
       styles.background.color !== '#fff'
-        ? `bg-gradient-${styles.background.color} border-neutrals-black border-opacity-10 focus-within:ring-primary-${styles.background.color}`
-        : `border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
-    ]"
-    :style="`background-color: ${styles.background.color}`"
+        ? `border-neutrals-black border-opacity-10 focus-within:ring-primary-${styles?.background?.color}`
+        : `border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`
+    "
+    :style="`background-color: ${styles?.background?.color}`"
   >
     <div class="flex-none w-12 h-12 border-opacity-10">
-      <img :src="credentialIcon" />
+      <img :src="credentialIconSrc" />
     </div>
     <div class="flex-grow p-4">
       <span
         class="text-sm md:text-base font-bold text-left text-ellipsis"
-        :style="`color: ${styles.text.color}`"
+        :style="`color: ${styles?.text?.color}`"
       >
         {{ title }}
       </span>
@@ -29,16 +46,16 @@
     <div
       :class="[
         `flex-none w-8 h-8 rounded-full`,
-        styles.background.color !== '#fff'
+        styles?.background?.color !== '#fff'
           ? `bg-neutrals-black bg-opacity-25 group-hover:bg-opacity-60`
           : `bg-neutrals-thistle`,
       ]"
-      :style="`background-color: ${styles.background.color}`"
+      :style="`background-color: ${styles?.background?.color}`"
     >
       <div class="p-1">
         <img
           :src="
-            styles.background.color !== '#fff'
+            styles?.background?.color !== '#fff'
               ? require('@/assets/img/credential--arrow-right-icon-light.svg')
               : require('@/assets/img/credential--arrow-right-icon.svg')
           "
@@ -49,7 +66,8 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { computed } from 'vue';
+import { useStore } from 'vuex';
 import { getCredentialIcon } from '@/mixins';
 
 export default {
@@ -68,17 +86,15 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      credentialIcon: this.getCredentialIcon(),
-    };
-  },
-  methods: {
-    ...mapGetters(['getStaticAssetsUrl']),
-    // Get credential icon based on docker configuration
-    getCredentialIcon: function () {
-      return getCredentialIcon(this.getStaticAssetsUrl(), this.styles.thumbnail.uri);
-    },
+  setup(props) {
+    const store = useStore();
+    const getStaticAssetsUrl = () => store.getters.getStaticAssetsUrl;
+    const credentialIconSrc = computed(() =>
+      props?.styles?.thumbnail?.uri?.includes('https://')
+        ? props?.styles?.thumbnail?.uri
+        : getCredentialIcon(getStaticAssetsUrl(), props?.styles?.thumbnail?.uri)
+    );
+    return { credentialIconSrc };
   },
 };
 </script>
