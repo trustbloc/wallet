@@ -15,7 +15,14 @@ exports.config = {
   walletName: "wallet.trustbloc.local:8091",
   walletURL: "https://wallet.trustbloc.local:8091",
   walletURLFrench: "https://wallet.trustbloc.local:8091/fr/",
+
+  // oidc
+  oidcDemoVerifierURL: mockDemoDomain + "/verifier/oidc",
+  
+  // waci
   waciDemoVerifierURL: mockDemoDomain + "/verifier/waci",
   waciDemoIssuerURL: mockDemoDomain + "/issuer/waci",
+  
+  // chapi
   chapiDemoURL: mockDemoDomain + "/web-wallet",
 };
