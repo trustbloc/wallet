@@ -237,7 +237,7 @@ credential.set("BookingReference", {
 
 describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   const ctx = {
-    email: `ui-aut-${new Date().getTime()}@test.com`,
+    email: `ui-aut-chapi-${new Date().getTime()}@test.com`,
   };
 
   // runs once before the first test in this block
