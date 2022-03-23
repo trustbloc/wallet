@@ -24,11 +24,11 @@
           </svg>
         </div>
         <span class="pt-5 pb-3 text-lg font-bold text-neutrals-dark">
-          {{ t('CredentialDetails.deleteCredential') }}?
+          {{ t('CredentialDetails.DeleteModal.deleteCredential') }}?
         </span>
         <div class="relative flex-auto">
           <p class="pb-12 text-base text-center text-neutrals-medium">
-            {{ t('CredentialDetails.deleteCredentialConfirmMessage') }}
+            {{ t('CredentialDetails.DeleteModal.deleteCredentialConfirmMessage') }}
           </p>
         </div>
       </div>
@@ -40,7 +40,7 @@
         type="danger"
         @click="deleteCredential()"
       >
-        {{ t('CredentialDetails.deleteButtonLabel') }}
+        {{ t('CredentialDetails.DeleteModal.deleteButtonLabel') }}
       </styled-button>
     </template>
   </modal>

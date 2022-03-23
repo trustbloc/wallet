@@ -162,7 +162,7 @@
                     },
                   }"
                   :styles="credential.styles"
-                  :title="credential.title"
+                  :title="credential.name"
                 />
               </li>
             </ul>
@@ -264,6 +264,7 @@ export default {
         });
         return metadataList.map((credential) => ({
           id: encode(credential.id),
+          name: credential.name,
           ...credential.resolved[0],
         }));
       } catch (e) {

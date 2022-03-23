@@ -34,7 +34,7 @@
       <span
         class="flex-1 pl-4 text-sm font-bold text-left text-ellipsis"
         :style="`color: ${credential?.styles.text.color}`"
-        >{{ credential?.title }}</span
+        >{{ credentialHeading }}</span
       >
     </div>
     <slot name="bannerBottomContainer" />
@@ -63,7 +63,10 @@ export default {
         ? props?.credential?.styles?.thumbnail?.uri
         : getCredentialIcon(getStaticAssetsUrl(), props?.credential?.styles?.thumbnail?.uri)
     );
-    return { credentialIconSrc };
+    const credentialHeading = computed(() =>
+      props?.credential?.name?.length ? props?.credential?.name : props?.credential?.title
+    );
+    return { credentialIconSrc, credentialHeading };
   },
 };
 </script>

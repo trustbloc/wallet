@@ -1,18 +1,35 @@
 {
-  "heading": "Renseignements de l’identifiant",
+  "allVaultLabel": "Ajouter une chambre forte",
   "Banner": {
     "addedOn": "Ajouté le",
     "expiresOn": "A expiré le",
     "lastUsed": "Dernière utilisation",
     "vault": "Chambre forte"
   },
-  "verifiedInformation": "Information vérifiée",
+  "DeleteModal": {
+    "deleteCredential": "Supprimer l’identifiant",
+    "deleteButtonLabel": "Supprimer",
+    "deleteCredentialConfirmMessage": "Vous ne pourrez plus partager cet preuve d’identité."
+  },
+  "emptyError": "Ne peut être laissé vide. Veuillez entrer un nom.",
+  "heading": "Renseignements de l’identifiant",
+  "helperMessage": "Utiliser des lettres et/ou des chiffres",
+  "label": "Nom de la chambre forte",
+  "MoveModal": {
+    "moveCredential": "Déplacer l’identifiant"
+  },
+  "patternError": "Vous devez utiliser des lettres (A à Z) ou des chiffres (1 à 9).",
+  "RenameModal": {
+    "rename": "Renommer",
+    "label": "Nom de l’preuve d’identité",
+    "renameCredential": "Renommer l’preuve d’identité",
+    "placeholderLabel": "Entrer le nom de l’identifiant...",
+    "errorToast": {
+      "title": "Impossible de renommer l'identifiant",
+      "description": "Désolé, quelque chose s'est mal passé. Veuillez réessayer."
+    }
+  },
   "saveCredential": "Sauvegarder la preuve d’identité",
   "toolTipLabel": "Gérer l’identifiant",
-  "allVaultLabel": "Ajouter une chambre forte",
-  "renameCredential": "Renommer l’identifiant",
-  "moveCredential": "Déplacer l’identifiant",
-  "deleteCredential": "Supprimer l’identifiant",
-  "deleteButtonLabel": "Supprimer",
-  "deleteCredentialConfirmMessage": "Vous ne pourrez plus partager cet preuve d’identité."
+  "verifiedInformation": "Information vérifiée"
 }

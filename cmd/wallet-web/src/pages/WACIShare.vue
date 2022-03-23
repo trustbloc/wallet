@@ -140,7 +140,7 @@
             <credential-banner
               :id="credential.id"
               :styles="credential.styles"
-              :title="credential.title"
+              :title="credential.name"
               @click="handleOverviewClick(credential.id)"
             />
           </li>
@@ -167,7 +167,7 @@ import { toRaw } from 'vue';
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { CredentialManager, DIDComm } from '@trustbloc/wallet-sdk';
-import { WACIStore, WACIMutations } from '@/layouts/WACI.vue';
+import { WACIMutations, WACIStore } from '@/layouts/WACI.vue';
 import { WACIShareLayoutMutations } from '@/layouts/WACIShareLayout.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
 import CredentialBanner from '@/components/WACI/CredentialBanner.vue';
@@ -264,13 +264,11 @@ export default {
         );
         await credentials.map(async (credential) => {
           // getCredentialMetadata
-          const { id, issuanceDate, resolved } = await this.credentialManager.getCredentialMetadata(
-            this.token,
-            credential.id
-          );
+          const { id, name, issuanceDate, resolved } =
+            await this.credentialManager.getCredentialMetadata(this.token, credential.id);
           // TODO: issue1410 - add logic to retrieve the list of vaults in which the credential is stored
           const vaultName = 'Unavailable';
-          this.processedCredentials.push({ id, issuanceDate, ...resolved[0], vaultName });
+          this.processedCredentials.push({ id, name, issuanceDate, ...resolved[0], vaultName });
         });
       } catch (e) {
         this.errors.push('No credentials found matching requested criteria.');
