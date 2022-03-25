@@ -22,7 +22,7 @@
     <WACI-error v-else-if="errors.length" @click="cancel" />
 
     <!-- Credentials Missing State -->
-    <WACI-credentials-missing v-else-if="showCredentialsMissing" @click="cancel" />
+    <WACI-credentials-missing v-else-if="noCredentialFound" @click="cancel" />
 
     <!-- Success State -->
     <WACI-success
@@ -204,18 +204,16 @@ export default {
       sharing: false,
       processedCredentials: [],
       sharedSuccessfully: false,
+      noCredentialFound: false,
     };
   },
   computed: {
-    showCredentialsMissing() {
-      return this.processedCredentials.length === 0;
-    },
     showMainState() {
       return (
         !this.loading &&
         !this.errors.length &&
         !this.sharing &&
-        !this.showCredentialsMissing &&
+        !this.noCredentialFound &&
         !this.sharedSuccessfully
       );
     },
@@ -244,6 +242,8 @@ export default {
         this.errors.push('Error initiating credential share');
       }
       console.error('initiating credential share failed,', e);
+      // Error code 12009 is for no result found message
+      this.noCredentialFound = true;
       this.loading = false;
       return;
     }
