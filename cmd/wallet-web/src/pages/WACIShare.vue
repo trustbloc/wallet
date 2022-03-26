@@ -166,7 +166,7 @@
 import { toRaw } from 'vue';
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
-import { CredentialManager, DIDComm } from '@trustbloc/wallet-sdk';
+import { CollectionManager, CredentialManager, DIDComm } from '@trustbloc/wallet-sdk';
 import { WACIMutations, WACIStore } from '@/layouts/WACI.vue';
 import { WACIShareLayoutMutations } from '@/layouts/WACIShareLayout.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
@@ -225,6 +225,7 @@ export default {
     const { user, token } = this.getCurrentUser().profile;
     this.token = token;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
+    this.collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
     //initiate credential share flow.
     this.didcomm = new DIDComm({ agent: this.getAgentInstance(), user });
     try {
@@ -263,11 +264,11 @@ export default {
           []
         );
         await credentials.map(async (credential) => {
-          // getCredentialMetadata
-          const { id, name, issuanceDate, resolved } =
+          const { id, collection, name, issuanceDate, resolved } =
             await this.credentialManager.getCredentialMetadata(this.token, credential.id);
-          // TODO: issue1410 - add logic to retrieve the list of vaults in which the credential is stored
-          const vaultName = 'Unavailable';
+          const {
+            content: { name: vaultName },
+          } = await this.collectionManager.get(this.token, collection);
           this.processedCredentials.push({ id, name, issuanceDate, ...resolved[0], vaultName });
         });
       } catch (e) {

@@ -257,6 +257,7 @@ export default {
     handleError: function (e) {
       console.error('failed to perform credential issuance flow', e);
       this.errors.push(e);
+      this.saving = false;
       this.loading = false;
     },
     setSelectedVault: function (e) {
