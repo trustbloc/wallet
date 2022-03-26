@@ -11,8 +11,8 @@
         overflow-scroll
         pt-5
         max-h-screen
-        bg-neutrals-softWhite
         rounded-b
+        bg-neutrals-softWhite
         border border-neutrals-black
         chapi-container
       "
@@ -20,29 +20,38 @@
       <span class="px-5 text-xl font-bold text-neutrals-dark">Save credential</span>
       <div v-if="processedCredentials.length" class="flex flex-col justify-center px-5">
         <ul class="grid grid-cols-1 gap-4 my-8">
-          <li
-            v-for="(credential, index) in processedCredentials"
-            :key="index"
-            @click="toggleDetails(index)"
-          >
+          <li v-for="(credential, index) in processedCredentials" :key="index">
             <div
-              :class="[
-                `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
-                credential.brandColor.length
-                  ? `bg-gradient-${credential.brandColor} border-neutrals-black border-opacity-10 focus-within:ring-primary-${credential.brandColor}`
-                  : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
-              ]"
+              class="
+                group
+                inline-flex
+                items-center
+                p-5
+                w-full
+                h-20
+                md:h-24
+                text-sm
+                md:text-base
+                font-bold
+                rounded-xl
+                border
+                credentialPreviewContainer
+              "
+              :class="
+                credential.styles.background.color !== '#fff'
+                  ? `border-neutrals-black border-opacity-10`
+                  : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle`
+              "
+              :style="`background-color: ${credential.styles.background.color}`"
               @click="toggleDetails(credential)"
             >
               <div class="flex-none w-12 h-12 border-opacity-10">
-                <img :src="getCredentialIcon(credential.icon)" />
+                <img :src="getCredentialIconSrc(credential)" />
               </div>
               <div class="flex-grow p-4">
                 <span
-                  :class="[
-                    `text-sm md:text-base font-bold text-left text-ellipsis`,
-                    credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
-                  ]"
+                  class="text-sm md:text-base font-bold text-left text-ellipsis"
+                  :style="`color: ${credential.styles.text.color}`"
                 >
                   {{ credential.title }}
                 </span>
@@ -60,8 +69,8 @@
                   px-4
                   mb-8
                   w-full
-                  bg-neutrals-lilacSoft
                   rounded-t-lg
+                  bg-neutrals-lilacSoft
                   flex flex-col flex-grow
                   border-b border-neutrals-dark
                 "
@@ -84,20 +93,17 @@
                 <tr
                   v-for="(property, key) of credential.properties"
                   :key="key"
-                  class="border-b border-neutrals-thistle border-dotted"
+                  class="border-b border-dotted border-neutrals-thistle"
                 >
                   <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
                   <td
-                    v-if="property.type != 'image'"
-                    class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
-                  >
-                    {{ property.value }}
-                  </td>
-                  <td
-                    v-if="property.type === 'image'"
-                    class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+                    v-if="property.schema.format === 'image/png'"
+                    class="py-4 pr-6 pl-3 break-words text-neutrals-dark"
                   >
                     <img :src="property.value" class="w-20 h-20" />
+                  </td>
+                  <td v-else class="py-4 pr-6 pl-3 break-words text-neutrals-dark">
+                    {{ property.value }}
                   </td>
                 </tr>
               </table>
@@ -135,10 +141,9 @@
 </template>
 
 <script>
+import { useStore } from 'vuex';
 import {
   CHAPIEventHandler,
-  getCredentialDisplayData,
-  getCredentialType,
   getCredentialIcon,
   isVPType,
   prepareCredentialManifest,
@@ -151,8 +156,16 @@ import { useI18n } from 'vue-i18n';
 export default {
   components: { CustomSelect },
   setup() {
+    const store = useStore();
     const { t } = useI18n();
-    return { t };
+    const getStaticAssetsUrl = () => store.getters.getStaticAssetsUrl;
+    const getCredentialIconSrc = (credential) => {
+      return credential?.styles?.thumbnail?.uri?.includes('https://')
+        ? credential?.styles?.thumbnail?.uri
+        : getCredentialIcon(getStaticAssetsUrl(), credential?.styles?.thumbnail?.uri);
+    };
+
+    return { getCredentialIconSrc, t };
   },
   data() {
     return {
@@ -160,10 +173,11 @@ export default {
       errors: [],
       vaults: [],
       selectedVault: '',
-      credentialDisplayData: '',
+      loading: true,
     };
   },
   created: async function () {
+    this.loading = true;
     // Load the Credentials
     this.credentialEvent = new CHAPIEventHandler(
       await this.$webCredentialHandler.receiveCredentialEvent()
@@ -176,49 +190,43 @@ export default {
     }
 
     const { user, token } = this.getCurrentUser().profile;
-    this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-
-    this.credentialDisplayData = await this.getCredentialManifestData();
-    // prepare cards
-    this.prepareCards(data);
+    this.token = token;
     this.presentation = data;
+    this.manifest = prepareCredentialManifest(
+      this.presentation,
+      this.getCredentialManifests(),
+      this.credentialEvent.requestor()
+    );
+    this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
     const collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
-    this.fetchAllVaults(token, collectionManager);
+    await this.fetchCredentials();
+    await this.fetchVaults(token, collectionManager);
+    this.loading = false;
   },
   methods: {
-    ...mapGetters([
-      'getCurrentUser',
-      'getStaticAssetsUrl',
-      'getCredentialManifestData',
-      'getCredentialManifests',
-    ]),
+    ...mapGetters(['getCurrentUser', 'getCredentialManifests']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     toggleDetails(credential) {
       credential.showDetails = !credential.showDetails;
     },
-    prepareCards: function (data) {
-      // If only one credential then show details by default
-      if (data.verifiableCredential.length === 1) {
-        const manifest = this.getManifest(data.verifiableCredential[0]);
-        const credential = this.getCredentialDisplayData(data.verifiableCredential[0], manifest);
-        this.processedCredentials.push({ ...credential, showDetails: true });
-      } else {
-        data.verifiableCredential.map((vc) => {
-          const manifest = this.getManifest(vc);
-          const credential = this.getCredentialDisplayData(vc, manifest);
-          this.processedCredentials.push({ ...credential, showDetails: false });
-        });
-      }
+    fetchCredentials: async function () {
+      this.processedCredentials = await this.credentialManager.resolveManifest(this.token, {
+        manifest: this.manifest,
+        fulfillment: this.presentation,
+      });
+      if (this.processedCredentials.length === 1) this.processedCredentials[0].showDetails = true;
+    },
+    fetchVaults: async function (token, collectionManager) {
+      const { contents } = await collectionManager.getAll(token);
+      this.vaults = Object.values(contents).map((vault) => vault);
+      // Default vault is selected vault by default, it is created on wallet setup and must be only one.
+      const defaultVaultId = this.vaults.find((vault) => vault.name === 'Default Vault').id;
+      this.setSelectedVault(defaultVaultId);
     },
     store: function () {
       this.errors.length = 0;
 
       const { token } = this.getCurrentUser().profile;
-      const manifest = prepareCredentialManifest(
-        this.presentation,
-        this.getCredentialManifests(),
-        this.credentialEvent.requestor()
-      );
 
       this.credentialManager
         .save(
@@ -226,7 +234,7 @@ export default {
           {
             presentation: this.presentation,
           },
-          { collection: this.selectedVault, manifest }
+          { collection: this.selectedVault, manifest: this.manifest }
         )
         .then(() => {
           this.credentialEvent.done();
@@ -241,28 +249,6 @@ export default {
     },
     cancel: function () {
       this.credentialEvent.cancel();
-    },
-    getCredentialType: function (vc) {
-      return getCredentialType(vc.type);
-    },
-    getCredentialIcon: function (icon) {
-      return getCredentialIcon(this.getStaticAssetsUrl(), icon);
-    },
-    getCredentialDisplayData: function (vc, manifestCredential) {
-      return getCredentialDisplayData(vc, manifestCredential);
-    },
-    getManifest: function (credential) {
-      const currentCredentialType = this.getCredentialType(credential);
-      return (
-        this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
-      );
-    },
-    fetchAllVaults: async function (token, collectionManager) {
-      const { contents } = await collectionManager.getAll(token);
-      this.vaults = Object.values(contents).map((vault) => vault);
-      // Default vault is selected vault by default, it is created on wallet setup and must be only one.
-      const defaultVaultId = this.vaults.find((vault) => vault.name === 'Default Vault').id;
-      this.setSelectedVault(defaultVaultId);
     },
   },
 };
