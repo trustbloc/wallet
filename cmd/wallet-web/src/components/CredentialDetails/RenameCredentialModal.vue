@@ -53,7 +53,7 @@
     <template #actionButton>
       <styled-button
         class="order-first md:order-last w-full md:w-auto"
-        type="primary"
+        type="btn-primary"
         :loading="loading"
         @click="renameCredential(credentialId, vaultName)"
       >

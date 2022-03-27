@@ -37,7 +37,7 @@
       <styled-button
         id="delete-credential-button"
         class="order-first md:order-last w-full md:w-auto"
-        type="danger"
+        type="btn-danger"
         @click="deleteCredential()"
       >
         {{ t('CredentialDetails.DeleteModal.deleteButtonLabel') }}

@@ -13,7 +13,7 @@
     <span class="w-full text-lg text-center text-neutrals-medium">{{
       t('CHAPI.Share.Error.body')
     }}</span>
-    <styled-button v-bind="$attrs" id="share-credentials-ok-btn" type="primary" class="mt-6">
+    <styled-button v-bind="$attrs" id="share-credentials-ok-btn" type="btn-primary" class="mt-6">
       {{ t('CHAPI.Share.Error.tryAgain') }}
     </styled-button>
   </div>

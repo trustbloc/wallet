@@ -36,7 +36,7 @@
     <template #actionButton>
       <styled-button
         class="order-first md:order-last w-full md:w-auto"
-        type="danger"
+        type="btn-danger"
         :loading="loading"
         @click="deleteVault(vaultId)"
       >

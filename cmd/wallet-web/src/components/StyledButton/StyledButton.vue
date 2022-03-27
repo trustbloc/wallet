@@ -6,7 +6,7 @@
 
 <template>
   <button
-    :class="`btn-${type}`"
+    :class="type"
     class="flex flex-row justify-center items-center pr-8 pl-8 h-11 text-base font-bold rounded-lg"
   >
     <svg
@@ -28,7 +28,7 @@
 </template>
 
 <script>
-const BUTTON_TYPES = ['primary', 'inverse', 'outline', 'danger'];
+const BUTTON_TYPES = ['btn-primary', 'btn-inverse', 'btn-outline', 'btn-danger'];
 
 export default {
   name: 'StyledButton',

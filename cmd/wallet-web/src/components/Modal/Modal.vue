@@ -52,7 +52,7 @@
             border-t border-0 border-neutrals-lilacSoft
           "
         >
-          <styled-button type="outline" class="w-full md:w-auto" @click="cancel">
+          <styled-button type="btn-outline" class="w-full md:w-auto" @click="cancel">
             {{ t('Modal.cancel') }}
           </styled-button>
           <slot name="actionButton" />

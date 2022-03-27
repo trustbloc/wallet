@@ -13,7 +13,7 @@
     <span class="text-lg text-center text-neutrals-medium">{{
       t('CHAPI.Share.CredentialsMissing.body')
     }}</span>
-    <styled-button v-bind="$attrs" id="share-credentials-ok-btn" type="outline" class="mt-6">
+    <styled-button v-bind="$attrs" id="share-credentials-ok-btn" type="btn-outline" class="mt-6">
       {{ t('CHAPI.Share.CredentialsMissing.ok') }}
     </styled-button>
   </div>

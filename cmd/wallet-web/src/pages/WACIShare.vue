@@ -150,12 +150,12 @@
 
     <WACI-action-buttons-container>
       <template #leftButton>
-        <styled-button id="cancelBtn" type="outline" @click="cancel">
+        <styled-button id="cancelBtn" type="btn-outline" @click="cancel">
           {{ t('CHAPI.Share.decline') }}
         </styled-button>
       </template>
       <template #rightButton>
-        <styled-button id="share-credentials" type="primary" @click="share">
+        <styled-button id="share-credentials" type="btn-primary" @click="share">
           {{ t('CHAPI.Share.share') }}
         </styled-button>
       </template>
