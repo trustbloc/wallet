@@ -117,7 +117,7 @@
             <credential-banner
               :id="credential.id"
               :styles="credential.styles"
-              :title="credential.title"
+              :title="credential.name"
               @click="handleOverviewClick(credential.id)"
             />
           </li>
@@ -143,7 +143,7 @@
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { decode, encode } from 'js-base64';
-import { CredentialManager } from '@trustbloc-cicd/wallet-sdk';
+import { CollectionManager, CredentialManager } from '@trustbloc-cicd/wallet-sdk';
 import { OIDCMutations } from '@/layouts/OIDC.vue';
 import { OIDCShareLayoutMutations } from '@/layouts/OIDCShareLayout.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
@@ -204,6 +204,7 @@ export default {
     const { user, token } = this.getCurrentUser().profile;
     this.token = token;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
+    this.collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
     const extractClaimsFromQuery = (claims) => {
       let decodedClaims;
 
@@ -257,14 +258,12 @@ export default {
           []
         );
         await credentials.map(async (credential) => {
-          // getCredentialMetadata
-          const { id, issuanceDate, resolved } = await this.credentialManager.getCredentialMetadata(
-            this.token,
-            credential.id
-          );
-          // TODO: issue1410 - add logic to retrieve the list of vaults in which the credential is stored
-          const vaultName = 'Unavailable';
-          this.processedCredentials.push({ id, issuanceDate, ...resolved[0], vaultName });
+          const { id, collection, name, issuanceDate, resolved } =
+            await this.credentialManager.getCredentialMetadata(this.token, credential.id);
+          const {
+            content: { name: vaultName },
+          } = await this.collectionManager.get(this.token, collection);
+          this.processedCredentials.push({ id, name, issuanceDate, ...resolved[0], vaultName });
         });
       } catch (e) {
         this.errors.push('No credentials found matching requested criteria.');
