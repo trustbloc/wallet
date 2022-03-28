@@ -22,7 +22,7 @@
     <WACI-error v-else-if="errors.length" @click="cancel" />
 
     <!-- Credentials Missing State -->
-    <WACI-credentials-missing v-else-if="showCredentialsMissing" @click="cancel" />
+    <WACI-credentials-missing v-else-if="noCredentialFound" @click="cancel" />
   </div>
 
   <!-- Main State -->
@@ -187,6 +187,7 @@ export default {
       errors: [],
       requestOrigin: '',
       loading: true,
+      noCredentialFound: false,
       sharing: false,
       processedCredentials: [],
       credentialDisplayData: {},
@@ -194,11 +195,8 @@ export default {
     };
   },
   computed: {
-    showCredentialsMissing() {
-      return this.processedCredentials.length === 0;
-    },
     showMainState() {
-      return !this.loading && !this.errors.length && !this.sharing && !this.showCredentialsMissing;
+      return !this.loading && !this.errors.length && !this.sharing && !this.noCredentialFound;
     },
   },
   created: async function () {
@@ -232,12 +230,13 @@ export default {
         },
       ]);
       this.presentations = results;
-      this.generateIdToken();
     } catch (e) {
       if (!e.message.includes('12009')) {
         this.errors.push('Error initiating credential share');
       }
       console.error('initiating credential share failed,', e);
+      // Error code 12009 is for no result found message
+      this.noCredentialFound = true;
       this.loading = false;
       return;
     }
@@ -271,19 +270,17 @@ export default {
         console.error('get credentials failed,', e);
         this.loading = false;
       }
+      this.generateIdToken();
+      this.generateVPToken();
     },
     share() {
       this.sharing = true;
-      const { profile, preference } = this.getCurrentUser();
-      const { controller, proofType, verificationMethod } = preference;
-      const VPToken = JSON.stringify(this.claims.vp_token);
       let ack;
 
       try {
-        // Using "try" because eventually we will be making an AJAX call here
         ack = {
           status: 'OK',
-          url: `${this.$route.query.redirect_uri}?state=${this.$route.query.state}&id_token=${this.idToken}&vp_token=${VPToken}`,
+          url: `${this.$route.query.redirect_uri}?state=${this.$route.query.state}&id_token=${this.idToken}&vp_token=${this.vpToken}`,
         };
       } catch (e) {
         this.errors.push(e);
@@ -302,7 +299,10 @@ export default {
     finish() {
       window.location.href = this.redirectUrl;
     },
-    generateIdToken: function () {
+    cancel() {
+      window.location = window.location.origin;
+    },
+    generateIdToken() {
       const header = JSON.stringify({
         alg: 'none',
       });
@@ -318,6 +318,21 @@ export default {
       const encodedPayload = encode(payload).slice(0, -1);
       const encodedSignature = encode(signature).slice(0, -1);
       this.idToken = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
+    },
+    async generateVPToken() {
+      const { controller } = this.getCurrentUser().preference;
+      const { presentation } = await this.credentialManager.present(
+        this.token,
+        { rawCredentials: this.presentations[0].verifiableCredential },
+        { controller }
+      );
+      // id is not given by API
+      presentation.id = presentation.verifiableCredential[0].id;
+      // proof is not needed at this phase
+      presentation.proof = [];
+      // no need to provide verifiable credential in vp token at this phase
+      delete presentation.verifiableCredential;
+      this.vpToken = JSON.stringify(presentation);
     },
     handleOverviewClick: function (id) {
       OIDCMutations.setSelectedCredentialId(id);

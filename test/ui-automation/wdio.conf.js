@@ -18,11 +18,12 @@ exports.config = {
 
   // oidc
   oidcDemoVerifierURL: mockDemoDomain + "/verifier/oidc",
-  
+  oidcDemoVerifierCallbackURL: mockDemoDomain + "/verifier/oidc/share/cb",
+
   // waci
   waciDemoVerifierURL: mockDemoDomain + "/verifier/waci",
   waciDemoIssuerURL: mockDemoDomain + "/issuer/waci",
-  
+
   // chapi
   chapiDemoURL: mockDemoDomain + "/web-wallet",
 };
