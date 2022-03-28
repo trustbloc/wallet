@@ -37,7 +37,7 @@ func TestZCapRemoteKMS(t *testing.T) {
 
 	t.Run("ExportPubKeyBytes", func(t *testing.T) {
 		r := &zcapRemoteKMS{}
-		_, err := r.ExportPubKeyBytes("")
+		_, _, err := r.ExportPubKeyBytes("")
 		require.EqualError(t, err, "zcapRemoteKMS: ExportPubKeyBytes() not implemented")
 	})
 

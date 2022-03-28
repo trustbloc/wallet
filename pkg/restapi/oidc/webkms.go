@@ -28,8 +28,8 @@ func (r *zcapRemoteKMS) Rotate(kms.KeyType, string) (string, interface{}, error)
 	return "", nil, errors.New("zcapRemoteKMS: Rotate() not implemented")
 }
 
-func (r *zcapRemoteKMS) ExportPubKeyBytes(string) ([]byte, error) {
-	return nil, errors.New("zcapRemoteKMS: ExportPubKeyBytes() not implemented")
+func (r *zcapRemoteKMS) ExportPubKeyBytes(string) ([]byte, kms.KeyType, error) {
+	return nil, "", errors.New("zcapRemoteKMS: ExportPubKeyBytes() not implemented")
 }
 
 func (r *zcapRemoteKMS) CreateAndExportPubKeyBytes(kms.KeyType) (string, []byte, error) {

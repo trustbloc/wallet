@@ -9,13 +9,13 @@ go 1.17
 require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
-	github.com/hyperledger/aries-framework-go v0.1.8-0.20220223232229-8e648d1caeaa
-	github.com/hyperledger/aries-framework-go-ext/component/vdr/orb v0.1.4-0.20211229160742-30796de12ba6
-	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20220126164804-6041c17d6e59
-	github.com/hyperledger/aries-framework-go/spi v0.0.0-20220126164804-6041c17d6e59
+	github.com/hyperledger/aries-framework-go v0.1.8-0.20220326012408-071ce8fc905c
+	github.com/hyperledger/aries-framework-go-ext/component/vdr/orb v0.1.4-0.20220325184342-8ccd5c996898
+	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20220326012408-071ce8fc905c
+	github.com/hyperledger/aries-framework-go/spi v0.0.0-20220326012408-071ce8fc905c
 	github.com/piprate/json-gold v0.4.1-0.20210813112359-33b90c4ca86c
 	github.com/square/go-jose v2.4.1+incompatible
-	github.com/trustbloc/edge-core v0.1.8-0.20220113141450-e19ffd091d98
+	github.com/trustbloc/edge-core v0.1.8-0.20220324215259-0ab3fd8db3f3
 )
 
 require (
@@ -36,7 +36,7 @@ require (
 	github.com/google/certificate-transparency-go v1.1.2-0.20210512142713-bed466244fa6 // indirect
 	github.com/google/tink/go v1.6.1-0.20210519071714-58be99b3c4d0 // indirect
 	github.com/google/trillian v1.3.14-0.20210520152752-ceda464a95a3 // indirect
-	github.com/hyperledger/aries-framework-go-ext/component/vdr/sidetree v0.0.0-20211217171603-637696af6620 // indirect
+	github.com/hyperledger/aries-framework-go-ext/component/vdr/sidetree v0.0.0-20220325181924-aed46b24a321 // indirect
 	github.com/ipfs/go-cid v0.0.7 // indirect
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a // indirect
 	github.com/kawamuray/jsonpath v0.0.0-20201211160320-7483bafabd7e // indirect
@@ -64,9 +64,9 @@ require (
 	github.com/tidwall/match v1.0.3 // indirect
 	github.com/tidwall/pretty v1.0.2 // indirect
 	github.com/tidwall/sjson v1.1.4 // indirect
-	github.com/trustbloc/orb v0.1.4-0.20211223174027-e48b5f451f1f // indirect
-	github.com/trustbloc/sidetree-core-go v0.7.1-0.20211215084556-11b9bec0b714 // indirect
-	github.com/trustbloc/vct v0.1.3 // indirect
+	github.com/trustbloc/orb v0.1.4-0.20220314105645-15799999dd8b // indirect
+	github.com/trustbloc/sidetree-core-go v0.7.1-0.20220314104818-0ae9fc89df5b // indirect
+	github.com/trustbloc/vct v0.1.4-0.20220311095043-9804a0520090 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
