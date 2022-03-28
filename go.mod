@@ -10,15 +10,15 @@ require (
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/sessions v1.2.1
-	github.com/hyperledger/aries-framework-go v0.1.8-0.20220223232229-8e648d1caeaa
-	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20220126164804-6041c17d6e59
-	github.com/hyperledger/aries-framework-go/spi v0.0.0-20220126164804-6041c17d6e59
+	github.com/hyperledger/aries-framework-go v0.1.8-0.20220326012408-071ce8fc905c
+	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20220326012408-071ce8fc905c
+	github.com/hyperledger/aries-framework-go/spi v0.0.0-20220326012408-071ce8fc905c
 	github.com/igor-pavlenko/httpsignatures-go v0.0.23
 	github.com/lafriks/go-shamir v1.1.0
 	github.com/piprate/json-gold v0.4.1-0.20210813112359-33b90c4ca86c
 	github.com/stretchr/testify v1.7.0
-	github.com/trustbloc/edge-core v0.1.8-0.20220113141450-e19ffd091d98
-	github.com/trustbloc/edv v0.1.7
+	github.com/trustbloc/edge-core v0.1.8-0.20220324215259-0ab3fd8db3f3
+	github.com/trustbloc/edv v0.1.8-0.20220325202420-22e79405724a
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 )
 
@@ -32,13 +32,10 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
-	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/google/tink/go v1.6.1-0.20210519071714-58be99b3c4d0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
-	github.com/hyperledger/aries-framework-go/test/component v0.0.0-20211204013109-366f6ef74861 // indirect
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a // indirect
 	github.com/kawamuray/jsonpath v0.0.0-20201211160320-7483bafabd7e // indirect
 	github.com/kilic/bls12-381 v0.1.1-0.20210503002446-7b7597926c69 // indirect
