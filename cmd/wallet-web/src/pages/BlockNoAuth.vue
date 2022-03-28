@@ -42,7 +42,9 @@
           border-t border-neutrals-thistle
         "
       >
-        <styled-button type="primary" :loading="loading" @click="signIn()">Sign in</styled-button>
+        <styled-button type="btn-primary" :loading="loading" @click="signIn()"
+          >Sign in</styled-button
+        >
       </div>
     </div>
   </div>

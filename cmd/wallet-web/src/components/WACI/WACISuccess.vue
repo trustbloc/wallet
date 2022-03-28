@@ -9,7 +9,7 @@
     <img src="@/assets/img/icons-circle-check.svg" />
     <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{ heading }}</span>
     <span class="text-lg text-center text-neutrals-medium">{{ message }}</span>
-    <styled-button v-bind="$attrs" type="primary" class="mt-6">
+    <styled-button v-bind="$attrs" type="btn-primary" class="mt-6">
       {{ buttonLabel }}
     </styled-button>
   </div>

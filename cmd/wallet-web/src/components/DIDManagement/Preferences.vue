@@ -61,7 +61,7 @@
       class="mt-5"
       :disabled="!preferencesChanged"
       :loading="loading"
-      type="primary"
+      type="btn-primary"
       @click="updatePreferences()"
     >
       <span>Update Preferences</span>

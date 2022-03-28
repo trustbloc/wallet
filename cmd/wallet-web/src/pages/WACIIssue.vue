@@ -99,12 +99,12 @@
 
     <WACI-action-buttons-container>
       <template #leftButton>
-        <styled-button id="cancelBtn" type="outline" @click="cancel">
+        <styled-button id="cancelBtn" type="btn-outline" @click="cancel">
           {{ t('CHAPI.Share.decline') }}
         </styled-button>
       </template>
       <template #rightButton>
-        <styled-button id="storeVCBtn" type="primary" @click="save">
+        <styled-button id="storeVCBtn" type="btn-primary" @click="save">
           {{ t('WACI.Issue.save') }}
         </styled-button>
       </template>
