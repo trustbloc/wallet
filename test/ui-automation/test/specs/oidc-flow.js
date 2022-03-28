@@ -21,7 +21,7 @@ describe("TrustBloc Wallet - OIDC Share flow", async function () {
   const ctx = {
     email: `ui-aut-oidc-${new Date().getTime()}@test.com`,
   };
-  
+
   // runs once before the first test in this block
   before(async () => {
     await browser.reloadSession();
@@ -96,9 +96,7 @@ describe("TrustBloc Wallet - OIDC Share flow", async function () {
     const shareBtn = await $("#share-credentials");
     await shareBtn.waitForExist();
     await shareBtn.click();
-
-    // TODO validate success message
-    const msg = await $("b*=ERROR: failed to validate presentation : JSON unmarshalling of verifiable presentation: unexpected end of JSON input");
+    const msg = await $("#success-share-message");
     await msg.waitForExist();
   });
 
@@ -107,4 +105,3 @@ describe("TrustBloc Wallet - OIDC Share flow", async function () {
     await wallet.signOut(ctx);
   });
 });
-
