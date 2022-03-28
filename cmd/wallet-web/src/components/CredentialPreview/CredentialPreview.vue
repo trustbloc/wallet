@@ -48,9 +48,8 @@
         `flex-none w-8 h-8 rounded-full`,
         styles?.background?.color !== '#fff'
           ? `bg-neutrals-black bg-opacity-25 group-hover:bg-opacity-60`
-          : `bg-neutrals-thistle`,
+          : `bg-neutrals-light bg-opacity-25`,
       ]"
-      :style="`background-color: ${styles?.background?.color}`"
     >
       <div class="p-1">
         <img
