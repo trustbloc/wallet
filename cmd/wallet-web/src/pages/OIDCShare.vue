@@ -143,7 +143,7 @@
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { decode, encode } from 'js-base64';
-import { CollectionManager, CredentialManager } from '@trustbloc-cicd/wallet-sdk';
+import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { OIDCMutations } from '@/layouts/OIDC.vue';
 import { OIDCShareLayoutMutations } from '@/layouts/OIDCShareLayout.vue';
 import StyledButton from '@/components/StyledButton/StyledButton.vue';
