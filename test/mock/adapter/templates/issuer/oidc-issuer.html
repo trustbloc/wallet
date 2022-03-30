@@ -1,0 +1,207 @@
+<!--
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+ -->
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8"/>
+    <title>Demo OIDC Issuer</title>
+    <script type="text/javascript">
+        function setIssuerURL(action) {
+            document.getElementById("issuerURL").value = location.protocol + '//' + location.host;
+        }
+    </script>
+</head>
+
+<body>
+<h1>OIDC Verifiable Credential Issuance Demo</h1>
+
+<form action="/issuer/oidc/issuance" id="oidc-issuance-form" method="POST">
+    <input type="hidden" id="issuerURL" name="issuerURL" value="" />
+    <table style="border-spacing: 10px;">
+        <tr>
+            <td><label>Wallet Initiate Issuance URL</label></td>
+            <td><input
+                    type="text"
+                    id="walletURL"
+                    name="walletInitIssuanceURL"
+                    value="https://wallet.trustbloc.local:8091/oidc/initiate"
+                    size="50"
+            /></td>
+        </tr>
+
+        <tr>
+            <td><label>Credential Types</label></td>
+            <td> <input
+                    type="text"
+                    id="credentialTypes"
+                    name="credentialTypes"
+                    value="PermanentResidentCard"
+                    size="50"
+            /></td>
+        </tr>
+
+        <tr>
+            <td><label>Manifest IDs</label></td>
+            <td> <input
+                    type="text"
+                    id="manifestIDs"
+                    name="manifestIDs"
+                    value="GE-PRC-2022-CLASS-A"
+                    size="50"
+            /></td>
+        </tr>
+
+        <tr>
+            <td><label>Credential Manifests</label></td>
+            <td>     <textarea
+                    id="credManifest"
+                    name="credManifest"
+                    rows="10"
+                    cols="50">
+        [{
+          "output_descriptors":[
+             {
+                "id":"prc_output",
+                "schema":"https://w3id.org/citizenship/v1",
+                "display":{
+                   "title":{
+                      "path":[
+                         "$.name"
+                      ],
+                      "fallback":"Permanent Resident Card",
+                      "schema":{
+                         "type":"string"
+                      }
+                   },
+                   "subtitle":{
+                      "path":[
+                         "$.description"
+                      ],
+                      "fallback":"Government of Example Permanent Resident Card.",
+                      "schema":{
+                         "type":"string"
+                      }
+                   },
+                   "description":{
+                      "text":"Sample Permanent Resident Card issued by Government of Example Citizenship & Immigration Services"
+                   },
+                   "properties":[
+                      {
+                         "path":[
+                            "$.credentialSubject.image"
+                         ],
+                         "schema":{
+                            "type":"string",
+                            "format":"image/png"
+                         },
+                         "label":"Card Holder"
+                      },
+                      {
+                         "path":[
+                            "$.credentialSubject.givenName"
+                         ],
+                         "schema":{
+                            "type":"string"
+                         },
+                         "label":"Given Name"
+                      },
+                      {
+                         "path":[
+                            "$.credentialSubject.familyName"
+                         ],
+                         "schema":{
+                            "type":"string"
+                         },
+                         "label":"Family Name"
+                      },
+                      {
+                         "path":[
+                            "$.credentialSubject.gender"
+                         ],
+                         "schema":{
+                            "type":"string"
+                         },
+                         "fallback":"Not disclosed",
+                         "label":"Gender"
+                      },
+                      {
+                         "path":[
+                            "$.credentialSubject.birthDate"
+                         ],
+                         "schema":{
+                            "type":"string",
+                            "format":"date"
+                         },
+                         "label":"Date of Birth"
+                      },
+                      {
+                         "path":[
+                            "$.credentialSubject.birthCountry"
+                         ],
+                         "schema":{
+                            "type":"string"
+                         },
+                         "label":"Country of Birth"
+                      },
+                      {
+                         "path":[
+                            "$.credentialSubject.residentSince"
+                         ],
+                         "schema":{
+                            "type":"string",
+                            "format":"date"
+                         },
+                         "label":"Resident Since"
+                      }
+                   ]
+                },
+                "styles":{
+                   "thumbnail":{
+                      "uri":"https://file-server.trustbloc.local:12096/images/credential--uscis-icon.svg",
+                      "alt":"Citizenship & Immigration Services"
+                   },
+                   "hero":{
+                      "uri":"https://example.com/trust.png",
+                      "alt":"Service we trust"
+                   },
+                   "background":{
+                      "color":"#2b5283"
+                   },
+                   "text":{
+                      "color":"#fff"
+                   }
+                }
+             }
+          ],
+          "id": "GE-PRC-2022-CLASS-A",
+          "version": "0.1.0",
+          "issuer": {
+            "id": "did:example:123?linked-domains=3",
+            "name": "Government of Example Immigration",
+            "styles": {}
+          }
+       }]
+      </textarea></td>
+        </tr>
+    </table>
+
+    <input type="submit" id="oidc-issuance" value="Demo" onclick="javascript:setIssuerURL()"/>
+</form>
+
+<br/>
+<br/>
+
+<b>{{.Msg}} </b>
+<br/>
+
+<b style="color:red;">{{.ErrMsg}} </b>
+
+<br/>
+
+</body>
+</html>

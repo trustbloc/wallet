@@ -12,8 +12,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -51,8 +53,10 @@ var (
 
 const (
 	// issuer html templates
-	issuerHTML     = "./templates/issuer/issuer.html"
-	waciIssuerHTML = "./templates/issuer/waci-issuer.html"
+	issuerHTML          = "./templates/issuer/issuer.html"
+	waciIssuerHTML      = "./templates/issuer/waci-issuer.html"
+	oidcIssuerHTML      = "./templates/issuer/oidc-issuer.html"
+	oidcIssuerLoginHTML = "./templates/issuer/oidc-login.html"
 
 	// verifier html templates
 	verifierHTML     = "./templates/verifier/verifier.html"
@@ -64,6 +68,12 @@ const (
 )
 
 var logger = log.New("mock-adapter")
+
+type issuerConfiguration struct {
+	Issuer                string          `json:"issuer"`
+	AuthorizationEndpoint string          `json:"authorization_endpoint"`
+	CredentialManifests   json.RawMessage `json:"credential_manifests"`
+}
 
 type adapterApp struct {
 	agent *didComm
@@ -107,6 +117,12 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 	router.HandleFunc("/issuer/waci-issuance", app.waciIssuance)
 	router.HandleFunc("/issuer/waci-issuance-v2", app.waciIssuanceV2)
 	router.HandleFunc("/issuer/waci-issuance/{id}", app.waciIssuanceCallback)
+	router.HandleFunc("/issuer/oidc", app.oidcIssuer)
+	router.HandleFunc("/issuer/oidc/login", app.oidcIssuerLogin)
+	router.HandleFunc("/issuer/oidc/issuance", app.initiateIssuance).Methods(http.MethodPost)
+	router.HandleFunc("/{id}/.well-known/openid-configuration", app.wellKnownConfiguration).Methods(http.MethodGet)
+	router.HandleFunc("/{id}/issuer/oidc/authorize", app.issuerAuthorize).Methods(http.MethodGet)
+	router.HandleFunc("/issuer/oidc/authorize-request", app.issuerSendAuthorizeResponse).Methods(http.MethodPost)
 
 	// verifier routes
 	router.HandleFunc("/verifier", app.verifier)
@@ -131,6 +147,14 @@ func (v *adapterApp) issuer(w http.ResponseWriter, r *http.Request) {
 
 func (v *adapterApp) waciIssuer(w http.ResponseWriter, r *http.Request) {
 	loadTemplate(w, waciIssuerHTML, nil)
+}
+
+func (v *adapterApp) oidcIssuer(w http.ResponseWriter, r *http.Request) {
+	loadTemplate(w, oidcIssuerHTML, nil)
+}
+
+func (v *adapterApp) oidcIssuerLogin(w http.ResponseWriter, r *http.Request) {
+	loadTemplate(w, oidcIssuerLoginHTML, nil)
 }
 
 // verifier html template endpoints
@@ -411,6 +435,182 @@ func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
+func (v *adapterApp) initiateIssuance(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	walletURL := r.FormValue("walletInitIssuanceURL")
+	credentialTypes := strings.Split(r.FormValue("credentialTypes"), ",")
+	manifestIDs := strings.Split(r.FormValue("manifestIDs"), ",")
+	issuerURL := r.FormValue("issuerURL")
+	credManifest := r.FormValue("credManifest")
+
+	key := uuid.NewString()
+	issuer := issuerURL + "/" + key
+	issuerConf, err := json.MarshalIndent(&issuerConfiguration{
+		Issuer:                issuer,
+		AuthorizationEndpoint: issuer + "/issuer/oidc/authorize",
+		CredentialManifests:   []byte(credManifest),
+	}, "", "	")
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to prepare issuer wellknown configuration : %s", err))
+
+		return
+	}
+
+	err = v.store.Put(key, issuerConf)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to server configuration : %s", err))
+
+		return
+	}
+
+	u, err := url.Parse(walletURL)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to parse wallet init issuance URL : %s", err))
+
+		return
+	}
+
+	q := u.Query()
+	q.Set("issuer", issuer)
+
+	for _, credType := range credentialTypes {
+		q.Add("credential_type", credType)
+	}
+
+	for _, manifestID := range manifestIDs {
+		q.Add("manifest_id", manifestID)
+	}
+
+	u.RawQuery = q.Encode()
+
+	http.Redirect(w, r, u.String(), http.StatusFound)
+}
+
+func (v *adapterApp) wellKnownConfiguration(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+
+	issuerConf, err := v.store.Get(id)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to read wellknown configuration : %s", err))
+
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(issuerConf)
+}
+func (v *adapterApp) issuerAuthorize(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		handleError(w, http.StatusBadRequest,
+			fmt.Sprintf("failed to parse request : %s", err))
+
+		return
+	}
+
+	claims, err := url.PathUnescape(r.Form.Get("claims"))
+	if err != nil {
+		handleError(w, http.StatusBadRequest,
+			fmt.Sprintf("failed to read claims : %s", err))
+
+		return
+	}
+
+	redirectURI, err := url.PathUnescape(r.Form.Get("redirect_uri"))
+	if err != nil {
+		handleError(w, http.StatusBadRequest,
+			fmt.Sprintf("failed to read redirect URI : %s", err))
+
+		return
+	}
+
+	scope := r.Form.Get("scope")
+	state := r.Form.Get("state")
+	responseType := r.Form.Get("response_type")
+	clientID := r.Form.Get("client_id")
+
+	// basic validation only.
+	if claims == "" || redirectURI == "" || clientID == "" {
+		handleError(w, http.StatusBadRequest, fmt.Sprintf("Invalid Request"))
+
+		return
+	}
+
+	authState := uuid.NewString()
+	authRequest, err := json.Marshal(map[string]string{
+		"claims":        claims,
+		"scope":         scope,
+		"state":         state,
+		"response_type": responseType,
+		"client_id":     clientID,
+		"redirect_uri":  redirectURI,
+	})
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to process authorization request : %s", err))
+
+		return
+	}
+
+	err = v.store.Put(getAuthStateKeyPrefix(authState), authRequest)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to save state : %s", err))
+
+		return
+	}
+
+	authStateCookie := http.Cookie{
+		Name:    "state",
+		Value:   authState,
+		Expires: time.Now().Add(5 * time.Minute),
+		Path:    "/",
+	}
+
+	http.SetCookie(w, &authStateCookie)
+	http.Redirect(w, r, "/issuer/oidc/login", http.StatusFound)
+}
+
+func (v *adapterApp) issuerSendAuthorizeResponse(w http.ResponseWriter, r *http.Request) {
+	stateCookie, err := r.Cookie("state")
+	if err != nil {
+		handleError(w, http.StatusForbidden, "invalid state")
+
+		return
+	}
+
+	authRqstBytes, err := v.store.Get(getAuthStateKeyPrefix(stateCookie.Value))
+	if err != nil {
+		handleError(w, http.StatusBadRequest, "invalid request")
+
+		return
+	}
+
+	var authRequest map[string]string
+	err = json.Unmarshal(authRqstBytes, &authRequest)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError, "failed to read request")
+
+		return
+	}
+
+	redirectURI, ok := authRequest["redirect_uri"]
+	if !ok {
+		handleError(w, http.StatusInternalServerError, "failed to redirect, invalid URL")
+
+		return
+	}
+
+	// TODO process credential types or manifests from claims and prepare credential endpoint with credential to be issued.
+	// TODO Provide authorize response along with redirect
+
+	http.Redirect(w, r, redirectURI, http.StatusFound)
+}
+
 func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Store) {
 	for action := range actionCh {
 		logger.Infof("received action message : type=%s", action.Message.Type())
@@ -600,4 +800,8 @@ func createIssueCredentialMsg(vp []byte, redirect string) (*issuecredential.Issu
 			URL:    redirect,
 		},
 	}, nil
+}
+
+func getAuthStateKeyPrefix(key string) string {
+	return fmt.Sprintf("authstate_%s", key)
 }
