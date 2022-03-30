@@ -10,6 +10,7 @@ const { wallet } = require("../helpers");
 
 const v2 = "v2";
 const v1 = "v1";
+const invalidCredentialName = "Credential!@";
 
 const vcSubjectData = [
   { name: "Given Name", value: "JOHN" },
@@ -132,6 +133,59 @@ async function waciFlow(version, ctx) {
     await waciShareDemoBtn.click();
 
     const vcName = await $("span*=Permanent Resident Card");
+    await vcName.waitForExist();
+
+    await wallet.validateCredentialDetails(vcSubjectData);
+
+    const shareBtn = await $("#share-credentials");
+    await shareBtn.waitForExist();
+    await shareBtn.click();
+
+    const okBtn = await $("#share-credentials-ok-btn");
+    await okBtn.waitForExist();
+    await okBtn.click();
+
+    const getSuccessMsg = await $("b*=Successfully Received Presentation");
+    await getSuccessMsg.waitForExist();
+  });
+
+  it("User successfully renames saved credential", async function () {
+    await browser.navigateTo(`${browser.config.walletURL}/credentials`);
+
+    const vcName = await $("span*=Permanent Resident Card");
+    await vcName.waitForExist();
+    await vcName.click();
+
+    await wallet.renameCredential("PR Card");
+    const renamedCredential = await $("span*=PR Card");
+    await renamedCredential.waitForExist();
+  });
+  it("User enters invalid name to rename saved credential", async function () {
+    await wallet.renameCredential(
+        invalidCredentialName,
+        "Must use letters (A-Z) and/or numbers (1-9)"
+    );
+    await wallet.renameCredential(" ", "Can't be empty. Please enter a name.");
+  });
+
+  it(`User presents renamed credential through WACI-Share (Redirect) : already signed-in`, async function () {
+    // demo verifier page
+    await browser.navigateTo(browser.config.waciDemoVerifierURL);
+
+    let waciShareDemoBtn;
+
+    if (version === v2) {
+      waciShareDemoBtn = await $("#waci-share-demo-v2");
+    }
+
+    if (version === v1) {
+      waciShareDemoBtn = await $("#waci-share-demo");
+    }
+
+    await waciShareDemoBtn.waitForExist();
+    await waciShareDemoBtn.click();
+
+    const vcName = await $("span*=PR Card");
     await vcName.waitForExist();
 
     await wallet.validateCredentialDetails(vcSubjectData);

@@ -52,6 +52,7 @@
     </template>
     <template #actionButton>
       <styled-button
+        id="rename-credential-button"
         class="order-first md:order-last w-full md:w-auto"
         type="btn-primary"
         :loading="loading"
