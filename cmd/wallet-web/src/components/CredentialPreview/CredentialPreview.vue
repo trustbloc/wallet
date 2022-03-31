@@ -31,6 +31,7 @@
         : `border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`
     "
     :style="`background-color: ${styles?.background?.color}`"
+    :id="id"
   >
     <div class="flex-none w-12 h-12 border-opacity-10">
       <img :src="credentialIconSrc" />

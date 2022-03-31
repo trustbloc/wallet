@@ -147,6 +147,35 @@ exports.deleteCredential = async () => {
   await deleteButton.click();
 };
 
+exports.renameCredential = async (credentialName, errMsg) => {
+  await _renameCredential(credentialName, errMsg);
+};
+
+async function _renameCredential(credentialName, errMsg) {
+  const flyoutMenuImage = await $("#credential-details-flyout-button");
+  await flyoutMenuImage.waitForExist();
+  await flyoutMenuImage.waitForClickable();
+  await flyoutMenuImage.click();
+
+  const renameCredentialList = await $("#renameCredential");
+  await renameCredentialList.waitForExist();
+  await renameCredentialList.waitForClickable();
+  await renameCredentialList.click();
+
+  await _updateCredentialName(credentialName);
+  const renameCredButton = await $("#rename-credential-button");
+  await renameCredButton.waitForExist();
+  await renameCredButton.waitForClickable();
+  await renameCredButton.click();
+  // validating rename credetial name with the expected error Msg
+  if (errMsg) {
+    const errorMsg = await $("#input-CredentialName-error-msg");
+    expect(errorMsg).toHaveValue(errMsg);
+    const dangerIcon = await $(".danger-icon");
+    await dangerIcon.waitForExist();
+    await _cancelRenameCredential()
+  }
+}
 /*************************** Helper functions ******************************/
 
 async function _didAuth({ method = "trustbloc" } = {}) {
@@ -376,6 +405,12 @@ async function _vaultNameInput(vaultName) {
   await addVaultInput.setValue(vaultName);
 }
 
+async function _updateCredentialName(credentialName) {
+  const renameCredInput = await $("#input-CredentialName");
+  await renameCredInput.click();
+  await renameCredInput.setValue(credentialName);
+}
+
 async function _createVault() {
   const addAction = await $(".btn-primary*=Add");
   await addAction.click();
@@ -392,6 +427,12 @@ async function _cancelAddVault() {
   const cancelVaultButton = await $(".btn-outline*=Cancel");
   await cancelVaultButton.click();
   expect(browser.config.walletURL).toHaveValue("vaults");
+}
+
+async function _cancelRenameCredential() {
+  const cancelCredentialButton = await $(".btn-outline*=Cancel");
+  await cancelCredentialButton.click();
+  expect(browser.config.walletURL).toHaveValue("credentials");
 }
 
 async function _validateUserInput(vaultName, errMsg) {
