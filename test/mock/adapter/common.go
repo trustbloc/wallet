@@ -91,7 +91,7 @@ type VPToken struct {
 	PresDef *presexch.PresentationDefinition `json:"presentation_definition"`
 }
 
-type OIDCTokenCliams struct {
+type OIDCTokenClaims struct {
 	VPToken *VPTokenClaim `json:"_vp_token"`
 }
 

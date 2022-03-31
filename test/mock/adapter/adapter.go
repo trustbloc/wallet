@@ -359,7 +359,7 @@ func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
 	logger.Infof("oidc share callback : id_token=%s vp_token=%s",
 		idToken, vpToken)
 
-	var claims *OIDCTokenCliams
+	var claims *OIDCTokenClaims
 
 	token, err := jwt.ParseSigned(idToken)
 	if err != nil {
@@ -387,7 +387,7 @@ func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
 
 	logger.Infof("oidc share callback : _vp_token=%v vp_token=%s", string(presSubBytes), vpToken)
 
-	_, err = verifiable.ParsePresentation([]byte(vpToken), verifiable.WithPresJSONLDDocumentLoader(ld.NewDefaultDocumentLoader(nil)))
+	_, err = verifiable.ParsePresentation([]byte(vpToken), verifiable.WithPresJSONLDDocumentLoader(ld.NewDefaultDocumentLoader(nil)), verifiable.WithPresDisabledProofCheck())
 	if err != nil {
 		loadTemplate(w, oidcVerifierHTML,
 			map[string]interface{}{

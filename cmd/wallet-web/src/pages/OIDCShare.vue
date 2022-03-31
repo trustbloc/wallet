@@ -231,7 +231,6 @@ export default {
         },
       ]);
       this.presentations = results;
-      this.generateIdToken();
     } catch (e) {
       if (!e.message.includes('12009')) {
         this.errors.push('Error initiating credential share');
@@ -270,19 +269,17 @@ export default {
         console.error('get credentials failed,', e);
         this.loading = false;
       }
+      this.generateIdToken();
+      this.generateVPToken();
     },
     share() {
       this.sharing = true;
-      const { profile, preference } = this.getCurrentUser();
-      const { controller, proofType, verificationMethod } = preference;
-      const VPToken = JSON.stringify(this.claims.vp_token);
       let ack;
 
       try {
-        // Using "try" because eventually we will be making an AJAX call here
         ack = {
           status: 'OK',
-          url: `${this.$route.query.redirect_uri}?state=${this.$route.query.state}&id_token=${this.idToken}&vp_token=${VPToken}`,
+          url: `${this.$route.query.redirect_uri}?state=${this.$route.query.state}&id_token=${this.idToken}&vp_token=${this.vpToken}`,
         };
       } catch (e) {
         this.errors.push(e);
@@ -301,7 +298,10 @@ export default {
     finish() {
       window.location.href = this.redirectUrl;
     },
-    generateIdToken: function () {
+    cancel() {
+      window.location = window.location.origin;
+    },
+    generateIdToken() {
       const header = JSON.stringify({
         alg: 'none',
       });
@@ -317,6 +317,15 @@ export default {
       const encodedPayload = encode(payload).slice(0, -1);
       const encodedSignature = encode(signature).slice(0, -1);
       this.idToken = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
+    },
+    async generateVPToken() {
+      const { controller } = this.getCurrentUser().preference;
+      const { presentation } = await this.credentialManager.present(
+        this.token,
+        { rawCredentials: this.presentations[0].verifiableCredential },
+        { controller }
+      );
+      this.vpToken = encodeURI(JSON.stringify(presentation));
     },
     handleOverviewClick: function (id) {
       OIDCMutations.setSelectedCredentialId(id);
