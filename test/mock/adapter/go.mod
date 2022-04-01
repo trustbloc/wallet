@@ -14,6 +14,7 @@ require (
 	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20220326012408-071ce8fc905c
 	github.com/hyperledger/aries-framework-go/spi v0.0.0-20220326012408-071ce8fc905c
 	github.com/piprate/json-gold v0.4.1-0.20210813112359-33b90c4ca86c
+	github.com/rs/cors v1.7.0
 	github.com/square/go-jose v2.4.1+incompatible
 	github.com/trustbloc/edge-core v0.1.8-0.20220324215259-0ab3fd8db3f3
 )
@@ -55,7 +56,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
-	github.com/rs/cors v1.7.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/square/go-jose/v3 v3.0.0-20200630053402-0a67ce9b0693 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect

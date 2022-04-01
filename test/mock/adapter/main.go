@@ -8,6 +8,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/rs/cors"
 	"net/http"
 	"os"
 
@@ -53,6 +54,13 @@ func main() {
 		panic("port to be served not provided")
 	}
 
+	handler := cors.New(
+		cors.Options{
+			AllowedMethods: []string{http.MethodGet, http.MethodPost},
+			AllowedHeaders: []string{"Origin", "Accept", "Content-Type", "X-Requested-With", "Authorization"},
+		},
+	).Handler(router)
+
 	fmt.Println(http.ListenAndServeTLS(":"+port, os.Getenv(tlsCertFileEnvKey),
-		os.Getenv(tlsKeyFileEnvKey), router))
+		os.Getenv(tlsKeyFileEnvKey), handler))
 }

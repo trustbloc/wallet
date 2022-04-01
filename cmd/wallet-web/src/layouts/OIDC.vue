@@ -70,8 +70,10 @@ import { useI18n } from 'vue-i18n';
 import { OIDCShareLayoutMutations } from '@/layouts/OIDCShareLayout.vue';
 import OIDCShareLayout from '@/layouts/OIDCShareLayout.vue';
 import OIDCShare from '@/pages/OIDCShare.vue';
+import OIDCSaveLayout from '@/layouts/OIDCSaveLayout.vue';
 import Header from '@/components/Header/Header.vue';
 import Footer from '@/components/Footer/Footer.vue';
+import { sendCredentialAuthorizeRequest, readOpenIDConfiguration } from '@/mixins';
 
 export const OIDCStore = reactive({
   processedCredentials: [],
@@ -92,22 +94,6 @@ export const OIDCMutations = {
     OIDCStore.selectedCredentialId = value;
   },
 };
-
-function getOIDCSharePage() {
-  return {
-    component: OIDCShareLayout,
-  };
-}
-
-function detectOIDCComponentType() {
-  // Detect if it is issuer or verifier
-  // Just verifier (share) for now
-  let sharing = true;
-  if (sharing) {
-    return getOIDCSharePage();
-  }
-  return getOIDCSharePage();
-}
 
 export default {
   components: {
@@ -131,13 +117,29 @@ export default {
     };
   },
   created: function () {
-    const { component } = detectOIDCComponentType();
-    this.component = component;
+    this.decideFlow(this.$route.path);
   },
   methods: {
     handleBackButtonClick() {
       OIDCShareLayoutMutations.setComponent(OIDCShare);
       OIDCMutations.setSelectedCredentialId(null);
+    },
+    async decideFlow(path) {
+      if (path === '/oidc/initiate') {
+        const configuration = await readOpenIDConfiguration(this.$route.query.issuer);
+        sendCredentialAuthorizeRequest(
+          configuration,
+          this.$route.query,
+          `${location.protocol}//${location.host}/oidc/save`
+        );
+      } else if (path === '/oidc/save') {
+        this.component = OIDCSaveLayout;
+      } else if (path === '/oidc/share') {
+        this.component = OIDCShareLayout;
+      } else {
+        // TODO error should be thrown, for now by default switch to OIDC share flow issue #1619
+        this.component = OIDCShareLayout;
+      }
     },
   },
 };

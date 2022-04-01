@@ -61,7 +61,7 @@ export default [
     ],
   },
   {
-    path: 'oidc',
+    path: '/oidc',
     name: 'oidc',
     component: load('layouts/OIDC'),
     meta: { requiresAuth: true, signin: true, disableCHAPI: true, isNavbarHidden: true },
@@ -70,6 +70,16 @@ export default [
         path: 'share',
         name: 'share',
         component: load('layouts/OIDCShareLayout'),
+      },
+      {
+        path: 'save',
+        name: 'save',
+        component: load('layouts/OIDCSaveLayout'),
+      },
+      {
+        path: 'initiate',
+        name: 'save',
+        component: load('layouts/OIDCInitiateLayout'),
       },
     ],
   },
