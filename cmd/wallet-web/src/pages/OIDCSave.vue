@@ -99,12 +99,12 @@
 
     <WACI-action-buttons-container>
       <template #leftButton>
-        <styled-button id="cancelBtn" type="outline" @click="cancel">
+        <styled-button id="cancelBtn" type="btn-outline" @click="cancel">
           {{ t('CHAPI.Share.decline') }}
         </styled-button>
       </template>
       <template #rightButton>
-        <styled-button id="storeVCBtn" type="primary" @click="save">
+        <styled-button id="storeVCBtn" type="btn-primary" @click="save">
           {{ t('WACI.Issue.save') }}
         </styled-button>
       </template>
@@ -126,7 +126,9 @@ import WACIError from '@/components/WACI/WACIError.vue';
 import WACILoading from '@/components/WACI/WACILoading.vue';
 import WACISuccess from '@/components/WACI/WACISuccess.vue';
 import CredentialDetailsTable from '@/components/WACI/CredentialDetailsTable.vue';
-import { readOpenIDConfiguration } from '@/mixins';
+import { readOpenIDConfiguration, requestCredential, requestToken } from '@/mixins';
+import Cookies from 'js-cookie';
+import jp from 'jsonpath';
 
 export default {
   components: {
@@ -174,12 +176,58 @@ export default {
     // Await here to allow these operations to run asynchronously along with the didcomm request
     this.setSelectedVault(await defVault);
 
+    const txState = Cookies.get(this.$route.query.state);
+    if (!txState) {
+      //TODO put error handling for invalid state
+      throw 'invalid state, session expired!';
+    }
+
+    const { issuer, type } = JSON.parse(txState);
+    const configuration = await readOpenIDConfiguration(issuer);
+
+    const { access_token, token_type } = await requestToken(configuration.token_endpoint, {
+      redirect_uri: `${location.protocol}//${location.host}/oidc/save`,
+      code: this.$route.query.code,
+    });
+
+    // TODO in case of multiple types, call credential endpoint iteratively and collect multiple credentials, Issue #1640
+    const { credential } = await requestCredential(configuration.credential_endpoint, {
+      access_token,
+      token_type,
+      credentialType: type,
+    });
+
+    this.prepareCards(credential, configuration.credential_manifests, type);
+
     this.loading = false;
   },
   methods: {
     ...mapGetters(['getCurrentUser']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     save: function () {
+      this.errors.length = 0;
+      this.saving = true;
+
+      const { profile, preference } = this.getCurrentUser();
+      const { controller, proofType, verificationMethod } = preference;
+
+      this.credentialManager.save(
+        profile.token,
+        { credentials: this.credentials },
+        {
+          manifest: this.manifest,
+          descriptorMap: [
+            {
+              id: this.descriptorID,
+              format: 'ldp_vc',
+              path: '$[0]',
+            },
+          ],
+          collection: this.selectedVault,
+        }
+      );
+
+      this.savedSuccessfully = true;
       this.saving = false;
     },
     handleError: function (e) {
@@ -191,9 +239,7 @@ export default {
       this.selectedVault = e;
     },
     finish() {
-      this.protocolHandler.done(
-        this.redirectUrl ? this.redirectUrl : `${window.location.origin}/${this.locale}/credentials`
-      );
+      this.$router.push('/credentials');
     },
     cancel: function () {
       this.protocolHandler.cancel();
@@ -204,6 +250,33 @@ export default {
       // Default vault is selected vault by default, it is created on wallet setup and must be only one.
       const defaultVaultId = this.vaults.find((vault) => vault.name === 'Default Vault').id;
       return defaultVaultId;
+    },
+    prepareCards: async function (credential, manifests, type) {
+      let manifest;
+      let descriptorID;
+      for (const m of manifests) {
+        const match = jp.query(m, `$.output_descriptors[?(@.schema=="${type}")].id`);
+        if (match.length > 0) {
+          manifest = m;
+          descriptorID = match[0];
+          break;
+        }
+      }
+
+      if (!manifest) {
+        throw 'unable to find matching manifest'; // TODO handle this error, Issue #1531
+      }
+
+      this.processedCredentials = await this.credentialManager.resolveManifest(this.token, {
+        credential,
+        manifest,
+        descriptorID,
+      });
+
+      // TODO to be refactored for multi credential support, , Issue #1640
+      this.credentials = [credential];
+      this.descriptorID = descriptorID;
+      this.manifest = manifest;
     },
   },
 };

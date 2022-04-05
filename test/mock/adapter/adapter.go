@@ -7,16 +7,22 @@ SPDX-License-Identifier: Apache-2.0
 package main
 
 import (
+	"crypto/ed25519"
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/jsonld"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/btcsuite/btcutil/base58"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/piprate/json-gold/ld"
@@ -67,11 +73,20 @@ const (
 	webWalletHTML = "./templates/webWallet.html"
 )
 
+// Mock signer for signing VCs.
+const (
+	didKey   = "did:key:z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5"
+	pkBase58 = "2MP5gWCnf67jvW3E4Lz8PpVrDWAXMYY1sDxjnkEnKhkkbKD7yP2mkVeyVpu5nAtr3TeDgMNjBPirk2XcQacs3dvZ"
+	kid      = "did:key:z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5#z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5"
+)
+
 var logger = log.New("mock-adapter")
 
 type issuerConfiguration struct {
 	Issuer                string          `json:"issuer"`
 	AuthorizationEndpoint string          `json:"authorization_endpoint"`
+	CredentialEndpoint    string          `json:"credential_endpoint"`
+	TokenEndpoint         string          `json:"token_endpoint"`
 	CredentialManifests   json.RawMessage `json:"credential_manifests"`
 }
 
@@ -123,6 +138,8 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 	router.HandleFunc("/{id}/.well-known/openid-configuration", app.wellKnownConfiguration).Methods(http.MethodGet)
 	router.HandleFunc("/{id}/issuer/oidc/authorize", app.issuerAuthorize).Methods(http.MethodGet)
 	router.HandleFunc("/issuer/oidc/authorize-request", app.issuerSendAuthorizeResponse).Methods(http.MethodPost)
+	router.HandleFunc("/{id}/issuer/oidc/token", app.issuerTokenEndpoint).Methods(http.MethodPost)
+	router.HandleFunc("/{id}/issuer/oidc/credential", app.issuerCredentialEndpoint).Methods(http.MethodPost)
 
 	// verifier routes
 	router.HandleFunc("/verifier", app.verifier)
@@ -443,12 +460,15 @@ func (v *adapterApp) initiateIssuance(w http.ResponseWriter, r *http.Request) {
 	manifestIDs := strings.Split(r.FormValue("manifestIDs"), ",")
 	issuerURL := r.FormValue("issuerURL")
 	credManifest := r.FormValue("credManifest")
+	credential := r.FormValue("credToIssue")
 
 	key := uuid.NewString()
 	issuer := issuerURL + "/" + key
 	issuerConf, err := json.MarshalIndent(&issuerConfiguration{
 		Issuer:                issuer,
 		AuthorizationEndpoint: issuer + "/issuer/oidc/authorize",
+		TokenEndpoint:         issuer + "/issuer/oidc/token",
+		CredentialEndpoint:    issuer + "/issuer/oidc/credential",
 		CredentialManifests:   []byte(credManifest),
 	}, "", "	")
 	if err != nil {
@@ -459,6 +479,14 @@ func (v *adapterApp) initiateIssuance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = v.store.Put(key, issuerConf)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to server configuration : %s", err))
+
+		return
+	}
+
+	err = v.store.Put(getCredStoreKeyPrefix(key), []byte(credential))
 	if err != nil {
 		handleError(w, http.StatusInternalServerError,
 			fmt.Sprintf("failed to server configuration : %s", err))
@@ -504,6 +532,7 @@ func (v *adapterApp) wellKnownConfiguration(w http.ResponseWriter, r *http.Reque
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(issuerConf)
 }
+
 func (v *adapterApp) issuerAuthorize(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		handleError(w, http.StatusBadRequest,
@@ -534,13 +563,14 @@ func (v *adapterApp) issuerAuthorize(w http.ResponseWriter, r *http.Request) {
 	clientID := r.Form.Get("client_id")
 
 	// basic validation only.
-	if claims == "" || redirectURI == "" || clientID == "" {
+	if claims == "" || redirectURI == "" || clientID == "" || state == "" {
 		handleError(w, http.StatusBadRequest, fmt.Sprintf("Invalid Request"))
 
 		return
 	}
 
 	authState := uuid.NewString()
+
 	authRequest, err := json.Marshal(map[string]string{
 		"claims":        claims,
 		"scope":         scope,
@@ -605,10 +635,154 @@ func (v *adapterApp) issuerSendAuthorizeResponse(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// TODO process credential types or manifests from claims and prepare credential endpoint with credential to be issued.
-	// TODO Provide authorize response along with redirect
+	state, ok := authRequest["state"]
+	if !ok {
+		handleError(w, http.StatusInternalServerError, "failed to redirect, invalid state")
 
-	http.Redirect(w, r, redirectURI, http.StatusFound)
+		return
+	}
+
+	authCode := uuid.NewString()
+	v.store.Put(getAuthCodeKeyPrefix(authCode), []byte(stateCookie.Value))
+
+	redirectTo := fmt.Sprintf("%s?code=%s&state=%s", redirectURI, authCode, state)
+
+	// TODO process credential types or manifests from claims and prepare credential endpoint with credential to be issued.
+	http.Redirect(w, r, redirectTo, http.StatusFound)
+}
+
+func (v *adapterApp) issuerTokenEndpoint(w http.ResponseWriter, r *http.Request) {
+	setOIDCResponseHeaders(w)
+
+	code := r.FormValue("code")
+	redirectURI := r.FormValue("redirect_uri")
+	grantType := r.FormValue("grant_type")
+
+	if grantType != "authorization_code" {
+		sendOIDCErrorResponse(w, "unsupported grant type", http.StatusBadRequest)
+		return
+	}
+
+	authState, err := v.store.Get(getAuthCodeKeyPrefix(code))
+	if err != nil {
+		sendOIDCErrorResponse(w, "invalid state", http.StatusBadRequest)
+		return
+	}
+
+	authRqstBytes, err := v.store.Get(getAuthStateKeyPrefix(string(authState)))
+	if err != nil {
+		sendOIDCErrorResponse(w, "invalid request", http.StatusBadRequest)
+		return
+	}
+
+	var authRequest map[string]string
+	err = json.Unmarshal(authRqstBytes, &authRequest)
+	if err != nil {
+		sendOIDCErrorResponse(w, "failed to read request", http.StatusInternalServerError)
+		return
+	}
+
+	if authRedirectURI := authRequest["redirect_uri"]; authRedirectURI != redirectURI {
+		sendOIDCErrorResponse(w, "request validation failed", http.StatusInternalServerError)
+		return
+	}
+
+	mockAccessToken := uuid.NewString()
+	mockIssuerID := mux.Vars(r)["id"]
+
+	err = v.store.Put(getAccessTokenKeyPrefix(mockAccessToken), []byte(mockIssuerID))
+	if err != nil {
+		sendOIDCErrorResponse(w, "failed to save token state", http.StatusInternalServerError)
+		return
+	}
+
+	response, err := json.Marshal(map[string]interface{}{
+		"token_type":   "Bearer",
+		"access_token": mockAccessToken,
+		"expires_in":   3600 * time.Second,
+	})
+	// TODO add id_token, c_nonce, c_nonce_expires_in
+
+	if err != nil {
+		sendOIDCErrorResponse(w, "response_write_error", http.StatusBadRequest)
+
+		return
+	}
+
+	w.Write(response)
+}
+
+func (v *adapterApp) issuerCredentialEndpoint(w http.ResponseWriter, r *http.Request) {
+	setOIDCResponseHeaders(w)
+
+	// TODO read and validate credential 'type', useful in multiple credential download.
+	format := r.FormValue("format")
+
+	if format != "" && format != "ldp_vc" {
+		sendOIDCErrorResponse(w, "unsupported format requested", http.StatusBadRequest)
+		return
+	}
+
+	authHeader := strings.Split(r.Header.Get("Authorization"), "Bearer ")
+	if len(authHeader) != 2 {
+		sendOIDCErrorResponse(w, "malformed token", http.StatusBadRequest)
+		return
+	}
+
+	if authHeader[1] == "" {
+		sendOIDCErrorResponse(w, "invalid token", http.StatusForbidden)
+		return
+	}
+
+	mockIssuerID := mux.Vars(r)["id"]
+
+	issuerID, err := v.store.Get(getAccessTokenKeyPrefix(authHeader[1]))
+	if err != nil {
+		sendOIDCErrorResponse(w, "unsupported format requested", http.StatusBadRequest)
+		return
+	}
+
+	if mockIssuerID != string(issuerID) {
+		sendOIDCErrorResponse(w, "invalid transaction", http.StatusForbidden)
+		return
+	}
+
+	credentialBytes, err := v.store.Get(getCredStoreKeyPrefix(mockIssuerID))
+	if err != nil {
+		sendOIDCErrorResponse(w, "failed to get credential", http.StatusInternalServerError)
+		return
+	}
+
+	docLoader := ld.NewDefaultDocumentLoader(nil)
+	credential, err := verifiable.ParseCredential(credentialBytes, verifiable.WithJSONLDDocumentLoader(docLoader))
+	if err != nil {
+		sendOIDCErrorResponse(w, "failed to prepare credential", http.StatusInternalServerError)
+		return
+	}
+
+	err = signVCWithED25519(credential, docLoader)
+	if err != nil {
+		sendOIDCErrorResponse(w, "failed to issue credential", http.StatusInternalServerError)
+		return
+	}
+
+	credBytes, err := credential.MarshalJSON()
+	if err != nil {
+		sendOIDCErrorResponse(w, "failed to write credential bytes", http.StatusInternalServerError)
+		return
+	}
+
+	response, err := json.Marshal(map[string]interface{}{
+		"format":     format,
+		"credential": json.RawMessage(credBytes),
+	})
+	// TODO add support for acceptance token & nonce for deferred flow.
+	if err != nil {
+		sendOIDCErrorResponse(w, "response_write_error", http.StatusBadRequest)
+		return
+	}
+
+	w.Write(response)
 }
 
 func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Store) {
@@ -804,4 +978,59 @@ func createIssueCredentialMsg(vp []byte, redirect string) (*issuecredential.Issu
 
 func getAuthStateKeyPrefix(key string) string {
 	return fmt.Sprintf("authstate_%s", key)
+}
+
+func getAuthCodeKeyPrefix(key string) string {
+	return fmt.Sprintf("authcode_%s", key)
+}
+
+func getAccessTokenKeyPrefix(key string) string {
+	return fmt.Sprintf("access_token_%s", key)
+}
+
+func getCredStoreKeyPrefix(key string) string {
+	return fmt.Sprintf("cred_store_%s", key)
+}
+
+func setOIDCResponseHeaders(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Pragma", "no-cache")
+}
+
+func sendOIDCErrorResponse(w http.ResponseWriter, msg string, status int) {
+	w.WriteHeader(status)
+	w.Write([]byte(fmt.Sprintf(`{"error": "%s"}`, msg)))
+}
+
+func signVCWithED25519(vc *verifiable.Credential, loader ld.DocumentLoader) error {
+	edPriv := ed25519.PrivateKey(base58.Decode(pkBase58))
+	edSigner := &edd25519Signer{edPriv}
+	sigSuite := ed25519signature2018.New(suite.WithSigner(edSigner))
+
+	tt := time.Now()
+
+	ldpContext := &verifiable.LinkedDataProofContext{
+		SignatureType:           "Ed25519Signature2018",
+		SignatureRepresentation: verifiable.SignatureProofValue,
+		Suite:                   sigSuite,
+		VerificationMethod:      kid,
+		Purpose:                 "assertionMethod",
+		Created:                 &tt,
+	}
+
+	return vc.AddLinkedDataProof(ldpContext, jsonld.WithDocumentLoader(loader))
+}
+
+// signer for signing ed25519 for tests.
+type edd25519Signer struct {
+	privateKey []byte
+}
+
+func (s *edd25519Signer) Sign(doc []byte) ([]byte, error) {
+	if l := len(s.privateKey); l != ed25519.PrivateKeySize {
+		return nil, errors.New("ed25519: bad private key length")
+	}
+
+	return ed25519.Sign(s.privateKey, doc), nil
 }
