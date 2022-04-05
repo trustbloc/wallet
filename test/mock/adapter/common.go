@@ -98,3 +98,7 @@ type OIDCTokenClaims struct {
 type VPTokenClaim struct {
 	PresSub *presexch.PresentationSubmission `json:"presentation_submission"`
 }
+
+type RegistrationMetadata struct {
+	ClientId string `json:"client_id"`
+}

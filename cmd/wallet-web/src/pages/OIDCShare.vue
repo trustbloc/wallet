@@ -142,7 +142,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
-import { decode, encode } from 'js-base64';
+import { decode } from 'js-base64';
 import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { OIDCMutations } from '@/layouts/OIDC.vue';
 import { OIDCShareLayoutMutations } from '@/layouts/OIDCShareLayout.vue';
@@ -155,6 +155,7 @@ import WACIError from '@/components/WACI/WACIError.vue';
 import WACILoading from '@/components/WACI/WACILoading.vue';
 import CredentialDetailsTable from '@/components/WACI/CredentialDetailsTable.vue';
 import OIDCShareOverview from '@/pages/OIDCShareOverview.vue';
+import JSONWebToken from '@/classes/JSONWebToken';
 
 const isBase64Param = (param) => {
   if (!param) {
@@ -269,7 +270,11 @@ export default {
         console.error('get credentials failed,', e);
         this.loading = false;
       }
-      this.generateIdToken();
+      if (this.verifyRPRegistration()) {
+        this.generateIdToken();
+      } else {
+        this.errors.push('RP is not registered and Id token cannot be generated');
+      }
       this.generateVPToken();
     },
     share() {
@@ -302,21 +307,14 @@ export default {
       window.location = window.location.origin;
     },
     generateIdToken() {
-      const header = JSON.stringify({
-        alg: 'none',
-      });
-      const payload = JSON.stringify({
+      const payload = {
         iss: this.$route.query.client_id,
         sub: this.$route.query.client_id,
         aud: this.$route.query.client_id,
         iat: Date.now(),
         exp: Date.now(),
-      });
-      const signature = JSON.stringify({});
-      const encodedHeader = encode(header).slice(0, -1);
-      const encodedPayload = encode(payload).slice(0, -1);
-      const encodedSignature = encode(signature).slice(0, -1);
-      this.idToken = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
+      };
+      this.idToken = new JSONWebToken(payload).getTokenString();
     },
     async generateVPToken() {
       const { controller } = this.getCurrentUser().preference;
@@ -326,6 +324,39 @@ export default {
         { controller }
       );
       this.vpToken = encodeURI(JSON.stringify(presentation));
+    },
+    async verifyRPRegistration() {
+      const registrationUri = this.$route.query.registration_uri;
+      const registration = this.$route.query.registration;
+      // Non-Pre-Registered Relying Party
+      // https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-non-pre-registered-relying-
+      // Just one should be given registration or registration URI
+      if (registrationUri || registration) {
+        if (registrationUri) {
+          // Gets metadata from RP according to:
+          // https://openid.net/specs/openid-connect-registration-1_0.html#ReadResponse
+          const response = await fetch(registrationUri);
+          const clientId = await response.json().client_id;
+          if (clientId === 'client_id_from_rp') {
+            // TODO: Check metadata to confirm registration
+            // https://github.com/trustbloc/wallet/issues/1632
+            return true;
+          }
+        } else {
+          // TODO: Check metadata to confirm registration
+          // https://github.com/trustbloc/wallet/issues/1632
+          return true;
+        }
+      } else {
+        // Pre registered RP (client_id should match given) to match specification:
+        // https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-pre-registered-relying-part
+        const clientIdFromRP = this.$route.query.client_id;
+        // TODO: Extract client identifier for this specific RP from wallet
+        // https://github.com/trustbloc/wallet/issues/1633
+        const clientId = 'client_id_from_siop';
+        return clientIdFromRP === clientId;
+      }
+      return false;
     },
     handleOverviewClick: function (id) {
       OIDCMutations.setSelectedCredentialId(id);

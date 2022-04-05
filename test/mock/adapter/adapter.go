@@ -133,6 +133,8 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 	router.HandleFunc("/verifier/oidc", app.oidcVerifier)
 	router.HandleFunc("/verifier/oidc/share", app.oidcShare)
 	router.HandleFunc("/verifier/oidc/share/cb", app.oidcShareCallback)
+	router.HandleFunc("/verifier/oidc/share/registration", app.oidcShareRegistration)
+
 
 	// CHAPI flow routes
 	router.HandleFunc("/web-wallet", app.webWallet)
@@ -333,11 +335,16 @@ func (v *adapterApp) oidcShare(w http.ResponseWriter, r *http.Request) {
 	}
 
 	q := req.URL.Query()
-	q.Add("client_id", "demo-verifier")
-	q.Add("redirect_uri", os.Getenv(demoExternalURLEnvKey)+"/verifier/oidc/share/cb")
+	redirectURLParam := os.Getenv(demoExternalURLEnvKey) + "/verifier/oidc/share/cb"
+	registrationURLParam := os.Getenv(demoExternalURLEnvKey) + "/verifier/oidc/share/registration"
+	// To follow the specification while we don't have a signed token the client_id = redirect_uri
+	q.Add("client_id", redirectURLParam)
+	q.Add("redirect_uri", redirectURLParam)
 	q.Add("scope", "openid")
 	q.Add("state", state)
 	q.Add("claims", string(claimsBytes))
+	// Remove the following param if we are using a signed token and pre registration
+	q.Add("registration_uri", registrationURLParam)
 
 	req.URL.RawQuery = q.Encode()
 
@@ -433,6 +440,13 @@ func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
 			"VP_TOKEN":                  "VP_TOKEN: " + string(vpToken),
 		},
 	)
+}
+
+func (v *adapterApp) oidcShareRegistration(w http.ResponseWriter, r *http.Request) {
+    data := RegistrationMetadata{"client_id_from_rp"}
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusCreated)
+    json.NewEncoder(w).Encode(data)
 }
 
 func (v *adapterApp) initiateIssuance(w http.ResponseWriter, r *http.Request) {
