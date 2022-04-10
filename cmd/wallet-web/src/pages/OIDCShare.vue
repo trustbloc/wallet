@@ -325,7 +325,7 @@ export default {
         { rawCredentials: this.presentations[0].verifiableCredential },
         { controller }
       );
-      this.vpToken = encodeURI(JSON.stringify(presentation));
+      this.vpToken = encodeURIComponent(JSON.stringify(presentation));
     },
     handleOverviewClick: function (id) {
       OIDCMutations.setSelectedCredentialId(id);

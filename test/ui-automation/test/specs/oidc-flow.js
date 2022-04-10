@@ -97,8 +97,7 @@ describe("TrustBloc Wallet - OIDC Share flow", async function () {
     await shareBtn.waitForExist();
     await shareBtn.click();
 
-    // TODO validate success message
-    const msg = await $("b*=ERROR: failed to validate presentation : JSON unmarshalling of verifiable presentation: unexpected end of JSON input");
+    const msg = await $("b*=Successfully Received Presentation");
     await msg.waitForExist();
   });
 
