@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { reactive, ref, watch } from 'vue';
+import { reactive, ref } from 'vue';
 import OIDCSave from '@/pages/OIDCSave.vue';
 
 export const OIDCSaveLayoutStore = reactive({

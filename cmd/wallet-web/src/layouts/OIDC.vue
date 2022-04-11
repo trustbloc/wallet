@@ -44,7 +44,12 @@
       </template>
     </Header>
     <keep-alive>
+      <div v-if="processing" class="flex-grow justify-center items-center flex flex-col">
+        <WACI-loading message="Processing Your Request" />
+      </div>
+
       <component
+        v-else
         :is="component"
         class="
           overflow-hidden
@@ -73,7 +78,11 @@ import OIDCShare from '@/pages/OIDCShare.vue';
 import OIDCSaveLayout from '@/layouts/OIDCSaveLayout.vue';
 import Header from '@/components/Header/Header.vue';
 import Footer from '@/components/Footer/Footer.vue';
+import WACILoading from '@/components/WACI/WACILoading.vue';
 import { sendCredentialAuthorizeRequest, readOpenIDConfiguration } from '@/mixins';
+import Cookies from 'js-cookie';
+
+var uuid = require('uuid/v4');
 
 export const OIDCStore = reactive({
   processedCredentials: [],
@@ -99,6 +108,7 @@ export default {
   components: {
     Header,
     Footer,
+    WACILoading,
   },
   setup() {
     const { t } = useI18n();
@@ -114,6 +124,7 @@ export default {
   data() {
     return {
       component: null,
+      processing: false,
     };
   },
   created: function () {
@@ -126,11 +137,22 @@ export default {
     },
     async decideFlow(path) {
       if (path === '/oidc/initiate') {
+        this.processing = true;
+        const opState = this.$route.query.op_state || uuid();
         const configuration = await readOpenIDConfiguration(this.$route.query.issuer);
+        Cookies.set(
+          opState,
+          JSON.stringify({
+            issuer: this.$route.query.issuer,
+            type: this.$route.query.credential_type,
+            manifestID: this.$route.query.manifest_id,
+          })
+        );
         sendCredentialAuthorizeRequest(
           configuration,
           this.$route.query,
-          `${location.protocol}//${location.host}/oidc/save`
+          `${location.protocol}//${location.host}/oidc/save`,
+          opState
         );
       } else if (path === '/oidc/save') {
         this.component = OIDCSaveLayout;
