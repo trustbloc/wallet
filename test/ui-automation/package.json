@@ -15,7 +15,7 @@
     "test": "test"
   },
   "dependencies": {
-    "@wdio/cli": "^7.19.0",
+    "@wdio/cli": "^7.19.5",
     "@wdio/selenium-standalone-service": "^7.17.3",
     "chai": "^4.3.6",
     "chromedriver": "^100.0.0",
