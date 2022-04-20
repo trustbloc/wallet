@@ -99,7 +99,7 @@ jobs:
       - name: Run Wallet Web Unit Test
         run: |
           echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 hub-router.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 mediator.trustbloc.local' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
@@ -124,10 +124,10 @@ jobs:
           echo '127.0.0.1 wallet-server.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 wallet-2.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 wallet-server-2.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 hub-router.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 mediator.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 uni-resolver-web.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 hub-auth.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 hub-auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 auth.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 demo-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 edv.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 authz-kms.trustbloc.local' | sudo tee -a /etc/hosts

@@ -9,7 +9,7 @@ echo "Creating demo wallet-server client with hub-auth"
 # will use --skip-tls-verify because hydra doesn't trust self-signed certificate
 # remove it when using real certificate
 hydra clients create \
-    --endpoint https://hub-auth-hydra.trustbloc.local:5556 \
+    --endpoint https://auth-hydra.trustbloc.local:5556 \
     --id client-id \
     --secret client-secret \
     --grant-types authorization_code,refresh_token \

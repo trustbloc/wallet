@@ -20,7 +20,7 @@ services:
       - BLOC_DOMAIN=testnet.orb.local
       - DID_ANCHOR_ORIGIN=https://testnet.orb.local
       - EDGE_AGENT_SERVER=https://wallet-server.trustbloc.local:8090
-      - HTTP_SERVER_HUB_AUTH_URL=https://hub-auth.trustbloc.local:8044
+      - HTTP_SERVER_HUB_AUTH_URL=https://auth.trustbloc.local:8044
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
@@ -53,7 +53,7 @@ services:
       - BLOC_DOMAIN=testnet.orb.local
       - DID_ANCHOR_ORIGIN=https://testnet.orb.local
       - EDGE_AGENT_SERVER=https://wallet-server-2.trustbloc.local:8070
-      - HTTP_SERVER_HUB_AUTH_URL=https://hub-auth.trustbloc.local:8044
+      - HTTP_SERVER_HUB_AUTH_URL=https://auth.trustbloc.local:8044
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
@@ -70,61 +70,61 @@ services:
       - DIDCOMM_KEY_TYPE=ecdsap256ieee1363
       - DIDCOMM_KEY_AGREEMENT_TYPE=p256kw
 
-  hub-router.trustbloc.local:
-    container_name: hub-router.trustbloc.local
-    image: ${HUB_ROUTER_IMAGE}:${HUB_ROUTER_IMAGE_TAG}
+  mediator.trustbloc.local:
+    container_name: mediator.trustbloc.local
+    image: ${MEDIATOR_IMAGE}:${MEDIATOR_IMAGE_TAG}
     environment:
-      - HUB_ROUTER_HOST_URL=${HUB_ROUTER_HOST}:${HUB_ROUTER_API_PORT}
-      - HUB_ROUTER_TLS_CACERTS=/etc/tls/ec-cacert.pem
-      - HUB_ROUTER_TLS_SYSTEMCERTPOOL=true
-      - HUB_ROUTER_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
-      - HUB_ROUTER_TLS_SERVE_KEY=/etc/tls/ec-key.pem
-      - HUB_ROUTER_DIDCOMM_HTTP_HOST=${HUB_ROUTER_HOST}:${HUB_ROUTER_HTTP_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://hub-router.trustbloc.local:${HUB_ROUTER_HTTP_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_WS_HOST=${HUB_ROUTER_HOST}:${HUB_ROUTER_WS_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${HUB_ROUTER_WS_INBOUND_PORT}
-      - HUB_ROUTER_HTTP_RESOLVER=orb@https://testnet.orb.local/sidetree/v1/identifiers
-      - HUB_ROUTER_ORB_DOMAINS=${HUB_ROUTER_ORB_DOMAINS}
-      - HUB_ROUTER_KEY_TYPE=${HUB_ROUTER_KEY_TYPE}
-      - HUB_ROUTER_KEY_AGREEMENT_TYPE=${HUB_ROUTER_KEY_AGREEMENT_TYPE}
-      - HUB_ROUTER_DSN_PERSISTENT=mem://tests
-      - HUB_ROUTER_DSN_TRANSIENT=mem://tests
-      - HUB_ROUTER_DSN_TIMEOUT=45
+      - MEDIATOR_HOST_URL=${MEDIATOR_HOST}:${MEDIATOR_API_PORT}
+      - MEDIATOR_TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - MEDIATOR_TLS_SYSTEMCERTPOOL=true
+      - MEDIATOR_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
+      - MEDIATOR_TLS_SERVE_KEY=/etc/tls/ec-key.pem
+      - MEDIATOR_DIDCOMM_HTTP_HOST=${MEDIATOR_HOST}:${MEDIATOR_HTTP_INBOUND_PORT}
+      - MEDIATOR_DIDCOMM_HTTP_HOST_EXTERNAL=https://mediator.trustbloc.local:${MEDIATOR_HTTP_INBOUND_PORT}
+      - MEDIATOR_DIDCOMM_WS_HOST=${MEDIATOR_HOST}:${MEDIATOR_WS_INBOUND_PORT}
+      - MEDIATOR_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${MEDIATOR_WS_INBOUND_PORT}
+      - MEDIATOR_HTTP_RESOLVER=orb@https://testnet.orb.local/sidetree/v1/identifiers
+      - MEDIATOR_ORB_DOMAINS=${MEDIATOR_ORB_DOMAINS}
+      - MEDIATOR_KEY_TYPE=${MEDIATOR_KEY_TYPE}
+      - MEDIATOR_KEY_AGREEMENT_TYPE=${MEDIATOR_KEY_AGREEMENT_TYPE}
+      - MEDIATOR_DSN_PERSISTENT=mem://tests
+      - MEDIATOR_DSN_TRANSIENT=mem://tests
+      - MEDIATOR_DSN_TIMEOUT=45
     ports:
-      - ${HUB_ROUTER_API_PORT}:${HUB_ROUTER_API_PORT}
-      - ${HUB_ROUTER_HTTP_INBOUND_PORT}:${HUB_ROUTER_HTTP_INBOUND_PORT}
-      - ${HUB_ROUTER_WS_INBOUND_PORT}:${HUB_ROUTER_WS_INBOUND_PORT}
+      - ${MEDIATOR_API_PORT}:${MEDIATOR_API_PORT}
+      - ${MEDIATOR_HTTP_INBOUND_PORT}:${MEDIATOR_HTTP_INBOUND_PORT}
+      - ${MEDIATOR_WS_INBOUND_PORT}:${MEDIATOR_WS_INBOUND_PORT}
     entrypoint: ""
-    command: /bin/sh -c "hub-router start"
+    command: /bin/sh -c "mediator start"
     volumes:
       - ../keys/tls:/etc/tls
 
-  hub-router-2.example.com:
-    container_name: hub-router-2.example.com
-    image: ${HUB_ROUTER_IMAGE}:${HUB_ROUTER_IMAGE_TAG}
+  mediator.example.com:
+    container_name: mediator.example.com
+    image: ${MEDIATOR_IMAGE}:${MEDIATOR_IMAGE_TAG}
     environment:
-      - HUB_ROUTER_HOST_URL=${HUB_ROUTER2_HOST}:${HUB_ROUTER2_API_PORT}
-      - HUB_ROUTER_TLS_CACERTS=/etc/tls/ec-cacert.pem
-      - HUB_ROUTER_TLS_SYSTEMCERTPOOL=true
-      - HUB_ROUTER_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
-      - HUB_ROUTER_TLS_SERVE_KEY=/etc/tls/ec-key.pem
-      - HUB_ROUTER_DIDCOMM_HTTP_HOST=${HUB_ROUTER2_HOST}:${HUB_ROUTER2_HTTP_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=https://localhost:${HUB_ROUTER2_HTTP_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_WS_HOST=${HUB_ROUTER2_HOST}:${HUB_ROUTER2_WS_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${HUB_ROUTER2_WS_INBOUND_PORT}
-      - HUB_ROUTER_HTTP_RESOLVER=orb@https://testnet.orb.local/sidetree/v1/identifiers
-      - HUB_ROUTER_ORB_DOMAINS=${HUB_ROUTER2_ORB_DOMAINS}
-      - HUB_ROUTER_KEY_TYPE=${HUB_ROUTER2_KEY_TYPE}
-      - HUB_ROUTER_KEY_AGREEMENT_TYPE=${HUB_ROUTER2_KEY_AGREEMENT_TYPE}
-      - HUB_ROUTER_DSN_PERSISTENT=mem://tests
-      - HUB_ROUTER_DSN_TRANSIENT=mem://tests
-      - HUB_ROUTER_DSN_TIMEOUT=45
+      - MEDIATOR_HOST_URL=${MEDIATOR2_HOST}:${MEDIATOR2_API_PORT}
+      - MEDIATOR_TLS_CACERTS=/etc/tls/ec-cacert.pem
+      - MEDIATOR_TLS_SYSTEMCERTPOOL=true
+      - MEDIATOR_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
+      - MEDIATOR_TLS_SERVE_KEY=/etc/tls/ec-key.pem
+      - MEDIATOR_DIDCOMM_HTTP_HOST=${MEDIATOR2_HOST}:${MEDIATOR2_HTTP_INBOUND_PORT}
+      - MEDIATOR_DIDCOMM_HTTP_HOST_EXTERNAL=https://localhost:${MEDIATOR2_HTTP_INBOUND_PORT}
+      - MEDIATOR_DIDCOMM_WS_HOST=${MEDIATOR2_HOST}:${MEDIATOR2_WS_INBOUND_PORT}
+      - MEDIATOR_DIDCOMM_WS_HOST_EXTERNAL=wss://localhost:${MEDIATOR2_WS_INBOUND_PORT}
+      - MEDIATOR_HTTP_RESOLVER=orb@https://testnet.orb.local/sidetree/v1/identifiers
+      - MEDIATOR_ORB_DOMAINS=${MEDIATOR2_ORB_DOMAINS}
+      - MEDIATOR_KEY_TYPE=${MEDIATOR2_KEY_TYPE}
+      - MEDIATOR_KEY_AGREEMENT_TYPE=${MEDIATOR2_KEY_AGREEMENT_TYPE}
+      - MEDIATOR_DSN_PERSISTENT=mem://tests
+      - MEDIATOR_DSN_TRANSIENT=mem://tests
+      - MEDIATOR_DSN_TIMEOUT=45
     ports:
-      - ${HUB_ROUTER2_API_PORT}:${HUB_ROUTER2_API_PORT}
-      - ${HUB_ROUTER2_HTTP_INBOUND_PORT}:${HUB_ROUTER2_HTTP_INBOUND_PORT}
-      - ${HUB_ROUTER2_WS_INBOUND_PORT}:${HUB_ROUTER2_WS_INBOUND_PORT}
+      - ${MEDIATOR2_API_PORT}:${MEDIATOR2_API_PORT}
+      - ${MEDIATOR2_HTTP_INBOUND_PORT}:${MEDIATOR2_HTTP_INBOUND_PORT}
+      - ${MEDIATOR2_WS_INBOUND_PORT}:${MEDIATOR2_WS_INBOUND_PORT}
     entrypoint: ""
-    command: /bin/sh -c "hub-router start"
+    command: /bin/sh -c "mediator start"
     volumes:
       - ../keys/tls:/etc/tls
 

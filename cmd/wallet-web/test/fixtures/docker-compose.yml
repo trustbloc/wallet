@@ -6,24 +6,24 @@
 version: '2'
 
 services:
-  hub-router.trustbloc.local:
-    container_name: hub-router.trustbloc.local
-    image: ${HUB_ROUTER_IMAGE}:${HUB_ROUTER_IMAGE_TAG}
+  mediator.trustbloc.local:
+    container_name: mediator.trustbloc.local
+    image: ${MEDIATOR_IMAGE}:${MEDIATOR_IMAGE_TAG}
     environment:
-      - HUB_ROUTER_HOST_URL=${HUB_ROUTER_HOST}:${HUB_ROUTER_API_PORT}
-      - HUB_ROUTER_DIDCOMM_HTTP_HOST=${HUB_ROUTER_HOST}:${HUB_ROUTER_HTTP_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_HTTP_HOST_EXTERNAL=http://localhost:${HUB_ROUTER_HTTP_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_WS_HOST=${HUB_ROUTER_HOST}:${HUB_ROUTER_WS_INBOUND_PORT}
-      - HUB_ROUTER_DIDCOMM_WS_HOST_EXTERNAL=ws://localhost:${HUB_ROUTER_WS_INBOUND_PORT}
-      - HUB_ROUTER_DSN_PERSISTENT=mem://tests
-      - HUB_ROUTER_DSN_TRANSIENT=mem://tests
-      - HUB_ROUTER_DSN_TIMEOUT=45
+      - MEDIATOR_HOST_URL=${MEDIATOR_HOST}:${MEDIATOR_API_PORT}
+      - MEDIATOR_DIDCOMM_HTTP_HOST=${MEDIATOR_HOST}:${MEDIATOR_HTTP_INBOUND_PORT}
+      - MEDIATOR_DIDCOMM_HTTP_HOST_EXTERNAL=http://localhost:${MEDIATOR_HTTP_INBOUND_PORT}
+      - MEDIATOR_DIDCOMM_WS_HOST=${MEDIATOR_HOST}:${MEDIATOR_WS_INBOUND_PORT}
+      - MEDIATOR_DIDCOMM_WS_HOST_EXTERNAL=ws://localhost:${MEDIATOR_WS_INBOUND_PORT}
+      - MEDIATOR_DSN_PERSISTENT=mem://tests
+      - MEDIATOR_DSN_TRANSIENT=mem://tests
+      - MEDIATOR_DSN_TIMEOUT=45
     ports:
-      - ${HUB_ROUTER_API_PORT}:${HUB_ROUTER_API_PORT}
-      - ${HUB_ROUTER_HTTP_INBOUND_PORT}:${HUB_ROUTER_HTTP_INBOUND_PORT}
-      - ${HUB_ROUTER_WS_INBOUND_PORT}:${HUB_ROUTER_WS_INBOUND_PORT}
+      - ${MEDIATOR_API_PORT}:${MEDIATOR_API_PORT}
+      - ${MEDIATOR_HTTP_INBOUND_PORT}:${MEDIATOR_HTTP_INBOUND_PORT}
+      - ${MEDIATOR_WS_INBOUND_PORT}:${MEDIATOR_WS_INBOUND_PORT}
     entrypoint: ''
-    command: /bin/sh -c "hub-router start"
+    command: /bin/sh -c "mediator start"
 
   sidetree:
     container_name: testnet.orb.local

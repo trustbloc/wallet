@@ -27,10 +27,10 @@ You also need to add the following lines to your `hosts` file (`/etc/hosts` on \
 127.0.0.1 wallet-server.trustbloc.local
 127.0.0.1 wallet-2.trustbloc.local
 127.0.0.1 wallet-server-2.trustbloc.local
-127.0.0.1 hub-router.trustbloc.local
+127.0.0.1 mediator.trustbloc.local
 127.0.0.1 uni-resolver-web.trustbloc.local
-127.0.0.1 hub-auth.trustbloc.local
-127.0.0.1 hub-auth-hydra.trustbloc.local
+127.0.0.1 auth.trustbloc.local
+127.0.0.1 auth-hydra.trustbloc.local
 127.0.0.1 demo-hydra.trustbloc.local
 127.0.0.1 edv.trustbloc.local
 127.0.0.1 authz-kms.trustbloc.local

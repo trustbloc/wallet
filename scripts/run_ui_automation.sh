@@ -56,10 +56,10 @@ healthCheck() {
 # healthcheck
 healthCheck wallet-web https://wallet.trustbloc.local:8091/healthcheck 200
 healthCheck wallet-server https://wallet-server.trustbloc.local:8090/healthcheck 200
-healthCheck hub-auth https://hub-auth.trustbloc.local:8044/healthcheck 200
-healthCheck hub-auth-hydra https://hub-auth-hydra.trustbloc.local:5555/.well-known/openid-configuration 200
+healthCheck hub-auth https://auth.trustbloc.local:8044/healthcheck 200
+healthCheck hub-auth-hydra https://auth-hydra.trustbloc.local:5555/.well-known/openid-configuration 200
 healthCheck mock-adapter https://demo-adapter.trustbloc.local:8094/verifier 200
-healthCheck hub-router https://hub-router.trustbloc.local:10093/healthcheck 200
+healthCheck mediator https://mediator.trustbloc.local:10093/healthcheck 200
 healthCheck demo-hydra https://demo-hydra.trustbloc.local:7777/.well-known/openid-configuration 200
 healthCheck demo-login-app http://localhost:3300/login 200
 
