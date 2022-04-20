@@ -18,7 +18,7 @@ subjectAltName = @alt_names
     [alt_names]
 DNS.1 = localhost
 DNS.2 = testnet.orb.local
-DNS.3 = hub-router.trustbloc.local" >> "$tmp"
+DNS.3 = mediator.trustbloc.local" >> "$tmp"
 
 #create CA
 openssl ecparam -name prime256v1 -genkey -noout -out test/fixtures/keys/tls/ec-cakey.pem

@@ -34,7 +34,7 @@ services:
       - TLS_KEY_FILE=/etc/tls/ec-key.pem
       - TLS_CERT_FILE=/etc/tls/ec-pubCert.pem
       - ORB_DOMAIN=https://testnet.orb.local
-      - ROUTER_DOMAIN=https://hub-router.trustbloc.local:${HUB_ROUTER_HTTP_INBOUND_PORT}
+      - ROUTER_DOMAIN=https://mediator.trustbloc.local:${MEDIATOR_HTTP_INBOUND_PORT}
       - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
       - KEY_TYPE=${MOCK_ADAPTER_KEY_TYPE}
       - KEY_AGREEMENT_TYPE=${MOCK_ADAPTER_KEY_AGREEMENT_TYPE}
