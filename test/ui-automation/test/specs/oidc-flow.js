@@ -17,11 +17,12 @@ const vcSubjectData = [
   { name: "Resident Since", value: "2015-01-01" },
 ];
 
-describe("TrustBloc Wallet - OIDC Share flow", async function () {
+
+describe("TrustBloc Wallet - OIDC flow", async function () {
   const ctx = {
     email: `ui-aut-oidc-${new Date().getTime()}@test.com`,
   };
-  
+
   // runs once before the first test in this block
   before(async () => {
     await browser.reloadSession();
@@ -47,14 +48,21 @@ describe("TrustBloc Wallet - OIDC Share flow", async function () {
     await wallet.waitForCredentials();
   });
 
-  // TODO https://github.com/trustbloc/wallet/issues/1531 Switch this to use OIDC Issuance flow
-  it(`User offered to save credential through WACI-Issuance (Redirect) : user (${ctx.email}) signed-in`, async function () {
-    // demo issuer page
-    await browser.navigateTo(browser.config.waciDemoIssuerURL);
 
-    let waciIssuanceDemoBtn = await $("#waci-issuance-demo-v2");
-    await waciIssuanceDemoBtn.waitForExist();
-    await waciIssuanceDemoBtn.click();
+  it(`User offered to save credential through OIDC Issuance: already signed-in`, async function () {
+    // demo issuer page
+    await browser.navigateTo(browser.config.oidcDemoIssuerURL);
+
+    let oidcIssuanceDemoBtn = await $("#oidc-issuance");
+    await oidcIssuanceDemoBtn.waitForExist();
+    await oidcIssuanceDemoBtn.click();
+
+    const issuerLoginBtn = await $("#issuer-login");
+    await issuerLoginBtn.waitForExist();
+    await issuerLoginBtn.click();
+
+    const prcSpan = await $("span*=Permanent Resident Card");
+    await prcSpan.waitForExist();
 
     // accept store credential
     const storeButton = await $("#storeVCBtn");
@@ -65,9 +73,8 @@ describe("TrustBloc Wallet - OIDC Share flow", async function () {
     await okBtn.waitForExist();
     await okBtn.click();
 
-    // success message
-    const getSuccessMsg = await $("b*=Successfully Sent Credential to holder");
-    await getSuccessMsg.waitForExist();
+    // sleep for 3 secs
+    await new Promise((resolve) => setTimeout(resolve, 3000));
   });
 
   it(`User validates the saved credential in Wallet`, async function () {
@@ -80,7 +87,7 @@ describe("TrustBloc Wallet - OIDC Share flow", async function () {
     await wallet.validateCredentialDetails(vcSubjectData);
   });
 
-  it(`User presents credential through OIDC-Share (Redirect) : already signed-in`, async function () {
+  it(`User presents credential through OIDC Share: already signed-in`, async function () {
     // demo verifier page
     await browser.navigateTo(browser.config.oidcDemoVerifierURL);
 
