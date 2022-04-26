@@ -139,13 +139,14 @@ export default {
       if (path === '/oidc/initiate') {
         this.processing = true;
         const opState = this.$route.query.op_state || uuid();
-        const configuration = await readOpenIDConfiguration(this.$route.query.issuer);
+        const { issuer, credential_type, manifest_id } = this.$route.query;
+        const configuration = await readOpenIDConfiguration(issuer);
         Cookies.set(
           opState,
           JSON.stringify({
-            issuer: this.$route.query.issuer,
-            type: this.$route.query.credential_type,
-            manifestID: this.$route.query.manifest_id,
+            issuer,
+            credentialTypes: Array.isArray(credential_type) ? credential_type : [credential_type],
+            manifestID: manifest_id,
           })
         );
         sendCredentialAuthorizeRequest(

@@ -57,43 +57,46 @@
       >
         <span class="mb-6 text-3xl font-bold">{{ t('WACI.Issue.saveCredential') }}</span>
 
-        <credential-overview
-          v-if="processedCredentials.length === 1"
-          :credential="processedCredentials[0]"
+        <div
+          v-for="(credential, index) in processedCredentials"
+          :key="index"
+          class="flex flex-col justify-start w-full max-w-3xl"
         >
-          <template #bannerBottomContainer>
-            <div
-              class="
-                justify-start
-                items-start
-                px-4
-                mt-5
-                w-full
-                bg-neutrals-lilacSoft
-                rounded-t-lg
-                flex flex-col flex-grow
-                border-b border-neutrals-dark
-              "
-            >
-              <label for="select-key" class="mb-1 text-sm font-bold text-neutrals-dark">{{
-                t('Vaults.selectVault')
-              }}</label>
-              <custom-select
-                id="waci-issue-select-vault"
-                :options="vaults"
-                default="Default Vault"
-                @selected="setSelectedVault"
+          <credential-overview :credential="credential">
+            <template #bannerBottomContainer>
+              <div
+                class="
+                  justify-start
+                  items-start
+                  px-4
+                  mt-5
+                  w-full
+                  bg-neutrals-lilacSoft
+                  rounded-t-lg
+                  flex flex-col flex-grow
+                  border-b border-neutrals-dark
+                "
+              >
+                <label for="select-key" class="mb-1 text-sm font-bold text-neutrals-dark">{{
+                  t('Vaults.selectVault')
+                }}</label>
+                <custom-select
+                  id="waci-issue-select-vault"
+                  :options="vaults"
+                  default="Default Vault"
+                  @selected="setSelectedVault"
+                />
+              </div>
+            </template>
+            <template #credentialDetails>
+              <credential-details-table
+                :heading="t('WACI.Issue.verifiedInformation')"
+                :credential="processedCredentials[0]"
+                class="mt-8"
               />
-            </div>
-          </template>
-          <template #credentialDetails>
-            <credential-details-table
-              :heading="t('WACI.Issue.verifiedInformation')"
-              :credential="processedCredentials[0]"
-              class="mt-8"
-            />
-          </template>
-        </credential-overview>
+            </template>
+          </credential-overview>
+        </div>
       </div>
     </div>
 
@@ -182,7 +185,7 @@ export default {
       throw 'invalid state, session expired!';
     }
 
-    const { issuer, type } = JSON.parse(txState);
+    const { issuer, credentialTypes } = JSON.parse(txState);
     const configuration = await readOpenIDConfiguration(issuer);
 
     const { access_token, token_type } = await requestToken(configuration.token_endpoint, {
@@ -190,15 +193,33 @@ export default {
       code: this.$route.query.code,
     });
 
-    // TODO in case of multiple types, call credential endpoint iteratively and collect multiple credentials, Issue #1640
-    const { credential } = await requestCredential(configuration.credential_endpoint, {
-      access_token,
-      token_type,
-      credentialType: type,
-    });
+    let processedCredentials = [];
 
-    this.prepareCards(credential, configuration.credential_manifests, type);
+    this.saveData = await Promise.all(
+      credentialTypes.map(async (credentialType) => {
+        const { credential } = await requestCredential(configuration.credential_endpoint, {
+          access_token,
+          token_type,
+          credentialType,
+        });
 
+        const { processed, descriptorID, manifest } = await this.prepareCards(
+          credential,
+          configuration.credential_manifests,
+          credentialType
+        );
+
+        processedCredentials.push(...processed);
+
+        return {
+          credential,
+          manifest,
+          descriptorID,
+        };
+      })
+    );
+
+    this.processedCredentials = processedCredentials;
     this.loading = false;
   },
   methods: {
@@ -211,21 +232,23 @@ export default {
       const { profile, preference } = this.getCurrentUser();
       const { controller, proofType, verificationMethod } = preference;
 
-      this.credentialManager.save(
-        profile.token,
-        { credentials: this.credentials },
-        {
-          manifest: this.manifest,
-          descriptorMap: [
-            {
-              id: this.descriptorID,
-              format: 'ldp_vc',
-              path: '$[0]',
-            },
-          ],
-          collection: this.selectedVault,
-        }
-      );
+      this.saveData.forEach(({ credential, manifest, descriptorID }) => {
+        this.credentialManager.save(
+          profile.token,
+          { credentials: [credential] },
+          {
+            manifest,
+            descriptorMap: [
+              {
+                id: descriptorID,
+                format: 'ldp_vc',
+                path: '$[0]',
+              },
+            ],
+            collection: this.selectedVault,
+          }
+        );
+      });
 
       this.savedSuccessfully = true;
       this.saving = false;
@@ -267,16 +290,13 @@ export default {
         throw 'unable to find matching manifest'; // TODO handle this error, Issue #1531
       }
 
-      this.processedCredentials = await this.credentialManager.resolveManifest(this.token, {
+      const processed = await this.credentialManager.resolveManifest(this.token, {
         credential,
         manifest,
         descriptorID,
       });
 
-      // TODO to be refactored for multi credential support, , Issue #1640
-      this.credentials = [credential];
-      this.descriptorID = descriptorID;
-      this.manifest = manifest;
+      return { processed, descriptorID, manifest };
     },
   },
 };

@@ -460,7 +460,7 @@ func (v *adapterApp) initiateIssuance(w http.ResponseWriter, r *http.Request) {
 	manifestIDs := strings.Split(r.FormValue("manifestIDs"), ",")
 	issuerURL := r.FormValue("issuerURL")
 	credManifest := r.FormValue("credManifest")
-	credential := r.FormValue("credToIssue")
+	credentials := r.FormValue("credsToIssue")
 
 	key := uuid.NewString()
 	issuer := issuerURL + "/" + key
@@ -481,17 +481,28 @@ func (v *adapterApp) initiateIssuance(w http.ResponseWriter, r *http.Request) {
 	err = v.store.Put(key, issuerConf)
 	if err != nil {
 		handleError(w, http.StatusInternalServerError,
-			fmt.Sprintf("failed to server configuration : %s", err))
+			fmt.Sprintf("failed to prepare server configuration : %s", err))
 
 		return
 	}
 
-	err = v.store.Put(getCredStoreKeyPrefix(key), []byte(credential))
+	var credentialsToSave map[string]json.RawMessage
+	err = json.Unmarshal([]byte(credentials), &credentialsToSave)
 	if err != nil {
 		handleError(w, http.StatusInternalServerError,
-			fmt.Sprintf("failed to server configuration : %s", err))
+			fmt.Sprintf("failed to parse credentials : %s", err))
 
 		return
+	}
+
+	for ct, credential := range credentialsToSave {
+		err = v.store.Put(getCredStoreKeyPrefix(key, ct), credential)
+		if err != nil {
+			handleError(w, http.StatusInternalServerError,
+				fmt.Sprintf("failed to server configuration : %s", err))
+
+			return
+		}
 	}
 
 	u, err := url.Parse(walletURL)
@@ -715,8 +726,8 @@ func (v *adapterApp) issuerTokenEndpoint(w http.ResponseWriter, r *http.Request)
 func (v *adapterApp) issuerCredentialEndpoint(w http.ResponseWriter, r *http.Request) {
 	setOIDCResponseHeaders(w)
 
-	// TODO read and validate credential 'type', useful in multiple credential download.
 	format := r.FormValue("format")
+	credentialType := r.FormValue("type")
 
 	if format != "" && format != "ldp_vc" {
 		sendOIDCErrorResponse(w, "unsupported format requested", http.StatusBadRequest)
@@ -747,7 +758,7 @@ func (v *adapterApp) issuerCredentialEndpoint(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	credentialBytes, err := v.store.Get(getCredStoreKeyPrefix(mockIssuerID))
+	credentialBytes, err := v.store.Get(getCredStoreKeyPrefix(mockIssuerID, credentialType))
 	if err != nil {
 		sendOIDCErrorResponse(w, "failed to get credential", http.StatusInternalServerError)
 		return
@@ -988,8 +999,8 @@ func getAccessTokenKeyPrefix(key string) string {
 	return fmt.Sprintf("access_token_%s", key)
 }
 
-func getCredStoreKeyPrefix(key string) string {
-	return fmt.Sprintf("cred_store_%s", key)
+func getCredStoreKeyPrefix(key, credType string) string {
+	return fmt.Sprintf("cred_store_%s_%s", key, credType)
 }
 
 func setOIDCResponseHeaders(w http.ResponseWriter) {
