@@ -47,14 +47,7 @@ import (
 )
 
 var (
-	validCredentialManifest []byte
-	pdBytes                 []byte
-
-	//go:embed sampledata/sample_prc_fulfillment_unsigned.json
-	prcFulFillmentUnsigned []byte
-
-	//go:embed sampledata/sample_prc_fulfillment.json
-	prcFulFillment []byte
+	pdBytes []byte
 )
 
 const (
@@ -88,6 +81,13 @@ type issuerConfiguration struct {
 	CredentialEndpoint    string          `json:"credential_endpoint"`
 	TokenEndpoint         string          `json:"token_endpoint"`
 	CredentialManifests   json.RawMessage `json:"credential_manifests"`
+}
+
+// waciIssuanceData contains state of WACI demo.
+type waciIssuanceData struct {
+	CredentialManifest    json.RawMessage `json:"credential_manifest"`
+	CredentialFulfillment json.RawMessage `json:"credential_fulfillment"`
+	Credential            json.RawMessage `json:"credential"`
 }
 
 type adapterApp struct {
@@ -236,6 +236,7 @@ func (v *adapterApp) waciIssuance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	v.persistWACIIssuanceData(w, r, inv.ID)
 	v.waciInvitationRedirect(w, r, inv)
 }
 
@@ -252,6 +253,7 @@ func (v *adapterApp) waciIssuanceV2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	v.persistWACIIssuanceData(w, r, inv.ID)
 	v.waciInvitationRedirect(w, r, inv)
 }
 
@@ -269,13 +271,33 @@ func (v *adapterApp) waciInvitationRedirect(w http.ResponseWriter, r *http.Reque
 	redirectURL := fmt.Sprintf("%s/waci?oob=%s", r.FormValue("walletURL"),
 		base64.URLEncoding.EncodeToString(invBytes))
 
-	validCredentialManifest = []byte(r.FormValue("credManifest"))
-	pdBytes = []byte(r.FormValue("pEx"))
-
-	logger.Infof("waci redirect : url=%s oob-invitation=%s credentialManifest=%s presentationExchange=%s",
-		redirectURL, string(invBytes), string(validCredentialManifest), string(pdBytes))
+	logger.Infof("waci redirect : url=%s oob-invitation=%s", redirectURL, string(invBytes))
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)
+}
+
+func (v *adapterApp) persistWACIIssuanceData(w http.ResponseWriter, r *http.Request, invID string) {
+	waciData, err := json.Marshal(&waciIssuanceData{
+		CredentialFulfillment: []byte(r.FormValue("fulfillment")),
+		CredentialManifest:    []byte(r.FormValue("credManifest")),
+		Credential:            []byte(r.FormValue("credToIssue")),
+	})
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to persist waci data : %s", err))
+
+		return
+	}
+
+	err = v.store.Put(getWACIIssuanceDataStoreKeyPrefix(invID), waciData)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to persist waci data : %s", err))
+
+		return
+	}
+
+	logger.Infof("waci redirect :data=%s invitationID=%s", string(waciData), invID)
 }
 
 func (v *adapterApp) waciShareCallback(w http.ResponseWriter, r *http.Request) {
@@ -771,7 +793,7 @@ func (v *adapterApp) issuerCredentialEndpoint(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = signVCWithED25519(credential, docLoader)
+	err = signCredentialWithED25519(credential)
 	if err != nil {
 		sendOIDCErrorResponse(w, "failed to issue credential", http.StatusInternalServerError)
 		return
@@ -874,7 +896,39 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				action.Stop(nil)
 			}
 
-			offerCredMsg, err := createOfferCredentialMsg(validCredentialManifest, prcFulFillmentUnsigned)
+			var msgData map[string]interface{}
+			err = action.Message.Decode(&msgData)
+			if err != nil {
+				logger.Errorf("failed to decode propose credential message", err)
+				action.Stop(nil)
+			}
+
+			var invitationID string
+			if invID, ok := msgData["invitationID"]; ok {
+				invitationID, _ = invID.(string)
+			} else if invID, ok := msgData["pthid"]; ok {
+				invitationID, _ = invID.(string)
+			}
+
+			waciData, err := readWACIIssuanceData(store, invitationID, action.Message.ID())
+			if err != nil {
+				logger.Errorf("failed to get WACI issuance data", err)
+				action.Stop(nil)
+			}
+
+			vp, err := createFulfillmentVP(waciData.CredentialFulfillment, waciData.Credential, false)
+			if err != nil {
+				logger.Errorf("failed to prepare fulfillment", err)
+				action.Stop(nil)
+			}
+
+			credFulfillmentBytes, err := vp.MarshalJSON()
+			if err != nil {
+				logger.Errorf("failed to prepare fulfillment bytes", err)
+				action.Stop(nil)
+			}
+
+			offerCredMsg, err := createOfferCredentialMsg(waciData.CredentialManifest, credFulfillmentBytes)
 			if err != nil {
 				logger.Errorf("failed to prepare offer credential message", err)
 				action.Stop(nil)
@@ -888,7 +942,25 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				action.Stop(nil)
 			}
 
-			issueCredMsg, err := createIssueCredentialMsg(prcFulFillment, os.Getenv(demoExternalURLEnvKey)+"/issuer/waci-issuance/"+thID)
+			waciData, err := readWACIIssuanceData(store, thID, "")
+			if err != nil {
+				logger.Errorf("failed to get WACI issuance data", err)
+				action.Stop(nil)
+			}
+
+			vp, err := createFulfillmentVP(waciData.CredentialFulfillment, waciData.Credential, true)
+			if err != nil {
+				logger.Errorf("failed to prepare fulfillment", err)
+				action.Stop(nil)
+			}
+
+			credFulfillmentBytes, err := vp.MarshalJSON()
+			if err != nil {
+				logger.Errorf("failed to prepare fulfillment bytes", err)
+				action.Stop(nil)
+			}
+
+			issueCredMsg, err := createIssueCredentialMsg(credFulfillmentBytes, os.Getenv(demoExternalURLEnvKey)+"/issuer/waci-issuance/"+thID)
 			if err != nil {
 				logger.Errorf("failed to prepare issue credential message", err)
 				action.Stop(nil)
@@ -899,6 +971,28 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 			action.Stop(nil)
 		}
 	}
+}
+
+func readWACIIssuanceData(store storage.Store, id string, newID string) (*waciIssuanceData, error) {
+	data, err := store.Get(getWACIIssuanceDataStoreKeyPrefix(id))
+	if err != nil {
+		return nil, err
+	}
+
+	var waciData waciIssuanceData
+	err = json.Unmarshal(data, &waciData)
+	if err != nil {
+		return nil, err
+	}
+
+	if newID != "" {
+		err = store.Put(getWACIIssuanceDataStoreKeyPrefix(newID), data)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &waciData, nil
 }
 
 func createOfferCredentialMsg(manifest, fulfillmentVP []byte) (*issuecredential.OfferCredentialParams, error) {
@@ -1003,6 +1097,10 @@ func getCredStoreKeyPrefix(key, credType string) string {
 	return fmt.Sprintf("cred_store_%s_%s", key, credType)
 }
 
+func getWACIIssuanceDataStoreKeyPrefix(key string) string {
+	return fmt.Sprintf("waci_issuance_data_%s", key)
+}
+
 func setOIDCResponseHeaders(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
@@ -1014,7 +1112,7 @@ func sendOIDCErrorResponse(w http.ResponseWriter, msg string, status int) {
 	w.Write([]byte(fmt.Sprintf(`{"error": "%s"}`, msg)))
 }
 
-func signVCWithED25519(vc *verifiable.Credential, loader ld.DocumentLoader) error {
+func signCredentialWithED25519(vc *verifiable.Credential) error {
 	edPriv := ed25519.PrivateKey(base58.Decode(pkBase58))
 	edSigner := &edd25519Signer{edPriv}
 	sigSuite := ed25519signature2018.New(suite.WithSigner(edSigner))
@@ -1030,7 +1128,71 @@ func signVCWithED25519(vc *verifiable.Credential, loader ld.DocumentLoader) erro
 		Created:                 &tt,
 	}
 
-	return vc.AddLinkedDataProof(ldpContext, jsonld.WithDocumentLoader(loader))
+	return vc.AddLinkedDataProof(ldpContext, jsonld.WithDocumentLoader(ld.NewDefaultDocumentLoader(nil)))
+}
+
+func signPresentationWithED25519(vc *verifiable.Presentation) error {
+	edPriv := ed25519.PrivateKey(base58.Decode(pkBase58))
+	edSigner := &edd25519Signer{edPriv}
+	sigSuite := ed25519signature2018.New(suite.WithSigner(edSigner))
+
+	tt := time.Now()
+
+	ldpContext := &verifiable.LinkedDataProofContext{
+		SignatureType:           "Ed25519Signature2018",
+		SignatureRepresentation: verifiable.SignatureProofValue,
+		Suite:                   sigSuite,
+		VerificationMethod:      kid,
+		Purpose:                 "authentication",
+		Created:                 &tt,
+	}
+
+	return vc.AddLinkedDataProof(ldpContext, jsonld.WithDocumentLoader(ld.NewDefaultDocumentLoader(nil)))
+}
+
+func createFulfillmentVP(fulfillment []byte, credential []byte, sign bool) (*verifiable.Presentation, error) {
+	presentation, err := verifiable.NewPresentation()
+	if err != nil {
+		return nil, err
+	}
+
+	presentation.Context = append(presentation.Context,
+		"https://identity.foundation/credential-manifest/fulfillment/v1")
+	presentation.Type = append(presentation.Type, "CredentialFulfillment")
+
+	presentation.CustomFields = make(map[string]interface{})
+
+	var fulfillmentMap map[string]interface{}
+	err = json.Unmarshal(fulfillment, &fulfillmentMap)
+	if err != nil {
+		return nil, err
+	}
+
+	presentation.CustomFields = fulfillmentMap
+
+	cred, err := verifiable.ParseCredential(credential, verifiable.WithJSONLDDocumentLoader(ld.NewDefaultDocumentLoader(nil)),
+		verifiable.WithDisabledProofCheck())
+	if err != nil {
+		return nil, err
+	}
+
+	if sign {
+		err = signCredentialWithED25519(cred)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	presentation.AddCredentials(cred)
+
+	if sign {
+		err = signPresentationWithED25519(presentation)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return presentation, nil
 }
 
 // signer for signing ed25519 for tests.
