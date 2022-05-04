@@ -20,7 +20,7 @@
         border-neutrals-black
       "
     >
-      <Spinner />
+      <IconSpinner />
     </div>
   </div>
   <!-- Sharing State -->
@@ -38,7 +38,7 @@
         flex flex-col
       "
     >
-      <Spinner />
+      <IconSpinner />
       <span class="mt-8 text-base text-neutrals-dark">{{
         t('CHAPI.Share.sharingCredential')
       }}</span>
@@ -300,13 +300,13 @@ import {
   WalletGetByQuery,
 } from '@/mixins';
 import { mapGetters } from 'vuex';
-import Spinner from '@/components/Spinner/Spinner.vue';
+import IconSpinner from '@/components/icons/IconSpinner.vue';
 import { useI18n } from 'vue-i18n';
 
 const manifestCredType = 'IssuerManifestCredential';
 
 export default {
-  components: { Spinner },
+  components: { IconSpinner },
   setup() {
     const { t } = useI18n();
     return { t };
