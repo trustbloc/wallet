@@ -48,7 +48,7 @@
     </div>
     <div v-if="loading" class="mt-2 ml-4 h-48">
       <div>
-        <spinner />
+        <IconSpinner />
       </div>
     </div>
     <div v-if="createDIDSuccess">
@@ -65,12 +65,12 @@
 <script>
 import { DIDManager } from '@trustbloc/wallet-sdk';
 import { mapActions, mapGetters } from 'vuex';
-import Spinner from '@/components/Spinner/Spinner';
+import IconSpinner from '@/components/icons/IconSpinner.vue';
 
 export default {
   name: 'CreateOrb',
   components: {
-    Spinner,
+    IconSpinner,
   },
   model: {
     prop: 'allDIDs',

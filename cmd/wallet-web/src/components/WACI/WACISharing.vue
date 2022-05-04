@@ -5,19 +5,19 @@
 -->
 
 <template>
-  <Spinner />
+  <IconSpinner />
   <span v-if="message.length" class="mt-8 text-base md:text-lg text-neutrals-dark">{{
     message
   }}</span>
 </template>
 
 <script>
-import Spinner from '@/components/Spinner/Spinner.vue';
+import IconSpinner from '@/components/icons/IconSpinner.vue';
 
 export default {
   name: 'WACILoading',
   components: {
-    Spinner,
+    IconSpinner,
   },
   props: {
     message: {

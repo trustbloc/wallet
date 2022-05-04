@@ -6,7 +6,7 @@
 
 <template>
   <div v-if="loading" class="chapi-container">
-    <Spinner v-if="loading" />
+    <IconSpinner v-if="loading" />
   </div>
 
   <div v-else class="flex justify-center w-screen">
@@ -84,13 +84,13 @@
 </template>
 <script>
 import { DIDConn } from '@/mixins';
-import Spinner from '@/components/Spinner/Spinner.vue';
+import IconSpinner from '@/components/icons/IconSpinner.vue';
 import Header from '@/components/Header/Header.vue';
 import { mapGetters } from 'vuex';
 
 export default {
   components: {
-    Spinner,
+    IconSpinner,
     Header,
   },
   data() {

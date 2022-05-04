@@ -5,7 +5,7 @@
 -->
 <template>
   <div v-if="loading">
-    <Spinner />
+    <IconSpinner />
   </div>
 
   <div v-else class="flex justify-center w-screen">
@@ -81,13 +81,13 @@
 <script>
 import { toRaw } from 'vue';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
-import Spinner from '@/components/Spinner/Spinner.vue';
+import IconSpinner from '@/components/icons/IconSpinner.vue';
 import Header from '@/components/Header/Header.vue';
 import { mapGetters } from 'vuex';
 
 export default {
   components: {
-    Spinner,
+    IconSpinner,
     Header,
   },
   data() {

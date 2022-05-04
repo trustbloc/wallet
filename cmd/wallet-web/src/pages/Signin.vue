@@ -23,7 +23,7 @@
         :title="t('Signin.errorToast.title')"
         :description="t('Signin.errorToast.description')"
         type="error"
-      ></toast-notification>
+      />
       <div
         class="
           overflow-hidden
@@ -61,7 +61,7 @@
             grid grid-cols-1
           "
         >
-          <Spinner v-if="loading" />
+          <IconSpinner v-if="loading" />
           <button
             v-for="(provider, index) in providers"
             v-else
@@ -102,7 +102,7 @@ import { CHAPIHandler, RegisterWallet } from '@/mixins';
 import { DeviceLogin } from '@trustbloc/wallet-sdk';
 import Footer from '@/components/Footer/Footer.vue';
 import Logo from '@/components/Logo/Logo.vue';
-import Spinner from '@/components/Spinner/Spinner.vue';
+import IconSpinner from '@/components/icons/IconSpinner.vue';
 import useBreakpoints from '@/plugins/breakpoints.js';
 import { mapActions, mapGetters } from 'vuex';
 import axios from 'axios';
@@ -112,7 +112,7 @@ export default {
   components: {
     Footer,
     Logo,
-    Spinner,
+    IconSpinner,
   },
   setup() {
     const { t } = useI18n();

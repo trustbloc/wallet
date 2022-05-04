@@ -17,10 +17,14 @@
       <slot v-if="hasCustomGradient" name="gradientContainer" />
       <div v-else class="absolute w-full bg-gradient-full opacity-40 oval oval-navbar-closed" />
       <div class="flex flex-row justify-center items-center">
-        <button v-if="!isNavbarHidden" class="absolute left-6 z-10" @click="toggleNavbar">
+        <button
+          v-if="!isNavbarHidden && showMenuDropdown"
+          class="absolute left-6 z-10"
+          @click="toggleNavbar"
+        >
           <img src="@/assets/img/menu-icon.svg" />
         </button>
-        <Logo class="z-10 h-6 cursor-pointer" @click="$router.push({ name: 'vaults' })" />
+        <Logo class="z-10 w-40 cursor-pointer" @click="$router.push({ name: 'vaults' })" />
       </div>
     </div>
     <!-- Navbar Open -->
@@ -34,7 +38,7 @@
           <img src="@/assets/img/close.svg" />
         </button>
         <Logo
-          class="z-10 h-6 cursor-pointer"
+          class="z-10 w-40 cursor-pointer"
           @click="
             () => {
               $router.push({ name: 'vaults' });
@@ -88,6 +92,10 @@ export default {
     hasCustomGradient: {
       type: Boolean,
       default: false,
+    },
+    showMenuDropdown: {
+      type: Boolean,
+      default: true,
     },
   },
   setup() {
