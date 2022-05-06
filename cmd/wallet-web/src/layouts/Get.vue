@@ -10,6 +10,7 @@
   </div>
 </template>
 <script>
+import { inject } from 'vue';
 import DIDAuthForm from '@/pages/DIDAuth.vue';
 import DIDConnectForm from '@/pages/DIDConnect.vue';
 import PresentationDefQueryForm from '@/pages/PresentationDefQuery.vue';
@@ -70,6 +71,10 @@ function findForm(credEvent) {
 }
 
 export default {
+  setup() {
+    const webCredentialHandler = inject('webCredentialHandler');
+    return { webCredentialHandler };
+  },
   data() {
     return {
       component: '',
@@ -82,7 +87,7 @@ export default {
     },
   },
   beforeCreate: async function () {
-    this.credentialEvent = await this.$webCredentialHandler.receiveCredentialEvent();
+    this.credentialEvent = await this.webCredentialHandler.receiveCredentialEvent();
     if (!this.credentialEvent.credentialRequestOptions.web.VerifiablePresentation) {
       console.log("invalid web credential type, expected 'VerifiablePresentation'");
       return;

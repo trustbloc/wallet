@@ -16,11 +16,11 @@ import ToastNotification from '@/components/ToastNotification/ToastNotification.
 
 const app = createApp(App);
 
-app.config.globalProperties.$polyfill = polyfill;
-app.config.globalProperties.$webCredentialHandler = webCredentialHandler;
 app.use(router);
 app.use(store);
 app.use(i18n);
+app.provide('polyfill', polyfill);
+app.provide('webCredentialHandler', webCredentialHandler);
 app.component('ToastNotification', ToastNotification);
 
 app.mount('#app');

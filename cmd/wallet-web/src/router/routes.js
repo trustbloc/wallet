@@ -118,9 +118,9 @@ export default [
       },
       {
         path: 'loginhandle',
-        name: 'loginhandle',
-        component: load('pages/LoginHandle'),
-        props: (route) => ({ provider: route.query.provider }),
+        name: 'ProviderPopup',
+        component: load('pages/ProviderPopup'),
+        props: (route) => ({ providerID: route.query.providerID }),
       },
       {
         path: 'signin',
