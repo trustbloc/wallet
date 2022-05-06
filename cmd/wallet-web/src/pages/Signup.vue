@@ -4,6 +4,185 @@
  * SPDX-License-Identifier: Apache-2.0
 -->
 
+<script setup>
+import { computed, inject, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+import axios from 'axios';
+import { useI18n } from 'vue-i18n';
+import { CHAPIHandler, RegisterWallet } from '@/mixins';
+import { DeviceLogin } from '@trustbloc/wallet-sdk';
+import useBreakpoints from '@/plugins/breakpoints.js';
+import Footer from '@/components/Footer/Footer.vue';
+import ToastNotification from '@/components/ToastNotification/ToastNotification.vue';
+import Logo from '@/components/Logo/Logo.vue';
+import IconSpinner from '@/components/icons/IconSpinner.vue';
+
+// Local Variables
+const loading = ref(true);
+const providers = ref([]);
+const systemError = ref(false);
+const providerPopup = ref({ closed: false });
+const disableCHAPI = ref(false);
+const deviceLogin = ref();
+const redirect = ref('');
+
+// Hooks
+const router = useRouter();
+const route = useRoute();
+const store = useStore();
+const { t, locale } = useI18n();
+const breakpoints = useBreakpoints();
+const polyfill = inject('polyfill');
+const webCredentialHandler = inject('webCredentialHandler');
+
+// Store Getters
+const currentUser = computed(() => store.getters['getCurrentUser']);
+const agentOpts = computed(() => store.getters['getAgentOpts']);
+const agentInstance = computed(() => store.getters['agent/getInstance']);
+const hubAuthURL = computed(() => store.getters['hubAuthURL']);
+const isUserLoggedIn = computed(() => store.getters['isUserLoggedIn']);
+const isLoginSuspended = computed(() => store.getters['isLoginSuspended']);
+
+// Store Actions
+const loadUser = () => store.dispatch('loadUser');
+const loadOIDCUser = () => store.dispatch('loadOIDCUser');
+const startUserSetup = () => store.dispatch('startUserSetup');
+const completeUserSetup = () => store.dispatch('completeUserSetup');
+const refreshUserPreference = () => store.dispatch('refreshUserPreference');
+const refreshOpts = () => store.dispatch('initOpts');
+const activateCHAPI = () => store.dispatch('activateCHAPI');
+
+// Watchers
+watch(
+  () => isUserLoggedIn.value,
+  async (isUserLoggedIn) => {
+    if (isUserLoggedIn) {
+      await refreshOpts();
+      try {
+        await loadOIDCUser();
+      } catch (e) {
+        systemError.value = true;
+        loading.value = false;
+      }
+      if (currentUser.value) {
+        await finishOIDCLogin();
+        handleSuccess();
+      }
+    }
+  }
+);
+
+watch(
+  () => isLoginSuspended.value,
+  () => {
+    loading.value = false;
+  }
+);
+
+// Methods
+function openProviderPopup(url, title, w, h) {
+  var left = screen.width / 2 - w / 2;
+  var top = screen.height / 2 - h / 2;
+  return window.open(
+    url,
+    title,
+    'menubar=yes,status=yes, replace=true, width=' +
+      w +
+      ', height=' +
+      h +
+      ', top=' +
+      top +
+      ', left=' +
+      left
+  );
+}
+
+function initiateOIDCLogin(providerID) {
+  loading.value = true;
+  providerPopup.value = openProviderPopup('/loginhandle?providerID=' + providerID, '', 700, 770);
+}
+
+async function finishOIDCLogin() {
+  await registerUser();
+  if (!breakpoints.xs && !breakpoints.sm && !disableCHAPI.value) {
+    // all credential handlers registration should happen here, ex: CHAPI etc
+    const chapi = new CHAPIHandler(
+      polyfill,
+      webCredentialHandler,
+      agentOpts.value.credentialMediatorURL
+    );
+
+    await chapi.install(currentUser.value.username);
+    activateCHAPI();
+  }
+}
+async function registerUser() {
+  if (!currentUser.value.preference) {
+    startUserSetup();
+    // first time login, register this user
+    await new RegisterWallet(agentInstance.value, agentOpts.value).register(
+      {
+        name: currentUser.value.username,
+        user: currentUser.value.profile.user,
+        token: currentUser.value.profile.token,
+      },
+      completeUserSetup
+    );
+    refreshUserPreference();
+  }
+}
+
+function handleSuccess() {
+  router.push(redirect.value);
+}
+
+onMounted(async () => {
+  try {
+    const rawProviders = await axios.get(hubAuthURL.value + '/oauth2/providers');
+    providers.value = rawProviders.data.authProviders.sort(
+      (prov1, prov2) => prov1.order - prov2.order
+    );
+    loading.value = false;
+  } catch (e) {
+    systemError.value = true;
+    console.error('failed to fetch providers', e);
+  }
+  // TODO: issue-601 Implement cookie logic with information from the backend.
+  deviceLogin.value = new DeviceLogin(agentOpts.value['edge-agent-server']);
+
+  // user intended to destination
+  redirect.value = route.params['redirect']
+    ? {
+        name: route.params['redirect'],
+        params: { locale: store.getters.getLocale.base },
+        query: route.query,
+      }
+    : {
+        name: 'vaults',
+        params: { locale: store.getters.getLocale.base },
+        query: route.query,
+      };
+
+  console.debug('redirecting to', redirect.value);
+
+  // if intended target doesn't require CHAPI.
+  disableCHAPI.value = route.params.disableCHAPI;
+
+  // load user.
+  loadUser();
+
+  // if session found, then no need to login.
+  if (currentUser.value) {
+    handleSuccess();
+    return;
+  }
+
+  // show default view with signup options.
+  loading.value = false;
+});
+</script>
+
 <template>
   <div
     class="
@@ -17,60 +196,50 @@
     "
   >
     <div class="flex flex-col flex-grow justify-center items-center">
-      <toast-notification
+      <ToastNotification
         v-if="systemError"
         :title="t('Signup.errorToast.title')"
         :description="t('Signup.errorToast.description')"
         type="error"
       />
       <div
-        class="
-          overflow-hidden
-          mt-20
-          md:max-w-4xl
-          h-auto
-          text-xl
-          md:text-3xl
-          bg-gradient-dark
-          rounded-xl
-        "
+        class="overflow-hidden md:max-w-4xl h-auto text-xl md:text-3xl rounded-xl bg-gradient-dark"
       >
-        <!--Trustbloc Intro div  -->
         <div
           class="
             md:grid-cols-2 md:px-20
             w-full
             h-full
+            bg-no-repeat
+            divide-x divide-opacity-25
             grid grid-cols-1
-            bg-no-repeat bg-onboarding-flare-lg
-            divide-x divide-neutrals-medium divide-opacity-25
+            divide-neutrals-medium
+            bg-onboarding-flare-lg
           "
         >
           <div class="hidden md:block col-span-1 py-24 pr-16">
             <Logo class="mb-12" />
-
             <div class="flex overflow-y-auto flex-1 items-center mb-8 max-w-full">
               <img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-1.svg" />
-              <span class="pl-5 text-base text-neutrals-white align-middle">
+              <span class="pl-5 text-base align-middle text-neutrals-white">
                 {{ t('Signup.leftContainer.span1') }}
               </span>
             </div>
 
             <div class="flex overflow-y-auto flex-1 items-center mb-8 max-w-full">
               <img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-2.svg" />
-              <span class="pl-5 text-base text-neutrals-white align-middle">
+              <span class="pl-5 text-base align-middle text-neutrals-white">
                 {{ t('Signup.leftContainer.span2') }}
               </span>
             </div>
 
             <div class="flex overflow-y-auto flex-1 items-center max-w-full">
               <img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-3.svg" />
-              <span class="pl-5 text-base text-neutrals-white align-middle">
+              <span class="pl-5 text-base align-middle text-neutrals-white">
                 {{ t('Signup.leftContainer.span3') }}
               </span>
             </div>
           </div>
-          <!--Trustbloc Sign-up provider div -->
           <div class="md:block object-none object-center col-span-1">
             <div class="px-6 md:pt-16 md:pr-0 md:pb-12 md:pl-16">
               <Logo class="md:hidden justify-center my-2 mt-12" />
@@ -94,23 +263,23 @@
                     h-11
                     text-sm
                     font-bold
-                    text-neutrals-dark
-                    bg-neutrals-softWhite
                     rounded-md
                     flex flex-wrap
+                    text-neutrals-dark
+                    bg-neutrals-softWhite
                   "
-                  @click="beginOIDCLogin(provider.id)"
-                  @keyup.enter="beginOIDCLogin(provider.id)"
+                  @click="initiateOIDCLogin(provider.id)"
+                  @keyup.enter="initiateOIDCLogin(provider.id)"
                 >
-                  <img :src="provider.signUpLogoUrl" />
+                  <img :src="provider.signUpIconUrl[locale]" />
                 </button>
               </div>
               <div class="mb-8 text-center">
                 <p class="text-base font-normal text-neutrals-white">
                   {{ t('Signup.redirect') }}
                   <router-link
-                    class="text-primary-blue whitespace-nowrap underline-blue"
-                    to="signin"
+                    class="whitespace-nowrap text-primary-blue underline-blue"
+                    :to="{ name: 'signin' }"
                     >{{ t('Signup.signin') }}</router-link
                   >
                 </p>
@@ -123,186 +292,3 @@
     <Footer />
   </div>
 </template>
-
-<script>
-import { CHAPIHandler, RegisterWallet } from '@/mixins';
-import { DeviceLogin } from '@trustbloc/wallet-sdk';
-import Footer from '@/components/Footer/Footer.vue';
-import Logo from '@/components/Logo/Logo.vue';
-import IconSpinner from '@/components/icons/IconSpinner.vue';
-import useBreakpoints from '@/plugins/breakpoints.js';
-import { mapActions, mapGetters } from 'vuex';
-import axios from 'axios';
-import { useI18n } from 'vue-i18n';
-
-export default {
-  components: {
-    Footer,
-    Logo,
-    IconSpinner,
-  },
-  setup() {
-    const { t } = useI18n();
-    return { t };
-  },
-  data() {
-    return {
-      providers: [],
-      statusMsg: '',
-      loading: true,
-      systemError: false,
-      breakpoints: useBreakpoints(),
-    };
-  },
-  computed: {
-    isLoggedIn() {
-      return this.isUserLoggedIn();
-    },
-    isSuspended() {
-      return this.isLoginSuspended();
-    },
-  },
-  watch: {
-    isLoggedIn: {
-      async handler() {
-        // watch for use login state and proceed with load OIDC user step.
-        if (this.isLoggedIn) {
-          await this.refreshOpts();
-          try {
-            await this.loadOIDCUser();
-          } catch (e) {
-            this.systemError = true;
-            this.loading = false;
-          }
-          if (this.getCurrentUser()) {
-            await this.finishOIDCLogin();
-            this.handleSuccess();
-          }
-        }
-      },
-    },
-    isSuspended() {
-      this.loading = false;
-    },
-  },
-  created: async function () {
-    await this.fetchProviders();
-    //TODO: issue-601 Implement cookie logic with information from the backend.
-    this.deviceLogin = new DeviceLogin(this.getAgentOpts()['edge-agent-server']);
-
-    // user intended to destination
-    const redirect = this.$route.params['redirect'];
-    this.redirect = redirect
-      ? {
-          name: redirect,
-          params: { locale: this.$store.getters.getLocale.base },
-          query: this.$route.query,
-        }
-      : {
-          name: 'vaults',
-          params: { locale: this.$store.getters.getLocale.base },
-          query: this.$route.query,
-        };
-
-    console.debug('redirecting to', this.redirect);
-
-    // if intended target doesn't require CHAPI.
-    this.disableCHAPI = this.$route.params.disableCHAPI;
-
-    // load user.
-    this.loadUser();
-
-    // if session found, then no need to login.
-    if (this.getCurrentUser()) {
-      this.handleSuccess();
-      return;
-    }
-
-    // show default view with signup options.
-    this.loading = false;
-  },
-  methods: {
-    ...mapActions({
-      loadUser: 'loadUser',
-      loadOIDCUser: 'loadOIDCUser',
-      startUserSetup: 'startUserSetup',
-      completeUserSetup: 'completeUserSetup',
-      refreshUserPreference: 'refreshUserPreference',
-      refreshOpts: 'initOpts',
-      activateCHAPI: 'activateCHAPI',
-    }),
-    ...mapGetters([
-      'getCurrentUser',
-      'getAgentOpts',
-      'serverURL',
-      'hubAuthURL',
-      'isUserLoggedIn',
-      'isLoginSuspended',
-    ]),
-    ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    beginOIDCLogin: function (providerID) {
-      this.loading = true;
-      this.popupwindow('/loginhandle?provider=' + providerID, '', 700, 770);
-    },
-    popupwindow(url, title, w, h) {
-      var left = screen.width / 2 - w / 2;
-      var top = screen.height / 2 - h / 2;
-      return window.open(
-        url,
-        title,
-        'menubar=yes,status=yes, replace=true, width=' +
-          w +
-          ', height=' +
-          h +
-          ', top=' +
-          top +
-          ', left=' +
-          left
-      );
-    },
-    // Fetching the providers from hub-auth
-    fetchProviders: async function () {
-      await axios.get(this.hubAuthURL() + '/oauth2/providers').then((response) => {
-        this.providers = response.data.authProviders;
-        // Sort the list of the providers based on the order property in the object.
-        this.providers.sort((prov1, prov2) => prov1.order - prov2.order);
-      });
-    },
-    finishOIDCLogin: async function () {
-      let user = this.getCurrentUser();
-      this.registerUser(user);
-
-      if (!this.breakpoints.xs && !this.breakpoints.sm && !this.disableCHAPI) {
-        // all credential handlers registration should happen here, ex: CHAPI, WACI etc
-        let chapi = new CHAPIHandler(
-          this.$polyfill,
-          this.$webCredentialHandler,
-          this.getAgentOpts().credentialMediatorURL
-        );
-
-        await chapi.install(this.getCurrentUser().username);
-        this.activateCHAPI();
-      }
-    },
-    async registerUser(user) {
-      if (!user.preference) {
-        this.startUserSetup();
-        let user = this.getCurrentUser();
-        // first time login, register this user
-        await new RegisterWallet(this.getAgentInstance(), this.getAgentOpts()).register(
-          {
-            name: user.username,
-            user: user.profile.user,
-            token: user.profile.token,
-          },
-          this.completeUserSetup
-        );
-        this.refreshUserPreference();
-      }
-    },
-    handleSuccess() {
-      this.$router.push(this.redirect);
-    },
-  },
-};
-</script>

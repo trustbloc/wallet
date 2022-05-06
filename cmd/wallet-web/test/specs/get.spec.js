@@ -88,7 +88,7 @@ describe.skip('sharing a credential from wallet - QueryByExample', function () {
       global: {
         plugins: [store, i18n],
         mocks: {
-          $webCredentialHandler: credHandler,
+          webCredentialHandler: credHandler,
           t: () => '',
         },
       },
@@ -163,7 +163,7 @@ describe.skip('sharing a credential from wallet - PresentationExchange', functio
       global: {
         plugins: [store, i18n],
         mocks: {
-          $webCredentialHandler: credHandler,
+          webCredentialHandler: credHandler,
           t: () => '',
         },
       },
@@ -288,7 +288,7 @@ describe.skip('sharing multiple credentials from wallet - MultiQuery (QueryByExa
       global: {
         plugins: [store, i18n],
         mocks: {
-          $webCredentialHandler: credHandler,
+          webCredentialHandler: credHandler,
           t: () => '',
         },
       },

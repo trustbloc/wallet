@@ -45,7 +45,7 @@ describe('saving a credential into wallet', function () {
       global: {
         plugins: [store, i18n],
         mocks: {
-          $webCredentialHandler: credHandler,
+          webCredentialHandler: credHandler,
           t: () => '',
         },
       },
@@ -90,7 +90,7 @@ describe('saving multiple credentials into wallet', function () {
       global: {
         plugins: [store, i18n],
         mocks: {
-          $webCredentialHandler: credHandler,
+          webCredentialHandler: credHandler,
           t: () => '',
         },
       },

@@ -141,6 +141,7 @@
 </template>
 
 <script>
+import { inject } from 'vue';
 import { useStore } from 'vuex';
 import {
   CHAPIEventHandler,
@@ -164,8 +165,9 @@ export default {
         ? credential?.styles?.thumbnail?.uri
         : getCredentialIcon(getStaticAssetsUrl(), credential?.styles?.thumbnail?.uri);
     };
+    const webCredentialHandler = inject('webCredentialHandler');
 
-    return { getCredentialIconSrc, t };
+    return { getCredentialIconSrc, t, webCredentialHandler };
   },
   data() {
     return {
@@ -180,7 +182,7 @@ export default {
     this.loading = true;
     // Load the Credentials
     this.credentialEvent = new CHAPIEventHandler(
-      await this.$webCredentialHandler.receiveCredentialEvent()
+      await this.webCredentialHandler.receiveCredentialEvent()
     );
     const { dataType, data } = this.credentialEvent.getEventData();
 

@@ -4,17 +4,54 @@
  * SPDX-License-Identifier: Apache-2.0
 -->
 
+<script setup>
+import { computed, inject, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+import { CHAPIHandler } from '@/mixins';
+import { useI18n } from 'vue-i18n';
+
+// Hooks
+const router = useRouter();
+const store = useStore();
+const { t } = useI18n();
+const polyfill = inject('polyfill');
+const webCredentialHandler = inject('webCredentialHandler');
+
+// Store Getters
+const agentOpts = computed(() => store.getters['getAgentOpts']);
+const isCHAPI = computed(() => store.getters['isCHAPI']);
+
+// Store Actions
+const signoutUser = () => store.dispatch('logout');
+
+// Methods
+async function signout() {
+  const actions = [signoutUser()];
+  if (isCHAPI.value) {
+    actions.push(chapi.value.uninstall());
+  }
+
+  await Promise.all(actions);
+
+  router.push({ name: 'signin' });
+}
+
+const chapi = ref(
+  new CHAPIHandler(polyfill, webCredentialHandler, agentOpts.value.credentialMediatorURL)
+);
+</script>
+
 <template>
   <div
     class="
       justify-start
       items-center
       focus-within:bg-gradient-to-r
-      focus-within:from-neutrals-black
-      focus-within:shadow-inner-outline-blue
       opacity-60
       focus-within:opacity-100
       hover:from-neutrals-black hover:bg-gradient-to-r hover:opacity-100
+      focus-within:from-neutrals-black focus-within:shadow-inner-outline-blue
       flex flex-row
       bar
     "
@@ -31,42 +68,6 @@
     </button>
   </div>
 </template>
-
-<script>
-import { CHAPIHandler } from '@/mixins';
-import { mapActions, mapGetters } from 'vuex';
-import { useI18n } from 'vue-i18n';
-
-export default {
-  name: 'Signout',
-  setup() {
-    const { t } = useI18n();
-    return { t };
-  },
-  created: function () {
-    this.chapi = new CHAPIHandler(
-      this.$polyfill,
-      this.$webCredentialHandler,
-      this.getAgentOpts().credentialMediatorURL
-    );
-  },
-  methods: {
-    ...mapActions({ signoutUser: 'logout' }),
-    ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getAgentOpts', 'isCHAPI']),
-    signout: async function () {
-      let actions = [this.signoutUser()];
-      if (this.isCHAPI()) {
-        actions.push(this.chapi.uninstall());
-      }
-
-      await Promise.all(actions);
-
-      this.$router.push({ name: 'signin' });
-    },
-  },
-};
-</script>
 
 <style scoped>
 .bar:not(:focus-within):hover:before {
