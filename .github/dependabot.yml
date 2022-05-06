@@ -25,7 +25,7 @@ updates:
     labels:
       - "dependencies"
       - "area: UI"
-    rebase-strategy: "disabled"
+
   # Wallet Web package.json
   - package-ecosystem: "npm"
     directory: "/cmd/wallet-web"
@@ -40,7 +40,7 @@ updates:
     labels:
       - "dependencies"
       - "area: UI"
-    rebase-strategy: "disabled"
+
   # UI Automation package.json
   - package-ecosystem: "npm"
     directory: "/test/ui-automation"
@@ -55,7 +55,7 @@ updates:
     labels:
       - "dependencies"
       - "area: integration tests"
-    rebase-strategy: "disabled"
+
   # Root go.mod
   - package-ecosystem: "gomod"
     directory: "/"
@@ -69,7 +69,7 @@ updates:
     labels:
       - "dependencies"
       - "area: backend"
-    rebase-strategy: "disabled"
+
   # Wallet Server go.mod
   - package-ecosystem: "gomod"
     directory: "/cmd/wallet-server"
@@ -84,7 +84,7 @@ updates:
     labels:
       - "dependencies"
       - "area: backend"
-    rebase-strategy: "disabled"
+
   # Demo Login Consent Server go.mod
   - package-ecosystem: "gomod"
     directory: "/test/mock/demo-login-consent-server"
@@ -98,7 +98,7 @@ updates:
     labels:
       - "dependencies"
       - "area: backend"
-    rebase-strategy: "disabled"
+
   # Wallet Web Dockerfile
   - package-ecosystem: "docker"
     directory: "/images/wallet-web"
@@ -113,7 +113,7 @@ updates:
     labels:
       - "dependencies"
       - "area: docker"
-    rebase-strategy: "disabled"
+
   # Wallet Server Dockerfile
   - package-ecosystem: "docker"
     directory: "/images/wallet-server"
@@ -127,7 +127,7 @@ updates:
     labels:
       - "dependencies"
       - "area: docker"
-    rebase-strategy: "disabled"
+
   # Demo Login Consent Server Dockerfile
   - package-ecosystem: "docker"
     directory: "/test/mock/demo-login-consent-server/image"
@@ -142,7 +142,7 @@ updates:
     labels:
       - "dependencies"
       - "area: docker"
-    rebase-strategy: "disabled"
+
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -156,4 +156,3 @@ updates:
     labels:
       - "dependencies"
       - "area: CI/CD"
-    rebase-strategy: "disabled"
