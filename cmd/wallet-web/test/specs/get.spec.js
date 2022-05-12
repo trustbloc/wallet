@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
-import Get from '@/layouts/Get.vue';
-import MultipleQuery from '@/pages/MultipleQuery.vue';
+import Get from '@/layouts/GetLayout.vue';
+import MultipleQuery from '@/pages/MultipleQueryPage.vue';
 import { getTestData, Setup, MockCredentialHandler, promiseWhen } from '../common';
 import { expect } from 'chai';
 import i18n from '@/plugins/i18n';

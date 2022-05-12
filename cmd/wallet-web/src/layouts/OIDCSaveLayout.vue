@@ -26,10 +26,10 @@
 
 <script>
 import { reactive, ref } from 'vue';
-import OIDCSave from '@/pages/OIDCSave.vue';
+import OIDCSavePage from '@/pages/OIDCSavePage.vue';
 
 export const OIDCSaveLayoutStore = reactive({
-  component: OIDCSave,
+  component: OIDCSavePage,
 });
 
 export default {

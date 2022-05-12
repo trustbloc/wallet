@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import { nextTick } from 'vue';
 import { shallowMount } from '@vue/test-utils';
-import Store from '@/pages/Store.vue';
+import Store from '@/pages/StorePage.vue';
 import { getTestData, Setup, MockCredentialHandler, promiseWhen } from '../common';
 import { expect } from 'chai';
 import i18n from '@/plugins/i18n';
