@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import Root from './Root';
+import Root from './TheRoot';
 import supportedLocales from '@/config/supportedLocales';
 
 // Lazy load the component
@@ -35,25 +35,25 @@ export default [
           {
             path: 'vaults',
             name: 'vaults',
-            component: load('pages/Vaults'),
+            component: load('pages/VaultsPage'),
             meta: { requiresAuth: true },
           },
           {
             path: 'credentials',
             name: 'credentials',
-            component: load('pages/Credentials'),
+            component: load('pages/CredentialsPage'),
             meta: { requiresAuth: true },
           },
           {
             path: 'credentials/:id',
             name: 'credential-details',
-            component: load('pages/CredentialDetails'),
+            component: load('pages/CredentialDetailsPage'),
             meta: { requiresAuth: true },
           },
           {
             path: 'did-management',
             name: 'did-management',
-            component: load('pages/DIDManagement'),
+            component: load('pages/DIDManagementPage'),
             meta: { requiresAuth: true },
           },
         ],
@@ -61,7 +61,7 @@ export default [
       {
         path: 'waci',
         name: 'waci',
-        component: load('layouts/WACI'),
+        component: load('layouts/WACILayout'),
         meta: { requiresAuth: true, signin: true, disableCHAPI: true, isNavbarHidden: true },
         children: [
           {
@@ -72,14 +72,14 @@ export default [
           {
             path: 'issue',
             name: 'issue',
-            component: load('pages/WACIIssue'),
+            component: load('pages/WACIIssuePage'),
           },
         ],
       },
       {
         path: 'oidc',
         name: 'oidc',
-        component: load('layouts/OIDC'),
+        component: load('layouts/OIDCLayout'),
         meta: { requiresAuth: true, signin: true, disableCHAPI: true, isNavbarHidden: true },
         children: [
           {
@@ -102,46 +102,46 @@ export default [
       {
         path: 'StoreInWallet',
         name: 'chapi-store',
-        component: load('pages/Store'),
+        component: load('pages/StorePage'),
         meta: { blockNoAuth: true },
       },
       {
         path: 'GetFromWallet',
         name: 'chapi-get',
-        component: load('layouts/Get'),
+        component: load('layouts/GetLayout'),
         meta: { blockNoAuth: true, isNavbarHidden: true },
       },
       {
         path: 'worker',
         name: 'chapi-worker',
-        component: load('pages/Worker'),
+        component: load('pages/WorkerPage'),
       },
       {
         path: 'loginhandle',
         name: 'ProviderPopup',
-        component: load('pages/ProviderPopup'),
+        component: load('pages/ProviderPopupPage'),
         props: (route) => ({ providerID: route.query.providerID }),
       },
       {
         path: 'signin',
         name: 'signin',
-        component: load('pages/Signin'),
+        component: load('pages/SigninPage'),
       },
       {
         path: 'signup',
         name: 'signup',
-        component: load('pages/Signup'),
+        component: load('pages/SignupPage'),
       },
       {
         path: 'needauth',
         name: 'block-no-auth',
-        component: load('pages/BlockNoAuth'),
+        component: load('pages/BlockNoAuthPage'),
       },
     ],
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: load('pages/NotFound'),
+    component: load('pages/NotFoundPage'),
   },
 ];

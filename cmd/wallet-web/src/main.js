@@ -12,7 +12,7 @@ import store from '@/store';
 import router from '@/router';
 import '@/assets/css/tailwind.css';
 import App from '@/App.vue';
-import ToastNotification from '@/components/ToastNotification/ToastNotification.vue';
+import ToastNotificationComponent from '@/components/ToastNotification/ToastNotificationComponent.vue';
 
 const app = createApp(App);
 
@@ -21,6 +21,6 @@ app.use(store);
 app.use(i18n);
 app.provide('polyfill', polyfill);
 app.provide('webCredentialHandler', webCredentialHandler);
-app.component('ToastNotification', ToastNotification);
+app.component('ToastNotification', ToastNotificationComponent);
 
 app.mount('#app');

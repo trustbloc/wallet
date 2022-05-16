@@ -11,7 +11,7 @@
       v-if="breakpoints.xs || breakpoints.sm"
       class="flex flex-col justify-start items-center w-screen bg-neutrals-softWhite"
     >
-      <Header />
+      <HeaderComponent />
       <router-view v-if="!isNavbarOpen" class="w-screen h-screen bg-neutrals-softWhite" />
     </div>
 
@@ -28,14 +28,14 @@
         flex-row flex-grow
       "
     >
-      <navbar>
-        <navbar-link
+      <NavbarComponent>
+        <NavbarLinkComponent
           id="navbar-link-vaults"
           :to="{ name: 'vaults' }"
           :heading="t('DashboardLayout.vaults')"
           icon="vaults.svg"
         />
-        <navbar-link
+        <NavbarLinkComponent
           id="navbar-link-credentials"
           :to="{ name: 'credentials' }"
           :heading="t('DashboardLayout.credentials')"
@@ -44,22 +44,22 @@
         <!-- TODO: uncomment once corresponding components are ready -->
         <!-- <navbar-link id="navbar-link-account" :to="{ name: 'account' }" :heading="t('DashboardLayout.account')" icon="profile.svg" /> -->
         <!-- TODO: link to actual settings once implemented -->
-        <navbar-link
+        <NavbarLinkComponent
           id="navbar-link-did-management"
           :to="{ name: 'did-management' }"
           :heading="t('DashboardLayout.settings')"
           icon="settings.svg"
         />
-      </navbar>
+      </NavbarComponent>
       <router-view id="dashboard-content" class="flex flex-col flex-grow md:py-12 md:px-16" />
     </div>
   </div>
 </template>
 
 <script>
-import Header from '@/components/Header/Header.vue';
-import Navbar from '@/components/Navbar/Navbar.vue';
-import NavbarLink from '@/components/Navbar/NavbarLink.vue';
+import HeaderComponent from '@/components/Header/HeaderComponent.vue';
+import NavbarComponent from '@/components/Navbar/NavbarComponent.vue';
+import NavbarLinkComponent from '@/components/Navbar/NavbarLinkComponent.vue';
 import { navbarStore } from '@/components/Navbar';
 import useBreakpoints from '@/plugins/breakpoints.js';
 import { useI18n } from 'vue-i18n';
@@ -67,9 +67,9 @@ import { useI18n } from 'vue-i18n';
 export default {
   name: 'DashboardLayout',
   components: {
-    Header,
-    Navbar,
-    NavbarLink,
+    HeaderComponent,
+    NavbarComponent,
+    NavbarLinkComponent,
   },
   setup() {
     const { t } = useI18n();

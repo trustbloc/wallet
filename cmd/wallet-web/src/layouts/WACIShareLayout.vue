@@ -26,10 +26,10 @@
 
 <script>
 import { reactive, ref, watch } from 'vue';
-import WACIShare from '@/pages/WACIShare.vue';
+import WACISharePage from '@/pages/WACISharePage.vue';
 
 export const WACIShareLayoutStore = reactive({
-  component: WACIShare,
+  component: WACISharePage,
 });
 
 export const WACIShareLayoutMutations = {

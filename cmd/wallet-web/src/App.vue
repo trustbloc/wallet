@@ -9,7 +9,7 @@ import { computed, onBeforeMount, onMounted, onUnmounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import getStartingLocale from '@/mixins/i18n/getStartingLocale.js';
 import { updateI18nLocale } from '@/plugins/i18n';
-import IconSpinner from '@/components/icons/IconSpinner.vue';
+import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
 
 const store = useStore();
 const loaded = ref(false);
@@ -54,7 +54,7 @@ onUnmounted(() => {
 <template>
   <div class="w-screen h-screen font-sans bg-neutrals-mischka">
     <div v-if="!loaded" class="flex relative top-1/3 flex-col justify-start items-center">
-      <IconSpinner />
+      <SpinnerIcon />
       <span class="mt-6">Loading Wallet . . .</span>
     </div>
     <router-view v-else />

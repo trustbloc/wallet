@@ -26,10 +26,10 @@
 
 <script>
 import { reactive, ref, watch } from 'vue';
-import OIDCShare from '@/pages/OIDCShare.vue';
+import OIDCSharePage from '@/pages/OIDCSharePage.vue';
 
 export const OIDCShareLayoutStore = reactive({
-  component: OIDCShare,
+  component: OIDCSharePage,
 });
 
 export const OIDCShareLayoutMutations = {
