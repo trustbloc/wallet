@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import VaultCard from './VaultCardComponent';
+import VaultCardComponent from './VaultCardComponent';
 export default {
   components: {
     VaultCardComponent,
