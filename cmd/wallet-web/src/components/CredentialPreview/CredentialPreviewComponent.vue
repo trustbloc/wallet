@@ -6,6 +6,7 @@
 
 <template>
   <router-link
+    :id="id"
     class="
       group
       inline-flex
@@ -27,11 +28,10 @@
     "
     :class="
       styles.background.color !== '#fff'
-        ? `border-neutrals-black border-opacity-10 focus-within:ring-primary-${styles?.background?.color}`
+        ? `border-neutrals-black border-opacity-10 notWhiteCredentialPreview`
         : `border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`
     "
-    :style="`background-color: ${styles?.background?.color}`"
-    :id="id"
+    :style="credentialStyles"
   >
     <div class="flex-none w-12 h-12 border-opacity-10">
       <img :src="credentialIconSrc" />
@@ -96,11 +96,24 @@ export default {
     );
     return { credentialIconSrc };
   },
+  computed: {
+    credentialStyles() {
+      return {
+        'background-color': this.styles?.background?.color,
+        '--focus-color': this.styles?.background?.color,
+      };
+    },
+  },
 };
 </script>
 
 <style scoped>
 .credentialPreviewContainer:not(:focus-within):hover {
   box-shadow: 0px 4px 12px 0px rgba(25, 12, 33, 0.1);
+}
+
+.notWhiteCredentialPreview:focus {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
 }
 </style>
