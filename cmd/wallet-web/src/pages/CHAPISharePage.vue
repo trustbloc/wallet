@@ -29,9 +29,7 @@ const wallet = ref(null);
 const presentation = ref(null);
 
 // Computed
-const showCredentialsMissing = computed(() => {
-  return credsFound.value.length === 0;
-});
+const showCredentialsMissing = computed(() => credsFound.value.length === 0);
 
 // Hooks
 const store = useStore();
@@ -48,25 +46,20 @@ const getAgentInstance = computed(() => store.getters['agent/getInstance']);
 // Methods
 onMounted(async () => {
   const { user, token } = currentUser.value.profile;
-  wallet = new WalletGetByQuery(
-    getAgentInstance.value,
-    protocolHandler,
-    agentOpts.value,
-    user
-  );
+  wallet = new WalletGetByQuery(getAgentInstance.value, protocolHandler, agentOpts.value, user);
   // make sure mediator is connected
-  await wallet.connectMediator();
+  await wallet.value.connectMediator();
   credentialDisplayData = await credentialManifestData.value;
   requestOrigin = protocolHandler.requestor();
   try {
-    presentation = await wallet.getPresentationSubmission(token);
+    presentation = await wallet.value.getPresentationSubmission(token);
   } catch (e) {
     errors.value.push(e);
     console.error('get credentials failed,', e);
     loading = false;
     return;
   }
-  const credentials = presentation.verifiableCredential;
+  const credentials = presentation.value.verifiableCredential;
   const credsFound = filterCredentialsByType(credentials, [manifestCredType]);
   credsFound.map((credential) => {
     const manifest = getManifest(credential);
@@ -84,7 +77,7 @@ function toggleDetails(credential) {
 async function createPresentation() {
   sharing = true;
   try {
-    await wallet.createAndSendPresentation(currentUser.value, presentation);
+    await wallet.value.createAndSendPresentation(currentUser.value, presentation);
   } catch (e) {
     console.error(e);
     errors.value.push('share credentials failed,', e);
@@ -94,7 +87,7 @@ async function createPresentation() {
 }
 
 function cancel() {
-  wallet.cancel();
+  wallet.value.cancel();
 }
 
 function getCredentialTypeFunction(vc) {
