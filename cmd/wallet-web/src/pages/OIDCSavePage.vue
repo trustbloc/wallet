@@ -116,11 +116,9 @@
 </template>
 
 <script>
-import { toRaw } from 'vue';
 import { mapGetters } from 'vuex';
-import { CredentialManager, CollectionManager, DIDComm } from '@trustbloc/wallet-sdk';
+import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { useI18n } from 'vue-i18n';
-import { WACIStore } from '@/layouts/WACILayout.vue';
 import CustomSelectComponent from '@/components/CustomSelect/CustomSelectComponent.vue';
 import StyledButtonComponent from '@/components/StyledButton/StyledButtonComponent.vue';
 import CredentialOverviewComponent from '@/components/WACI/CredentialOverviewComponent.vue';

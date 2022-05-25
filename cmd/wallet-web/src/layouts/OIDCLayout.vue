@@ -47,10 +47,7 @@
       <div v-if="processing" class="flex-grow justify-center items-center flex flex-col">
         <WACILoadingComponent message="Processing Your Request" />
       </div>
-
-      <component
-        v-else
-        :is="component"
+      <router-view
         class="
           overflow-hidden
           relative
@@ -65,6 +62,7 @@
         "
       />
     </keep-alive>
+
     <FooterComponent
       class="sticky bottom-0 z-20 border-t border-neutrals-thistle bg-neutrals-magnolia"
     />
@@ -75,14 +73,10 @@
 import { reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { OIDCShareLayoutMutations } from '@/layouts/OIDCShareLayout.vue';
-import OIDCShareLayout from '@/layouts/OIDCShareLayout.vue';
 import OIDCSharePage from '@/pages/OIDCSharePage.vue';
-import OIDCSaveLayout from '@/layouts/OIDCSaveLayout.vue';
 import HeaderComponent from '@/components/Header/HeaderComponent.vue';
 import FooterComponent from '@/components/Footer/FooterComponent.vue';
 import WACILoadingComponent from '@/components/WACI/WACILoadingComponent.vue';
-import { sendCredentialAuthorizeRequest, readOpenIDConfiguration } from '@/mixins';
-import Cookies from 'js-cookie';
 
 var uuid = require('uuid/v4');
 
@@ -125,46 +119,13 @@ export default {
   },
   data() {
     return {
-      component: null,
       processing: false,
     };
-  },
-  created: function () {
-    this.decideFlow(this.$route.path);
   },
   methods: {
     handleBackButtonClick() {
       OIDCShareLayoutMutations.setComponent(OIDCSharePage);
       OIDCMutations.setSelectedCredentialId(null);
-    },
-    async decideFlow(path) {
-      if (path === '/oidc/initiate') {
-        this.processing = true;
-        const opState = this.$route.query.op_state || uuid();
-        const { issuer, credential_type, manifest_id } = this.$route.query;
-        const configuration = await readOpenIDConfiguration(issuer);
-        Cookies.set(
-          opState,
-          JSON.stringify({
-            issuer,
-            credentialTypes: Array.isArray(credential_type) ? credential_type : [credential_type],
-            manifestID: manifest_id,
-          })
-        );
-        sendCredentialAuthorizeRequest(
-          configuration,
-          this.$route.query,
-          `${location.protocol}//${location.host}/oidc/save`,
-          opState
-        );
-      } else if (path === '/oidc/save') {
-        this.component = OIDCSaveLayout;
-      } else if (path === '/oidc/share') {
-        this.component = OIDCShareLayout;
-      } else {
-        // TODO error should be thrown, for now by default switch to OIDC share flow issue #1619
-        this.component = OIDCShareLayout;
-      }
     },
   },
 };
