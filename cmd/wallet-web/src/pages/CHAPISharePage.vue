@@ -4,6 +4,113 @@
  * SPDX-License-Identifier: Apache-2.0
 -->
 
+<script setup>
+import { ref, inject, computed } from 'vue';
+import {
+  filterCredentialsByType,
+  getCredentialType,
+  getCredentialDisplayData,
+  getCredentialIcon,
+  WalletGetByQuery,
+} from '@/mixins';
+import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
+import { useI18n } from 'vue-i18n';
+
+// Local Variables
+const errors = ref([]);
+const requestOrigin = ref('');
+const loading = ref(true);
+const sharing = ref(false);
+const credsFound = ref([]);
+const issuersFound = ref([]);
+const credentialDisplayData = ref('');
+const manifestCredType = 'IssuerManifestCredential';
+const wallet = ref(null);
+const presentation = ref(null);
+
+// Computed
+const showCredentialsMissing = computed(() => {
+  return credsFound.value.length === 0;
+});
+
+// Hooks
+const store = useStore();
+const { t } = useI18n();
+const protocolHandler = inject('protocolHandler');
+
+// Store Getters
+const currentUser = computed(() => store.getters['getCurrentUser']);
+const agentOpts = computed(() => store.getters['getAgentOpts']);
+const credentialManifestData = computed(() => store.getters['getCredentialManifestData']);
+const getStaticAssetsUrl = computed(() => store.getters['getStaticAssetsUrl']);
+const getAgentInstance = computed(() => store.getters['agent/getInstance']);
+
+// Methods
+onMounted(async () => {
+  const { user, token } = currentUser.value.profile;
+  wallet = new WalletGetByQuery(
+    getAgentInstance.value,
+    protocolHandler,
+    agentOpts.value,
+    user
+  );
+  // make sure mediator is connected
+  await wallet.connectMediator();
+  credentialDisplayData = await credentialManifestData.value;
+  requestOrigin = protocolHandler.requestor();
+  try {
+    presentation = await wallet.getPresentationSubmission(token);
+  } catch (e) {
+    errors.value.push(e);
+    console.error('get credentials failed,', e);
+    loading = false;
+    return;
+  }
+  const credentials = presentation.verifiableCredential;
+  const credsFound = filterCredentialsByType(credentials, [manifestCredType]);
+  credsFound.map((credential) => {
+    const manifest = getManifest(credential);
+    const processedCredential = getCredentialDisplayData(credential, manifest);
+    credsFound.push({ ...processedCredential, showDetails: false });
+  });
+  issuersFound = filterCredentialsByType(credentials, [manifestCredType], true);
+  loading = false;
+});
+
+function toggleDetails(credential) {
+  credential.showDetails = !credential.showDetails;
+}
+
+async function createPresentation() {
+  sharing = true;
+  try {
+    await wallet.createAndSendPresentation(currentUser.value, presentation);
+  } catch (e) {
+    console.error(e);
+    errors.value.push('share credentials failed,', e);
+    sharing = false;
+  }
+  sharing = false;
+}
+
+function cancel() {
+  wallet.cancel();
+}
+
+function getCredentialTypeFunction(vc) {
+  return getCredentialType(vc.type);
+}
+
+function getCredentialIconFuction(icon) {
+  return getCredentialIcon(getStaticAssetsUrl.value, icon);
+}
+
+function getManifest(credential) {
+  const currentCredentialType = getCredentialTypeFunction(credential);
+  return credentialDisplayData[currentCredentialType] || credentialDisplayData.value.fallback;
+}
+</script>
+
 <template>
   <!-- Loading state -->
   <div v-if="loading" class="flex justify-center items-start w-screen h-screen">
@@ -182,7 +289,7 @@
                 @click="toggleDetails(credential)"
               >
                 <div class="flex-none w-12 h-12 border-opacity-10">
-                  <img :src="getCredentialIcon(credential.icon)" />
+                  <img :src="getCredentialIconFunction(credential.icon)" />
                 </div>
                 <div class="flex-grow p-4">
                   <span
@@ -291,114 +398,3 @@
     </div>
   </div>
 </template>
-<script>
-import {
-  filterCredentialsByType,
-  getCredentialType,
-  getCredentialDisplayData,
-  getCredentialIcon,
-  WalletGetByQuery,
-} from '@/mixins';
-import { mapGetters } from 'vuex';
-import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
-import { useI18n } from 'vue-i18n';
-
-const manifestCredType = 'IssuerManifestCredential';
-
-export default {
-  components: { SpinnerIcon },
-  setup() {
-    const { t } = useI18n();
-    return { t };
-  },
-  data() {
-    return {
-      errors: [],
-      requestOrigin: '',
-      loading: true,
-      sharing: false,
-      credsFound: [],
-      issuersFound: [],
-      credentialDisplayData: '',
-    };
-  },
-  computed: {
-    showCredentialsMissing() {
-      return this.credsFound.length === 0;
-    },
-  },
-  created: async function () {
-    const { user, token } = this.getCurrentUser().profile;
-    this.wallet = new WalletGetByQuery(
-      this.getAgentInstance(),
-      this.$parent.protocolHandler,
-      this.getAgentOpts(),
-      user
-    );
-    // make sure mediator is connected
-    await this.wallet.connectMediator();
-    this.credentialDisplayData = await this.getCredentialManifestData();
-
-    this.requestOrigin = this.$parent.protocolHandler.requestor();
-
-    try {
-      this.presentation = await this.wallet.getPresentationSubmission(token);
-    } catch (e) {
-      this.errors.push(e);
-      console.error('get credentials failed,', e);
-      this.loading = false;
-      return;
-    }
-    const credentials = this.presentation.verifiableCredential;
-    const credsFound = filterCredentialsByType(credentials, [manifestCredType]);
-    credsFound.map((credential) => {
-      const manifest = this.getManifest(credential);
-      const processedCredential = this.getCredentialDisplayData(credential, manifest);
-      this.credsFound.push({ ...processedCredential, showDetails: false });
-    });
-    this.issuersFound = filterCredentialsByType(credentials, [manifestCredType], true);
-    this.loading = false;
-  },
-  methods: {
-    ...mapGetters([
-      'getCurrentUser',
-      'getAgentOpts',
-      'getCredentialManifestData',
-      'getStaticAssetsUrl',
-    ]),
-    ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    toggleDetails(credential) {
-      credential.showDetails = !credential.showDetails;
-    },
-    createPresentation: async function () {
-      this.sharing = true;
-      try {
-        await this.wallet.createAndSendPresentation(this.getCurrentUser(), this.presentation);
-      } catch (e) {
-        console.error(e);
-        this.errors.push('share credentials failed,', e);
-        this.sharing = false;
-      }
-      this.sharing = false;
-    },
-    cancel: function () {
-      this.wallet.cancel();
-    },
-    getCredentialType: function (vc) {
-      return getCredentialType(vc.type);
-    },
-    getCredentialIcon: function (icon) {
-      return getCredentialIcon(this.getStaticAssetsUrl(), icon);
-    },
-    getCredentialDisplayData: function (vc, manifestCredential) {
-      return getCredentialDisplayData(vc, manifestCredential);
-    },
-    getManifest: function (credential) {
-      const currentCredentialType = this.getCredentialType(credential);
-      return (
-        this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
-      );
-    },
-  },
-};
-</script>
