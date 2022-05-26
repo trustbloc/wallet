@@ -13,7 +13,7 @@
 import { inject } from 'vue';
 import DIDAuthPage from '@/pages/DIDAuthPage.vue';
 import DIDConnectPage from '@/pages/DIDConnectPage.vue';
-import PresentationDefQueryPage from '@/pages/PresentationDefQueryPage.vue';
+import CHAPISharePage from '@/pages/CHAPISharePage.vue';
 import MultipleQueryPage from '@/pages/MultipleQueryPage.vue';
 import WACISharePage from '@/pages/WACISharePage.vue';
 import { extractQueryTypes, WACIPolyfillHandler, CHAPIEventHandler } from '@/mixins';
@@ -21,7 +21,7 @@ import { extractQueryTypes, WACIPolyfillHandler, CHAPIEventHandler } from '@/mix
 const QUERY_FORMS = [
   {
     id: 'PresentationDefinitionQuery',
-    component: PresentationDefQueryPage,
+    component: CHAPISharePage,
     match: (types) => ['PresentationExchange', 'DIDConnect'].every((elem) => types.includes(elem)),
   },
   {
@@ -85,6 +85,11 @@ export default {
     dynamo() {
       return this.component;
     },
+  },
+  provide() {
+    return {
+      protocolHandler: this.protocolHandler,
+    };
   },
   beforeCreate: async function () {
     this.credentialEvent = await this.webCredentialHandler.receiveCredentialEvent();
