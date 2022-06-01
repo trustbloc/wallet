@@ -80,6 +80,7 @@ export default [
         path: 'oidc',
         name: 'oidc',
         component: load('layouts/OIDCLayout'),
+        redirect: 'NotFound',
         meta: { requiresAuth: true, signin: true, disableCHAPI: true, isNavbarHidden: true },
         children: [
           {
