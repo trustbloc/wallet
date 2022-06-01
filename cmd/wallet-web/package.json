@@ -65,7 +65,7 @@
     "prettier": "^2.4.1",
     "tailwindcss": "^3.0.23",
     "vue-cli-plugin-i18n": "^2.3.1",
-    "vue-eslint-parser": "^8.0.1",
+    "vue-eslint-parser": "^9.0.2",
     "vue-loader": "^17.0.0",
     "vue-style-loader": "^4.1.3"
   },
