@@ -16,8 +16,8 @@
     "test": "npm run test:setup && npm run test:start && npm run test:teardown"
   },
   "dependencies": {
-    "@trustbloc-cicd/agent-sdk-web": "0.1.9-snapshot-c62de31",
-    "@trustbloc-cicd/wallet-sdk": "0.1.9-snapshot-c62de31",
+    "@trustbloc-cicd/agent-sdk-web": "0.1.9-snapshot-967e95d",
+    "@trustbloc-cicd/wallet-sdk": "0.1.9-snapshot-967e95d",
     "ajv": "^8.9.0",
     "credential-handler-polyfill": "^2.3.0",
     "flat": "^5.0.2",
