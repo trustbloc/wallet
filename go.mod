@@ -10,7 +10,7 @@ require (
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/sessions v1.2.1
-	github.com/hyperledger/aries-framework-go v0.1.8
+	github.com/hyperledger/aries-framework-go v0.1.9-0.20220531182402-04bfea80427b
 	github.com/hyperledger/aries-framework-go/component/storageutil v0.0.0-20220330133350-1c2d9d65aea4
 	github.com/hyperledger/aries-framework-go/spi v0.0.0-20220330133350-1c2d9d65aea4
 	github.com/igor-pavlenko/httpsignatures-go v0.0.23

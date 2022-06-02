@@ -14,6 +14,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/hyperledger/aries-framework-go/pkg/common/model"
+
 	"github.com/google/uuid"
 
 	"github.com/hyperledger/aries-framework-go-ext/component/vdr/orb"
@@ -106,7 +108,9 @@ func startAriesAgent() (*didComm, error) {
 	)
 
 	// add "didcomm/aip2;env=rfc587" & "didcomm/v2" media type profiles.
-	opts = append(opts, aries.WithMediaTypeProfiles([]string{transport.MediaTypeDIDCommV2Profile, transport.MediaTypeAIP2RFC0587Profile}))
+	opts = append(opts, aries.WithMediaTypeProfiles([]string{
+		transport.MediaTypeDIDCommV2Profile, transport.MediaTypeAIP2RFC0587Profile,
+		transport.MediaTypeAIP2RFC0019Profile, transport.MediaTypeProfileDIDCommAIP1}))
 
 	// if keyTypeEnvKey and KeyAgreementTypeEnvKey are found, then override agent's options
 	if kt, ok := os.LookupEnv(keyTypeEnvKey); ok {
@@ -246,9 +250,10 @@ func buildDIDDocV2(km kms.KeyManager, keyType, keyAgreementType kms.KeyType) (*d
 	didDoc.KeyAgreement = append(didDoc.KeyAgreement, *kagr)
 
 	didDoc.Service = []did.Service{{
-		ID:              uuid.NewString(),
-		ServiceEndpoint: os.Getenv(didCommExternalHostEnvKey),
-		Type:            "DIDCommMessaging",
+		ID: uuid.NewString(),
+		ServiceEndpoint: model.NewDIDCommV2Endpoint(
+			[]model.DIDCommV2Endpoint{{URI: os.Getenv(didCommExternalHostEnvKey)}}),
+		Type: "DIDCommMessaging",
 	}}
 
 	return &didDoc, nil

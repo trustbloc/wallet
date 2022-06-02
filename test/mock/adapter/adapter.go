@@ -13,14 +13,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/jsonld"
-	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
-	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/jsonld"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite/ed25519signature2018"
 
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/google/uuid"
@@ -212,7 +213,8 @@ func (v *adapterApp) waciShareV2(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	// generate OOB V2 invitation
-	inv, err := v.agent.OOBV2Client.CreateInvitation(outofbandv2.WithAccept(transport.MediaTypeDIDCommV2Profile),
+	inv, err := v.agent.OOBV2Client.CreateInvitation(
+		outofbandv2.WithAccept(transport.MediaTypeDIDCommV2Profile, transport.MediaTypeAIP2RFC0587Profile),
 		outofbandv2.WithFrom(v.agent.OrbDIDV2), outofbandv2.WithGoal("share-vp", "streamlined-vp"))
 	if err != nil {
 		handleError(w, http.StatusInternalServerError,
@@ -228,7 +230,9 @@ func (v *adapterApp) waciIssuance(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	// generate OOB invitation
-	inv, err := v.agent.OOBClient.CreateInvitation(nil, outofband.WithGoal("issue-vc", "streamlined-vc"))
+	inv, err := v.agent.OOBClient.CreateInvitation(nil,
+		outofband.WithGoal("issue-vc", "streamlined-vc"),
+		outofband.WithAccept(transport.MediaTypeAIP2RFC0019Profile, transport.MediaTypeProfileDIDCommAIP1))
 	if err != nil {
 		handleError(w, http.StatusInternalServerError,
 			fmt.Sprintf("failed to create oob invitation : %s", err))
