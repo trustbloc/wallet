@@ -5,17 +5,19 @@
 -->
 
 <script setup>
-import { ref, inject, computed } from 'vue';
-import { useStore } from 'vuex';
+import { ref, inject, computed, onMounted, getCurrentInstance, reactive } from 'vue';
 import {
   filterCredentialsByType,
   getCredentialType,
-  getCredentialDisplayData,
   getCredentialIcon,
   WalletGetByQuery,
+  prepareCredentialManifest,
 } from '@/mixins';
 import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
 import { useI18n } from 'vue-i18n';
+import { CredentialManager } from '@trustbloc/wallet-sdk';
+import { useStore } from 'vuex';
+import { phStore } from '@/layouts/GetLayout.vue';
 
 // Local Variables
 const errors = ref([]);
@@ -35,25 +37,38 @@ const showCredentialsMissing = computed(() => credsFound.value.length === 0);
 // Hooks
 const store = useStore();
 const { t } = useI18n();
-const protocolHandler = inject('protocolHandler');
 
 // Store Getters
 const currentUser = computed(() => store.getters['getCurrentUser']);
 const agentOpts = computed(() => store.getters['getAgentOpts']);
-const credentialManifestData = computed(() => store.getters['getCredentialManifestData']);
+//const credentialManifestData = computed(() => store.getters['getCredentialManifestData']);
 const getStaticAssetsUrl = computed(() => store.getters['getStaticAssetsUrl']);
 const getAgentInstance = computed(() => store.getters['agent/getInstance']);
+const credentialManifests = computed(() => store.getters['getCredentialManifests']);
+//const protocolHandler = inject('protocolHandler');
 
 // Methods
 onMounted(async () => {
+  console.log('onMounted in  chapishare');
   const { user, token } = currentUser.value.profile;
-  wallet = new WalletGetByQuery(getAgentInstance.value, protocolHandler, agentOpts.value, user);
+  var ph = phStore.protocolHandlerr;
+  const protocolHandler = ph;
+
+  wallet.value = new WalletGetByQuery(
+    getAgentInstance.value,
+    protocolHandler,
+    agentOpts.value,
+    user
+  );
+
+  const credentialManager = new CredentialManager({ agent: getAgentInstance.value, user });
+
   // make sure mediator is connected
   await wallet.value.connectMediator();
-  credentialDisplayData = await credentialManifestData.value;
-  requestOrigin = protocolHandler.requestor();
+
+  requestOrigin.value = protocolHandler.requestor();
   try {
-    presentation = await wallet.value.getPresentationSubmission(token);
+    presentation.value = await wallet.value.getPresentationSubmission(token);
   } catch (e) {
     errors.value.push(e);
     console.error('get credentials failed,', e);
@@ -62,10 +77,16 @@ onMounted(async () => {
   }
   const credentials = presentation.value.verifiableCredential;
   const credsFound = filterCredentialsByType(credentials, [manifestCredType]);
-  credsFound.map((credential) => {
-    const manifest = getManifest(credential);
-    const processedCredential = getCredentialDisplayData(credential, manifest);
-    credsFound.push({ ...processedCredential, showDetails: false });
+  var manifest = prepareCredentialManifest(
+    presentation.value,
+    credentialManifests.value,
+    requestOrigin
+  );
+
+  manifest.issuer.id = manifest.issuer.id.value;
+  credsFound = await credentialManager.resolveManifest(token, {
+    manifest,
+    fulfillment: presentation.value,
   });
   issuersFound = filterCredentialsByType(credentials, [manifestCredType], true);
   loading = false;
@@ -90,18 +111,19 @@ async function createPresentation() {
 function cancel() {
   wallet.value.cancel();
 }
+// function getCredentialTypeFunction(vc) {
+//   return getCredentialType(vc.type);
+// }
 
-function getCredentialTypeFunction(vc) {
-  return getCredentialType(vc.type);
-}
+// function getManifest(credential) {
+//   const currentCredentialType = getCredentialTypeFunction(credential);
+//   return credentialDisplayData[currentCredentialType] || credentialDisplayData.value.fallback;
+// }
 
-function getCredentialIconFuction(icon) {
-  return getCredentialIcon(getStaticAssetsUrl.value, icon);
-}
-
-function getManifest(credential) {
-  const currentCredentialType = getCredentialTypeFunction(credential);
-  return credentialDisplayData[currentCredentialType] || credentialDisplayData.value.fallback;
+function getCredentialIconFunction(credential) {
+  return credential?.styles?.thumbnail?.uri?.includes('https://')
+    ? credential?.styles?.thumbnail?.uri
+    : getCredentialIcon(getStaticAssetsUrl(), credential?.styles?.thumbnail?.uri);
 }
 </script>
 
@@ -214,20 +236,22 @@ function getManifest(credential) {
               <button
                 :class="[
                   `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
-                  credential.brandColor.length
-                    ? `bg-gradient-${credential.brandColor} border-neutrals-black border-opacity-10 focus-within:ring-primary-${credential.brandColor}`
-                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
+                  credential.styles.background.color !== '#fff'
+                    ? `border-neutrals-black border-opacity-10`
+                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle`,
                 ]"
                 @click="toggleDetails(credential)"
               >
                 <div class="flex-none w-12 h-12 border-opacity-10">
-                  <img :src="getCredentialIconFunction(credential.icon)" />
+                  <img :src="getCredentialIconFunction(credential)" />
                 </div>
                 <div class="flex-grow p-4">
                   <span
                     :class="[
                       `text-sm md:text-base font-bold text-left text-ellipsis`,
-                      credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
+                      credential.styles.background.color !== '#fff'
+                        ? `text-neutrals-white`
+                        : `text-neutrals-dark`,
                     ]"
                   >
                     {{ credential.title }}

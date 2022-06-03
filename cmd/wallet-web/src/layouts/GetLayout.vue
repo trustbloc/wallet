@@ -10,7 +10,7 @@
   </div>
 </template>
 <script>
-import { inject } from 'vue';
+import { inject, provide, computed, reactive } from 'vue';
 import DIDAuthPage from '@/pages/DIDAuthPage.vue';
 import DIDConnectPage from '@/pages/DIDConnectPage.vue';
 import CHAPISharePage from '@/pages/CHAPISharePage.vue';
@@ -51,6 +51,10 @@ function findForm(credEvent) {
   const found = QUERY_FORMS.filter((form) => form.match(types));
 
   if (found.length > 0) {
+    console.log('yas chapi share in findform');
+    phStore.protocolHandlerr = found[0].protocolHandler
+      ? new found[0].protocolHandler(credEvent)
+      : new CHAPIEventHandler(credEvent);
     return {
       component: found[0].component,
       protocolHandler: found[0].protocolHandler
@@ -69,6 +73,9 @@ function findForm(credEvent) {
     protocolHandler: new CHAPIEventHandler(credEvent),
   };
 }
+export const phStore = reactive({
+  protocolHandlerr: null,
+});
 
 export default {
   provide() {
@@ -78,6 +85,7 @@ export default {
   },
   setup() {
     const webCredentialHandler = inject('webCredentialHandler');
+    console.log('when is this called');
     return { webCredentialHandler };
   },
   data() {
@@ -91,6 +99,14 @@ export default {
       return this.component;
     },
   },
+  provide: {
+    protocolHandler: computed(() => this.protocolHandler),
+  },
+  // provide() {
+  //   return {
+  //     protocolHandler: this.protocolHandler,
+  //   };
+  // },
   beforeCreate: async function () {
     this.credentialEvent = await this.webCredentialHandler.receiveCredentialEvent();
     if (!this.credentialEvent.credentialRequestOptions.web.VerifiablePresentation) {
@@ -99,9 +115,11 @@ export default {
     }
 
     const { component, protocolHandler } = findForm(this.credentialEvent);
-
+    console.log('before create in get layout');
     this.component = component;
     this.protocolHandler = protocolHandler;
+    console.log('protocolhandler set here');
+    //this.provide('protocolHandler', this.protocolHandler);
   },
 };
 </script>

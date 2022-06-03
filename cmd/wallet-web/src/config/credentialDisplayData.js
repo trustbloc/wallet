@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 export default {
   PermanentResidentCard: {
     id: ['$.id'],
-    brandColor: 'boatBlue',
+    brandColor: 'red',
     issuanceDate: ['$.issuanceDate'],
     properties: {
       image: {

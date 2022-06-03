@@ -113,12 +113,28 @@
             <li v-for="(credential, index) in processedCredentials" :key="index">
               <!-- Credential Preview -->
               <button
-                :class="[
-                  `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
-                  credential.brandColor.length
-                    ? `bg-gradient-${credential.brandColor} border-neutrals-black border-opacity-10 focus-within:ring-primary-${credential.brandColor}`
-                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
-                ]"
+                class="
+                  group
+                  inline-flex
+                  items-center
+                  rounded-xl
+                  p-5
+                  text-sm
+                  md:text-base
+                  font-bold
+                  border
+                  w-full
+                  h-20
+                  md:h-24
+                  focus-within:ring-2 focus-within:ring-offset-2
+                  credentialPreviewContainer
+                "
+                :class="
+                  credential.styles.background.color !== '#fff'
+                    ? `border-neutrals-black border-opacity-10`
+                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle`
+                "
+                :style="`background-color: ${credential.styles.background.color}`"
                 @click="toggleDetails(credential)"
               >
                 <div class="flex-none w-12 h-12 border-opacity-10">
@@ -128,7 +144,9 @@
                   <span
                     :class="[
                       `text-sm md:text-base font-bold text-left text-ellipsis`,
-                      credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
+                      credential.styles.background.color !== '#fff'
+                        ? `text-neutrals-white`
+                        : `text-neutrals-dark`,
                     ]"
                   >
                     {{ credential.title }}
@@ -191,6 +209,7 @@ import {
   getCredentialType,
   getCredentialDisplayData,
   getCredentialIcon,
+  prepareCredentialManifest,
 } from '@/mixins';
 import { mapGetters } from 'vuex';
 import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
@@ -224,17 +243,24 @@ export default {
     this.protocolHandler = this.$parent.protocolHandler;
     const query = normalizeQuery(toRaw(this.protocolHandler.getEventData().query));
     const { user, token } = this.getCurrentUser().profile;
+
+
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-    this.credentialDisplayData = await this.getCredentialManifestData();
 
     try {
       const { results } = await this.credentialManager.query(token, query);
       this.presentation = results;
       const credentials = results.reduce((acc, val) => acc.concat(val.verifiableCredential), []);
-      credentials.map((credential) => {
-        const manifest = this.getManifest(credential);
-        const processedCredential = this.getCredentialDisplayData(credential, manifest);
-        this.processedCredentials.push({ ...processedCredential, showDetails: false });
+
+      //credentials.map(async (credential) => {
+      const manifest = prepareCredentialManifest(
+        this.presentation[0],
+        this.getCredentialManifests(),
+        this.protocolHandler.requestor()
+      );
+      this.processedCredentials = await this.credentialManager.resolveManifest(this.token, {
+        manifest,
+        fulfillment: this.presentation[0],
       });
     } catch (e) {
       this.errors.push(e);
@@ -248,7 +274,12 @@ export default {
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getCurrentUser', 'getCredentialManifestData', 'getStaticAssetsUrl']),
+    ...mapGetters([
+      'getCurrentUser',
+      'getCredentialManifests',
+      'getCredentialManifestData',
+      'getStaticAssetsUrl',
+    ]),
     getCredentialIcon: function (icon) {
       return getCredentialIcon(this.getStaticAssetsUrl(), icon);
     },
