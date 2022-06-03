@@ -8,7 +8,17 @@
   <!-- Loading State -->
   <div v-if="loading" class="flex justify-center items-start w-screen h-screen">
     <div
-      class="flex justify-center items-center w-full max-w-md h-80 bg-gray-light md:border md:border-t-0 border-neutrals-black"
+      class="
+        flex
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-80
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+      "
     >
       <SpinnerIcon />
     </div>
@@ -16,7 +26,17 @@
   <!-- Sharing State -->
   <div v-else-if="sharing" class="flex justify-center items-start w-screen h-screen">
     <div
-      class="flex flex-col justify-center items-center w-full max-w-md h-80 bg-gray-light md:border md:border-t-0 border-neutrals-black"
+      class="
+        flex flex-col
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-80
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+      "
     >
       <SpinnerIcon />
       <span class="mt-8 text-base text-neutrals-dark">{{
@@ -30,7 +50,17 @@
     class="flex justify-center items-start w-screen h-screen"
   >
     <div
-      class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light md:border md:border-t-0 border-neutrals-black"
+      class="
+        flex flex-col
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-auto
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+      "
     >
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
@@ -42,7 +72,18 @@
         }}</span>
       </div>
       <div
-        class="flex flex-row justify-center items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
+        class="
+          flex flex-row
+          justify-center
+          items-center
+          pt-4
+          pr-5
+          pb-4
+          pl-5
+          w-full
+          bg-neutrals-magnolia
+          border-t border-neutrals-thistle
+        "
       >
         <button id="share-credentials-ok-btn" class="btn-primary" @click="cancel">
           {{ t('CHAPI.Share.Error.tryAgain') }}
@@ -53,7 +94,17 @@
   <!-- Credentials Missing State -->
   <div v-else-if="showCredentialsMissing" class="flex justify-center items-start w-screen h-screen">
     <div
-      class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light md:border md:border-t-0 border-neutrals-black"
+      class="
+        flex flex-col
+        justify-center
+        items-center
+        w-full
+        max-w-md
+        h-auto
+        bg-gray-light
+        md:border md:border-t-0
+        border-neutrals-black
+      "
     >
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
@@ -65,7 +116,18 @@
         }}</span>
       </div>
       <div
-        class="flex flex-row justify-center items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
+        class="
+          flex flex-row
+          justify-center
+          items-center
+          pt-4
+          pr-5
+          pb-4
+          pl-5
+          w-full
+          bg-neutrals-magnolia
+          border-t border-neutrals-thistle
+        "
       >
         <button id="share-credentials-ok-btn" class="btn-outline" @click="cancel">
           {{ t('CHAPI.Share.CredentialsMissing.ok') }}
@@ -131,10 +193,10 @@
                 "
                 :class="
                   credential.styles.background.color !== '#fff'
-                    ? `border-neutrals-black border-opacity-10`
-                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle`
+                    ? `border-neutrals-black border-opacity-10 notWhiteCredentialPreview`
+                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`
                 "
-                :style="`background-color: ${credential.styles.background.color}`"
+                :style="focusStyleColor(credential.styles.background.color)"
                 @click="toggleDetails(credential)"
               >
                 <div class="flex-none w-12 h-12 border-opacity-10">
@@ -189,7 +251,21 @@
       </div>
 
       <div
-        class="flex sticky bottom-0 flex-row justify-between items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
+        class="
+          flex
+          sticky
+          bottom-0
+          flex-row
+          justify-between
+          items-center
+          pt-4
+          pr-5
+          pb-4
+          pl-5
+          w-full
+          bg-neutrals-magnolia
+          border-t border-neutrals-thistle
+        "
       >
         <button id="cancelBtn" class="btn-outline" @click="cancel">
           {{ t('CHAPI.Share.decline') }}
@@ -244,7 +320,6 @@ export default {
     const query = normalizeQuery(toRaw(this.protocolHandler.getEventData().query));
     const { user, token } = this.getCurrentUser().profile;
 
-
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
 
     try {
@@ -285,6 +360,12 @@ export default {
     },
     toggleDetails(credential) {
       credential.showDetails = !credential.showDetails;
+    },
+    focusStyleColor(color) {
+      return {
+        'background-color': color,
+        '--focus-color': color,
+      };
     },
     async share() {
       this.sharing = true;
@@ -342,3 +423,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.notWhiteCredentialPreview:focus {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+</style>
