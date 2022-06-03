@@ -185,15 +185,7 @@ onMounted(async () => {
 
 <template>
   <div
-    class="
-      justify-between
-      items-center
-      px-6
-      min-h-screen
-      md:bg-onboarding
-      flex flex-col
-      bg-scroll bg-no-repeat bg-neutrals-softWhite bg-onboarding-sm
-    "
+    class="flex flex-col justify-between items-center px-6 min-h-screen bg-scroll bg-neutrals-softWhite bg-no-repeat bg-onboarding-sm md:bg-onboarding"
   >
     <div class="flex flex-col flex-grow justify-center items-center">
       <ToastNotificationComponent
@@ -203,23 +195,7 @@ onMounted(async () => {
         type="error"
       />
       <div
-        class="
-          flex
-          overflow-hidden
-          flex-col
-          justify-start
-          items-center
-          px-6
-          mx-6
-          w-full
-          sm:w-screen
-          max-w-xl
-          h-auto
-          text-xl
-          md:text-3xl
-          rounded-xl
-          bg-gradient-dark
-        "
+        class="flex overflow-hidden flex-col justify-start items-center px-6 mx-6 w-full sm:w-screen max-w-xl h-auto text-xl md:text-3xl bg-gradient-dark rounded-xl"
       >
         <LogoComponent class="py-12" />
         <div class="items-center mb-10 md:mb-8 text-center">
@@ -228,16 +204,7 @@ onMounted(async () => {
           </span>
         </div>
         <div
-          class="
-            gap-5
-            justify-items-center
-            content-center
-            sm:px-32
-            mb-12
-            w-full
-            h-64
-            grid grid-cols-1
-          "
+          class="grid grid-cols-1 gap-5 justify-items-center content-center sm:px-32 mb-12 w-full h-64"
         >
           <SpinnerIcon v-if="loading" />
           <button
@@ -245,17 +212,7 @@ onMounted(async () => {
             v-else
             :id="provider.id"
             :key="index"
-            class="
-              items-center
-              w-full
-              h-11
-              text-sm
-              font-bold
-              rounded-md
-              flex flex-wrap
-              text-neutrals-dark
-              bg-neutrals-softWhite
-            "
+            class="flex flex-wrap items-center w-full h-11 text-sm font-bold text-neutrals-dark bg-neutrals-softWhite rounded-md"
             @click="initiateOIDCLogin(provider.id)"
             @keyup.enter="initiateOIDCLogin(provider.id)"
           >
@@ -266,7 +223,7 @@ onMounted(async () => {
           <p class="text-base font-normal text-neutrals-softWhite">
             {{ t('Signin.redirect') }}
             <router-link
-              class="whitespace-nowrap text-primary-blue underline-blue"
+              class="text-primary-blue whitespace-nowrap underline-blue"
               :to="{ name: 'signup' }"
               >{{ t('Signin.signup') }}
             </router-link>

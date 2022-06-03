@@ -8,19 +8,7 @@
   <div class="flex flex-col justify-start px-3 md:px-0 pt-10 w-full">
     <div class="flex flex-col justify-start items-start w-full root-container">
       <div
-        class="
-          flex
-          z-10
-          flex-row
-          justify-start
-          items-center
-          py-6
-          px-5
-          w-full
-          h-24
-          rounded-xl
-          border
-        "
+        class="flex z-10 flex-row justify-start items-center py-6 px-5 w-full h-24 rounded-xl border"
         :class="
           styles.background.color !== '#fff'
             ? `border-neutrals-black border-opacity-10`
@@ -39,19 +27,7 @@
         </span>
       </div>
       <div
-        class="
-          relative
-          justify-start
-          items-start
-          px-6
-          pt-14
-          pb-6
-          w-full
-          bg-neutrals-white
-          rounded-b-xl
-          flex flex-col
-          sub-container
-        "
+        class="flex relative flex-col justify-start items-start px-6 pt-14 pb-6 w-full bg-neutrals-white rounded-b-xl sub-container"
       >
         <table v-if="breakpoints.xs || breakpoints.sm" class="w-full text-left">
           <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">

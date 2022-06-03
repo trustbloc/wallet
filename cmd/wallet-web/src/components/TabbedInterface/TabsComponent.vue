@@ -1,16 +1,7 @@
 <template>
   <div class="w-full">
     <ul
-      class="
-        justify-start
-        items-center
-        w-full
-        bg-gradient-to-r
-        from-haiti
-        to-jagger
-        md:rounded
-        flex flex-row
-      "
+      class="flex flex-row justify-start items-center w-full bg-gradient-to-r from-haiti to-jagger md:rounded"
     >
       <li
         v-for="(tab, index) in tabs"

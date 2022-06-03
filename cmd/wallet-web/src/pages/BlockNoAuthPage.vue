@@ -7,16 +7,7 @@
 <template>
   <div class="flex justify-center items-start w-screen h-screen">
     <div
-      class="
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-auto
-        bg-gray-light
-        border border-t-0 border-neutrals-black
-        flex flex-col
-      "
+      class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light border border-t-0 border-neutrals-black"
     >
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
@@ -29,18 +20,7 @@
         >
       </div>
       <div
-        class="
-          justify-center
-          items-center
-          pt-4
-          pr-5
-          pb-4
-          pl-5
-          w-full
-          bg-neutrals-magnolia
-          flex flex-row
-          border-t border-neutrals-thistle
-        "
+        class="flex flex-row justify-center items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
       >
         <StyledButtonComponent type="btn-primary" :loading="loading" @click="signIn()"
           >Sign in</StyledButtonComponent

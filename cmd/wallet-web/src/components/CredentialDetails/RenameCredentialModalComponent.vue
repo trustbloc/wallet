@@ -16,15 +16,7 @@
     </template>
     <template #content>
       <div
-        class="
-          flex
-          justify-between
-          items-center
-          py-4
-          px-8
-          w-full
-          border-b-2 border-neutrals-thistle
-        "
+        class="flex justify-between items-center py-4 px-8 w-full border-b-2 border-neutrals-thistle"
       >
         <span class="text-lg font-bold text-neutrals-dark">
           {{ t('CredentialDetails.RenameModal.renameCredential') }}

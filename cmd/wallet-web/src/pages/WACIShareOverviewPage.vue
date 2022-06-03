@@ -9,20 +9,7 @@
     <div class="flex overflow-hidden flex-col flex-grow justify-between items-center w-full h-full">
       <div class="flex overflow-auto justify-center w-full">
         <div
-          class="
-            flex-grow
-            justify-start
-            items-start
-            pt-8
-            pr-5
-            pb-8
-            pl-5
-            md:pr-0 md:pl-0
-            w-full
-            max-w-3xl
-            h-full
-            flex flex-col
-          "
+          class="flex flex-col flex-grow justify-start items-start pt-8 pr-5 md:pr-0 pb-8 pl-5 md:pl-0 w-full max-w-3xl h-full"
         >
           <span class="mb-6 text-3xl font-bold">{{ t('CHAPI.Share.shareCredential', 2) }}</span>
           <CredentialOverviewComponent
@@ -31,19 +18,7 @@
           >
             <template #bannerBottomContainer>
               <div
-                class="
-                  absolute
-                  justify-start
-                  items-start
-                  px-5
-                  pb-3
-                  w-full
-                  rounded-b-xl
-                  pt-13
-                  bg-neutrals-white
-                  flex flex-row
-                  waci-share-credential-overview-vault
-                "
+                class="flex absolute flex-row justify-start items-start px-5 pt-13 pb-3 w-full bg-neutrals-white rounded-b-xl waci-share-credential-overview-vault"
               >
                 <span class="flex text-sm font-bold text-neutrals-dark">
                   {{ t('CredentialDetails.Banner.vault') }}

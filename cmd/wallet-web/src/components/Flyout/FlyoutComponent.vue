@@ -5,9 +5,9 @@
 -->
 <template>
   <div class="relative">
-    <slot name="button" :toggleFlyoutMenu="toggleFlyoutMenu" :setShowTooltip="setShowTooltip" />
+    <slot name="button" :toggle-flyout-menu="toggleFlyoutMenu" :set-show-tooltip="setShowTooltip" />
     <ToolTipComponent v-if="showTooltip && !showFlyoutMenu" :tool-tip-label="toolTipLabel" />
-    <slot v-if="showFlyoutMenu" name="menu" :toggleFlyoutMenu="toggleFlyoutMenu" />
+    <slot v-if="showFlyoutMenu" name="menu" :toggle-flyout-menu="toggleFlyoutMenu" />
   </div>
 </template>
 

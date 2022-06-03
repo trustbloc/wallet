@@ -7,25 +7,7 @@
 <template>
   <router-link
     :id="id"
-    class="
-      group
-      inline-flex
-      items-center
-      py-6
-      pr-3
-      pl-5
-      w-full
-      h-20
-      md:h-24
-      text-sm
-      md:text-base
-      font-bold
-      rounded-xl
-      border
-      focus-within:ring-2 focus-within:ring-offset-2
-      outline-none
-      credentialPreviewContainer
-    "
+    class="group inline-flex items-center py-6 pr-3 pl-5 w-full h-20 md:h-24 text-sm md:text-base font-bold rounded-xl border focus-within:ring-2 focus-within:ring-offset-2 outline-none credentialPreviewContainer"
     :class="
       styles.background.color !== '#fff'
         ? `border-neutrals-black border-opacity-10 notWhiteCredentialPreview`

@@ -6,31 +6,15 @@
 
 <template>
   <div
-    class="
-      flex-grow
-      justify-start
-      items-center
-      mx-auto
-      max-w-7xl
-      h-screen
-      max-h-screen
-      shadow-main-container
-      flex flex-col
-    "
+    class="flex flex-col flex-grow justify-start items-center mx-auto max-w-7xl h-screen max-h-screen shadow-main-container"
   >
     <HeaderComponent :has-custom-gradient="true">
       <template v-if="selectedCredentialId" #leftButtonContainer>
         <button
-          class="
-            justify-start
-            items-center
-            focus:ring-2 focus:ring-primary-purple focus:ring-offset-2
-            outline-none
-            flex flex-row
-          "
+          class="flex flex-row justify-start items-center focus:ring-2 focus:ring-primary-purple focus:ring-offset-2 outline-none"
           @click="handleBackButtonClick"
         >
-          <div class="rounded-full bg-neutrals-black">
+          <div class="bg-neutrals-black rounded-full">
             <img
               class="z-10 w-6 h-6 transform rotate-180"
               src="@/assets/img/credential--arrow-right-icon-light.svg"
@@ -44,27 +28,16 @@
       </template>
     </HeaderComponent>
     <keep-alive>
-      <div v-if="processing" class="flex-grow justify-center items-center flex flex-col">
+      <div v-if="processing" class="flex flex-col flex-grow justify-center items-center">
         <WACILoadingComponent message="Processing Your Request" />
       </div>
       <router-view
-        class="
-          overflow-hidden
-          relative
-          z-10
-          flex-grow
-          justify-start
-          items-start
-          w-full
-          h-full
-          flex flex-col
-          bg-neutrals-softWhite
-        "
+        class="flex overflow-hidden relative z-10 flex-col flex-grow justify-start items-start w-full h-full bg-neutrals-softWhite"
       />
     </keep-alive>
 
     <FooterComponent
-      class="sticky bottom-0 z-20 border-t border-neutrals-thistle bg-neutrals-magnolia"
+      class="sticky bottom-0 z-20 bg-neutrals-magnolia border-t border-neutrals-thistle"
     />
   </div>
 </template>
@@ -77,8 +50,6 @@ import OIDCSharePage from '@/pages/OIDCSharePage.vue';
 import HeaderComponent from '@/components/Header/HeaderComponent.vue';
 import FooterComponent from '@/components/Footer/FooterComponent.vue';
 import WACILoadingComponent from '@/components/WACI/WACILoadingComponent.vue';
-
-var uuid = require('uuid/v4');
 
 export const OIDCStore = reactive({
   processedCredentials: [],

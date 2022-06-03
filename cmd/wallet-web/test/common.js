@@ -7,8 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 import * as Agent from '@trustbloc/agent-sdk-web';
 import { DIDManager, WalletUser, CredentialManager } from '@trustbloc/wallet-sdk';
 import { createStore } from 'vuex';
-
-var uuid = require('uuid/v4');
+import { v4 as uuidv4 } from 'uuid';
 
 export const DIDEXCHANGE_STATE_TOPIC = 'didexchange_states';
 export const POST_STATE = 'post_state';
@@ -17,7 +16,7 @@ export const DIDEXCHANGE_STATE_REQUESTED = 'requested';
 export const testConfig = window.__FIXTURES__
   ? JSON.parse(window.__FIXTURES__['test/fixtures/agent-config.json'])
   : {};
-testConfig.walletUserPassphrase = uuid();
+testConfig.walletUserPassphrase = uuidv4();
 
 console.debug('test configuration:', JSON.stringify(testConfig, null, 2));
 

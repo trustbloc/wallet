@@ -7,20 +7,7 @@
 <template>
   <div v-bind="$attrs" class="flex relative flex-col justify-start items-start w-full">
     <div
-      class="
-        flex
-        z-10
-        flex-row
-        justify-start
-        items-center
-        py-4
-        px-5
-        w-full
-        h-auto
-        rounded-xl
-        border
-        bg-neutrals-white
-      "
+      class="flex z-10 flex-row justify-start items-center py-4 px-5 w-full h-auto bg-neutrals-white rounded-xl border"
       :class="
         credential?.styles.background.color !== '#fff'
           ? `border-neutrals-black border-opacity-10`

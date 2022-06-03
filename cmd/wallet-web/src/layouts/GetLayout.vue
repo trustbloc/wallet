@@ -71,6 +71,11 @@ function findForm(credEvent) {
 }
 
 export default {
+  provide() {
+    return {
+      protocolHandler: this.protocolHandler,
+    };
+  },
   setup() {
     const webCredentialHandler = inject('webCredentialHandler');
     return { webCredentialHandler };
@@ -85,11 +90,6 @@ export default {
     dynamo() {
       return this.component;
     },
-  },
-  provide() {
-    return {
-      protocolHandler: this.protocolHandler,
-    };
   },
   beforeCreate: async function () {
     this.credentialEvent = await this.webCredentialHandler.receiveCredentialEvent();

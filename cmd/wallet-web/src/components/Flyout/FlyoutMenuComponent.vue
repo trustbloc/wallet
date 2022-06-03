@@ -5,18 +5,7 @@
 -->
 <template>
   <div
-    class="
-      absolute
-      right-0
-      z-20
-      mt-2
-      w-48
-      text-neutrals-medium
-      bg-neutrals-white
-      rounded-lg
-      shadow-xl
-      flyout-box
-    "
+    class="absolute right-0 z-20 mt-2 w-48 text-neutrals-medium bg-neutrals-white rounded-lg shadow-xl flyout-box"
   >
     <ul class="py-2">
       <slot />

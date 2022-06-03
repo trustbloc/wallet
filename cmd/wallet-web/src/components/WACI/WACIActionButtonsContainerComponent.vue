@@ -6,21 +6,7 @@
 
 <template>
   <div
-    class="
-      sticky
-      bottom-0
-      z-20
-      justify-center
-      items-center
-      pt-4
-      pr-5
-      pb-4
-      pl-5
-      w-full
-      bg-neutrals-magnolia
-      flex flex-row
-      border-t border-neutrals-thistle
-    "
+    class="flex sticky bottom-0 z-20 flex-row justify-center items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
   >
     <div class="flex flex-row flex-grow justify-between items-center w-full max-w-3xl">
       <slot name="leftButton" />

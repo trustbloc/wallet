@@ -185,15 +185,7 @@ onMounted(async () => {
 
 <template>
   <div
-    class="
-      justify-between
-      items-center
-      px-6
-      min-h-screen
-      md:bg-onboarding
-      flex flex-col
-      bg-scroll bg-no-repeat bg-neutrals-softWhite bg-onboarding-sm
-    "
+    class="flex flex-col justify-between items-center px-6 min-h-screen bg-scroll bg-neutrals-softWhite bg-no-repeat bg-onboarding-sm md:bg-onboarding"
   >
     <div class="flex flex-col flex-grow justify-center items-center">
       <ToastNotificationComponent
@@ -203,39 +195,30 @@ onMounted(async () => {
         type="error"
       />
       <div
-        class="overflow-hidden md:max-w-4xl h-auto text-xl md:text-3xl rounded-xl bg-gradient-dark"
+        class="overflow-hidden md:max-w-4xl h-auto text-xl md:text-3xl bg-gradient-dark rounded-xl"
       >
         <div
-          class="
-            md:grid-cols-2 md:px-20
-            w-full
-            h-full
-            bg-no-repeat
-            divide-x divide-opacity-25
-            grid grid-cols-1
-            divide-neutrals-medium
-            bg-onboarding-flare-lg
-          "
+          class="grid grid-cols-1 md:grid-cols-2 md:px-20 w-full h-full bg-no-repeat bg-onboarding-flare-lg divide-x divide-neutrals-medium divide-opacity-25"
         >
           <div class="hidden md:block col-span-1 py-24 pr-16">
             <LogoComponent class="mb-12" />
             <div class="flex overflow-y-auto flex-1 items-center mb-8 max-w-full">
               <img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-1.svg" />
-              <span class="pl-5 text-base align-middle text-neutrals-white">
+              <span class="pl-5 text-base text-neutrals-white align-middle">
                 {{ t('Signup.leftContainer.span1') }}
               </span>
             </div>
 
             <div class="flex overflow-y-auto flex-1 items-center mb-8 max-w-full">
               <img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-2.svg" />
-              <span class="pl-5 text-base align-middle text-neutrals-white">
+              <span class="pl-5 text-base text-neutrals-white align-middle">
                 {{ t('Signup.leftContainer.span2') }}
               </span>
             </div>
 
             <div class="flex overflow-y-auto flex-1 items-center max-w-full">
               <img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-3.svg" />
-              <span class="pl-5 text-base align-middle text-neutrals-white">
+              <span class="pl-5 text-base text-neutrals-white align-middle">
                 {{ t('Signup.leftContainer.span3') }}
               </span>
             </div>
@@ -257,17 +240,7 @@ onMounted(async () => {
                   v-else
                   :id="provider.id"
                   :key="index"
-                  class="
-                    items-center
-                    w-full
-                    h-11
-                    text-sm
-                    font-bold
-                    rounded-md
-                    flex flex-wrap
-                    text-neutrals-dark
-                    bg-neutrals-softWhite
-                  "
+                  class="flex flex-wrap items-center w-full h-11 text-sm font-bold text-neutrals-dark bg-neutrals-softWhite rounded-md"
                   @click="initiateOIDCLogin(provider.id)"
                   @keyup.enter="initiateOIDCLogin(provider.id)"
                 >
@@ -278,7 +251,7 @@ onMounted(async () => {
                 <p class="text-base font-normal text-neutrals-white">
                   {{ t('Signup.redirect') }}
                   <router-link
-                    class="whitespace-nowrap text-primary-blue underline-blue"
+                    class="text-primary-blue whitespace-nowrap underline-blue"
                     :to="{ name: 'signin' }"
                     >{{ t('Signup.signin') }}</router-link
                   >

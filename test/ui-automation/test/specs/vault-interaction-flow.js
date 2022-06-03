@@ -93,7 +93,7 @@ describe("TrustBloc Wallet - Add/Rename/Delete Vault flow", () => {
   });
   it("User successfully removes vaults", async function () {
     // Number of vault cards
-    let numOfVaults = vault.entries().length + 3;
+    let numOfVaults = vault.size + 3;
     for (const [key, value] of vault.entries()) {
       await wallet.removeVault(`${key} renamed`);
       const vaultsLoadedContainer = await $("#vaults-loaded");

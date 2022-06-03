@@ -5,11 +5,10 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import jp from 'jsonpath';
+import { v4 as uuidv4 } from 'uuid';
 import { PresentationExchange } from '../common/presentationExchange';
 import { BlindedRouter, CredentialManager, DIDComm, DIDManager } from '@trustbloc/wallet-sdk';
-import { CHAPIEventHandler, getCredentialType, normalizeQuery } from '../';
-
-var uuid = require('uuid/v4');
+import { getCredentialType, normalizeQuery } from '../';
 
 const manifestType = 'IssuerManifestCredential';
 const didDocReqMsgType = 'https://trustbloc.dev/adapter/1.0/diddoc-req';
@@ -127,7 +126,7 @@ export class WalletGetByQuery {
     let didDocRes = await this.agent.messaging.send({
       connection_ID: rpConn.result.ConnectionID,
       message_body: {
-        '@id': uuid(),
+        '@id': uuidv4(),
         '@type': didDocReqMsgType,
         sent_time: new Date().toJSON(),
       },
@@ -237,7 +236,7 @@ function waitForCredentials(agent, pool) {
       let resp = await agent.issuecredential.actions();
       for (let action of resp.actions) {
         if (pool.has(action.PIID)) {
-          let credID = uuid();
+          let credID = uuidv4();
           agent.issuecredential.acceptCredential({
             piid: action.PIID,
             names: [credID],

@@ -44,17 +44,7 @@ const chapi = ref(
 
 <template>
   <div
-    class="
-      justify-start
-      items-center
-      focus-within:bg-gradient-to-r
-      opacity-60
-      focus-within:opacity-100
-      hover:from-neutrals-black hover:bg-gradient-to-r hover:opacity-100
-      focus-within:from-neutrals-black focus-within:shadow-inner-outline-blue
-      flex flex-row
-      bar
-    "
+    class="flex flex-row justify-start items-center focus-within:bg-gradient-to-r hover:bg-gradient-to-r focus-within:from-neutrals-black hover:from-neutrals-black focus-within:shadow-inner-outline-blue opacity-60 focus-within:opacity-100 hover:opacity-100 bar"
   >
     <button
       id="signout-button"

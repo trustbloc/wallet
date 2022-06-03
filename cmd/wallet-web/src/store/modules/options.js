@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import { toRaw } from 'vue';
-
+import { v4 as uuidv4 } from 'uuid';
 const axios = require('axios').default;
 
 const agentOptsLocation = (l) => `${l}/walletconfig/agent`;
@@ -13,8 +13,6 @@ const credentialMediator = (url) =>
   url
     ? `${url}?origin=${encodeURIComponent(window.location.origin)}${__webpack_public_path__}/`
     : undefined;
-
-var uuid = require('uuid/v4');
 
 let defaultAgentStartupOpts = {
   assetsPath: `${__webpack_public_path__}agent-js-worker/assets`,
@@ -154,7 +152,7 @@ export default {
       } else {
         // strictly, for dev mode only
 
-        let user = uuid();
+        let user = uuidv4();
 
         dispatch('loadUser');
         if (getters.getCurrentUser) {

@@ -6,19 +6,7 @@
 <template>
   <div
     v-if="type === 'regular'"
-    class="
-      relative
-      md:flex-col
-      px-6
-      xl:w-64
-      h-auto
-      md:h-40
-      bg-neutrals-white
-      rounded-xl
-      border border-neutrals-dark border-opacity-20
-      vaultContainer
-      flex flex-row
-    "
+    class="flex relative flex-row md:flex-col px-6 xl:w-64 h-auto md:h-40 bg-neutrals-white rounded-xl border border-neutrals-dark border-opacity-20 vaultContainer"
   >
     <AppLinkComponent
       :id="id"
@@ -45,21 +33,7 @@
   </div>
   <div v-else-if="type === 'addNew'" class="relative">
     <div
-      class="
-        justify-center
-        items-center
-        px-6
-        pt-4
-        md:pt-5
-        w-full
-        xl:w-64
-        h-24
-        md:h-40
-        bg-neutrals-moist
-        rounded-xl
-        border border-neutrals-dark border-opacity-10
-        flex flex-col
-      "
+      class="flex flex-col justify-center items-center px-6 pt-4 md:pt-5 w-full xl:w-64 h-24 md:h-40 bg-neutrals-moist rounded-xl border border-neutrals-dark border-opacity-10"
     >
       <div class="flex justify-center items-center w-8 h-8 bg-neutrals-white rounded-full">
         <img

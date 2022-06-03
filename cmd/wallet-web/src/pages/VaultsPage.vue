@@ -72,14 +72,7 @@
             <template #button="{ toggleFlyoutMenu }">
               <button
                 :id="`vaults-flyout-menu-button-${vault.name.replaceAll(' ', '-')}`"
-                class="
-                  w-8
-                  h-8
-                  bg-neutrals-white
-                  hover:bg-neutrals-softWhite
-                  focus:bg-neutrals-mischka
-                  rounded-full
-                "
+                class="w-8 h-8 bg-neutrals-white hover:bg-neutrals-softWhite focus:bg-neutrals-mischka rounded-full"
                 @click="toggleFlyoutMenu()"
               >
                 <img class="p-2" src="@/assets/img/more-icon.svg" />
@@ -101,14 +94,7 @@
             <template #button="{ toggleFlyoutMenu }">
               <button
                 :id="`vaults-flyout-menu-button-${vault.name.replaceAll(' ', '-')}`"
-                class="
-                  w-8
-                  h-8
-                  bg-neutrals-white
-                  hover:bg-neutrals-softWhite
-                  focus:bg-neutrals-mischka
-                  rounded-full
-                "
+                class="w-8 h-8 bg-neutrals-white hover:bg-neutrals-softWhite focus:bg-neutrals-mischka rounded-full"
                 @click="toggleFlyoutMenu()"
               >
                 <img class="p-2" src="@/assets/img/more-icon.svg" />

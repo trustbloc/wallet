@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import uuid from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import { readOpenIDConfiguration, sendCredentialAuthorizeRequest } from '@/mixins';
 import Cookies from 'js-cookie';
 
@@ -17,7 +17,7 @@ export default {
   name: 'OIDCInitiateLayout',
   created: async function () {
     {
-      const opState = this.$route.query.op_state || uuid();
+      const opState = this.$route.query.op_state || uuidv4();
       const { issuer, credential_type, manifest_id } = this.$route.query;
       console.log('what is issuer', issuer, this.$route.query);
       const configuration = await readOpenIDConfiguration(issuer);

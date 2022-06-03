@@ -14,20 +14,7 @@
         <template #button="{ toggleFlyoutMenu, setShowTooltip }">
           <button
             id="credential-details-flyout-button"
-            class="
-              w-11
-              h-11
-              bg-neutrals-white
-              rounded-lg
-              focus:border-neutrals-chatelle
-              focus:ring-2
-              focus:ring-primary-purple
-              focus:ring-opacity-70
-              focus-within:ring-offset-2
-              outline-none
-              border border-neutrals-chatelle
-              hover:border-neutrals-mountainMist-light
-            "
+            class="w-11 h-11 bg-neutrals-white rounded-lg border border-neutrals-chatelle focus:border-neutrals-chatelle focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 focus-within:ring-offset-2 outline-none hover:border-neutrals-mountainMist-light"
             @click="toggleFlyoutMenu()"
             @focus="setShowTooltip(false)"
             @mouseover="setShowTooltip(true)"

@@ -5,14 +5,7 @@
 -->
 <template>
   <div
-    class="
-      justify-start
-      p-6
-      md:py-8 md:px-10 md:rounded-xl md:border
-      border-b
-      flex flex-col
-      border-opacity-25 border-primary-purple
-    "
+    class="flex flex-col justify-start p-6 md:py-8 md:px-10 md:rounded-xl md:border border-b border-primary-purple border-opacity-25"
   >
     <div class="flex flex-grow justify-between items-start mb-8 w-full">
       <div class="flex flex-col justify-start items-start pr-6">
