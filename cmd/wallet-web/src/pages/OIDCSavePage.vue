@@ -40,20 +40,7 @@
   >
     <div class="flex overflow-auto justify-center w-full">
       <div
-        class="
-          flex-grow
-          justify-start
-          items-start
-          pt-8
-          pr-5
-          pb-8
-          pl-5
-          md:pr-0 md:pl-0
-          w-full
-          max-w-3xl
-          h-full
-          flex flex-col
-        "
+        class="flex flex-col flex-grow justify-start items-start pt-8 pr-5 md:pr-0 pb-8 pl-5 md:pl-0 w-full max-w-3xl h-full"
       >
         <span class="mb-6 text-3xl font-bold">{{ t('WACI.Issue.saveCredential') }}</span>
 
@@ -65,17 +52,7 @@
           <CredentialOverviewComponent :credential="credential">
             <template #bannerBottomContainer>
               <div
-                class="
-                  justify-start
-                  items-start
-                  px-4
-                  mt-5
-                  w-full
-                  bg-neutrals-lilacSoft
-                  rounded-t-lg
-                  flex flex-col flex-grow
-                  border-b border-neutrals-dark
-                "
+                class="flex flex-col flex-grow justify-start items-start px-4 mt-5 w-full bg-neutrals-lilacSoft rounded-t-lg border-b border-neutrals-dark"
               >
                 <label for="select-key" class="mb-1 text-sm font-bold text-neutrals-dark">{{
                   t('Vaults.selectVault')

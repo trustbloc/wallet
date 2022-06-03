@@ -18,15 +18,7 @@
     <!-- Desktop Dashboard Layout -->
     <div
       v-else
-      class="
-        flex
-        justify-center
-        mx-auto
-        max-w-7xl
-        bg-neutrals-softWhite
-        shadow-main-container
-        flex-row flex-grow
-      "
+      class="flex flex-row flex-grow justify-center mx-auto max-w-7xl bg-neutrals-softWhite shadow-main-container"
     >
       <NavbarComponent>
         <NavbarLinkComponent

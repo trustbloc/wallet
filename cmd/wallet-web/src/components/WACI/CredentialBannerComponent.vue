@@ -6,23 +6,7 @@
 
 <template>
   <button
-    class="
-      group
-      inline-flex
-      items-center
-      py-4
-      pr-3
-      pl-5
-      w-full
-      text-sm
-      md:text-base
-      font-bold
-      rounded-xl
-      border
-      focus-within:ring-2 focus-within:ring-offset-2
-      outline-none
-      credentialPreviewContainer
-    "
+    class="group inline-flex items-center py-4 pr-3 pl-5 w-full text-sm md:text-base font-bold rounded-xl border focus-within:ring-2 focus-within:ring-offset-2 outline-none credentialPreviewContainer"
     :class="
       styles.background.color !== '#fff'
         ? `border-neutrals-chatelle border-opacity-10 focus-within:ring-[#${styles.background.color}]`

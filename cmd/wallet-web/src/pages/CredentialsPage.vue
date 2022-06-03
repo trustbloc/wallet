@@ -12,22 +12,7 @@
         <template #button="{ toggleFlyoutMenu, setShowTooltip }">
           <button
             id="credentials-flyout-menu-button-mobile"
-            class="
-              inline-flex
-              justify-between
-              items-center
-              px-3
-              w-screen
-              md:w-auto
-              h-11
-              bg-neutrals-white
-              md:rounded-lg
-              focus:ring-primary-purple focus:ring-opacity-70 focus:ring-2
-              focus-within:ring-offset-2
-              outline-none
-              border border-neutrals-chatelle
-              hover:border-neutrals-mountainMist-light
-            "
+            class="inline-flex justify-between items-center px-3 w-screen md:w-auto h-11 bg-neutrals-white md:rounded-lg border border-neutrals-chatelle focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 focus-within:ring-offset-2 outline-none hover:border-neutrals-mountainMist-light"
             @click="toggleFlyoutMenu()"
             @focus="setShowTooltip(false)"
             @mouseover="setShowTooltip(true)"
@@ -74,22 +59,7 @@
         <template #button="{ toggleFlyoutMenu, setShowTooltip }">
           <button
             id="credentials-flyout-menu-button-desktop"
-            class="
-              inline-flex
-              justify-between
-              items-center
-              px-3
-              w-screen
-              md:w-auto
-              h-11
-              bg-neutrals-white
-              md:rounded-lg
-              focus:ring-primary-purple focus:ring-opacity-70 focus:ring-2
-              focus-within:ring-offset-2
-              outline-none
-              border border-neutrals-chatelle
-              hover:border-neutrals-mountainMist-light
-            "
+            class="inline-flex justify-between items-center px-3 w-screen md:w-auto h-11 bg-neutrals-white md:rounded-lg border border-neutrals-chatelle focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 focus-within:ring-offset-2 outline-none hover:border-neutrals-mountainMist-light"
             @click="toggleFlyoutMenu()"
             @focus="setShowTooltip(false)"
             @mouseover="setShowTooltip(true)"

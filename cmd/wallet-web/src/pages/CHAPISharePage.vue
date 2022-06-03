@@ -108,17 +108,7 @@ function getManifest(credential) {
   <!-- Loading state -->
   <div v-if="loading" class="flex justify-center items-start w-screen h-screen">
     <div
-      class="
-        flex
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-80
-        bg-gray-light
-        md:border md:border-t-0
-        border-neutrals-black
-      "
+      class="flex justify-center items-center w-full max-w-md h-80 bg-gray-light md:border md:border-t-0 border-neutrals-black"
     >
       <SpinnerIcon />
     </div>
@@ -126,17 +116,7 @@ function getManifest(credential) {
   <!-- Sharing State -->
   <div v-else-if="sharing" class="flex justify-center items-start w-screen h-screen">
     <div
-      class="
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-80
-        bg-gray-light
-        md:border md:border-t-0
-        border-neutrals-black
-        flex flex-col
-      "
+      class="flex flex-col justify-center items-center w-full max-w-md h-80 bg-gray-light md:border md:border-t-0 border-neutrals-black"
     >
       <SpinnerIcon />
       <span class="mt-8 text-base text-neutrals-dark">{{
@@ -150,17 +130,7 @@ function getManifest(credential) {
     class="flex justify-center items-start w-screen h-screen"
   >
     <div
-      class="
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-auto
-        bg-gray-light
-        md:border md:border-t-0
-        border-neutrals-black
-        flex flex-col
-      "
+      class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light md:border md:border-t-0 border-neutrals-black"
     >
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
@@ -172,18 +142,7 @@ function getManifest(credential) {
         }}</span>
       </div>
       <div
-        class="
-          justify-center
-          items-center
-          pt-4
-          pr-5
-          pb-4
-          pl-5
-          w-full
-          bg-neutrals-magnolia
-          flex flex-row
-          border-t border-neutrals-thistle
-        "
+        class="flex flex-row justify-center items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
       >
         <button id="share-credentials-ok-btn" class="btn-primary" @click="cancel">
           {{ t('CHAPI.Share.Error.tryAgain') }}
@@ -194,17 +153,7 @@ function getManifest(credential) {
   <!-- Credentials Missing State -->
   <div v-else-if="showCredentialsMissing" class="flex justify-center items-start w-screen h-screen">
     <div
-      class="
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-auto
-        bg-gray-light
-        md:border md:border-t-0
-        border-neutrals-black
-        flex flex-col
-      "
+      class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light md:border md:border-t-0 border-neutrals-black"
     >
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
@@ -216,18 +165,7 @@ function getManifest(credential) {
         }}</span>
       </div>
       <div
-        class="
-          justify-center
-          items-center
-          pt-4
-          pr-5
-          pb-4
-          pl-5
-          w-full
-          bg-neutrals-magnolia
-          flex flex-row
-          border-t border-neutrals-thistle
-        "
+        class="flex flex-row justify-center items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
       >
         <button id="share-credentials-ok-btn" class="btn-outline" @click="cancel">
           {{ t('CHAPI.Share.CredentialsMissing.ok') }}
@@ -343,19 +281,7 @@ function getManifest(credential) {
               v-for="(issuer, key) in issuersFound"
               :id="'issuer-' + key"
               :key="key"
-              class="
-                group
-                items-center
-                p-5
-                mb-5
-                w-full
-                h-20
-                md:h-24
-                rounded-xl
-                border
-                focus-within:ring-2 focus-within:ring-offset-2
-                flex flex-col
-              "
+              class="group flex flex-col items-center p-5 mb-5 w-full h-20 md:h-24 rounded-xl border focus-within:ring-2 focus-within:ring-offset-2"
             >
               <span class="text-lg font-bold">{{ issuer.name }}</span>
               <span class="text-sm md:text-base">{{ issuer.description }}</span>
@@ -366,20 +292,7 @@ function getManifest(credential) {
 
       <!-- Bottom Buttons Container -->
       <div
-        class="
-          sticky
-          bottom-0
-          justify-between
-          items-center
-          pt-4
-          pr-5
-          pb-4
-          pl-5
-          w-full
-          bg-neutrals-magnolia
-          flex flex-row
-          border-t border-neutrals-thistle
-        "
+        class="flex sticky bottom-0 flex-row justify-between items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
       >
         <button id="cancelBtn" class="btn-outline" @click="cancel">
           {{ t('CHAPI.Share.decline') }}

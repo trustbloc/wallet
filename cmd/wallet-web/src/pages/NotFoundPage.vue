@@ -26,17 +26,7 @@ function handleClick() {
 
 <template>
   <div
-    class="
-      flex-grow
-      justify-start
-      items-center
-      mx-auto
-      max-w-7xl
-      h-screen
-      max-h-screen
-      shadow-main-container
-      flex flex-col
-    "
+    class="flex flex-col flex-grow justify-start items-center mx-auto max-w-7xl h-screen max-h-screen shadow-main-container"
   >
     <HeaderComponent :has-custom-gradient="true" :show-menu-dropdown="false">
       <template #gradientContainer>
@@ -44,20 +34,7 @@ function handleClick() {
       </template>
     </HeaderComponent>
     <div
-      class="
-        overflow-hidden
-        relative
-        z-10
-        flex-grow
-        justify-start
-        items-center
-        px-6
-        pt-32
-        w-full
-        h-full
-        flex flex-col
-        bg-neutrals-softWhite
-      "
+      class="flex overflow-hidden relative z-10 flex-col flex-grow justify-start items-center px-6 pt-32 w-full h-full bg-neutrals-softWhite"
     >
       <ErrorIcon />
       <span class="mt-6 text-3xl text-neutrals-dark">Page not found ⸱ 404</span>
@@ -70,7 +47,7 @@ function handleClick() {
     </div>
     <FooterComponent
       v-if="!(breakpoints.xs || breakpoints.sm)"
-      class="sticky bottom-0 z-20 border-t border-neutrals-thistle bg-neutrals-magnolia"
+      class="sticky bottom-0 z-20 bg-neutrals-magnolia border-t border-neutrals-thistle"
     />
   </div>
 </template>

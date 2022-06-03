@@ -11,10 +11,10 @@ import MultipleQuery from '@/pages/MultipleQueryPage.vue';
 import { getTestData, Setup, MockCredentialHandler, promiseWhen } from '../common';
 import { expect } from 'chai';
 import i18n from '@/plugins/i18n';
+import { v4 as uuidv4 } from 'uuid';
 
 const GET_CRED_USER = 'get_cred_user';
 
-var uuid = require('uuid/v4');
 var setup = new Setup({ user: GET_CRED_USER });
 
 before(async function () {
@@ -73,7 +73,7 @@ describe.skip('sharing a credential from wallet - QueryByExample', function () {
               },
             },
           ],
-          challenge: uuid(),
+          challenge: uuidv4(),
           domain: 'example.com',
         },
       },
@@ -148,7 +148,7 @@ describe.skip('sharing a credential from wallet - PresentationExchange', functio
               ],
             },
           ],
-          challenge: uuid(),
+          challenge: uuidv4(),
           domain: 'example.com',
         },
       },
@@ -256,7 +256,7 @@ describe.skip('sharing multiple credentials from wallet - MultiQuery (QueryByExa
               ],
             },
           ],
-          challenge: uuid(),
+          challenge: uuidv4(),
           domain: 'example.com',
         },
       },
@@ -271,7 +271,7 @@ describe.skip('sharing multiple credentials from wallet - MultiQuery (QueryByExa
     const store = setup.getStateStore();
     // prepare manifest
     let manifest = getTestData('allvcs-cred-manifest.json');
-    manifest.id = uuid();
+    manifest.id = uuidv4();
 
     await setup.saveCredentials([udcBBSVC], {
       manifest,

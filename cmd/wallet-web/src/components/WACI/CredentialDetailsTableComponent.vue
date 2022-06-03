@@ -15,16 +15,16 @@
         :key="key"
         class="border-b border-neutrals-thistle border-dotted"
       >
-        <td class="py-4 pr-6 pl-3 w-2/5 whitespace-nowrap text-neutrals-medium">
+        <td class="py-4 pr-6 pl-3 w-2/5 text-neutrals-medium whitespace-nowrap">
           {{ property?.label }}
         </td>
         <td
           v-if="property?.type === 'image' || property?.schema?.format?.includes('image')"
-          class="py-4 pr-6 pl-3 w-3/5 break-words text-neutrals-dark"
+          class="py-4 pr-6 pl-3 w-3/5 text-neutrals-dark break-words"
         >
           <img :src="property?.value" class="w-20 h-20" />
         </td>
-        <td v-else class="py-4 pr-6 pl-3 w-3/5 break-words text-neutrals-dark">
+        <td v-else class="py-4 pr-6 pl-3 w-3/5 text-neutrals-dark break-words">
           {{ property?.value }}
         </td>
       </tr>

@@ -7,22 +7,13 @@
   <teleport v-if="showModal" :to="target">
     <!--Modal Content-->
     <div
-      class="
-        flex
-        overflow-y-auto
-        fixed
-        inset-0
-        z-50
-        justify-center
-        items-center
-        bg-neutrals-dark bg-opacity-50
-      "
+      class="flex overflow-y-auto fixed inset-0 z-50 justify-center items-center bg-neutrals-dark bg-opacity-50"
       @click.self="close"
     >
       <div class="flex overflow-y-auto fixed inset-0 justify-center items-center">
         <slot name="errorToast" />
       </div>
-      <div class="relative flex-grow mx-6 lg:mx-auto max-w-lg rounded-2xl bg-neutrals-white">
+      <div class="relative flex-grow mx-6 lg:mx-auto max-w-lg bg-neutrals-white rounded-2xl">
         <button v-if="showCloseButton" class="absolute right-0 pt-3 pr-3 w-10 h-10" @click="close">
           <!-- TODO: use inline svg instead once https://github.com/trustbloc/wallet/issues/816 is fixed -->
           <img
@@ -34,23 +25,7 @@
         <slot name="content" />
         <!-- Buttons Container -->
         <div
-          class="
-            md:flex-row
-            gap-4
-            justify-start
-            md:justify-between
-            items-center
-            px-5
-            md:px-8
-            pt-4
-            pb-5
-            text-center
-            rounded-b-2xl
-            bg-neutrals-magnolia
-            flex flex-col
-            modal-footer
-            border-t border-0 border-neutrals-lilacSoft
-          "
+          class="flex flex-col md:flex-row gap-4 justify-start md:justify-between items-center px-5 md:px-8 pt-4 pb-5 text-center bg-neutrals-magnolia rounded-b-2xl border-0 border-t border-neutrals-lilacSoft modal-footer"
         >
           <StyledButtonComponent type="btn-outline" class="w-full md:w-auto" @click="cancel">
             {{ t('Modal.cancel') }}

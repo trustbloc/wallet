@@ -7,36 +7,14 @@
 <template>
   <div class="flex justify-center items-start w-screen h-screen">
     <div
-      class="
-        overflow-scroll
-        pt-5
-        max-h-screen
-        rounded-b
-        bg-neutrals-softWhite
-        border border-neutrals-black
-        chapi-container
-      "
+      class="overflow-scroll pt-5 max-h-screen bg-neutrals-softWhite rounded-b border border-neutrals-black chapi-container"
     >
       <span class="px-5 text-xl font-bold text-neutrals-dark">Save credential</span>
       <div v-if="processedCredentials.length" class="flex flex-col justify-center px-5">
         <ul class="grid grid-cols-1 gap-4 my-8">
           <li v-for="(credential, index) in processedCredentials" :key="index">
             <div
-              class="
-                group
-                inline-flex
-                items-center
-                p-5
-                w-full
-                h-20
-                md:h-24
-                text-sm
-                md:text-base
-                font-bold
-                rounded-xl
-                border
-                credentialPreviewContainer
-              "
+              class="group inline-flex items-center p-5 w-full h-20 md:h-24 text-sm md:text-base font-bold rounded-xl border credentialPreviewContainer"
               :class="
                 credential.styles.background.color !== '#fff'
                   ? `border-neutrals-black border-opacity-10`
@@ -63,17 +41,7 @@
             >
               <!-- TODO: populate with dynamic vault list -->
               <div
-                class="
-                  justify-start
-                  items-start
-                  px-4
-                  mb-8
-                  w-full
-                  rounded-t-lg
-                  bg-neutrals-lilacSoft
-                  flex flex-col flex-grow
-                  border-b border-neutrals-dark
-                "
+                class="flex flex-col flex-grow justify-start items-start px-4 mb-8 w-full bg-neutrals-lilacSoft rounded-t-lg border-b border-neutrals-dark"
               >
                 <label for="select-key" class="mb-1 text-sm font-bold text-neutrals-dark">{{
                   t('Vaults.selectVault')
@@ -93,16 +61,16 @@
                 <tr
                   v-for="(property, key) of credential.properties"
                   :key="key"
-                  class="border-b border-dotted border-neutrals-thistle"
+                  class="border-b border-neutrals-thistle border-dotted"
                 >
                   <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
                   <td
                     v-if="property.schema.format === 'image/png'"
-                    class="py-4 pr-6 pl-3 break-words text-neutrals-dark"
+                    class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
                   >
                     <img :src="property.value" class="w-20 h-20" />
                   </td>
-                  <td v-else class="py-4 pr-6 pl-3 break-words text-neutrals-dark">
+                  <td v-else class="py-4 pr-6 pl-3 text-neutrals-dark break-words">
                     {{ property.value }}
                   </td>
                 </tr>
@@ -121,17 +89,7 @@
         </ul>
       </div>
       <div
-        class="
-          flex
-          sticky
-          bottom-0
-          justify-between
-          p-5
-          w-full
-          h-auto
-          bg-neutrals-magnolia
-          footerContainer
-        "
+        class="flex sticky bottom-0 justify-between p-5 w-full h-auto bg-neutrals-magnolia footerContainer"
       >
         <button id="cancelBtn" class="btn-outline" @click="cancel">Decline</button>
         <button id="storeVCBtn" class="btn-primary" @click="store">Save</button>

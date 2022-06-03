@@ -6,17 +6,7 @@
 
 <template>
   <div
-    class="
-      relative
-      flex-col
-      md:grow-0
-      justify-between
-      w-screen
-      min-w-80
-      md:w-80 md:h-auto md:min-h-screen md:bg-gradient-dark
-      shadow
-      flex flex-grow
-    "
+    class="flex relative flex-col flex-grow justify-between w-screen md:w-80 min-w-80 md:h-auto md:min-h-screen md:bg-gradient-dark shadow md:grow-0"
   >
     <div class="hidden md:block absolute bg-gradient-full opacity-40 oval" />
     <div class="flex md:z-10 flex-col justify-start items-start pb-8 h-full">
@@ -34,59 +24,23 @@
     <div class="flex md:z-10 flex-col items-start px-10 text-sm text-neutrals-white">
       <span
         tabindex="0"
-        class="
-          mb-2
-          focus:rounded focus:ring-1
-          ring-primary-blue
-          opacity-60
-          hover:opacity-100
-          focus:opacity-100
-          cursor-pointer
-          focus:outline-none
-          underline-white
-        "
+        class="mb-2 focus:rounded focus:ring-1 ring-primary-blue opacity-60 hover:opacity-100 focus:opacity-100 cursor-pointer focus:outline-none underline-white"
         >{{ t('Footer.privacyPolicy') }}</span
       >
       <span
         tabindex="0"
-        class="
-          focus:rounded focus:ring-1
-          ring-primary-blue
-          opacity-60
-          hover:opacity-100
-          focus:opacity-100
-          cursor-pointer
-          focus:outline-none
-          underline-white
-        "
+        class="focus:rounded focus:ring-1 ring-primary-blue opacity-60 hover:opacity-100 focus:opacity-100 cursor-pointer focus:outline-none underline-white"
         >{{ t('Footer.terms') }}</span
       >
       <div class="flex flex-row justify-start items-center my-6">
         <span
           tabindex="0"
-          class="
-            whitespace-nowrap
-            focus:rounded focus:ring-1
-            ring-primary-blue
-            opacity-60
-            hover:opacity-100
-            cursor-pointer
-            focus:opacity-100 focus:outline-none
-            underline-white
-          "
+          class="whitespace-nowrap focus:rounded focus:ring-1 ring-primary-blue opacity-60 hover:opacity-100 focus:opacity-100 cursor-pointer focus:outline-none underline-white"
           >© {{ date }} TrustBloc</span
         >
         <span class="px-2 opacity-60">･</span>
         <LocaleSwitcherComponent
-          class="
-            text-neutrals-white
-            focus:rounded focus:ring-1
-            ring-primary-blue
-            opacity-60
-            hover:opacity-100
-            focus:opacity-100 focus:outline-none
-            underline-white
-          "
+          class="text-neutrals-white focus:rounded focus:ring-1 ring-primary-blue opacity-60 hover:opacity-100 focus:opacity-100 focus:outline-none underline-white"
         />
       </div>
     </div>

@@ -5,11 +5,11 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import jp from 'jsonpath';
+import { v4 as uuidv4 } from 'uuid';
 const { encodeURI } = require('js-base64');
 import { PresentationExchange } from './presentationExchange';
 
 var flatten = require('flat');
-var uuid = require('uuid/v4');
 
 const ALL_ICONS = [
   'account_box',
@@ -294,16 +294,16 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
   };
 
   let credentialManifest = {
-    id: uuid(),
+    id: uuidv4(),
     issuer: {
-      id: issuer || uuid(),
+      id: issuer || uuidv4(),
     },
     version: '0.1.0',
     output_descriptors: [],
   };
 
   let fulfillment = {
-    id: uuid(),
+    id: uuidv4(),
     manifest_id: credentialManifest.id,
     descriptor_map: [],
   };
