@@ -27,14 +27,9 @@
         <div class="absolute h-15 bg-gradient-full oval" />
       </template>
     </HeaderComponent>
-    <keep-alive>
-      <div v-if="processing" class="flex flex-col flex-grow justify-center items-center">
-        <WACILoadingComponent message="Processing Your Request" />
-      </div>
-      <router-view
-        class="flex overflow-hidden relative z-10 flex-col flex-grow justify-start items-start w-full h-full bg-neutrals-softWhite"
-      />
-    </keep-alive>
+    <router-view
+      class="flex overflow-hidden relative z-10 flex-col flex-grow justify-start items-start w-full h-full bg-neutrals-softWhite"
+    />
 
     <FooterComponent
       class="sticky bottom-0 z-20 bg-neutrals-magnolia border-t border-neutrals-thistle"
@@ -49,7 +44,6 @@ import { OIDCShareLayoutMutations } from '@/layouts/OIDCShareLayout.vue';
 import OIDCSharePage from '@/pages/OIDCSharePage.vue';
 import HeaderComponent from '@/components/Header/HeaderComponent.vue';
 import FooterComponent from '@/components/Footer/FooterComponent.vue';
-import WACILoadingComponent from '@/components/WACI/WACILoadingComponent.vue';
 
 export const OIDCStore = reactive({
   processedCredentials: [],
@@ -75,7 +69,6 @@ export default {
   components: {
     HeaderComponent,
     FooterComponent,
-    WACILoadingComponent,
   },
   setup() {
     const { t } = useI18n();
@@ -87,11 +80,6 @@ export default {
       }
     );
     return { selectedCredentialId, t };
-  },
-  data() {
-    return {
-      processing: false,
-    };
   },
   methods: {
     handleBackButtonClick() {

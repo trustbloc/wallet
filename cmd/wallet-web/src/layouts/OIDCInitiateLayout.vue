@@ -19,7 +19,6 @@ export default {
     {
       const opState = this.$route.query.op_state || uuidv4();
       const { issuer, credential_type, manifest_id } = this.$route.query;
-      console.log('what is issuer', issuer, this.$route.query);
       const configuration = await readOpenIDConfiguration(issuer);
       Cookies.set(
         opState,

@@ -6,6 +6,7 @@
 
 <script setup>
 import { ref, inject, computed } from 'vue';
+import { useStore } from 'vuex';
 import {
   filterCredentialsByType,
   getCredentialType,
