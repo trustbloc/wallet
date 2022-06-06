@@ -8,17 +8,7 @@
   <!-- Loading State -->
   <div v-if="loading" class="flex justify-center items-start w-screen h-screen">
     <div
-      class="
-        flex
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-80
-        bg-gray-light
-        md:border md:border-t-0
-        border-neutrals-black
-      "
+      class="flex justify-center items-center w-full max-w-md h-80 bg-gray-light md:border md:border-t-0 border-neutrals-black"
     >
       <SpinnerIcon />
     </div>
@@ -26,17 +16,7 @@
   <!-- Sharing State -->
   <div v-else-if="sharing" class="flex justify-center items-start w-screen h-screen">
     <div
-      class="
-        flex flex-col
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-80
-        bg-gray-light
-        md:border md:border-t-0
-        border-neutrals-black
-      "
+      class="flex flex-col justify-center items-center w-full max-w-md h-80 bg-gray-light md:border md:border-t-0 border-neutrals-black"
     >
       <SpinnerIcon />
       <span class="mt-8 text-base text-neutrals-dark">{{
@@ -50,17 +30,7 @@
     class="flex justify-center items-start w-screen h-screen"
   >
     <div
-      class="
-        flex flex-col
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-auto
-        bg-gray-light
-        md:border md:border-t-0
-        border-neutrals-black
-      "
+      class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light md:border md:border-t-0 border-neutrals-black"
     >
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
@@ -72,18 +42,7 @@
         }}</span>
       </div>
       <div
-        class="
-          flex flex-row
-          justify-center
-          items-center
-          pt-4
-          pr-5
-          pb-4
-          pl-5
-          w-full
-          bg-neutrals-magnolia
-          border-t border-neutrals-thistle
-        "
+        class="flex flex-row justify-center items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
       >
         <button id="share-credentials-ok-btn" class="btn-primary" @click="cancel">
           {{ t('CHAPI.Share.Error.tryAgain') }}
@@ -94,17 +53,7 @@
   <!-- Credentials Missing State -->
   <div v-else-if="showCredentialsMissing" class="flex justify-center items-start w-screen h-screen">
     <div
-      class="
-        flex flex-col
-        justify-center
-        items-center
-        w-full
-        max-w-md
-        h-auto
-        bg-gray-light
-        md:border md:border-t-0
-        border-neutrals-black
-      "
+      class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light md:border md:border-t-0 border-neutrals-black"
     >
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
@@ -116,18 +65,7 @@
         }}</span>
       </div>
       <div
-        class="
-          flex flex-row
-          justify-center
-          items-center
-          pt-4
-          pr-5
-          pb-4
-          pl-5
-          w-full
-          bg-neutrals-magnolia
-          border-t border-neutrals-thistle
-        "
+        class="flex flex-row justify-center items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
       >
         <button id="share-credentials-ok-btn" class="btn-outline" @click="cancel">
           {{ t('CHAPI.Share.CredentialsMissing.ok') }}
@@ -175,22 +113,7 @@
             <li v-for="(credential, index) in processedCredentials" :key="index">
               <!-- Credential Preview -->
               <button
-                class="
-                  group
-                  inline-flex
-                  items-center
-                  rounded-xl
-                  p-5
-                  text-sm
-                  md:text-base
-                  font-bold
-                  border
-                  w-full
-                  h-20
-                  md:h-24
-                  focus-within:ring-2 focus-within:ring-offset-2
-                  credentialPreviewContainer
-                "
+                class="group inline-flex items-center p-5 w-full h-20 md:h-24 text-sm md:text-base font-bold rounded-xl border focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer"
                 :class="
                   credential.styles.background.color !== '#fff'
                     ? `border-neutrals-black border-opacity-10 notWhiteCredentialPreview`
@@ -251,21 +174,7 @@
       </div>
 
       <div
-        class="
-          flex
-          sticky
-          bottom-0
-          flex-row
-          justify-between
-          items-center
-          pt-4
-          pr-5
-          pb-4
-          pl-5
-          w-full
-          bg-neutrals-magnolia
-          border-t border-neutrals-thistle
-        "
+        class="flex sticky bottom-0 flex-row justify-between items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
       >
         <button id="cancelBtn" class="btn-outline" @click="cancel">
           {{ t('CHAPI.Share.decline') }}
