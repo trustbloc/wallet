@@ -5,7 +5,7 @@
 -->
 
 <script setup>
-import { ref, inject, computed, onMounted, getCurrentInstance, reactive } from 'vue';
+import { ref, computed, onMounted, toRaw } from 'vue';
 import {
   filterCredentialsByType,
   getCredentialType,
@@ -17,22 +17,21 @@ import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
 import { useI18n } from 'vue-i18n';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
 import { useStore } from 'vuex';
-import { phStore } from '@/layouts/GetLayout.vue';
+import { protocolHandlerStore } from '@/layouts/GetLayout.vue';
 
 // Local Variables
 const errors = ref([]);
 const requestOrigin = ref('');
 const loading = ref(true);
 const sharing = ref(false);
-const credsFound = ref([]);
+var credsFound = ref([]);
 const issuersFound = ref([]);
-const credentialDisplayData = ref('');
 const manifestCredType = 'IssuerManifestCredential';
 const wallet = ref(null);
 const presentation = ref(null);
 
 // Computed
-const showCredentialsMissing = computed(() => credsFound.value.length === 0);
+const showCredentialsMissing = computed(() => toRaw(credsFound.value).length === 0);
 
 // Hooks
 const store = useStore();
@@ -41,18 +40,15 @@ const { t } = useI18n();
 // Store Getters
 const currentUser = computed(() => store.getters['getCurrentUser']);
 const agentOpts = computed(() => store.getters['getAgentOpts']);
-//const credentialManifestData = computed(() => store.getters['getCredentialManifestData']);
 const getStaticAssetsUrl = computed(() => store.getters['getStaticAssetsUrl']);
 const getAgentInstance = computed(() => store.getters['agent/getInstance']);
 const credentialManifests = computed(() => store.getters['getCredentialManifests']);
-//const protocolHandler = inject('protocolHandler');
 
 // Methods
 onMounted(async () => {
   console.log('onMounted in  chapishare');
   const { user, token } = currentUser.value.profile;
-  var ph = phStore.protocolHandlerr;
-  const protocolHandler = ph;
+  const protocolHandler = protocolHandlerStore.protocolHandler;
 
   wallet.value = new WalletGetByQuery(
     getAgentInstance.value,
@@ -72,24 +68,31 @@ onMounted(async () => {
   } catch (e) {
     errors.value.push(e);
     console.error('get credentials failed,', e);
-    loading = false;
+    loading.value = false;
     return;
   }
-  const credentials = presentation.value.verifiableCredential;
-  const credsFound = filterCredentialsByType(credentials, [manifestCredType]);
-  var manifest = prepareCredentialManifest(
-    presentation.value,
-    credentialManifests.value,
-    requestOrigin
-  );
+  const fulfillment = toRaw(presentation.value); //JSON.parse(JSON.stringify(presentation.value));
+  console.log('fulfillment: ', fulfillment);
+  presentation.value = fulfillment;
+  console.log('presentation.value: ', presentation.value);
 
+  const credentials = fulfillment.verifiableCredential;
+
+  var manifest = prepareCredentialManifest(fulfillment, credentialManifests.value, requestOrigin);
+
+  // manifest.issuer.id is returned as a ref, so get the value of it instead
   manifest.issuer.id = manifest.issuer.id.value;
-  credsFound = await credentialManager.resolveManifest(token, {
+
+  credsFound.value = await credentialManager.resolveManifest(token, {
     manifest,
-    fulfillment: presentation.value,
+    fulfillment,
   });
-  issuersFound = filterCredentialsByType(credentials, [manifestCredType], true);
-  loading = false;
+
+  // get the raw value of the proxy
+  credsFound.value = toRaw(credsFound.value);
+
+  issuersFound.value = filterCredentialsByType(credentials, [manifestCredType], true);
+  loading.value = false;
 });
 
 function toggleDetails(credential) {
@@ -97,33 +100,37 @@ function toggleDetails(credential) {
 }
 
 async function createPresentation() {
-  sharing = true;
+  sharing.value = true;
   try {
-    await wallet.value.createAndSendPresentation(currentUser.value, presentation);
+    console.log('presentation.value,', presentation.value);
+    console.log('currentUser.value,', currentUser.value);
+    presentation.value = toRaw(presentation.value);
+
+    await wallet.value.createAndSendPresentation(currentUser.value, toRaw(presentation.value));
   } catch (e) {
     console.error(e);
     errors.value.push('share credentials failed,', e);
-    sharing = false;
+    sharing.value = false;
   }
-  sharing = false;
+  sharing.value = false;
 }
 
 function cancel() {
   wallet.value.cancel();
 }
-// function getCredentialTypeFunction(vc) {
-//   return getCredentialType(vc.type);
-// }
-
-// function getManifest(credential) {
-//   const currentCredentialType = getCredentialTypeFunction(credential);
-//   return credentialDisplayData[currentCredentialType] || credentialDisplayData.value.fallback;
-// }
 
 function getCredentialIconFunction(credential) {
-  return credential?.styles?.thumbnail?.uri?.includes('https://')
-    ? credential?.styles?.thumbnail?.uri
-    : getCredentialIcon(getStaticAssetsUrl(), credential?.styles?.thumbnail?.uri);
+  const cred = toRaw(credential);
+  return cred?.styles?.thumbnail?.uri?.includes('https://')
+    ? cred?.styles?.thumbnail?.uri
+    : getCredentialIcon(getStaticAssetsUrl.value, cred?.styles?.thumbnail?.uri);
+}
+
+function focusStyleColor(color) {
+  return {
+    'background-color': color,
+    '--focus-color': color,
+  };
 }
 </script>
 
@@ -142,9 +149,9 @@ function getCredentialIconFunction(credential) {
       class="flex flex-col justify-center items-center w-full max-w-md h-80 bg-gray-light md:border md:border-t-0 border-neutrals-black"
     >
       <SpinnerIcon />
-      <span class="mt-8 text-base text-neutrals-dark">{{
-        t('CHAPI.Share.sharingCredential')
-      }}</span>
+      <span class="mt-8 text-base text-neutrals-dark"
+        >{{ t('CHAPI.Share.sharingCredential') }}
+      </span>
     </div>
   </div>
   <!-- Error State -->
@@ -157,9 +164,9 @@ function getCredentialIconFunction(credential) {
     >
       <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
         <img src="@/assets/img/icons-error.svg" />
-        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
-          t('CHAPI.Share.Error.heading')
-        }}</span>
+        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark"
+          >{{ t('CHAPI.Share.Error.heading') }}{{ credsFound.length }}</span
+        >
         <span class="text-lg text-center text-neutrals-medium">{{
           t('CHAPI.Share.Error.body')
         }}</span>
@@ -235,11 +242,12 @@ function getCredentialIconFunction(credential) {
               <!-- Credential Preview -->
               <button
                 :class="[
-                  `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
+                  `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer notWhiteCredentialPreview`,
                   credential.styles.background.color !== '#fff'
                     ? `border-neutrals-black border-opacity-10`
                     : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle`,
                 ]"
+                :style="focusStyleColor(credential.styles.background.color)"
                 @click="toggleDetails(credential)"
               >
                 <div class="flex-none w-12 h-12 border-opacity-10">
@@ -329,3 +337,10 @@ function getCredentialIconFunction(credential) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.notWhiteCredentialPreview:focus {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+</style>

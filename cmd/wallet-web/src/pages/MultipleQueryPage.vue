@@ -242,10 +242,14 @@ export default {
         this.getCredentialManifests(),
         this.protocolHandler.requestor()
       );
+      console.log('manifest: ', manifest);
+      console.log('this.presentation: ', this.presentation[0]);
+      console.log('this.token: ', this.token);
       this.processedCredentials = await this.credentialManager.resolveManifest(this.token, {
         manifest,
         fulfillment: this.presentation[0],
       });
+      console.log('processedCreds', this.processedCredentials);
     } catch (e) {
       this.errors.push(e);
       console.error('get credentials failed,', e);

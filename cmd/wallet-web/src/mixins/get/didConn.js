@@ -65,9 +65,14 @@ export class DIDConn {
   }
 
   async connect(preference) {
+    console.log('in didonn');
+    console.log('this.profile', this.profile);
+    console.log('this.invitation', this.invitation);
+
     let connection = await this.didcomm.connect(this.profile.token, this.invitation, {
       userAnyRouterConnection: true,
     });
+    console.log('here75');
 
     await this.blindedRouter.sharePeerDID(connection.result);
 
