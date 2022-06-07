@@ -22,7 +22,7 @@ require (
 	github.com/piprate/json-gold v0.4.1
 	github.com/rs/cors v1.8.2
 	github.com/spf13/cobra v1.4.0
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.7.2
 	github.com/trustbloc/edge-core v0.1.8
 	github.com/trustbloc/wallet v0.0.0-00010101000000-000000000000
 )
@@ -107,7 +107,7 @@ require (
 	google.golang.org/grpc v1.44.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.3 // indirect
 )
 
