@@ -54,11 +54,11 @@ export class WalletGetByQuery {
     this.didManager = new DIDManager({ agent, user });
     this.didcomm = new DIDComm({ agent, user });
     this.credentialManager = new CredentialManager({ agent, user });
-    this.presenationExchange = new PresentationExchange(presExchQuery[0].credentialQuery[0]);
+    this.presentationExchange = new PresentationExchange(presExchQuery[0].credentialQuery[0]);
   }
 
   requirementDetails() {
-    return this.presenationExchange.requirementDetails();
+    return this.presentationExchange.requirementDetails();
   }
 
   async connectMediator() {
@@ -69,17 +69,21 @@ export class WalletGetByQuery {
     let { contents } = await this.credentialManager.getAll(token);
     let vcs = Object.keys(contents).map((k) => contents[k]);
 
-    return this.presenationExchange.createPresentationSubmission(vcs);
+    return this.presentationExchange.createPresentationSubmission(vcs);
   }
 
   async createAndSendPresentation(user, presentationSubmission) {
     try {
       if (this.invitation.length > 0) {
-        // eslint-disable-next-line no-param-reassign
-        presentationSubmission = await this._getAuthorizationCredentials(
-          presentationSubmission,
-          user.profile
-        );
+        try {
+          // eslint-disable-next-line no-param-reassign
+          presentationSubmission = await this._getAuthorizationCredentials(
+            presentationSubmission,
+            user.profile
+          );
+        } catch (e) {
+          console.error(e);
+        }
       }
 
       let { controller, proofType, verificationMethod } = user.preference;

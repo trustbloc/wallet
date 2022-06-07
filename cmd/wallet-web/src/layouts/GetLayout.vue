@@ -10,7 +10,7 @@
   </div>
 </template>
 <script>
-import { inject } from 'vue';
+import { inject, markRaw, computed } from 'vue';
 import DIDAuthPage from '@/pages/DIDAuthPage.vue';
 import DIDConnectPage from '@/pages/DIDConnectPage.vue';
 import CHAPISharePage from '@/pages/CHAPISharePage.vue';
@@ -73,7 +73,7 @@ function findForm(credEvent) {
 export default {
   provide() {
     return {
-      protocolHandler: this.protocolHandler,
+      protocolHandler: computed(() => this.protocolHandler),
     };
   },
   setup() {
@@ -100,8 +100,8 @@ export default {
 
     const { component, protocolHandler } = findForm(this.credentialEvent);
 
-    this.component = component;
-    this.protocolHandler = protocolHandler;
+    this.component = markRaw(component);
+    this.protocolHandler = markRaw(protocolHandler);
   },
 };
 </script>

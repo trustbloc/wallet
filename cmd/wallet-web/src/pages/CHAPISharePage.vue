@@ -5,13 +5,13 @@
 -->
 
 <script setup>
-import { ref, inject, computed } from 'vue';
+import { ref, inject, computed, onMounted, markRaw, toRaw } from 'vue';
 import { useStore } from 'vuex';
 import {
   filterCredentialsByType,
   getCredentialType,
-  getCredentialDisplayData,
   getCredentialIcon,
+  getCredentialDisplayData,
   WalletGetByQuery,
 } from '@/mixins';
 import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
@@ -30,7 +30,7 @@ const wallet = ref(null);
 const presentation = ref(null);
 
 // Computed
-const showCredentialsMissing = computed(() => credsFound.value.length === 0);
+const showCredentialsMissing = computed(() => !credsFound.value.length);
 
 // Hooks
 const store = useStore();
@@ -47,28 +47,34 @@ const getAgentInstance = computed(() => store.getters['agent/getInstance']);
 // Methods
 onMounted(async () => {
   const { user, token } = currentUser.value.profile;
-  wallet = new WalletGetByQuery(getAgentInstance.value, protocolHandler, agentOpts.value, user);
-  // make sure mediator is connected
-  await wallet.value.connectMediator();
-  credentialDisplayData = await credentialManifestData.value;
-  requestOrigin = protocolHandler.requestor();
+  wallet.value = markRaw(
+    new WalletGetByQuery(getAgentInstance.value, protocolHandler.value, agentOpts.value, user)
+  );
   try {
-    presentation = await wallet.value.getPresentationSubmission(token);
+    // make sure mediator is connected
+    await wallet.value.connectMediator();
+  } catch (e) {
+    console.error(e);
+  }
+  credentialDisplayData.value = await credentialManifestData.value;
+  requestOrigin.value = protocolHandler.value.requestor();
+  try {
+    presentation.value = markRaw(await wallet.value.getPresentationSubmission(token));
   } catch (e) {
     errors.value.push(e);
     console.error('get credentials failed,', e);
-    loading = false;
+    loading.value = false;
     return;
   }
-  const credentials = presentation.value.verifiableCredential;
-  const credsFound = filterCredentialsByType(credentials, [manifestCredType]);
-  credsFound.map((credential) => {
+  const credentials = toRaw(presentation.value.verifiableCredential);
+  const filteredCreds = filterCredentialsByType(credentials, [manifestCredType]);
+  filteredCreds.map((credential) => {
     const manifest = getManifest(credential);
     const processedCredential = getCredentialDisplayData(credential, manifest);
-    credsFound.push({ ...processedCredential, showDetails: false });
+    credsFound.value.push({ ...processedCredential, showDetails: false });
   });
-  issuersFound = filterCredentialsByType(credentials, [manifestCredType], true);
-  loading = false;
+  issuersFound.value = filterCredentialsByType(credentials, [manifestCredType], true);
+  loading.value = false;
 });
 
 function toggleDetails(credential) {
@@ -76,15 +82,15 @@ function toggleDetails(credential) {
 }
 
 async function createPresentation() {
-  sharing = true;
+  sharing.value = true;
   try {
-    await wallet.value.createAndSendPresentation(currentUser.value, presentation);
+    await wallet.value.createAndSendPresentation(currentUser.value, presentation.value);
   } catch (e) {
     console.error(e);
     errors.value.push('share credentials failed,', e);
-    sharing = false;
+    sharing.value = false;
   }
-  sharing = false;
+  sharing.value = false;
 }
 
 function cancel() {
@@ -95,7 +101,7 @@ function getCredentialTypeFunction(vc) {
   return getCredentialType(vc.type);
 }
 
-function getCredentialIconFuction(icon) {
+function getCredentialIconFunction(icon) {
   return getCredentialIcon(getStaticAssetsUrl.value, icon);
 }
 
