@@ -290,6 +290,7 @@ services:
       - KMS_AUTH_SERVER_TOKEN=test_token
       - KMS_CACHE_EXPIRATION=10m
       - KMS_LOG_LEVEL=debug
+      - KMS_AUTH_DISABLE=true # auth is handled by Oathkeeper
     ports:
       - ${DEMO_AUTHZ_KMS_PORT}:${DEMO_AUTHZ_KMS_PORT}
     command: start
@@ -312,14 +313,15 @@ services:
       - KMS_DATABASE_PREFIX=opskms_
       - KMS_SECRET_LOCK_TYPE=local
       - KMS_SECRET_LOCK_KEY_PATH=/etc/tls/secret-lock.key
-      - KMS_ZCAP_ENABLE=true
       - KMS_CACHE_EXPIRATION=10m
       - KMS_LOG_LEVEL=debug
+      - KMS_GNAP_SIGNING_KEY=/etc/gnap-priv-key.pem
+      - KMS_AUTH_SERVER_URL=https://auth.trustbloc.local:8044
     ports:
       - ${DEMO_OPS_KMS_PORT}:${DEMO_OPS_KMS_PORT}
     command: start
     volumes:
-      - ../keys/tls:/etc/tls
+      - ../keys:/etc
     depends_on:
       - mongodb.example.com
 
