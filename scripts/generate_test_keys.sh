@@ -54,7 +54,11 @@ mkdir -p test/fixtures/keys/session_cookies
 openssl rand -out test/fixtures/keys/session_cookies/auth.key 32
 openssl rand -out test/fixtures/keys/session_cookies/enc.key 32
 
+#create master key for secret lock
 openssl rand 32 | base64 | sed 's/+/-/g; s/\//_/g' > test/fixtures/keys/tls/secret-lock.key
+
+#create private key for GNAP signer
+openssl ecparam -name prime256v1 -genkey -noout -out test/fixtures/keys/gnap-priv-key.pem
 
 mkdir -p test/fixtures/keys/device
 openssl ecparam -name prime256v1 -genkey -noout -out test/fixtures/keys/device/ec-cakey.pem
