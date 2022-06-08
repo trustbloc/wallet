@@ -12,3 +12,4 @@ export { DIDConn } from './get/didConn.js';
 export { CHAPIEventHandler, CHAPIHandler } from './handler/chapi';
 export { WACIPolyfillHandler, WACIRedirectHandler } from './handler/waci';
 export * from './oidc/oidc.js';
+export * from './gnap/gnap.js';

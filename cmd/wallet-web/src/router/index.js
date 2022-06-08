@@ -4,8 +4,10 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
+import { computed } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import store from '@/store';
+import { createKeyPair, gnapRequestAccess } from '@/mixins';
 import routes from './routes';
 
 const router = createRouter({
@@ -13,8 +15,21 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   store.dispatch('agent/flushStore');
+  if (to.path === '/gnap') {
+    const gnapKeyPair = await createKeyPair();
+    store.dispatch('updateGnapKeyPair', gnapKeyPair);
+
+    const signer = { SignatureVal: gnapKeyPair };
+    const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']);
+
+    const resp = await gnapRequestAccess(signer, gnapAuthServerURL);
+    // TODO Issue-1699 Save properties from resp to Vuex/local storage and call GNAPClient.continue() in separate func
+  }
+  if (to.path === 'gnap/redirect') {
+    // TODO Issue-1701 HTTP Response GNAP grant response with interact-redirect (to display list of OIDC providers)
+  }
   const locale = store.getters.getLocale;
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (store.getters.getCurrentUser) {
