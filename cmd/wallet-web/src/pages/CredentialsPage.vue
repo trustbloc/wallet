@@ -19,9 +19,9 @@
             @mouseout="setShowTooltip(false)"
           >
             <img class="w-6 h-6" src="@/assets/img/icons-sm--vault-icon.svg" />
-            <span class="flex-grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">{{
-              selectedVaultName
-            }}</span>
+            <span class="flex-grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">
+              {{ selectedVaultName }}
+            </span>
             <img class="w-6 h-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
           </button>
         </template>
@@ -66,9 +66,9 @@
             @mouseout="setShowTooltip(false)"
           >
             <img class="w-6 h-6" src="@/assets/img/icons-sm--vault-icon.svg" />
-            <span class="flex-grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">{{
-              selectedVaultName
-            }}</span>
+            <span class="flex-grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">
+              {{ selectedVaultName }}
+            </span>
             <img class="w-6 h-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
           </button>
         </template>
@@ -210,7 +210,6 @@ export default {
       allVaults: [], // vaults to display in the flyout
       selectedVaults: [], // vaults to display in the main view along with credentials stored in each
       credentialsFound: false,
-      selectedVaultName: null,
       credential: [],
     };
   },
@@ -271,12 +270,6 @@ export default {
         }
       }
 
-      // Determine which name to display in the flyout as selected vault
-      this.selectedVaultName =
-        this.selectedVaultId && this.selectedVaults.length
-          ? this.selectedVaults[0].name
-          : this.t('CredentialDetails.allVaultLabel');
-
       // Fetch and save all credentials stored inside each of the vaults to be displayed in the main view
       this.selectedVaults = await Promise.all(
         this.selectedVaults.map(async (vault) => {
@@ -294,6 +287,14 @@ export default {
         this.updateSelectedVaultId(id);
         await this.fetchVaults();
       }
+    },
+  },
+  computed: {
+    selectedVaultName() {
+      // Determine which name to display in the flyout as selected vault and return it
+      return this.selectedVaultId && this.selectedVaults.length
+        ? this.selectedVaults[0].name
+        : this.t('CredentialDetails.allVaultLabel');
     },
   },
 };
