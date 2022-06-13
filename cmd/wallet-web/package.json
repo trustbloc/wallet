@@ -41,7 +41,7 @@
     "@vue/cli-service": "^5.0.0-beta.7",
     "@vue/test-utils": "^2.0.0-rc.18",
     "autoprefixer": "^10.4.2",
-    "axios": "^0.26.0",
+    "axios": "^0.27.2",
     "babel-loader": "^8.2.3",
     "chai": "^4.3.6",
     "css-loader": "^6.7.1",
