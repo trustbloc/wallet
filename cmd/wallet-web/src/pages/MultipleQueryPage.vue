@@ -113,22 +113,25 @@
             <li v-for="(credential, index) in processedCredentials" :key="index">
               <!-- Credential Preview -->
               <button
-                :class="[
-                  `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
-                  credential.brandColor.length
-                    ? `bg-gradient-${credential.brandColor} border-neutrals-black border-opacity-10 focus-within:ring-primary-${credential.brandColor}`
-                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
-                ]"
+                class="group inline-flex items-center p-5 w-full h-20 md:h-24 text-sm md:text-base font-bold rounded-xl border focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer"
+                :class="
+                  credential.styles.background.color !== '#fff'
+                    ? `border-neutrals-black border-opacity-10 notWhiteCredentialPreview`
+                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`
+                "
+                :style="focusStyleColor(credential.styles.background.color)"
                 @click="toggleDetails(credential)"
               >
                 <div class="flex-none w-12 h-12 border-opacity-10">
-                  <img :src="getCredentialIcon(credential.icon)" />
+                  <img :src="getCredentialIconFunction(credential)" />
                 </div>
                 <div class="flex-grow p-4">
                   <span
                     :class="[
                       `text-sm md:text-base font-bold text-left text-ellipsis`,
-                      credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
+                      credential.styles.background.color !== '#fff'
+                        ? `text-neutrals-white`
+                        : `text-neutrals-dark`,
                     ]"
                   >
                     {{ credential.title }}
@@ -149,15 +152,17 @@
                     :key="key"
                     class="border-b border-neutrals-thistle border-dotted"
                   >
-                    <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
+                    <td v-if="property.value" class="py-4 pr-6 pl-3 text-neutrals-medium">
+                      {{ property.label }}
+                    </td>
                     <td
-                      v-if="property.type != 'image'"
+                      v-if="property.schema.type != 'image/png' && property.value"
                       class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
                     >
                       {{ property.value }}
                     </td>
                     <td
-                      v-if="property.type === 'image'"
+                      v-if="property.schema.type === 'image/png' && property.value"
                       class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
                     >
                       <img :src="property.value" class="w-20 h-20" />
@@ -186,12 +191,7 @@
 <script>
 import { toRaw } from 'vue';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
-import {
-  normalizeQuery,
-  getCredentialType,
-  getCredentialDisplayData,
-  getCredentialIcon,
-} from '@/mixins';
+import { normalizeQuery, getCredentialIcon, prepareCredentialManifest } from '@/mixins';
 import { mapGetters } from 'vuex';
 import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
 import { useI18n } from 'vue-i18n';
@@ -225,16 +225,20 @@ export default {
     const query = normalizeQuery(toRaw(this.protocolHandler.getEventData().query));
     const { user, token } = this.getCurrentUser().profile;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-    this.credentialDisplayData = await this.getCredentialManifestData();
 
     try {
       const { results } = await this.credentialManager.query(token, query);
       this.presentation = results;
       const credentials = results.reduce((acc, val) => acc.concat(val.verifiableCredential), []);
-      credentials.map((credential) => {
-        const manifest = this.getManifest(credential);
-        const processedCredential = this.getCredentialDisplayData(credential, manifest);
-        this.processedCredentials.push({ ...processedCredential, showDetails: false });
+
+      const manifest = prepareCredentialManifest(
+        this.presentation[0],
+        this.getCredentialManifests(),
+        this.protocolHandler.requestor()
+      );
+      this.processedCredentials = await this.credentialManager.resolveManifest(this.token, {
+        manifest,
+        fulfillment: this.presentation[0],
       });
     } catch (e) {
       this.errors.push(e);
@@ -248,12 +252,20 @@ export default {
   },
   methods: {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getCurrentUser', 'getCredentialManifestData', 'getStaticAssetsUrl']),
-    getCredentialIcon: function (icon) {
-      return getCredentialIcon(this.getStaticAssetsUrl(), icon);
+    ...mapGetters(['getCurrentUser', 'getCredentialManifests', 'getStaticAssetsUrl']),
+    getCredentialIconFunction: function (credential) {
+      return credential?.styles?.thumbnail?.uri?.includes('https://')
+        ? credential?.styles?.thumbnail?.uri
+        : getCredentialIcon(this.getStaticAssetsUrl(), credential?.styles?.thumbnail?.uri);
     },
     toggleDetails(credential) {
       credential.showDetails = !credential.showDetails;
+    },
+    focusStyleColor(color) {
+      return {
+        'background-color': color,
+        '--focus-color': color,
+      };
     },
     async share() {
       this.sharing = true;
@@ -296,18 +308,13 @@ export default {
     cancel() {
       this.protocolHandler.cancel();
     },
-    getCredentialType: function (vc) {
-      return getCredentialType(vc.type);
-    },
-    getCredentialDisplayData: function (vc, manifestCredential) {
-      return getCredentialDisplayData(vc, manifestCredential);
-    },
-    getManifest: function (credential) {
-      const currentCredentialType = this.getCredentialType(credential);
-      return (
-        this.credentialDisplayData[currentCredentialType] || this.credentialDisplayData.fallback
-      );
-    },
   },
 };
 </script>
+
+<style scoped>
+.notWhiteCredentialPreview:focus {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+</style>

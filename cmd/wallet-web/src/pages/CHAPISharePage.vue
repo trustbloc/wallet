@@ -9,13 +9,13 @@ import { ref, inject, computed, onMounted, markRaw, toRaw } from 'vue';
 import { useStore } from 'vuex';
 import {
   filterCredentialsByType,
-  getCredentialType,
   getCredentialIcon,
-  getCredentialDisplayData,
   WalletGetByQuery,
+  prepareCredentialManifest,
 } from '@/mixins';
 import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
 import { useI18n } from 'vue-i18n';
+import { CredentialManager } from '@trustbloc/wallet-sdk';
 
 // Local Variables
 const errors = ref([]);
@@ -24,7 +24,6 @@ const loading = ref(true);
 const sharing = ref(false);
 const credsFound = ref([]);
 const issuersFound = ref([]);
-const credentialDisplayData = ref('');
 const manifestCredType = 'IssuerManifestCredential';
 const wallet = ref(null);
 const presentation = ref(null);
@@ -40,9 +39,9 @@ const protocolHandler = inject('protocolHandler');
 // Store Getters
 const currentUser = computed(() => store.getters['getCurrentUser']);
 const agentOpts = computed(() => store.getters['getAgentOpts']);
-const credentialManifestData = computed(() => store.getters['getCredentialManifestData']);
 const getStaticAssetsUrl = computed(() => store.getters['getStaticAssetsUrl']);
 const getAgentInstance = computed(() => store.getters['agent/getInstance']);
+const credentialManifests = computed(() => store.getters['getCredentialManifests']);
 
 // Methods
 onMounted(async () => {
@@ -50,13 +49,13 @@ onMounted(async () => {
   wallet.value = markRaw(
     new WalletGetByQuery(getAgentInstance.value, protocolHandler.value, agentOpts.value, user)
   );
+  const credentialManager = new CredentialManager({ agent: getAgentInstance.value, user });
   try {
     // make sure mediator is connected
     await wallet.value.connectMediator();
   } catch (e) {
     console.error(e);
   }
-  credentialDisplayData.value = await credentialManifestData.value;
   requestOrigin.value = protocolHandler.value.requestor();
   try {
     presentation.value = markRaw(await wallet.value.getPresentationSubmission(token));
@@ -67,11 +66,14 @@ onMounted(async () => {
     return;
   }
   const credentials = toRaw(presentation.value.verifiableCredential);
-  const filteredCreds = filterCredentialsByType(credentials, [manifestCredType]);
-  filteredCreds.map((credential) => {
-    const manifest = getManifest(credential);
-    const processedCredential = getCredentialDisplayData(credential, manifest);
-    credsFound.value.push({ ...processedCredential, showDetails: false });
+  let manifest = prepareCredentialManifest(
+    presentation.value,
+    credentialManifests.value,
+    requestOrigin.value
+  );
+  credsFound.value = await credentialManager.resolveManifest(token, {
+    manifest,
+    fulfillment: presentation.value,
   });
   issuersFound.value = filterCredentialsByType(credentials, [manifestCredType], true);
   loading.value = false;
@@ -97,17 +99,18 @@ function cancel() {
   wallet.value.cancel();
 }
 
-function getCredentialTypeFunction(vc) {
-  return getCredentialType(vc.type);
+function getCredentialIconFunction(credential) {
+  const cred = toRaw(credential);
+  return cred?.styles?.thumbnail?.uri?.includes('https://')
+    ? cred?.styles?.thumbnail?.uri
+    : getCredentialIcon(getStaticAssetsUrl.value, cred?.styles?.thumbnail?.uri);
 }
 
-function getCredentialIconFunction(icon) {
-  return getCredentialIcon(getStaticAssetsUrl.value, icon);
-}
-
-function getManifest(credential) {
-  const currentCredentialType = getCredentialTypeFunction(credential);
-  return credentialDisplayData[currentCredentialType] || credentialDisplayData.value.fallback;
+function focusStyleColor(color) {
+  return {
+    'background-color': color,
+    '--focus-color': color,
+  };
 }
 </script>
 
@@ -219,21 +222,24 @@ function getManifest(credential) {
               <!-- Credential Preview -->
               <button
                 :class="[
-                  `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer`,
-                  credential.brandColor.length
-                    ? `bg-gradient-${credential.brandColor} border-neutrals-black border-opacity-10 focus-within:ring-primary-${credential.brandColor}`
-                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle focus-within:ring-neutrals-victorianPewter`,
+                  `group inline-flex items-center rounded-xl p-5 text-sm md:text-base font-bold border w-full h-20 md:h-24 focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer notWhiteCredentialPreview`,
+                  credential.styles.background.color !== '#fff'
+                    ? `border-neutrals-black border-opacity-10`
+                    : `bg-neutrals-white border-neutrals-thistle hover:border-neutrals-chatelle`,
                 ]"
+                :style="focusStyleColor(credential.styles.background.color)"
                 @click="toggleDetails(credential)"
               >
                 <div class="flex-none w-12 h-12 border-opacity-10">
-                  <img :src="getCredentialIconFunction(credential.icon)" />
+                  <img :src="getCredentialIconFunction(credential)" />
                 </div>
                 <div class="flex-grow p-4">
                   <span
                     :class="[
                       `text-sm md:text-base font-bold text-left text-ellipsis`,
-                      credential.brandColor.length ? `text-neutrals-white` : `text-neutrals-dark`,
+                      credential.styles.background.color !== '#fff'
+                        ? `text-neutrals-white`
+                        : `text-neutrals-dark`,
                     ]"
                   >
                     {{ credential.title }}
@@ -256,13 +262,13 @@ function getManifest(credential) {
                   >
                     <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
                     <td
-                      v-if="property.type != 'image'"
+                      v-if="property.schema.format != 'image/png'"
                       class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
                     >
                       {{ property.value }}
                     </td>
                     <td
-                      v-if="property.type === 'image'"
+                      v-if="property.schema.format === 'image/png'"
                       class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
                     >
                       <img :src="property.value" class="w-20 h-20" />
@@ -311,3 +317,10 @@ function getManifest(credential) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.notWhiteCredentialPreview:focus {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+</style>
