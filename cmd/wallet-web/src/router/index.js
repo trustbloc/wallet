@@ -4,7 +4,6 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import { computed } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import store from '@/store';
 import { createKeyPair, gnapRequestAccess } from '@/mixins';
@@ -18,13 +17,11 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   store.dispatch('agent/flushStore');
   if (to.path === '/gnap') {
+    // TODO Issue-1720 create keypair only once if not found
     const gnapKeyPair = await createKeyPair();
     store.dispatch('updateGnapKeyPair', gnapKeyPair);
-
     const signer = { SignatureVal: gnapKeyPair };
-    const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']);
-
-    const resp = await gnapRequestAccess(signer, gnapAuthServerURL);
+    const resp = await gnapRequestAccess(signer);
     // TODO Issue-1699 Save properties from resp to Vuex/local storage and call GNAPClient.continue() in separate func
   }
   if (to.path === 'gnap/redirect') {
