@@ -14,12 +14,6 @@ exports.chooseWallet = async ({ name }) => {
   await chapiFrame.waitForExist();
   await browser.switchToFrame(chapiFrame);
 
-  const nextButton = await $("button*=Next");
-  await nextButton.waitForClickable();
-  // FIXME: some issue with next button causes this to fail about 20%
-  await browser.pause(1000);
-  await nextButton.click();
-
   const rememberChoiceBtn = await $("span*=Remember");
   await rememberChoiceBtn.waitForClickable();
   await rememberChoiceBtn.click();
