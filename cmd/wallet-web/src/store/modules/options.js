@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import { toRaw } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
+
 const axios = require('axios').default;
 
 const agentOptsLocation = (l) => `${l}/walletconfig/agent`;
@@ -375,6 +376,15 @@ export default {
         return response.data;
       }
       return require('@/config/credentialDisplayData.js').default;
+    },
+    async getGnapAccessTokenConfig(state) {
+      const staticUrl = state.agentOpts['staticAssetsUrl'];
+      if (staticUrl) {
+        const response = await axios.get(`${staticUrl}/config/gnap-access-token.json`);
+        return response.data;
+      }
+
+      return require('@/config/gnap-access-token.json');
     },
   },
 };
