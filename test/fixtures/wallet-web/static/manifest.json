@@ -14,5 +14,9 @@
     }
   ],
   "start_url": ".",
-  "display": "standalone"
+  "display": "standalone",
+  "credential_handler": {
+    "url": "/worker",
+    "enabledTypes": ["VerifiablePresentation"]
+  }
 }
