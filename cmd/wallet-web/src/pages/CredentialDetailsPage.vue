@@ -4,8 +4,20 @@
  * SPDX-License-Identifier: Apache-2.0
 -->
 <template>
-  <!-- TODO: add a loading state -->
-  <div v-if="credential" class="flex flex-col justify-start items-start py-6 px-3">
+  <!-- Loading State -->
+  <div v-if="loading" class="flex flex-col justify-start items-start py-6 px-3">
+    <div class="flex flex-row justify-between items-center mb-4 w-full">
+      <h3 class="text-neutrals-dark">{{ t('CredentialDetails.heading') }}</h3>
+    </div>
+    <SkeletonLoaderComponent type="CredentialDetailsBanner" />
+    <div class="flex flex-col justify-start items-start mt-8 md:mt-2 w-full">
+      <span class="mb-5 text-xl font-bold text-neutrals-dark">{{
+        t('CredentialDetails.verifiedInformation')
+      }}</span>
+      <SkeletonLoaderComponent class="w-full" type="VerifiedInformation" />
+    </div>
+  </div>
+  <div v-else-if="credential" class="flex flex-col justify-start items-start py-6 px-3">
     <div class="flex flex-row justify-between items-center mb-4 w-full">
       <div class="flex flex-grow">
         <h3 class="text-neutrals-dark">{{ t('CredentialDetails.heading') }}</h3>
@@ -104,6 +116,7 @@ import FlyoutMenuComponent from '@/components/Flyout/FlyoutMenuComponent.vue';
 import FlyoutButtonComponent from '@/components/Flyout/FlyoutButtonComponent.vue';
 import DeleteCredentialComponent from '@/components/CredentialDetails/DeleteCredentialModalComponent.vue';
 import RenameCredentialComponent from '@/components/CredentialDetails/RenameCredentialModalComponent.vue';
+import SkeletonLoaderComponent from '@/components/SkeletonLoader/SkeletonLoaderComponent.vue';
 
 export const credentialStore = reactive({
   credentialOutdated: false,
@@ -123,6 +136,7 @@ export default {
     FlyoutButtonComponent,
     DeleteCredentialComponent,
     RenameCredentialComponent,
+    SkeletonLoaderComponent,
   },
   setup() {
     const { t } = useI18n();
