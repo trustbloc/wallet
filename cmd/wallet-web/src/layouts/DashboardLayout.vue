@@ -12,7 +12,10 @@
       class="flex flex-col justify-start items-center w-screen bg-neutrals-softWhite"
     >
       <HeaderComponent />
-      <router-view v-if="!isNavbarOpen" class="w-screen h-screen bg-neutrals-softWhite" />
+      <router-view
+        v-if="!isNavbarOpen"
+        class="w-screen h-auto min-h-screen bg-neutrals-softWhite"
+      />
     </div>
 
     <!-- Desktop Dashboard Layout -->
