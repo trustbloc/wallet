@@ -301,6 +301,7 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
     version: '0.1.0',
     output_descriptors: [],
   };
+  let uniqueOutputDescriptors = new Set();
 
   let fulfillment = {
     id: uuidv4(),
@@ -315,7 +316,7 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
       credential
     );
     if (entry) {
-      credentialManifest.output_descriptors.push(...entry['output_descriptors']);
+      uniqueOutputDescriptors.add(...entry['output_descriptors']);
     } else {
       // find default output descriptor
       entry = _findOutputDescriptor(manifestDictionary['VerifiableCredential'], credential);
@@ -332,7 +333,7 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
           });
         }
 
-        credentialManifest.output_descriptors.push(...entry['output_descriptors']);
+        uniqueOutputDescriptors.add(...entry['output_descriptors']);
       } else {
         console.error(
           "couldn't find default credential manifest for given credential",
@@ -353,5 +354,6 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
 
   presentation['credential_fulfillment'] = fulfillment;
 
+  credentialManifest.output_descriptors = Array.from(uniqueOutputDescriptors);
   return credentialManifest;
 }
