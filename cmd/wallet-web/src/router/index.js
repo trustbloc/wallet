@@ -21,7 +21,6 @@ router.beforeEach(async (to, from, next) => {
     const gnapAccessTokenConfig = computed(() => store.getters['getGnapAccessTokenConfig']);
     const gnapAccessTokens = await gnapAccessTokenConfig.value;
     const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']).value;
-
     const gnapKeyPair = await getGnapKeyPair();
     const signer = { SignatureVal: gnapKeyPair };
     const resp = await gnapRequestAccess(signer, gnapAccessTokens, gnapAuthServerURL);
