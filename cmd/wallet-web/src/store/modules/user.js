@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 import * as Agent from '@trustbloc/agent-sdk-web';
 import { WalletUser } from '@trustbloc/wallet-sdk';
 import { toRaw } from 'vue';
+import { clearGnapStoreData } from '@/mixins/gnap/store';
 
 export const parseTIme = (ns) => parseInt(ns) * 60 * 10 ** 9;
 
@@ -19,7 +20,6 @@ export default {
     chapi: false,
     selectedVaultId: null,
     selectedCredentialId: null,
-    gnapKeyPair: null,
   },
   mutations: {
     setUser(state, val) {
@@ -56,10 +56,6 @@ export default {
       state.selectedCredentialId = val;
       localStorage.setItem('selectedCredentialId', val);
     },
-    setGnapKeyPair(state, val) {
-      state.gnapKeyPair = val;
-      localStorage.setItem('gnapKeyPair', val);
-    },
     clearUser(state) {
       state.username = null;
       state.setupStatus = null;
@@ -68,7 +64,6 @@ export default {
       state.chapi = false;
       state.selectedVaultId = null;
       state.selectedCredentialId = null;
-      state.gnapKeyPair = null;
 
       localStorage.removeItem('user');
       localStorage.removeItem('setupStatus');
@@ -77,7 +72,8 @@ export default {
       localStorage.removeItem('chapi');
       localStorage.removeItem('selectedVaultId');
       localStorage.removeItem('selectedCredentialId');
-      localStorage.removeItem('gnapKeyPair');
+
+      clearGnapStoreData();
     },
     loadUser(state) {
       state.username = localStorage.getItem('user');
@@ -168,9 +164,6 @@ export default {
     updateSelectedCredentialId({ commit }, selectedCredentialId) {
       commit('setSelectedCredentialId', selectedCredentialId);
     },
-    updateGnapKeyPair({ commit }, gnapKeyPair) {
-      commit('setGnapKeyPair', gnapKeyPair);
-    },
   },
   getters: {
     getCurrentUser(state) {
@@ -197,9 +190,6 @@ export default {
     },
     getSelectedCredentialId(state) {
       return state.selectedCredentialId;
-    },
-    getGNAPKeyPair(state) {
-      return state.gnapKeyPair;
     },
   },
   modules: {
