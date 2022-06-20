@@ -366,17 +366,6 @@ export default {
     getCredentialManifests(state) {
       return toRaw(state.credentialManifests);
     },
-    /*
-      @deprecated, to be removed
-     */
-    async getCredentialManifestData(state) {
-      const staticUrl = state.agentOpts['staticAssetsUrl'];
-      if (staticUrl) {
-        const response = await axios.get(`${staticUrl}/config/credentialDisplayData.json`);
-        return response.data;
-      }
-      return require('@/config/credentialDisplayData.js').default;
-    },
     async getGnapAccessTokenConfig(state) {
       const staticUrl = state.agentOpts['staticAssetsUrl'];
       if (staticUrl) {

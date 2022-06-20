@@ -211,7 +211,6 @@ export default {
       loading: true,
       sharing: false,
       processedCredentials: [],
-      credentialDisplayData: {},
     };
   },
   computed: {
