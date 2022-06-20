@@ -23,11 +23,19 @@ router.beforeEach(async (to, from, next) => {
     const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']).value;
     const gnapKeyPair = await getGnapKeyPair();
     const signer = { SignatureVal: gnapKeyPair };
-    const resp = await gnapRequestAccess(signer, gnapAccessTokens, gnapAuthServerURL);
-    // TODO Issue-1699 Save properties from resp to Vuex/local storage and call GNAPClient.continue() in separate func
+    const nonceVal = 'wallet-nonce';
+    const resp = await gnapRequestAccess(signer, gnapAccessTokens, gnapAuthServerURL, nonceVal);
+    const respMetaData = {
+      uri: resp.data.continue.uri,
+      access_token: resp.data.continue.access_token,
+      finish: resp.data.interact.finish,
+      nonce: nonceVal,
+    };
+    store.dispatch('updateGnapGrantResp', respMetaData);
+    window.location.href = gnapAuthServerURL + resp.data.interact.redirect;
   }
   if (to.path === 'gnap/redirect') {
-    // TODO Issue-1701 HTTP Response GNAP grant response with interact-redirect (to display list of OIDC providers)
+    // TODO Issue-1701 Complete GNAP flow
   }
   const locale = store.getters.getLocale;
   if (to.matched.some((record) => record.meta.requiresAuth)) {
