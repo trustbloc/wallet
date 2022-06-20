@@ -5,27 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import { GNAPClient } from '@trustbloc/wallet-sdk';
-import { computed } from 'vue';
-import store from '@/store';
 
-// TODO Issue-364 Add gnap create key pair logic to agent sdk library
-export function createKeyPair() {
-  return window.crypto.subtle.generateKey(
-    {
-      name: 'ECDSA',
-      namedCurve: 'P-256',
-    },
-    false,
-    ['sign', 'verify']
-  );
-}
-
-export async function gnapRequestAccess(signer) {
-  const gnapAccessTokenConfig = computed(() => store.getters['getGnapAccessTokenConfig']);
-  const gnapAccessTokens = await gnapAccessTokenConfig.value;
-  const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']).value;
-  const gnapWalletCallBackURL = computed(() => store.getters['getStaticAssetsUrl']).value;
-
+export async function gnapRequestAccess(signer, gnapAccessTokens, gnapAuthServerURL) {
   const exportedJwk = await window.crypto.subtle.exportKey('jwk', signer.SignatureVal.publicKey);
   //TODO Issue-1699 persist nonce value and add valid uri in the request
   const nonceVal = 'wallet-nonce';
@@ -36,7 +17,7 @@ export async function gnapRequestAccess(signer) {
       start: ['redirect'],
       finish: {
         method: 'redirect',
-        uri: gnapWalletCallBackURL,
+        uri: '/',
         nonce: nonceVal,
       },
     },

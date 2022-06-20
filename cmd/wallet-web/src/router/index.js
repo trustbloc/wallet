@@ -6,8 +6,9 @@ SPDX-License-Identifier: Apache-2.0
 
 import { createRouter, createWebHistory } from 'vue-router';
 import store from '@/store';
-import { createKeyPair, gnapRequestAccess } from '@/mixins';
+import { getGnapKeyPair, gnapRequestAccess } from '@/mixins';
 import routes from './routes';
+import { computed } from 'vue';
 
 const router = createRouter({
   history: createWebHistory(__webpack_public_path__),
@@ -17,11 +18,13 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   store.dispatch('agent/flushStore');
   if (to.path === '/gnap') {
-    // TODO Issue-1720 create keypair only once if not found
-    const gnapKeyPair = await createKeyPair();
-    store.dispatch('updateGnapKeyPair', gnapKeyPair);
+    const gnapAccessTokenConfig = computed(() => store.getters['getGnapAccessTokenConfig']);
+    const gnapAccessTokens = await gnapAccessTokenConfig.value;
+    const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']).value;
+
+    const gnapKeyPair = await getGnapKeyPair();
     const signer = { SignatureVal: gnapKeyPair };
-    const resp = await gnapRequestAccess(signer);
+    const resp = await gnapRequestAccess(signer, gnapAccessTokens, gnapAuthServerURL);
     // TODO Issue-1699 Save properties from resp to Vuex/local storage and call GNAPClient.continue() in separate func
   }
   if (to.path === 'gnap/redirect') {
