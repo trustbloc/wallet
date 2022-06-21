@@ -25,23 +25,33 @@ export default {
   mutations: {
     setUser(state, val) {
       state.username = val;
-      localStorage.setItem('user', val);
+      if (val !== null) {
+        localStorage.setItem('user', val);
+      }
     },
     setProfile(state, val) {
       state.profile = val;
-      localStorage.setItem('profile', JSON.stringify(val));
+      if (val !== null) {
+        localStorage.setItem('profile', JSON.stringify(val));
+      }
     },
     setUserPreference(state, val) {
       state.preference = val;
-      localStorage.setItem('preference', JSON.stringify(val));
+      if (val !== null) {
+        localStorage.setItem('preference', JSON.stringify(val));
+      }
     },
     setUserSetupStatus(state, val) {
       state.setupStatus = val;
-      localStorage.setItem('setupStatus', val);
+      if (val !== null) {
+        localStorage.setItem('setupStatus', val);
+      }
     },
     setCHAPI(state, val) {
       state.chapi = val;
-      localStorage.setItem('chapi', JSON.stringify(val));
+      if (val !== null) {
+        localStorage.setItem('chapi', JSON.stringify(val));
+      }
     },
     setUserLoggedIn(state) {
       state.loggedIn = true;
@@ -51,11 +61,15 @@ export default {
     },
     setSelectedVaultId(state, val) {
       state.selectedVaultId = val;
-      localStorage.setItem('selectedVaultId', val);
+      if (val !== null) {
+        localStorage.setItem('selectedVaultId', val);
+      }
     },
     setSelectedCredentialId(state, val) {
       state.selectedCredentialId = val;
-      localStorage.setItem('selectedCredentialId', val);
+      if (val !== null) {
+        localStorage.setItem('selectedCredentialId', val);
+      }
     },
     setGnapGrantResp(state, val) {
       state.gnapGrantResp = val;
@@ -87,14 +101,8 @@ export default {
       state.profile = JSON.parse(localStorage.getItem('profile'));
       state.preference = JSON.parse(localStorage.getItem('preference'));
       state.chapi = JSON.parse(localStorage.getItem('chapi'));
-      state.selectedVaultId =
-        localStorage.getItem('selectedVaultId') === 'null'
-          ? null
-          : localStorage.getItem('selectedVaultId');
-      state.selectedCredentialId =
-        localStorage.getItem('selectedCredentialId') === 'null'
-          ? null
-          : localStorage.getItem('selectedCredentialId');
+      state.selectedVaultId = localStorage.getItem('selectedVaultId');
+      state.selectedCredentialId = localStorage.getItem('selectedCredentialId');
     },
   },
   actions: {
