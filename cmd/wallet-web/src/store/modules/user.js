@@ -20,6 +20,7 @@ export default {
     chapi: false,
     selectedVaultId: null,
     selectedCredentialId: null,
+    gnapGrantResp: null,
   },
   mutations: {
     setUser(state, val) {
@@ -56,6 +57,10 @@ export default {
       state.selectedCredentialId = val;
       localStorage.setItem('selectedCredentialId', val);
     },
+    setGnapGrantResp(state, val) {
+      state.gnapGrantResp = val;
+      localStorage.setItem('gnapGrantResp', JSON.stringify(val));
+    },
     clearUser(state) {
       state.username = null;
       state.setupStatus = null;
@@ -64,6 +69,7 @@ export default {
       state.chapi = false;
       state.selectedVaultId = null;
       state.selectedCredentialId = null;
+      state.gnapGrantResp = null;
 
       localStorage.removeItem('user');
       localStorage.removeItem('setupStatus');
@@ -163,6 +169,9 @@ export default {
     },
     updateSelectedCredentialId({ commit }, selectedCredentialId) {
       commit('setSelectedCredentialId', selectedCredentialId);
+    },
+    updateGnapGrantResp({ commit }, gnapGrantResp) {
+      commit('setGnapGrantResp', gnapGrantResp);
     },
   },
   getters: {
