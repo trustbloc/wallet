@@ -16,7 +16,7 @@ require (
 	github.com/igor-pavlenko/httpsignatures-go v0.0.23
 	github.com/lafriks/go-shamir v1.1.0
 	github.com/piprate/json-gold v0.4.1
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/testify v1.7.4
 	github.com/trustbloc/edge-core v0.1.8
 	github.com/trustbloc/edv v0.1.8
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
