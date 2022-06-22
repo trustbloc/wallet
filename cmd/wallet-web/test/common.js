@@ -126,9 +126,6 @@ export class Setup {
         getAgentOpts(state) {
           return agentStartupOpts;
         },
-        getCredentialManifestData(state) {
-          return require('@/config/credentialDisplayData.js').default;
-        },
         getCredentialManifests(state) {
           return getTestData('credential-output-descriptors.json');
         },

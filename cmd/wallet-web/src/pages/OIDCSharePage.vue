@@ -165,7 +165,6 @@ export default {
       noCredentialFound: false,
       sharing: false,
       processedCredentials: [],
-      credentialDisplayData: {},
       token: null,
     };
   },

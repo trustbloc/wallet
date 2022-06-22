@@ -130,7 +130,6 @@ export default {
       errors: [],
       vaults: [],
       selectedVault: '',
-      credentialDisplayData: '',
       processedCredentials: [],
       savedSuccessfully: false,
     };

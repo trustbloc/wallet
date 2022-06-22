@@ -188,7 +188,6 @@ export default {
     const selectedVaultId = computed(() => store.getters.getSelectedVaultId);
     const currentUser = computed(() => store.getters.getCurrentUser);
     const userSetupStatus = currentUser.value ? currentUser.value.setupStatus : null;
-    const getCredentialManifestData = () => store.getters.getCredentialManifestData;
     const updateSelectedVaultId = (selectedVaultId) =>
       store.dispatch('updateSelectedVaultId', selectedVaultId);
     const breakpoints = useBreakpoints();
@@ -197,7 +196,6 @@ export default {
       agentInstance,
       breakpoints,
       currentUser,
-      getCredentialManifestData,
       selectedVaultId,
       t,
       userSetupStatus,
