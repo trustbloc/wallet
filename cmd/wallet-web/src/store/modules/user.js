@@ -20,7 +20,8 @@ export default {
     chapi: false,
     selectedVaultId: null,
     selectedCredentialId: null,
-    gnapGrantResp: null,
+    gnapSessionToken: null,
+    gnapRequestAccessrResp: null,
   },
   mutations: {
     setUser(state, val) {
@@ -57,9 +58,13 @@ export default {
       state.selectedCredentialId = val;
       localStorage.setItem('selectedCredentialId', val);
     },
-    setGnapGrantResp(state, val) {
-      state.gnapGrantResp = val;
-      localStorage.setItem('gnapGrantResp', JSON.stringify(val));
+    setSessionToken(state, val) {
+      state.gnapSessionToken = val;
+      localStorage.setItem('gnapSessionToken', JSON.stringify(val));
+    },
+    setGnapAccessReqResp(state, val) {
+      state.gnapRequestAccessrResp = val;
+      localStorage.setItem('gnapRequestAccessrResp', JSON.stringify(val));
     },
     clearUser(state) {
       state.username = null;
@@ -69,7 +74,7 @@ export default {
       state.chapi = false;
       state.selectedVaultId = null;
       state.selectedCredentialId = null;
-      state.gnapGrantResp = null;
+      state.gnapSessionToken = null;
 
       localStorage.removeItem('user');
       localStorage.removeItem('setupStatus');
@@ -170,8 +175,11 @@ export default {
     updateSelectedCredentialId({ commit }, selectedCredentialId) {
       commit('setSelectedCredentialId', selectedCredentialId);
     },
-    updateGnapGrantResp({ commit }, gnapGrantResp) {
-      commit('setGnapGrantResp', gnapGrantResp);
+    updateSessionToken({ commit }, gnapSessionToken) {
+      commit('setSessionToken', gnapSessionToken);
+    },
+    updateGnapReqAccessResp({ commit }, gnapRequestAccessrResp) {
+      commit('setGnapAccessReqResp', gnapRequestAccessrResp);
     },
   },
   getters: {
@@ -199,6 +207,14 @@ export default {
     },
     getSelectedCredentialId(state) {
       return state.selectedCredentialId;
+    },
+    getGnapSessionToken(state) {
+      state.gnapSessionToken = localStorage.getItem('gnapSessionToken');
+      return JSON.parse(state.gnapSessionToken);
+    },
+    getGnapReqAccessResp(state) {
+      state.gnapRequestAccessrResp = localStorage.getItem('gnapRequestAccessrResp');
+      return JSON.parse(state.gnapRequestAccessrResp);
     },
   },
   modules: {
@@ -264,7 +280,6 @@ export default {
           // create wallet profile if it doesn't exist
           let { user } = rootGetters.getProfileOpts.bootstrap;
           let walletUser = new WalletUser({ agent: state.instance, user });
-
           if (!(await walletUser.profileExists())) {
             await walletUser.createWalletProfile(profileCreationOpts(rootGetters.getProfileOpts));
           }
@@ -317,7 +332,6 @@ export default {
 // options for creating wallet profile
 function profileCreationOpts(opts) {
   let { bootstrap, config } = opts;
-
   let keyStoreURL, localKMSPassphrase, edvConfiguration;
   // webkms
   if (config.kmsType == 'webkms') {

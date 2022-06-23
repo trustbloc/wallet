@@ -16,14 +16,15 @@
     "test": "npm run test:setup && npm run test:start && npm run test:teardown"
   },
   "dependencies": {
-    "@trustbloc-cicd/agent-sdk-web": "0.1.9-snapshot-c429eb8",
-    "@trustbloc-cicd/wallet-sdk": "0.1.9-snapshot-c429eb8",
+    "@trustbloc-cicd/agent-sdk-web": "0.1.9-snapshot-9aa2558",
+    "@trustbloc-cicd/wallet-sdk": "0.1.9-snapshot-9aa2558",
     "ajv": "^8.9.0",
     "credential-handler-polyfill": "^2.3.1",
     "flat": "^5.0.2",
     "js-base64": "^3.7.2",
     "js-cookie": "^3.0.1",
     "jsonpath": "^1.0.2",
+    "sha3": "^2.1.4",
     "uuid": "^8.3.2",
     "vue": "^3.2.20",
     "vue-i18n": "^9.2.0-beta.36",

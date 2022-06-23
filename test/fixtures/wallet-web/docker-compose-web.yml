@@ -32,6 +32,7 @@ services:
       - USE_EDV_BATCH=true
       - STATIC_ASSETS=/etc/static
       - STATIC_ASSETS_URL=https://wallet.trustbloc.local:8091
+      - WALLET_WEB_URL=https://wallet.trustbloc.local:8091
       - DIDCOMM_MEDIA_TYPE_PROFILES=didcomm/aip2;env=rfc587,didcomm/v2,didcomm/aip1,didcomm/aip2;env=rfc19
       - DIDCOMM_KEY_TYPE=ed25519
       - DIDCOMM_KEY_AGREEMENT_TYPE=p256kw
@@ -65,6 +66,7 @@ services:
       - USE_EDV_BATCH=true
       - STATIC_ASSETS=/etc/static
       - STATIC_ASSETS_URL=
+      - WALLET_WEB_URL=
       - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
       - DIDCOMM_MEDIA_TYPE_PROFILES=didcomm/aip2;env=rfc587,didcomm/v2,didcomm/aip1,didcomm/aip2;env=rfc19
       - DIDCOMM_KEY_TYPE=ed25519

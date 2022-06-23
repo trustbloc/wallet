@@ -6,7 +6,13 @@ SPDX-License-Identifier: Apache-2.0
 
 import { GNAPClient } from '@trustbloc/wallet-sdk';
 
-export async function gnapRequestAccess(signer, gnapAccessTokens, gnapAuthServerURL, nonceVal) {
+export async function gnapRequestAccess(
+  signer,
+  gnapAccessTokens,
+  gnapAuthServerURL,
+  walletWebURL,
+  nonceVal
+) {
   const exportedJwk = await window.crypto.subtle.exportKey('jwk', signer.SignatureVal.publicKey);
   const gnapReq = {
     access_token: [gnapAccessTokens],
@@ -15,16 +21,27 @@ export async function gnapRequestAccess(signer, gnapAccessTokens, gnapAuthServer
       start: ['redirect'],
       finish: {
         method: 'redirect',
-        uri: '/',
+        uri: walletWebURL + '/gnap/redirect',
         nonce: nonceVal,
       },
     },
   };
-
   const gnapClient = new GNAPClient({
     signer: signer,
     gnapAuthServerURL: gnapAuthServerURL,
   });
   const resp = await gnapClient.requestAccess(gnapReq);
+  return resp;
+}
+
+export async function gnapContinue(signer, gnapAuthServerURL, interactRef, accessToken) {
+  const gnapClient = new GNAPClient({
+    signer: signer,
+    gnapAuthServerURL: gnapAuthServerURL,
+  });
+  const gnapContinueReq = {
+    interact_ref: interactRef,
+  };
+  const resp = await gnapClient.continue(gnapContinueReq, accessToken);
   return resp;
 }

@@ -6,9 +6,10 @@ SPDX-License-Identifier: Apache-2.0
 
 import { createRouter, createWebHistory } from 'vue-router';
 import store from '@/store';
-import { getGnapKeyPair, gnapRequestAccess } from '@/mixins';
+import { getGnapKeyPair, gnapContinue, gnapRequestAccess } from '@/mixins';
 import routes from './routes';
 import { computed } from 'vue';
+import { SHA3 } from 'sha3';
 
 const router = createRouter({
   history: createWebHistory(__webpack_public_path__),
@@ -21,21 +22,61 @@ router.beforeEach(async (to, from, next) => {
     const gnapAccessTokenConfig = computed(() => store.getters['getGnapAccessTokenConfig']);
     const gnapAccessTokens = await gnapAccessTokenConfig.value;
     const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']).value;
+    const walletWebUrl = computed(() => store.getters['walletWebUrl']).value;
     const gnapKeyPair = await getGnapKeyPair();
     const signer = { SignatureVal: gnapKeyPair };
-    const nonceVal = 'wallet-nonce';
-    const resp = await gnapRequestAccess(signer, gnapAccessTokens, gnapAuthServerURL, nonceVal);
+    const clientNonceVal = (Math.random() + 1).toString(36).substring(7);
+    const resp = await gnapRequestAccess(
+      signer,
+      gnapAccessTokens,
+      gnapAuthServerURL,
+      walletWebUrl,
+      clientNonceVal
+    );
+    // If user have already logged in then just redirect
+    if (resp.data.access_token || false) {
+      store.dispatch('updateSessionToken', resp.data.access_token);
+      router.push({ name: 'vaults' });
+      next();
+      return;
+    }
     const respMetaData = {
       uri: resp.data.continue.uri,
-      access_token: resp.data.continue.access_token,
+      continue_access_token: resp.data.continue.access_token,
       finish: resp.data.interact.finish,
-      nonce: nonceVal,
+      clientNonceVal: clientNonceVal,
     };
-    store.dispatch('updateGnapGrantResp', respMetaData);
-    window.location.href = gnapAuthServerURL + resp.data.interact.redirect;
+    store.dispatch('updateGnapReqAccessResp', respMetaData);
+    window.location.href = resp.data.interact.redirect;
   }
-  if (to.path === 'gnap/redirect') {
-    // TODO Issue-1701 Complete GNAP flow
+  if (to.path === '/gnap/redirect') {
+    const gnapResp = store.getters.getGnapReqAccessResp;
+    const params = new URL(document.location).searchParams;
+    const hash = params.get('hash');
+    const interactRef = params.get('interact_ref');
+    const data = gnapResp.clientNonceVal + '\n' + gnapResp.finish + '\n' + interactRef + '\n';
+
+    const shaHash = new SHA3(512);
+    shaHash.update(data);
+    let hashB64 = shaHash.digest({ format: 'base64' });
+    hashB64 = hashB64.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
+    if (hash === hashB64) {
+      const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']).value;
+      const gnapKeyPair = await getGnapKeyPair();
+      const signer = { SignatureVal: gnapKeyPair };
+      const gnapContinueResp = await gnapContinue(
+        signer,
+        gnapAuthServerURL,
+        interactRef,
+        gnapResp.continue_access_token.value
+      );
+      store.dispatch('updateSessionToken', gnapContinueResp.data.access_token);
+    }
+    // TODO Issue-1744 Fetch user data to continue the wallet dashboard flow - Integrate with agent sdk
+    window.top.close();
+    router.push({ name: 'vaults' });
+    next();
+    return;
   }
   const locale = store.getters.getLocale;
   if (to.matched.some((record) => record.meta.requiresAuth)) {
