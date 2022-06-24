@@ -8,7 +8,8 @@
   <div>
     <!-- Mobile Credentials Layout -->
     <div v-if="breakpoints.xs || breakpoints.sm" class="flex flex-col justify-start w-screen">
-      <FlyoutComponent :tool-tip-label="t('Credentials.switchVaults')">
+      <SkeletonLoaderComponent v-if="loading" type="Flyout" />
+      <FlyoutComponent v-else :tool-tip-label="t('Credentials.switchVaults')">
         <template #button="{ toggleFlyoutMenu, setShowTooltip }">
           <button
             id="credentials-flyout-menu-button-mobile"
@@ -55,7 +56,8 @@
       <div class="flex flex-grow">
         <h3 class="m-0 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
       </div>
-      <FlyoutComponent :tool-tip-label="t('Credentials.switchVaults')">
+      <SkeletonLoaderComponent v-if="loading" type="Flyout" />
+      <FlyoutComponent v-else :tool-tip-label="t('Credentials.switchVaults')">
         <template #button="{ toggleFlyoutMenu, setShowTooltip }">
           <button
             id="credentials-flyout-menu-button-desktop"
@@ -106,7 +108,7 @@
       </FlyoutComponent>
     </div>
     <!-- Loading State -->
-    <SkeletonLoaderComponent v-if="loading" type="vault" />
+    <SkeletonLoaderComponent v-if="loading" type="CredentialPreview" />
     <!-- Error State -->
     <span v-else-if="userSetupStatus === 'failed'">
       <b>Warning:</b> Failed to connect to server. Your wallet can not participate in secured
