@@ -27,6 +27,7 @@ let defaultAgentStartupOpts = {
   'indexedDB-namespace': 'agent',
   // default backend server url
   'edge-agent-server': 'https://localhost:9099',
+  walletWebUrl: 'https://localhost:9098',
   // remote JSON-LD context provider urls
   'context-provider-url': [],
 
@@ -302,6 +303,10 @@ export default {
           'hubAuthURL' in agentOpts
             ? agentOpts['hubAuthURL']
             : defaultAgentStartupOpts['hubAuthURL'],
+        walletWebUrl:
+          'walletWebUrl' in agentOpts
+            ? agentOpts['walletWebUrl']
+            : defaultAgentStartupOpts['walletWebUrl'],
         staticAssetsUrl:
           'staticAssetsUrl' in agentOpts
             ? agentOpts['staticAssetsUrl']
@@ -359,6 +364,9 @@ export default {
     },
     hubAuthURL(state) {
       return state.agentOpts['hubAuthURL'];
+    },
+    walletWebUrl(state) {
+      return state.agentOpts['walletWebUrl'];
     },
     getStaticAssetsUrl(state) {
       return state.agentOpts['staticAssetsUrl'];

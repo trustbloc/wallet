@@ -160,6 +160,7 @@ services:
     image: ${AUTH_REST_IMAGE}:${AUTH_REST_IMAGE_TAG}
     environment:
       - AUTH_REST_HOST_URL=0.0.0.0:8044
+      - AUTH_REST_EXTERNAL_URL=https://auth.trustbloc.local:8044
       - AUTH_REST_TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
       - AUTH_REST_DEVICE_CACERTS=/etc/keys/device/ec-cacert.pem
       - AUTH_REST_TLS_SYSTEMCERTPOOL=true
@@ -180,6 +181,8 @@ services:
       - AUTH_REST_COOKIE_AUTH_KEY=/etc/keys/session_cookies/auth.key
       - AUTH_REST_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
       - AUTH_REST_STATIC_IMAGES=/etc/static/images
+      - GNAP_ACCESS_POLICY=/etc/static/config/access_policy.json
+      - GNAP_DEV_MODE=true
     ports:
       - 8044:8044
     entrypoint: ""
