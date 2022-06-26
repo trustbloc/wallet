@@ -250,12 +250,12 @@ export default {
         },
       },
       actions: {
-        async init({ commit, rootState, state, rootGetters, dispatch }) {
+        async init({ commit, rootState, state, rootGetters, dispatch }, gnapOpts = {}) {
           if (state.instance && state.agentName == rootState.user.username) {
             return;
           }
 
-          if (!rootState.user.username) {
+          if (!rootState.user.username && !gnapOpts.subjectId) {
             console.error('user should be logged in to initialize agent instance');
             throw 'invalid user state';
           }
@@ -264,6 +264,8 @@ export default {
           Object.assign(opts, rootGetters.getAgentOpts, {
             'agent-default-label': rootState.user.username,
             'db-namespace': rootState.user.username,
+            'gnap-access-token': gnapOpts?.accessToken || '',
+            'gnap-user-subject': gnapOpts?.subjectId || '',
           });
 
           try {
