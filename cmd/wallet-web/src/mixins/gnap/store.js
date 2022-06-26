@@ -78,7 +78,7 @@ function createKeyPair() {
       name: 'ECDSA',
       namedCurve: 'P-256',
     },
-    false,
+    true, //TODO: Consider other solutions for better security
     ['sign', 'verify']
   );
 }

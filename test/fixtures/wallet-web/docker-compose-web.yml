@@ -37,6 +37,7 @@ services:
       - DIDCOMM_KEY_TYPE=ed25519
       - DIDCOMM_KEY_AGREEMENT_TYPE=p256kw
       - WEB_SOCKET_READ_LIMIT=131072 # 128KB
+      - KMS_SERVER_URL=https://ops-kms.trustbloc.local:8075
       # Disabled remote context download for this wallet for better performance.
   #      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
 
@@ -71,6 +72,7 @@ services:
       - DIDCOMM_MEDIA_TYPE_PROFILES=didcomm/aip2;env=rfc587,didcomm/v2,didcomm/aip1,didcomm/aip2;env=rfc19
       - DIDCOMM_KEY_TYPE=ed25519
       - DIDCOMM_KEY_AGREEMENT_TYPE=p256kw
+      - KMS_SERVER_URL=https://ops-kms.trustbloc.local:8075
 
   mediator.trustbloc.local:
     container_name: mediator.trustbloc.local
