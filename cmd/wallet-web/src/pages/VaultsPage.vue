@@ -47,7 +47,7 @@
       <h3 v-else class="w-full text-neutrals-dark">
         {{ t('Vaults.heading') }}
       </h3>
-      <div v-if="loading"></div>
+      <SkeletonLoaderComponent v-if="loading" type="Vault" />
       <div
         v-else
         id="vaults-loaded"
@@ -154,6 +154,7 @@ import FlyoutButtonComponent from '@/components/Flyout/FlyoutButtonComponent';
 import RenameVaultComponent from '@/components/Vaults/RenameVaultModalComponent';
 import VaultCardComponent from '@/components/Vaults/VaultCardComponent';
 import WelcomeBannerComponent from '@/components/Vaults/VaultWelcomeBannerComponent.vue';
+import SkeletonLoaderComponent from '@/components/SkeletonLoader/SkeletonLoaderComponent.vue';
 
 export const vaultsStore = reactive({
   vaultsOutdated: false,
@@ -175,6 +176,7 @@ export default {
     FlyoutButtonComponent,
     DeleteVaultComponent,
     WelcomeBannerComponent,
+    SkeletonLoaderComponent,
   },
   setup() {
     const breakpoints = useBreakpoints();
@@ -257,16 +259,18 @@ export default {
 
       const vaults = Object.values(rawVaults);
       // For each vault get a number of credentials
-      vaults.forEach(async (vault) => {
-        // Fetching all credentials stored inside each vault
-        // TODO: #1236 Revisit the solution to avoid getting all the credentials
-        await this.credentialManager
-          .getAllCredentialMetadata(this.token, { collection: vault.id })
-          .then((credentials) => {
-            vault['numOfCreds'] = credentials.length;
-            this.vaults.push(vault);
-          });
-      });
+      await Promise.all(
+        vaults.map(async (vault) => {
+          // Fetching all credentials stored inside each vault
+          // TODO: #1236 Revisit the solution to avoid getting all the credentials
+          await this.credentialManager
+            .getAllCredentialMetadata(this.token, { collection: vault.id })
+            .then((credentials) => {
+              vault['numOfCreds'] = credentials.length;
+              this.vaults.push(vault);
+            });
+        })
+      );
     },
     updateUserPreferences: async function () {
       try {
