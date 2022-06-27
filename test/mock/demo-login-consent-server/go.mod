@@ -9,7 +9,7 @@ go 1.17
 require (
 	github.com/go-openapi/strfmt v0.21.2
 	github.com/ory/hydra-client-go v1.10.6
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/testify v1.7.4
 	github.com/trustbloc/edge-core v0.1.8-0.20220113141450-e19ffd091d98
 )
 
@@ -35,8 +35,6 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/tidwall/gjson v1.14.1 // indirect
-	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	go.mongodb.org/mongo-driver v1.7.5 // indirect
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d // indirect
