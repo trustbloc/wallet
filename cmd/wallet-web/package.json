@@ -52,7 +52,7 @@
     "eslint-plugin-i18n-json": "^3.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-tailwindcss": "^1.17.0",
-    "eslint-plugin-vue": "^8.0.3",
+    "eslint-plugin-vue": "^9.1.1",
     "karma": "^6.3.17",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.1",
