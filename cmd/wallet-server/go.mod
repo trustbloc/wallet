@@ -21,7 +21,7 @@ require (
 	github.com/hyperledger/aries-framework-go/spi v0.0.0-20220614152730-3d817acfa48b
 	github.com/piprate/json-gold v0.4.1
 	github.com/rs/cors v1.8.2
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.7.4
 	github.com/trustbloc/edge-core v0.1.8
 	github.com/trustbloc/wallet v0.0.0-00010101000000-000000000000
