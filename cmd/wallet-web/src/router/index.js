@@ -21,16 +21,16 @@ router.beforeEach(async (to, from, next) => {
   if (to.path === '/gnap') {
     const gnapAccessTokenConfig = computed(() => store.getters['getGnapAccessTokenConfig']);
     const gnapAccessTokens = await gnapAccessTokenConfig.value;
-    const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']).value;
-    const walletWebUrl = computed(() => store.getters['walletWebUrl']).value;
+    const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']);
+    const walletWebUrl = computed(() => store.getters['walletWebUrl']);
     const gnapKeyPair = await getGnapKeyPair();
     const signer = { SignatureVal: gnapKeyPair };
     const clientNonceVal = (Math.random() + 1).toString(36).substring(7);
     const resp = await gnapRequestAccess(
       signer,
       gnapAccessTokens,
-      gnapAuthServerURL,
-      walletWebUrl,
+      gnapAuthServerURL.value,
+      walletWebUrl.value,
       clientNonceVal
     );
     // If user have already logged in then just redirect
@@ -61,12 +61,12 @@ router.beforeEach(async (to, from, next) => {
     let hashB64 = shaHash.digest({ format: 'base64' });
     hashB64 = hashB64.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
     if (hash === hashB64) {
-      const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']).value;
+      const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']);
       const gnapKeyPair = await getGnapKeyPair();
       const signer = { SignatureVal: gnapKeyPair };
       const gnapContinueResp = await gnapContinue(
         signer,
-        gnapAuthServerURL,
+        gnapAuthServerURL.value,
         interactRef,
         gnapResp.continue_access_token.value
       );
