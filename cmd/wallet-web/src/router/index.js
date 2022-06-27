@@ -70,7 +70,10 @@ router.beforeEach(async (to, from, next) => {
         interactRef,
         gnapResp.continue_access_token.value
       );
+      const accessToken = gnapContinueResp.data.access_token[0].value;
+      const subjectId = gnapContinueResp.data.subject.sub_ids[0].id;
       store.dispatch('updateSessionToken', gnapContinueResp.data.access_token);
+      store.dispatch('agent/init', { accessToken, subjectId });
     }
     // TODO Issue-1744 Fetch user data to continue the wallet dashboard flow - Integrate with agent sdk
     window.top.close();
