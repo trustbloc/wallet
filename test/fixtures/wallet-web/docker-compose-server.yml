@@ -346,7 +346,8 @@ services:
       - SERVE_PROXY_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
       - SERVE_PROXY_CORS_ENABLED=true
       - SERVE_PROXY_CORS_DEBUG=true
-      - SERVE_PROXY_CORS_ALLOWED_HEADERS=Capability-Invocation,Content-Type,Digest,Signature
+      - SERVE_PROXY_CORS_ALLOWED_HEADERS=Capability-Invocation,Content-Type,Digest,Signature,Authorization
+      - SERVE_PROXY_CORS_EXPOSED_HEADERS=Content-Type,Location
     restart: on-failure
     volumes:
       - ../edv-oathkeeper:/oathkeeper

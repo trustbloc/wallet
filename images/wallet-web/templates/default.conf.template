@@ -93,7 +93,8 @@ server {
             "media-type-profiles": "${DIDCOMM_MEDIA_TYPE_PROFILES}",
             "key-type": "${DIDCOMM_KEY_TYPE}",
             "key-agreement-type": "${DIDCOMM_KEY_AGREEMENT_TYPE}",
-            "web-socket-read-limit": ${WEB_SOCKET_READ_LIMIT}
+            "web-socket-read-limit": ${WEB_SOCKET_READ_LIMIT},
+            "kms-server-url":"${KMS_SERVER_URL}"
         }';
     }
 }

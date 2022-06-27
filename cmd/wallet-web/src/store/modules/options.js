@@ -57,6 +57,7 @@ let defaultAgentStartupOpts = {
   'key-type': 'ecdsap256ieee1363',
   'key-agreement-type': 'p256kw',
   'web-socket-read-limit': 0,
+  'kms-server-url': '',
 };
 
 export default {
@@ -325,6 +326,10 @@ export default {
           'web-socket-read-limit' in agentOpts
             ? agentOpts['web-socket-read-limit']
             : defaultAgentStartupOpts['web-socket-read-limit'],
+        'kms-server-url':
+          'kms-server-url' in agentOpts
+            ? agentOpts['kms-server-url']
+            : defaultAgentStartupOpts['kms-server-url'],
       });
 
       commit('updateProfileOpts', profileOpts);

@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 import * as Agent from '@trustbloc/agent-sdk-web';
 import { WalletUser } from '@trustbloc/wallet-sdk';
 import { toRaw } from 'vue';
-import { clearGnapStoreData } from '@/mixins/gnap/store';
+import { clearGnapStoreData, getGnapKeyPair } from '@/mixins/gnap/store';
 
 export const parseTIme = (ns) => parseInt(ns) * 60 * 10 ** 9;
 
@@ -260,10 +260,14 @@ export default {
             throw 'invalid user state';
           }
 
+          const gnapKeyPair = await getGnapKeyPair();
+          const signingKey = await window.crypto.subtle.exportKey('jwk', gnapKeyPair.privateKey);
+
           let opts = {};
           Object.assign(opts, rootGetters.getAgentOpts, {
             'agent-default-label': rootState.user.username,
             'db-namespace': rootState.user.username,
+            'gnap-signing-jwk': JSON.stringify(signingKey),
             'gnap-access-token': gnapOpts?.accessToken || '',
             'gnap-user-subject': gnapOpts?.subjectId || '',
           });
