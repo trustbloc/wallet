@@ -8,7 +8,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 import store from '@/store';
 import { getGnapKeyPair, gnapContinue, gnapRequestAccess } from '@/mixins';
 import routes from './routes';
-import { computed } from 'vue';
 import { SHA3 } from 'sha3';
 
 const router = createRouter({
@@ -19,24 +18,25 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   store.dispatch('agent/flushStore');
   if (to.path === '/gnap') {
-    const gnapAccessTokenConfig = computed(() => store.getters['getGnapAccessTokenConfig']);
-    const gnapAccessTokens = await gnapAccessTokenConfig.value;
-    const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']);
-    const walletWebUrl = computed(() => store.getters['walletWebUrl']);
+    await store.dispatch('initOpts');
+    const gnapAccessTokens = await store.getters['getGnapAccessTokenConfig'];
+    const gnapAuthServerURL = store.getters.hubAuthURL;
+    const walletWebUrl = store.getters.walletWebUrl;
     const gnapKeyPair = await getGnapKeyPair();
     const signer = { SignatureVal: gnapKeyPair };
     const clientNonceVal = (Math.random() + 1).toString(36).substring(7);
     const resp = await gnapRequestAccess(
       signer,
       gnapAccessTokens,
-      gnapAuthServerURL.value,
-      walletWebUrl.value,
+      gnapAuthServerURL,
+      walletWebUrl,
       clientNonceVal
     );
-    // If user have already logged in then just redirect
+    // If user have already signed in then just redirect
     if (resp.data.access_token || false) {
       store.dispatch('updateSessionToken', resp.data.access_token);
-      router.push({ name: 'vaults' });
+      window.opener.location.href = walletWebUrl;
+      window.top.close();
       next();
       return;
     }
@@ -50,7 +50,9 @@ router.beforeEach(async (to, from, next) => {
     window.location.href = resp.data.interact.redirect;
   }
   if (to.path === '/gnap/redirect') {
+    await store.dispatch('initOpts');
     const gnapResp = store.getters.getGnapReqAccessResp;
+    const walletWebUrl = store.getters.walletWebUrl;
     const params = new URL(document.location).searchParams;
     const hash = params.get('hash');
     const interactRef = params.get('interact_ref');
@@ -61,23 +63,26 @@ router.beforeEach(async (to, from, next) => {
     let hashB64 = shaHash.digest({ format: 'base64' });
     hashB64 = hashB64.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
     if (hash === hashB64) {
-      const gnapAuthServerURL = computed(() => store.getters['hubAuthURL']);
+      const gnapAuthServerURL = store.getters.hubAuthURL;
       const gnapKeyPair = await getGnapKeyPair();
       const signer = { SignatureVal: gnapKeyPair };
       const gnapContinueResp = await gnapContinue(
         signer,
-        gnapAuthServerURL.value,
+        gnapAuthServerURL,
         interactRef,
         gnapResp.continue_access_token.value
       );
       const accessToken = gnapContinueResp.data.access_token[0].value;
       const subjectId = gnapContinueResp.data.subject.sub_ids[0].id;
       store.dispatch('updateSessionToken', gnapContinueResp.data.access_token);
-      store.dispatch('agent/init', { accessToken, subjectId });
+      try {
+        store.dispatch('agent/init', { accessToken, subjectId });
+      } catch (e) {
+        console.error('error initializing agent in gnap flow:', e);
+      }
     }
-    // TODO Issue-1744 Fetch user data to continue the wallet dashboard flow - Integrate with agent sdk
+    window.opener.location.href = walletWebUrl;
     window.top.close();
-    router.push({ name: 'vaults' });
     next();
     return;
   }

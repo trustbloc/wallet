@@ -283,6 +283,7 @@ export default {
           try {
             let agent = await new Agent.Framework(opts);
             commit('setInstance', { instance: agent, user: rootState.user.username });
+            // TODO Issue-1744 Fetch user data to continue the wallet dashboard flow - Integrate with agent sdk
             // TODO to be moved from here to 'loadOIDCUser' in case server based universal wallet.
             await dispatch('unlockWallet');
             commit('startAllNotifiers');

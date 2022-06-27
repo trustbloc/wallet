@@ -5,7 +5,7 @@
 -->
 
 <script setup>
-import { defineProps, ref } from 'vue';
+import { ref } from 'vue';
 import CredentialDetailsBannerSkeletonComponent from './CredentialDetailsBannerSkeletonComponent.vue';
 import CredentialPreviewSkeletonComponent from './CredentialPreviewSkeletonComponent.vue';
 import VaultCardSkeletonComponent from './VaultCardSkeletonComponent';
