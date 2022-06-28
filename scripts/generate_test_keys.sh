@@ -26,14 +26,10 @@ DNS.4 = hydra
 DNS.5 = *.example.com
 DNS.6 = wallet.trustbloc.local
 DNS.7 = wallet-server.trustbloc.local
-DNS.8 = wallet-2.trustbloc.local
-DNS.9 = wallet-server-2.trustbloc.local
-DNS.10 = mediator.trustbloc.local
-DNS.11 = uni-resolver-web.trustbloc.local
-DNS.12 = edv-oathkeeper-proxy.trustbloc.local
-DNS.13 = bdd-edv-oathkeeper-proxy.trustbloc.local
-DNS.14 = file-server.trustbloc.local
-DNS.15 = demo-adapter.trustbloc.local" >> "$tmp"
+DNS.8 = mediator.trustbloc.local
+DNS.9 = uni-resolver-web.trustbloc.local
+DNS.10 = file-server.trustbloc.local
+DNS.11 = demo-adapter.trustbloc.local" >> "$tmp"
 
 CERT_CA="test/fixtures/keys/tls/ec-cacert.pem"
 if [ ! -f "$CERT_CA" ]; then
@@ -57,8 +53,11 @@ openssl rand -out test/fixtures/keys/session_cookies/enc.key 32
 #create master key for secret lock
 openssl rand 32 | base64 | sed 's/+/-/g; s/\//_/g' > test/fixtures/keys/tls/secret-lock.key
 
-#create private key for GNAP signer
-openssl ecparam -name prime256v1 -genkey -noout -out test/fixtures/keys/gnap-priv-key.pem
+#create private key for GNAP signer (kms)
+openssl ecparam -name prime256v1 -genkey -noout -out test/fixtures/keys/gnap-kms-priv-key.pem
+
+#create private key for GNAP signer (edv)
+openssl ecparam -name prime256v1 -genkey -noout -out test/fixtures/keys/gnap-edv-priv-key.pem
 
 mkdir -p test/fixtures/keys/device
 openssl ecparam -name prime256v1 -genkey -noout -out test/fixtures/keys/device/ec-cakey.pem

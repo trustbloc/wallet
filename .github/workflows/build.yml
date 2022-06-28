@@ -131,19 +131,13 @@ jobs:
           echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 wallet.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 wallet-server.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 wallet-2.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 wallet-server-2.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 mediator.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 uni-resolver-web.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 auth.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 demo-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 edv.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 authz-kms.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 edv-oathkeeper-proxy.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 ops-kms.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 oathkeeper-auth-keyserver.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 oathkeeper-ops-keyserver.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 kms.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 file-server.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 demo-adapter.trustbloc.local' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
