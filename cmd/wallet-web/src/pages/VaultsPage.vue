@@ -3,11 +3,143 @@
  *
  * SPDX-License-Identifier: Apache-2.0
 -->
+<script>
+import { reactive } from 'vue';
+export const vaultsStore = reactive({
+  vaultsOutdated: false,
+});
+
+export const vaultsMutations = {
+  setVaultsOutdated(value) {
+    vaultsStore.vaultsOutdated = value;
+  },
+};
+</script>
+
+<script setup>
+import { computed, onMounted, ref, watchEffect } from 'vue';
+import { CollectionManager, CredentialManager, WalletUser } from '@trustbloc/wallet-sdk';
+import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
+import useBreakpoints from '@/plugins/breakpoints.js';
+import DeleteVaultComponent from '@/components/Vaults/DeleteVaultModalComponent';
+import FlyoutComponent from '@/components/Flyout/FlyoutComponent';
+import FlyoutMenuComponent from '@/components/Flyout/FlyoutMenuComponent';
+import FlyoutButtonComponent from '@/components/Flyout/FlyoutButtonComponent';
+import RenameVaultComponent from '@/components/Vaults/RenameVaultModalComponent';
+import VaultCardComponent from '@/components/Vaults/VaultCardComponent';
+import WelcomeBannerComponent from '@/components/Vaults/VaultWelcomeBannerComponent.vue';
+import SkeletonLoaderComponent from '@/components/SkeletonLoader/SkeletonLoaderComponent.vue';
+
+// Hooks
+const { t } = useI18n();
+const store = useStore();
+const breakpoints = useBreakpoints();
+
+// Local Variables
+const numOfCreds = ref(0);
+const vaults = ref([]);
+const skippedLocally = ref(false);
+const loading = ref(true);
+const showDeleteModal = ref(false);
+const showRenameModal = ref(false);
+const selectedVaultId = ref('');
+const authToken = ref(null);
+const credentialManager = ref(null);
+const collectionManager = ref(null);
+const walletUser = ref(null);
+const existingNames = computed(() => vaults.value.map((vault) => vault.name));
+
+// Store Getters
+const currentUser = computed(() => store.getters['getCurrentUser']);
+const agentInstance = computed(() => store.getters['agent/getInstance']);
+
+// Store Actions
+const refreshUserPreference = () => store.dispatch('refreshUserPreference');
+
+// Methods
+function toggleDeleteModal(vaultId) {
+  selectedVaultId.value = vaultId;
+  showDeleteModal.value = !showDeleteModal.value;
+}
+
+function toggleRenameModal(vaultId) {
+  selectedVaultId.value = vaultId;
+  showRenameModal.value = !showRenameModal.value;
+}
+
+async function getNumOfCreds() {
+  // Fetching all credentials
+  const credentials = await credentialManager.value.getAllCredentialMetadata(authToken.value);
+  numOfCreds.value = credentials.length;
+}
+
+async function fetchVaults() {
+  vaults.value = [];
+  // Fetching all vaults
+  const { contents: rawVaults } = await collectionManager.value.getAll(authToken.value);
+
+  const vaultsArray = Object.values(rawVaults);
+  // For each vault get a number of credentials
+  await Promise.all(
+    vaultsArray.map(async (vault) => {
+      // Fetching all credentials stored inside each vault
+      // TODO: #1236 Revisit the solution to avoid getting all the credentials
+      await credentialManager.value
+        .getAllCredentialMetadata(authToken.value, { collection: vault.id })
+        .then((credentials) => {
+          vault['numOfCreds'] = credentials.length;
+          vaults.value.push(vault);
+        });
+    })
+  );
+}
+
+async function updateUserPreferences() {
+  try {
+    // Used to close the welcome message banner instantly in the UI
+    skippedLocally.value = true;
+    await walletUser.value.updatePreferences(authToken.value, { skipWelcomeMsg: true });
+    await refreshUserPreference();
+  } catch (e) {
+    console.error('error updating user preferences', e);
+  }
+}
+
+function handleRenameModalClose() {
+  showRenameModal.value = false;
+}
+
+function handleDeleteModalClose() {
+  showDeleteModal.value = false;
+}
+
+onMounted(async () => {
+  const { profile } = currentUser.value;
+  const { user, token } = profile;
+  authToken.value = token;
+  credentialManager.value = new CredentialManager({ agent: agentInstance.value, user });
+  collectionManager.value = new CollectionManager({ agent: agentInstance.value, user });
+  walletUser.value = new WalletUser({ agent: agentInstance.value, user });
+  // Fetch all the credentials stored.
+  // TODO: Issue-1250 Refactor to not to save credentials without vault ID.
+  await Promise.all([getNumOfCreds(), fetchVaults()]);
+  loading.value = false;
+  watchEffect(async () => {
+    if (vaultsStore.vaultsOutdated) {
+      loading.value = true;
+      await fetchVaults();
+      vaultsMutations.setVaultsOutdated(false);
+      loading.value = false;
+    }
+  });
+});
+</script>
 
 <template>
   <div>
     <WelcomeBannerComponent
-      v-if="!skipWelcomeMsg && !skippedLocally && !loading"
+      v-if="!currentUser.preference.skipWelcomeMsg && !skippedLocally && !loading"
       id="welcome-banner-close-button"
       class="md:mb-10"
       @click="updateUserPreferences"
@@ -140,164 +272,3 @@
     />
   </div>
 </template>
-
-<script>
-import { computed, reactive, ref, watchEffect } from 'vue';
-import { CollectionManager, CredentialManager, WalletUser } from '@trustbloc/wallet-sdk';
-import { mapActions, mapGetters, useStore } from 'vuex';
-import { useI18n } from 'vue-i18n';
-import useBreakpoints from '@/plugins/breakpoints.js';
-import DeleteVaultComponent from '@/components/Vaults/DeleteVaultModalComponent';
-import FlyoutComponent from '@/components/Flyout/FlyoutComponent';
-import FlyoutMenuComponent from '@/components/Flyout/FlyoutMenuComponent';
-import FlyoutButtonComponent from '@/components/Flyout/FlyoutButtonComponent';
-import RenameVaultComponent from '@/components/Vaults/RenameVaultModalComponent';
-import VaultCardComponent from '@/components/Vaults/VaultCardComponent';
-import WelcomeBannerComponent from '@/components/Vaults/VaultWelcomeBannerComponent.vue';
-import SkeletonLoaderComponent from '@/components/SkeletonLoader/SkeletonLoaderComponent.vue';
-
-export const vaultsStore = reactive({
-  vaultsOutdated: false,
-});
-
-export const vaultsMutations = {
-  setVaultsOutdated(value) {
-    vaultsStore.vaultsOutdated = value;
-  },
-};
-
-export default {
-  name: 'VaultsPage',
-  components: {
-    RenameVaultComponent,
-    VaultCardComponent,
-    FlyoutComponent,
-    FlyoutMenuComponent,
-    FlyoutButtonComponent,
-    DeleteVaultComponent,
-    WelcomeBannerComponent,
-    SkeletonLoaderComponent,
-  },
-  setup() {
-    const breakpoints = useBreakpoints();
-    const { t } = useI18n();
-    const store = useStore();
-    const skipWelcomeMsg = computed(() => store?.state?.user?.preference?.skipWelcomeMsg);
-    const showDeleteModal = ref(false);
-    const showRenameModal = ref(false);
-    const selectedVaultId = ref('');
-    function toggleDeleteModal(vaultId) {
-      selectedVaultId.value = vaultId;
-      showDeleteModal.value = !showDeleteModal.value;
-    }
-
-    function toggleRenameModal(vaultId) {
-      selectedVaultId.value = vaultId;
-      showRenameModal.value = !showRenameModal.value;
-    }
-
-    return {
-      breakpoints,
-      t,
-      showDeleteModal,
-      showRenameModal,
-      selectedVaultId,
-      skipWelcomeMsg,
-      toggleDeleteModal,
-      toggleRenameModal,
-    };
-  },
-  data() {
-    return {
-      numOfCreds: 0,
-      vaults: [],
-      skippedLocally: false,
-      loading: true,
-    };
-  },
-  computed: {
-    existingNames() {
-      return this.vaults.map((vault) => vault.name);
-    },
-  },
-  created: async function () {
-    const { profile, username } = this.getCurrentUser();
-    const { user, token } = profile;
-    this.token = token;
-    this.username = username;
-    this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
-    this.collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
-    this.walletUser = new WalletUser({ agent: this.getAgentInstance(), user });
-    // Fetch all the credentials stored.
-    // TODO: Issue-1250 Refactor to not to save credentials without vault ID.
-    await this.getNumOfCreds();
-    await this.fetchVaults();
-    this.loading = false;
-    watchEffect(async () => {
-      if (vaultsStore.vaultsOutdated) {
-        this.loading = true;
-        await this.fetchVaults();
-        vaultsMutations.setVaultsOutdated(false);
-        this.loading = false;
-      }
-    });
-  },
-  methods: {
-    ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
-    ...mapGetters(['getCurrentUser']),
-    ...mapActions(['refreshUserPreference']),
-    getNumOfCreds: async function () {
-      // Fetching all credentials
-      const credentials = await this.credentialManager.getAllCredentialMetadata(this.token);
-      this.numOfCreds = credentials.length;
-    },
-    fetchVaults: async function () {
-      this.vaults = [];
-      // Fetching all vaults
-      const { contents: rawVaults } = await this.collectionManager.getAll(this.token);
-      console.log(`found ${Object.keys(rawVaults).length} vaults`);
-
-      const vaults = Object.values(rawVaults);
-      // For each vault get a number of credentials
-      await Promise.all(
-        vaults.map(async (vault) => {
-          // Fetching all credentials stored inside each vault
-          // TODO: #1236 Revisit the solution to avoid getting all the credentials
-          await this.credentialManager
-            .getAllCredentialMetadata(this.token, { collection: vault.id })
-            .then((credentials) => {
-              vault['numOfCreds'] = credentials.length;
-              this.vaults.push(vault);
-            });
-        })
-      );
-    },
-    updateUserPreferences: async function () {
-      try {
-        // Used to close the welcome message banner instantly in the UI
-        this.skippedLocally = true;
-        await this.walletUser.updatePreferences(this.token, { skipWelcomeMsg: true });
-        this.refreshUserPreference();
-      } catch (e) {
-        console.error('error updating user preferences', e);
-      }
-    },
-    handleRenameModalClose: function () {
-      this.showRenameModal = false;
-    },
-    handleDeleteModalClose: function () {
-      this.showDeleteModal = false;
-    },
-  },
-};
-</script>
-<style>
-.card-list {
-  display: grid;
-  grid-gap: 1em;
-}
-
-.card-item {
-  padding: 2em;
-}
-</style>
