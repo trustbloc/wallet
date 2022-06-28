@@ -8,6 +8,8 @@ import { WalletUser } from '@trustbloc/wallet-sdk';
 import { toRaw } from 'vue';
 import { clearGnapStoreData, getGnapKeyPair } from '@/mixins/gnap/store';
 
+const axios = require('axios').default;
+
 export const parseTIme = (ns) => parseInt(ns) * 60 * 10 ** 9;
 
 export default {
@@ -279,14 +281,37 @@ export default {
             'gnap-access-token': gnapOpts?.accessToken || '',
             'gnap-user-subject': gnapOpts?.subjectId || '',
           });
-
+          console.log('what is opts', rootGetters.hubAuthURL);
           try {
             let agent = await new Agent.Framework(opts);
-            commit('setInstance', { instance: agent, user: rootState.user.username });
-            // TODO Issue-1744 Fetch user data to continue the wallet dashboard flow - Integrate with agent sdk
+            let profileOpts = {};
+            console.log('what is my hub-auth bootstrap val', gnapOpts?.accessToken);
             // TODO to be moved from here to 'loadOIDCUser' in case server based universal wallet.
+            await axios
+              .get('https://localhost:8044' + '/bootstrap', {
+                headers: { Authorization: `GNAP ${gnapOpts?.accessToken}` },
+              })
+              .then((resp) => {
+                let { data } = resp;
+                console.log('received bootstrap data ' + JSON.stringify(data, null, 2));
+                profileOpts = data;
+                console.log('what is profile opts', profileOpts);
+                commit('updateProfileOpts', profileOpts);
+              })
+              .catch((err) => {
+                console.log('error fetching bootstrap data: errMsg=', err);
+                console.log(
+                  "Note: If you haven't logged in yet and you just got a 403 error, then it's expected"
+                );
+
+                // http 400 denotes expired cookie at server - logout the user and make user to signin
+                if (err.response && err.response.status === 400) {
+                  dispatch('logout');
+                }
+              });
             await dispatch('unlockWallet');
             commit('startAllNotifiers');
+            commit('setInstance', { instance: agent, user: rootState.user.username });
           } catch (e) {
             console.error(e);
           }
