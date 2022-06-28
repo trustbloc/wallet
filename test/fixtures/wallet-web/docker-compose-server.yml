@@ -3,10 +3,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-version: '2'
+version: "2"
 
 services:
-
   wallet-server.trustbloc.local:
     container_name: wallet-server.trustbloc.local
     image: ${WALLET_SERVER_IMAGE}:latest
@@ -26,10 +25,9 @@ services:
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
       - HTTP_SERVER_RP_ORIGIN_NAME=https://wallet.trustbloc.local:8091/
       - HTTP_SERVER_RP_ID=wallet.trustbloc.local
-      - HTTP_SERVER_AUTHZ_KMS_URL=https://oathkeeper-auth-keyserver.trustbloc.local:4461
-      - HTTP_SERVER_OPS_KMS_URL=https://oathkeeper-ops-keyserver.trustbloc.local:4462
-      - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
-      - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
+      - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:8075
+      - HTTP_SERVER_KEY_EDV_URL=https://edv.trustbloc.local:8072/encrypted-data-vaults
+      - HTTP_SERVER_USER_EDV_URL=https://edv.trustbloc.local:8072/encrypted-data-vaults
       - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${INBOUND_HOST}:8092
       - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://wallet-server.trustbloc.local:8092
       - ARIESD_DEFAULT_LABEL=user-agent
@@ -64,10 +62,9 @@ services:
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
       - HTTP_SERVER_RP_ORIGIN_NAME=https://localhost:9098/
       - HTTP_SERVER_RP_ID=localhost
-      - HTTP_SERVER_AUTHZ_KMS_URL=https://oathkeeper-auth-keyserver.trustbloc.local:4461
-      - HTTP_SERVER_OPS_KMS_URL=https://oathkeeper-ops-keyserver.trustbloc.local:4462
-      - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
-      - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
+      - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:8075
+      - HTTP_SERVER_KEY_EDV_URL=https://edv.trustbloc.local:8072/encrypted-data-vaults
+      - HTTP_SERVER_USER_EDV_URL=https://edv.trustbloc.local:8072/encrypted-data-vaults
       - VALIDATE_DEVICE_CREDENTIALS=true
       - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${INBOUND_HOST}:9100
       - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://wallet-server-dev.trustbloc.local:9100
@@ -104,10 +101,9 @@ services:
       - HTTP_SERVER_RP_DISPLAY_NAME=trustbloc
       - HTTP_SERVER_RP_ORIGIN_NAME=https://wallet-2.trustbloc.local:8071/
       - HTTP_SERVER_RP_ID=wallet-2.trustbloc.local
-      - HTTP_SERVER_AUTHZ_KMS_URL=https://oathkeeper-auth-keyserver.trustbloc.local:4461
-      - HTTP_SERVER_OPS_KMS_URL=https://oathkeeper-ops-keyserver.trustbloc.local:4462
-      - HTTP_SERVER_KEY_EDV_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
-      - HTTP_SERVER_USER_EDV_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
+      - HTTP_SERVER_OPS_KMS_URL=https://ops-kms.trustbloc.local:8075
+      - HTTP_SERVER_KEY_EDV_URL=https://edv.trustbloc.local:8072/encrypted-data-vaults
+      - HTTP_SERVER_USER_EDV_URL=https://edv.trustbloc.local:8072/encrypted-data-vaults
       - VALIDATE_DEVICE_CREDENTIALS=true
       - ARIESD_INBOUND_HOST=${HTTP_SCHEME}@${INBOUND_HOST}:8072
       - ARIESD_INBOUND_HOST_EXTERNAL=${HTTP_SCHEME}@https://wallet-server-2.trustbloc.local:8072
@@ -124,7 +120,6 @@ services:
     depends_on:
       - edv.trustbloc.local
       - mongodb.example.com
-
 
   mongodb.example.com:
     container_name: mongodb.example.com
@@ -147,6 +142,7 @@ services:
       - EDV_LOCALKMS_SECRETS_DATABASE_URL=${EDV_DATABASE_URL}
       - EDV_LOCALKMS_SECRETS_DATABASE_PREFIX=${EDV_DATABASE_PREFIX}_kms_
       - EDV_EXTENSIONS=ReturnFullDocumentsOnQuery,Batch
+      - EDV_CORS_ENABLE=true
     ports:
       - ${EDV_PORT}:${EDV_PORT}
     volumes:
@@ -186,7 +182,7 @@ services:
     ports:
       - 8044:8044
     entrypoint: ""
-    command:  /bin/sh -c "sleep 30 && auth-rest start"
+    command: /bin/sh -c "sleep 30 && auth-rest start"
     volumes:
       - ../keys:/etc/keys
       - ./oidc-config:/etc/oidc-config
@@ -201,7 +197,7 @@ services:
     ports:
       - 5555:5555 # Public port
       - 5556:5556 # Admin port
-    command:  /bin/sh -c "hydra migrate sql --read-from-env --yes; tmp/hydra_configure.sh& hydra serve all"
+    command: /bin/sh -c "hydra migrate sql --read-from-env --yes; tmp/hydra_configure.sh& hydra serve all"
     entrypoint: ""
     environment:
       - DSN=mysql://authresthydra:authresthydra-secret-pw@tcp(mysql:3306)/authresthydra?max_conns=20&max_idle_conns=4
@@ -228,7 +224,7 @@ services:
     ports:
       - 7777:7777 # Public port
       - 7778:7778 # Admin port
-    command:  /bin/sh -c "hydra migrate sql --read-from-env --yes; tmp/hydra_configure.sh& hydra serve all"
+    command: /bin/sh -c "hydra migrate sql --read-from-env --yes; tmp/hydra_configure.sh& hydra serve all"
     entrypoint: ""
     environment:
       - DSN=mysql://demohydra:demohydra-pwd@tcp(mysql:3306)/demohydra?max_conns=20&max_idle_conns=4
@@ -274,40 +270,12 @@ services:
     volumes:
       - ../keys/tls:/etc/tls
 
-  authz-kms.example.com:
-    container_name: authz-kms.trustbloc.local
-    image: ${KMS_IMAGE}:${KMS_IMAGE_TAG}
-    environment:
-      - KMS_HOST=${KMS_HOST}:${DEMO_AUTHZ_KMS_PORT}
-      - KMS_BASE_URL=https://oathkeeper-auth-keyserver.trustbloc.local:4461
-      - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
-      - KMS_TLS_SYSTEMCERTPOOL=true
-      - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
-      - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
-      - KMS_DATABASE_TYPE=mongodb
-      - KMS_DATABASE_URL=${EDV_DATABASE_URL}
-      - KMS_DATABASE_PREFIX=authzkms_
-      - KMS_SECRET_LOCK_TYPE=local
-      - KMS_SECRET_LOCK_KEY_PATH=/etc/tls/secret-lock.key
-      - KMS_AUTH_SERVER_URL=https://auth.trustbloc.local:8044
-      - KMS_AUTH_SERVER_TOKEN=test_token
-      - KMS_CACHE_EXPIRATION=10m
-      - KMS_LOG_LEVEL=debug
-      - KMS_AUTH_DISABLE=true # auth is handled by Oathkeeper
-    ports:
-      - ${DEMO_AUTHZ_KMS_PORT}:${DEMO_AUTHZ_KMS_PORT}
-    command: start
-    volumes:
-      - ../keys/tls:/etc/tls
-    depends_on:
-      - mongodb.example.com
-
   ops-kms.example.com:
     container_name: ops-kms.trustbloc.local
     image: ${KMS_IMAGE}:${KMS_IMAGE_TAG}
     environment:
       - KMS_HOST=${KMS_HOST}:${DEMO_OPS_KMS_PORT}
-      - KMS_BASE_URL=https://oathkeeper-ops-keyserver.trustbloc.local:4462
+      - KMS_BASE_URL=https://ops-kms.trustbloc.local:8075
       - KMS_TLS_CACERTS=/etc/tls/ec-cacert.pem
       - KMS_TLS_SERVE_CERT=/etc/tls/ec-pubCert.pem
       - KMS_TLS_SERVE_KEY=/etc/tls/ec-key.pem
@@ -320,6 +288,7 @@ services:
       - KMS_LOG_LEVEL=debug
       - KMS_GNAP_SIGNING_KEY=/etc/gnap-priv-key.pem
       - KMS_AUTH_SERVER_URL=https://auth.trustbloc.local:8044
+      - KMS_CORS_ENABLE=true
     ports:
       - ${DEMO_OPS_KMS_PORT}:${DEMO_OPS_KMS_PORT}
     command: start
@@ -327,65 +296,3 @@ services:
       - ../keys:/etc
     depends_on:
       - mongodb.example.com
-
-  edv-oathkeeper-proxy.trustbloc.local:
-    image: oryd/oathkeeper:v0.38.4-alpine
-    ports:
-      - "4455:4455"
-    # will add self-signed certificate to the “trusted list” because oathkeeper doesn't trust self-signed certificate
-    # https://github.com/ory/oathkeeper/issues/181
-    # remove it when using real certificate
-    command:  /bin/sh -c "cp /etc/tls/ec-cacert.pem /usr/local/share/ca-certificates/;update-ca-certificates;oathkeeper serve proxy --config /oathkeeper/config.yaml"
-    user: root
-    entrypoint: ""
-    environment:
-      - LOG_LEVEL=debug
-      - PORT=4455
-      - ISSUER_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455
-      - SERVE_PROXY_TLS_KEY_PATH=/etc/tls/ec-key.pem
-      - SERVE_PROXY_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
-      - SERVE_PROXY_CORS_ENABLED=true
-      - SERVE_PROXY_CORS_DEBUG=true
-      - SERVE_PROXY_CORS_ALLOWED_HEADERS=Capability-Invocation,Content-Type,Digest,Signature,Authorization
-      - SERVE_PROXY_CORS_EXPOSED_HEADERS=Content-Type,Location
-    restart: on-failure
-    volumes:
-      - ../edv-oathkeeper:/oathkeeper
-      - ../keys/tls:/etc/tls
-
-
-  oathkeeper-auth-keyserver.trustbloc.local:
-    container_name: oathkeeper-auth-keyserver.trustbloc.local
-    image: oryd/oathkeeper:v0.38.4-alpine
-    ports:
-      - 4461:4461
-    command: /bin/sh -c "cp /etc/tls/ec-cacert.pem /usr/local/share/ca-certificates/;update-ca-certificates;oathkeeper serve proxy --config /oathkeeper/config.yaml"
-    user: root
-    entrypoint: ""
-    environment:
-      - LOG_LEVEL=debug
-      - PORT=4461
-      - ISSUER_URL=https://bdd-oathkeeper-auth-keyserver:4459
-      - SERVE_PROXY_TLS_KEY_PATH=/etc/tls/ec-key.pem
-      - SERVE_PROXY_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
-    volumes:
-      - ./oathkeeper-config/auth-keyserver:/oathkeeper
-      - ../keys/tls:/etc/tls
-
-  oathkeeper-ops-keyserver.trustbloc.local:
-    container_name: oathkeeper-ops-keyserver.trustbloc.local
-    image: oryd/oathkeeper:v0.38.4-alpine
-    ports:
-      - 4462:4462
-    command: /bin/sh -c "cp /etc/tls/ec-cacert.pem /usr/local/share/ca-certificates/;update-ca-certificates;oathkeeper serve proxy --config /oathkeeper/config.yaml"
-    user: root
-    entrypoint: ""
-    environment:
-      - LOG_LEVEL=debug
-      - PORT=4462
-      - ISSUER_URL=https://bdd-oathkeeper-ops-keyserver:4460
-      - SERVE_PROXY_TLS_KEY_PATH=/etc/tls/ec-key.pem
-      - SERVE_PROXY_TLS_CERT_PATH=/etc/tls/ec-pubCert.pem
-    volumes:
-      - ./oathkeeper-config/ops-keyserver:/oathkeeper
-      - ../keys/tls:/etc/tls
