@@ -10,6 +10,7 @@ const storekey = 'gnap';
 
 export async function getGnapKeyPair() {
   const gnapKeyPair = await fetchStoredGnapKeyPair();
+  console.log('fetched gnapKeyPair', gnapKeyPair);
   if (gnapKeyPair === undefined) {
     return createAndStoreGnapKeyPair();
   }

@@ -117,6 +117,9 @@ function handleDeleteModalClose() {
 onMounted(async () => {
   const { profile } = currentUser.value;
   const { user, token } = profile;
+  console.log('[vaults-page] profile', profile);
+  console.log('[vaults-page] user', user);
+  console.log('[vaults-page] agentInstance', agentInstance);
   authToken.value = token;
   credentialManager.value = new CredentialManager({ agent: agentInstance.value, user });
   collectionManager.value = new CollectionManager({ agent: agentInstance.value, user });
@@ -139,7 +142,7 @@ onMounted(async () => {
 <template>
   <div>
     <WelcomeBannerComponent
-      v-if="!currentUser.preference.skipWelcomeMsg && !skippedLocally && !loading"
+      v-if="!currentUser?.preference?.skipWelcomeMsg && !skippedLocally && !loading"
       id="welcome-banner-close-button"
       class="md:mb-10"
       @click="updateUserPreferences"

@@ -33,8 +33,9 @@ async function signout() {
   }
 
   await Promise.all(actions);
+  console.log('signed out. Redirecting to base url');
 
-  router.push({ name: 'signin' });
+  router.push('/');
 }
 
 const chapi = ref(

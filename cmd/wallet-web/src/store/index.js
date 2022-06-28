@@ -17,7 +17,11 @@ import sharedMutations from 'vuex-shared-mutations';
 
 const store = createStore({
   modules: { connections, mode, mediator, credentials, presentation, user, options, locale },
-  plugins: [sharedMutations({ predicate: ['setUserLoggedIn', 'setLocale', 'setLogInSuspended'] })],
+  plugins: [
+    sharedMutations({
+      predicate: ['setUserLoggedIn', 'setLocale', 'setLogInSuspended'],
+    }),
+  ],
 });
 
 export default store;

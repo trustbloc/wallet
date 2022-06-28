@@ -13,10 +13,10 @@ import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
 
 const store = useStore();
 const loaded = ref(false);
-const isAgentInitialized = computed(() => store.getters['agent/isInitialized']);
-const initAgent = () => store.dispatch('agent/init');
-const initOpts = () => store.dispatch('initOpts');
-const loadUser = () => store.dispatch('loadUser');
+// const isAgentInitialized = computed(() => store.getters['agent/isInitialized']);
+// const initAgent = () => store.dispatch('agent/init');
+// const initOpts = () => store.dispatch('initOpts');
+// const loadUser = () => store.dispatch('loadUser');
 
 // Get starting locale, set it in i18n and in the store
 const startingLocale = getStartingLocale();
@@ -26,18 +26,16 @@ onBeforeMount(async () => {
   await updateI18nLocale(startingLocale.id);
 });
 
-onMounted(async () => {
+onMounted(() => {
   try {
     // load opts
-    await initOpts();
-
+    // await initOpts();
     // load user if already logged in
-    loadUser();
-
+    // loadUser();
     // load agent if user already logged in and agent not initialized (scenario: page refresh)
-    if (store.getters.getCurrentUser && !isAgentInitialized.value) {
-      await initAgent();
-    }
+    // if (store.getters.getCurrentUser && !isAgentInitialized.value) {
+    //   await initAgent();
+    // }
   } catch (e) {
     console.log('Could not initialize Vue App:', e);
   }
