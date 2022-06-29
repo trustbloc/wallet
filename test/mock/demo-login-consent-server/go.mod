@@ -9,7 +9,7 @@ go 1.17
 require (
 	github.com/go-openapi/strfmt v0.21.2
 	github.com/ory/hydra-client-go v1.10.6
-	github.com/stretchr/testify v1.7.5
+	github.com/stretchr/testify v1.8.0
 	github.com/trustbloc/edge-core v0.1.8-0.20220113141450-e19ffd091d98
 )
 
