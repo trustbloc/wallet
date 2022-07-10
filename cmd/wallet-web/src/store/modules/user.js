@@ -357,13 +357,6 @@ export default {
                 opts.opsKMSCapability = data.data.opsKMSCapability;
 
                 Object.assign(profileOpts, { bootstrap: data });
-                Object.assign(profileOpts, {
-                  config: {
-                    storageType: opts.storageType,
-                    kmsType: opts.kmsType,
-                    localKMSScret: opts.localKMSPassphrase,
-                  },
-                });
 
                 commit('updateAgentOpts', opts, { root: true });
                 commit('updateProfileOpts', profileOpts, { root: true });
@@ -494,6 +487,7 @@ export default {
 
 // options for creating wallet profile
 function profileCreationOpts(opts) {
+  console.log('profileCreationOpts', opts);
   let { bootstrap, config } = opts;
   let keyStoreURL, localKMSPassphrase, edvConfiguration;
   // webkms

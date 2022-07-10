@@ -9,7 +9,6 @@ import store from '@/store';
 import { getGnapKeyPair, gnapContinue, gnapRequestAccess } from '@/mixins';
 import routes from './routes';
 import { SHA3 } from 'sha3';
-import axios from 'axios';
 
 const router = createRouter({
   history: createWebHistory(__webpack_public_path__),
@@ -61,8 +60,6 @@ router.beforeEach(async (to, from) => {
       store.dispatch('updateSessionToken', accessToken);
       store.dispatch('updateSubjectId', subjectId);
       store.dispatch('updateUser', subjectId);
-      // need to call initOpts here to initialize edv and kms opts from bootstrap data
-      // TODO refactor initOpts to avoid calling it twice (separate static and bootstrap agent opts initialization)
       console.log('calling initOpts with access token from gnap/continue');
       await store.dispatch('initOpts');
       try {
@@ -128,8 +125,6 @@ router.beforeEach(async (to, from) => {
       await store.dispatch('initOpts');
       const { signin, disableCHAPI } = to.meta;
       console.log('TODO: redirect to auth to authenticate the user');
-      // const interactRedirectUrl = await initiateGnapAuth(store, router);
-
       const gnapAccessTokens = await store.getters['getGnapAccessTokenConfig'];
       const gnapAuthServerURL = store.getters.hubAuthURL;
       const walletWebUrl = store.getters.walletWebUrl;
@@ -138,21 +133,6 @@ router.beforeEach(async (to, from) => {
       const signer = { SignatureVal: gnapKeyPair };
       console.log('signer', signer.SignatureVal);
       const clientNonceVal = (Math.random() + 1).toString(36).substring(7);
-
-      console.log(
-        'requestAccess with:',
-        JSON.stringify(
-          {
-            ...signer,
-            gnapAccessTokens,
-            gnapAuthServerURL,
-            walletWebUrl,
-            clientNonceVal,
-          },
-          null,
-          2
-        )
-      );
 
       const resp = await gnapRequestAccess(
         signer,
@@ -198,16 +178,37 @@ router.beforeEach(async (to, from) => {
       return false;
     }
   } else if (to.matched.some((record) => record.meta.blockNoAuth)) {
-    if (store.dispatch('loadUser') && store.getters.getCurrentUser) {
+    if (store.getters.getCurrentUser) {
+      console.log(`store.getters['agent/isInitialized']`, store.getters['agent/isInitialized']);
       if (!store.getters['agent/isInitialized']) {
         console.log('agent not initialized');
-        // initialize agent opts
-        await store.dispatch('initOpts');
         // try loading gnap access token and subject id from store
         const accessToken = store.getters.getGnapSessionToken;
         const subjectId = store.getters.getGnapSubjectId;
         console.log('accessToken', accessToken);
         console.log('subjectId', subjectId);
+        // initialize agent opts
+        await store.dispatch('initOpts');
+        try {
+          console.log('initializing agent for existing user');
+          await store.dispatch('agent/init', { accessToken, subjectId });
+        } catch (e) {
+          console.error('error initializing agent for existing user:', e);
+        }
+        console.log('initialized agent for user, redirecting to', to);
+        return;
+      }
+      return;
+    } else if (store.dispatch('loadUser') && store.getters.getCurrentUser) {
+      if (!store.getters['agent/isInitialized']) {
+        console.log('agent not initialized');
+        // try loading gnap access token and subject id from store
+        const accessToken = store.getters.getGnapSessionToken;
+        const subjectId = store.getters.getGnapSubjectId;
+        console.log('accessToken', accessToken);
+        console.log('subjectId', subjectId);
+        // initialize agent opts
+        await store.dispatch('initOpts');
         try {
           console.log('initializing agent for existing user');
           await store.dispatch('agent/init', { accessToken, subjectId });
