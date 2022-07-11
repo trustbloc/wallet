@@ -147,6 +147,7 @@ services:
       - EDV_LOCALKMS_SECRETS_DATABASE_URL=${EDV_DATABASE_URL}
       - EDV_LOCALKMS_SECRETS_DATABASE_PREFIX=${EDV_DATABASE_PREFIX}_kms_
       - EDV_EXTENSIONS=ReturnFullDocumentsOnQuery,Batch
+      - EDV_AUTH_TYPE=ZCAP
     ports:
       - ${EDV_PORT}:${EDV_PORT}
     volumes:
