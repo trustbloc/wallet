@@ -8,7 +8,7 @@
   <div class="flex flex-col justify-start px-3 pt-10 w-full md:px-0">
     <div class="flex flex-col justify-start items-start w-full root-container">
       <div
-        class="flex z-10 flex-row justify-start items-center py-6 px-5 w-full h-24 rounded-xl border"
+        class="z-10 flex h-24 w-full flex-row items-center justify-start rounded-xl border py-6 px-5"
         :class="
           styles.background.color !== '#fff'
             ? `border-neutrals-black border-opacity-10`
@@ -16,7 +16,7 @@
         "
         :style="`background-color: ${styles.background.color}`"
       >
-        <div class="flex-none w-12 h-12 border-opacity-10">
+        <div class="h-12 w-12 flex-none border-opacity-10">
           <img :src="credentialIconSrc" />
         </div>
         <span
@@ -27,38 +27,38 @@
         </span>
       </div>
       <div
-        class="flex relative flex-col justify-start items-start px-6 pt-14 pb-6 w-full bg-neutrals-white rounded-b-xl sub-container"
+        class="sub-container relative flex w-full flex-col items-start justify-start rounded-b-xl bg-neutrals-white px-6 pt-14 pb-6"
       >
         <table v-if="breakpoints.xs || breakpoints.sm" class="w-full text-left">
-          <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">
+          <tr class="mb-1 flex flex-1 font-bold text-neutrals-dark">
             <th>
               {{ t('CredentialDetails.Banner.addedOn') }}
             </th>
           </tr>
-          <tr class="flex flex-1 mb-4 text-neutrals-medium">
+          <tr class="mb-4 flex flex-1 text-neutrals-medium">
             <td>
               {{ addedOn }}
             </td>
           </tr>
-          <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">
+          <tr class="mb-1 flex flex-1 font-bold text-neutrals-dark">
             <th>
               {{ t('CredentialDetails.Banner.expiresOn') }}
             </th>
           </tr>
-          <tr class="flex flex-1 mb-4 text-neutrals-medium">
+          <tr class="mb-4 flex flex-1 text-neutrals-medium">
             <td>N/A</td>
           </tr>
 
-          <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">
+          <tr class="mb-1 flex flex-1 font-bold text-neutrals-dark">
             <th>
               {{ t('CredentialDetails.Banner.lastUsed') }}
             </th>
           </tr>
-          <tr class="flex flex-1 mb-4 text-neutrals-medium">
+          <tr class="mb-4 flex flex-1 text-neutrals-medium">
             <td>Never</td>
           </tr>
 
-          <tr class="flex flex-1 mb-1 font-bold text-neutrals-dark">
+          <tr class="mb-1 flex flex-1 font-bold text-neutrals-dark">
             <th>
               {{ t('CredentialDetails.Banner.vault') }}
             </th>

@@ -5,7 +5,7 @@
 -->
 <template>
   <div
-    class="absolute right-0 z-20 mt-2 w-48 text-neutrals-medium bg-neutrals-white rounded-lg shadow-xl flyout-box"
+    class="flyout-box absolute right-0 z-20 mt-2 w-48 rounded-lg bg-neutrals-white text-neutrals-medium shadow-xl"
   >
     <ul class="py-2">
       <slot />

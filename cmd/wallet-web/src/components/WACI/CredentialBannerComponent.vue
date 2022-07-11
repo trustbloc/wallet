@@ -14,12 +14,12 @@
     "
     :style="`background-color: ${styles.background.color}`"
   >
-    <div class="flex-none w-12 h-12 border-opacity-10">
+    <div class="h-12 w-12 flex-none border-opacity-10">
       <img :src="credentialIconSrc" />
     </div>
     <div class="flex grow p-4">
       <span
-        class="text-sm font-bold text-left text-ellipsis"
+        class="text-ellipsis text-left text-sm font-bold"
         :style="`color: ${styles.text.color}`"
       >
         {{ title }}

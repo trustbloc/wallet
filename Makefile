@@ -26,11 +26,19 @@ export TERM		:= xterm-256color
 .PHONY: all
 all: clean checks unit-test automation-test
 
+.PHONY: generate-test-keys
+generate-test-keys:
+	@mkdir -p -p test/fixtures/keys/tls
+	@docker run -i --rm \
+		-v $(abspath .):/opt/workspace/wallet \
+		--entrypoint "/opt/workspace/wallet/scripts/generate_test_keys.sh" \
+		frapsoft/openssl
+
 .PHONY: checks
 checks: license lint
 
 .PHONY: lint
-lint:
+lint: generate-test-keys
 	@scripts/check_lint.sh
 
 .PHONY: license
@@ -45,16 +53,6 @@ unit-test:
 wallet-web-test:
 	@set -e
 	@cd cmd/wallet-web && npm install && npm run test
-
-.PHONY: wallet-web-prettier-check
-wallet-web-prettier-check:
-	@set -e
-	@cd cmd/wallet-web && npm install && npm run prettier-check
-
-.PHONY: wallet-web-eslint-check
-wallet-web-eslint-check:
-	@set -e
-	@cd cmd/wallet-web && npm install && npm run lint
 
 .PHONY: wallet-web
 wallet-web:
@@ -77,14 +75,6 @@ wallet-server-docker:
 	--build-arg GO_VER=$(GO_VER) \
 	--build-arg ALPINE_VER=$(ALPINE_VER) \
 	--build-arg GO_TAGS=$(GO_TAGS) .
-
-.PHONY: generate-test-keys
-generate-test-keys:
-	@mkdir -p -p test/fixtures/keys/tls
-	@docker run -i --rm \
-		-v $(abspath .):/opt/workspace/wallet \
-		--entrypoint "/opt/workspace/wallet/scripts/generate_test_keys.sh" \
-		frapsoft/openssl
 
 .PHONY: generate-openapi-spec
 generate-openapi-spec:

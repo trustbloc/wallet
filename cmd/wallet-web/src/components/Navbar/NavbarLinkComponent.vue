@@ -31,8 +31,8 @@
       @click="handleClick($attrs)"
       @keyup.enter="handleClick($attrs)"
     >
-      <img v-if="icon" :src="iconUrl" class="w-8 h-8" />
-      <div v-else class="w-8 h-8" />
+      <img v-if="icon" :src="iconUrl" class="h-8 w-8" />
+      <div v-else class="h-8 w-8" />
       <span class="ml-4 text-lg text-neutrals-white">{{ heading }}</span>
     </a>
   </li>

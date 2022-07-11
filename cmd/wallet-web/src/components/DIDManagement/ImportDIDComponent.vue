@@ -13,11 +13,11 @@
 
     <div class="flex flex-col grow justify-start items-start mb-5 w-full">
       <label>Select Key Format:</label>
-      <div class="flex flex-row justify-start items-center">
+      <div class="flex flex-row items-center justify-start">
         <input id="Base58" v-model="keyFormat" type="radio" value="Base58" />
         <label for="Base58" class="pl-1">Base58</label>
       </div>
-      <div class="flex flex-row justify-start items-center">
+      <div class="flex flex-row items-center justify-start">
         <input id="JWK" v-model="keyFormat" type="radio" value="JWK" />
         <label for="JWK" class="pl-1">JWK</label>
       </div>
@@ -47,7 +47,7 @@
       </select>
     </div>
 
-    <button id="saveDIDBtn" class="mt-5 btn-primary" @click="saveAnyDID">
+    <button id="saveDIDBtn" class="btn-primary mt-5" @click="saveAnyDID">
       Resolve and Save Digital Identity
     </button>
 

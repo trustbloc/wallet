@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <a class="flex justify-start items-center border-0">
+  <a class="flex items-center justify-start border-0">
     <img v-bind="$attrs" class="w-48" :src="logoUrl" alt="logo" />
   </a>
 </template>

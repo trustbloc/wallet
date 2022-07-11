@@ -6,7 +6,7 @@
 <template>
   <button
     :id="id"
-    class="flex justify-start items-center py-2 px-4 w-full text-base font-bold"
+    class="flex w-full items-center justify-start py-2 px-4 text-base font-bold"
     @click="$emit('click', $event)"
   >
     {{ text }}

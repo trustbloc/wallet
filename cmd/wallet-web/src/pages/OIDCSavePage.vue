@@ -41,7 +41,7 @@
         <div
           v-for="(credential, index) in processedCredentials"
           :key="index"
-          class="flex flex-col justify-start w-full max-w-3xl"
+          class="flex w-full max-w-3xl flex-col justify-start"
         >
           <CredentialOverviewComponent :credential="credential">
             <template #bannerBottomContainer>

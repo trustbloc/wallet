@@ -33,8 +33,9 @@ async function signout() {
   }
 
   await Promise.all(actions);
+  console.log('signed out. Redirecting to base url');
 
-  router.push({ name: 'signin' });
+  router.push({ path: '/', query: { signedOut: true } });
 }
 
 const chapi = ref(
@@ -44,11 +45,11 @@ const chapi = ref(
 
 <template>
   <div
-    class="flex flex-row justify-start items-center focus-within:bg-gradient-to-r hover:bg-gradient-to-r focus-within:from-neutrals-black hover:from-neutrals-black focus-within:shadow-inner-outline-blue opacity-60 focus-within:opacity-100 hover:opacity-100 bar"
+    class="bar flex flex-row items-center justify-start opacity-60 focus-within:bg-gradient-to-r focus-within:from-neutrals-black focus-within:opacity-100 focus-within:shadow-inner-outline-blue hover:bg-gradient-to-r hover:from-neutrals-black hover:opacity-100"
   >
     <button
       id="signout-button"
-      class="flex flex-row justify-start items-center px-10 w-full h-16 focus:outline-none"
+      class="flex h-16 w-full flex-row items-center justify-start px-10 focus:outline-none"
       type="button"
       @click="signout()"
       @keyup.enter="signout()"

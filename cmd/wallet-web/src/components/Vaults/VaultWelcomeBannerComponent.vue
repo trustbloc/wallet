@@ -17,7 +17,7 @@
         </span>
       </div>
       <button v-bind="$attrs">
-        <img src="@/assets/img/Icons-sm--close-icon.svg" class="w-6 max-w-none h-6" />
+        <img src="@/assets/img/Icons-sm--close-icon.svg" class="h-6 w-6 max-w-none" />
       </button>
     </div>
     <div class="grid grid-flow-row gap-x-12 gap-y-6 h-full lg:grid-flow-col">

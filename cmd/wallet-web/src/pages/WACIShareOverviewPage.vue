@@ -13,17 +13,17 @@
         >
           <span class="mb-6 text-3xl font-bold">{{ t('CHAPI.Share.shareCredential', 2) }}</span>
           <CredentialOverviewComponent
-            class="mb-5 waci-share-credential-overview-root"
+            class="waci-share-credential-overview-root mb-5"
             :credential="credential"
           >
             <template #bannerBottomContainer>
               <div
-                class="flex absolute flex-row justify-start items-start px-5 pt-13 pb-3 w-full bg-neutrals-white rounded-b-xl waci-share-credential-overview-vault"
+                class="waci-share-credential-overview-vault absolute flex w-full flex-row items-start justify-start rounded-b-xl bg-neutrals-white px-5 pt-13 pb-3"
               >
                 <span class="flex text-sm font-bold text-neutrals-dark">
                   {{ t('CredentialDetails.Banner.vault') }}
                 </span>
-                <span class="flex ml-3 text-sm text-neutrals-medium">
+                <span class="ml-3 flex text-sm text-neutrals-medium">
                   {{ credential?.vaultName }}
                 </span>
               </div>

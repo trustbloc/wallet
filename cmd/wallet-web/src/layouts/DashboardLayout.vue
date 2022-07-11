@@ -9,12 +9,12 @@
     <!-- Mobile Dashboard Layout -->
     <div
       v-if="breakpoints.xs || breakpoints.sm"
-      class="flex flex-col justify-start items-center w-screen bg-neutrals-softWhite"
+      class="flex w-screen flex-col items-center justify-start bg-neutrals-softWhite"
     >
       <HeaderComponent />
       <router-view
         v-if="!isNavbarOpen"
-        class="w-screen h-auto min-h-screen bg-neutrals-softWhite"
+        class="h-auto min-h-screen w-screen bg-neutrals-softWhite"
       />
     </div>
 

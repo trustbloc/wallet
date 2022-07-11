@@ -117,6 +117,9 @@ function handleDeleteModalClose() {
 onMounted(async () => {
   const { profile } = currentUser.value;
   const { user, token } = profile;
+  console.log('[vaults-page] profile', profile);
+  console.log('[vaults-page] user', user);
+  console.log('[vaults-page] agentInstance', agentInstance);
   authToken.value = token;
   credentialManager.value = new CredentialManager({ agent: agentInstance.value, user });
   collectionManager.value = new CollectionManager({ agent: agentInstance.value, user });
@@ -139,16 +142,16 @@ onMounted(async () => {
 <template>
   <div>
     <WelcomeBannerComponent
-      v-if="!currentUser.preference.skipWelcomeMsg && !skippedLocally && !loading"
+      v-if="!currentUser?.preference?.skipWelcomeMsg && !skippedLocally && !loading"
       id="welcome-banner-close-button"
       class="md:mb-10"
       @click="updateUserPreferences"
     >
-      <div class="flex flex-col justify-start items-start">
-        <div class="inline-flex mb-2">
+      <div class="flex flex-col items-start justify-start">
+        <div class="mb-2 inline-flex">
           <img src="@/assets/img/vault-icon-colored.svg" />
           <span
-            class="flex items-center pl-3 text-base font-bold text-neutrals-dark whitespace-nowrap"
+            class="flex items-center whitespace-nowrap pl-3 text-base font-bold text-neutrals-dark"
             >{{ t('Vaults.WelcomeBanner.AddAVault.heading') }}</span
           >
         </div>
@@ -156,11 +159,11 @@ onMounted(async () => {
           {{ t('Vaults.WelcomeBanner.AddAVault.message') }}
         </span>
       </div>
-      <div class="flex flex-col justify-start items-start">
-        <div class="inline-flex mb-2">
+      <div class="flex flex-col items-start justify-start">
+        <div class="mb-2 inline-flex">
           <img src="@/assets/img/credential-icon-colored.svg" />
           <span
-            class="flex items-center pl-3 text-base font-bold text-neutrals-dark whitespace-nowrap"
+            class="flex items-center whitespace-nowrap pl-3 text-base font-bold text-neutrals-dark"
             >{{ t('Vaults.WelcomeBanner.AddACredential.heading') }}</span
           >
         </div>
@@ -204,7 +207,7 @@ onMounted(async () => {
             <template #button="{ toggleFlyoutMenu }">
               <button
                 :id="`vaults-flyout-menu-button-${vault.name.replaceAll(' ', '-')}`"
-                class="w-8 h-8 bg-neutrals-white hover:bg-neutrals-softWhite focus:bg-neutrals-mischka rounded-full"
+                class="h-8 w-8 rounded-full bg-neutrals-white hover:bg-neutrals-softWhite focus:bg-neutrals-mischka"
                 @click="toggleFlyoutMenu()"
               >
                 <img class="p-2" src="@/assets/img/more-icon.svg" />
@@ -226,7 +229,7 @@ onMounted(async () => {
             <template #button="{ toggleFlyoutMenu }">
               <button
                 :id="`vaults-flyout-menu-button-${vault.name.replaceAll(' ', '-')}`"
-                class="w-8 h-8 bg-neutrals-white hover:bg-neutrals-softWhite focus:bg-neutrals-mischka rounded-full"
+                class="h-8 w-8 rounded-full bg-neutrals-white hover:bg-neutrals-softWhite focus:bg-neutrals-mischka"
                 @click="toggleFlyoutMenu()"
               >
                 <img class="p-2" src="@/assets/img/more-icon.svg" />
@@ -255,7 +258,7 @@ onMounted(async () => {
           type="addNew"
           :name="t('Vaults.AddModal.addVault')"
           :existing-names="existingNames"
-          class="grid order-last"
+          class="order-last grid"
         />
       </div>
     </div>

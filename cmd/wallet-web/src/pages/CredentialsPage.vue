@@ -7,7 +7,7 @@
 <template>
   <div>
     <!-- Mobile Credentials Layout -->
-    <div v-if="breakpoints.xs || breakpoints.sm" class="flex flex-col justify-start w-screen">
+    <div v-if="breakpoints.xs || breakpoints.sm" class="flex w-screen flex-col justify-start">
       <SkeletonLoaderComponent v-if="loading" type="Flyout" />
       <FlyoutComponent v-else :tool-tip-label="t('Credentials.switchVaults')">
         <template #button="{ toggleFlyoutMenu, setShowTooltip }">
@@ -23,7 +23,7 @@
             <span class="grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">
               {{ selectedVaultName }}
             </span>
-            <img class="w-6 h-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
+            <img class="h-6 w-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
           </button>
         </template>
         <template #menu>
@@ -71,7 +71,7 @@
             <span class="grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">
               {{ selectedVaultName }}
             </span>
-            <img class="w-6 h-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
+            <img class="h-6 w-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
           </button>
         </template>
         <template #menu="{ toggleFlyoutMenu }">
@@ -143,7 +143,7 @@
       </div>
       <div
         v-else
-        class="py-8 px-6 mx-auto rounded-lg border border-neutrals-thistle nocredentialCard"
+        class="nocredentialCard mx-auto rounded-lg border border-neutrals-thistle py-8 px-6"
       >
         <div class="flex justify-center">
           <img src="@/assets/img/icons-md--credentials-icon.svg" />

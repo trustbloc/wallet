@@ -15,7 +15,7 @@
     "
     :style="credentialStyles"
   >
-    <div class="flex-none w-12 h-12 border-opacity-10">
+    <div class="h-12 w-12 flex-none border-opacity-10">
       <img :src="credentialIconSrc" />
     </div>
     <div class="grow p-4">

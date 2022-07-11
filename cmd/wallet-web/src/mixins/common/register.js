@@ -99,6 +99,7 @@ export class RegisterWallet {
   async _createDefaultVault(profile) {
     let { user, token } = profile;
     let name = 'Default Vault';
+    console.log('_createDefaultVault this.agent', this.agent);
     let collectionManager = new CollectionManager({ agent: this.agent, user });
     let vaultID = await collectionManager.create(token, { name });
     if (vaultID) {

@@ -30,7 +30,7 @@ function handleClick() {
   >
     <HeaderComponent :has-custom-gradient="true" :show-menu-dropdown="false">
       <template #gradientContainer>
-        <div class="absolute h-15 bg-gradient-full oval" />
+        <div class="oval absolute h-15 bg-gradient-full" />
       </template>
     </HeaderComponent>
     <div
@@ -38,7 +38,7 @@ function handleClick() {
     >
       <ErrorIcon />
       <span class="mt-6 text-3xl text-neutrals-dark">Page not found ⸱ 404</span>
-      <span class="mx-2 mt-2 text-base text-center text-neutrals-medium">
+      <span class="mx-2 mt-2 text-center text-base text-neutrals-medium">
         This page cannot be found, or you have navigated to an invalid URL.
       </span>
       <StyledButtonComponent type="btn-primary" :loading="loading" class="relative mt-6">
@@ -47,7 +47,7 @@ function handleClick() {
     </div>
     <FooterComponent
       v-if="!(breakpoints.xs || breakpoints.sm)"
-      class="sticky bottom-0 z-20 bg-neutrals-magnolia border-t border-neutrals-thistle"
+      class="sticky bottom-0 z-20 border-t border-neutrals-thistle bg-neutrals-magnolia"
     />
   </div>
 </template>

@@ -5,16 +5,16 @@
 -->
 
 <template>
-  <div class="flex justify-center items-start w-screen h-screen">
+  <div class="flex h-screen w-screen items-start justify-center">
     <div
-      class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light border border-t-0 border-neutrals-black"
+      class="flex h-auto w-full max-w-md flex-col items-center justify-center border border-t-0 border-neutrals-black bg-gray-light"
     >
       <div class="flex flex-col justify-start items-center py-16 px-5">
         <img src="@/assets/img/icons-error.svg" />
-        <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark"
+        <span class="mt-5 mb-3 text-center text-xl font-bold text-neutrals-dark"
           >Access Denied</span
         >
-        <span class="text-lg text-center text-neutrals-medium">
+        <span class="text-center text-lg text-neutrals-medium">
           You don't have authorization to access this page, please sign in to your wallet and try
           again.</span
         >

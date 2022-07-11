@@ -18,10 +18,10 @@ const numOfSkeletons = ref(4);
       <div
         v-for="id in numOfSkeletons"
         :key="`cred-details-skeleton-${id}`"
-        class="justify-start items-center lg:w-1/2"
+        class="items-center justify-start lg:w-1/2"
       >
         <div
-          class="overflow-hidden relative mt-2 w-20 h-4 bg-neutrals-softWhite rounded-3xl skeleton-data"
+          class="skeleton-data relative mt-2 h-4 w-20 overflow-hidden rounded-3xl bg-neutrals-softWhite"
         />
         <div
           class="overflow-hidden relative mt-2 w-2/5 h-5 bg-neutrals-softWhite rounded-3xl lg:w-32 skeleton-data"

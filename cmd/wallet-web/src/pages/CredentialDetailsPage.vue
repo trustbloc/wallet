@@ -5,8 +5,8 @@
 -->
 <template>
   <!-- Loading State -->
-  <div v-if="loading" class="flex flex-col justify-start items-start py-6 px-3">
-    <div class="flex flex-row justify-between items-center mb-4 w-full">
+  <div v-if="loading" class="flex flex-col items-start justify-start py-6 px-3">
+    <div class="mb-4 flex w-full flex-row items-center justify-between">
       <h3 class="text-neutrals-dark">{{ t('CredentialDetails.heading') }}</h3>
     </div>
     <SkeletonLoaderComponent type="CredentialDetailsBanner" />
@@ -85,17 +85,17 @@
         <tr
           v-for="(property, index) of credential.properties"
           :key="index"
-          class="border-b border-neutrals-thistle border-dotted"
+          class="border-b border-dotted border-neutrals-thistle"
         >
           <!-- TODO: Add the dropdown for the nested credentials 1016 -->
           <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
           <td
             v-if="property.schema.format === 'image/png'"
-            class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+            class="break-words py-4 pr-6 pl-3 text-neutrals-dark"
           >
-            <img :src="property.value" class="w-20 h-20" />
+            <img :src="property.value" class="h-20 w-20" />
           </td>
-          <td v-else class="py-4 pr-6 pl-3 text-neutrals-dark break-words">
+          <td v-else class="break-words py-4 pr-6 pl-3 text-neutrals-dark">
             {{ property.value }}
           </td>
         </tr>

@@ -32,7 +32,7 @@
         class="focus:rounded focus:outline-none focus:ring-1 ring-primary-blue opacity-60 hover:opacity-100 focus:opacity-100 cursor-pointer underline-white"
         >{{ t('Footer.terms') }}</span
       >
-      <div class="flex flex-row justify-start items-center my-6">
+      <div class="my-6 flex flex-row items-center justify-start">
         <span
           tabindex="0"
           class="whitespace-nowrap focus:rounded focus:outline-none focus:ring-1 ring-primary-blue opacity-60 hover:opacity-100 focus:opacity-100 cursor-pointer underline-white"

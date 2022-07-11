@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <div class="flex flex-col justify-start items-start w-full">
+  <div class="flex w-full flex-col items-start justify-start">
     <span v-if="heading.length" class="py-4 pl-3 text-xl font-bold text-neutrals-dark">{{
       heading
     }}</span>
@@ -13,18 +13,18 @@
       <tr
         v-for="(property, key) of credential?.properties"
         :key="key"
-        class="border-b border-neutrals-thistle border-dotted"
+        class="border-b border-dotted border-neutrals-thistle"
       >
-        <td class="py-4 pr-6 pl-3 w-2/5 text-neutrals-medium whitespace-nowrap">
+        <td class="w-2/5 whitespace-nowrap py-4 pr-6 pl-3 text-neutrals-medium">
           {{ property?.label }}
         </td>
         <td
           v-if="property?.type === 'image' || property?.schema?.format?.includes('image')"
-          class="py-4 pr-6 pl-3 w-3/5 text-neutrals-dark break-words"
+          class="w-3/5 break-words py-4 pr-6 pl-3 text-neutrals-dark"
         >
-          <img :src="property?.value" class="w-20 h-20" />
+          <img :src="property?.value" class="h-20 w-20" />
         </td>
-        <td v-else class="py-4 pr-6 pl-3 w-3/5 text-neutrals-dark break-words">
+        <td v-else class="w-3/5 break-words py-4 pr-6 pl-3 text-neutrals-dark">
           {{ property?.value }}
         </td>
       </tr>

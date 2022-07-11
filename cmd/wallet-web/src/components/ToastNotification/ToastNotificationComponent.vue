@@ -17,7 +17,7 @@
     </div>
     <div class="px-4 align-middle xs:flex-none">
       <button type="button" @click="close = !close">
-        <img class="w-6 h-6" src="@/assets/img/close-icon.svg" />
+        <img class="h-6 w-6" src="@/assets/img/close-icon.svg" />
       </button>
     </div>
   </div>

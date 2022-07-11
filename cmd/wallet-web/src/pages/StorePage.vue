@@ -5,13 +5,13 @@
 -->
 
 <template>
-  <div class="flex justify-center items-start w-screen h-screen">
+  <div class="flex h-screen w-screen items-start justify-center">
     <div
-      class="overflow-scroll pt-5 max-h-screen bg-neutrals-softWhite rounded-b border border-neutrals-black chapi-container"
+      class="chapi-container max-h-screen overflow-scroll rounded-b border border-neutrals-black bg-neutrals-softWhite pt-5"
     >
       <span class="px-5 text-xl font-bold text-neutrals-dark">Save credential</span>
       <div v-if="processedCredentials.length" class="flex flex-col justify-center px-5">
-        <ul class="grid grid-cols-1 gap-4 my-8">
+        <ul class="my-8 grid grid-cols-1 gap-4">
           <li v-for="(credential, index) in processedCredentials" :key="index">
             <div
               class="group inline-flex items-center p-5 w-full h-20 text-sm font-bold rounded-xl border md:h-24 md:text-base credentialPreviewContainer"
@@ -23,7 +23,7 @@
               :style="`background-color: ${credential.styles.background.color}`"
               @click="toggleDetails(credential)"
             >
-              <div class="flex-none w-12 h-12 border-opacity-10">
+              <div class="h-12 w-12 flex-none border-opacity-10">
                 <img :src="getCredentialIconSrc(credential)" />
               </div>
               <div class="grow p-4">
@@ -61,16 +61,16 @@
                 <tr
                   v-for="(property, key) of credential.properties"
                   :key="key"
-                  class="border-b border-neutrals-thistle border-dotted"
+                  class="border-b border-dotted border-neutrals-thistle"
                 >
                   <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
                   <td
                     v-if="property.schema.format === 'image/png'"
-                    class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+                    class="break-words py-4 pr-6 pl-3 text-neutrals-dark"
                   >
-                    <img :src="property.value" class="w-20 h-20" />
+                    <img :src="property.value" class="h-20 w-20" />
                   </td>
-                  <td v-else class="py-4 pr-6 pl-3 text-neutrals-dark break-words">
+                  <td v-else class="break-words py-4 pr-6 pl-3 text-neutrals-dark">
                     {{ property.value }}
                   </td>
                 </tr>
@@ -89,7 +89,7 @@
         </ul>
       </div>
       <div
-        class="flex sticky bottom-0 justify-between p-5 w-full h-auto bg-neutrals-magnolia footerContainer"
+        class="footerContainer sticky bottom-0 flex h-auto w-full justify-between bg-neutrals-magnolia p-5"
       >
         <button id="cancelBtn" class="btn-outline" @click="cancel">Decline</button>
         <button id="storeVCBtn" class="btn-primary" @click="store">Save</button>

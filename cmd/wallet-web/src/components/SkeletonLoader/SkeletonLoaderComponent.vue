@@ -45,7 +45,7 @@ const numOfCredentialSkeletons = ref(2);
       class="overflow-hidden relative mt-2 mb-3 w-full h-6 bg-neutrals-whiteLilac rounded-3xl lg:mb-0"
     />
   </div>
-  <div v-else-if="type === 'CredentialDetailsBanner'" class="flex flex-row w-full">
+  <div v-else-if="type === 'CredentialDetailsBanner'" class="flex w-full flex-row">
     <CredentialDetailsBannerSkeletonComponent />
   </div>
   <div v-else-if="type === 'VerifiedInformation'">
@@ -53,7 +53,7 @@ const numOfCredentialSkeletons = ref(2);
       <tr
         v-for="id in numOfRows"
         :key="`row-skeleton-${id}`"
-        class="border-b border-neutrals-thistle border-dotted"
+        class="border-b border-dotted border-neutrals-thistle"
       >
         <VerifiedInformationSkeletonComponent />
       </tr>

@@ -38,7 +38,7 @@
       </select>
     </div>
 
-    <button id="createDIDBtn" class="mt-5 btn-primary" @click="createDID">Create and Save</button>
+    <button id="createDIDBtn" class="btn-primary mt-5" @click="createDID">Create and Save</button>
 
     <div v-if="errors.length">
       <b>Please correct the following error(s):</b>

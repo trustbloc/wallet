@@ -17,7 +17,7 @@
         <div
           :class="[`flex justify-center items-center w-12 h-12 bg-gradient-${color} rounded-full`]"
         >
-          <img class="w-6 h-5" src="@/assets/img/vaults.svg" alt="Vault Icon" />
+          <img class="h-5 w-6" src="@/assets/img/vaults.svg" alt="Vault Icon" />
         </div>
         <div class="px-3 pb-4 md:px-0">
           <span class="block pt-4 text-lg font-bold text-neutrals-dark"> {{ name }}</span>
@@ -35,9 +35,9 @@
     <div
       class="flex flex-col justify-center items-center px-6 pt-4 w-full h-24 bg-neutrals-moist rounded-xl border border-neutrals-dark border-opacity-10 md:pt-5 md:h-40 xl:w-64"
     >
-      <div class="flex justify-center items-center w-8 h-8 bg-neutrals-white rounded-full">
+      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-neutrals-white">
         <img
-          class="w-6 h-5 text-primary-purple"
+          class="h-5 w-6 text-primary-purple"
           src="@/assets/img/icons-sm--plus-icon.svg"
           alt="Add Icon"
         />
@@ -48,7 +48,7 @@
     </div>
     <button
       :id="id"
-      class="absolute top-0 left-0 z-0 w-full h-full cursor-pointer"
+      class="absolute top-0 left-0 z-0 h-full w-full cursor-pointer"
       @click="showAddVault = !showAddVault"
     />
     <AddVaultComponent :show="showAddVault" :existing-names="existingNames" @close="handleClose" />

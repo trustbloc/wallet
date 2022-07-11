@@ -14,7 +14,7 @@
           class="flex flex-row justify-start items-center outline-none focus:ring-2 focus:ring-primary-purple focus:ring-offset-2"
           @click="handleBackButtonClick"
         >
-          <div class="bg-neutrals-black rounded-full">
+          <div class="rounded-full bg-neutrals-black">
             <img
               class="z-10 w-6 h-6 rotate-180"
               src="@/assets/img/credential--arrow-right-icon-light.svg"
@@ -24,7 +24,7 @@
         </button>
       </template>
       <template #gradientContainer>
-        <div class="absolute h-15 bg-gradient-full oval" />
+        <div class="oval absolute h-15 bg-gradient-full" />
       </template>
     </HeaderComponent>
     <router-view
@@ -32,7 +32,7 @@
     />
 
     <FooterComponent
-      class="sticky bottom-0 z-20 bg-neutrals-magnolia border-t border-neutrals-thistle"
+      class="sticky bottom-0 z-20 border-t border-neutrals-thistle bg-neutrals-magnolia"
     />
   </div>
 </template>

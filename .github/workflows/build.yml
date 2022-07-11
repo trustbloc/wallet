@@ -25,38 +25,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  Prettier:
-    name: Prettier Check
-    timeout-minutes: 5
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run Wallet Web Prettier Check
-        run: |
-          echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
-          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make wallet-web-prettier-check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  ESLint:
-    name: ESLint Check
-    timeout-minutes: 5
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run Wallet Web ESLint Check
-        run: |
-          echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
-          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make wallet-web-eslint-check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   Checks:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
@@ -131,19 +99,13 @@ jobs:
           echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 wallet.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 wallet-server.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 wallet-2.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 wallet-server-2.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 mediator.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 uni-resolver-web.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 auth.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 demo-hydra.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 edv.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 authz-kms.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 edv-oathkeeper-proxy.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 ops-kms.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 oathkeeper-auth-keyserver.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 oathkeeper-ops-keyserver.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 kms.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 file-server.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 demo-adapter.trustbloc.local' | sudo tee -a /etc/hosts
           echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
@@ -162,7 +124,7 @@ jobs:
   Publish:
     name: Publish image
     if: github.event_name == 'push' && (github.repository == 'trustbloc/wallet' && github.ref == 'refs/heads/main')
-    needs: [Prettier, ESLint, Checks, UnitTest, UIUnitTest, UIAutomation]
+    needs: [Checks, UnitTest, UIUnitTest, UIAutomation]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
