@@ -6,8 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import { toRaw } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
-
-const axios = require('axios').default;
+import axios from 'axios';
 
 const agentOptsLocation = (l) => `${l}/walletconfig/agent`;
 const credentialMediator = (url) =>
@@ -64,8 +63,11 @@ export default {
   actions: {
     async initOpts({ commit, getters, dispatch }, location = window.location.origin) {
       let agentOpts = {};
-      let profileOpts = {};
+
+      let profileOpts = getters.getProfileOpts;
+
       let readCredentialManifests;
+
       if (process.env.NODE_ENV === 'production') {
         // call service to get the agent opts
         await axios
@@ -88,73 +90,20 @@ export default {
 
         console.log('agent opts processed', JSON.stringify(agentOpts, null, 2));
 
-        const client = axios.create({
-          withCredentials: true,
-        });
-
         readCredentialManifests = readManifests(agentOpts['staticAssetsUrl']);
 
-        await client
-          .get(`${agentOpts['edge-agent-server']}/oidc/userinfo`)
-          .then((resp) => {
-            let { data } = resp;
-            console.log('received settings:: ' + JSON.stringify(data, null, 2));
-
-            // TODO to be removed after universal wallet migration
-            if (agentOpts.storageType === 'edv') {
-              const edvVaultURL = data.bootstrap.edvVaultURL;
-
-              console.log('User EDV Vault URL is: ' + edvVaultURL);
-
-              const edvVaultID = edvVaultURL.substring(edvVaultURL.lastIndexOf('/') + 1);
-
-              console.log('User EDV Vault ID is: ' + edvVaultID);
-
-              agentOpts.edvVaultID = edvVaultID;
-              agentOpts.edvCapability = data.bootstrap.edvCapability;
-            }
-
-            // TODO to be removed after universal wallet migration
-            if (agentOpts.kmsType === 'webkms') {
-              agentOpts.opsKeyStoreURL = data.bootstrap.opsKeyStoreURL;
-              agentOpts.edvOpsKIDURL = data.bootstrap.edvOpsKIDURL;
-              agentOpts.edvHMACKIDURL = data.bootstrap.edvHMACKIDURL;
-
-              console.log('ops key store url : ', agentOpts.opsKeyStoreURL);
-              console.log('edv ops key url : ', agentOpts.edvOpsKIDURL);
-              console.log('edv ops key url : ', agentOpts.edvHMACKIDURL);
-            }
-
-            // TODO to be removed after universal wallet migration
-            agentOpts.authzKeyStoreURL = data.bootstrap.authzKeyStoreURL;
-            agentOpts.userConfig = data.userConfig;
-            agentOpts.opsKMSCapability = data.bootstrap.opsKMSCapability;
-
-            profileOpts = data;
-            profileOpts.config = {
-              storageType: agentOpts.storageType,
-              kmsType: agentOpts.kmsType,
-              localKMSScret: agentOpts.localKMSPassphrase,
-            };
-          })
-          .catch((err) => {
-            console.log('error fetching user info: errMsg=', err);
-            console.log(
-              "Note: If you haven't logged in yet and you just got a 403 error, then it's expected"
-            );
-
-            // http 400 denotes expired cookie at server - logout the user and make user to signin
-            if (err.response && err.response.status === 400) {
-              dispatch('logout');
-            }
-          });
-
-        // TODO to be removed
-        console.debug('agent-sdk will be started with:');
-        console.debug(JSON.stringify(agentOpts));
+        Object.assign(profileOpts, {
+          config: {
+            storageType: agentOpts.storageType,
+            kmsType: agentOpts.kmsType,
+            localKMSScret: agentOpts.localKMSPassphrase,
+          },
+        });
       } else {
         // strictly, for dev mode only
 
+        // if you clear browser data, no user profile would be found locally, so we generate new user each time
+        // thus, we create a new wallet each time too, so we can't access existing user's data
         let user = uuidv4();
 
         dispatch('loadUser');
@@ -167,17 +116,19 @@ export default {
         agentOpts.walletMediatorURL = 'https://localhost:10093';
         agentOpts.hubAuthURL = 'https://localhost:8044';
 
-        profileOpts = {
+        Object.assign(profileOpts, {
           config: {
             storageType: defaultAgentStartupOpts.storageType,
             kmsType: defaultAgentStartupOpts.kmsType,
             localKMSScret: defaultAgentStartupOpts.localKMSPassphrase,
           },
           bootstrap: {
-            user,
-            tokenExpiry: '10',
+            data: {
+              user,
+              tokenExpiry: '10',
+            },
           },
-        };
+        });
 
         readCredentialManifests = readManifests();
       }

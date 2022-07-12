@@ -5,42 +5,26 @@
 -->
 
 <script setup>
-import { computed, onBeforeMount, onMounted, onUnmounted, ref } from 'vue';
+import { onBeforeMount, onMounted, onUnmounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import getStartingLocale from '@/mixins/i18n/getStartingLocale.js';
 import { updateI18nLocale } from '@/plugins/i18n';
 import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
 
-const store = useStore();
+// Local Variables
+const startingLocale = getStartingLocale(); // Get starting locale, set it in i18n and in the store
 const loaded = ref(false);
-const isAgentInitialized = computed(() => store.getters['agent/isInitialized']);
-const initAgent = () => store.dispatch('agent/init');
-const initOpts = () => store.dispatch('initOpts');
-const loadUser = () => store.dispatch('loadUser');
 
-// Get starting locale, set it in i18n and in the store
-const startingLocale = getStartingLocale();
+// Hooks
+const store = useStore();
+
 store.dispatch('setLocale', startingLocale);
 
 onBeforeMount(async () => {
   await updateI18nLocale(startingLocale.id);
 });
 
-onMounted(async () => {
-  try {
-    // load opts
-    await initOpts();
-
-    // load user if already logged in
-    loadUser();
-
-    // load agent if user already logged in and agent not initialized (scenario: page refresh)
-    if (store.getters.getCurrentUser && !isAgentInitialized.value) {
-      await initAgent();
-    }
-  } catch (e) {
-    console.log('Could not initialize Vue App:', e);
-  }
+onMounted(() => {
   loaded.value = true;
 });
 

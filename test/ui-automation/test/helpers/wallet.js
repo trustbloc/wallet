@@ -200,7 +200,7 @@ async function _sendCredentials() {
 }
 
 async function _getSignUp(email) {
-  const signUpButton = await $("#mockbank");
+  const signUpButton = await $("#mockbank1");
   await signUpButton.waitForExist();
   await signUpButton.click();
   await _getThirdPartyLogin(email);
@@ -220,7 +220,7 @@ async function _signOutWallet() {
 }
 
 async function _signIn(signedUpUserEmail) {
-  const signInButton = await $("#mockbank");
+  const signInButton = await $("#mockbank1");
   await signInButton.waitForExist();
   await signInButton.click();
   await _getThirdPartyLogin(signedUpUserEmail);
@@ -229,7 +229,7 @@ async function _signIn(signedUpUserEmail) {
 
 async function _performSignIn(email, waci) {
   await browser.waitUntil(async () => {
-    const signInButton = await $("#mockbank");
+    const signInButton = await $("#mockbank1");
     await signInButton.waitForExist();
     await signInButton.click();
 
