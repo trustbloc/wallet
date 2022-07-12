@@ -21,4 +21,4 @@ ${DOCKER_CMD} run --rm -v $(pwd):/opt/workspace -w /opt/workspace golangci/golan
 echo "Linting wallet-server module..."
 ${DOCKER_CMD} run --rm -v $(pwd):/opt/workspace -w /opt/workspace/cmd/wallet-server golangci/golangci-lint:$GOLANGCI_LINT_VER golangci-lint run -c ../../.golangci.yml --path-prefix "cmd/wallet-server/"
 echo "Linting wallet-web..."
-(cd $(pwd)/cmd/wallet-web && npm install && npm run lint)
+(cd $(pwd)/cmd/wallet-web && npm install && npm run lint-check && npm run prettier-check)

@@ -25,38 +25,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  Prettier:
-    name: Prettier Check
-    timeout-minutes: 5
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run Wallet Web Prettier Check
-        run: |
-          echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
-          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make wallet-web-prettier-check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  ESLint:
-    name: ESLint Check
-    timeout-minutes: 5
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run Wallet Web ESLint Check
-        run: |
-          echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
-          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make wallet-web-eslint-check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   Checks:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
@@ -162,7 +130,7 @@ jobs:
   Publish:
     name: Publish image
     if: github.event_name == 'push' && (github.repository == 'trustbloc/wallet' && github.ref == 'refs/heads/main')
-    needs: [Prettier, ESLint, Checks, UnitTest, UIUnitTest, UIAutomation]
+    needs: [Checks, UnitTest, UIUnitTest, UIAutomation]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

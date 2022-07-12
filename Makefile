@@ -30,7 +30,7 @@ all: clean checks unit-test automation-test
 checks: license lint
 
 .PHONY: lint
-lint:
+lint: generate-test-keys
 	@scripts/check_lint.sh
 
 .PHONY: license
@@ -45,16 +45,6 @@ unit-test:
 wallet-web-test:
 	@set -e
 	@cd cmd/wallet-web && npm install && npm run test
-
-.PHONY: wallet-web-prettier-check
-wallet-web-prettier-check:
-	@set -e
-	@cd cmd/wallet-web && npm install && npm run prettier-check
-
-.PHONY: wallet-web-eslint-check
-wallet-web-eslint-check:
-	@set -e
-	@cd cmd/wallet-web && npm install && npm run lint
 
 .PHONY: wallet-web
 wallet-web:
@@ -129,7 +119,7 @@ mock-adapter:
 mock-images: mock-adapter mock-demo-login-consent-docker
 
 .PHONY: automation-test
-automation-test: clean wallet-server-docker wallet-web-docker mock-images generate-test-keys
+automation-test: clean generate-test-keys wallet-server-docker wallet-web-docker mock-images
 	@scripts/run_ui_automation.sh
 
 .PHONY: clean
