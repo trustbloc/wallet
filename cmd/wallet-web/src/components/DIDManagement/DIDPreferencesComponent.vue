@@ -20,7 +20,7 @@
       </select>
     </div>
 
-    <div class="flex flex-col flex-grow justify-start items-start w-full">
+    <div class="flex flex-col grow justify-start items-start w-full">
       <label for="verification-method" class="mb-1 text-base">Key ID:</label>
       <select
         id="verification-method"
@@ -35,7 +35,7 @@
       </select>
     </div>
 
-    <div class="flex flex-col flex-grow justify-start items-start w-full">
+    <div class="flex flex-col grow justify-start items-start w-full">
       <label for="signature-type-selector" class="mb-1 text-base">Update Signature Type:</label>
       <div
         v-for="signatureType in allSignatureTypes"

@@ -36,7 +36,7 @@
     </template>
     <template #actionButton>
       <StyledButtonComponent
-        class="order-first md:order-last w-full md:w-auto"
+        class="order-first w-full md:order-last md:w-auto"
         type="btn-primary"
         :loading="loading"
         @click="renameVault(vaultId)"

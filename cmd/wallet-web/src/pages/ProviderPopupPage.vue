@@ -49,6 +49,6 @@ onMounted(async () => {
 <template>
   <div class="flex flex-col justify-center items-center w-screen h-screen">
     <SpinnerIcon />
-    <span class="mt-8 text-base md:text-lg text-neutrals-dark">Redirecting . . .</span>
+    <span class="mt-8 text-base text-neutrals-dark md:text-lg">Redirecting . . .</span>
   </div>
 </template>

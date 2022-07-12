@@ -9,7 +9,7 @@
     <div
       class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light border border-t-0 border-neutrals-black"
     >
-      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
+      <div class="flex flex-col justify-start items-center py-16 px-5">
         <img src="@/assets/img/icons-error.svg" />
         <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark"
           >Access Denied</span
@@ -20,7 +20,7 @@
         >
       </div>
       <div
-        class="flex flex-row justify-center items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
+        class="flex flex-row justify-center items-center py-4 px-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
       >
         <StyledButtonComponent type="btn-primary" :loading="loading" @click="signIn()"
           >Sign in</StyledButtonComponent

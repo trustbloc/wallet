@@ -14,7 +14,7 @@
         <ul class="grid grid-cols-1 gap-4 my-8">
           <li v-for="(credential, index) in processedCredentials" :key="index">
             <div
-              class="group inline-flex items-center p-5 w-full h-20 md:h-24 text-sm md:text-base font-bold rounded-xl border credentialPreviewContainer"
+              class="group inline-flex items-center p-5 w-full h-20 text-sm font-bold rounded-xl border md:h-24 md:text-base credentialPreviewContainer"
               :class="
                 credential.styles.background.color !== '#fff'
                   ? `border-neutrals-black border-opacity-10`
@@ -26,9 +26,9 @@
               <div class="flex-none w-12 h-12 border-opacity-10">
                 <img :src="getCredentialIconSrc(credential)" />
               </div>
-              <div class="flex-grow p-4">
+              <div class="grow p-4">
                 <span
-                  class="text-sm md:text-base font-bold text-left text-ellipsis"
+                  class="text-sm font-bold text-left text-ellipsis md:text-base"
                   :style="`color: ${credential.styles.text.color}`"
                 >
                   {{ credential.title }}
@@ -37,11 +37,11 @@
             </div>
             <div
               v-if="credential.showDetails"
-              class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full"
+              class="flex flex-col justify-start items-start mt-5 w-full md:mt-6"
             >
               <!-- TODO: populate with dynamic vault list -->
               <div
-                class="flex flex-col flex-grow justify-start items-start px-4 mb-8 w-full bg-neutrals-lilacSoft rounded-t-lg border-b border-neutrals-dark"
+                class="flex flex-col grow justify-start items-start px-4 mb-8 w-full bg-neutrals-lilacSoft rounded-t-lg border-b border-neutrals-dark"
               >
                 <label for="select-key" class="mb-1 text-sm font-bold text-neutrals-dark">{{
                   t('Vaults.selectVault')

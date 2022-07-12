@@ -7,7 +7,7 @@
 <template>
   <router-link
     :id="id"
-    class="group inline-flex items-center py-6 pr-3 pl-5 w-full h-20 md:h-24 text-sm md:text-base font-bold rounded-xl border focus-within:ring-2 focus-within:ring-offset-2 outline-none credentialPreviewContainer"
+    class="group inline-flex items-center py-6 pr-3 pl-5 w-full h-20 text-sm font-bold rounded-xl border outline-none focus-within:ring-2 focus-within:ring-offset-2 md:h-24 md:text-base credentialPreviewContainer"
     :class="
       styles.background.color !== '#fff'
         ? `border-neutrals-black border-opacity-10 notWhiteCredentialPreview`
@@ -18,9 +18,9 @@
     <div class="flex-none w-12 h-12 border-opacity-10">
       <img :src="credentialIconSrc" />
     </div>
-    <div class="flex-grow p-4">
+    <div class="grow p-4">
       <span
-        class="text-sm md:text-base font-bold text-left text-ellipsis"
+        class="text-sm font-bold text-left text-ellipsis md:text-base"
         :style="`color: ${styles?.text?.color}`"
       >
         {{ title }}

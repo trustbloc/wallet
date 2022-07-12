@@ -187,7 +187,7 @@ onMounted(async () => {
   <div
     class="flex flex-col justify-between items-center px-6 min-h-screen bg-scroll bg-neutrals-softWhite bg-no-repeat bg-onboarding-sm md:bg-onboarding"
   >
-    <div class="flex flex-col flex-grow justify-center items-center">
+    <div class="flex flex-col grow justify-center items-center">
       <ToastNotificationComponent
         v-if="systemError"
         :title="t('Signin.errorToast.title')"
@@ -195,16 +195,16 @@ onMounted(async () => {
         type="error"
       />
       <div
-        class="flex overflow-hidden flex-col justify-start items-center px-6 mx-6 w-full sm:w-screen max-w-xl h-auto text-xl md:text-3xl bg-gradient-dark rounded-xl"
+        class="flex overflow-hidden flex-col justify-start items-center px-6 mx-6 w-full max-w-xl h-auto text-xl bg-gradient-dark rounded-xl sm:w-screen md:text-3xl"
       >
         <LogoComponent class="py-12" />
-        <div class="items-center mb-10 md:mb-8 text-center">
-          <span class="text-2xl md:text-4xl font-bold text-neutrals-white">
+        <div class="items-center mb-10 text-center md:mb-8">
+          <span class="text-2xl font-bold text-neutrals-white md:text-4xl">
             {{ t('Signin.heading') }}
           </span>
         </div>
         <div
-          class="grid grid-cols-1 gap-5 justify-items-center content-center sm:px-32 mb-12 w-full h-64"
+          class="grid grid-cols-1 gap-5 justify-items-center content-center mb-12 w-full h-64 sm:px-32"
         >
           <SpinnerIcon v-if="loading" />
           <button

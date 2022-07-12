@@ -6,7 +6,7 @@
 
 <template>
   <SpinnerIcon />
-  <span v-if="message.length" class="mt-8 text-base md:text-lg text-neutrals-dark">{{
+  <span v-if="message.length" class="mt-8 text-base text-neutrals-dark md:text-lg">{{
     message
   }}</span>
 </template>

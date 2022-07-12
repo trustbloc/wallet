@@ -6,17 +6,17 @@
 
 <template>
   <div
-    class="flex flex-col flex-grow justify-start items-center mx-auto max-w-7xl h-screen max-h-screen shadow-main-container"
+    class="flex flex-col grow justify-start items-center mx-auto max-w-7xl h-screen max-h-screen shadow-main-container"
   >
     <HeaderComponent :has-custom-gradient="true">
       <template v-if="selectedCredentialId" #leftButtonContainer>
         <button
-          class="flex flex-row justify-start items-center focus:ring-2 focus:ring-primary-purple focus:ring-offset-2 outline-none"
+          class="flex flex-row justify-start items-center outline-none focus:ring-2 focus:ring-primary-purple focus:ring-offset-2"
           @click="handleBackButtonClick"
         >
           <div class="bg-neutrals-black rounded-full">
             <img
-              class="z-10 w-6 h-6 transform rotate-180"
+              class="z-10 w-6 h-6 rotate-180"
               src="@/assets/img/credential--arrow-right-icon-light.svg"
             />
           </div>
@@ -28,7 +28,7 @@
       </template>
     </HeaderComponent>
     <router-view
-      class="flex overflow-hidden relative z-10 flex-col flex-grow justify-start items-start w-full h-full bg-neutrals-softWhite"
+      class="flex overflow-hidden relative z-10 flex-col grow justify-start items-start w-full h-full bg-neutrals-softWhite"
     />
 
     <FooterComponent

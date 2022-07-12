@@ -1,7 +1,7 @@
 <template>
   <div class="custom-select" :tabindex="tabindex" @blur="open = false">
     <div class="inline-flex custom-select" :class="{ open: open }" @click="open = !open">
-      <div class="flex-grow selected">
+      <div class="grow selected">
         {{ selected }}
       </div>
       <div class="flex flex-none justify-end w-6 h-6">

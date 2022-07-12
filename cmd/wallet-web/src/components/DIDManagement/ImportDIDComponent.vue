@@ -6,12 +6,12 @@
 
 <template>
   <div class="flex flex-col justify-start items-start py-8">
-    <div class="flex flex-col flex-grow justify-start items-start mb-5 w-full">
+    <div class="flex flex-col grow justify-start items-start mb-5 w-full">
       <label for="did-input">Enter Digital Identity:</label>
       <input id="did-input" v-model="didID" class="w-full border-b" required />
     </div>
 
-    <div class="flex flex-col flex-grow justify-start items-start mb-5 w-full">
+    <div class="flex flex-col grow justify-start items-start mb-5 w-full">
       <label>Select Key Format:</label>
       <div class="flex flex-row justify-start items-center">
         <input id="Base58" v-model="keyFormat" type="radio" value="Base58" />
@@ -23,12 +23,12 @@
       </div>
     </div>
 
-    <div class="flex flex-col flex-grow justify-start items-start mb-5 w-full">
+    <div class="flex flex-col grow justify-start items-start mb-5 w-full">
       <label for="privateKeyStr">Enter Private Key (in JWK or Base58 format):</label>
       <input id="privateKeyStr" v-model="privateKeyStr" class="w-full border-b" required />
     </div>
 
-    <div class="flex relative flex-col flex-grow justify-start items-start mb-5 w-full">
+    <div class="flex relative flex-col grow justify-start items-start mb-5 w-full">
       <label for="keyID">Enter matching Key ID:</label>
       <input
         id="keyID"

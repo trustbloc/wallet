@@ -6,20 +6,20 @@
 <template>
   <div
     v-if="type === 'regular'"
-    class="flex relative flex-row md:flex-col px-6 xl:w-64 h-auto md:h-40 bg-neutrals-white rounded-xl border border-neutrals-dark border-opacity-20 vaultContainer"
+    class="flex relative flex-row px-6 h-auto bg-neutrals-white rounded-xl border border-neutrals-dark border-opacity-20 md:flex-col md:h-40 xl:w-64 vaultContainer"
   >
     <AppLinkComponent
       :id="id"
       :to="{ name: 'credentials', params: { vaultId } }"
       @click="handleClick"
     >
-      <div class="flex flex-row md:flex-col pt-5">
+      <div class="flex flex-row pt-5 md:flex-col">
         <div
           :class="[`flex justify-center items-center w-12 h-12 bg-gradient-${color} rounded-full`]"
         >
           <img class="w-6 h-5" src="@/assets/img/vaults.svg" alt="Vault Icon" />
         </div>
-        <div class="px-3 md:px-0 pb-4">
+        <div class="px-3 pb-4 md:px-0">
           <span class="block pt-4 text-lg font-bold text-neutrals-dark"> {{ name }}</span>
           <span class="block text-sm font-bold text-neutrals-medium">
             {{ numOfCreds }}
@@ -33,7 +33,7 @@
   </div>
   <div v-else-if="type === 'addNew'" class="relative">
     <div
-      class="flex flex-col justify-center items-center px-6 pt-4 md:pt-5 w-full xl:w-64 h-24 md:h-40 bg-neutrals-moist rounded-xl border border-neutrals-dark border-opacity-10"
+      class="flex flex-col justify-center items-center px-6 pt-4 w-full h-24 bg-neutrals-moist rounded-xl border border-neutrals-dark border-opacity-10 md:pt-5 md:h-40 xl:w-64"
     >
       <div class="flex justify-center items-center w-8 h-8 bg-neutrals-white rounded-full">
         <img

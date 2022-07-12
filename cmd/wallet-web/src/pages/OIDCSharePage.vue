@@ -5,10 +5,7 @@
 -->
 
 <template>
-  <div
-    v-if="!showMainState"
-    class="flex flex-col flex-grow justify-center items-center w-full h-full"
-  >
+  <div v-if="!showMainState" class="flex flex-col grow justify-center items-center w-full h-full">
     <!-- Loading State -->
     <WACILoadingComponent v-if="loading" />
 
@@ -26,13 +23,10 @@
   </div>
 
   <!-- Main State -->
-  <div
-    v-else
-    class="flex overflow-hidden flex-col flex-grow justify-between items-center w-full h-full"
-  >
+  <div v-else class="flex overflow-hidden flex-col grow justify-between items-center w-full h-full">
     <div class="flex overflow-auto justify-center w-full">
       <div
-        class="flex flex-col flex-grow justify-start items-start pt-8 pr-5 md:pr-0 pb-8 pl-5 md:pl-0 w-full max-w-3xl h-full"
+        class="flex flex-col grow justify-start items-start py-8 px-5 w-full max-w-3xl h-full md:px-0"
       >
         <span class="mb-6 text-3xl font-bold">{{
           t('CHAPI.Share.shareCredential', processedCredentials.length)

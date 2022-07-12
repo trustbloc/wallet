@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <div class="flex flex-col justify-start px-3 md:px-0 pt-10 w-full">
+  <div class="flex flex-col justify-start px-3 pt-10 w-full md:px-0">
     <div class="flex flex-col justify-start items-start w-full root-container">
       <div
         class="flex z-10 flex-row justify-start items-center py-6 px-5 w-full h-24 rounded-xl border"
@@ -20,7 +20,7 @@
           <img :src="credentialIconSrc" />
         </div>
         <span
-          class="flex-1 pl-4 text-sm md:text-base font-bold text-left text-ellipsis"
+          class="flex-1 pl-4 text-sm font-bold text-left text-ellipsis md:text-base"
           :style="`color: ${styles.text.color}`"
         >
           {{ title }}

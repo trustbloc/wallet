@@ -7,7 +7,7 @@
 <template>
   <button
     :class="type"
-    class="flex flex-row justify-center items-center pr-8 pl-8 h-11 text-base font-bold rounded-lg"
+    class="flex flex-row justify-center items-center px-8 h-11 text-base font-bold rounded-lg"
   >
     <svg
       v-if="getLoading"

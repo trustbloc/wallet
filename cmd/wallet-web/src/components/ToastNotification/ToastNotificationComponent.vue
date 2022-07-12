@@ -6,16 +6,16 @@
 
 <template>
   <div v-show="close" :class="classname">
-    <div class="xs:flex-none px-4">
-      <img class="w-8 sm:w-10 h-6 sm:h-8" :src="icon" />
+    <div class="px-4 xs:flex-none">
+      <img class="w-8 h-6 sm:w-10 sm:h-8" :src="icon" />
     </div>
     <div class="flex-col">
-      <span class="text-sm xs:text-lg font-bold leading-relaxed text-left">{{ title }}</span>
+      <span class="text-sm font-bold leading-relaxed text-left xs:text-lg">{{ title }}</span>
       <div>
-        <span class="text-xs xs:text-sm leading-6 text-left">{{ description }}</span>
+        <span class="text-xs leading-6 text-left xs:text-sm">{{ description }}</span>
       </div>
     </div>
-    <div class="xs:flex-none px-4 align-middle">
+    <div class="px-4 align-middle xs:flex-none">
       <button type="button" @click="close = !close">
         <img class="w-6 h-6" src="@/assets/img/close-icon.svg" />
       </button>

@@ -187,7 +187,7 @@ onMounted(async () => {
   <div
     class="flex flex-col justify-between items-center px-6 min-h-screen bg-scroll bg-neutrals-softWhite bg-no-repeat bg-onboarding-sm md:bg-onboarding"
   >
-    <div class="flex flex-col flex-grow justify-center items-center">
+    <div class="flex flex-col grow justify-center items-center">
       <ToastNotificationComponent
         v-if="systemError"
         :title="t('Signup.errorToast.title')"
@@ -195,12 +195,12 @@ onMounted(async () => {
         type="error"
       />
       <div
-        class="overflow-hidden md:max-w-4xl h-auto text-xl md:text-3xl bg-gradient-dark rounded-xl"
+        class="overflow-hidden h-auto text-xl bg-gradient-dark rounded-xl md:max-w-4xl md:text-3xl"
       >
         <div
-          class="grid grid-cols-1 md:grid-cols-2 md:px-20 w-full h-full bg-no-repeat bg-onboarding-flare-lg divide-x divide-neutrals-medium divide-opacity-25"
+          class="grid grid-cols-1 w-full h-full bg-no-repeat bg-onboarding-flare-lg divide-x divide-neutrals-medium md:grid-cols-2 md:px-20 divide-opacity-25"
         >
-          <div class="hidden md:block col-span-1 py-24 pr-16">
+          <div class="hidden col-span-1 py-24 pr-16 md:block">
             <LogoComponent class="mb-12" />
             <div class="flex overflow-y-auto flex-1 items-center mb-8 max-w-full">
               <img class="flex w-10 h-10" src="@/assets/img/onboarding-icon-1.svg" />
@@ -223,11 +223,11 @@ onMounted(async () => {
               </span>
             </div>
           </div>
-          <div class="md:block object-none object-center col-span-1">
+          <div class="object-none object-center col-span-1 md:block">
             <div class="px-6 md:pt-16 md:pr-0 md:pb-12 md:pl-16">
-              <LogoComponent class="md:hidden justify-center my-2 mt-12" />
+              <LogoComponent class="justify-center my-2 mt-12 md:hidden" />
               <div class="items-center pb-6 text-center">
-                <h1 class="text-2xl md:text-4xl font-bold text-neutrals-white">
+                <h1 class="text-2xl font-bold text-neutrals-white md:text-4xl">
                   {{ t('Signup.heading') }}
                 </h1>
               </div>
