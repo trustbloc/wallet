@@ -118,22 +118,6 @@ export default [
         component: load('pages/WorkerPage'),
       },
       {
-        path: 'loginhandle',
-        name: 'ProviderPopup',
-        component: load('pages/ProviderPopupPage'),
-        props: (route) => ({ providerID: route.query.providerID }),
-      },
-      {
-        path: 'signin',
-        name: 'signin',
-        component: load('pages/SigninPage'),
-      },
-      {
-        path: 'signup',
-        name: 'signup',
-        component: load('pages/SignupPage'),
-      },
-      {
         path: 'needauth',
         name: 'block-no-auth',
         component: load('pages/BlockNoAuthPage'),

@@ -139,7 +139,7 @@ onMounted(async () => {
 <template>
   <div>
     <WelcomeBannerComponent
-      v-if="!currentUser.preference.skipWelcomeMsg && !skippedLocally && !loading"
+      v-if="!currentUser?.preference?.skipWelcomeMsg && !skippedLocally && !loading"
       id="welcome-banner-close-button"
       class="md:mb-10"
       @click="updateUserPreferences"

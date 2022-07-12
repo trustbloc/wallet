@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 import { GNAPClient } from '@trustbloc/wallet-sdk';
+import { getGnapKeyPair } from '@/mixins';
 
 export async function gnapRequestAccess(
   signer,

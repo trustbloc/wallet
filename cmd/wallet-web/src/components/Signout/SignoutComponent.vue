@@ -34,7 +34,7 @@ async function signout() {
 
   await Promise.all(actions);
 
-  router.push({ name: 'signin' });
+  router.push({ path: '/', query: { signedOut: true } });
 }
 
 const chapi = ref(

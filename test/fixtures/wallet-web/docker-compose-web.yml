@@ -24,7 +24,7 @@ services:
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
       - TLS_KEY=/etc/nginx/certs/ec-key.pem
-      - EDV_SERVER_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
+      - EDV_SERVER_URL=https://edv.trustbloc.local:8072/encrypted-data-vaults
       - STORAGE_TYPE=edv
       - KMS_TYPE=webkms
       - USE_EDV_CACHE=true
@@ -37,42 +37,9 @@ services:
       - DIDCOMM_KEY_TYPE=ed25519
       - DIDCOMM_KEY_AGREEMENT_TYPE=p256kw
       - WEB_SOCKET_READ_LIMIT=131072 # 128KB
-      - KMS_SERVER_URL=https://ops-kms.trustbloc.local:8075
+      - KMS_SERVER_URL=https://kms.trustbloc.local:8075
       # Disabled remote context download for this wallet for better performance.
   #      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
-
-  wallet-2.trustbloc.local:
-    container_name: wallet-2.trustbloc.local
-    image: ${WALLET_WEB_IMAGE}:latest
-    volumes:
-      - ../keys/tls:/etc/nginx/certs
-      - ./static:/etc/static
-    ports:
-      - 8071:443
-    environment:
-      - HTTP_RESOLVER_URL=${HTTP_RESOLVER}
-      - AGENT_DEFAULT_LABEL=second-wallet-web
-      - BLOC_DOMAIN=testnet.orb.local
-      - DID_ANCHOR_ORIGIN=https://testnet.orb.local
-      - EDGE_AGENT_SERVER=https://wallet-server-2.trustbloc.local:8070
-      - HTTP_SERVER_HUB_AUTH_URL=https://auth.trustbloc.local:8044
-      - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
-      - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
-      - TLS_KEY=/etc/nginx/certs/ec-key.pem
-      - EDV_SERVER_URL=https://edv-oathkeeper-proxy.trustbloc.local:4455/encrypted-data-vaults
-      - STORAGE_TYPE=edv
-      - KMS_TYPE=webkms
-      - USE_EDV_CACHE=true
-      - EDV_CLEAR_CACHE=10m
-      - USE_EDV_BATCH=true
-      - STATIC_ASSETS=/etc/static
-      - STATIC_ASSETS_URL=
-      - WALLET_WEB_URL=
-      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
-      - DIDCOMM_MEDIA_TYPE_PROFILES=didcomm/aip2;env=rfc587,didcomm/v2,didcomm/aip1,didcomm/aip2;env=rfc19
-      - DIDCOMM_KEY_TYPE=ed25519
-      - DIDCOMM_KEY_AGREEMENT_TYPE=p256kw
-      - KMS_SERVER_URL=https://ops-kms.trustbloc.local:8075
 
   mediator.trustbloc.local:
     container_name: mediator.trustbloc.local
