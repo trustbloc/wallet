@@ -30,7 +30,7 @@
       </li>
     </ul>
     <template v-for="(tab, index) in tabs">
-      <div v-if="index === activeTab" :key="index" class="flex-grow">
+      <div v-if="index === activeTab" :key="index" class="grow">
         <slot :name="`tabPanel-${index}`" />
       </div>
     </template>

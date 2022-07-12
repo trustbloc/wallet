@@ -6,11 +6,11 @@
 
 <template>
   <div class="py-6 px-15 mx-6 w-full text-center">
-    <div class="hidden md:block mx-auto text-center text-neutrals-medium">
+    <div class="hidden mx-auto text-center text-neutrals-medium md:block">
       © {{ date }} TrustBloc ･ {{ t('Footer.privacyPolicy') }} ･ {{ t('Footer.terms') }} ･
       <LocaleSwitcherComponent />
     </div>
-    <div class="block md:hidden text-neutrals-medium">
+    <div class="block text-neutrals-medium md:hidden">
       <ul class="list-inside">
         <li>
           <span class="whitespace-nowrap">{{ t('Footer.privacyPolicy') }}</span> ･

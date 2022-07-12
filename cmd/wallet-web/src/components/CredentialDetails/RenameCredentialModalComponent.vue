@@ -45,7 +45,7 @@
     <template #actionButton>
       <StyledButtonComponent
         id="rename-credential-button"
-        class="order-first md:order-last w-full md:w-auto"
+        class="order-first w-full md:order-last md:w-auto"
         type="btn-primary"
         :loading="loading"
         @click="renameCredential(credentialId, vaultName)"

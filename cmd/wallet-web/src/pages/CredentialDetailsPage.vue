@@ -10,7 +10,7 @@
       <h3 class="text-neutrals-dark">{{ t('CredentialDetails.heading') }}</h3>
     </div>
     <SkeletonLoaderComponent type="CredentialDetailsBanner" />
-    <div class="flex flex-col justify-start items-start mt-8 md:mt-2 w-full">
+    <div class="flex flex-col justify-start items-start mt-8 w-full md:mt-2">
       <span class="mb-5 text-xl font-bold text-neutrals-dark">{{
         t('CredentialDetails.verifiedInformation')
       }}</span>
@@ -19,14 +19,14 @@
   </div>
   <div v-else-if="credential" class="flex flex-col justify-start items-start py-6 px-3">
     <div class="flex flex-row justify-between items-center mb-4 w-full">
-      <div class="flex flex-grow">
+      <div class="flex grow">
         <h3 class="text-neutrals-dark">{{ t('CredentialDetails.heading') }}</h3>
       </div>
       <FlyoutComponent :tool-tip-label="t('CredentialDetails.toolTipLabel')">
         <template #button="{ toggleFlyoutMenu, setShowTooltip }">
           <button
             id="credential-details-flyout-button"
-            class="w-11 h-11 bg-neutrals-white rounded-lg border border-neutrals-chatelle focus:border-neutrals-chatelle focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 focus-within:ring-offset-2 outline-none hover:border-neutrals-mountainMist-light"
+            class="w-11 h-11 bg-neutrals-white rounded-lg border border-neutrals-chatelle focus:border-neutrals-chatelle outline-none focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 focus-within:ring-offset-2 hover:border-neutrals-mountainMist-light"
             @click="toggleFlyoutMenu()"
             @focus="setShowTooltip(false)"
             @mouseover="setShowTooltip(true)"
@@ -77,7 +77,7 @@
       :vault-name="vaultName"
     />
     <!-- List of Credential Details -->
-    <div class="flex flex-col justify-start items-start mt-8 md:mt-2 w-full">
+    <div class="flex flex-col justify-start items-start mt-8 w-full md:mt-2">
       <span class="mb-5 text-xl font-bold text-neutrals-dark">{{
         t('CredentialDetails.verifiedInformation')
       }}</span>

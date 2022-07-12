@@ -169,7 +169,7 @@ onMounted(async () => {
         </span>
       </div>
     </WelcomeBannerComponent>
-    <div class="md:p-0 py-6 px-6">
+    <div class="p-6 md:p-0">
       <span
         v-if="breakpoints.xs || breakpoints.sm"
         class="w-full text-3xl font-bold text-neutrals-dark"
@@ -183,7 +183,7 @@ onMounted(async () => {
       <div
         v-else
         id="vaults-loaded"
-        class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-8 mt-6 md:mt-8 w-full"
+        class="grid grid-cols-1 gap-4 mt-6 w-full md:mt-8 lg:grid-cols-2 xl:grid-cols-3 xl:gap-8"
       >
         <VaultCardComponent
           id="all-vaults-button"

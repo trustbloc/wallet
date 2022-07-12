@@ -8,7 +8,7 @@
   <!-- Loading State -->
   <div v-if="loading" class="flex justify-center items-start w-screen h-screen">
     <div
-      class="flex justify-center items-center w-full max-w-md h-80 bg-gray-light md:border md:border-t-0 border-neutrals-black"
+      class="flex justify-center items-center w-full max-w-md h-80 bg-gray-light border-neutrals-black md:border md:border-t-0"
     >
       <SpinnerIcon />
     </div>
@@ -16,7 +16,7 @@
   <!-- Sharing State -->
   <div v-else-if="sharing" class="flex justify-center items-start w-screen h-screen">
     <div
-      class="flex flex-col justify-center items-center w-full max-w-md h-80 bg-gray-light md:border md:border-t-0 border-neutrals-black"
+      class="flex flex-col justify-center items-center w-full max-w-md h-80 bg-gray-light border-neutrals-black md:border md:border-t-0"
     >
       <SpinnerIcon />
       <span class="mt-8 text-base text-neutrals-dark">{{
@@ -30,9 +30,9 @@
     class="flex justify-center items-start w-screen h-screen"
   >
     <div
-      class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light md:border md:border-t-0 border-neutrals-black"
+      class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light border-neutrals-black md:border md:border-t-0"
     >
-      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
+      <div class="flex flex-col justify-start items-center py-16 px-5">
         <img src="@/assets/img/icons-error.svg" />
         <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
           t('CHAPI.Share.Error.heading')
@@ -42,7 +42,7 @@
         }}</span>
       </div>
       <div
-        class="flex flex-row justify-center items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
+        class="flex flex-row justify-center items-center py-4 px-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
       >
         <button id="share-credentials-ok-btn" class="btn-primary" @click="cancel">
           {{ t('CHAPI.Share.Error.tryAgain') }}
@@ -53,9 +53,9 @@
   <!-- Credentials Missing State -->
   <div v-else-if="showCredentialsMissing" class="flex justify-center items-start w-screen h-screen">
     <div
-      class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light md:border md:border-t-0 border-neutrals-black"
+      class="flex flex-col justify-center items-center w-full max-w-md h-auto bg-gray-light border-neutrals-black md:border md:border-t-0"
     >
-      <div class="flex flex-col justify-start items-center pt-16 pr-5 pb-16 pl-5">
+      <div class="flex flex-col justify-start items-center py-16 px-5">
         <img src="@/assets/img/icons-error.svg" />
         <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
           t('CHAPI.Share.CredentialsMissing.heading')
@@ -65,7 +65,7 @@
         }}</span>
       </div>
       <div
-        class="flex flex-row justify-center items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
+        class="flex flex-row justify-center items-center py-4 px-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
       >
         <button id="share-credentials-ok-btn" class="btn-outline" @click="cancel">
           {{ t('CHAPI.Share.CredentialsMissing.ok') }}
@@ -78,7 +78,7 @@
     v-else
     class="flex overflow-scroll justify-center items-start w-screen h-screen max-h-screen"
   >
-    <div class="w-full max-w-md bg-gray-light md:border md:border-t-0 border-neutrals-black">
+    <div class="w-full max-w-md bg-gray-light border-neutrals-black md:border md:border-t-0">
       <div class="p-5">
         <!-- Heading -->
         <div class="flex flex-row justify-start items-start mb-4 w-full">
@@ -107,13 +107,13 @@
         <!-- Credentials Preview -->
         <div
           v-if="processedCredentials.length"
-          class="flex flex-col justify-start items-center mt-6 mb-6 w-full"
+          class="flex flex-col justify-start items-center my-6 w-full"
         >
           <ul class="space-y-5 w-full">
             <li v-for="(credential, index) in processedCredentials" :key="index">
               <!-- Credential Preview -->
               <button
-                class="group inline-flex items-center p-5 w-full h-20 md:h-24 text-sm md:text-base font-bold rounded-xl border focus-within:ring-2 focus-within:ring-offset-2 credentialPreviewContainer"
+                class="group inline-flex items-center p-5 w-full h-20 text-sm font-bold rounded-xl border focus-within:ring-2 focus-within:ring-offset-2 md:h-24 md:text-base credentialPreviewContainer"
                 :class="
                   credential.styles.background.color !== '#fff'
                     ? `border-neutrals-black border-opacity-10 notWhiteCredentialPreview`
@@ -125,7 +125,7 @@
                 <div class="flex-none w-12 h-12 border-opacity-10">
                   <img :src="getCredentialIconFunction(credential)" />
                 </div>
-                <div class="flex-grow p-4">
+                <div class="grow p-4">
                   <span
                     :class="[
                       `text-sm md:text-base font-bold text-left text-ellipsis`,
@@ -141,7 +141,7 @@
               <!-- Credential Details -->
               <div
                 v-if="credential.showDetails"
-                class="flex flex-col justify-start items-start mt-5 md:mt-6 w-full"
+                class="flex flex-col justify-start items-start mt-5 w-full md:mt-6"
               >
                 <span class="py-3 text-base font-bold text-neutrals-dark">What's being shared</span>
 
@@ -176,7 +176,7 @@
       </div>
 
       <div
-        class="flex sticky bottom-0 flex-row justify-between items-center pt-4 pr-5 pb-4 pl-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
+        class="flex sticky bottom-0 flex-row justify-between items-center py-4 px-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
       >
         <button id="cancelBtn" class="btn-outline" @click="cancel">
           {{ t('CHAPI.Share.decline') }}

@@ -21,7 +21,7 @@
     <!-- Desktop Dashboard Layout -->
     <div
       v-else
-      class="flex flex-row flex-grow justify-center mx-auto max-w-7xl bg-neutrals-softWhite shadow-main-container"
+      class="flex flex-row grow justify-center mx-auto max-w-7xl bg-neutrals-softWhite shadow-main-container"
     >
       <NavbarComponent>
         <NavbarLinkComponent
@@ -46,7 +46,7 @@
           icon="settings.svg"
         />
       </NavbarComponent>
-      <router-view id="dashboard-content" class="flex flex-col flex-grow md:py-12 md:px-16" />
+      <router-view id="dashboard-content" class="flex flex-col grow md:py-12 md:px-16" />
     </div>
   </div>
 </template>

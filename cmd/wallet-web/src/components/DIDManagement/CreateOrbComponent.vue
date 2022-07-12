@@ -6,7 +6,7 @@
 
 <template>
   <div class="flex flex-col justify-start items-start py-8">
-    <div class="flex flex-col flex-grow justify-start items-start w-full">
+    <div class="flex flex-col grow justify-start items-start w-full">
       <label for="select-key" class="mb-1 text-base">Key Type:</label>
       <select id="select-key" v-model="keyType" class="mb-5 w-full max-w-full border-b">
         <option value="ED25519">Ed25519</option>
@@ -16,7 +16,7 @@
       </select>
     </div>
 
-    <div class="flex flex-col flex-grow justify-start items-start w-full">
+    <div class="flex flex-col grow justify-start items-start w-full">
       <label for="select-signature-suite" class="mb-1 text-base">Signature Suite:</label>
       <select
         id="select-signature-suite"
@@ -29,7 +29,7 @@
       </select>
     </div>
 
-    <div class="flex flex-col flex-grow justify-start items-start w-full">
+    <div class="flex flex-col grow justify-start items-start w-full">
       <label for="select-key-purpose" class="mb-1 text-base">Key Purpose:</label>
       <select id="select-key-purpose" v-model="purpose" class="mb-5 w-full max-w-full border-b">
         <option value="all">all</option>

@@ -25,24 +25,24 @@ const numOfCredentialSkeletons = ref(2);
 <template>
   <div
     v-if="type === 'Vault'"
-    class="flex flex-col lg:flex-row flex-wrap lg:gap-x-8 gap-y-8 mt-6 md:mt-8"
+    class="flex flex-col flex-wrap gap-y-8 mt-6 md:mt-8 lg:flex-row lg:gap-x-8"
   >
     <VaultCardSkeletonComponent v-for="id in numOfVaultSkeletons" :key="`vault-skeleton-${id}`" />
   </div>
-  <div v-else-if="type === 'CredentialPreview'" class="flex flex-col px-6 md:px-0 w-full">
+  <div v-else-if="type === 'CredentialPreview'" class="flex flex-col px-6 w-full md:px-0">
     <div v-for="id in numOfCredentialSkeletons" :key="`cred-preview-skeleton-${id}`">
       <div
-        class="overflow-hidden relative mt-2 w-40 h-6 lg:h-5 bg-neutrals-whiteLilac rounded-3xl"
+        class="overflow-hidden relative mt-2 w-40 h-6 bg-neutrals-whiteLilac rounded-3xl lg:h-5"
       />
-      <div class="flex flex-col lg:flex-row my-8">
-        <CredentialPreviewSkeletonComponent class="lg:mr-8 mb-4 lg:mb-0" />
+      <div class="flex flex-col my-8 lg:flex-row">
+        <CredentialPreviewSkeletonComponent class="mb-4 lg:mr-8 lg:mb-0" />
         <CredentialPreviewSkeletonComponent />
       </div>
     </div>
   </div>
-  <div v-else-if="type === 'Flyout'" class="flex px-6 md:px-0 w-full md:w-40">
+  <div v-else-if="type === 'Flyout'" class="flex px-6 w-full md:px-0 md:w-40">
     <div
-      class="overflow-hidden relative mt-2 mb-3 lg:mb-0 w-full h-6 bg-neutrals-whiteLilac rounded-3xl"
+      class="overflow-hidden relative mt-2 mb-3 w-full h-6 bg-neutrals-whiteLilac rounded-3xl lg:mb-0"
     />
   </div>
   <div v-else-if="type === 'CredentialDetailsBanner'" class="flex flex-row w-full">

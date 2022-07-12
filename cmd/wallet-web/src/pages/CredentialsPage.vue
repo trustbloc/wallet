@@ -13,14 +13,14 @@
         <template #button="{ toggleFlyoutMenu, setShowTooltip }">
           <button
             id="credentials-flyout-menu-button-mobile"
-            class="inline-flex justify-between items-center px-3 w-screen md:w-auto h-11 bg-neutrals-white md:rounded-lg border border-neutrals-chatelle focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 focus-within:ring-offset-2 outline-none hover:border-neutrals-mountainMist-light"
+            class="inline-flex justify-between items-center px-3 w-screen h-11 bg-neutrals-white border border-neutrals-chatelle outline-none focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 focus-within:ring-offset-2 md:w-auto md:rounded-lg hover:border-neutrals-mountainMist-light"
             @click="toggleFlyoutMenu()"
             @focus="setShowTooltip(false)"
             @mouseover="setShowTooltip(true)"
             @mouseout="setShowTooltip(false)"
           >
             <img class="w-6 h-6" src="@/assets/img/icons-sm--vault-icon.svg" />
-            <span class="flex-grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">
+            <span class="grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">
               {{ selectedVaultName }}
             </span>
             <img class="w-6 h-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
@@ -53,7 +53,7 @@
     </div>
     <!-- Desktop Credentials Layout -->
     <div v-else class="flex justify-between items-center mb-8 w-full align-middle">
-      <div class="flex flex-grow">
+      <div class="flex grow">
         <h3 class="m-0 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
       </div>
       <SkeletonLoaderComponent v-if="loading" type="Flyout" />
@@ -61,14 +61,14 @@
         <template #button="{ toggleFlyoutMenu, setShowTooltip }">
           <button
             id="credentials-flyout-menu-button-desktop"
-            class="inline-flex justify-between items-center px-3 w-screen md:w-auto h-11 bg-neutrals-white md:rounded-lg border border-neutrals-chatelle focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 focus-within:ring-offset-2 outline-none hover:border-neutrals-mountainMist-light"
+            class="inline-flex justify-between items-center px-3 w-screen h-11 bg-neutrals-white border border-neutrals-chatelle outline-none focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 focus-within:ring-offset-2 md:w-auto md:rounded-lg hover:border-neutrals-mountainMist-light"
             @click="toggleFlyoutMenu()"
             @focus="setShowTooltip(false)"
             @mouseover="setShowTooltip(true)"
             @mouseout="setShowTooltip(false)"
           >
             <img class="w-6 h-6" src="@/assets/img/icons-sm--vault-icon.svg" />
-            <span class="flex-grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">
+            <span class="grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">
               {{ selectedVaultName }}
             </span>
             <img class="w-6 h-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
@@ -119,10 +119,10 @@
       <div v-if="credentialsFound" class="mx-6 md:mx-0">
         <div v-for="(vault, key) in selectedVaults" :key="key">
           <div v-if="vault.credentials.length">
-            <div class="md:mx-0 mb-5">
+            <div class="mb-5 md:mx-0">
               <span class="text-xl font-bold text-neutrals-dark">{{ vault.name }}</span>
             </div>
-            <ul class="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-8 my-8">
+            <ul class="grid grid-cols-1 gap-4 my-8 xl:grid-cols-2 xl:gap-8">
               <li v-for="(credential, index) in vault.credentials" :key="index">
                 <CredentialPreviewComponent
                   :id="credential.id"

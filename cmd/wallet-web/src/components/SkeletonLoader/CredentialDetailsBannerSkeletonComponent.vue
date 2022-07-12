@@ -10,10 +10,10 @@ import CredentialPreviewSkeletonComponent from './CredentialPreviewSkeletonCompo
 const numOfSkeletons = ref(4);
 </script>
 <template>
-  <div class="flex flex-col justify-start items-start px-3 md:px-0 pt-10 w-full">
-    <CredentialPreviewSkeletonComponent :isTall="true" />
+  <div class="flex flex-col justify-start items-start px-3 pt-10 w-full md:px-0">
+    <CredentialPreviewSkeletonComponent :is-tall="true" />
     <div
-      class="flex relative flex-col lg:flex-row px-6 pt-12 lg:pt-14 pb-4 lg:pb-6 mb-1 w-full bg-neutrals-white rounded-b-xl sub-container"
+      class="flex relative flex-col px-6 pt-12 pb-4 mb-1 w-full bg-neutrals-white rounded-b-xl lg:flex-row lg:pt-14 lg:pb-6 sub-container"
     >
       <div
         v-for="id in numOfSkeletons"
@@ -24,7 +24,7 @@ const numOfSkeletons = ref(4);
           class="overflow-hidden relative mt-2 w-20 h-4 bg-neutrals-softWhite rounded-3xl skeleton-data"
         />
         <div
-          class="overflow-hidden relative mt-2 w-2/5 lg:w-32 h-5 bg-neutrals-softWhite rounded-3xl skeleton-data"
+          class="overflow-hidden relative mt-2 w-2/5 h-5 bg-neutrals-softWhite rounded-3xl lg:w-32 skeleton-data"
         />
       </div>
     </div>
