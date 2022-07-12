@@ -264,9 +264,9 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
     await wallet.createOrbDID();
   });
 
-  it(`Import DID Key (JWK key format)`, async function () {
+/*  it(`Import DID Key (JWK key format)`, async function () {
     await wallet.importDID({ method: "key" });
-  });
+  });*/
 
   // TODO add case to import DID with Base58 key format
 
