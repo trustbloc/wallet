@@ -138,6 +138,7 @@ services:
       - KMS_GNAP_SIGNING_KEY=/etc/gnap-kms-priv-key.pem
       - KMS_AUTH_SERVER_URL=https://auth.trustbloc.local:8044
       - KMS_CORS_ENABLE=true
+      - KMS_GNAP_HTTPSIG_DISABLE=true
     ports:
       - ${DEMO_OPS_KMS_PORT}:${DEMO_OPS_KMS_PORT}
     command: start
