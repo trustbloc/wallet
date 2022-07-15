@@ -61,10 +61,18 @@ let defaultAgentStartupOpts = {
 
 export default {
   actions: {
-    async initOpts({ commit, getters, dispatch }, location = window.location.origin) {
+    async initOpts(
+      { commit, getters, dispatch },
+      { location = window.location.origin, accessToken } = {}
+    ) {
       let agentOpts = {};
 
-      let profileOpts = getters.getProfileOpts;
+      const profileOpts = getters.getProfileOpts;
+      if (accessToken) {
+        Object.assign(profileOpts, {
+          userConfig: { accessToken },
+        });
+      }
 
       let readCredentialManifests;
 
@@ -73,7 +81,6 @@ export default {
         await axios
           .get(agentOptsLocation(location))
           .then((resp) => {
-            console.log('successfully fetched agent start up options: ', resp.data);
             agentOpts = resp.data;
           })
           .catch((err) => {
@@ -88,15 +95,13 @@ export default {
           ? agentOpts['media-type-profiles'].split(',')
           : ['didcomm/aip2;env=rfc587', 'didcomm/v2'];
 
-        console.log('agent opts processed', JSON.stringify(agentOpts, null, 2));
-
         readCredentialManifests = readManifests(agentOpts['staticAssetsUrl']);
 
         Object.assign(profileOpts, {
           config: {
             storageType: agentOpts.storageType,
             kmsType: agentOpts.kmsType,
-            localKMSScret: agentOpts.localKMSPassphrase,
+            localKMSPassphrase: agentOpts.localKMSPassphrase,
           },
         });
       } else {
@@ -108,7 +113,7 @@ export default {
 
         dispatch('loadUser');
         if (getters.getCurrentUser) {
-          let { profile } = getters.getCurrentUser;
+          const { profile } = getters.getCurrentUser;
           user = profile ? profile.user : user;
         }
 
@@ -117,16 +122,16 @@ export default {
         agentOpts.hubAuthURL = 'https://localhost:8044';
 
         Object.assign(profileOpts, {
-          config: {
-            storageType: defaultAgentStartupOpts.storageType,
-            kmsType: defaultAgentStartupOpts.kmsType,
-            localKMSScret: defaultAgentStartupOpts.localKMSPassphrase,
-          },
           bootstrap: {
             data: {
               user,
               tokenExpiry: '10',
             },
+          },
+          config: {
+            storageType: defaultAgentStartupOpts.storageType,
+            kmsType: defaultAgentStartupOpts.kmsType,
+            localKMSPassphrase: defaultAgentStartupOpts.localKMSPassphrase,
           },
         });
 

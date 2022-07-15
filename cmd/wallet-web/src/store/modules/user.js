@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 import * as Agent from '@trustbloc/agent-sdk-web';
 import { WalletUser } from '@trustbloc/wallet-sdk';
 import { toRaw } from 'vue';
-import axios from 'axios';
+import { getBootstrapData } from '@/mixins/gnap/gnap';
 import { clearGnapStoreData, getGnapKeyPair } from '@/mixins/gnap/store';
 import { RegisterWallet } from '@/mixins';
 
@@ -22,7 +22,7 @@ export default {
     chapi: false,
     selectedVaultId: null,
     selectedCredentialId: null,
-    gnapSessionToken: null,
+    gnapAccessToken: null,
     gnapRequestAccessResp: null,
   },
   mutations: {
@@ -75,18 +75,18 @@ export default {
         localStorage.setItem('selectedCredentialId', val);
       }
     },
-    setSessionToken(state, val) {
-      state.gnapSessionToken = val;
+    setAccessToken(state, val) {
+      state.gnapAccessToken = val;
       if (val !== null) {
-        localStorage.setItem('gnapSessionToken', JSON.stringify(val));
+        localStorage.setItem('gnapAccessToken', val);
       } else {
-        localStorage.removeItem('gnapSessionToken');
+        localStorage.removeItem('gnapAccessToken');
       }
     },
     setSubjectId(state, val) {
       state.gnapSubjectId = val;
       if (val !== null) {
-        localStorage.setItem('gnapSubjectId', JSON.stringify(val));
+        localStorage.setItem('gnapSubjectId', val);
       } else {
         localStorage.removeItem('gnapSubjectId');
       }
@@ -107,8 +107,9 @@ export default {
       state.chapi = false;
       state.selectedVaultId = null;
       state.selectedCredentialId = null;
-      state.gnapSessionToken = null;
+      state.gnapAccessToken = null;
       state.gnapSubjectId = null;
+      state.gnapRequestAccessResp = null;
 
       localStorage.removeItem('user');
       localStorage.removeItem('setupStatus');
@@ -117,8 +118,9 @@ export default {
       localStorage.removeItem('chapi');
       localStorage.removeItem('selectedVaultId');
       localStorage.removeItem('selectedCredentialId');
-      localStorage.removeItem('gnapSessionToken');
+      localStorage.removeItem('gnapAccessToken');
       localStorage.removeItem('gnapSubjectId');
+      localStorage.removeItem('gnapRequestAccessResp');
 
       clearGnapStoreData();
     },
@@ -130,8 +132,9 @@ export default {
       state.chapi = JSON.parse(localStorage.getItem('chapi'));
       state.selectedVaultId = localStorage.getItem('selectedVaultId');
       state.selectedCredentialId = localStorage.getItem('selectedCredentialId');
-      state.gnapSessionToken = localStorage.getItem('gnapSessionToken');
+      state.gnapAccessToken = localStorage.getItem('gnapAccessToken');
       state.gnapSubjectId = localStorage.getItem('gnapSubjectId');
+      state.gnapRequestAccessResp = JSON.parse(localStorage.getItem('gnapRequestAccessResp'));
     },
   },
   actions: {
@@ -185,8 +188,8 @@ export default {
     updateSelectedCredentialId({ commit }, selectedCredentialId) {
       commit('setSelectedCredentialId', selectedCredentialId);
     },
-    updateSessionToken({ commit }, gnapSessionToken) {
-      commit('setSessionToken', gnapSessionToken);
+    updateAccessToken({ commit }, gnapAccessToken) {
+      commit('setAccessToken', gnapAccessToken);
     },
     updateSubjectId({ commit }, gnapSubjectId) {
       commit('setSubjectId', gnapSubjectId);
@@ -221,16 +224,13 @@ export default {
     getSelectedCredentialId(state) {
       return state.selectedCredentialId;
     },
-    getGnapSessionToken(state) {
-      state.gnapSessionToken = JSON.parse(localStorage.getItem('gnapSessionToken'));
-      return state.gnapSessionToken;
+    getGnapAccessToken(state) {
+      return state.gnapAccessToken;
     },
     getGnapSubjectId(state) {
-      state.gnapSubjectId = JSON.parse(localStorage.getItem('gnapSubjectId'));
       return state.gnapSubjectId;
     },
     getGnapReqAccessResp(state) {
-      state.gnapRequestAccessResp = JSON.parse(localStorage.getItem('gnapRequestAccessResp'));
       return state.gnapRequestAccessResp;
     },
   },
@@ -267,156 +267,85 @@ export default {
         },
       },
       actions: {
-        async init({ commit, rootState, state, rootGetters, dispatch }, gnapOpts = {}) {
-          if (state.instance && state.agentName == rootState.user.username) {
+        async init(
+          { commit, rootState, state, rootGetters, dispatch },
+          { accessToken, subjectId, newUser = false }
+        ) {
+          const username = rootState.user.username;
+
+          // If agent is already initialized for current user, then return
+          if (state.instance && state.agentName === username) {
             return;
           }
 
-          if (!rootState.user.username && !gnapOpts.subjectId) {
-            console.error('user should be logged in to initialize agent instance');
-            throw 'invalid user state';
+          // If user is not authenticated, then agent cannot be initialized
+          if (!username && !subjectId && !accessToken) {
+            throw new Error('Error initializing agent: user is not authenticated');
           }
 
-          const gnapKeyPair = await getGnapKeyPair();
-          const signingKey = await window.crypto.subtle.exportKey('jwk', gnapKeyPair.privateKey);
+          // If hubAuthURL is missing, then agent cannot be initialized
+          const hubAuthURL = rootGetters.hubAuthURL;
+          if (!hubAuthURL) throw new Error('Error initializing agent: hubAuthURL is missing');
 
-          let opts = {};
-          Object.assign(opts, rootGetters.getAgentOpts, {
-            'agent-default-label': rootState.user.username,
-            'db-namespace': rootState.user.username,
+          const { privateKey } = await getGnapKeyPair();
+          const signingKey = await window.crypto.subtle.exportKey('jwk', privateKey);
+
+          // Updating agentOpts with new user data
+          const agentOpts = rootGetters.getAgentOpts;
+          const profileOpts = rootGetters.getProfileOpts;
+
+          Object.assign(agentOpts, {
+            'agent-default-label': username,
+            'db-namespace': username,
             'gnap-signing-jwk': JSON.stringify(signingKey),
-            'gnap-access-token': gnapOpts?.accessToken || '',
-            'gnap-user-subject': gnapOpts?.subjectId || '',
+            'gnap-access-token': accessToken,
+            'gnap-user-subject': subjectId,
           });
 
-          let profileOpts = rootGetters.getProfileOpts;
+          const newOpts = await getBootstrapData(agentOpts, hubAuthURL, dispatch, accessToken);
 
-          Object.assign(profileOpts, { userConfig: { accessToken: gnapOpts?.accessToken || '' } });
-
-          await axios
-            .get(rootGetters.hubAuthURL + '/gnap/bootstrap', {
-              headers: { Authorization: `GNAP ${gnapOpts?.accessToken}` },
-            })
-            .then((resp) => {
-              let { data } = resp;
-
-              // TODO to be removed after universal wallet migration
-              if (opts.storageType === 'edv') {
-                const edvVaultURL = data.data.edvVaultURL;
-                const edvVaultID = data.data.userEDVVaultID;
-
-                opts.edvVaultID = edvVaultID;
-                // TODO this property is not returned from the bootstrap data - remove if not needed
-                opts.edvCapability = data.data.edvCapability;
-              }
-
-              // TODO to be removed after universal wallet migration
-              if (opts.kmsType === 'webkms') {
-                opts.opsKeyStoreURL = data.data.opsKeyStoreURL;
-                opts.edvOpsKIDURL = data.data.edvOpsKIDURL;
-                opts.edvHMACKIDURL = data.data.edvHMACKIDURL;
-              }
-
-              // TODO to be removed after universal wallet migration
-              // TODO this property is not returned from the bootstrap data - remove if not needed
-              opts.authzKeyStoreURL = data.data.authzKeyStoreURL;
-              // TODO this property is not returned from the bootstrap data - remove if not needed
-              // it is not even defined in the defaultAgentStartupOpts
-              // opts.userConfig = data.data.userConfig;
-              // TODO this property is not returned from the bootstrap data - remove if not needed
-              opts.opsKMSCapability = data.data.opsKMSCapability;
-
-              Object.assign(profileOpts, { bootstrap: data });
-
-              commit('updateAgentOpts', opts, { root: true });
-              commit('updateProfileOpts', profileOpts, { root: true });
-            })
-            .catch((err) => {
-              console.log('error fetching bootstrap data BEFORE Agent Init: errMsg=', err);
-              console.log(
-                "Note: If you haven't logged in yet and you just got a 403 error, then it's expected"
-              );
-
-              // http 400 denotes expired cookie at server - logout the user and make user to signin
-              if (err.response && err.response.status === 400) {
-                dispatch('logout');
-              }
-            });
-
-          try {
-            let agent = await new Agent.Framework(opts);
-
-            // TODO to be moved from here to 'loadOIDCUser' in case server based universal wallet.
-            // if (process.env.NODE_ENV === 'production') {
-            await axios
-              .get(rootGetters.hubAuthURL + '/gnap/bootstrap', {
-                headers: { Authorization: `GNAP ${gnapOpts?.accessToken}` },
-              })
-              .then((resp) => {
-                let { data } = resp;
-
-                // TODO to be removed after universal wallet migration
-                if (opts.storageType === 'edv') {
-                  const edvVaultID = data.data.userEDVVaultID;
-                  opts.edvVaultID = edvVaultID;
-                  // TODO this property is not returned from the bootstrap data - remove if not needed
-                  opts.edvCapability = data.data.edvCapability;
-                }
-
-                // TODO to be removed after universal wallet migration
-                if (opts.kmsType === 'webkms') {
-                  opts.opsKeyStoreURL = data.data.opsKeyStoreURL;
-                  opts.edvOpsKIDURL = data.data.edvOpsKIDURL;
-                  opts.edvHMACKIDURL = data.data.edvHMACKIDURL;
-                }
-
-                // TODO to be removed after universal wallet migration
-                // TODO this property is not returned from the bootstrap data - remove if not needed
-                opts.authzKeyStoreURL = data.data.authzKeyStoreURL;
-                // TODO this property is not returned from the bootstrap data - remove if not needed
-                // it is not even defined in the defaultAgentStartupOpts
-                // opts.userConfig = data.data.userConfig;
-                // TODO this property is not returned from the bootstrap data - remove if not needed
-                opts.opsKMSCapability = data.data.opsKMSCapability;
-
-                Object.assign(profileOpts, { bootstrap: data });
-
-                commit('updateAgentOpts', opts, { root: true });
-                commit('updateProfileOpts', profileOpts, { root: true });
-              })
-              .catch((err) => {
-                console.log('error fetching bootstrap data: errMsg=', err);
-                console.log(
-                  "Note: If you haven't logged in yet and you just got a 403 error, then it's expected"
-                );
-
-                // http 400 denotes expired cookie at server - logout the user and make user to signin
-                if (err.response && err.response.status === 400) {
-                  dispatch('logout');
-                }
-              });
-            commit('setInstance', { instance: agent, user: rootState?.user.username });
-            await dispatch('unlockWallet');
-            commit('startAllNotifiers');
-          } catch (e) {
-            console.error(e);
+          if (newOpts?.newAgentOpts) {
+            Object.assign(agentOpts, newOpts?.newAgentOpts);
+            commit('updateAgentOpts', agentOpts, { root: true });
           }
+          if (newOpts?.newProfileOpts) {
+            Object.assign(profileOpts, newOpts?.newProfileOpts);
+            commit('updateProfileOpts', profileOpts, { root: true });
+          }
+          // Initialize agent and update state accordingly
+          const agent = await new Agent.Framework(agentOpts);
+          commit('setInstance', { instance: agent, user: username });
+
+          // For new users fetch newly created bootstrap data
+          if (newUser) {
+            const newOpts = await getBootstrapData(agentOpts, hubAuthURL, dispatch, accessToken);
+            if (newOpts?.newAgentOpts) {
+              Object.assign(agentOpts, newOpts?.newAgentOpts);
+              commit('updateAgentOpts', agentOpts, { root: true });
+            }
+            if (newOpts?.newProfileOpts) {
+              Object.assign(profileOpts, newOpts?.newProfileOpts);
+              commit('updateProfileOpts', profileOpts, { root: true });
+            }
+          }
+
+          await dispatch('unlockWallet');
+          commit('startAllNotifiers');
         },
         async unlockWallet({ state, rootGetters, dispatch }) {
           // create wallet profile if it doesn't exist
 
-          let profileOpts = rootGetters.getProfileOpts;
+          const profileOpts = rootGetters.getProfileOpts;
 
-          let { user } = profileOpts.bootstrap.data;
+          const { user } = profileOpts.bootstrap.data;
 
-          let walletUser = new WalletUser({ agent: state.instance, user });
+          const walletUser = new WalletUser({ agent: state.instance, user });
           if (!(await walletUser.profileExists())) {
-            let createOpts = profileCreationOpts(profileOpts);
-
+            const createOpts = profileCreationOpts(profileOpts);
             await walletUser.createWalletProfile(createOpts);
           }
 
-          let { token } = await walletUser.unlock(profileUnlockOpts(profileOpts));
+          const { token } = await walletUser.unlock(profileUnlockOpts(profileOpts));
 
           await dispatch('refreshUserPreference', { user, token }, { root: true });
 
@@ -450,9 +379,9 @@ export default {
           }
         },
         async destroy({ commit, state, rootGetters, dispatch }) {
-          let { user } = rootGetters.getCurrentUser.profile;
+          const { user } = rootGetters.getCurrentUser.profile;
 
-          let walletUser = new WalletUser({ agent: state.instance, user });
+          const walletUser = new WalletUser({ agent: state.instance, user });
           try {
             await walletUser.lock();
           } catch (e) {
@@ -485,9 +414,11 @@ export default {
 };
 
 // options for creating wallet profile
-function profileCreationOpts(opts) {
-  let { bootstrap, config } = opts;
+function profileCreationOpts(agentOpts) {
+  const { bootstrap, config } = agentOpts;
+
   let keyStoreURL, localKMSPassphrase, edvConfiguration;
+
   // webkms
   if (config.kmsType == 'webkms') {
     keyStoreURL = bootstrap.data.opsKeyStoreURL;
@@ -495,7 +426,7 @@ function profileCreationOpts(opts) {
 
   // local
   if (config.kmsType == 'local') {
-    localKMSPassphrase = config.localKMSScret;
+    localKMSPassphrase = config.localKMSPassphrase;
   }
 
   // edv
@@ -511,10 +442,11 @@ function profileCreationOpts(opts) {
   return { keyStoreURL, localKMSPassphrase, edvConfiguration };
 }
 
-function profileUnlockOpts(opts) {
-  let { bootstrap, userConfig, config } = opts;
+function profileUnlockOpts(agentOpts) {
+  const { bootstrap, userConfig, config } = agentOpts;
 
   let webKMSAuth, localKMSPassphrase, edvUnlocks;
+
   // webkms
   if (config.kmsType == 'webkms') {
     webKMSAuth = {
@@ -527,7 +459,7 @@ function profileUnlockOpts(opts) {
 
   // local
   if (config.kmsType == 'local') {
-    localKMSPassphrase = config.localKMSScret;
+    localKMSPassphrase = config.localKMSPassphrase;
   }
 
   // edv
