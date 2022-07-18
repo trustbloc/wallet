@@ -3,6 +3,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
+import { createKeyPair } from '@trustbloc/wallet-sdk';
 
 const dbName = 'gnap-store';
 const dbObjectStore = 'gnap-keypair-store';
@@ -17,7 +18,7 @@ export async function getGnapKeyPair() {
 }
 
 async function createAndStoreGnapKeyPair() {
-  const gnapKeyPair = await createKeyPair();
+  const gnapKeyPair = await createKeyPair('ECDSA', 'P-256', true, ['sign', 'verify']);
   callOnStore(function (store) {
     store.add(gnapKeyPair, storekey);
   });
@@ -69,16 +70,4 @@ function callOnStore(fn_) {
       db.close();
     };
   };
-}
-
-// TODO Issue-364 Add gnap create key pair logic to agent sdk library
-function createKeyPair() {
-  return window.crypto.subtle.generateKey(
-    {
-      name: 'ECDSA',
-      namedCurve: 'P-256',
-    },
-    true, //TODO: Consider other solutions for better security
-    ['sign', 'verify']
-  );
 }
