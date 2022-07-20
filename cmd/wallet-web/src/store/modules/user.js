@@ -300,6 +300,8 @@ export default {
 
           const { privateKey } = await getGnapKeyPair();
           const signingKey = await window.crypto.subtle.exportKey('jwk', privateKey);
+          signingKey.kid = 'key1';
+          signingKey.alg = 'ES256';
 
           // Updating agentOpts with new user data
           const agentOpts = rootGetters.getAgentOpts;
