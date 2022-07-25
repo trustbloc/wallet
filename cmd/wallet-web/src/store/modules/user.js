@@ -19,6 +19,7 @@ export default {
     profile: null,
     loggedIn: false,
     logInSuspended: false,
+    loaded: false,
     chapi: false,
     selectedVaultId: null,
     selectedCredentialId: null,
@@ -63,6 +64,9 @@ export default {
     setLogInSuspended(state) {
       state.logInSuspended = true;
     },
+    setLoaded(state, val) {
+      state.loaded = val;
+    },
     setSelectedVaultId(state, val) {
       state.selectedVaultId = val;
       if (val !== null) {
@@ -104,6 +108,7 @@ export default {
       state.setupStatus = null;
       state.profile = null;
       state.loggedIn = false;
+      state.loaded = false;
       state.chapi = false;
       state.selectedVaultId = null;
       state.selectedCredentialId = null;
@@ -179,6 +184,9 @@ export default {
     updateLoginSuspended({ commit }) {
       commit('setLogInSuspended');
     },
+    updateUserLoaded({ commit }, loaded) {
+      commit('setLoaded', loaded);
+    },
     activateCHAPI({ commit }) {
       commit('setCHAPI', true);
     },
@@ -214,6 +222,9 @@ export default {
     },
     isLoginSuspended(state) {
       return state.logInSuspended;
+    },
+    isUserLoaded(state) {
+      return state.loaded;
     },
     isCHAPI(state) {
       return state.chapi;
