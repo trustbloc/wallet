@@ -14,10 +14,12 @@ export async function gnapRequestAccess(
   walletWebURL,
   nonceVal
 ) {
-  const exportedJwk = await window.crypto.subtle.exportKey('jwk', signer.SignatureVal.publicKey);
+  const exportedJwk = await window.crypto.subtle.exportKey('jwk', signer.signingKey.publicKey);
+  exportedJwk.kid = signer.signingKey.kid;
+  exportedJwk.alg = signer.signingKey.alg;
   const gnapReq = {
     access_token: [gnapAccessTokens],
-    client: { key: { jwk: exportedJwk } },
+    client: { key: { jwk: exportedJwk, proof: signer.proofType() } },
     interact: {
       start: ['redirect'],
       finish: {

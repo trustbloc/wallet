@@ -9,16 +9,23 @@ const dbName = 'gnap-store';
 const dbObjectStore = 'gnap-keypair-store';
 const storekey = 'gnap';
 
-export async function getGnapKeyPair() {
+export async function getGnapKeyPair(kid, alg) {
   const gnapKeyPair = await fetchStoredGnapKeyPair();
   if (gnapKeyPair === undefined) {
-    return createAndStoreGnapKeyPair();
+    if (!kid)
+      throw new Error('Error getting GNAP keypair: keypair does not exist and kid is missing');
+    if (!alg)
+      throw new Error('Error getting GNAP keypair: keypair does not exist and alg is missing');
+    return createAndStoreGnapKeyPair(kid, alg);
   }
   return gnapKeyPair;
 }
 
-async function createAndStoreGnapKeyPair() {
+async function createAndStoreGnapKeyPair(kid, alg) {
+  if (!kid) throw new Error('Error getting GNAP keypair: kid is missing');
+  if (!alg) throw new Error('Error getting GNAP keypair: alg is missing');
   const gnapKeyPair = await createKeyPair('ECDSA', 'P-256', true, ['sign', 'verify']);
+  Object.assign(gnapKeyPair, { kid, alg });
   callOnStore(function (store) {
     store.add(gnapKeyPair, storekey);
   });

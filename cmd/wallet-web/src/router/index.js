@@ -9,6 +9,7 @@ import store from '@/store';
 import { getGnapKeyPair, gnapContinue, gnapRequestAccess } from '@/mixins';
 import routes from './routes';
 import { SHA3 } from 'sha3';
+import { HTTPSigner } from '@trustbloc/wallet-sdk';
 
 const router = createRouter({
   history: createWebHistory(__webpack_public_path__),
@@ -33,8 +34,11 @@ router.beforeEach(async (to, from) => {
       hashB64 = hashB64.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
       if (hash === hashB64) {
         const gnapAuthServerURL = store.getters.hubAuthURL;
-        const gnapKeyPair = await getGnapKeyPair();
-        const signer = { SignatureVal: gnapKeyPair };
+        const gnapKeyPair = await getGnapKeyPair('key1', 'ES256');
+        const signer = new HTTPSigner({
+          authorization: gnapResp.continue_access_token.value,
+          signingKey: gnapKeyPair,
+        });
 
         const gnapContinueResp = await gnapContinue(
           signer,
@@ -104,8 +108,12 @@ router.beforeEach(async (to, from) => {
       const gnapAccessTokens = await store.getters['getGnapAccessTokenConfig'];
       const gnapAuthServerURL = store.getters.hubAuthURL;
       const walletWebUrl = store.getters.walletWebUrl;
-      const gnapKeyPair = await getGnapKeyPair();
-      const signer = { SignatureVal: gnapKeyPair };
+      const gnapKeyPair = await getGnapKeyPair('key1', 'ES256');
+
+      const signer = new HTTPSigner({
+        signingKey: gnapKeyPair,
+      });
+
       const clientNonceVal = (Math.random() + 1).toString(36).substring(7);
 
       const resp = await gnapRequestAccess(
