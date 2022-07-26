@@ -5,7 +5,7 @@
 -->
 
 <script setup>
-import { onBeforeMount, onMounted, onUnmounted, ref } from 'vue';
+import { onBeforeMount, onMounted, onUnmounted, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import getStartingLocale from '@/mixins/i18n/getStartingLocale.js';
 import { updateI18nLocale } from '@/plugins/i18n';
@@ -13,19 +13,17 @@ import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
 
 // Local Variables
 const startingLocale = getStartingLocale(); // Get starting locale, set it in i18n and in the store
-const loaded = ref(false);
 
 // Hooks
 const store = useStore();
+
+// Store Getters
+const userLoaded = computed(() => store.getters['isUserLoaded']);
 
 store.dispatch('setLocale', startingLocale);
 
 onBeforeMount(async () => {
   await updateI18nLocale(startingLocale.id);
-});
-
-onMounted(() => {
-  loaded.value = true;
 });
 
 onUnmounted(() => {
@@ -37,7 +35,7 @@ onUnmounted(() => {
 </script>
 <template>
   <div class="w-screen h-screen font-sans bg-neutrals-mischka">
-    <div v-if="!loaded" class="flex relative top-1/3 flex-col justify-start items-center">
+    <div v-if="!userLoaded" class="flex relative top-1/3 flex-col justify-start items-center">
       <SpinnerIcon />
       <span class="mt-6">Loading Wallet . . .</span>
     </div>

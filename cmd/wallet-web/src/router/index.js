@@ -64,6 +64,7 @@ router.beforeEach(async (to, from) => {
         // later on, if we need to authenticate the same user again we just call requestAccess
         // if needed, it will return us a new continue access token to complete user authentication
         store.dispatch('updateGnapReqAccessResp', null);
+        store.dispatch('updateUserLoaded', true);
 
         return { name: 'DashboardLayout' };
       }
@@ -83,8 +84,8 @@ router.beforeEach(async (to, from) => {
         } catch (e) {
           console.error('error initializing agent for existing user:', e);
         }
-        return;
       }
+      store.dispatch('updateUserLoaded', true);
       return;
     } else if (store.dispatch('loadUser') && store.getters.getCurrentUser) {
       if (!store.getters['agent/isInitialized']) {
@@ -98,8 +99,8 @@ router.beforeEach(async (to, from) => {
         } catch (e) {
           console.error('error initializing agent for existing user:', e);
         }
-        return;
       }
+      store.dispatch('updateUserLoaded', true);
       return;
     } else {
       // User is not authenticated, request access from auth server
@@ -138,8 +139,8 @@ router.beforeEach(async (to, from) => {
           } catch (e) {
             console.error('error initializing agent for new user:', e);
           }
-          return;
         }
+        store.dispatch('updateUserLoaded', true);
         return;
       }
 
@@ -168,8 +169,8 @@ router.beforeEach(async (to, from) => {
         } catch (e) {
           console.error('error initializing agent for existing user:', e);
         }
-        return;
       }
+      store.dispatch('updateUserLoaded', true);
       return;
     } else if (store.dispatch('loadUser') && store.getters.getCurrentUser) {
       if (!store.getters['agent/isInitialized']) {
@@ -183,10 +184,11 @@ router.beforeEach(async (to, from) => {
         } catch (e) {
           console.error('error initializing agent for existing user:', e);
         }
-        return;
       }
+      store.dispatch('updateUserLoaded', true);
       return;
     } else {
+      store.dispatch('updateUserLoaded', true);
       return {
         name: 'block-no-auth',
         params: {
@@ -207,10 +209,9 @@ router.beforeEach(async (to, from) => {
         },
         query: to.query,
       });
-      return;
-    } else {
-      return;
     }
+    store.dispatch('updateUserLoaded', true);
+    return;
   }
 });
 
