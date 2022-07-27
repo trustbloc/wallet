@@ -19,7 +19,6 @@ services:
       - AGENT_DEFAULT_LABEL=wallet-web
       - BLOC_DOMAIN=testnet.orb.local
       - DID_ANCHOR_ORIGIN=https://testnet.orb.local
-      - EDGE_AGENT_SERVER=https://wallet-server.trustbloc.local:8090
       - HTTP_SERVER_HUB_AUTH_URL=https://auth.trustbloc.local:8044
       - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
       - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
