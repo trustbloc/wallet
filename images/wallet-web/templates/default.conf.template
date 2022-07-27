@@ -76,7 +76,6 @@ server {
             "blindedRouting":"${BLINDED_ROUTING}",
             "storageType":"${STORAGE_TYPE}",
             "edvServerURL":"${EDV_SERVER_URL}",
-            "edge-agent-server":"${EDGE_AGENT_SERVER}",
             "kmsType":"${KMS_TYPE}",
             "localKMSPassphrase":"${LOCAL_KMS_PASSPHRASE}",
             "useEDVCache":${USE_EDV_CACHE},

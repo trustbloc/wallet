@@ -24,7 +24,6 @@ You also need to add the following lines to your `hosts` file (`/etc/hosts` on \
 ```
 127.0.0.1 testnet.orb.local
 127.0.0.1 wallet.trustbloc.local
-127.0.0.1 wallet-server.trustbloc.local
 127.0.0.1 mediator.trustbloc.local
 127.0.0.1 uni-resolver-web.trustbloc.local
 127.0.0.1 auth.trustbloc.local

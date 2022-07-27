@@ -7,7 +7,7 @@ import * as Agent from '@trustbloc/agent-sdk-web';
 import { WalletUser } from '@trustbloc/wallet-sdk';
 import { toRaw } from 'vue';
 import { getBootstrapData } from '@/mixins/gnap/gnap';
-import { clearGnapStoreData, getGnapKeyPair } from '@/mixins/gnap/store';
+import { clearGnapStoreData, exportJWKGnapPrivateKey } from '@/mixins/gnap/store';
 import { RegisterWallet } from '@/mixins';
 
 export const parseTIme = (ns) => parseInt(ns) * 60 * 10 ** 9;
@@ -298,10 +298,7 @@ export default {
           const hubAuthURL = rootGetters.hubAuthURL;
           if (!hubAuthURL) throw new Error('Error initializing agent: hubAuthURL is missing');
 
-          const { privateKey, kid, alg } = await getGnapKeyPair();
-          const signingKey = await window.crypto.subtle.exportKey('jwk', privateKey);
-          signingKey.kid = kid;
-          signingKey.alg = alg;
+          const signingKey = await exportJWKGnapPrivateKey();
 
           // Updating agentOpts with new user data
           const agentOpts = rootGetters.getAgentOpts;
@@ -315,22 +312,24 @@ export default {
             'gnap-user-subject': subjectId,
           });
 
-          const newOpts = await getBootstrapData(agentOpts, hubAuthURL, dispatch, accessToken);
+          if (process.env.NODE_ENV === 'production') {
+            const newOpts = await getBootstrapData(agentOpts, hubAuthURL, dispatch, accessToken);
 
-          if (newOpts?.newAgentOpts) {
-            Object.assign(agentOpts, newOpts?.newAgentOpts);
-            commit('updateAgentOpts', agentOpts, { root: true });
-          }
-          if (newOpts?.newProfileOpts) {
-            Object.assign(profileOpts, newOpts?.newProfileOpts);
-            commit('updateProfileOpts', profileOpts, { root: true });
+            if (newOpts?.newAgentOpts) {
+              Object.assign(agentOpts, newOpts?.newAgentOpts);
+              commit('updateAgentOpts', agentOpts, { root: true });
+            }
+            if (newOpts?.newProfileOpts) {
+              Object.assign(profileOpts, newOpts?.newProfileOpts);
+              commit('updateProfileOpts', profileOpts, { root: true });
+            }
           }
           // Initialize agent and update state accordingly
           const agent = await new Agent.Framework(agentOpts);
           commit('setInstance', { instance: agent, user: username });
 
           // For new users fetch newly created bootstrap data
-          if (newUser) {
+          if (process.env.NODE_ENV === 'production' && newUser) {
             const newOpts = await getBootstrapData(agentOpts, hubAuthURL, dispatch, accessToken);
             if (newOpts?.newAgentOpts) {
               Object.assign(agentOpts, newOpts?.newAgentOpts);

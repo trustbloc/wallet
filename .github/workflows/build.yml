@@ -130,7 +130,6 @@ jobs:
         run: |
           echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 wallet.trustbloc.local' | sudo tee -a /etc/hosts
-          echo '127.0.0.1 wallet-server.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 mediator.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 uni-resolver-web.trustbloc.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 auth.trustbloc.local' | sudo tee -a /etc/hosts

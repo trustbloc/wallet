@@ -21,6 +21,20 @@ export async function getGnapKeyPair(kid, alg) {
   return gnapKeyPair;
 }
 
+export async function exportJWKGnapPrivateKey() {
+  const { privateKey, kid, alg } = await getGnapKeyPair();
+  const signingKey = await window.crypto.subtle.exportKey('jwk', privateKey);
+  Object.assign(signingKey, { kid, alg });
+  return signingKey;
+}
+
+export async function exportJWKGnapPublicKey() {
+  const { publicKey, kid, alg } = await getGnapKeyPair();
+  const signingKey = await window.crypto.subtle.exportKey('jwk', publicKey);
+  Object.assign(signingKey, { kid, alg });
+  return signingKey;
+}
+
 async function createAndStoreGnapKeyPair(kid, alg) {
   if (!kid) throw new Error('Error getting GNAP keypair: kid is missing');
   if (!alg) throw new Error('Error getting GNAP keypair: alg is missing');

@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import axios from 'axios';
 import { GNAPClient } from '@trustbloc/wallet-sdk';
+import { exportJWKGnapPublicKey } from '@/mixins/gnap/store';
 
 export async function gnapRequestAccess(
   signer,
@@ -14,12 +15,10 @@ export async function gnapRequestAccess(
   walletWebURL,
   nonceVal
 ) {
-  const exportedJwk = await window.crypto.subtle.exportKey('jwk', signer.signingKey.publicKey);
-  exportedJwk.kid = signer.signingKey.kid;
-  exportedJwk.alg = signer.signingKey.alg;
+  const signingKey = await exportJWKGnapPublicKey();
   const gnapReq = {
     access_token: [gnapAccessTokens],
-    client: { key: { jwk: exportedJwk, proof: signer.proofType() } },
+    client: { key: { jwk: signingKey, proof: signer.proofType() } },
     interact: {
       start: ['redirect'],
       finish: {

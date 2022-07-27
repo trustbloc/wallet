@@ -25,7 +25,6 @@ DNS.3 = testnet.orb.local
 DNS.4 = hydra
 DNS.5 = *.example.com
 DNS.6 = wallet.trustbloc.local
-DNS.7 = wallet-server.trustbloc.local
 DNS.8 = mediator.trustbloc.local
 DNS.9 = uni-resolver-web.trustbloc.local
 DNS.10 = file-server.trustbloc.local
