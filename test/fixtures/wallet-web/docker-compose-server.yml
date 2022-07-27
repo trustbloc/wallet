@@ -93,7 +93,6 @@ services:
       - AUTH_REST_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
       - AUTH_REST_STATIC_IMAGES=/etc/static/images
       - GNAP_ACCESS_POLICY=/etc/static/config/access_policy.json
-      - GNAP_DEV_MODE=true
     ports:
       - 8044:8044
     entrypoint: ""
