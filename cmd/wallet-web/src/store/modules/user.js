@@ -298,10 +298,10 @@ export default {
           const hubAuthURL = rootGetters.hubAuthURL;
           if (!hubAuthURL) throw new Error('Error initializing agent: hubAuthURL is missing');
 
-          const { privateKey } = await getGnapKeyPair();
+          const { privateKey, kid, alg } = await getGnapKeyPair();
           const signingKey = await window.crypto.subtle.exportKey('jwk', privateKey);
-          signingKey.kid = 'key1';
-          signingKey.alg = 'ES256';
+          signingKey.kid = kid;
+          signingKey.alg = alg;
 
           // Updating agentOpts with new user data
           const agentOpts = rootGetters.getAgentOpts;
