@@ -67,26 +67,6 @@ generate-test-keys:
 		--entrypoint "/opt/workspace/wallet/scripts/generate_test_keys.sh" \
 		frapsoft/openssl
 
-.PHONY: generate-openapi-spec
-generate-openapi-spec:
-	@echo "Generating and validating controller API specifications using Open API"
-	@mkdir -p build/rest/openapi/spec
-	@SPEC_LOC=${OPENAPI_SPEC_PATH}  \
-	DOCKER_IMAGE=$(OPENAPI_DOCKER_IMG) DOCKER_IMAGE_VERSION=$(OPENAPI_DOCKER_IMG_VERSION)  \
-	scripts/generate-openapi-spec.sh
-
-.PHONY: generate-openapi-demo-specs
-generate-openapi-demo-specs: generate-openapi-spec
-	@echo "Generate demo wallet server rest controller API specifications using Open API"
-	@SPEC_PATH=${OPENAPI_SPEC_PATH} OPENAPI_DEMO_PATH=test/fixtures/wallet-web \
-    	DOCKER_IMAGE=$(OPENAPI_DOCKER_IMG) DOCKER_IMAGE_VERSION=$(OPENAPI_DOCKER_IMG_VERSION)  \
-    	scripts/generate-openapi-demo-specs.sh
-
-.PHONY: run-openapi-demo
-run-openapi-demo: generate-openapi-demo-specs generate-test-keys mock-images
-	@echo "Starting demo wallet server rest containers ..."
-	@DEMO_COMPOSE_PATH=test/fixtures/wallet-web scripts/run-openapi-demo.sh
-
 .PHONY: wallet-web-start
 wallet-web-start: clean wallet-web-docker mock-images generate-test-keys
 	@scripts/wallet_web_start.sh
