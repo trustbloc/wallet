@@ -12,12 +12,10 @@ The TrustBloc Wallet repo contains a Web Wallet to store/share [W3C Verifiable C
 
 The wallet uses [TrustBloc Wallet SDK](https://github.com/trustbloc/agent-sdk/tree/main/cmd/wallet-js-sdk) built on top of [Aries Verifiable Credential wallet](https://github.com/hyperledger/aries-framework-go/blob/main/docs/vc_wallet.md) based on [Universal Wallet Specifications](https://w3c-ccg.github.io/universal-wallet-interop-spec/) implementation.
 
-The [Wallet Web](./cmd/wallet-web) works together with [Wallet Server](./cmd/wallet-server) to support user actions.
 
 ## Components
 
 - [Wallet Web](docs/components/wallet_web.md)
-- [Wallet Server](docs/components/wallet_server.md)
 
 ## Build
 
