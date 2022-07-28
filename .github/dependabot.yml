@@ -56,35 +56,6 @@ updates:
       - "dependencies"
       - "area: integration tests"
 
-  # Root go.mod
-  - package-ecosystem: "gomod"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "tuesday"
-      timezone: "America/Toronto"
-    open-pull-requests-limit: 1
-    commit-message:
-      prefix: "chore(deps): "
-    labels:
-      - "dependencies"
-      - "area: backend"
-
-  # Wallet Server go.mod
-  - package-ecosystem: "gomod"
-    directory: "/cmd/wallet-server"
-    schedule:
-      interval: "weekly"
-      day: "wednesday"
-      time: "04:00"
-      timezone: "America/Toronto"
-    open-pull-requests-limit: 1
-    commit-message:
-      prefix: "chore(deps): "
-    labels:
-      - "dependencies"
-      - "area: backend"
-
   # Demo Login Consent Server go.mod
   - package-ecosystem: "gomod"
     directory: "/test/mock/demo-login-consent-server"
@@ -106,20 +77,6 @@ updates:
       interval: "weekly"
       day: "thursday"
       time: "04:00"
-      timezone: "America/Toronto"
-    open-pull-requests-limit: 1
-    commit-message:
-      prefix: "chore(deps): "
-    labels:
-      - "dependencies"
-      - "area: docker"
-
-  # Wallet Server Dockerfile
-  - package-ecosystem: "docker"
-    directory: "/images/wallet-server"
-    schedule:
-      interval: "weekly"
-      day: "thursday"
       timezone: "America/Toronto"
     open-pull-requests-limit: 1
     commit-message:

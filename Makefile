@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-WALLET_SERVER_PATH	= cmd/wallet-server
-
 # GO version
 ALPINE_VER ?= 3.15
 GO_TAGS    ?=
@@ -24,7 +22,7 @@ export SHELL	:= /bin/bash
 export TERM		:= xterm-256color
 
 .PHONY: all
-all: clean checks unit-test automation-test
+all: clean checks automation-test
 
 .PHONY: checks
 checks: license lint
@@ -36,10 +34,6 @@ lint:
 .PHONY: license
 license:
 	@scripts/check_license.sh
-
-.PHONY: unit-test
-unit-test:
-	@scripts/check_unit.sh
 
 .PHONY: wallet-web-test
 wallet-web-test:
@@ -65,19 +59,6 @@ wallet-web-docker: wallet-web
 	@echo "Building wallet-web docker image"
 	@docker build -f ./images/wallet-web/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(REPO_IMAGE_NAME)/wallet-web:latest .
 
-.PHONY: wallet-server
-wallet-server:
-	@echo "Building wallet-server"
-	@cd ${WALLET_SERVER_PATH} && go build -o ../../build/bin/wallet-server main.go
-
-.PHONY: wallet-server-docker
-wallet-server-docker:
-	@echo "Building wallet-server docker image"
-	@docker build -f ./images/wallet-server/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(REPO_IMAGE_NAME)/wallet-server:latest \
-	--build-arg GO_VER=$(GO_VER) \
-	--build-arg ALPINE_VER=$(ALPINE_VER) \
-	--build-arg GO_TAGS=$(GO_TAGS) .
-
 .PHONY: generate-test-keys
 generate-test-keys:
 	@mkdir -p -p test/fixtures/keys/tls
@@ -102,12 +83,12 @@ generate-openapi-demo-specs: generate-openapi-spec
     	scripts/generate-openapi-demo-specs.sh
 
 .PHONY: run-openapi-demo
-run-openapi-demo: generate-openapi-demo-specs wallet-server-docker generate-test-keys mock-images
+run-openapi-demo: generate-openapi-demo-specs generate-test-keys mock-images
 	@echo "Starting demo wallet server rest containers ..."
 	@DEMO_COMPOSE_PATH=test/fixtures/wallet-web scripts/run-openapi-demo.sh
 
 .PHONY: wallet-web-start
-wallet-web-start: clean wallet-server-docker wallet-web-docker mock-images generate-test-keys
+wallet-web-start: clean wallet-web-docker mock-images generate-test-keys
 	@scripts/wallet_web_start.sh
 
 # starting wallet-web in dev mode for hot deployment
@@ -129,7 +110,7 @@ mock-adapter:
 mock-images: mock-adapter mock-demo-login-consent-docker
 
 .PHONY: automation-test
-automation-test: clean wallet-server-docker wallet-web-docker mock-images generate-test-keys
+automation-test: clean wallet-web-docker mock-images generate-test-keys
 	@scripts/run_ui_automation.sh
 
 .PHONY: clean
