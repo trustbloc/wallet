@@ -31,6 +31,7 @@ services:
       - EDV_GNAP_SIGNING_KEY=/etc/gnap-edv-priv-key.pem
       - EDV_AUTH_SERVER_URL=https://auth.trustbloc.local:8044
       - EDV_CORS_ENABLE=true
+      - EDV_HOST_URL_EXTERNAL=https://edv.trustbloc.local:${EDV_PORT}
     ports:
       - ${EDV_PORT}:${EDV_PORT}
     volumes:
@@ -93,7 +94,6 @@ services:
       - AUTH_REST_COOKIE_ENC_KEY=/etc/keys/session_cookies/enc.key
       - AUTH_REST_STATIC_IMAGES=/etc/static/images
       - GNAP_ACCESS_POLICY=/etc/static/config/access_policy.json
-      - GNAP_DEV_MODE=true
     ports:
       - 8044:8044
     entrypoint: ""
