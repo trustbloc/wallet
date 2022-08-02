@@ -15,7 +15,7 @@
     "test": "test"
   },
   "dependencies": {
-    "@wdio/cli": "^7.20.2",
+    "@wdio/cli": "^7.20.9",
     "chromedriver": "^103.0.0",
     "wdio-chromedriver-service": "^7.2.8"
   },
