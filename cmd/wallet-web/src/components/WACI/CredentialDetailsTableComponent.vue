@@ -19,7 +19,7 @@
           {{ property?.label }}
         </td>
         <td
-          v-if="property?.type === 'image' || property?.schema?.format?.includes('image')"
+          v-if="property?.type === 'image' || property?.schema?.contentMediaType?.includes('image')"
           class="py-4 pr-6 pl-3 w-3/5 text-neutrals-dark break-words"
         >
           <img :src="property?.value" class="w-20 h-20" />

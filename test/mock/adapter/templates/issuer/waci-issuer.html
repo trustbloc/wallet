@@ -5,38 +5,34 @@ SPDX-License-Identifier: Apache-2.0
  -->
 
 <html lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta charset="utf-8"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
     <title>Demo Issuer</title>
     <script type="text/javascript">
-        function submitAction(action) {
-            document.getElementById("waci-issuance-form").action = action
-        }
+      function submitAction(action) {
+        document.getElementById("waci-issuance-form").action = action;
+      }
     </script>
-</head>
+  </head>
 
-<body>
-<h1>WACI Issuance Demo</h1>
+  <body>
+    <h1>WACI Issuance Demo</h1>
 
-<form action="" id="waci-issuance-form">
-    <label>Wallet URL</label><br/>
-    <input
-            type="text"
-            id="walletURL"
-            name="walletURL"
-            value="https://wallet.trustbloc.local:8091"
-            size="50"
-    />
-    <br/>
+    <form action="" id="waci-issuance-form">
+      <label>Wallet URL</label><br />
+      <input
+        type="text"
+        id="walletURL"
+        name="walletURL"
+        value="https://wallet.trustbloc.local:8091"
+        size="50"
+      />
+      <br />
 
-    <label>Credential Manifest</label><br/>
-    <textarea
-            id="credManifest"
-            name="credManifest"
-            rows="10"
-            cols="75">
+      <label>Credential Manifest</label><br />
+      <textarea id="credManifest" name="credManifest" rows="10" cols="75">
         {
           "output_descriptors":[
              {
@@ -71,7 +67,7 @@ SPDX-License-Identifier: Apache-2.0
                          ],
                          "schema":{
                             "type":"string",
-                            "format":"image/png"
+                            "contentMediaType":"image/png"
                          },
                          "label":"Card Holder"
                       },
@@ -161,13 +157,9 @@ SPDX-License-Identifier: Apache-2.0
           }
        }
       </textarea>
-    <br/>
-    <label>Credential Fulfillment</label><br/>
-    <textarea
-            id="fulfillment"
-            name="fulfillment"
-            rows="10"
-            cols="75">
+      <br />
+      <label>Credential Fulfillment</label><br />
+      <textarea id="fulfillment" name="fulfillment" rows="10" cols="75">
 {
   "credential_fulfillment": {
     "descriptor_map": [
@@ -181,15 +173,12 @@ SPDX-License-Identifier: Apache-2.0
     "manifest_id": "dcc75a16-19f5-4273-84ce-4da69ee2b7fe"
   }
 }
-        </textarea>
-    <br/>
+        </textarea
+      >
+      <br />
 
-    <label>Credential To Issue</label><br/>
-    <textarea
-            id="credToIssue"
-            name="credToIssue"
-            rows="35"
-            cols="75">
+      <label>Credential To Issue</label><br />
+      <textarea id="credToIssue" name="credToIssue" rows="35" cols="75">
 {
       "@context": [
         "https://www.w3.org/2018/credentials/v1",
@@ -224,18 +213,27 @@ SPDX-License-Identifier: Apache-2.0
         "PermanentResidentCard"
       ]
     }
-</textarea>
-    <br/>
-    <br/>
-    <input type="submit" id="waci-issuance-demo" value="Demo (DIDComm v1)"
-           onclick="javascript:submitAction('/issuer/waci-issuance')"/>
-    <input type="submit" id="waci-issuance-demo-v2" value="Demo (DIDComm v2)"
-           onclick="javascript:submitAction('/issuer/waci-issuance-v2')"/>
-</form>
+</textarea
+      >
+      <br />
+      <br />
+      <input
+        type="submit"
+        id="waci-issuance-demo"
+        value="Demo (DIDComm v1)"
+        onclick="javascript:submitAction('/issuer/waci-issuance')"
+      />
+      <input
+        type="submit"
+        id="waci-issuance-demo-v2"
+        value="Demo (DIDComm v2)"
+        onclick="javascript:submitAction('/issuer/waci-issuance-v2')"
+      />
+    </form>
 
-<br/>
-<br/>
+    <br />
+    <br />
 
-<b>{{.Msg}} </b>
-</body>
+    <b>{{.Msg}} </b>
+  </body>
 </html>

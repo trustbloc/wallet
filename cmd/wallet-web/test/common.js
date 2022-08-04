@@ -30,7 +30,7 @@ export function getTestData(filename) {
 // loadFrameworks loads agent instance
 export async function loadFrameworks({ name = 'user-agent', logLevel = '' } = {}) {
   let agentOpts = JSON.parse(JSON.stringify(agentStartupOpts));
-  agentOpts['indexedDB-namespace'] = `${name}db`;
+  agentOpts['indexed-db-namespace'] = `${name}db`;
   agentOpts['agent-default-label'] = `${name}-wallet-web`;
 
   if (logLevel) {

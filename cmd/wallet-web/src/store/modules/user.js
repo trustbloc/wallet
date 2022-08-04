@@ -426,23 +426,23 @@ export default {
 };
 
 // options for creating wallet profile
-function profileCreationOpts(agentOpts) {
-  const { bootstrap, config } = agentOpts;
+function profileCreationOpts(profileOpts) {
+  const { bootstrap, config } = profileOpts;
 
   let keyStoreURL, localKMSPassphrase, edvConfiguration;
 
   // webkms
-  if (config.kmsType == 'webkms') {
+  if (config.kmsType === 'webkms') {
     keyStoreURL = bootstrap.data.opsKeyStoreURL;
   }
 
   // local
-  if (config.kmsType == 'local') {
+  if (config.kmsType === 'local') {
     localKMSPassphrase = config.localKMSPassphrase;
   }
 
   // edv
-  if (config.storageType == 'edv') {
+  if (config['storage-type'] === 'edv') {
     edvConfiguration = {
       serverURL: bootstrap.data.userEDVServer,
       vaultID: bootstrap.data.userEDVVaultID,
@@ -454,13 +454,13 @@ function profileCreationOpts(agentOpts) {
   return { keyStoreURL, localKMSPassphrase, edvConfiguration };
 }
 
-function profileUnlockOpts(agentOpts) {
-  const { bootstrap, userConfig, config } = agentOpts;
+function profileUnlockOpts(profileOpts) {
+  const { bootstrap, userConfig, config } = profileOpts;
 
   let webKMSAuth, localKMSPassphrase, edvUnlocks;
 
   // webkms
-  if (config.kmsType == 'webkms') {
+  if (config.kmsType === 'webkms') {
     webKMSAuth = {
       gnapToken: userConfig.accessToken,
       secretShare: userConfig.walletSecretShare, // Not present
@@ -470,12 +470,12 @@ function profileUnlockOpts(agentOpts) {
   }
 
   // local
-  if (config.kmsType == 'local') {
+  if (config.kmsType === 'local') {
     localKMSPassphrase = config.localKMSPassphrase;
   }
 
   // edv
-  if (config.storageType == 'edv') {
+  if (config['storage-type'] === 'edv') {
     edvUnlocks = {
       gnapToken: userConfig.accessToken,
       secretShare: userConfig.walletSecretShare,
