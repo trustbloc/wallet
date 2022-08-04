@@ -5,64 +5,68 @@ SPDX-License-Identifier: Apache-2.0
  -->
 
 <html lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta charset="utf-8"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
     <title>Demo OIDC Issuer</title>
     <script type="text/javascript">
-        function setIssuerURL(action) {
-            document.getElementById("issuerURL").value = location.protocol + '//' + location.host;
-        }
+      function setIssuerURL(action) {
+        document.getElementById("issuerURL").value =
+          location.protocol + "//" + location.host;
+      }
     </script>
-</head>
+  </head>
 
-<body>
-<h1>OIDC Verifiable Credential Issuance Demo</h1>
+  <body>
+    <h1>OIDC Verifiable Credential Issuance Demo</h1>
 
-<form action="/issuer/oidc/issuance" id="oidc-issuance-form" method="POST">
-    <input type="hidden" id="issuerURL" name="issuerURL" value=""/>
-    <table style="border-spacing: 10px;">
+    <form action="/issuer/oidc/issuance" id="oidc-issuance-form" method="POST">
+      <input type="hidden" id="issuerURL" name="issuerURL" value="" />
+      <table style="border-spacing: 10px">
         <tr>
-            <td><label>Wallet Initiate Issuance URL</label></td>
-            <td><input
-                    type="text"
-                    id="walletURL"
-                    name="walletInitIssuanceURL"
-                    value="https://wallet.trustbloc.local:8091/oidc/initiate"
-                    size="50"
-            /></td>
+          <td><label>Wallet Initiate Issuance URL</label></td>
+          <td>
+            <input
+              type="text"
+              id="walletURL"
+              name="walletInitIssuanceURL"
+              value="https://wallet.trustbloc.local:8091/oidc/initiate"
+              size="50"
+            />
+          </td>
         </tr>
 
         <tr>
-            <td><label>Credential Types</label></td>
-            <td><input
-                    type="text"
-                    id="credentialTypes"
-                    name="credentialTypes"
-                    value="https://w3id.org/citizenship/v1"
-                    size="50"
-            /></td>
+          <td><label>Credential Types</label></td>
+          <td>
+            <input
+              type="text"
+              id="credentialTypes"
+              name="credentialTypes"
+              value="https://w3id.org/citizenship/v1"
+              size="50"
+            />
+          </td>
         </tr>
 
         <tr>
-            <td><label>Manifest IDs</label></td>
-            <td><input
-                    type="text"
-                    id="manifestIDs"
-                    name="manifestIDs"
-                    value="GE-PRC-2022-CLASS-A"
-                    size="50"
-            /></td>
+          <td><label>Manifest IDs</label></td>
+          <td>
+            <input
+              type="text"
+              id="manifestIDs"
+              name="manifestIDs"
+              value="GE-PRC-2022-CLASS-A"
+              size="50"
+            />
+          </td>
         </tr>
 
         <tr>
-            <td><label>Credential Manifests</label></td>
-            <td>     <textarea
-                    id="credManifest"
-                    name="credManifest"
-                    rows="10"
-                    cols="50">
+          <td><label>Credential Manifests</label></td>
+          <td>
+            <textarea id="credManifest" name="credManifest" rows="10" cols="50">
         [{
           "output_descriptors":[
              {
@@ -95,7 +99,7 @@ SPDX-License-Identifier: Apache-2.0
                         "path": ["$.credentialSubject.image"],
                         "schema": {
                           "type": "string",
-                          "format": "image/png"
+                          "mediaType": "image/png"
                         },
                         "label": "Card Holder"
                       },
@@ -184,17 +188,15 @@ SPDX-License-Identifier: Apache-2.0
             "styles": {}
           }
        }]
-      </textarea></td>
+      </textarea
+            >
+          </td>
         </tr>
 
-
         <tr>
-            <td><label>Credentials to Issue</label></td>
-            <td><textarea
-                    id="credsToIssue"
-                    name="credsToIssue"
-                    rows="20"
-                    cols="50">
+          <td><label>Credentials to Issue</label></td>
+          <td>
+            <textarea id="credsToIssue" name="credsToIssue" rows="20" cols="50">
 {
     "https://w3id.org/citizenship/v1": {
         "@context": [
@@ -231,22 +233,28 @@ SPDX-License-Identifier: Apache-2.0
         ]
     }
 }
-                </textarea></td>
+                </textarea
+            >
+          </td>
         </tr>
-    </table>
+      </table>
 
-    <input type="submit" id="oidc-issuance" value="Demo" onclick="javascript:setIssuerURL()"/>
-</form>
+      <input
+        type="submit"
+        id="oidc-issuance"
+        value="Demo"
+        onclick="javascript:setIssuerURL()"
+      />
+    </form>
 
-<br/>
-<br/>
+    <br />
+    <br />
 
-<b>{{.Msg}} </b>
-<br/>
+    <b>{{.Msg}} </b>
+    <br />
 
-<b style="color:red;">{{.ErrMsg}} </b>
+    <b style="color: red">{{.ErrMsg}} </b>
 
-<br/>
-
-</body>
+    <br />
+  </body>
 </html>
