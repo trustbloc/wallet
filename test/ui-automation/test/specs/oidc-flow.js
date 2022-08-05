@@ -58,7 +58,7 @@ const issuerManifests = [
               path: ["$.credentialSubject.image"],
               schema: {
                 type: "string",
-                mediaType: "image/png",
+                contentMediaType: "image/png",
               },
               label: "Card Holder",
             },

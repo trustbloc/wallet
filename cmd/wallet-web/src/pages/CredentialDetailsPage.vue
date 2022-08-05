@@ -90,7 +90,7 @@
           <!-- TODO: Add the dropdown for the nested credentials 1016 -->
           <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
           <td
-            v-if="property.schema.mediatype === 'image/png'"
+            v-if="property.schema.contentMediaType === 'image/png'"
             class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
           >
             <img :src="property.value" class="w-20 h-20" />
