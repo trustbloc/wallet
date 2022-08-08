@@ -7,23 +7,23 @@
 <template>
   <div>
     <!-- Mobile Credentials Layout -->
-    <div v-if="breakpoints.xs || breakpoints.sm" class="flex flex-col justify-start w-screen">
+    <div v-if="breakpoints.xs || breakpoints.sm" class="flex w-screen flex-col justify-start">
       <SkeletonLoaderComponent v-if="loading" type="Flyout" />
       <FlyoutComponent v-else :tool-tip-label="t('Credentials.switchVaults')">
         <template #button="{ toggleFlyoutMenu, setShowTooltip }">
           <button
             id="credentials-flyout-menu-button-mobile"
-            class="inline-flex justify-between items-center px-3 w-screen h-11 bg-neutrals-white border border-neutrals-chatelle outline-none focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 focus-within:ring-offset-2 md:w-auto md:rounded-lg hover:border-neutrals-mountainMist-light"
+            class="inline-flex h-11 w-screen items-center justify-between border border-neutrals-chatelle bg-neutrals-white px-3 outline-none focus-within:ring-offset-2 hover:border-neutrals-mountainMist-light focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 md:w-auto md:rounded-lg"
             @click="toggleFlyoutMenu()"
             @focus="setShowTooltip(false)"
             @mouseover="setShowTooltip(true)"
             @mouseout="setShowTooltip(false)"
           >
-            <img class="w-6 h-6" src="@/assets/img/icons-sm--vault-icon.svg" />
-            <span class="grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">
+            <img class="h-6 w-6" src="@/assets/img/icons-sm--vault-icon.svg" />
+            <span class="grow truncate pl-2 text-left text-sm font-bold text-neutrals-dark">
               {{ selectedVaultName }}
             </span>
-            <img class="w-6 h-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
+            <img class="h-6 w-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
           </button>
         </template>
         <template #menu>
@@ -52,7 +52,7 @@
       </div>
     </div>
     <!-- Desktop Credentials Layout -->
-    <div v-else class="flex justify-between items-center mb-8 w-full align-middle">
+    <div v-else class="mb-8 flex w-full items-center justify-between align-middle">
       <div class="flex grow">
         <h3 class="m-0 font-bold text-neutrals-dark">{{ t('Credentials.credentials') }}</h3>
       </div>
@@ -61,17 +61,17 @@
         <template #button="{ toggleFlyoutMenu, setShowTooltip }">
           <button
             id="credentials-flyout-menu-button-desktop"
-            class="inline-flex justify-between items-center px-3 w-screen h-11 bg-neutrals-white border border-neutrals-chatelle outline-none focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 focus-within:ring-offset-2 md:w-auto md:rounded-lg hover:border-neutrals-mountainMist-light"
+            class="inline-flex h-11 w-screen items-center justify-between border border-neutrals-chatelle bg-neutrals-white px-3 outline-none focus-within:ring-offset-2 hover:border-neutrals-mountainMist-light focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 md:w-auto md:rounded-lg"
             @click="toggleFlyoutMenu()"
             @focus="setShowTooltip(false)"
             @mouseover="setShowTooltip(true)"
             @mouseout="setShowTooltip(false)"
           >
-            <img class="w-6 h-6" src="@/assets/img/icons-sm--vault-icon.svg" />
-            <span class="grow pl-2 text-sm font-bold text-left text-neutrals-dark truncate">
+            <img class="h-6 w-6" src="@/assets/img/icons-sm--vault-icon.svg" />
+            <span class="grow truncate pl-2 text-left text-sm font-bold text-neutrals-dark">
               {{ selectedVaultName }}
             </span>
-            <img class="w-6 h-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
+            <img class="h-6 w-6" src="@/assets/img/icons-sm--chevron-down-icon.svg" />
           </button>
         </template>
         <template #menu="{ toggleFlyoutMenu }">
@@ -122,7 +122,7 @@
             <div class="mb-5 md:mx-0">
               <span class="text-xl font-bold text-neutrals-dark">{{ vault.name }}</span>
             </div>
-            <ul class="grid grid-cols-1 gap-4 my-8 xl:grid-cols-2 xl:gap-8">
+            <ul class="my-8 grid grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-8">
               <li v-for="(credential, index) in vault.credentials" :key="index">
                 <CredentialPreviewComponent
                   :id="credential.id"
@@ -143,7 +143,7 @@
       </div>
       <div
         v-else
-        class="py-8 px-6 mx-auto rounded-lg border border-neutrals-thistle nocredentialCard"
+        class="nocredentialCard mx-auto rounded-lg border border-neutrals-thistle py-8 px-6"
       >
         <div class="flex justify-center">
           <img src="@/assets/img/icons-md--credentials-icon.svg" />
@@ -233,7 +233,7 @@ export default {
         });
         return metadataList.map((credential) => ({
           id: encode(credential.id),
-          name: credential.name,
+          name: credential.name || credential.resolved[0].title,
           ...credential.resolved[0],
         }));
       } catch (e) {

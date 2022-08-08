@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <div v-if="!showMainState" class="flex flex-col grow justify-center items-center w-full h-full">
+  <div v-if="!showMainState" class="flex h-full w-full grow flex-col items-center justify-center">
     <!-- Loading State -->
     <WACILoadingComponent v-if="loading" />
 
@@ -23,27 +23,27 @@
   </div>
 
   <!-- Main State -->
-  <div v-else class="flex overflow-hidden flex-col grow justify-between items-center w-full h-full">
-    <div class="flex overflow-auto justify-center w-full">
+  <div v-else class="flex h-full w-full grow flex-col items-center justify-between overflow-hidden">
+    <div class="flex w-full justify-center overflow-auto">
       <div
-        class="flex flex-col grow justify-start items-start py-8 px-5 w-full max-w-3xl h-full md:px-0"
+        class="flex h-full w-full max-w-3xl grow flex-col items-start justify-start py-8 px-5 md:px-0"
       >
         <span class="mb-6 text-3xl font-bold">{{
           t('CHAPI.Share.shareCredential', processedCredentials.length)
         }}</span>
-        <div class="flex flex-row justify-start items-start mb-4 w-full">
-          <div class="flex-none w-12 h-12 border-opacity-10">
+        <div class="mb-4 flex w-full flex-row items-start justify-start">
+          <div class="h-12 w-12 flex-none border-opacity-10">
             <!-- todo issue-1055 Read meta data from external urls -->
             <img src="@/assets/img/generic-issuer-icon.svg" />
           </div>
           <div class="flex flex-col pl-3">
-            <span class="flex-1 mb-1 text-sm font-bold text-left text-neutrals-dark text-ellipsis">
+            <span class="mb-1 flex-1 text-ellipsis text-left text-sm font-bold text-neutrals-dark">
               <!-- todo issue-1055 Read meta data from external urls -->
               Requestor
             </span>
-            <div class="flex flex-row justify-center items-center">
+            <div class="flex flex-row items-center justify-center">
               <img src="@/assets/img/small-lock-icon.svg" />
-              <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium text-ellipsis">
+              <span class="flex-1 text-ellipsis pl-1 text-left text-xs text-neutrals-medium">
                 {{ requestOrigin }}
               </span>
             </div>
@@ -57,17 +57,17 @@
         <!-- Single Credential Overview (with details) -->
         <CredentialOverviewComponent
           v-if="processedCredentials.length === 1"
-          class="my-5 waci-share-credential-overview-root"
+          class="waci-share-credential-overview-root my-5"
           :credential="processedCredentials[0]"
         >
           <template #bannerBottomContainer>
             <div
-              class="flex absolute flex-row justify-start items-start px-5 pt-13 pb-3 w-full bg-neutrals-white rounded-b-xl waci-share-credential-overview-vault"
+              class="waci-share-credential-overview-vault absolute flex w-full flex-row items-start justify-start rounded-b-xl bg-neutrals-white px-5 pt-13 pb-3"
             >
               <span class="flex text-sm font-bold text-neutrals-dark">
                 {{ t('CredentialDetails.Banner.vault') }}
               </span>
-              <span class="flex ml-3 text-sm text-neutrals-medium">
+              <span class="ml-3 flex text-sm text-neutrals-medium">
                 {{ processedCredentials[0].vaultName }}
               </span>
             </div>
@@ -81,7 +81,7 @@
         </CredentialOverviewComponent>
 
         <!-- List of Credential Banners (Links to Details for each) -->
-        <ul v-else-if="processedCredentials.length > 1" class="mt-6 space-y-5 w-full">
+        <ul v-else-if="processedCredentials.length > 1" class="mt-6 w-full space-y-5">
           <li v-for="(credential, index) in processedCredentials" :key="index">
             <CredentialBannerComponent
               :id="credential.id"
@@ -230,7 +230,13 @@ export default {
           const {
             content: { name: vaultName },
           } = await this.collectionManager.get(this.token, collection);
-          this.processedCredentials.push({ id, name, issuanceDate, ...resolved[0], vaultName });
+          this.processedCredentials.push({
+            id,
+            name: name || resolved[0].title,
+            issuanceDate,
+            ...resolved[0],
+            vaultName,
+          });
         });
       } catch (e) {
         this.errors.push('No credentials found matching requested criteria.');
