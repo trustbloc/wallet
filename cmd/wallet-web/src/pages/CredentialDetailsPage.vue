@@ -5,20 +5,20 @@
 -->
 <template>
   <!-- Loading State -->
-  <div v-if="loading" class="flex flex-col justify-start items-start py-6 px-3">
-    <div class="flex flex-row justify-between items-center mb-4 w-full">
+  <div v-if="loading" class="flex flex-col items-start justify-start py-6 px-3">
+    <div class="mb-4 flex w-full flex-row items-center justify-between">
       <h3 class="text-neutrals-dark">{{ t('CredentialDetails.heading') }}</h3>
     </div>
     <SkeletonLoaderComponent type="CredentialDetailsBanner" />
-    <div class="flex flex-col justify-start items-start mt-8 w-full md:mt-2">
+    <div class="mt-8 flex w-full flex-col items-start justify-start md:mt-2">
       <span class="mb-5 text-xl font-bold text-neutrals-dark">{{
         t('CredentialDetails.verifiedInformation')
       }}</span>
       <SkeletonLoaderComponent class="w-full" type="VerifiedInformation" />
     </div>
   </div>
-  <div v-else-if="credential" class="flex flex-col justify-start items-start py-6 px-3">
-    <div class="flex flex-row justify-between items-center mb-4 w-full">
+  <div v-else-if="credential" class="flex flex-col items-start justify-start py-6 px-3">
+    <div class="mb-4 flex w-full flex-row items-center justify-between">
       <div class="flex grow">
         <h3 class="text-neutrals-dark">{{ t('CredentialDetails.heading') }}</h3>
       </div>
@@ -26,7 +26,7 @@
         <template #button="{ toggleFlyoutMenu, setShowTooltip }">
           <button
             id="credential-details-flyout-button"
-            class="w-11 h-11 bg-neutrals-white rounded-lg border border-neutrals-chatelle focus:border-neutrals-chatelle outline-none focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70 focus-within:ring-offset-2 hover:border-neutrals-mountainMist-light"
+            class="h-11 w-11 rounded-lg border border-neutrals-chatelle bg-neutrals-white outline-none focus-within:ring-offset-2 hover:border-neutrals-mountainMist-light focus:border-neutrals-chatelle focus:ring-2 focus:ring-primary-purple focus:ring-opacity-70"
             @click="toggleFlyoutMenu()"
             @focus="setShowTooltip(false)"
             @mouseover="setShowTooltip(true)"
@@ -77,7 +77,7 @@
       :vault-name="vaultName"
     />
     <!-- List of Credential Details -->
-    <div class="flex flex-col justify-start items-start mt-8 w-full md:mt-2">
+    <div class="mt-8 flex w-full flex-col items-start justify-start md:mt-2">
       <span class="mb-5 text-xl font-bold text-neutrals-dark">{{
         t('CredentialDetails.verifiedInformation')
       }}</span>
@@ -85,17 +85,17 @@
         <tr
           v-for="(property, index) of credential.properties"
           :key="index"
-          class="border-b border-neutrals-thistle border-dotted"
+          class="border-b border-dotted border-neutrals-thistle"
         >
           <!-- TODO: Add the dropdown for the nested credentials 1016 -->
           <td class="py-4 pr-6 pl-3 text-neutrals-medium">{{ property.label }}</td>
           <td
             v-if="property.schema.format === 'image/png'"
-            class="py-4 pr-6 pl-3 text-neutrals-dark break-words"
+            class="break-all py-4 pr-6 pl-3 text-neutrals-dark"
           >
-            <img :src="property.value" class="w-20 h-20" />
+            <img :src="property.value" class="h-20 w-20" />
           </td>
-          <td v-else class="py-4 pr-6 pl-3 text-neutrals-dark break-words">
+          <td v-else class="break-all py-4 pr-6 pl-3 text-neutrals-dark">
             {{ property.value }}
           </td>
         </tr>
@@ -195,13 +195,18 @@ export default {
             this.token,
             decode(this.$route.params.id)
           );
-        this.credential = { id, issuanceDate, name, ...resolved[0] };
+        this.credential = { id, issuanceDate, name: name || resolved[0].title, ...resolved[0] };
       } catch (e) {
         console.error('failed to fetch a credential:', e);
       }
     },
-    handleRenameModalClose: function () {
+    handleRenameModalClose: async function () {
       this.showRenameModal = false;
+      const metadata = await this.credentialManager.getCredentialMetadata(
+        this.token,
+        decode(this.$route.params.id)
+      );
+      this.credential.name = metadata.name;
     },
     handleDeleteModalClose: function () {
       this.showDeleteModal = false;
