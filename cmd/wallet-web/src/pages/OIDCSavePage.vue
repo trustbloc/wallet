@@ -98,7 +98,12 @@ import WACIErrorComponent from '@/components/WACI/WACIErrorComponent.vue';
 import WACILoadingComponent from '@/components/WACI/WACILoadingComponent.vue';
 import WACISuccessComponent from '@/components/WACI/WACISuccessComponent.vue';
 import CredentialDetailsTableComponent from '@/components/WACI/CredentialDetailsTableComponent.vue';
-import { readOpenIDConfiguration, requestCredential, requestToken } from '@/mixins';
+import {
+  readOpenIDConfiguration,
+  requestCredential,
+  requestToken,
+  resolveManifest,
+} from '@/mixins';
 import Cookies from 'js-cookie';
 import jp from 'jsonpath';
 
@@ -258,12 +263,11 @@ export default {
         throw 'unable to find matching manifest'; // TODO handle this error, Issue #1531
       }
 
-      const processed = await this.credentialManager.resolveManifest(this.token, {
+      const processed = await resolveManifest(this.credentialManager, this.token, {
         credential,
         manifest,
         descriptorID,
       });
-
       return { processed, descriptorID, manifest };
     },
   },

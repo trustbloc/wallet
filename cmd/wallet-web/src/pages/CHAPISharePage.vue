@@ -12,6 +12,7 @@ import {
   getCredentialIcon,
   WalletGetByQuery,
   prepareCredentialManifest,
+  resolveManifest,
 } from '@/mixins';
 import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
 import { useI18n } from 'vue-i18n';
@@ -71,7 +72,7 @@ onMounted(async () => {
     credentialManifests.value,
     requestOrigin.value
   );
-  credsFound.value = await credentialManager.resolveManifest(token, {
+  credsFound.value = await resolveManifest(credentialManager, token, {
     manifest,
     fulfillment: presentation.value,
   });

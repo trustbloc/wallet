@@ -357,3 +357,83 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
   credentialManifest.output_descriptors = Array.from(uniqueOutputDescriptors);
   return credentialManifest;
 }
+
+/**
+ * Check credential manifest for missing optional properties before resolving to ensure the
+ * resolved manifest has all fields required for wallet to display the credential properly
+ *
+ *  @param {Object} credentialManager - Credential Manager to resolve manifest.
+ *  @param {String} auth - authorization token for wallet operations.
+ *  @param {Object} options - options to resolve credential from wallet.
+ *  @param {String} options.credentialID - (optional) ID of the credential to be resolved from wallet content store.
+ *  @param {String} options.credential - (optional) raw credential data model to be resolved.
+ *  @param {String} options.fulfillment - (optional) credential fulfillment using which given raw credential or credential ID to be resolved.
+ *  @param {String} options.manifestID - (optional) ID of the manifest from wallet content store.
+ *  @param {String} options.manifest - (optional) raw manifest to be used for resolving credential.
+ *  @param {String} options.descriptorID - (optional) if fulfillment not provided then this descriptor ID can be used to resolve credential.
+ *
+ *  @returns {Promise<Object>} - promise containing resolved results or error if operation fails.
+ */
+export function resolveManifest(
+  credentialManager,
+  auth,
+  { credentialID, credential, fulfillment, manifestID, manifest, descriptorID }
+) {
+  const cred = credential || fulfillment.verifiableCredential[0];
+  const filledManifest = checkManifestForMissingFields(manifest, getCredentialType(cred.type));
+  return credentialManager.resolveManifest(auth, {
+    credentialID,
+    credential,
+    fulfillment,
+    manifestID,
+    manifest: filledManifest,
+    descriptorID,
+  });
+}
+
+function checkManifestForMissingFields(manifest, credentialType) {
+  const outputDescriptor = manifest.output_descriptors[0];
+  const defaultOutputDescriptor = getDefaultOutputDescriptor(credentialType);
+  if (!outputDescriptor.display) {
+    outputDescriptor.display = defaultOutputDescriptor.display;
+  } else {
+    const displayProperties = ['title', 'subtitle', 'description'];
+    displayProperties.forEach((property) => {
+      if (isEmpty(outputDescriptor.display[property])) {
+        outputDescriptor.display[property] = defaultOutputDescriptor.display[property];
+      }
+    });
+  }
+  if (!outputDescriptor.styles) {
+    outputDescriptor.styles = defaultOutputDescriptor.styles;
+  } else {
+    const styleProperties = ['thumbnail', 'hero', 'background', 'text'];
+    styleProperties.forEach((property) => {
+      if (isEmpty(outputDescriptor.styles[property])) {
+        outputDescriptor.styles[property] = defaultOutputDescriptor.styles[property];
+      }
+    });
+  }
+  manifest.output_descriptors[0] = outputDescriptor;
+
+  return manifest;
+}
+
+function getDefaultOutputDescriptor(credentialType) {
+  const defaultManifests = require('@/config/credential-output-descriptors.json');
+  if (!Object.prototype.hasOwnProperty(defaultManifests, credentialType)) {
+    console.error('default credential manifest for credential type does not exist');
+  }
+  const defaultManifest = defaultManifests[credentialType];
+  const outputDescriptor = defaultManifest[Object.keys(defaultManifest)[0]].output_descriptors[0];
+  return outputDescriptor;
+}
+
+// Check if the object or any of its sub-objects are empty
+function isEmpty(property) {
+  if (!property) return true;
+  for (const key in property) {
+    if (Object.keys(property[key]).length === 0) return true;
+  }
+  return false;
+}
