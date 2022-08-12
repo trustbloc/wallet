@@ -106,6 +106,7 @@ import {
   getCredentialIcon,
   isVPType,
   prepareCredentialManifest,
+  resolveManifest,
 } from '@/mixins';
 import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { mapGetters } from 'vuex';
@@ -170,7 +171,7 @@ export default {
       credential.showDetails = !credential.showDetails;
     },
     fetchCredentials: async function () {
-      this.processedCredentials = await this.credentialManager.resolveManifest(this.token, {
+      this.processedCredentials = await resolveManifest(this.credentialManager, this.token, {
         manifest: this.manifest,
         fulfillment: this.presentation,
       });

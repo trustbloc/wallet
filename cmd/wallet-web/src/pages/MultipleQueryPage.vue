@@ -191,7 +191,12 @@
 <script>
 import { toRaw } from 'vue';
 import { CredentialManager } from '@trustbloc/wallet-sdk';
-import { normalizeQuery, getCredentialIcon, prepareCredentialManifest } from '@/mixins';
+import {
+  normalizeQuery,
+  getCredentialIcon,
+  prepareCredentialManifest,
+  resolveManifest,
+} from '@/mixins';
 import { mapGetters } from 'vuex';
 import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
 import { useI18n } from 'vue-i18n';
@@ -235,7 +240,7 @@ export default {
         this.getCredentialManifests(),
         this.protocolHandler.requestor()
       );
-      this.processedCredentials = await this.credentialManager.resolveManifest(this.token, {
+      this.processedCredentials = await resolveManifest(this.credentialManager, this.token, {
         manifest,
         fulfillment: this.presentation[0],
       });

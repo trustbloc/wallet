@@ -89,6 +89,7 @@ import { mapGetters } from 'vuex';
 import { CollectionManager, CredentialManager, DIDComm } from '@trustbloc/wallet-sdk';
 import { useI18n } from 'vue-i18n';
 import { WACIStore } from '@/layouts/WACILayout.vue';
+import { resolveManifest } from '@/mixins';
 import CustomSelectComponent from '@/components/CustomSelect/CustomSelectComponent.vue';
 import StyledButtonComponent from '@/components/StyledButton/StyledButtonComponent.vue';
 import CredentialOverviewComponent from '@/components/WACI/CredentialOverviewComponent.vue';
@@ -178,7 +179,7 @@ export default {
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     prepareCards: async function () {
       const { fulfillment, manifest } = this.interactionData;
-      this.processedCredentials = await this.credentialManager.resolveManifest(this.token, {
+      this.processedCredentials = await resolveManifest(this.credentialManager, this.token, {
         manifest,
         fulfillment,
       });
