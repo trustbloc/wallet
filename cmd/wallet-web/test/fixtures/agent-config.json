@@ -7,10 +7,10 @@
     "agent-default-label": "wallet-test-agent",
     "auto-accept": true,
     "log-level": "debug",
-    "indexedDB-namespace": "agent",
-    "storageType": "indexedDB",
+    "indexed-db-namespace": "agent",
+    "storage-type": "indexedDB",
     "didAnchorOrigin": "origin",
-    "blocDomain": "testnet.orb.local",
+    "bloc-domain": "testnet.orb.local",
     "context-provider-url": ["http://localhost:11096/agent-startup-contexts.json"]
   }
 }

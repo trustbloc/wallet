@@ -198,13 +198,17 @@ func (v *adapterApp) waciShare(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	// generate OOB invitation
-	inv, err := v.agent.OOBClient.CreateInvitation(nil, outofband.WithGoal("share-vp", "streamlined-vp"))
+	inv, err := v.agent.OOBClient.CreateInvitation(nil,
+		outofband.WithAccept(transport.MediaTypeAIP2RFC0019Profile, transport.MediaTypeProfileDIDCommAIP1),
+		outofband.WithGoal("share-vp", "streamlined-vp"))
 	if err != nil {
 		handleError(w, http.StatusInternalServerError,
 			fmt.Sprintf("failed to create oob invitation : %s", err))
 
 		return
 	}
+
+	pdBytes = []byte(r.FormValue("pEx"))
 
 	v.waciInvitationRedirect(w, r, inv)
 }
@@ -222,6 +226,8 @@ func (v *adapterApp) waciShareV2(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	pdBytes = []byte(r.FormValue("pEx"))
 
 	v.waciInvitationRedirect(w, r, inv)
 }
@@ -267,7 +273,7 @@ func (v *adapterApp) waciInvitationRedirect(w http.ResponseWriter, r *http.Reque
 	invBytes, err := json.Marshal(inv)
 	if err != nil {
 		handleError(w, http.StatusInternalServerError,
-			fmt.Sprintf("failed to unmarshal invitation : %s", err))
+			fmt.Sprintf("failed to marshal invitation : %s", err))
 
 		return
 	}
@@ -836,8 +842,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 				action.Stop(nil)
 			}
 
-			var pd *presexch.PresentationDefinition
-
+			pd := presexch.PresentationDefinition{}
 			err = json.Unmarshal(pdBytes, &pd)
 			if err != nil {
 				logger.Errorf("failed to unmarshal presentation definition", err)
@@ -863,7 +868,7 @@ func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Stor
 						}{
 							Challenge: uuid.NewString(),
 							Domain:    uuid.NewString(),
-							PD:        pd,
+							PD:        &pd,
 						},
 						},
 					},

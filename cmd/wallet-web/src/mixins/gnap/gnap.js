@@ -65,24 +65,24 @@ export async function getBootstrapData(agentOpts, hubAuthURL, dispatch, accessTo
       const { data } = resp;
 
       // TODO to be removed after universal wallet migration
-      if (agentOpts.storageType === 'edv') {
-        Object.assign(newAgentOpts, { edvVaultID: data?.data?.userEDVVaultID });
+      if (agentOpts['storage-type'] === 'edv') {
+        Object.assign(newAgentOpts, { 'edv-vault-id': data?.data?.userEDVVaultID });
         // TODO this property is not returned from the bootstrap data - remove if not needed
-        Object.assign(newAgentOpts, { edvCapability: data?.data?.edvCapability });
+        Object.assign(newAgentOpts, { 'edv-capability': data?.data?.edvCapability });
       }
 
       // TODO to be removed after universal wallet migration
-      if (agentOpts.kmsType === 'webkms') {
-        Object.assign(newAgentOpts, { opsKeyStoreURL: data?.data?.opsKeyStoreURL });
-        Object.assign(newAgentOpts, { edvOpsKIDURL: data?.data?.edvOpsKIDURL });
-        Object.assign(newAgentOpts, { edvHMACKIDURL: data?.data?.edvHMACKIDURL });
+      if (agentOpts['kms-type'] === 'webkms') {
+        Object.assign(newAgentOpts, { 'ops-key-store-url': data?.data?.opsKeyStoreURL });
+        Object.assign(newAgentOpts, { 'edv-ops-kid-url': data?.data?.edvOpsKIDURL });
+        Object.assign(newAgentOpts, { 'edv-hmac-kid-url': data?.data?.edvHMACKIDURL });
       }
 
       // TODO to be removed after universal wallet migration
       // TODO this property is not returned from the bootstrap data - remove if not needed
-      Object.assign(newAgentOpts, { authzKeyStoreURL: data?.data?.authzKeyStoreURL });
+      Object.assign(newAgentOpts, { 'authz-key-store-url': data?.data?.authzKeyStoreURL });
       // TODO this property is not returned from the bootstrap data - remove if not needed
-      Object.assign(newAgentOpts, { opsKMSCapability: data?.data?.opsKMSCapability });
+      Object.assign(newAgentOpts, { 'ops-kms-capability': data?.data?.opsKMSCapability });
 
       return { newAgentOpts, newProfileOpts: { bootstrap: data } };
     })

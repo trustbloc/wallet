@@ -23,35 +23,35 @@ let defaultAgentStartupOpts = {
   'agent-default-label': 'demo-wallet-web',
   'auto-accept': true,
   'log-level': 'debug',
-  'indexedDB-namespace': 'agent',
+  'indexed-db-namespace': 'agent',
   // default backend server url
   'edge-agent-server': 'https://localhost:9099',
   walletWebUrl: 'https://localhost:9098',
   // remote JSON-LD context provider urls
   'context-provider-url': [],
 
-  blocDomain: 'testnet.orb.local',
+  'bloc-domain': 'testnet.orb.local',
   walletMediatorURL: '',
   blindedRouting: false,
   credentialMediatorURL: '',
-  storageType: `indexedDB`,
-  edvServerURL: '',
-  edvVaultID: '',
-  edvCapability: '',
-  authzKeyStoreURL: '',
-  kmsType: `local`,
+  'storage-type': `indexedDB`,
+  'edv-server-url': '',
+  'edv-vault-id': '',
+  'edv-capability': '',
+  'authz-key-store-url': '',
+  'kms-type': `local`,
   localKMSPassphrase: `demo`,
-  useEDVCache: false,
-  edvClearCache: '',
-  opsKMSCapability: '',
-  useEDVBatch: false,
-  cacheSize: 100,
-  edvBatchSize: 0,
-  didAnchorOrigin: 'origin',
-  sidetreeToken: '',
-  hubAuthURL: '',
+  'use-edv-cache': false,
+  'edv-clear-cache': '',
+  'ops-kms-capability': '',
+  'use-edv-batch': false,
+  'cache-size': 100,
+  'edv-batch-size': 0,
+  'did-anchor-origin': 'origin',
+  'sidetree-token': '',
+  'hub-auth-url': '',
   staticAssetsUrl: '',
-  unanchoredDIDMaxLifeTime: 0,
+  'unanchored-din-max-life-time': 0,
   'media-type-profiles': ['didcomm/aip2;env=rfc587', 'didcomm/v2'],
   'key-type': 'ecdsap256ieee1363',
   'key-agreement-type': 'p256kw',
@@ -99,8 +99,8 @@ export default {
 
         Object.assign(profileOpts, {
           config: {
-            storageType: agentOpts.storageType,
-            kmsType: agentOpts.kmsType,
+            storageType: agentOpts['storage-type'],
+            kmsType: agentOpts['kms-type'],
             localKMSPassphrase: agentOpts.localKMSPassphrase,
           },
         });
@@ -119,7 +119,7 @@ export default {
 
         // dev mode agent opts
         agentOpts.walletMediatorURL = 'https://localhost:10093';
-        agentOpts.hubAuthURL = 'https://localhost:8044';
+        agentOpts['hub-auth-url'] = 'https://localhost:8044';
 
         Object.assign(profileOpts, {
           bootstrap: {
@@ -129,8 +129,8 @@ export default {
             },
           },
           config: {
-            storageType: defaultAgentStartupOpts.storageType,
-            kmsType: defaultAgentStartupOpts.kmsType,
+            storageType: defaultAgentStartupOpts['storage-type'],
+            kmsType: defaultAgentStartupOpts['kms-type'],
             localKMSPassphrase: defaultAgentStartupOpts.localKMSPassphrase,
           },
         });
@@ -138,154 +138,50 @@ export default {
         readCredentialManifests = readManifests();
       }
 
+      const optValue = (opt) => (opt in agentOpts ? agentOpts[opt] : defaultAgentStartupOpts[opt]);
+
       commit('updateAgentOpts', {
         assetsPath: defaultAgentStartupOpts['assetsPath'],
         'outbound-transport': defaultAgentStartupOpts['outbound-transport'],
         'transport-return-route': defaultAgentStartupOpts['transport-return-route'],
-        'http-resolver-url':
-          'http-resolver-url' in agentOpts
-            ? agentOpts['http-resolver-url']
-            : defaultAgentStartupOpts['http-resolver-url'],
-        'agent-default-label':
-          'agent-default-label' in agentOpts
-            ? agentOpts['agent-default-label']
-            : defaultAgentStartupOpts['agent-default-label'],
-        'auto-accept':
-          'auto-accept' in agentOpts
-            ? agentOpts['auto-accept']
-            : defaultAgentStartupOpts['auto-accept'],
-        'log-level':
-          'log-level' in agentOpts ? agentOpts['log-level'] : defaultAgentStartupOpts['log-level'],
-        'indexedDB-namespace':
-          'indexedDB-namespace' in agentOpts
-            ? agentOpts['indexedDB-namespace']
-            : defaultAgentStartupOpts['indexedDB-namespace'],
-        'edge-agent-server':
-          'edge-agent-server' in agentOpts
-            ? agentOpts['edge-agent-server']
-            : defaultAgentStartupOpts['edge-agent-server'],
-        'context-provider-url':
-          'context-provider-url' in agentOpts
-            ? agentOpts['context-provider-url']
-            : defaultAgentStartupOpts['context-provider-url'],
-        blocDomain:
-          'blocDomain' in agentOpts
-            ? agentOpts['blocDomain']
-            : defaultAgentStartupOpts['blocDomain'],
-        walletMediatorURL:
-          'walletMediatorURL' in agentOpts
-            ? agentOpts['walletMediatorURL']
-            : defaultAgentStartupOpts['walletMediatorURL'],
-        credentialMediatorURL: credentialMediator(
-          'credentialMediatorURL' in agentOpts
-            ? agentOpts['credentialMediatorURL']
-            : defaultAgentStartupOpts['credentialMediatorURL']
-        ),
-        blindedRouting:
-          'blindedRouting' in agentOpts
-            ? agentOpts['blindedRouting']
-            : defaultAgentStartupOpts['blindedRouting'],
-        storageType:
-          'storageType' in agentOpts
-            ? agentOpts['storageType']
-            : defaultAgentStartupOpts['storageType'],
-        edvServerURL:
-          'edvServerURL' in agentOpts
-            ? agentOpts['edvServerURL']
-            : defaultAgentStartupOpts['edvServerURL'],
-        edvVaultID:
-          'edvVaultID' in agentOpts
-            ? agentOpts['edvVaultID']
-            : defaultAgentStartupOpts['edvVaultID'],
-        edvCapability:
-          'edvCapability' in agentOpts
-            ? agentOpts['edvCapability']
-            : defaultAgentStartupOpts['edvCapability'],
-        authzKeyStoreURL:
-          'authzKeyStoreURL' in agentOpts
-            ? agentOpts['authzKeyStoreURL']
-            : defaultAgentStartupOpts['authzKeyStoreURL'],
-        userConfig:
-          'userConfig' in agentOpts
-            ? agentOpts['userConfig']
-            : defaultAgentStartupOpts['userConfig'],
-        useEDVCache:
-          'useEDVCache' in agentOpts
-            ? agentOpts['useEDVCache']
-            : defaultAgentStartupOpts['useEDVCache'],
-        edvClearCache:
-          'edvClearCache' in agentOpts
-            ? agentOpts['edvClearCache']
-            : defaultAgentStartupOpts['edvClearCache'],
-        kmsType: 'kmsType' in agentOpts ? agentOpts['kmsType'] : defaultAgentStartupOpts['kmsType'],
-        opsKeyStoreURL:
-          'opsKeyStoreURL' in agentOpts
-            ? agentOpts['opsKeyStoreURL']
-            : defaultAgentStartupOpts['opsKeyStoreURL'],
-        edvOpsKIDURL:
-          'edvOpsKIDURL' in agentOpts
-            ? agentOpts['edvOpsKIDURL']
-            : defaultAgentStartupOpts['edvOpsKIDURL'],
-        edvHMACKIDURL:
-          'edvHMACKIDURL' in agentOpts
-            ? agentOpts['edvHMACKIDURL']
-            : defaultAgentStartupOpts['edvHMACKIDURL'],
-        opsKMSCapability:
-          'opsKMSCapability' in agentOpts
-            ? agentOpts['opsKMSCapability']
-            : defaultAgentStartupOpts['opsKMSCapability'],
-        useEDVBatch:
-          'useEDVBatch' in agentOpts
-            ? agentOpts['useEDVBatch']
-            : defaultAgentStartupOpts['useEDVBatch'],
-        edvBatchSize:
-          'edvBatchSize' in agentOpts
-            ? agentOpts['edvBatchSize']
-            : defaultAgentStartupOpts['edvBatchSize'],
-        unanchoredDIDMaxLifeTime:
-          'unanchoredDIDMaxLifeTime' in agentOpts
-            ? agentOpts['unanchoredDIDMaxLifeTime']
-            : defaultAgentStartupOpts['unanchoredDIDMaxLifeTime'],
-        useEDVBcacheSizeatch:
-          'cacheSize' in agentOpts ? agentOpts['cacheSize'] : defaultAgentStartupOpts['cacheSize'],
-        didAnchorOrigin:
-          'didAnchorOrigin' in agentOpts
-            ? agentOpts['didAnchorOrigin']
-            : defaultAgentStartupOpts['didAnchorOrigin'],
-        sidetreeToken:
-          'sidetreeToken' in agentOpts
-            ? agentOpts['sidetreeToken']
-            : defaultAgentStartupOpts['sidetreeToken'],
-        hubAuthURL:
-          'hubAuthURL' in agentOpts
-            ? agentOpts['hubAuthURL']
-            : defaultAgentStartupOpts['hubAuthURL'],
-        walletWebUrl:
-          'walletWebUrl' in agentOpts
-            ? agentOpts['walletWebUrl']
-            : defaultAgentStartupOpts['walletWebUrl'],
-        staticAssetsUrl:
-          'staticAssetsUrl' in agentOpts
-            ? agentOpts['staticAssetsUrl']
-            : defaultAgentStartupOpts['staticAssetsUrl'],
-        'media-type-profiles':
-          'media-type-profiles' in agentOpts
-            ? agentOpts['media-type-profiles']
-            : defaultAgentStartupOpts['media-type-profiles'],
-        'key-type':
-          'key-type' in agentOpts ? agentOpts['key-type'] : defaultAgentStartupOpts['key-type'],
-        'key-agreement-type':
-          'key-agreement-type' in agentOpts
-            ? agentOpts['key-agreement-type']
-            : defaultAgentStartupOpts['key-agreement-type'],
-        'web-socket-read-limit':
-          'web-socket-read-limit' in agentOpts
-            ? agentOpts['web-socket-read-limit']
-            : defaultAgentStartupOpts['web-socket-read-limit'],
-        'kms-server-url':
-          'kms-server-url' in agentOpts
-            ? agentOpts['kms-server-url']
-            : defaultAgentStartupOpts['kms-server-url'],
+        'http-resolver-url': optValue('http-resolver-url'),
+        'agent-default-label': optValue('agent-default-label'),
+        'auto-accept': optValue('auto-accept'),
+        'log-level': optValue('log-level'),
+        'indexed-db-namespace': optValue('indexed-db-namespace'),
+        'edge-agent-server': optValue('edge-agent-server'),
+        'context-provider-url': optValue('context-provider-url'),
+        'bloc-domain': optValue('bloc-domain'),
+        walletMediatorURL: optValue('walletMediatorURL'),
+        credentialMediatorURL: credentialMediator(optValue('credentialMediatorURL')),
+        blindedRouting: optValue('blindedRouting'),
+        'storage-type': optValue('storage-type'),
+        'edv-server-url': optValue('edv-server-url'),
+        'edv-vault-id': optValue('edv-vault-id'),
+        'edv-capability': optValue('edv-capability'),
+        'authz-key-store-url': optValue('authz-key-store-url'),
+        'user-config': optValue('user-config'),
+        'use-edv-cache': optValue('use-edv-cache'),
+        'edv-clear-cache': optValue('edv-clear-cache'),
+        'kms-type': optValue('kms-type'),
+        'ops-key-store-url': optValue('ops-key-store-url'),
+        'edv-ops-kid-url': optValue('edv-ops-kid-url'),
+        'edv-hmac-kid-url': optValue('edv-hmac-kid-url'),
+        'ops-kms-capability': optValue('ops-kms-capability'),
+        'use-edv-batch': optValue('use-edv-batch'),
+        'edv-batch-size': optValue('edv-batch-size'),
+        'unanchored-din-max-life-time': optValue('unanchored-din-max-life-time'),
+        'cache-size': optValue('cache-size'),
+        'did-anchor-origin': optValue('did-anchor-origin'),
+        'sidetree-token': optValue('sidetree-token'),
+        'hub-auth-url': optValue('hub-auth-url'),
+        walletWebUrl: optValue('walletWebUrl'),
+        staticAssetsUrl: optValue('staticAssetsUrl'),
+        'media-type-profiles': optValue('media-type-profiles'),
+        'key-type': optValue('key-type'),
+        'key-agreement-type': optValue('key-agreement-type'),
+        'web-socket-read-limit': optValue('web-socket-read-limit'),
+        'kms-server-url': optValue('kms-server-url'),
       });
 
       commit('updateProfileOpts', profileOpts);
@@ -324,7 +220,7 @@ export default {
       return state.agentOpts['edge-agent-server'];
     },
     hubAuthURL(state) {
-      return state.agentOpts['hubAuthURL'];
+      return state.agentOpts['hub-auth-url'];
     },
     walletWebUrl(state) {
       return state.agentOpts['walletWebUrl'];
