@@ -37,14 +37,13 @@ describe("TrustBloc Wallet - WACI flow", async function () {
     }
   });
 
-  // TODO: fix waci v1 error and reenable test
-  // describe(v1, function () {
-  //   let ctx = {
-  //     email: `ui-aut-waci-v1-${new Date().getTime()}@test.com`,
-  //   };
-  //
-  //   waciFlow(v1, ctx);
-  // });
+  describe(v1, function () {
+    let ctx = {
+      email: `ui-aut-waci-v1-${new Date().getTime()}@test.com`,
+    };
+
+    waciFlow(v1, ctx);
+  });
 
   // sleep for 3 secs between 2 flows
   await new Promise((resolve) => setTimeout(resolve, 3000));
