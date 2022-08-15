@@ -54,6 +54,10 @@ export class RegisterWallet {
     if (this.mediatorEndpoint) {
       try {
         // TODO to be figured out, reuse medaitor connection for V1 & V2 versions of DIDComm.
+        //  In the meantime, create didcomm v1 connection first.
+        await connectToMediator(this.agent, this.mediatorEndpoint, {
+          waitForStateComplete,
+        });
         await connectToMediator(this.agent, this.mediatorEndpoint, {
           waitForStateComplete,
           isDIDCommV2: true,
