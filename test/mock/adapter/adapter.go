@@ -1216,3 +1216,7 @@ func (s *edd25519Signer) Sign(doc []byte) ([]byte, error) {
 
 	return ed25519.Sign(s.privateKey, doc), nil
 }
+
+func (s *edd25519Signer) Alg() string {
+	return ""
+}
