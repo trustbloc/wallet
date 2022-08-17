@@ -57,6 +57,7 @@ let defaultAgentStartupOpts = {
   'key-agreement-type': 'p256kw',
   'web-socket-read-limit': 0,
   'kms-server-url': '',
+  enableDIDComm: false,
 };
 
 export default {
@@ -182,6 +183,7 @@ export default {
         'key-agreement-type': optValue('key-agreement-type'),
         'web-socket-read-limit': optValue('web-socket-read-limit'),
         'kms-server-url': optValue('kms-server-url'),
+        enableDIDComm: optValue('enableDIDComm'),
       });
 
       commit('updateProfileOpts', profileOpts);
@@ -239,6 +241,9 @@ export default {
       }
 
       return require('@/config/gnap-access-token.json');
+    },
+    getEnableDIDComm(state) {
+      return state.agentOpts['enableDIDComm'];
     },
   },
 };

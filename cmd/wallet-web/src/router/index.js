@@ -71,7 +71,28 @@ router.beforeEach(async (to, from) => {
       console.error('error authenticating user: invalid hash received');
       return false;
     }
-  } else if (to.matched.some((record) => record.meta.requiresAuth)) {
+  }
+
+  if (to.meta.requiresDIDComm) {
+    // Get enableDIDComm from wallet config
+    if (store.getters.getEnableDIDComm === undefined) {
+      await store.dispatch('initOpts');
+    }
+
+    if (!store.getters.getEnableDIDComm) {
+      store.dispatch('updateUserLoaded', true);
+      return {
+        name: 'NotFound',
+        params: {
+          title:
+            'The page you requested requires DIDComm, but your Wallet configuration does not support it at the moment.',
+          message: 'Please, contact your administrator.',
+        },
+      };
+    }
+  }
+
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (store.getters.getCurrentUser) {
       if (!store.getters['agent/isInitialized']) {
         const accessToken = store.getters.getGnapAccessToken;

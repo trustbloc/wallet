@@ -18,3 +18,7 @@ fi
 cp public/agent-js-worker/assets/agent-js-worker.wasm.gz public/agent-js-worker/assets/agent-js-worker.wasm.gz.bak
 gunzip public/agent-js-worker/assets/agent-js-worker.wasm.gz
 mv public/agent-js-worker/assets/agent-js-worker.wasm.gz.bak public/agent-js-worker/assets/agent-js-worker.wasm.gz
+
+cp public/agent-js-worker/assets/agent-vcwallet-js-worker.wasm.gz public/agent-js-worker/assets/agent-vcwallet-js-worker.wasm.gz.bak
+gunzip public/agent-js-worker/assets/agent-vcwallet-js-worker.wasm.gz
+mv public/agent-js-worker/assets/agent-vcwallet-js-worker.wasm.gz.bak public/agent-js-worker/assets/agent-vcwallet-js-worker.wasm.gz

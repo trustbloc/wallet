@@ -14,6 +14,17 @@ import StyledButtonComponent from '@/components/StyledButton/StyledButtonCompone
 import AppLinkComponent from '@/components/AppLink/AppLinkComponent.vue';
 import ErrorIcon from '@/components/icons/ErrorIcon.vue';
 
+const props = defineProps({
+  title: {
+    type: String,
+    default: 'Page not found ⸱ 404',
+  },
+  message: {
+    type: String,
+    default: 'This page cannot be found, or you have navigated to an invalid URL.',
+  },
+});
+
 const router = useRouter();
 const breakpoints = useBreakpoints();
 const loading = ref(false);
@@ -37,9 +48,11 @@ function handleClick() {
       class="flex overflow-hidden relative z-10 flex-col grow justify-start items-center px-6 pt-32 w-full h-full bg-neutrals-softWhite"
     >
       <ErrorIcon />
-      <span class="mt-6 text-3xl text-neutrals-dark">Page not found ⸱ 404</span>
+      <span class="text-neutrals-dark mt-6 text-3xl text-center">{{ title }}</span>
       <span class="mx-2 mt-2 text-base text-center text-neutrals-medium">
-        This page cannot be found, or you have navigated to an invalid URL.
+        <span class="text-neutrals-medium mx-2 mt-2 text-center text-base">
+          {{ message }}
+        </span>
       </span>
       <StyledButtonComponent type="btn-primary" :loading="loading" class="relative mt-6">
         <AppLinkComponent :to="{ name: 'vaults' }" @click="handleClick">Go Home</AppLinkComponent>

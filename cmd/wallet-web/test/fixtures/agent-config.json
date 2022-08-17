@@ -11,6 +11,7 @@
     "storage-type": "indexedDB",
     "didAnchorOrigin": "origin",
     "bloc-domain": "testnet.orb.local",
-    "context-provider-url": ["http://localhost:11096/agent-startup-contexts.json"]
+    "context-provider-url": ["http://localhost:11096/agent-startup-contexts.json"],
+    "enableDIDComm": true
   }
 }
