@@ -363,6 +363,7 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
  * resolved manifest has all fields required for wallet to display the credential properly
  *
  *  @param {Object} credentialManager - Credential Manager to resolve manifest.
+ *  @param {Object} manifestDictionary - Default credential manifest output descriptors.
  *  @param {String} auth - authorization token for wallet operations.
  *  @param {Object} options - options to resolve credential from wallet.
  *  @param {String} options.credentialID - (optional) ID of the credential to be resolved from wallet content store.
@@ -376,11 +377,16 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
  */
 export function resolveManifest(
   credentialManager,
+  manifestDictionary,
   auth,
   { credentialID, credential, fulfillment, manifestID, manifest, descriptorID }
 ) {
   const cred = credential || fulfillment.verifiableCredential[0];
-  const filledManifest = checkManifestForMissingFields(manifest, getCredentialType(cred.type));
+  const filledManifest = checkManifestForMissingFields(
+    manifest,
+    getCredentialType(cred.type),
+    manifestDictionary
+  );
   return credentialManager.resolveManifest(auth, {
     credentialID,
     credential,
@@ -391,9 +397,9 @@ export function resolveManifest(
   });
 }
 
-function checkManifestForMissingFields(manifest, credentialType) {
+function checkManifestForMissingFields(manifest, credentialType, manifestDictionary) {
   const outputDescriptor = manifest.output_descriptors[0];
-  const defaultOutputDescriptor = getDefaultOutputDescriptor(credentialType);
+  const defaultOutputDescriptor = getDefaultOutputDescriptor(credentialType, manifestDictionary);
   if (!outputDescriptor.display) {
     outputDescriptor.display = defaultOutputDescriptor.display;
   } else {
@@ -419,12 +425,14 @@ function checkManifestForMissingFields(manifest, credentialType) {
   return manifest;
 }
 
-function getDefaultOutputDescriptor(credentialType) {
-  const defaultManifests = require('@/config/credential-output-descriptors.json');
-  if (!Object.prototype.hasOwnProperty(defaultManifests, credentialType)) {
-    console.error('default credential manifest for credential type does not exist');
+function getDefaultOutputDescriptor(credentialType, manifestDictionary) {
+  let defaultManifest;
+  if (!Object.prototype.hasOwnProperty(manifestDictionary, credentialType)) {
+    console.warn('default credential manifest for credential type does not exist');
+    defaultManifest = manifestDictionary['VerifiableCredential'];
+  } else {
+    defaultManifest = manifestDictionary[credentialType];
   }
-  const defaultManifest = defaultManifests[credentialType];
   const outputDescriptor = defaultManifest[Object.keys(defaultManifest)[0]].output_descriptors[0];
   return outputDescriptor;
 }

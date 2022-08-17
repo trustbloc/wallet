@@ -72,7 +72,7 @@ onMounted(async () => {
     credentialManifests.value,
     requestOrigin.value
   );
-  credsFound.value = await resolveManifest(credentialManager, token, {
+  credsFound.value = await resolveManifest(credentialManager, credentialManifests.value, token, {
     manifest,
     fulfillment: presentation.value,
   });

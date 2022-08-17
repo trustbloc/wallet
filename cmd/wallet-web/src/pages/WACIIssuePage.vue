@@ -175,14 +175,19 @@ export default {
     this.loading = false;
   },
   methods: {
-    ...mapGetters(['getCurrentUser']),
+    ...mapGetters(['getCurrentUser', 'getCredentialManifests']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     prepareCards: async function () {
       const { fulfillment, manifest } = this.interactionData;
-      this.processedCredentials = await resolveManifest(this.credentialManager, this.token, {
-        manifest,
-        fulfillment,
-      });
+      this.processedCredentials = await resolveManifest(
+        this.credentialManager,
+        this.getCredentialManifests(),
+        this.token,
+        {
+          manifest,
+          fulfillment,
+        }
+      );
     },
     save: async function () {
       this.errors.length = 0;

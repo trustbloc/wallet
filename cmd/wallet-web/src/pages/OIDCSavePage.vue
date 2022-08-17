@@ -196,7 +196,7 @@ export default {
     this.loading = false;
   },
   methods: {
-    ...mapGetters(['getCurrentUser']),
+    ...mapGetters(['getCurrentUser', 'getCredentialManifests']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     save: function () {
       this.errors.length = 0;
@@ -263,11 +263,16 @@ export default {
         throw 'unable to find matching manifest'; // TODO handle this error, Issue #1531
       }
 
-      const processed = await resolveManifest(this.credentialManager, this.token, {
-        credential,
-        manifest,
-        descriptorID,
-      });
+      const processed = await resolveManifest(
+        this.credentialManager,
+        this.getCredentialManifests(),
+        this.token,
+        {
+          credential,
+          manifest,
+          descriptorID,
+        }
+      );
       return { processed, descriptorID, manifest };
     },
   },

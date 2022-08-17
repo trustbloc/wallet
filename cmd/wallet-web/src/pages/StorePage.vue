@@ -171,10 +171,15 @@ export default {
       credential.showDetails = !credential.showDetails;
     },
     fetchCredentials: async function () {
-      this.processedCredentials = await resolveManifest(this.credentialManager, this.token, {
-        manifest: this.manifest,
-        fulfillment: this.presentation,
-      });
+      this.processedCredentials = await resolveManifest(
+        this.credentialManager,
+        this.getCredentialManifests(),
+        this.token,
+        {
+          manifest: this.manifest,
+          fulfillment: this.presentation,
+        }
+      );
       if (this.processedCredentials.length === 1) this.processedCredentials[0].showDetails = true;
     },
     fetchVaults: async function (token, collectionManager) {
