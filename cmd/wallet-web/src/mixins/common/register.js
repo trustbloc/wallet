@@ -28,12 +28,12 @@ export class RegisterWallet {
   }
 
   // wallet user registration and setup process
-  async register(profile, callback) {
+  async register(profile, callback, registerMediator = false) {
     // register mediator, create and save DID
     let failure;
     try {
       await Promise.all([
-        this._connectToMediator(),
+        registerMediator && this._connectToMediator(),
         this._assignDID(profile),
         this._createDefaultVault(profile),
       ]);

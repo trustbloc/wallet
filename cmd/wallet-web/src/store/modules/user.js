@@ -375,7 +375,8 @@ export default {
                 user: user,
                 token: token,
               },
-              () => dispatch('completeUserSetup', '', { root: true })
+              () => dispatch('completeUserSetup', '', { root: true }),
+              rootGetters.getEnableDIDComm
             );
           }
 

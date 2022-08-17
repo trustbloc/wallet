@@ -62,7 +62,13 @@ export default [
         path: 'waci',
         name: 'waci',
         component: load('layouts/WACILayout'),
-        meta: { requiresAuth: true, signin: true, disableCHAPI: true, isNavbarHidden: true },
+        meta: {
+          requiresAuth: true,
+          signin: true,
+          disableCHAPI: true,
+          isNavbarHidden: true,
+          requiresDIDComm: true,
+        },
         children: [
           {
             path: 'share',
@@ -128,5 +134,6 @@ export default [
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: load('pages/NotFoundPage'),
+    props: true,
   },
 ];
