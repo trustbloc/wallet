@@ -173,7 +173,7 @@ async function _renameCredential(credentialName, errMsg) {
     expect(errorMsg).toHaveValue(errMsg);
     const dangerIcon = await $(".danger-icon");
     await dangerIcon.waitForExist();
-    await _cancelRenameCredential()
+    await _cancelRenameCredential();
   }
 }
 /*************************** Helper functions ******************************/
