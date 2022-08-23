@@ -25,6 +25,7 @@ export default {
     selectedCredentialId: null,
     gnapAccessToken: null,
     gnapRequestAccessResp: null,
+    targetPage: null,
   },
   mutations: {
     setUser(state, val) {
@@ -103,6 +104,14 @@ export default {
         localStorage.removeItem('gnapRequestAccessResp');
       }
     },
+    setTargetPage(state, val) {
+      state.targetPage = val;
+      if (val !== null) {
+        localStorage.setItem('targetPage', JSON.stringify(val));
+      } else {
+        localStorage.removeItem('targetPage');
+      }
+    },
     clearUser(state) {
       state.username = null;
       state.setupStatus = null;
@@ -115,6 +124,7 @@ export default {
       state.gnapAccessToken = null;
       state.gnapSubjectId = null;
       state.gnapRequestAccessResp = null;
+      state.targetPage = null;
 
       localStorage.removeItem('user');
       localStorage.removeItem('setupStatus');
@@ -126,6 +136,7 @@ export default {
       localStorage.removeItem('gnapAccessToken');
       localStorage.removeItem('gnapSubjectId');
       localStorage.removeItem('gnapRequestAccessResp');
+      localStorage.removeItem('targetPage');
 
       clearGnapStoreData();
     },
@@ -140,6 +151,7 @@ export default {
       state.gnapAccessToken = localStorage.getItem('gnapAccessToken');
       state.gnapSubjectId = localStorage.getItem('gnapSubjectId');
       state.gnapRequestAccessResp = JSON.parse(localStorage.getItem('gnapRequestAccessResp'));
+      state.targetPage = localStorage.getItem('targetPage');
     },
   },
   actions: {
@@ -205,6 +217,9 @@ export default {
     updateGnapReqAccessResp({ commit }, gnapRequestAccessResp) {
       commit('setGnapAccessReqResp', gnapRequestAccessResp);
     },
+    updateTargetPage({ commit }, targetPage) {
+      commit('setTargetPage', targetPage);
+    },
   },
   getters: {
     getCurrentUser(state) {
@@ -243,6 +258,9 @@ export default {
     },
     getGnapReqAccessResp(state) {
       return state.gnapRequestAccessResp;
+    },
+    getTargetPage(state) {
+      return JSON.parse(state.targetPage);
     },
   },
   modules: {
@@ -378,6 +396,7 @@ export default {
               () => dispatch('completeUserSetup', '', { root: true }),
               rootGetters.getEnableDIDComm
             );
+            await dispatch('refreshUserPreference', { user, token }, { root: true });
           }
 
           await dispatch('updateUserProfile', { user, token }, { root: true });

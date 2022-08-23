@@ -66,7 +66,7 @@ router.beforeEach(async (to, from) => {
         store.dispatch('updateGnapReqAccessResp', null);
         store.dispatch('updateUserLoaded', true);
 
-        return { name: 'DashboardLayout' };
+        return store.getters.getTargetPage || 'DashboardLayout';
       }
       console.error('error authenticating user: invalid hash received');
       return false;
@@ -173,7 +173,7 @@ router.beforeEach(async (to, from) => {
         clientNonceVal: clientNonceVal,
       };
       store.dispatch('updateGnapReqAccessResp', respMetaData);
-
+      store.dispatch('updateTargetPage', to);
       window.location.href = resp.data.interact.redirect;
       return false;
     }
@@ -210,6 +210,7 @@ router.beforeEach(async (to, from) => {
       return;
     } else {
       store.dispatch('updateUserLoaded', true);
+      store.dispatch('updateTargetPage', to);
       return {
         name: 'block-no-auth',
         params: {
