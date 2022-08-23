@@ -322,17 +322,7 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
       entry = _findOutputDescriptor(manifestDictionary['VerifiableCredential'], credential);
 
       if (entry) {
-        // populate output descriptor properties
-        for (let k of Object.keys(credential.credentialSubject)) {
-          entry.output_descriptors[0].display.properties.push({
-            path: [`$.credentialSubject.${k}`],
-            schema: {
-              type: 'string',
-            },
-            label: k,
-          });
-        }
-
+        entry.output_descriptors[0].display.properties = populateProperties(credential);
         uniqueOutputDescriptors.add(...entry['output_descriptors']);
       } else {
         console.error(
@@ -385,7 +375,8 @@ export function resolveManifest(
   const filledManifest = checkManifestForMissingFields(
     manifest,
     getCredentialType(cred.type),
-    manifestDictionary
+    manifestDictionary,
+    cred
   );
   return credentialManager.resolveManifest(auth, {
     credentialID,
@@ -397,7 +388,7 @@ export function resolveManifest(
   });
 }
 
-function checkManifestForMissingFields(manifest, credentialType, manifestDictionary) {
+function checkManifestForMissingFields(manifest, credentialType, manifestDictionary, credential) {
   const outputDescriptor = manifest.output_descriptors[0];
   const defaultOutputDescriptor = getDefaultOutputDescriptor(credentialType, manifestDictionary);
   if (!outputDescriptor.display) {
@@ -409,6 +400,11 @@ function checkManifestForMissingFields(manifest, credentialType, manifestDiction
         outputDescriptor.display[property] = defaultOutputDescriptor.display[property];
       }
     });
+    if (isEmpty(outputDescriptor.display.properties)) {
+      outputDescriptor.display.properties = isEmpty(defaultOutputDescriptor.display.properties)
+        ? populateProperties(credential)
+        : defaultOutputDescriptor.display.properties;
+    }
   }
   if (!outputDescriptor.styles) {
     outputDescriptor.styles = defaultOutputDescriptor.styles;
@@ -427,21 +423,41 @@ function checkManifestForMissingFields(manifest, credentialType, manifestDiction
 
 function getDefaultOutputDescriptor(credentialType, manifestDictionary) {
   let defaultManifest;
-  if (!Object.prototype.hasOwnProperty(manifestDictionary, credentialType)) {
+  if (!(credentialType in manifestDictionary)) {
     console.warn('default credential manifest for credential type does not exist');
     defaultManifest = manifestDictionary['VerifiableCredential'];
   } else {
     defaultManifest = manifestDictionary[credentialType];
   }
-  const outputDescriptor = defaultManifest[Object.keys(defaultManifest)[0]].output_descriptors[0];
-  return outputDescriptor;
+  const defaultOutputDescriptor =
+    defaultManifest[Object.keys(defaultManifest)[0]].output_descriptors[0];
+  return defaultOutputDescriptor;
+}
+
+// Populate output descriptor properties from credential.credentialSubject
+function populateProperties(credential) {
+  let propertiesList = [];
+  for (let k of Object.keys(credential.credentialSubject)) {
+    propertiesList.push({
+      path: [`$.credentialSubject.${k}`],
+      schema: {
+        type: 'string',
+      },
+      label: capitalizeFirstLetter(k),
+    });
+  }
+  return propertiesList;
 }
 
 // Check if the object or any of its sub-objects are empty
 function isEmpty(property) {
-  if (!property) return true;
+  if (!property || property.length === 0) return true;
   for (const key in property) {
     if (Object.keys(property[key]).length === 0) return true;
   }
   return false;
+}
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
