@@ -234,6 +234,58 @@ credential.set("BookingReference", {
     },
   },
 });
+credential.set("GovernanceCredential", {
+  name: "Governance Credential",
+  vc: {
+    "@context": [
+      "https://www.w3.org/2018/credentials/v1",
+      "https://trustbloc.github.io/context/governance/context.jsonld",
+      "https://w3id.org/vc-revocation-list-2020/v1",
+    ],
+    credentialSubject: {
+      description: "Sample governance framework for the TrustBloc sandbox.",
+      geos: "Canadian",
+      jurisdictions: "ca",
+      roles: "accreditor",
+      topics: "banking",
+      version: "1.0",
+    },
+    id: "https://example.com/governance",
+    issuanceDate: "2021-07-06T17:20:57.736460722Z",
+    issuer: "did:orb:interim:EiAbjeimRkgIIswIPpHpWO3JeXZg3eeuVjlzzCeAjgOC-g",
+    name: "Governance Credential",
+    proof: {
+      created: "2021-07-06T17:20:57.851590383Z",
+      jws: "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..92EdftDqyPKq4HYjjwRrtYPUBVWukVxbhweNvque-QfMSkL7FKww-5Q25hq5uowa-6mFiV3UvB-9xC2x5s-eCg",
+      proofPurpose: "assertionMethod",
+      type: "Ed25519Signature2018",
+      verificationMethod:
+        "did:orb:interim:EiAbjeimRkgIIswIPpHpWO3JeXZg3eeuVjlzzCeAjgOC-g#a5hRq_BgA-TU0-RUsuhoIo3qQhrTEt2iKO9MPDeZ2fc",
+    },
+    type: ["VerifiableCredential", "GovernanceCredential"],
+  },
+  vcSubjectData: [
+    { name: "Description", value: "Sample governance framework" },
+    { name: "Geos", value: "Canadian" },
+    { name: "Jurisdictions", value: "ca" },
+    { name: "Roles", value: "accreditor" },
+    { name: "Topics", value: "banking" },
+    { name: "Version", value: "1.0" },
+  ],
+  vpRequest: {
+    type: "QueryByExample",
+    credentialQuery: {
+      reason: "Please present your Governance Credential.",
+      example: {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://trustbloc.github.io/context/governance/context.jsonld",
+        ],
+        type: ["GovernanceCredential"],
+      },
+    },
+  },
+});
 
 describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
   const ctx = {
