@@ -5,7 +5,7 @@
 -->
 
 <script setup>
-import { onBeforeMount, onMounted, onUnmounted, ref, computed } from 'vue';
+import { onBeforeMount, onUnmounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import getStartingLocale from '@/mixins/i18n/getStartingLocale.js';
 import { updateI18nLocale } from '@/plugins/i18n';

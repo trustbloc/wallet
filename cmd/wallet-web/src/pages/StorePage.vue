@@ -99,8 +99,8 @@
 </template>
 
 <script>
-import { inject } from 'vue';
 import { useStore } from 'vuex';
+import * as webCredentialHandler from 'web-credential-handler';
 import {
   CHAPIEventHandler,
   getCredentialIcon,
@@ -124,7 +124,6 @@ export default {
         ? credential?.styles?.thumbnail?.uri
         : getCredentialIcon(getStaticAssetsUrl(), credential?.styles?.thumbnail?.uri);
     };
-    const webCredentialHandler = inject('webCredentialHandler');
 
     return { getCredentialIconSrc, t, webCredentialHandler };
   },

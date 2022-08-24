@@ -4,8 +4,8 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import Root from './TheRoot';
 import supportedLocales from '@/config/supportedLocales';
+import store from '@/store';
 
 // Lazy load the component
 function load(path) {
@@ -24,7 +24,6 @@ function getLocaleRegex() {
 export default [
   {
     path: `/:locale${getLocaleRegex()}?`,
-    component: Root,
     children: [
       {
         path: '',
@@ -62,6 +61,20 @@ export default [
         path: 'waci',
         name: 'waci',
         component: load('layouts/WACILayout'),
+        beforeEnter: async () => {
+          if (store.getters.getEnableDIDComm === undefined) await store.dispatch('initOpts');
+          if (!store.getters.getEnableDIDComm) {
+            store.dispatch('updateUserLoaded', true);
+            return {
+              name: 'NotFound',
+              params: {
+                title:
+                  'The page you requested requires DIDComm, but your Wallet configuration does not support it at the moment.',
+                message: 'Please, contact your administrator.',
+              },
+            };
+          }
+        },
         meta: {
           requiresAuth: true,
           signin: true,
@@ -110,18 +123,61 @@ export default [
         path: 'StoreInWallet',
         name: 'chapi-store',
         component: load('pages/StorePage'),
-        meta: { blockNoAuth: true },
+        beforeEnter: async () => {
+          if (store.getters.getEnableCHAPI === undefined) await store.dispatch('initOpts');
+          if (!store.getters.getEnableCHAPI) {
+            store.dispatch('updateUserLoaded', true);
+            return {
+              name: 'NotFound',
+              params: {
+                title:
+                  'The page you requested requires CHAPI, but your Wallet configuration does not support it at the moment.',
+                message: 'Please, contact your administrator.',
+              },
+            };
+          }
+        },
+        meta: { blockNoAuth: true, requiresCHAPI: true },
       },
       {
         path: 'GetFromWallet',
         name: 'chapi-get',
         component: load('layouts/GetLayout'),
-        meta: { blockNoAuth: true, isNavbarHidden: true },
+        beforeEnter: async () => {
+          if (store.getters.getEnableCHAPI === undefined) await store.dispatch('initOpts');
+          if (!store.getters.getEnableCHAPI) {
+            store.dispatch('updateUserLoaded', true);
+            return {
+              name: 'NotFound',
+              params: {
+                title:
+                  'The page you requested requires CHAPI, but your Wallet configuration does not support it at the moment.',
+                message: 'Please, contact your administrator.',
+              },
+            };
+          }
+        },
+        meta: { blockNoAuth: true, isNavbarHidden: true, requiresCHAPI: true },
       },
       {
         path: 'worker',
         name: 'chapi-worker',
         component: load('pages/WorkerPage'),
+        beforeEnter: async () => {
+          if (store.getters.getEnableCHAPI === undefined) await store.dispatch('initOpts');
+          if (!store.getters.getEnableCHAPI) {
+            store.dispatch('updateUserLoaded', true);
+            return {
+              name: 'NotFound',
+              params: {
+                title:
+                  'The page you requested requires CHAPI, but your Wallet configuration does not support it at the moment.',
+                message: 'Please, contact your administrator.',
+              },
+            };
+          }
+        },
+        meta: { requiresCHAPI: true },
       },
       {
         path: 'needauth',

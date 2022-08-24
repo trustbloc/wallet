@@ -5,13 +5,13 @@
 -->
 
 <script setup>
-import { computed, inject, onBeforeMount } from 'vue';
+import { computed, onBeforeMount } from 'vue';
 import { useStore } from 'vuex';
+import * as polyfill from 'credential-handler-polyfill';
+import * as webCredentialHandler from 'web-credential-handler';
 
 // Hooks
 const store = useStore();
-const polyfill = inject('polyfill');
-const webCredentialHandler = inject('webCredentialHandler');
 const opts = computed(() => store.getters['getAgentOpts']);
 
 onBeforeMount(async () => {

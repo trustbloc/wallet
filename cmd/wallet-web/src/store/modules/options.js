@@ -58,6 +58,7 @@ let defaultAgentStartupOpts = {
   'web-socket-read-limit': 0,
   'kms-server-url': '',
   enableDIDComm: false,
+  enableCHAPI: false,
 };
 
 export default {
@@ -139,51 +140,53 @@ export default {
         readCredentialManifests = readManifests();
       }
 
-      const optValue = (opt) => (opt in agentOpts ? agentOpts[opt] : defaultAgentStartupOpts[opt]);
+      const chooseOptValue = (opt) =>
+        opt in agentOpts ? agentOpts[opt] : defaultAgentStartupOpts[opt];
 
       commit('updateAgentOpts', {
         assetsPath: defaultAgentStartupOpts['assetsPath'],
         'outbound-transport': defaultAgentStartupOpts['outbound-transport'],
         'transport-return-route': defaultAgentStartupOpts['transport-return-route'],
-        'http-resolver-url': optValue('http-resolver-url'),
-        'agent-default-label': optValue('agent-default-label'),
-        'auto-accept': optValue('auto-accept'),
-        'log-level': optValue('log-level'),
-        'indexed-db-namespace': optValue('indexed-db-namespace'),
-        'edge-agent-server': optValue('edge-agent-server'),
-        'context-provider-url': optValue('context-provider-url'),
-        'bloc-domain': optValue('bloc-domain'),
-        walletMediatorURL: optValue('walletMediatorURL'),
-        credentialMediatorURL: credentialMediator(optValue('credentialMediatorURL')),
-        blindedRouting: optValue('blindedRouting'),
-        'storage-type': optValue('storage-type'),
-        'edv-server-url': optValue('edv-server-url'),
-        'edv-vault-id': optValue('edv-vault-id'),
-        'edv-capability': optValue('edv-capability'),
-        'authz-key-store-url': optValue('authz-key-store-url'),
-        'user-config': optValue('user-config'),
-        'use-edv-cache': optValue('use-edv-cache'),
-        'edv-clear-cache': optValue('edv-clear-cache'),
-        'kms-type': optValue('kms-type'),
-        'ops-key-store-url': optValue('ops-key-store-url'),
-        'edv-ops-kid-url': optValue('edv-ops-kid-url'),
-        'edv-hmac-kid-url': optValue('edv-hmac-kid-url'),
-        'ops-kms-capability': optValue('ops-kms-capability'),
-        'use-edv-batch': optValue('use-edv-batch'),
-        'edv-batch-size': optValue('edv-batch-size'),
-        'unanchored-din-max-life-time': optValue('unanchored-din-max-life-time'),
-        'cache-size': optValue('cache-size'),
-        'did-anchor-origin': optValue('did-anchor-origin'),
-        'sidetree-token': optValue('sidetree-token'),
-        'hub-auth-url': optValue('hub-auth-url'),
-        walletWebUrl: optValue('walletWebUrl'),
-        staticAssetsUrl: optValue('staticAssetsUrl'),
-        'media-type-profiles': optValue('media-type-profiles'),
-        'key-type': optValue('key-type'),
-        'key-agreement-type': optValue('key-agreement-type'),
-        'web-socket-read-limit': optValue('web-socket-read-limit'),
-        'kms-server-url': optValue('kms-server-url'),
-        enableDIDComm: optValue('enableDIDComm'),
+        'http-resolver-url': chooseOptValue('http-resolver-url'),
+        'agent-default-label': chooseOptValue('agent-default-label'),
+        'auto-accept': chooseOptValue('auto-accept'),
+        'log-level': chooseOptValue('log-level'),
+        'indexed-db-namespace': chooseOptValue('indexed-db-namespace'),
+        'edge-agent-server': chooseOptValue('edge-agent-server'),
+        'context-provider-url': chooseOptValue('context-provider-url'),
+        'bloc-domain': chooseOptValue('bloc-domain'),
+        walletMediatorURL: chooseOptValue('walletMediatorURL'),
+        credentialMediatorURL: credentialMediator(chooseOptValue('credentialMediatorURL')),
+        blindedRouting: chooseOptValue('blindedRouting'),
+        'storage-type': chooseOptValue('storage-type'),
+        'edv-server-url': chooseOptValue('edv-server-url'),
+        'edv-vault-id': chooseOptValue('edv-vault-id'),
+        'edv-capability': chooseOptValue('edv-capability'),
+        'authz-key-store-url': chooseOptValue('authz-key-store-url'),
+        'user-config': chooseOptValue('user-config'),
+        'use-edv-cache': chooseOptValue('use-edv-cache'),
+        'edv-clear-cache': chooseOptValue('edv-clear-cache'),
+        'kms-type': chooseOptValue('kms-type'),
+        'ops-key-store-url': chooseOptValue('ops-key-store-url'),
+        'edv-ops-kid-url': chooseOptValue('edv-ops-kid-url'),
+        'edv-hmac-kid-url': chooseOptValue('edv-hmac-kid-url'),
+        'ops-kms-capability': chooseOptValue('ops-kms-capability'),
+        'use-edv-batch': chooseOptValue('use-edv-batch'),
+        'edv-batch-size': chooseOptValue('edv-batch-size'),
+        'unanchored-din-max-life-time': chooseOptValue('unanchored-din-max-life-time'),
+        'cache-size': chooseOptValue('cache-size'),
+        'did-anchor-origin': chooseOptValue('did-anchor-origin'),
+        'sidetree-token': chooseOptValue('sidetree-token'),
+        'hub-auth-url': chooseOptValue('hub-auth-url'),
+        walletWebUrl: chooseOptValue('walletWebUrl'),
+        staticAssetsUrl: chooseOptValue('staticAssetsUrl'),
+        'media-type-profiles': chooseOptValue('media-type-profiles'),
+        'key-type': chooseOptValue('key-type'),
+        'key-agreement-type': chooseOptValue('key-agreement-type'),
+        'web-socket-read-limit': chooseOptValue('web-socket-read-limit'),
+        'kms-server-url': chooseOptValue('kms-server-url'),
+        enableDIDComm: chooseOptValue('enableDIDComm'),
+        enableCHAPI: chooseOptValue('enableCHAPI'),
       });
 
       commit('updateProfileOpts', profileOpts);
@@ -242,8 +245,14 @@ export default {
 
       return require('@/config/gnap-access-token.json');
     },
+    getCredentialMediatorURL(state) {
+      return state.agentOpts['credentialMediatorURL'];
+    },
     getEnableDIDComm(state) {
       return state.agentOpts['enableDIDComm'];
+    },
+    getEnableCHAPI(state) {
+      return state.agentOpts['enableCHAPI'];
     },
   },
 };

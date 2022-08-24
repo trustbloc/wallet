@@ -5,7 +5,7 @@
 -->
 
 <script setup>
-import { computed, inject, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { CHAPIHandler } from '@/mixins';
@@ -15,11 +15,8 @@ import { useI18n } from 'vue-i18n';
 const router = useRouter();
 const store = useStore();
 const { t } = useI18n();
-const polyfill = inject('polyfill');
-const webCredentialHandler = inject('webCredentialHandler');
 
 // Store Getters
-const agentOpts = computed(() => store.getters['getAgentOpts']);
 const isCHAPI = computed(() => store.getters['isCHAPI']);
 
 // Store Actions
@@ -29,6 +26,14 @@ const signoutUser = () => store.dispatch('logout');
 async function signout() {
   const actions = [signoutUser()];
   if (isCHAPI.value) {
+    const polyfill = await import('credential-handler-polyfill');
+    const webCredentialHandler = await import('web-credential-handler');
+    const agentOpts = computed(() => store.getters['getAgentOpts']);
+
+    const chapi = ref(
+      new CHAPIHandler(polyfill, webCredentialHandler, agentOpts.value.credentialMediatorURL)
+    );
+
     actions.push(chapi.value.uninstall());
   }
 
@@ -36,10 +41,6 @@ async function signout() {
 
   router.push({ path: '/', query: { signedOut: true } });
 }
-
-const chapi = ref(
-  new CHAPIHandler(polyfill, webCredentialHandler, agentOpts.value.credentialMediatorURL)
-);
 </script>
 
 <template>

@@ -101,7 +101,8 @@ server {
             "key-agreement-type": "${DIDCOMM_KEY_AGREEMENT_TYPE}",
             "web-socket-read-limit": ${WEB_SOCKET_READ_LIMIT},
             "kms-server-url": "${KMS_SERVER_URL}",
-            "enableDIDComm": ${ENABLE_DIDCOMM}
+            "enableDIDComm": ${ENABLE_DIDCOMM},
+            "enableCHAPI": ${ENABLE_CHAPI}
         }';
     }
 }

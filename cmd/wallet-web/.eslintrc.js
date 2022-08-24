@@ -2,6 +2,7 @@ module.exports = {
   root: true,
   parser: 'vue-eslint-parser',
   parserOptions: {
+    ecmaVersion: 2022,
     vueFeatures: {
       filter: true,
       interpolationAsNonHTML: false,

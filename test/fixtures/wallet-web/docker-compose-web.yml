@@ -38,6 +38,7 @@ services:
       - WEB_SOCKET_READ_LIMIT=131072 # 128KB
       - KMS_SERVER_URL=https://kms.trustbloc.local:8075
       - ENABLE_DIDCOMM=true
+      - ENABLE_CHAPI=true
       # Disabled remote context download for this wallet for better performance.
   #      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
 
