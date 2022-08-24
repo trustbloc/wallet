@@ -10,7 +10,8 @@
   </div>
 </template>
 <script>
-import { inject, markRaw, computed } from 'vue';
+import { markRaw, computed } from 'vue';
+import * as webCredentialHandler from 'web-credential-handler';
 import DIDAuthPage from '@/pages/DIDAuthPage.vue';
 import DIDConnectPage from '@/pages/DIDConnectPage.vue';
 import CHAPISharePage from '@/pages/CHAPISharePage.vue';
@@ -76,10 +77,6 @@ export default {
       protocolHandler: computed(() => this.protocolHandler),
     };
   },
-  setup() {
-    const webCredentialHandler = inject('webCredentialHandler');
-    return { webCredentialHandler };
-  },
   data() {
     return {
       component: '',
@@ -92,7 +89,7 @@ export default {
     },
   },
   beforeCreate: async function () {
-    this.credentialEvent = await this.webCredentialHandler.receiveCredentialEvent();
+    this.credentialEvent = await webCredentialHandler.receiveCredentialEvent();
     if (!this.credentialEvent.credentialRequestOptions.web.VerifiablePresentation) {
       console.log("invalid web credential type, expected 'VerifiablePresentation'");
       return;

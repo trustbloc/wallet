@@ -10,6 +10,8 @@ import { getGnapKeyPair, gnapContinue, gnapRequestAccess } from '@/mixins';
 import routes from './routes';
 import { SHA3 } from 'sha3';
 import { HTTPSigner } from '@trustbloc/wallet-sdk';
+import { CHAPIHandler } from '@/mixins';
+import useBreakpoints from '@/plugins/breakpoints.js';
 
 const router = createRouter({
   history: createWebHistory(__webpack_public_path__),
@@ -54,6 +56,27 @@ router.beforeEach(async (to, from) => {
         store.dispatch('updateUser', subjectId);
 
         await store.dispatch('initOpts', { accessToken });
+
+        const breakpoints = useBreakpoints();
+        const enableCHAPI =
+          store.getters['getEnableCHAPI'] &&
+          !to.params?.disableCHAPI &&
+          (to.name === 'chapi-worker' || (!breakpoints.xs && !breakpoints.sm));
+        if (enableCHAPI) {
+          const polyfill = await import('credential-handler-polyfill');
+          const webCredentialHandler = await import('web-credential-handler');
+          const chapi = new CHAPIHandler(
+            polyfill,
+            webCredentialHandler,
+            store.getters['getCredentialMediatorURL']
+          );
+          chapi
+            .install(subjectId)
+            .then(() => store.dispatch('activateCHAPI'))
+            .catch((e) => {
+              console.error(e);
+            });
+        }
         try {
           await store.dispatch('agent/init', { accessToken, subjectId, newUser: true });
         } catch (e) {
@@ -71,28 +94,7 @@ router.beforeEach(async (to, from) => {
       console.error('error authenticating user: invalid hash received');
       return false;
     }
-  }
-
-  if (to.meta.requiresDIDComm) {
-    // Get enableDIDComm from wallet config
-    if (store.getters.getEnableDIDComm === undefined) {
-      await store.dispatch('initOpts');
-    }
-
-    if (!store.getters.getEnableDIDComm) {
-      store.dispatch('updateUserLoaded', true);
-      return {
-        name: 'NotFound',
-        params: {
-          title:
-            'The page you requested requires DIDComm, but your Wallet configuration does not support it at the moment.',
-          message: 'Please, contact your administrator.',
-        },
-      };
-    }
-  }
-
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
+  } else if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (store.getters.getCurrentUser) {
       if (!store.getters['agent/isInitialized']) {
         const accessToken = store.getters.getGnapAccessToken;
@@ -155,6 +157,28 @@ router.beforeEach(async (to, from) => {
         store.dispatch('updateUser', subjectId);
         if (!store.getters['agent/isInitialized']) {
           await store.dispatch('initOpts', { accessToken });
+
+          const breakpoints = useBreakpoints();
+          const enableCHAPI =
+            store.getters['getEnableCHAPI'] &&
+            !to.params?.disableCHAPI &&
+            (to.name === 'chapi-worker' || (!breakpoints.xs && !breakpoints.sm));
+          if (enableCHAPI) {
+            const polyfill = await import('credential-handler-polyfill');
+            const webCredentialHandler = await import('web-credential-handler');
+            const chapi = new CHAPIHandler(
+              polyfill,
+              webCredentialHandler,
+              store.getters['getCredentialMediatorURL']
+            );
+            chapi
+              .install(subjectId)
+              .then(() => store.dispatch('activateCHAPI'))
+              .catch((e) => {
+                console.error(e);
+              });
+          }
+
           try {
             await store.dispatch('agent/init', { accessToken, subjectId });
           } catch (e) {
