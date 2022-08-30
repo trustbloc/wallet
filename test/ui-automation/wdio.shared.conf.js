@@ -11,7 +11,8 @@ exports.config = {
   // Test files
   specs: [
     "./test/specs/oidc-flow.js",
-    "./test/specs/waci-flow.js",
+    // TODO: enable once https://github.com/trustbloc/wallet/issues/1868 is resolved
+    // "./test/specs/waci-flow.js",
     "./test/specs/credential-interaction-flow.js",
     "./test/specs/vault-interaction-flow.js",
   ],
