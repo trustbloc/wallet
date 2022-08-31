@@ -86,9 +86,9 @@ export class DIDConn {
       const presentation = {
         '@context': [
           'https://www.w3.org/2018/credentials/v1',
-          'https://identity.foundation/credential-manifest/fulfillment/v1',
+          'https://identity.foundation/credential-manifest/response/v1',
         ],
-        type: ['VerifiablePresentation', 'CredentialFulfillment'],
+        type: ['VerifiablePresentation', 'CredentialResponse'],
         verifiableCredential: this.userCredentials,
       };
 
