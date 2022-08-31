@@ -303,7 +303,7 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
   };
   let uniqueOutputDescriptors = new Set();
 
-  let fulfillment = {
+  let response = {
     id: uuidv4(),
     manifest_id: credentialManifest.id,
     descriptor_map: [],
@@ -334,15 +334,15 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
       }
     }
 
-    // prepare fulfillment,
-    fulfillment.descriptor_map.push({
+    // prepare response,
+    response.descriptor_map.push({
       id: entry['output_descriptors'][0].id,
       format: 'ldp_vc',
       path: `$.verifiableCredential[${index}]`,
     });
   });
 
-  presentation['credential_fulfillment'] = fulfillment;
+  presentation['credential_response'] = response;
 
   credentialManifest.output_descriptors = Array.from(uniqueOutputDescriptors);
   return credentialManifest;
@@ -358,10 +358,10 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
  *  @param {Object} options - options to resolve credential from wallet.
  *  @param {String} options.credentialID - (optional) ID of the credential to be resolved from wallet content store.
  *  @param {String} options.credential - (optional) raw credential data model to be resolved.
- *  @param {String} options.fulfillment - (optional) credential fulfillment using which given raw credential or credential ID to be resolved.
+ *  @param {String} options.response - (optional) credential response using which given raw credential or credential ID to be resolved.
  *  @param {String} options.manifestID - (optional) ID of the manifest from wallet content store.
  *  @param {String} options.manifest - (optional) raw manifest to be used for resolving credential.
- *  @param {String} options.descriptorID - (optional) if fulfillment not provided then this descriptor ID can be used to resolve credential.
+ *  @param {String} options.descriptorID - (optional) if response not provided then this descriptor ID can be used to resolve credential.
  *
  *  @returns {Promise<Object>} - promise containing resolved results or error if operation fails.
  */
@@ -369,9 +369,9 @@ export function resolveManifest(
   credentialManager,
   manifestDictionary,
   auth,
-  { credentialID, credential, fulfillment, manifestID, manifest, descriptorID }
+  { credentialID, credential, response, manifestID, manifest, descriptorID }
 ) {
-  const cred = credential || fulfillment.verifiableCredential[0];
+  const cred = credential || response.verifiableCredential[0];
   const filledManifest = checkManifestForMissingFields(
     manifest,
     getCredentialType(cred.type),
@@ -381,7 +381,7 @@ export function resolveManifest(
   return credentialManager.resolveManifest(auth, {
     credentialID,
     credential,
-    fulfillment,
+    response,
     manifestID,
     manifest: filledManifest,
     descriptorID,

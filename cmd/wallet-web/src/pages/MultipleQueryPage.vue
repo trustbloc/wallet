@@ -246,7 +246,7 @@ export default {
         this.token,
         {
           manifest,
-          fulfillment: this.presentation[0],
+          response: this.presentation[0],
         }
       );
     } catch (e) {

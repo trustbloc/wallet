@@ -74,7 +74,7 @@ onMounted(async () => {
   );
   credsFound.value = await resolveManifest(credentialManager, credentialManifests.value, token, {
     manifest,
-    fulfillment: presentation.value,
+    response: presentation.value,
   });
   issuersFound.value = filterCredentialsByType(credentials, [manifestCredType], true);
   loading.value = false;

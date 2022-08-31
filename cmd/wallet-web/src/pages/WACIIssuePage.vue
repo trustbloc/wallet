@@ -144,7 +144,7 @@ export default {
     const defVault = this.fetchAllVaults(token, collectionManager);
     this.didcomm = new DIDComm({ agent: this.getAgentInstance(), user });
     try {
-      const { threadID, presentations, fulfillment, manifest, domain, challenge, error } =
+      const { threadID, presentations, response, manifest, domain, challenge, error } =
         await this.didcomm.initiateCredentialIssuance(token, invitation, {
           userAnyRouterConnection: true,
         });
@@ -160,7 +160,7 @@ export default {
         return;
       }
       // TODO: [Issue#1336] - read manifest, presentations, normalized, comment, fields to enhance UI
-      this.interactionData = { threadID, fulfillment, domain, challenge, error, manifest };
+      this.interactionData = { threadID, response, domain, challenge, error, manifest };
     } catch (e) {
       this.handleError(e);
       return;
@@ -178,14 +178,14 @@ export default {
     ...mapGetters(['getCurrentUser', 'getCredentialManifests']),
     ...mapGetters('agent', { getAgentInstance: 'getInstance' }),
     prepareCards: async function () {
-      const { fulfillment, manifest } = this.interactionData;
+      const { response, manifest } = this.interactionData;
       this.processedCredentials = await resolveManifest(
         this.credentialManager,
         this.getCredentialManifests(),
         this.token,
         {
           manifest,
-          fulfillment,
+          response,
         }
       );
     },

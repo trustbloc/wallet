@@ -176,7 +176,7 @@ export default {
         this.token,
         {
           manifest: this.manifest,
-          fulfillment: this.presentation,
+          response: this.presentation,
         }
       );
       if (this.processedCredentials.length === 1) this.processedCredentials[0].showDetails = true;
