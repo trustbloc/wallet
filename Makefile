@@ -89,9 +89,13 @@ mock-adapter:
 .PHONY: mock-images
 mock-images: mock-adapter mock-demo-login-consent-docker
 
-.PHONY: automation-test
-automation-test: clean wallet-web-docker mock-images generate-test-keys
-	@scripts/run_ui_automation.sh
+.PHONY: automation-test-vcwallet
+automation-test-vcwallet: clean wallet-web-docker mock-images generate-test-keys
+	@scripts/run_vcwallet_ui_automation.sh
+
+.PHONY: automation-test-wallet
+automation-test-wallet: clean wallet-web-docker mock-images generate-test-keys
+	@scripts/run_wallet_ui_automation.sh
 
 .PHONY: clean
 clean:

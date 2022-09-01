@@ -54,7 +54,7 @@ healthCheck() {
 }
 
 # healthcheck
-healthCheck wallet-web https://wallet.trustbloc.local:8091/healthcheck 200
+healthCheck vcwallet https://vcwallet.trustbloc.local:8071/healthcheck 200
 healthCheck hub-auth https://auth.trustbloc.local:8044/healthcheck 200
 healthCheck hub-auth-hydra https://auth-hydra.trustbloc.local:5555/.well-known/openid-configuration 200
 healthCheck mock-adapter https://demo-adapter.trustbloc.local:8094/verifier 200
@@ -64,7 +64,7 @@ healthCheck demo-login-app http://localhost:3300/login 200
 
 echo "running tests..."
 cd $ROOT/test/ui-automation
-npm run test
+npm run test-vcwallet
 if [ $? -ne 0 ]
 then
 	cd $ROOT/test/fixtures/wallet-web

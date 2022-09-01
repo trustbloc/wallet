@@ -305,9 +305,9 @@ describe("TrustBloc Wallet - Store/Share credential flow (CHAPI)", () => {
     await browser.navigateTo(browser.config.walletURL);
 
     // 2. Initialize Wallet (register/sign-up/etc.)
-    await wallet.signUp(ctx);
+    await wallet.signUp(ctx, browser.config.isCHAPIEnabled);
 
-    const credentialsLink = $("#navbar-link-credentials");
+    const credentialsLink = await $("#navbar-link-credentials");
     await credentialsLink.waitForExist();
     await credentialsLink.click();
   });

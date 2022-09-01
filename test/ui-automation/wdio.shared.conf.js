@@ -8,13 +8,6 @@ SPDX-License-Identifier: Apache-2.0
 
 exports.config = {
   runner: "local",
-  // Test files
-  specs: [
-    "./test/specs/oidc-flow.js",
-    "./test/specs/waci-flow.js",
-    "./test/specs/credential-interaction-flow.js",
-    "./test/specs/vault-interaction-flow.js",
-  ],
   // Maximum number of total parallel running workers
   maxInstances: 1,
   capabilities: [

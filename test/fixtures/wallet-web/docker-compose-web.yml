@@ -6,6 +6,36 @@
 version: "2"
 
 services:
+  vcwallet.trustbloc.local:
+    container_name: vcwallet.trustbloc.local
+    image: ${WALLET_WEB_IMAGE}:latest
+    volumes:
+      - ../keys/tls:/etc/nginx/certs
+      - ./static:/etc/static
+    ports:
+      - 8071:443
+    environment:
+      - HTTP_RESOLVER_URL=${HTTP_RESOLVER}
+      - AGENT_DEFAULT_LABEL=wallet-web
+      - BLOC_DOMAIN=testnet.orb.local
+      - DID_ANCHOR_ORIGIN=https://testnet.orb.local
+      - HTTP_SERVER_HUB_AUTH_URL=https://auth.trustbloc.local:8044
+      - WALLET_MEDIATOR_URL=${WALLET_ROUTER_URL}
+      - TLS_CERT=/etc/nginx/certs/ec-pubCert.pem
+      - TLS_KEY=/etc/nginx/certs/ec-key.pem
+      - EDV_SERVER_URL=https://edv.trustbloc.local:8072/encrypted-data-vaults
+      - STORAGE_TYPE=edv
+      - KMS_TYPE=webkms
+      - USE_EDV_CACHE=true
+      - EDV_CLEAR_CACHE=10m
+      - USE_EDV_BATCH=true
+      - STATIC_ASSETS=/etc/static
+      - STATIC_ASSETS_URL=https://vcwallet.trustbloc.local:8071
+      - WALLET_WEB_URL=https://vcwallet.trustbloc.local:8071
+      - WEB_SOCKET_READ_LIMIT=131072 # 128KB
+      - KMS_SERVER_URL=https://kms.trustbloc.local:8075
+      # Disabled remote context download for this wallet for better performance.
+      # - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
   wallet.trustbloc.local:
     container_name: wallet.trustbloc.local
     image: ${WALLET_WEB_IMAGE}:latest
@@ -40,7 +70,7 @@ services:
       - ENABLE_DIDCOMM=true
       - ENABLE_CHAPI=true
       # Disabled remote context download for this wallet for better performance.
-  #      - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
+      # - CONTEXT_PROVIDER_URL=${CONTEXT_PROVIDER_URL}
 
   mediator.trustbloc.local:
     container_name: mediator.trustbloc.local

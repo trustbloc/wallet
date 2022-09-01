@@ -100,7 +100,42 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  UIAutomation:
+  VCWallet-e2e:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run Wallet Web UI automation
+        run: |
+          echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 vcwallet.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 mediator.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 uni-resolver-web.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 auth.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 auth-hydra.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 demo-hydra.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 edv.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 kms.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 file-server.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '127.0.0.1 demo-adapter.trustbloc.local' | sudo tee -a /etc/hosts
+          echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
+          echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
+          make automation-test-vcwallet
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: logs
+          path: test/fixtures/wallet-web/docker-compose.log
+
+  Wallet-e2e:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
     steps:
@@ -126,7 +161,7 @@ jobs:
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make automation-test
+          make automation-test-wallet
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v3
@@ -138,7 +173,7 @@ jobs:
   Publish:
     name: Publish image
     if: github.event_name == 'push' && (github.repository == 'trustbloc/wallet' && github.ref == 'refs/heads/main')
-    needs: [Prettier, ESLint, Checks, UIUnitTest, UIAutomation]
+    needs: [Prettier, ESLint, Checks, UIUnitTest, VCWallet-e2e, Wallet-e2e]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
