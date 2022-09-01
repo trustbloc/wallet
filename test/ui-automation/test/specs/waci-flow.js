@@ -66,7 +66,7 @@ async function waciFlow(version, ctx) {
     await browser.navigateTo(browser.config.walletURL);
 
     // 2. Initialize Wallet (register/sign-up/etc.)
-    await wallet.signUp(ctx);
+    await wallet.signUp(ctx, browser.config.isCHAPIEnabled);
 
     await wallet.waitForCredentials();
 

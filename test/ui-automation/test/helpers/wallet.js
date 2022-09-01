@@ -15,11 +15,15 @@ let signedUpUserEmail;
 
 /*************************** Public API ******************************/
 
-exports.signUp = async ({ email }) => {
+exports.signUp = async ({ email }, isCHAPIEnabled = false) => {
   // login and consent
   await _getSignUp(email);
-  // register chapi
-  await allow();
+
+  if (isCHAPIEnabled) {
+    // register chapi
+    await allow();
+  }
+
   // wait for default default vault to load successfully
   await _waitForDefaultVault();
   signedUpUserEmail = email;
@@ -27,10 +31,6 @@ exports.signUp = async ({ email }) => {
 
 exports.signIn = async (email = signedUpUserEmail) => {
   await _signIn(email);
-};
-
-exports.performSignIn = async (email = signedUpUserEmail, waci = false) => {
-  await _performSignIn(email, waci);
 };
 
 exports.createOrbDID = async () => {
@@ -227,18 +227,6 @@ async function _signIn(signedUpUserEmail) {
   return true;
 }
 
-async function _performSignIn(email, waci) {
-  await browser.waitUntil(async () => {
-    const signInButton = await $("#mockbank");
-    await signInButton.waitForExist();
-    await signInButton.click();
-
-    await _getThirdPartyLogin(email, waci);
-    return true;
-  });
-  return true;
-}
-
 async function _changeLocale() {
   const localeSwitcherLink = await $("a*=Français");
   await localeSwitcherLink.waitForExist();
@@ -250,7 +238,7 @@ async function _changeLocale() {
   });
 }
 
-async function _getThirdPartyLogin(email, waci) {
+async function _getThirdPartyLogin(email) {
   await browser.waitUntil(async () => {
     try {
       await browser.switchWindow("Login Page");
@@ -273,14 +261,6 @@ async function _getThirdPartyLogin(email, waci) {
   await oidcLoginButton.click();
 
   await browser.switchWindow(browser.config.walletURL);
-
-  if (!waci) {
-    await browser.waitUntil(async () => {
-      let title = await $("iframe");
-      await title.waitForExist({ timeout, interval: 5000 });
-      return true;
-    });
-  }
 }
 
 async function _waitForDefaultVault() {

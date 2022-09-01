@@ -12,18 +12,18 @@ const mockDemoDomain = "https://demo-adapter.trustbloc.local:8094";
 
 exports.config = {
   ...config,
-  walletName: "wallet.trustbloc.local:8091",
-  walletURL: "https://wallet.trustbloc.local:8091",
-  walletURLFrench: "https://wallet.trustbloc.local:8091/fr/",
+
+  // Test files
+  specs: [
+    "./test/specs/oidc-flow.js",
+    "./test/specs/vault-interaction-flow.js",
+  ],
+
+  walletName: "vcwallet.trustbloc.local:8071",
+  walletURL: "https://vcwallet.trustbloc.local:8071",
+  walletURLFrench: "https://vcwallet.trustbloc.local:8071/fr/",
 
   // oidc
   oidcDemoVerifierURL: mockDemoDomain + "/verifier/oidc",
   oidcDemoIssuerURL: mockDemoDomain + "/issuer/oidc",
-
-  // waci
-  waciDemoVerifierURL: mockDemoDomain + "/verifier/waci",
-  waciDemoIssuerURL: mockDemoDomain + "/issuer/waci",
-
-  // chapi
-  chapiDemoURL: mockDemoDomain + "/web-wallet",
 };
