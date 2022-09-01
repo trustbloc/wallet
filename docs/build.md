@@ -12,6 +12,16 @@ In order to build Wallet from the source, first make sure to install the followi
 - [Docker](https://docs.docker.com/get-docker/) (**Note**: make sure to set your `Docker` to use `Docker-Compose V1`)
 - [Docker-Compose V1](https://docs.docker.com/compose/install/)
 - Make
+- [Git Large File Storage (Git LFS)](https://git-lfs.github.com/)
+
+## Initialize and Pull Assets from Git LFS
+
+Run the following commands:
+
+```bash
+git lfs install
+git lfs pull
+```
 
 ## Test Keys
 
@@ -23,6 +33,7 @@ You also need to add the following lines to your `hosts` file (`/etc/hosts` on \
 
 ```
 127.0.0.1 testnet.orb.local
+127.0.0.1 vcwallet.trustbloc.local
 127.0.0.1 wallet.trustbloc.local
 127.0.0.1 mediator.trustbloc.local
 127.0.0.1 uni-resolver-web.trustbloc.local

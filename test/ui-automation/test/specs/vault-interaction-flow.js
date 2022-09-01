@@ -63,7 +63,7 @@ describe("TrustBloc Wallet - Add/Rename/Delete Vault flow", () => {
     await browser.navigateTo(browser.config.walletURL);
 
     // 2. Initialize Wallet (register/sign-up/etc.)
-    await wallet.signUp(ctx);
+    await wallet.signUp(ctx, browser.config.isCHAPIEnabled);
   });
   it(`User dismisses welcome message banner`, async function () {
     const welcomeMessageCloseButton = await $("#welcome-banner-close-button");

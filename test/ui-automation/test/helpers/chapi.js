@@ -40,7 +40,10 @@ exports.chooseWallet = async ({ name }) => {
 exports.allow = async () => {
   const chapiFrame = await $("iframe");
   await chapiFrame.waitForExist();
-  expect(chapiFrame).toHaveAttrContaining("src", "https://authn.io/mediator");
+  await expect(chapiFrame).toHaveAttrContaining(
+    "src",
+    "https://authn.io/mediator"
+  );
   await browser.switchToFrame(chapiFrame);
   const allowBtn = await $("button*=Allow");
   await allowBtn.waitForClickable();

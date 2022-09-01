@@ -281,7 +281,7 @@ describe("TrustBloc Wallet - OIDC flow", async function () {
     await browser.navigateTo(browser.config.walletURL);
 
     // 2. Initialize Wallet (register/sign-up/etc.)
-    await wallet.signUp(ctx);
+    await wallet.signUp(ctx, browser.config.isCHAPIEnabled);
 
     await wallet.waitForCredentials();
   });
@@ -292,6 +292,11 @@ describe("TrustBloc Wallet - OIDC flow", async function () {
 
     let oidcIssuanceDemoBtn = await $("#oidc-issuance");
     await oidcIssuanceDemoBtn.waitForExist();
+
+    const walletUrlInput = await $("#walletURL");
+    await walletUrlInput.waitForExist();
+    await walletUrlInput.setValue(`${browser.config.walletURL}/oidc/initiate`);
+
     await oidcIssuanceDemoBtn.click();
 
     const issuerLoginBtn = await $("#issuer-login");
@@ -330,6 +335,11 @@ describe("TrustBloc Wallet - OIDC flow", async function () {
 
     let oidcShareDemoBtn = await $("#oidc-share");
     await oidcShareDemoBtn.waitForExist();
+
+    const walletUrlInput = await $("#walletAuthURL");
+    await walletUrlInput.waitForExist();
+    await walletUrlInput.setValue(`${browser.config.walletURL}/oidc/share`);
+
     await oidcShareDemoBtn.click();
 
     const vcName = await $("span*=Permanent Resident Card");
@@ -376,7 +386,7 @@ describe("TrustBloc Wallet - OIDC save multiple credential flow", async function
     await browser.navigateTo(browser.config.walletURL);
 
     // 2. Initialize Wallet (register/sign-up/etc.)
-    await wallet.signUp(ctx);
+    await wallet.signUp(ctx, browser.config.isCHAPIEnabled);
 
     await wallet.waitForCredentials();
   });
@@ -388,18 +398,21 @@ describe("TrustBloc Wallet - OIDC save multiple credential flow", async function
     let oidcIssuanceDemoBtn = await $("#oidc-issuance");
     await oidcIssuanceDemoBtn.waitForExist();
 
+    let walletUrlInput = await $("#walletURL");
     let credentialTypes = await $("#credentialTypes");
     let manifestIDs = await $("#manifestIDs");
     let credentialManifests = await $("#credManifest");
     let credentialsToIssue = await $("#credsToIssue");
 
     await Promise.all([
+      walletUrlInput.waitForExist(),
       credentialTypes.waitForExist(),
       manifestIDs.waitForExist(),
       credentialManifests.waitForExist(),
       credentialsToIssue.waitForExist(),
     ]);
 
+    await walletUrlInput.setValue(`${browser.config.walletURL}/oidc/initiate`);
     await credentialTypes.setValue(
       "https://w3id.org/citizenship/v1,https://www.w3.org/2018/credentials/examples/v1"
     );
@@ -425,7 +438,7 @@ describe("TrustBloc Wallet - OIDC save multiple credential flow", async function
     await okBtn.waitForExist();
     await okBtn.click();
 
-    // sleep for 3 secs
+    // sleep for 5 secs
     await new Promise((resolve) => setTimeout(resolve, 5000));
   });
 
