@@ -351,6 +351,12 @@ describe("TrustBloc Wallet - OIDC flow", async function () {
     await shareBtn.waitForExist();
     await shareBtn.click();
 
+    const tknText = await $("p*=VP_TOKEN");
+    await tknText.waitForExist();
+
+    const vcType = await $("p*=PermanentResidentCard");
+    await vcType.waitForExist();
+
     const msg = await $("b*=Successfully Received Presentation");
     await msg.waitForExist();
   });
