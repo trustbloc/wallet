@@ -463,9 +463,9 @@ func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
 		loadTemplate(w, oidcVerifierHTML,
 			map[string]interface{}{
 				"ErrMsg":                    fmt.Sprintf("ERROR: failed to validate presentation : %s", err),
-				"ID_TOKEN":                  "ID_TOKEN:\n" + idToken,
-				"DECODED_VPDEF_IN_ID_TOKEN": "DECODED_VPDEF_IN_ID_TOKEN: " + string(presSubBytes),
-				"VP_TOKEN":                  "VP_TOKEN: " + string(vpToken),
+				"ID_TOKEN":                  "\n" + idToken,
+				"DECODED_VPDEF_IN_ID_TOKEN": string(presSubBytes),
+				"VP_TOKEN":                  string(vpToken),
 			},
 		)
 
@@ -475,9 +475,9 @@ func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
 	loadTemplate(w, oidcVerifierHTML,
 		map[string]interface{}{
 			"Msg":                       "Successfully Received Presentation",
-			"ID_TOKEN":                  "ID_TOKEN:\n" + idToken,
-			"DECODED_VPDEF_IN_ID_TOKEN": "DECODED_VPDEF_IN_ID_TOKEN: " + string(presSubBytes),
-			"VP_TOKEN":                  "VP_TOKEN: " + string(vpToken),
+			"ID_TOKEN":                  "\n" + idToken,
+			"DECODED_VPDEF_IN_ID_TOKEN": string(presSubBytes),
+			"VP_TOKEN":                  string(vpToken),
 		},
 	)
 }
