@@ -75,6 +75,7 @@ services:
   mediator.trustbloc.local:
     container_name: mediator.trustbloc.local
     image: ${MEDIATOR_IMAGE}:${MEDIATOR_IMAGE_TAG}
+    restart: always
     environment:
       - MEDIATOR_HOST_URL=${MEDIATOR_HOST}:${MEDIATOR_API_PORT}
       - MEDIATOR_TLS_CACERTS=/etc/tls/ec-cacert.pem
@@ -104,6 +105,7 @@ services:
   mediator.example.com:
     container_name: mediator.example.com
     image: ${MEDIATOR_IMAGE}:${MEDIATOR_IMAGE_TAG}
+    restart: always
     environment:
       - MEDIATOR_HOST_URL=${MEDIATOR2_HOST}:${MEDIATOR2_API_PORT}
       - MEDIATOR_TLS_CACERTS=/etc/tls/ec-cacert.pem
@@ -132,17 +134,27 @@ services:
 
   sidetree:
     container_name: testnet.orb.local
-    image: ${SIDETREE_MOCK_IMAGE}:${SIDETREE_MOCK_IMAGE_TAG}
+    image: ${ORB_IMAGE}:${ORB_IMAGE_TAG}
     environment:
-      - SIDETREE_MOCK_TLS_CERTIFICATE=/etc/sidetree/tls/ec-pubCert.pem
-      - SIDETREE_MOCK_TLS_KEY=/etc/sidetree/tls/ec-key.pem
-      - SIDETREE_MOCK_HOST=0.0.0.0
-      - SIDETREE_MOCK_PORT=443
-      - SIDETREE_MOCK_DID_NAMESPACE=did:orb
-      - SIDETREE_MOCK_DID_ALIASES=did:orb:testnet.orb.local
-      - SIDETREE_MOCK_EXTERNAL_ENDPOINT=https://testnet.orb.local
-      - SIDETREE_MOCK_WELLKNOWN_PATH=did-orb
+      - ORB_HOST_URL=0.0.0.0:443
+      - ORB_EXTERNAL_ENDPOINT=https://testnet.orb.local
+      - DID_NAMESPACE=did:orb
+      - ALLOWED_ORIGINS=https://testnet.orb.local
+      - CAS_TYPE=local
+      - ANCHOR_CREDENTIAL_SIGNATURE_SUITE=Ed25519Signature2018
+      - DATABASE_TYPE=mem
+      - ORB_KMS_TYPE=local
+      - KMSSECRETS_DATABASE_TYPE=mem
+      - INCLUDE_PUBLISHED_OPERATIONS_IN_METADATA=true
+      - INCLUDE_UNPUBLISHED_OPERATIONS_IN_METADATA=true
+      - UNPUBLISHED_OPERATION_STORE_ENABLED=true
+      - BATCH_WRITER_TIMEOUT=1
+      - ORB_TLS_CERTIFICATE=/etc/keys/tls/ec-pubCert.pem
+      - ORB_TLS_KEY=/etc/keys/tls/ec-key.pem
+      - ORB_TLS_CACERTS=/etc/keys/tls/ec-cacert.pem
+      - ORB_TLS_SYSTEMCERTPOOL=true
     ports:
       - 443:443
+    command: start
     volumes:
-      - ../keys/tls:/etc/sidetree/tls
+      - ../keys/tls:/etc/keys/tls
