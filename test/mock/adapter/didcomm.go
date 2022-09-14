@@ -14,10 +14,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/hyperledger/aries-framework-go/pkg/common/model"
-
 	"github.com/google/uuid"
-
 	"github.com/hyperledger/aries-framework-go-ext/component/vdr/orb"
 	"github.com/hyperledger/aries-framework-go/component/storageutil/mem"
 	"github.com/hyperledger/aries-framework-go/pkg/client/didexchange"
@@ -25,6 +22,7 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/client/outofband"
 	"github.com/hyperledger/aries-framework-go/pkg/client/outofbandv2"
 	"github.com/hyperledger/aries-framework-go/pkg/client/presentproof"
+	"github.com/hyperledger/aries-framework-go/pkg/common/model"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/transport"
 	arieshttp "github.com/hyperledger/aries-framework-go/pkg/didcomm/transport/http"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/did"
@@ -37,6 +35,7 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/framework/aries/api/vdr"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/aries/defaults"
 	"github.com/hyperledger/aries-framework-go/pkg/kms"
+	"github.com/hyperledger/aries-framework-go/pkg/vdr/web"
 	"github.com/hyperledger/aries-framework-go/spi/storage"
 	tlsutils "github.com/trustbloc/edge-core/pkg/utils/tls"
 )
@@ -123,7 +122,14 @@ func startAriesAgent() (*didComm, error) {
 		opts = append(opts, aries.WithKeyAgreementType(keyAgrT))
 	}
 
-	opts = append(opts, aries.WithVDR(vdri))
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	opts = append(opts, aries.WithVDR(vdri), aries.WithVDR(&webVDR{
+		http: &http.Client{Transport: tr},
+		VDR:  web.New(),
+	}))
 
 	if ctxURL := os.Getenv(contextProviderEnvKey); ctxURL != "" {
 		if caCerts := os.Getenv(tlsCACertsEnvKey); caCerts != "" {
@@ -332,4 +338,13 @@ func createJSONLDDocumentLoader(store storage.Provider, tlsConfig *tls.Config,
 	}
 
 	return loader, nil
+}
+
+type webVDR struct {
+	http *http.Client
+	*web.VDR
+}
+
+func (w *webVDR) Read(didID string, opts ...vdr.DIDMethodOption) (*did.DocResolution, error) {
+	return w.VDR.Read(didID, append(opts, vdr.WithOption(web.HTTPClientOpt, w.http))...)
 }

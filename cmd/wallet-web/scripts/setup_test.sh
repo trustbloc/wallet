@@ -8,6 +8,11 @@ set -e
 
 
 if [ "$1" == "setup" ]; then
+  echo "generating test keys"
+  docker run -i --rm \
+  -v $(readlink -f .):/opt/tmp \
+  --entrypoint "/opt/tmp/scripts/generate_test_keys.sh" \
+  frapsoft/openssl
   echo "setting up agent assets"
   bash ./scripts/setup_assets.sh
   echo "starting containers..."
