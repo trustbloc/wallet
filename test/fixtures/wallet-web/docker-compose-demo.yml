@@ -25,6 +25,7 @@ services:
   mock-adapter.example.com:
     container_name: mock-adapter.example.com
     image: ${MOCK_ADAPTER_IMAGE}:latest
+    restart: always
     environment:
       - DEMO_PORT=8094
       - EXTRERAL_URL=https://demo-adapter.trustbloc.local:8094

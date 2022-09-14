@@ -8,8 +8,6 @@ set -e
 
 
 if [ "$1" == "setup" ]; then
-  echo "generating test keys"
-  bash ./scripts/generate_test_keys.sh
   echo "setting up agent assets"
   bash ./scripts/setup_assets.sh
   echo "starting containers..."
