@@ -59,10 +59,13 @@ wallet-web-docker: wallet-web
 	@echo "Building wallet-web docker image"
 	@docker build -f ./images/wallet-web/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(REPO_IMAGE_NAME)/wallet-web:latest .
 
+
+# TODO (#1887): frapsoft/openssl only has an amd64 version. While this does work under amd64 and arm64 Mac OS currently,
+#               we should add an arm64 version for systems that can only run arm64 code.
 .PHONY: generate-test-keys
 generate-test-keys:
 	@mkdir -p -p test/fixtures/keys/tls
-	@docker run -i --rm \
+	@docker run -i --platform linux/amd64 --rm \
 		-v $(abspath .):/opt/workspace/wallet \
 		--entrypoint "/opt/workspace/wallet/scripts/generate_test_keys.sh" \
 		frapsoft/openssl
