@@ -36,7 +36,7 @@ license:
 	@scripts/check_license.sh
 
 .PHONY: wallet-web-test
-wallet-web-test: generate-wallet-web-test-keys
+wallet-web-test:
 	@set -e
 	@cd cmd/wallet-web && npm install && npm run test
 
@@ -65,14 +65,6 @@ generate-test-keys:
 	@docker run -i --rm \
 		-v $(abspath .):/opt/workspace/wallet \
 		--entrypoint "/opt/workspace/wallet/scripts/generate_test_keys.sh" \
-		frapsoft/openssl
-
-.PHONY: generate-wallet-web-test-keys
-generate-wallet-web-test-keys:
-	@mkdir -p -p cmd/wallet-web/test/fixtures/keys/tls
-	@docker run -i --rm \
-		-v $(abspath .):/opt/workspace/wallet \
-		--entrypoint "/opt/workspace/wallet/scripts/generate_wallet_web_test_keys.sh" \
 		frapsoft/openssl
 
 .PHONY: wallet-web-start
