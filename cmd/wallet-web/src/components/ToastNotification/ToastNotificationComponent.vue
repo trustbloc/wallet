@@ -7,17 +7,17 @@
 <template>
   <div v-show="close" :class="classname">
     <div class="px-4 xs:flex-none">
-      <img class="w-8 h-6 sm:w-10 sm:h-8" :src="icon" />
+      <img class="h-6 w-8 sm:h-8 sm:w-10" :src="icon" />
     </div>
     <div class="flex-col">
-      <span class="text-sm font-bold leading-relaxed text-left xs:text-lg">{{ title }}</span>
+      <span class="text-left text-sm font-bold leading-relaxed xs:text-lg">{{ title }}</span>
       <div>
-        <span class="text-xs leading-6 text-left xs:text-sm">{{ description }}</span>
+        <span class="text-left text-xs leading-6 xs:text-sm">{{ description }}</span>
       </div>
     </div>
     <div class="px-4 align-middle xs:flex-none">
       <button type="button" @click="close = !close">
-        <img class="w-6 h-6" src="@/assets/img/close-icon.svg" />
+        <img class="h-6 w-6" src="@/assets/img/close-icon.svg" />
       </button>
     </div>
   </div>

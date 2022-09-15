@@ -3,14 +3,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-version: "2"
+version: '2'
 
 services:
   mongodb.example.com:
     container_name: mongodb.example.com
     image: mongo:4.0.0
     ports:
-      - "27017:27017"
+      - '27017:27017'
 
   edv.trustbloc.local:
     container_name: edv.trustbloc.local
@@ -96,7 +96,7 @@ services:
       - GNAP_ACCESS_POLICY=/etc/static/config/access_policy.json
     ports:
       - 8044:8044
-    entrypoint: ""
+    entrypoint: ''
     command: /bin/sh -c "sleep 30 && auth-rest start"
     volumes:
       - ../keys:/etc/keys
@@ -113,7 +113,7 @@ services:
       - 5555:5555 # Public port
       - 5556:5556 # Admin port
     command: /bin/sh -c "hydra migrate sql --read-from-env --yes; tmp/hydra_configure.sh& hydra serve all"
-    entrypoint: ""
+    entrypoint: ''
     environment:
       - DSN=mysql://authresthydra:authresthydra-secret-pw@tcp(mysql:3306)/authresthydra?max_conns=20&max_idle_conns=4
       - URLS_SELF_ISSUER=https://auth-hydra.trustbloc.local:5555/
@@ -140,7 +140,7 @@ services:
       - 7777:7777 # Public port
       - 7778:7778 # Admin port
     command: /bin/sh -c "hydra migrate sql --read-from-env --yes; tmp/hydra_configure.sh& hydra serve all"
-    entrypoint: ""
+    entrypoint: ''
     environment:
       - DSN=mysql://demohydra:demohydra-pwd@tcp(mysql:3306)/demohydra?max_conns=20&max_idle_conns=4
       - URLS_SELF_ISSUER=https://demo-hydra.trustbloc.local:7777/
@@ -169,7 +169,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: secret
     logging:
-      driver: "none"
+      driver: 'none'
     volumes:
       - ./mysql-config:/docker-entrypoint-initdb.d
 

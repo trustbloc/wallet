@@ -8,7 +8,7 @@
   <keep-alive>
     <component
       :is="component"
-      class="flex overflow-hidden relative z-10 flex-col grow justify-start items-start w-full h-full bg-neutrals-softWhite"
+      class="relative z-10 flex h-full w-full grow flex-col items-start justify-start overflow-hidden bg-neutrals-softWhite"
     />
   </keep-alive>
 </template>

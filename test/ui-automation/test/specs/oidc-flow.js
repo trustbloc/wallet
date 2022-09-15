@@ -4,193 +4,193 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-"use strict";
+'use strict';
 
-const { wallet } = require("../helpers");
+import { wallet } from '../helpers';
 
 const prcvcSubjectData = [
-  { name: "Given Name", value: "JOHN" },
-  { name: "Family Name", value: "SMITH" },
-  { name: "Gender", value: "Male" },
-  { name: "Date of Birth", value: "1958-07-17" },
-  { name: "Country of Birth", value: "Bahamas" },
-  { name: "Resident Since", value: "2015-01-01" },
+  { name: 'Given Name', value: 'JOHN' },
+  { name: 'Family Name', value: 'SMITH' },
+  { name: 'Gender', value: 'Male' },
+  { name: 'Date of Birth', value: '1958-07-17' },
+  { name: 'Country of Birth', value: 'Bahamas' },
+  { name: 'Resident Since', value: '2015-01-01' },
 ];
 
 const udcvcSubjectData = [
-  { name: "Degree", value: "Academic" },
-  { name: "Type", value: "BachelorDegree" },
+  { name: 'Degree', value: 'Academic' },
+  { name: 'Type', value: 'BachelorDegree' },
 ];
 
 const issuerManifests = [
   {
-    id: "GE-PRC-2022-CLASS-A",
-    version: "0.1.0",
+    id: 'GE-PRC-2022-CLASS-A',
+    version: '0.1.0',
     issuer: {
-      id: "did:example:123?linked-domains=3",
-      name: "Government of Example Immigration",
+      id: 'did:example:123?linked-domains=3',
+      name: 'Government of Example Immigration',
       styles: {},
     },
     output_descriptors: [
       {
-        id: "prc_output",
-        schema: "https://w3id.org/citizenship/v1",
+        id: 'prc_output',
+        schema: 'https://w3id.org/citizenship/v1',
         display: {
           title: {
-            path: ["$.name"],
-            fallback: "Permanent Resident Card",
+            path: ['$.name'],
+            fallback: 'Permanent Resident Card',
             schema: {
-              type: "string",
+              type: 'string',
             },
           },
           subtitle: {
-            path: ["$.description"],
-            fallback: "Government of Example Permanent Resident Card.",
+            path: ['$.description'],
+            fallback: 'Government of Example Permanent Resident Card.',
             schema: {
-              type: "string",
+              type: 'string',
             },
           },
           description: {
-            text: "Sample Permanent Resident Card issued by Government of Example Citizenship & Immigration Services",
+            text: 'Sample Permanent Resident Card issued by Government of Example Citizenship & Immigration Services',
           },
           properties: [
             {
-              path: ["$.credentialSubject.image"],
+              path: ['$.credentialSubject.image'],
               schema: {
-                type: "string",
-                contentMediaType: "image/png",
+                type: 'string',
+                contentMediaType: 'image/png',
               },
-              label: "Card Holder",
+              label: 'Card Holder',
             },
             {
-              path: ["$.credentialSubject.givenName"],
+              path: ['$.credentialSubject.givenName'],
               schema: {
-                type: "string",
+                type: 'string',
               },
-              label: "Given Name",
+              label: 'Given Name',
             },
             {
-              path: ["$.credentialSubject.familyName"],
+              path: ['$.credentialSubject.familyName'],
               schema: {
-                type: "string",
+                type: 'string',
               },
-              label: "Family Name",
+              label: 'Family Name',
             },
             {
-              path: ["$.credentialSubject.gender"],
+              path: ['$.credentialSubject.gender'],
               schema: {
-                type: "string",
+                type: 'string',
               },
-              fallback: "Not disclosed",
-              label: "Gender",
+              fallback: 'Not disclosed',
+              label: 'Gender',
             },
             {
-              path: ["$.credentialSubject.birthDate"],
+              path: ['$.credentialSubject.birthDate'],
               schema: {
-                type: "string",
-                format: "date",
+                type: 'string',
+                format: 'date',
               },
-              label: "Date of Birth",
+              label: 'Date of Birth',
             },
             {
-              path: ["$.credentialSubject.birthCountry"],
+              path: ['$.credentialSubject.birthCountry'],
               schema: {
-                type: "string",
+                type: 'string',
               },
-              label: "Country of Birth",
+              label: 'Country of Birth',
             },
             {
-              path: ["$.credentialSubject.residentSince"],
+              path: ['$.credentialSubject.residentSince'],
               schema: {
-                type: "string",
-                format: "date",
+                type: 'string',
+                format: 'date',
               },
-              label: "Resident Since",
+              label: 'Resident Since',
             },
           ],
         },
         styles: {
           thumbnail: {
-            uri: "https://file-server.trustbloc.local:12096/images/credential--uscis-icon.svg",
-            alt: "Citizenship & Immigration Services",
+            uri: 'https://file-server.trustbloc.local:12096/images/credential--uscis-icon.svg',
+            alt: 'Citizenship & Immigration Services',
           },
           hero: {
-            uri: "https://example.com/trust.png",
-            alt: "Service we trust",
+            uri: 'https://example.com/trust.png',
+            alt: 'Service we trust',
           },
           background: {
-            color: "#2b5283",
+            color: '#2b5283',
           },
           text: {
-            color: "#fff",
+            color: '#fff',
           },
         },
       },
     ],
   },
   {
-    id: "GE-UDC-2022",
-    version: "0.1.0",
+    id: 'GE-UDC-2022',
+    version: '0.1.0',
     issuer: {
-      id: "did:example:123?linked-domains=3",
-      name: "Example University",
+      id: 'did:example:123?linked-domains=3',
+      name: 'Example University',
       styles: {},
     },
     output_descriptors: [
       {
-        id: "udc_output",
-        schema: "https://www.w3.org/2018/credentials/examples/v1",
+        id: 'udc_output',
+        schema: 'https://www.w3.org/2018/credentials/examples/v1',
         display: {
           title: {
-            path: ["$.name"],
-            fallback: "University Degree Credential",
+            path: ['$.name'],
+            fallback: 'University Degree Credential',
             schema: {
-              type: "string",
+              type: 'string',
             },
           },
           subtitle: {
-            path: ["$.description"],
-            fallback: "University of Example Degree.",
+            path: ['$.description'],
+            fallback: 'University of Example Degree.',
             schema: {
-              type: "string",
+              type: 'string',
             },
           },
           description: {
-            text: "Sample University Degree issued by University of Example studies",
+            text: 'Sample University Degree issued by University of Example studies',
           },
           properties: [
             {
-              path: ["$.credentialSubject.degree.name"],
+              path: ['$.credentialSubject.degree.name'],
               schema: {
-                type: "string",
+                type: 'string',
               },
-              fallback: "Academic",
-              label: "Degree",
+              fallback: 'Academic',
+              label: 'Degree',
             },
             {
-              path: ["$.credentialSubject.degree.type"],
+              path: ['$.credentialSubject.degree.type'],
               schema: {
-                type: "string",
+                type: 'string',
               },
-              fallback: "Not Specified",
-              label: "Type",
+              fallback: 'Not Specified',
+              label: 'Type',
             },
           ],
         },
         styles: {
           thumbnail: {
-            uri: "credential--school-icon.svg",
-            alt: "University of Example Studies",
+            uri: 'credential--school-icon.svg',
+            alt: 'University of Example Studies',
           },
           hero: {
-            uri: "https://example.com/happy-students.png",
-            alt: "Happy Students",
+            uri: 'https://example.com/happy-students.png',
+            alt: 'Happy Students',
           },
           background: {
-            color: "#fff",
+            color: '#fff',
           },
           text: {
-            color: "#190c21",
+            color: '#190c21',
           },
         },
       },
@@ -199,84 +199,80 @@ const issuerManifests = [
 ];
 
 const credentials = {
-  "https://w3id.org/citizenship/v1": {
-    "@context": [
-      "https://www.w3.org/2018/credentials/v1",
-      "https://w3id.org/citizenship/v1",
-    ],
+  'https://w3id.org/citizenship/v1': {
+    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/citizenship/v1'],
     credentialSubject: {
-      birthCountry: "Bahamas",
-      birthDate: "1958-07-17",
-      commuterClassification: "C1",
-      familyName: "SMITH",
-      gender: "Male",
-      givenName: "JOHN",
-      id: "did:example:b34ca6cd37bbf23",
-      lprCategory: "C09",
-      lprNumber: "999-999-999",
-      residentSince: "2015-01-01",
-      type: ["PermanentResident", "Person"],
+      birthCountry: 'Bahamas',
+      birthDate: '1958-07-17',
+      commuterClassification: 'C1',
+      familyName: 'SMITH',
+      gender: 'Male',
+      givenName: 'JOHN',
+      id: 'did:example:b34ca6cd37bbf23',
+      lprCategory: 'C09',
+      lprNumber: '999-999-999',
+      residentSince: '2015-01-01',
+      type: ['PermanentResident', 'Person'],
     },
-    description: "Government of Example Permanent Resident Card.",
-    expirationDate: "2029-12-03T12:19:52Z",
-    id: "https://issuer.oidp.uscis.gov/credentials/836274651",
-    identifier: "83627465",
-    issuanceDate: "2019-12-03T12:19:52Z",
-    issuer: "did:example:b34ca6cd37bbf23",
-    name: "Permanent Resident Card",
-    type: ["VerifiableCredential", "PermanentResidentCard"],
+    description: 'Government of Example Permanent Resident Card.',
+    expirationDate: '2029-12-03T12:19:52Z',
+    id: 'https://issuer.oidp.uscis.gov/credentials/836274651',
+    identifier: '83627465',
+    issuanceDate: '2019-12-03T12:19:52Z',
+    issuer: 'did:example:b34ca6cd37bbf23',
+    name: 'Permanent Resident Card',
+    type: ['VerifiableCredential', 'PermanentResidentCard'],
   },
-  "https://www.w3.org/2018/credentials/examples/v1": {
-    "@context": [
-      "https://www.w3.org/2018/credentials/v1",
-      "https://www.w3.org/2018/credentials/examples/v1",
+  'https://www.w3.org/2018/credentials/examples/v1': {
+    '@context': [
+      'https://www.w3.org/2018/credentials/v1',
+      'https://www.w3.org/2018/credentials/examples/v1',
     ],
     credentialSchema: [],
     credentialSubject: {
       degree: {
-        type: "BachelorDegree",
-        university: "MIT",
+        type: 'BachelorDegree',
+        university: 'MIT',
       },
-      id: "did:example:ebfeb1f712ebc6f1c276e12ec21",
-      name: "Jayden Doe",
-      spouse: "did:example:c276e12ec21ebfeb1f712ebc6f1",
+      id: 'did:example:ebfeb1f712ebc6f1c276e12ec21',
+      name: 'Jayden Doe',
+      spouse: 'did:example:c276e12ec21ebfeb1f712ebc6f1',
     },
 
-    name: "University Degree",
-    description: "University Degree of Mr.John Smith",
-    expirationDate: "2020-01-01T19:23:24Z",
-    id: "http://example.edu/credentials/11873",
-    issuanceDate: "2010-01-01T19:23:24Z",
+    name: 'University Degree',
+    description: 'University Degree of Mr.John Smith',
+    expirationDate: '2020-01-01T19:23:24Z',
+    id: 'http://example.edu/credentials/11873',
+    issuanceDate: '2010-01-01T19:23:24Z',
     issuer: {
-      id: "did:example:76e12ec712ebc6f1c221ebfeb1f",
-      name: "Example University",
+      id: 'did:example:76e12ec712ebc6f1c221ebfeb1f',
+      name: 'Example University',
     },
     referenceNumber: 83294847,
-    type: ["VerifiableCredential", "UniversityDegreeCredential"],
+    type: ['VerifiableCredential', 'UniversityDegreeCredential'],
   },
 };
 
-describe("TrustBloc Wallet - OIDC flow", async function () {
-  const ctx = {
-    email: `ui-aut-oidc-${new Date().getTime()}@test.com`,
-  };
+describe('TrustBloc Wallet - OIDC flow', function () {
+  let ctx;
 
   // runs once before the first test in this block
-  before(async () => {
+  before(async function () {
     await browser.reloadSession();
     await browser.maximizeWindow();
+    ctx = {
+      email: `ui-aut-oidc-${new Date().getTime()}@test.com`,
+    };
   });
 
-  beforeEach(function () {});
-
   afterEach(async function () {
-    if (this.currentTest.state === "failed") {
-      const logs = await browser.getLogs("browser");
+    if (this.currentTest.state === 'failed') {
+      const logs = await browser.getLogs('browser');
       console.log(JSON.stringify(logs, null, 4));
     }
   });
 
-  it(`User Sign up (${ctx.email})`, async function () {
+  it(`User Sign up`, async function () {
     // 1. Navigate to Wallet Website
     await browser.navigateTo(browser.config.walletURL);
 
@@ -290,40 +286,37 @@ describe("TrustBloc Wallet - OIDC flow", async function () {
     // demo issuer page
     await browser.navigateTo(browser.config.oidcDemoIssuerURL);
 
-    let oidcIssuanceDemoBtn = await $("#oidc-issuance");
-    await oidcIssuanceDemoBtn.waitForExist();
+    const oidcIssuanceDemoBtn = await $('#oidc-issuance');
+    await oidcIssuanceDemoBtn.waitForClickable();
 
-    const walletUrlInput = await $("#walletURL");
+    const walletUrlInput = await $('#walletURL');
     await walletUrlInput.waitForExist();
     await walletUrlInput.setValue(`${browser.config.walletURL}/oidc/initiate`);
 
     await oidcIssuanceDemoBtn.click();
 
-    const issuerLoginBtn = await $("#issuer-login");
-    await issuerLoginBtn.waitForExist();
+    const issuerLoginBtn = await $('#issuer-login');
+    await issuerLoginBtn.waitForClickable();
     await issuerLoginBtn.click();
 
-    const prcSpan = await $("span*=Permanent Resident Card");
-    await prcSpan.waitForExist();
+    const prcSpan = await $('span*=Permanent Resident Card');
+    await expect(prcSpan).toExist();
 
     // accept store credential
-    const storeButton = await $("#storeVCBtn");
+    const storeButton = await $('#storeVCBtn');
     await storeButton.waitForClickable();
     await storeButton.click();
 
-    const okBtn = await $("#issue-credentials-ok-btn");
-    await okBtn.waitForExist();
+    const okBtn = await $('#issue-credentials-ok-btn');
+    await okBtn.waitForClickable();
     await okBtn.click();
 
-    // sleep for 3 secs
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await expect(browser).toHaveUrl(`${browser.config.walletURL}/credentials`);
   });
 
   it(`User validates the saved credential in Wallet`, async function () {
-    await browser.navigateTo(`${browser.config.walletURL}/credentials`);
-
-    const vcName = await $("span*=Permanent Resident Card");
-    await vcName.waitForExist();
+    const vcName = await $('span*=Permanent Resident Card');
+    await vcName.waitForClickable();
     await vcName.click();
 
     await wallet.validateCredentialDetails(prcvcSubjectData);
@@ -333,32 +326,30 @@ describe("TrustBloc Wallet - OIDC flow", async function () {
     // demo verifier page
     await browser.navigateTo(browser.config.oidcDemoVerifierURL);
 
-    let oidcShareDemoBtn = await $("#oidc-share");
-    await oidcShareDemoBtn.waitForExist();
+    const oidcShareDemoBtn = await $('#oidc-share');
+    await oidcShareDemoBtn.waitForClickable();
 
-    const walletUrlInput = await $("#walletAuthURL");
+    const walletUrlInput = await $('#walletAuthURL');
     await walletUrlInput.waitForExist();
     await walletUrlInput.setValue(`${browser.config.walletURL}/oidc/share`);
 
     await oidcShareDemoBtn.click();
 
-    const vcName = await $("span*=Permanent Resident Card");
-    await vcName.waitForExist();
+    const vcName = await $('span*=Permanent Resident Card');
+    await expect(vcName).toExist();
 
     await wallet.validateCredentialDetails(prcvcSubjectData);
 
-    const shareBtn = await $("#share-credentials");
-    await shareBtn.waitForExist();
+    const shareBtn = await $('#share-credentials');
+    await shareBtn.waitForClickable();
     await shareBtn.click();
 
-    const tknText = await $("p*=VP_TOKEN");
-    await tknText.waitForExist();
+    const tknText = await $('p*=VP_TOKEN');
+    await expect(tknText).toExist();
+    await expect(tknText).toHaveTextContaining('PermanentResidentCard');
 
-    const vcType = await $("p*=PermanentResidentCard");
-    await vcType.waitForExist();
-
-    const msg = await $("b*=Successfully Received Presentation");
-    await msg.waitForExist();
+    const msg = await $('b*=Successfully Received Presentation');
+    await expect(msg).toExist();
   });
 
   it(`User signs out`, async function () {
@@ -367,27 +358,26 @@ describe("TrustBloc Wallet - OIDC flow", async function () {
   });
 });
 
-describe("TrustBloc Wallet - OIDC save multiple credential flow", async function () {
-  const ctx = {
-    email: `ui-aut-oidc-${new Date().getTime()}@test.com`,
-  };
+describe('TrustBloc Wallet - OIDC save multiple credential flow', function () {
+  let ctx;
 
   // runs once before the first test in this block
-  before(async () => {
+  before(async function () {
     await browser.reloadSession();
     await browser.maximizeWindow();
+    ctx = {
+      email: `ui-aut-oidc-${new Date().getTime()}@test.com`,
+    };
   });
 
-  beforeEach(function () {});
-
   afterEach(async function () {
-    if (this.currentTest.state === "failed") {
-      const logs = await browser.getLogs("browser");
+    if (this.currentTest.state === 'failed') {
+      const logs = await browser.getLogs('browser');
       console.log(JSON.stringify(logs, null, 4));
     }
   });
 
-  it(`User Sign up (${ctx.email})`, async function () {
+  it(`User Sign up`, async function () {
     // 1. Navigate to Wallet Website
     await browser.navigateTo(browser.config.walletURL);
 
@@ -401,14 +391,14 @@ describe("TrustBloc Wallet - OIDC save multiple credential flow", async function
     // demo issuer page
     await browser.navigateTo(browser.config.oidcDemoIssuerURL);
 
-    let oidcIssuanceDemoBtn = await $("#oidc-issuance");
-    await oidcIssuanceDemoBtn.waitForExist();
+    const oidcIssuanceDemoBtn = await $('#oidc-issuance');
+    await oidcIssuanceDemoBtn.waitForClickable();
 
-    let walletUrlInput = await $("#walletURL");
-    let credentialTypes = await $("#credentialTypes");
-    let manifestIDs = await $("#manifestIDs");
-    let credentialManifests = await $("#credManifest");
-    let credentialsToIssue = await $("#credsToIssue");
+    const walletUrlInput = await $('#walletURL');
+    const credentialTypes = await $('#credentialTypes');
+    const manifestIDs = await $('#manifestIDs');
+    const credentialManifests = await $('#credManifest');
+    const credentialsToIssue = await $('#credsToIssue');
 
     await Promise.all([
       walletUrlInput.waitForExist(),
@@ -420,50 +410,52 @@ describe("TrustBloc Wallet - OIDC save multiple credential flow", async function
 
     await walletUrlInput.setValue(`${browser.config.walletURL}/oidc/initiate`);
     await credentialTypes.setValue(
-      "https://w3id.org/citizenship/v1,https://www.w3.org/2018/credentials/examples/v1"
+      'https://w3id.org/citizenship/v1,https://www.w3.org/2018/credentials/examples/v1'
     );
-    await manifestIDs.setValue("GE-PRC-2022-CLASS-A,GE-UDC-2022");
+    await manifestIDs.setValue('GE-PRC-2022-CLASS-A,GE-UDC-2022');
     await credentialManifests.setValue(JSON.stringify(issuerManifests));
     await credentialsToIssue.setValue(JSON.stringify(credentials));
 
     await oidcIssuanceDemoBtn.click();
 
-    const issuerLoginBtn = await $("#issuer-login");
-    await issuerLoginBtn.waitForExist();
+    const issuerLoginBtn = await $('#issuer-login');
+    await issuerLoginBtn.waitForClickable();
     await issuerLoginBtn.click();
 
-    const prcSpan = await $("span*=Permanent Resident Card");
-    await prcSpan.waitForExist();
+    const prcSpan = await $('span*=Permanent Resident Card');
+    await expect(prcSpan).toExist();
 
     // accept store credential
-    const storeButton = await $("#storeVCBtn");
+    const storeButton = await $('#storeVCBtn');
     await storeButton.waitForClickable();
     await storeButton.click();
 
-    const okBtn = await $("#issue-credentials-ok-btn");
-    await okBtn.waitForExist();
+    const okBtn = await $('#issue-credentials-ok-btn');
+    await okBtn.waitForClickable();
     await okBtn.click();
 
-    // sleep for 5 secs
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await expect(browser).toHaveUrl(`${browser.config.walletURL}/credentials`);
   });
 
   it(`User validates the saved credentials in Wallet`, async function () {
-    await browser.navigateTo(`${browser.config.walletURL}/credentials`);
-    const prcVC = await $("span*=Permanent Resident Card");
-    await prcVC.waitForExist();
+    const prcVC = await $('span*=Permanent Resident Card');
+    await prcVC.waitForClickable();
     await prcVC.click();
+
     await wallet.validateCredentialDetails(prcvcSubjectData);
 
-    await browser.navigateTo(`${browser.config.walletURL}/credentials`);
-    const udcVC = await $("span*=University Degree");
-    await udcVC.waitForExist();
+    const credentialsLink = $('#navbar-link-credentials');
+    await credentialsLink.waitForClickable();
+    await credentialsLink.click();
+
+    const udcVC = await $('span*=University Degree');
+    await udcVC.waitForClickable();
     await udcVC.click();
+
     await wallet.validateCredentialDetails(udcvcSubjectData);
   });
 
   it(`User signs out`, async function () {
-    await browser.navigateTo(browser.config.walletURL);
     await wallet.signOut(ctx);
   });
 });

@@ -57,7 +57,7 @@ function fetchStoredGnapKeyPair() {
 }
 
 export function clearGnapStoreData() {
-  return new Promise(function (resolve) {
+  return new Promise(function () {
     callOnStore(function (store) {
       store.delete(storekey);
     });
@@ -74,10 +74,11 @@ function callOnStore(fn_) {
     window.shimIndexedDB;
 
   const open = indexedDB.open(dbName, 3);
+
   // Create the schema
   open.onupgradeneeded = function () {
     const db = open.result;
-    const store = db.createObjectStore(dbObjectStore);
+    db.createObjectStore(dbObjectStore);
   };
 
   open.onsuccess = function () {

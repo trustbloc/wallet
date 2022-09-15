@@ -18,10 +18,7 @@ SPDX-License-Identifier: Apache-2.0
 
     <link href="css/tailwind.css" rel="stylesheet" />
 
-    <link
-      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet" />
 
     <style>
       .gradient {
@@ -39,60 +36,25 @@ SPDX-License-Identifier: Apache-2.0
     style="background-color: #f4f1f5"
   >
     <section class="py-48">
-      <p class="text-neutrals-black text-2xl text-center font-bold">
-        Demo Sign In
-      </p>
+      <p class="text-neutrals-black text-2xl text-center font-bold">Demo Sign In</p>
       <div class="container mx-auto h-auto lg:w-1/3 w-full">
         <div class="mt-auto rounded-b rounded-t-none overflow-hidden">
           <div class="p-14">
             <form
-              class="
-                flex flex-col
-                bg-neutrals-white
-                shadow-xl
-                rounded-xl
-                lg:px-11
-                sm:px-11
-                px-4
-                pt-8
-                md:flex-wrap md:justify-between
-                h-auto
-              "
+              class="flex flex-col bg-neutrals-white shadow-xl rounded-xl lg:px-11 sm:px-11 px-4 pt-8 md:flex-wrap md:justify-between h-auto"
               id="login_form"
               method="post"
             >
-              <input
-                type="hidden"
-                name="challenge"
-                value="{{.login_challenge}}"
-              />
+              <input type="hidden" name="challenge" value="{{.login_challenge}}" />
 
               <div
-                class="
-                  mb-4
-                  py-2
-                  px-4
-                  rounded-t-lg
-                  inputColor
-                  border-b-2 border-neutrals-mountainMist-dark
-                  lg:text-sm
-                  text-xs
-                "
+                class="mb-4 py-2 px-4 rounded-t-lg inputColor border-b-2 border-neutrals-mountainMist-dark lg:text-sm text-xs"
               >
-                <label
-                  class="block text-neutrals-dark font-bold mb-2 text-left"
-                  for="email"
-                >
+                <label class="block text-neutrals-dark font-bold mb-2 text-left" for="email">
                   Email
                 </label>
                 <input
-                  class="
-                    w-full
-                    text-neutrals-dark
-                    leading-tight
-                    inputColor
-                    focus:outline-none
-                  "
+                  class="w-full text-neutrals-dark leading-tight inputColor focus:outline-none"
                   type="email"
                   name="email"
                   id="email"
@@ -102,31 +64,13 @@ SPDX-License-Identifier: Apache-2.0
               </div>
 
               <div
-                class="
-                  mb-4
-                  py-2
-                  px-4
-                  rounded-t-lg
-                  inputColor
-                  border-b-2 border-neutrals-mountainMist-dark
-                  lg:text-sm
-                  text-xs
-                "
+                class="mb-4 py-2 px-4 rounded-t-lg inputColor border-b-2 border-neutrals-mountainMist-dark lg:text-sm text-xs"
               >
-                <label
-                  class="block text-neutrals-dark font-bold mb-2 text-left"
-                  for="password"
-                >
+                <label class="block text-neutrals-dark font-bold mb-2 text-left" for="password">
                   Password
                 </label>
                 <input
-                  class="
-                    w-full
-                    text-neutrals-dark
-                    leading-tight
-                    inputColor
-                    focus:outline-none
-                  "
+                  class="w-full text-neutrals-dark leading-tight inputColor focus:outline-none"
                   id="password"
                   name="password"
                   type="password"
@@ -135,24 +79,12 @@ SPDX-License-Identifier: Apache-2.0
               </div>
               <div class="flex items-center justify-center">
                 <button
-                  class="
-                    flex
-                    items-center
-                    justify-center
-                    gradient
-                    rounded-md
-                    mb-8
-                    h-10
-                    px-8
-                    shadow-lg
-                  "
+                  class="flex items-center justify-center gradient rounded-md mb-8 h-10 px-8 shadow-lg"
                   type="submit"
                   id="accept"
                   onclick="signIn()"
                 >
-                  <span class="flex-0 text-neutrals-white" id="btn_text"
-                    >Sign in</span
-                  >
+                  <span class="flex-0 text-neutrals-white" id="btn_text">Sign in</span>
                   <svg
                     class="absolute animate-spin hidden"
                     width="24"
@@ -184,19 +116,19 @@ SPDX-License-Identifier: Apache-2.0
     </section>
     <script src="https://randojs.com/1.0.0.js"></script>
     <script type="application/javascript">
-      var randomemailprefix = "john.smith";
-      var randomemailsuffix = "@example.com";
+      var randomemailprefix = 'john.smith';
+      var randomemailsuffix = '@example.com';
       var randomnumber = rando(1000000, 100000000);
 
       function setRandomEmail() {
-        document.getElementById("email").value =
+        document.getElementById('email').value =
           randomemailprefix + randomnumber + randomemailsuffix;
       }
 
       function signIn() {
-        document.getElementById("btn_text").style.visibility = "hidden";
-        document.getElementById("spinner").style.display = "block";
-        document.getElementById("login_form").action = "/login";
+        document.getElementById('btn_text').style.visibility = 'hidden';
+        document.getElementById('spinner').style.display = 'block';
+        document.getElementById('login_form').action = '/login';
       }
     </script>
   </body>

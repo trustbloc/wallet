@@ -1,10 +1,16 @@
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
+
 <template>
   <div class="custom-select" :tabindex="tabindex" @blur="open = false">
-    <div class="inline-flex custom-select" :class="{ open: open }" @click="open = !open">
-      <div class="grow selected">
+    <div class="custom-select inline-flex" :class="{ open: open }" @click="open = !open">
+      <div class="selected grow">
         {{ selected }}
       </div>
-      <div class="flex flex-none justify-end w-6 h-6">
+      <div class="flex h-6 w-6 flex-none justify-end">
         <img src="@/assets/img/icons-sm--chevron-down-icon.svg" />
       </div>
     </div>

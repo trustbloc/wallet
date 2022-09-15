@@ -5,7 +5,6 @@ SPDX-License-Identifier: Apache-2.0
 */
 
 const { alias } = require('./alias.config');
-const path = require('path');
 
 module.exports = {
   chainWebpack: (config) => {

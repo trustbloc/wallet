@@ -5,8 +5,8 @@
 -->
 
 <template>
-  <div class="flex flex-col justify-start items-start py-8">
-    <div class="flex flex-col grow justify-start items-start w-full">
+  <div class="flex flex-col items-start justify-start py-8">
+    <div class="flex w-full grow flex-col items-start justify-start">
       <label for="select-key" class="mb-1 text-base">Key Type:</label>
       <select id="select-key" v-model="keyType" class="mb-5 w-full max-w-full border-b">
         <option value="ED25519">Ed25519</option>
@@ -16,7 +16,7 @@
       </select>
     </div>
 
-    <div class="flex flex-col grow justify-start items-start w-full">
+    <div class="flex w-full grow flex-col items-start justify-start">
       <label for="select-signature-suite" class="mb-1 text-base">Signature Suite:</label>
       <select
         id="select-signature-suite"
@@ -29,7 +29,7 @@
       </select>
     </div>
 
-    <div class="flex flex-col grow justify-start items-start w-full">
+    <div class="flex w-full grow flex-col items-start justify-start">
       <label for="select-key-purpose" class="mb-1 text-base">Key Purpose:</label>
       <select id="select-key-purpose" v-model="purpose" class="mb-5 w-full max-w-full border-b">
         <option value="all">all</option>
@@ -38,7 +38,7 @@
       </select>
     </div>
 
-    <button id="createDIDBtn" class="mt-5 btn-primary" @click="createDID">Create and Save</button>
+    <button id="createDIDBtn" class="btn-primary mt-5" @click="createDID">Create and Save</button>
 
     <div v-if="errors.length">
       <b>Please correct the following error(s):</b>

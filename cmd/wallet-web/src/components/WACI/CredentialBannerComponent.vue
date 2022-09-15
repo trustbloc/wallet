@@ -6,7 +6,7 @@
 
 <template>
   <button
-    class="group inline-flex items-center py-4 pr-3 pl-5 w-full text-sm font-bold rounded-xl border outline-none focus-within:ring-2 focus-within:ring-offset-2 md:text-base credentialPreviewContainer"
+    class="group credentialPreviewContainer inline-flex w-full items-center rounded-xl border py-4 pr-3 pl-5 text-sm font-bold outline-none focus-within:ring-2 focus-within:ring-offset-2 md:text-base"
     :class="
       styles.background.color !== '#fff'
         ? `border-neutrals-chatelle border-opacity-10 focus-within:ring-[#${styles.background.color}]`
@@ -14,12 +14,12 @@
     "
     :style="`background-color: ${styles.background.color}`"
   >
-    <div class="flex-none w-12 h-12 border-opacity-10">
+    <div class="h-12 w-12 flex-none border-opacity-10">
       <img :src="credentialIconSrc" />
     </div>
     <div class="flex grow p-4">
       <span
-        class="text-sm font-bold text-left text-ellipsis"
+        class="text-ellipsis text-left text-sm font-bold"
         :style="`color: ${styles.text.color}`"
       >
         {{ title }}

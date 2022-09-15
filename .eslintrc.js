@@ -1,21 +1,23 @@
+/*
+Copyright SecureKey Technologies Inc. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
+
 module.exports = {
   root: true,
-  parser: 'vue-eslint-parser',
-  parserOptions: {
-    ecmaVersion: 2022,
-    vueFeatures: {
-      filter: true,
-      interpolationAsNonHTML: false,
-    },
-  },
+  env: { browser: true, es2022: true, node: true, mocha: true },
   extends: [
+    'eslint:recommended',
     'plugin:vue/vue3-recommended',
     'plugin:tailwindcss/recommended',
+    'plugin:wdio/recommended',
+    'plugin:mocha/recommended',
     'plugin:eslint-comments/recommended',
-    'plugin:i18n-json/recommended',
     'plugin:prettier/recommended',
+    'prettier',
   ],
-  plugins: ['vue', 'tailwindcss', 'eslint-comments', 'i18n-json', 'prettier'],
+  plugins: ['vue', 'tailwindcss', 'wdio', 'mocha', 'eslint-comments', 'prettier'],
   // Default rules for any file we lint
   rules: {
     'vue/multi-word-component-names': [
@@ -32,18 +34,13 @@ module.exports = {
      * Disallow the use of console
      * https://eslint.org/docs/rules/no-console
      */
-    'no-console': 'off',
+    'no-console': 'warn',
 
     /**
      * Disallow Reassignment of Function Parameters
      * https://eslint.org/docs/rules/no-param-reassign
      */
     'no-param-reassign': ['error', { props: false }],
-
-    /** Disallows unnecessary return await
-     * https://eslint.org/docs/rules/no-return-await
-     */
-    'no-return-await': 'error',
 
     /**
      * Disallow using an async function as a Promise executor
@@ -55,7 +52,8 @@ module.exports = {
      * Disallow await inside of loops
      * https://eslint.org/docs/rules/no-await-in-loop
      */
-    'no-await-in-loop': 'error',
+    // TODO: https://github.com/trustbloc/wallet/issues/1885 fix related code and enable this rule
+    'no-await-in-loop': 'warn',
 
     /**
      * Disallow assignments that can lead to race conditions due to
@@ -87,10 +85,25 @@ module.exports = {
      * https://eslint.org/docs/rules/class-methods-use-this
      */
     'class-methods-use-this': 'off',
+
+    'mocha/max-top-level-suites': ['warn', { limit: 2 }],
+
+    /**
+     * Added temporary to disable error for defineProps in setup scripts in Vue components
+     */
+    'no-unused-vars': ['error', { varsIgnorePattern: 'props' }],
+
+    /**
+     * TODO: https://github.com/trustbloc/wallet/issues/1886 remove once corresponding issues are fixed
+     */
+    'mocha/no-setup-in-describe': 'off',
+  },
+  globals: {
+    __webpack_public_path__: 'writable',
   },
   settings: {
     tailwindcss: {
-      config: 'tailwind.js',
+      config: 'cmd/wallet-web/tailwind.js',
     },
   },
 };

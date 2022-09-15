@@ -144,11 +144,11 @@ onMounted(async () => {
       class="md:mb-10"
       @click="updateUserPreferences"
     >
-      <div class="flex flex-col justify-start items-start">
-        <div class="inline-flex mb-2">
+      <div class="flex flex-col items-start justify-start">
+        <div class="mb-2 inline-flex">
           <img src="@/assets/img/vault-icon-colored.svg" />
           <span
-            class="flex items-center pl-3 text-base font-bold text-neutrals-dark whitespace-nowrap"
+            class="flex items-center whitespace-nowrap pl-3 text-base font-bold text-neutrals-dark"
             >{{ t('Vaults.WelcomeBanner.AddAVault.heading') }}</span
           >
         </div>
@@ -156,11 +156,11 @@ onMounted(async () => {
           {{ t('Vaults.WelcomeBanner.AddAVault.message') }}
         </span>
       </div>
-      <div class="flex flex-col justify-start items-start">
-        <div class="inline-flex mb-2">
+      <div class="flex flex-col items-start justify-start">
+        <div class="mb-2 inline-flex">
           <img src="@/assets/img/credential-icon-colored.svg" />
           <span
-            class="flex items-center pl-3 text-base font-bold text-neutrals-dark whitespace-nowrap"
+            class="flex items-center whitespace-nowrap pl-3 text-base font-bold text-neutrals-dark"
             >{{ t('Vaults.WelcomeBanner.AddACredential.heading') }}</span
           >
         </div>
@@ -183,7 +183,7 @@ onMounted(async () => {
       <div
         v-else
         id="vaults-loaded"
-        class="grid grid-cols-1 gap-4 mt-6 w-full md:mt-8 lg:grid-cols-2 xl:grid-cols-3 xl:gap-8"
+        class="mt-6 grid w-full grid-cols-1 gap-4 md:mt-8 lg:grid-cols-2 xl:grid-cols-3 xl:gap-8"
       >
         <VaultCardComponent
           id="all-vaults-button"
@@ -204,7 +204,7 @@ onMounted(async () => {
             <template #button="{ toggleFlyoutMenu }">
               <button
                 :id="`vaults-flyout-menu-button-${vault.name.replaceAll(' ', '-')}`"
-                class="w-8 h-8 bg-neutrals-white hover:bg-neutrals-softWhite focus:bg-neutrals-mischka rounded-full"
+                class="h-8 w-8 rounded-full bg-neutrals-white hover:bg-neutrals-softWhite focus:bg-neutrals-mischka"
                 @click="toggleFlyoutMenu()"
               >
                 <img class="p-2" src="@/assets/img/more-icon.svg" />
@@ -226,7 +226,7 @@ onMounted(async () => {
             <template #button="{ toggleFlyoutMenu }">
               <button
                 :id="`vaults-flyout-menu-button-${vault.name.replaceAll(' ', '-')}`"
-                class="w-8 h-8 bg-neutrals-white hover:bg-neutrals-softWhite focus:bg-neutrals-mischka rounded-full"
+                class="h-8 w-8 rounded-full bg-neutrals-white hover:bg-neutrals-softWhite focus:bg-neutrals-mischka"
                 @click="toggleFlyoutMenu()"
               >
                 <img class="p-2" src="@/assets/img/more-icon.svg" />
@@ -255,7 +255,7 @@ onMounted(async () => {
           type="addNew"
           :name="t('Vaults.AddModal.addVault')"
           :existing-names="existingNames"
-          class="grid order-last"
+          class="order-last grid"
         />
       </div>
     </div>

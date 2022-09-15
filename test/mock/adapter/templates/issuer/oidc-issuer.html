@@ -12,8 +12,7 @@ SPDX-License-Identifier: Apache-2.0
     <title>Demo OIDC Issuer</title>
     <script type="text/javascript">
       function setIssuerURL(action) {
-        document.getElementById("issuerURL").value =
-          location.protocol + "//" + location.host;
+        document.getElementById('issuerURL').value = location.protocol + '//' + location.host;
       }
     </script>
   </head>
@@ -239,12 +238,7 @@ SPDX-License-Identifier: Apache-2.0
         </tr>
       </table>
 
-      <input
-        type="submit"
-        id="oidc-issuance"
-        value="Demo"
-        onclick="javascript:setIssuerURL()"
-      />
+      <input type="submit" id="oidc-issuance" value="Demo" onclick="javascript:setIssuerURL()" />
     </form>
 
     <br />

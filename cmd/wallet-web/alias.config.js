@@ -3,18 +3,23 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
+
 const path = require('path');
+const { dependencies } = require('./package.json');
+
 const vueSrc = './src';
 
-let isSnapshotAgent = require('./package.json').dependencies.hasOwnProperty(
+const isSnapshotAgent = Object.prototype.hasOwnProperty.call(
+  dependencies,
   '@trustbloc-cicd/agent-sdk-web'
 );
-let isSnapshotSDK = require('./package.json').dependencies.hasOwnProperty(
+const isSnapshotSDK = Object.prototype.hasOwnProperty.call(
+  dependencies,
   '@trustbloc-cicd/wallet-sdk'
 );
 
-let AGENT_SDK = isSnapshotAgent ? '@trustbloc-cicd/agent-sdk-web' : '@trustbloc/agent-sdk-web';
-let WALLET_SDK = isSnapshotSDK ? '@trustbloc-cicd/wallet-sdk' : '@trustbloc/wallet-sdk';
+const AGENT_SDK = isSnapshotAgent ? '@trustbloc-cicd/agent-sdk-web' : '@trustbloc/agent-sdk-web';
+const WALLET_SDK = isSnapshotSDK ? '@trustbloc-cicd/wallet-sdk' : '@trustbloc/wallet-sdk';
 
 module.exports = {
   alias: {

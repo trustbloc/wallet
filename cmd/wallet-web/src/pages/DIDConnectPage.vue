@@ -9,11 +9,11 @@
     <SpinnerIcon v-if="loading" />
   </div>
 
-  <div v-else class="flex justify-center w-screen">
+  <div v-else class="flex w-screen justify-center">
     <div>
       <HeaderComponent />
 
-      <div class="h-auto bg-gray-light rounded-b border border-neutrals-black chapi-container">
+      <div class="chapi-container h-auto rounded-b border border-neutrals-black bg-gray-light">
         <div v-if="errors.length">
           <b>Failed with following error(s):</b>
           <ul>
@@ -26,45 +26,45 @@
 
         <hr class="mx-5 border border-neutrals-thistle" />
         <div class="py-6 px-5">
-          <div class="flex z-10 flex-row justify-start items-center p-5 w-full">
-            <div class="flex-none w-12 h-12 border-opacity-10">
+          <div class="z-10 flex w-full flex-row items-center justify-start p-5">
+            <div class="h-12 w-12 flex-none border-opacity-10">
               <!-- todo issue-1055 Read meta data from external urls -->
               <img src="@/assets/img/generic-issuer-icon.svg" />
             </div>
             <div class="flex flex-col">
               <span
-                class="flex-1 pl-4 text-sm font-bold text-left text-neutrals-dark text-ellipsis"
+                class="flex-1 text-ellipsis pl-4 text-left text-sm font-bold text-neutrals-dark"
               >
                 {{ issuerName }}
               </span>
-              <div class="flex flex-row justify-center items-center pl-4">
+              <div class="flex flex-row items-center justify-center pl-4">
                 <img src="@/assets/img/small-lock-icon.svg" />
-                <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium text-ellipsis">
+                <span class="flex-1 text-ellipsis pl-1 text-left text-xs text-neutrals-medium">
                   {{ requestOrigin }}
                 </span>
               </div>
             </div>
           </div>
           <!-- Share icon -->
-          <div class="flex flex-col pl-6 w-14 h-14 border-opacity-10">
+          <div class="flex h-14 w-14 flex-col border-opacity-10 pl-6">
             <img src="@/assets/img/share.svg" />
           </div>
 
           <!-- Wallet to connect-->
-          <div class="flex z-10 flex-row justify-start items-center px-5 w-full">
-            <div class="flex-none w-12 h-12 border-opacity-10">
+          <div class="z-10 flex w-full flex-row items-center justify-start px-5">
+            <div class="h-12 w-12 flex-none border-opacity-10">
               <img :src="walletIcon" />
             </div>
             <div class="flex flex-col">
               <span
-                class="flex-1 pl-4 text-sm font-bold text-left text-neutrals-dark text-ellipsis"
+                class="flex-1 text-ellipsis pl-4 text-left text-sm font-bold text-neutrals-dark"
               >
                 <!-- todo still have to finalize the text of the title-->
                 TrustBloc Digital Identity Wallet'
               </span>
-              <div class="flex flex-row justify-center items-center pl-4">
+              <div class="flex flex-row items-center justify-center pl-4">
                 <img src="@/assets/img/small-lock-icon.svg" />
-                <span class="flex-1 pl-1 text-xs text-left text-neutrals-medium text-ellipsis">
+                <span class="flex-1 text-ellipsis pl-1 text-left text-xs text-neutrals-medium">
                   {{ walletUrl }}
                 </span>
               </div>
@@ -72,7 +72,7 @@
           </div>
         </div>
 
-        <div class="flex justify-between py-4 px-5 w-full h-auto bg-neutrals-magnolia">
+        <div class="flex h-auto w-full justify-between bg-neutrals-magnolia py-4 px-5">
           <button id="cancelBtn" class="btn-outline" @click="cancel">Decline</button>
           <button id="didconnect" class="btn-primary" @click="connect">
             {{ buttonLabel }}

@@ -103,7 +103,7 @@ function contextCacheClosure() {
     return new Promise((resolve, reject) => {
       let req = new XMLHttpRequest();
 
-      req.onload = (e) => {
+      req.onload = () => {
         if (req.status !== 200) {
           console.log('fetching remote context failed with status code ' + req.status);
           reject('failed with status code ' + req.status);
@@ -155,7 +155,7 @@ function getTermInContext(ctxObj, term) {
       }
 
       res = getTermInContext(ctxObj[i], term);
-      if (!!res) {
+      if (res) {
         break;
       }
     }

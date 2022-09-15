@@ -11,8 +11,8 @@ SPDX-License-Identifier: Apache-2.0
     <meta charset="utf-8" />
     <title>Demo Verifier</title>
     <script type="text/javascript">
-      function submitAction( action ){
-        document.getElementById("waci-share-form").action = action
+      function submitAction(action) {
+        document.getElementById('waci-share-form').action = action;
       }
     </script>
   </head>
@@ -32,11 +32,7 @@ SPDX-License-Identifier: Apache-2.0
       <br />
 
       <label>Presentation Exchange Query</label><br />
-      <textarea 
-        id="pEx" 
-        name="pEx" 
-        rows="4" 
-        cols="50">
+      <textarea id="pEx" name="pEx" rows="4" cols="50">
         {
           "id":"3bc5ac72-bdd7-42de-aeba-45816cc4f776",
           "name":"Demo Verifier",
@@ -55,8 +51,18 @@ SPDX-License-Identifier: Apache-2.0
       <br />
 
       <br />
-      <input type="submit" id="waci-share-demo" value="Demo (DIDComm v1)" onclick="javascript:submitAction('/verifier/waci-share')"/>
-      <input type="submit" id="waci-share-demo-v2" value="Demo (DIDComm v2)" onclick="javascript:submitAction('/verifier/waci-share-v2')"/>
+      <input
+        type="submit"
+        id="waci-share-demo"
+        value="Demo (DIDComm v1)"
+        onclick="javascript:submitAction('/verifier/waci-share')"
+      />
+      <input
+        type="submit"
+        id="waci-share-demo-v2"
+        value="Demo (DIDComm v2)"
+        onclick="javascript:submitAction('/verifier/waci-share-v2')"
+      />
     </form>
 
     <br />

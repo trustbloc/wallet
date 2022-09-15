@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "description": "wallet implementation based on agent-sdk ",
   "scripts": {
-    "pre-commit": "pretty-quick --staged",
-    "prepare": "husky install"
+    "lint": "eslint --fix . --ext .js,.vue,.jsx",
+    "lint-check": "eslint . --ext .js,.vue,.jsx",
+    "prepare": "husky install",
+    "prettier": "prettier --write \"./**/*.{md,jsx,json,html,css,js,yml,vue}\"",
+    "prettier-check": "prettier --check \"./**/*.{md,jsx,json,html,css,js,yml,vue}\"",
+    "pre-commit": "pretty-quick --staged"
   },
   "repository": {
     "type": "git",
@@ -23,7 +27,16 @@
   },
   "homepage": "https://github.com/trustbloc/wallet#readme",
   "devDependencies": {
+    "eslint": "^8.21.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-mocha": "^10.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-tailwindcss": "^3.6.0",
+    "eslint-plugin-vue": "^9.3.0",
+    "eslint-plugin-wdio": "^7.20.8",
     "husky": "^8.0.1",
+    "prettier": "^2.7.1",
     "pretty-quick": "^3.1.3"
   }
 }

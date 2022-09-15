@@ -22,40 +22,30 @@ export SHELL	:= /bin/bash
 export TERM		:= xterm-256color
 
 .PHONY: all
-all: clean checks automation-test
+all: clean checks test-unit test-e2e-vcwallet test-e2e-wallet
 
 .PHONY: checks
-checks: license lint
+checks: check-license check-lint check-prettier
 
-.PHONY: lint
-lint:
-	@scripts/check_lint.sh
-
-.PHONY: license
-license:
+.PHONY: check-license
+check-license:
 	@scripts/check_license.sh
 
-.PHONY: wallet-web-test
-wallet-web-test:
-	@set -e
-	@cd cmd/wallet-web && npm install && npm run test
+.PHONY: check-lint
+check-lint:
+	@scripts/check_lint.sh
 
-.PHONY: wallet-web-prettier-check
-wallet-web-prettier-check:
+.PHONY: check-prettier
+check-prettier:
 	@set -e
-	@cd cmd/wallet-web && npm install && npm run prettier-check
+	@cd npm install && npm run prettier-check
 
-.PHONY: wallet-web-eslint-check
-wallet-web-eslint-check:
-	@set -e
-	@cd cmd/wallet-web && npm install && npm run lint
-
-.PHONY: wallet-web
-wallet-web:
+.PHONY: build-wallet-web
+build-wallet-web:
 	@scripts/build_wallet_web.sh
 
-.PHONY: wallet-web-docker
-wallet-web-docker: wallet-web
+.PHONY: build-wallet-web-docker
+build-wallet-web-docker: build-wallet-web
 	@echo "Building wallet-web docker image"
 	@docker build -f ./images/wallet-web/Dockerfile --no-cache -t $(DOCKER_OUTPUT_NS)/$(REPO_IMAGE_NAME)/wallet-web:latest .
 
@@ -67,39 +57,46 @@ generate-test-keys:
 		--entrypoint "/opt/workspace/wallet/scripts/generate_test_keys.sh" \
 		frapsoft/openssl
 
-.PHONY: wallet-web-start
-wallet-web-start: clean wallet-web-docker mock-images generate-test-keys
+.PHONY: start-wallet-web
+start-wallet-web: clean build-wallet-web-docker build-mock-images generate-test-keys
 	@scripts/wallet_web_start.sh
 
 # starting wallet-web in dev mode for hot deployment
-.PHONY: wallet-web-dev-start
-wallet-web-dev-start:
+.PHONY: start-wallet-web-dev
+start-wallet-web-dev:
 	@scripts/wallet_web_dev_start.sh
 
-.PHONY: mock-demo-login-consent-docker
-mock-demo-login-consent-docker:
+.PHONY: build-mock-demo-login-consent-docker
+build-mock-demo-login-consent-docker:
 	@echo "Building login consent server for demo..."
 	@cd test/mock/demo-login-consent-server && docker build -f image/Dockerfile --build-arg GO_VER=$(GO_VER) --build-arg ALPINE_VER=$(ALPINE_VER) -t edgeagent/demologinconsent:latest .
 
-.PHONY: mock-adapter
-mock-adapter:
+.PHONY: build-mock-adapter
+build-mock-adapter:
 	@echo "Building mock adapter for demo..."
 	@cd test/mock/adapter && docker build -f image/Dockerfile --build-arg GO_VER=$(GO_VER) --build-arg ALPINE_VER=$(ALPINE_VER) -t edgeagent/mockadapter:latest .
 
-.PHONY: mock-images
-mock-images: mock-adapter mock-demo-login-consent-docker
+.PHONY: build-mock-images
+build-mock-images: build-mock-adapter build-mock-demo-login-consent-docker
 
-.PHONY: automation-test-vcwallet
-automation-test-vcwallet: clean wallet-web-docker mock-images generate-test-keys
+.PHONY: test-unit
+test-unit:
+	@set -e
+	@cd cmd/wallet-web && npm install && npm run test
+
+.PHONY: test-e2e-vcwallet
+test-e2e-vcwallet: clean build-wallet-web-docker build-mock-images generate-test-keys
 	@scripts/run_vcwallet_ui_automation.sh
 
-.PHONY: automation-test-wallet
-automation-test-wallet: clean wallet-web-docker mock-images generate-test-keys
+.PHONY: test-e2e-wallet
+test-e2e-wallet: clean build-wallet-web-docker build-mock-images generate-test-keys
 	@scripts/run_wallet_ui_automation.sh
 
 .PHONY: clean
 clean:
 	@rm -Rf ./build
+	@rm -Rf ./node_modules
 	@rm -Rf ./cmd/wallet-web/dist
 	@rm -Rf ./cmd/wallet-web/node_modules
 	@rm -Rf ./test/fixtures/wallet-web/config
+	@rm -Rf ./test/fixtures/ui-automation/node_modules

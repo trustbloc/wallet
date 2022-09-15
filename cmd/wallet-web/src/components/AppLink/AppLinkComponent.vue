@@ -1,3 +1,9 @@
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
+
 <template>
   <slot />
   <a v-if="isExternalLink" v-bind="$attrs" :href="to" target="_blank" />
@@ -5,7 +11,7 @@
     <a
       v-bind="$attrs"
       :class="isActive ? activeClass : inactiveClass"
-      class="absolute top-0 left-0 z-0 w-full h-full cursor-pointer"
+      class="absolute top-0 left-0 z-0 h-full w-full cursor-pointer"
     />
   </router-link>
 </template>

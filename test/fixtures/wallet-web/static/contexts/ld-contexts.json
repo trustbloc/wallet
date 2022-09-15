@@ -3,51 +3,55 @@
     {
       "url": "https://www.w3.org/2018/credentials/examples/v1",
       "content": {
-        "@context": [{
-          "@version": 1.1
-        },"https://www.w3.org/ns/odrl.jsonld", {
-          "ex": "https://example.org/examples#",
-          "schema": "http://schema.org/",
-          "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "@context": [
+          {
+            "@version": 1.1
+          },
+          "https://www.w3.org/ns/odrl.jsonld",
+          {
+            "ex": "https://example.org/examples#",
+            "schema": "http://schema.org/",
+            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
 
-          "3rdPartyCorrelation": "ex:3rdPartyCorrelation",
-          "AllVerifiers": "ex:AllVerifiers",
-          "Archival": "ex:Archival",
-          "BachelorDegree": "ex:BachelorDegree",
-          "Child": "ex:Child",
-          "CLCredentialDefinition2019": "ex:CLCredentialDefinition2019",
-          "CLSignature2019": "ex:CLSignature2019",
-          "IssuerPolicy": "ex:IssuerPolicy",
-          "HolderPolicy": "ex:HolderPolicy",
-          "Mother": "ex:Mother",
-          "RelationshipCredential": "ex:RelationshipCredential",
-          "UniversityDegreeCredential": "ex:UniversityDegreeCredential",
-          "ZkpExampleSchema2018": "ex:ZkpExampleSchema2018",
+            "3rdPartyCorrelation": "ex:3rdPartyCorrelation",
+            "AllVerifiers": "ex:AllVerifiers",
+            "Archival": "ex:Archival",
+            "BachelorDegree": "ex:BachelorDegree",
+            "Child": "ex:Child",
+            "CLCredentialDefinition2019": "ex:CLCredentialDefinition2019",
+            "CLSignature2019": "ex:CLSignature2019",
+            "IssuerPolicy": "ex:IssuerPolicy",
+            "HolderPolicy": "ex:HolderPolicy",
+            "Mother": "ex:Mother",
+            "RelationshipCredential": "ex:RelationshipCredential",
+            "UniversityDegreeCredential": "ex:UniversityDegreeCredential",
+            "ZkpExampleSchema2018": "ex:ZkpExampleSchema2018",
 
-          "issuerData": "ex:issuerData",
-          "attributes": "ex:attributes",
-          "signature": "ex:signature",
-          "signatureCorrectnessProof": "ex:signatureCorrectnessProof",
-          "primaryProof": "ex:primaryProof",
-          "nonRevocationProof": "ex:nonRevocationProof",
+            "issuerData": "ex:issuerData",
+            "attributes": "ex:attributes",
+            "signature": "ex:signature",
+            "signatureCorrectnessProof": "ex:signatureCorrectnessProof",
+            "primaryProof": "ex:primaryProof",
+            "nonRevocationProof": "ex:nonRevocationProof",
 
-          "alumniOf": {"@id": "schema:alumniOf", "@type": "rdf:HTML"},
-          "child": {"@id": "ex:child", "@type": "@id"},
-          "degree": "ex:degree",
-          "degreeType": "ex:degreeType",
-          "degreeSchool": "ex:degreeSchool",
-          "college": "ex:college",
-          "name": {"@id": "schema:name", "@type": "rdf:HTML"},
-          "givenName": "schema:givenName",
-          "familyName": "schema:familyName",
-          "parent": {"@id": "ex:parent", "@type": "@id"},
-          "referenceId": "ex:referenceId",
-          "documentPresence": "ex:documentPresence",
-          "evidenceDocument": "ex:evidenceDocument",
-          "spouse": "schema:spouse",
-          "subjectPresence": "ex:subjectPresence",
-          "verifier": {"@id": "ex:verifier", "@type": "@id"}
-        }]
+            "alumniOf": { "@id": "schema:alumniOf", "@type": "rdf:HTML" },
+            "child": { "@id": "ex:child", "@type": "@id" },
+            "degree": "ex:degree",
+            "degreeType": "ex:degreeType",
+            "degreeSchool": "ex:degreeSchool",
+            "college": "ex:college",
+            "name": { "@id": "schema:name", "@type": "rdf:HTML" },
+            "givenName": "schema:givenName",
+            "familyName": "schema:familyName",
+            "parent": { "@id": "ex:parent", "@type": "@id" },
+            "referenceId": "ex:referenceId",
+            "documentPresence": "ex:documentPresence",
+            "evidenceDocument": "ex:evidenceDocument",
+            "spouse": "schema:spouse",
+            "subjectPresence": "ex:subjectPresence",
+            "verifier": { "@id": "ex:verifier", "@type": "@id" }
+          }
+        ]
       }
     },
     {
@@ -79,7 +83,7 @@
           "name": "http://schema.org/name",
           "description": "http://schema.org/description",
           "identifier": "http://schema.org/identifier",
-          "image": {"@id": "http://schema.org/image", "@type": "@id"},
+          "image": { "@id": "http://schema.org/image", "@type": "@id" },
 
           "PermanentResidentCard": {
             "@id": "https://w3id.org/citizenship#PermanentResidentCard",
@@ -93,7 +97,7 @@
               "description": "http://schema.org/description",
               "name": "http://schema.org/name",
               "identifier": "http://schema.org/identifier",
-              "image": {"@id": "http://schema.org/image", "@type": "@id"}
+              "image": { "@id": "http://schema.org/image", "@type": "@id" }
             }
           },
 
@@ -111,14 +115,14 @@
               "xsd": "http://www.w3.org/2001/XMLSchema#",
 
               "birthCountry": "ctzn:birthCountry",
-              "birthDate": {"@id": "schema:birthDate", "@type": "xsd:dateTime"},
+              "birthDate": { "@id": "schema:birthDate", "@type": "xsd:dateTime" },
               "commuterClassification": "ctzn:commuterClassification",
               "familyName": "schema:familyName",
               "gender": "schema:gender",
               "givenName": "schema:givenName",
               "lprCategory": "ctzn:lprCategory",
               "lprNumber": "ctzn:lprNumber",
-              "residentSince": {"@id": "ctzn:residentSince", "@type": "xsd:dateTime"}
+              "residentSince": { "@id": "ctzn:residentSince", "@type": "xsd:dateTime" }
             }
           },
 
@@ -224,7 +228,7 @@
         "@context": {
           "@version": 1.1,
           "@protected": true,
-          "xsd":"http://www.w3.org/2001/XMLSchema#",
+          "xsd": "http://www.w3.org/2001/XMLSchema#",
           "ex": "https://example.org/examples#",
 
           "GovernanceCredential": "ex:GovernanceCredential",
@@ -524,54 +528,54 @@
     {
       "url": "https://trustbloc.github.io/context/vc/examples/mdl-v1.jsonld",
       "content": {
-        "@context":{
-          "@version":1.1,
-          "id":"@id",
-          "type":"@type",
-          "name":"http://schema.org/name",
-          "description":"http://schema.org/description",
+        "@context": {
+          "@version": 1.1,
+          "id": "@id",
+          "type": "@type",
+          "name": "http://schema.org/name",
+          "description": "http://schema.org/description",
 
-          "mDL":{
-            "@id":"ex:mDL",
-            "@context":{
-              "@version":1.1,
-              "@protected":true,
-              "id":"@id",
-              "type":"@type",
-              "xsd":"http://www.w3.org/2001/XMLSchema#",
-              "ex":"https://example.org/examples#",
+          "mDL": {
+            "@id": "ex:mDL",
+            "@context": {
+              "@version": 1.1,
+              "@protected": true,
+              "id": "@id",
+              "type": "@type",
+              "xsd": "http://www.w3.org/2001/XMLSchema#",
+              "ex": "https://example.org/examples#",
 
-              "family_name":{ "@id":"ex:family_name" },
-              "given_name":{ "@id":"ex:given_name" },
-              "birthdate":{ "@id":"ex:birthdate" },
-              "issue_date":{ "@id":"ex:issue_date" },
-              "expiry_date":{ "@id":"ex:expiry_date" },
-              "issuing_country":{ "@id":"ex:issuing_country" },
-              "issuing_authority":{ "@id":"ex:issuing_authority" },
-              "document_number":{ "@id":"ex:document_number" },
-              "driving_privileges":{ "@id":"ex:driving_privileges" },
-              "portrait":{ "@id":"ex:portrait" },
-              "administrative_number":{ "@id":"ex:administrative_number" },
-              "gender":{ "@id":"ex:gender" },
-              "height":{ "@id":"ex:height" },
-              "weight":{ "@id":"ex:weight" },
-              "eye_color":{ "@id":"ex:eye_color" },
-              "hair_color":{ "@id":"ex:hair_color" },
-              "birthplace":{ "@id":"ex:birthplace" },
-              "resident_address":{ "@id":"ex:resident_address" },
-              "portrait_capture_date":{ "@id":"ex:portrait_capture_date" },
-              "age_in_years":{ "@id":"ex:age_in_years" },
-              "age_birth_year":{ "@id":"ex:age_birth_year" },
-              "issuing_jurisdiction":{ "@id":"ex:issuing_jurisdiction" },
-              "nationality":{ "@id":"ex:nationality" },
-              "resident_city":{ "@id":"ex:resident_city" },
-              "resident_state":{ "@id":"ex:resident_state" },
-              "resident_postal_code":{ "@id":"ex:resident_postal_code" },
-              "biometric_template_xx":{ "@id":"ex:biometric_template_xx" },
-              "name_nat_char":{ "@id":"ex:name_nat_char" },
-              "mgmt_lastupdate":{ "@id":"ex:mgmt_lastupdate" },
-              "mgmt_validity":{ "@id":"ex:mgmt_validity" },
-              "mgmt_nextupdate":{ "@id":"ex:mgmt_nextupdate" }
+              "family_name": { "@id": "ex:family_name" },
+              "given_name": { "@id": "ex:given_name" },
+              "birthdate": { "@id": "ex:birthdate" },
+              "issue_date": { "@id": "ex:issue_date" },
+              "expiry_date": { "@id": "ex:expiry_date" },
+              "issuing_country": { "@id": "ex:issuing_country" },
+              "issuing_authority": { "@id": "ex:issuing_authority" },
+              "document_number": { "@id": "ex:document_number" },
+              "driving_privileges": { "@id": "ex:driving_privileges" },
+              "portrait": { "@id": "ex:portrait" },
+              "administrative_number": { "@id": "ex:administrative_number" },
+              "gender": { "@id": "ex:gender" },
+              "height": { "@id": "ex:height" },
+              "weight": { "@id": "ex:weight" },
+              "eye_color": { "@id": "ex:eye_color" },
+              "hair_color": { "@id": "ex:hair_color" },
+              "birthplace": { "@id": "ex:birthplace" },
+              "resident_address": { "@id": "ex:resident_address" },
+              "portrait_capture_date": { "@id": "ex:portrait_capture_date" },
+              "age_in_years": { "@id": "ex:age_in_years" },
+              "age_birth_year": { "@id": "ex:age_birth_year" },
+              "issuing_jurisdiction": { "@id": "ex:issuing_jurisdiction" },
+              "nationality": { "@id": "ex:nationality" },
+              "resident_city": { "@id": "ex:resident_city" },
+              "resident_state": { "@id": "ex:resident_state" },
+              "resident_postal_code": { "@id": "ex:resident_postal_code" },
+              "biometric_template_xx": { "@id": "ex:biometric_template_xx" },
+              "name_nat_char": { "@id": "ex:name_nat_char" },
+              "mgmt_lastupdate": { "@id": "ex:mgmt_lastupdate" },
+              "mgmt_validity": { "@id": "ex:mgmt_validity" },
+              "mgmt_nextupdate": { "@id": "ex:mgmt_nextupdate" }
             }
           }
         }
@@ -580,27 +584,27 @@
     {
       "url": "https://trustbloc.github.io/context/vc/examples/credit-card-v1.jsonld",
       "content": {
-        "@context":{
-          "@version":1.1,
-          "id":"@id",
-          "type":"@type",
-          "ex":"https://example.org/examples#",
-          "name":"http://schema.org/name",
-          "description":"http://schema.org/description",
+        "@context": {
+          "@version": 1.1,
+          "id": "@id",
+          "type": "@type",
+          "ex": "https://example.org/examples#",
+          "name": "http://schema.org/name",
+          "description": "http://schema.org/description",
 
-          "CreditCardStatement":{
-            "@id":"ex:CreditCardStatement",
-            "@context":{
-              "@version":1.1,
-              "id":"@id",
-              "type":"@type",
-              "ex":"https://example.org/examples#",
-              "credentialSubject":{
-                "@id":"ex:credentialSubject",
-                "@context":{
-                  "@version":1.1,
-                  "@protected":true,
-                  "stmt":"schema:Invoice"
+          "CreditCardStatement": {
+            "@id": "ex:CreditCardStatement",
+            "@context": {
+              "@version": 1.1,
+              "id": "@id",
+              "type": "@type",
+              "ex": "https://example.org/examples#",
+              "credentialSubject": {
+                "@id": "ex:credentialSubject",
+                "@context": {
+                  "@version": 1.1,
+                  "@protected": true,
+                  "stmt": "schema:Invoice"
                 }
               }
             }

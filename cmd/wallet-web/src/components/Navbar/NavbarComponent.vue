@@ -6,14 +6,14 @@
 
 <template>
   <div
-    class="flex relative flex-col grow justify-between w-screen min-w-80 shadow md:grow-0 md:w-80 md:h-auto md:min-h-screen md:bg-gradient-dark"
+    class="relative flex w-screen min-w-80 grow flex-col justify-between shadow md:h-auto md:min-h-screen md:w-80 md:grow-0 md:bg-gradient-dark"
   >
-    <div class="hidden absolute bg-gradient-full opacity-40 md:block oval" />
-    <div class="flex flex-col justify-start items-start pb-8 h-full md:z-10">
-      <div class="hidden justify-start items-center px-10 md:flex">
+    <div class="oval absolute hidden bg-gradient-full opacity-40 md:block" />
+    <div class="flex h-full flex-col items-start justify-start pb-8 md:z-10">
+      <div class="hidden items-center justify-start px-10 md:flex">
         <LogoComponent class="mt-13 cursor-pointer" @click="$router.push({ name: 'vaults' })" />
       </div>
-      <div class="flex flex-col grow justify-start mt-8 w-full">
+      <div class="mt-8 flex w-full grow flex-col justify-start">
         <ul>
           <slot />
         </ul>
@@ -24,23 +24,23 @@
     <div class="flex flex-col items-start px-10 text-sm text-neutrals-white md:z-10">
       <span
         tabindex="0"
-        class="mb-2 focus:rounded focus:outline-none focus:ring-1 ring-primary-blue opacity-60 hover:opacity-100 focus:opacity-100 cursor-pointer underline-white"
+        class="underline-white mb-2 cursor-pointer opacity-60 ring-primary-blue hover:opacity-100 focus:rounded focus:opacity-100 focus:outline-none focus:ring-1"
         >{{ t('Footer.privacyPolicy') }}</span
       >
       <span
         tabindex="0"
-        class="focus:rounded focus:outline-none focus:ring-1 ring-primary-blue opacity-60 hover:opacity-100 focus:opacity-100 cursor-pointer underline-white"
+        class="underline-white cursor-pointer opacity-60 ring-primary-blue hover:opacity-100 focus:rounded focus:opacity-100 focus:outline-none focus:ring-1"
         >{{ t('Footer.terms') }}</span
       >
-      <div class="flex flex-row justify-start items-center my-6">
+      <div class="my-6 flex flex-row items-center justify-start">
         <span
           tabindex="0"
-          class="whitespace-nowrap focus:rounded focus:outline-none focus:ring-1 ring-primary-blue opacity-60 hover:opacity-100 focus:opacity-100 cursor-pointer underline-white"
+          class="underline-white cursor-pointer whitespace-nowrap opacity-60 ring-primary-blue hover:opacity-100 focus:rounded focus:opacity-100 focus:outline-none focus:ring-1"
           >© {{ date }} TrustBloc</span
         >
         <span class="px-2 opacity-60">･</span>
         <LocaleSwitcherComponent
-          class="text-neutrals-white focus:rounded focus:outline-none focus:ring-1 ring-primary-blue opacity-60 hover:opacity-100 focus:opacity-100 underline-white"
+          class="underline-white text-neutrals-white opacity-60 ring-primary-blue hover:opacity-100 focus:rounded focus:opacity-100 focus:outline-none focus:ring-1"
         />
       </div>
     </div>

@@ -4,45 +4,64 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
  -->
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://unpkg.com/tailwindcss@0.3.0/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="h-screen overflow-hidden flex items-center justify-center" style="background: #edf2f7;">
-<form action="/issuer/oidc/authorize-request" id="oidc-issuance-form" method="POST">
-<div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col">
-    <div class="mb-4">
-        <label class="block text-grey-darker text-2xl font-bold mb-2" for="username">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://unpkg.com/tailwindcss@0.3.0/dist/tailwind.min.css" rel="stylesheet" />
+  </head>
+  <body
+    class="h-screen overflow-hidden flex items-center justify-center"
+    style="background: #edf2f7"
+  >
+    <form action="/issuer/oidc/authorize-request" id="oidc-issuance-form" method="POST">
+      <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col">
+        <div class="mb-4">
+          <label class="block text-grey-darker text-2xl font-bold mb-2" for="username">
             Mock Issuer Login
-        </label>
-    </div>
+          </label>
+        </div>
 
-    <div class="mb-4">
-        <label class="block text-grey-darker text-sm font-bold mb-2" for="username">
+        <div class="mb-4">
+          <label class="block text-grey-darker text-sm font-bold mb-2" for="username">
             Username
-        </label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker" id="username" type="text" value="sampleuser">
-    </div>
-    <div class="mb-6">
-        <label class="block text-grey-darker text-sm font-bold mb-2" for="password">
+          </label>
+          <input
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker"
+            id="username"
+            type="text"
+            value="sampleuser"
+          />
+        </div>
+        <div class="mb-6">
+          <label class="block text-grey-darker text-sm font-bold mb-2" for="password">
             Password
-        </label>
-        <input class="shadow appearance-none border border-red rounded w-full py-2 px-3 text-grey-darker mb-3" id="password" type="password" value="samplepwd">
-    </div>
-    <div class="flex items-center justify-between">
-        <button class="bg-blue hover:bg-blue-dark text-white font-bold py-2 px-4 rounded" type="submit" id="issuer-login">
+          </label>
+          <input
+            class="shadow appearance-none border border-red rounded w-full py-2 px-3 text-grey-darker mb-3"
+            id="password"
+            type="password"
+            value="samplepwd"
+          />
+        </div>
+        <div class="flex items-center justify-between">
+          <button
+            class="bg-blue hover:bg-blue-dark text-white font-bold py-2 px-4 rounded"
+            type="submit"
+            id="issuer-login"
+          >
             Sign In
-        </button>
-        <a class="inline-block align-baseline font-bold text-sm text-blue hover:text-blue-darker" href="#">
+          </button>
+          <a
+            class="inline-block align-baseline font-bold text-sm text-blue hover:text-blue-darker"
+            href="#"
+          >
             Forgot Password?
-        </a>
-    </div>
-</div>
-</form>
-
-</body>
+          </a>
+        </div>
+      </div>
+    </form>
+  </body>
 </html>

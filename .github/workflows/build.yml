@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-name: "Wallet CI"
+name: 'Wallet CI'
 
 env:
   GO_VERSION: 1.17
@@ -16,8 +16,8 @@ on:
     branches: [main]
 
 jobs:
-  SemanticPullRequest:
-    name: Semantic Pull Request Check
+  SemanticPR:
+    name: Semantic PR Check
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -31,13 +31,13 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - name: Run Wallet Web Prettier Check
+      - name: Run Prettier Check
         run: |
           echo '//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}' > ~/.npmrc
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make wallet-web-prettier-check
+          npm install && npm run prettier-check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -53,13 +53,14 @@ jobs:
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make wallet-web-eslint-check
+          make check-lint
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  Checks:
+  License:
+    name: License Check
     runs-on: ubuntu-20.04
-    timeout-minutes: 30
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v3
       - name: Set up Go
@@ -75,11 +76,12 @@ jobs:
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make checks
+          make check-license
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  UIUnitTest:
+  Unit:
+    name: Wallet Unit Tests
     runs-on: ubuntu-20.04
     timeout-minutes: 30
     steps:
@@ -96,11 +98,17 @@ jobs:
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make wallet-web-test
+          make test-unit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: logs
+          path: test/fixtures/wallet-web/docker-compose.log
 
   VCWallet-e2e:
+    name: VC Wallet Automation Tests
     runs-on: ubuntu-20.04
     timeout-minutes: 30
     steps:
@@ -109,7 +117,7 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
-      - name: Run Wallet Web UI automation
+      - name: Run VC Wallet Automation Tests
         run: |
           echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 vcwallet.trustbloc.local' | sudo tee -a /etc/hosts
@@ -126,7 +134,7 @@ jobs:
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make automation-test-vcwallet
+          make test-e2e-vcwallet
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v3
@@ -136,6 +144,7 @@ jobs:
           path: test/fixtures/wallet-web/docker-compose.log
 
   Wallet-e2e:
+    name: Wallet Automation Tests
     runs-on: ubuntu-20.04
     timeout-minutes: 30
     steps:
@@ -144,7 +153,7 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
-      - name: Run Wallet Web UI automation
+      - name: Run Wallet Automation Tests
         run: |
           echo '127.0.0.1 testnet.orb.local' | sudo tee -a /etc/hosts
           echo '127.0.0.1 wallet.trustbloc.local' | sudo tee -a /etc/hosts
@@ -161,7 +170,7 @@ jobs:
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make automation-test-wallet
+          make test-e2e-wallet
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v3
@@ -173,7 +182,7 @@ jobs:
   Publish:
     name: Publish image
     if: github.event_name == 'push' && (github.repository == 'trustbloc/wallet' && github.ref == 'refs/heads/main')
-    needs: [Prettier, ESLint, Checks, UIUnitTest, VCWallet-e2e, Wallet-e2e]
+    needs: [SemanticPR, Prettier, ESLint, License, Unit, VCWallet-e2e, Wallet-e2e]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -202,9 +211,9 @@ jobs:
         id: bump_version
         uses: christian-draeger/increment-semantic-version@1.0.2
         with:
-          current-version: "${{ env.CURRENT_SEMVER }}"
+          current-version: '${{ env.CURRENT_SEMVER }}'
           # TODO: needs to be configurable https://github.com/christian-draeger/increment-semantic-version#input--output-examples
-          version-fragment: "bug"
+          version-fragment: 'bug'
 
       - name: Set ENV vars
         run: |
@@ -218,7 +227,7 @@ jobs:
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make wallet-web
+          make build-wallet-web
         env:
           DOCKER_USER: ${{ secrets.CR_USER }}
           DOCKER_PASSWORD: ${{ secrets.CR_PAT }}

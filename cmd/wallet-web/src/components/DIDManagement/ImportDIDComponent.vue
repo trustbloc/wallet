@@ -5,30 +5,30 @@
 -->
 
 <template>
-  <div class="flex flex-col justify-start items-start py-8">
-    <div class="flex flex-col grow justify-start items-start mb-5 w-full">
+  <div class="flex flex-col items-start justify-start py-8">
+    <div class="mb-5 flex w-full grow flex-col items-start justify-start">
       <label for="did-input">Enter Digital Identity:</label>
       <input id="did-input" v-model="didID" class="w-full border-b" required />
     </div>
 
-    <div class="flex flex-col grow justify-start items-start mb-5 w-full">
+    <div class="mb-5 flex w-full grow flex-col items-start justify-start">
       <label>Select Key Format:</label>
-      <div class="flex flex-row justify-start items-center">
+      <div class="flex flex-row items-center justify-start">
         <input id="Base58" v-model="keyFormat" type="radio" value="Base58" />
         <label for="Base58" class="pl-1">Base58</label>
       </div>
-      <div class="flex flex-row justify-start items-center">
+      <div class="flex flex-row items-center justify-start">
         <input id="JWK" v-model="keyFormat" type="radio" value="JWK" />
         <label for="JWK" class="pl-1">JWK</label>
       </div>
     </div>
 
-    <div class="flex flex-col grow justify-start items-start mb-5 w-full">
+    <div class="mb-5 flex w-full grow flex-col items-start justify-start">
       <label for="privateKeyStr">Enter Private Key (in JWK or Base58 format):</label>
       <input id="privateKeyStr" v-model="privateKeyStr" class="w-full border-b" required />
     </div>
 
-    <div class="flex relative flex-col grow justify-start items-start mb-5 w-full">
+    <div class="relative mb-5 flex w-full grow flex-col items-start justify-start">
       <label for="keyID">Enter matching Key ID:</label>
       <input
         id="keyID"
@@ -47,7 +47,7 @@
       </select>
     </div>
 
-    <button id="saveDIDBtn" class="mt-5 btn-primary" @click="saveAnyDID">
+    <button id="saveDIDBtn" class="btn-primary mt-5" @click="saveAnyDID">
       Resolve and Save Digital Identity
     </button>
 

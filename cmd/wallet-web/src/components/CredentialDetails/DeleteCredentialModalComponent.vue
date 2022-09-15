@@ -6,8 +6,8 @@
 <template>
   <ModalComponent :show="showModal">
     <template #content>
-      <div class="flex relative flex-col items-center px-8 pt-10 w-full">
-        <div class="flex justify-center items-center w-15 h-15 bg-primary-valencia rounded-full">
+      <div class="relative flex w-full flex-col items-center px-8 pt-10">
+        <div class="flex h-15 w-15 items-center justify-center rounded-full bg-primary-valencia">
           <svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
             <g transform="translate(3 6)" fill="none" fill-rule="evenodd">
               <rect stroke="#ffffff" stroke-width="2" x="1" y="1" width="24" height="19" rx="4" />
@@ -27,7 +27,7 @@
           {{ t('CredentialDetails.DeleteModal.deleteCredential') }}?
         </span>
         <div class="relative flex-auto">
-          <p class="pb-12 text-base text-center text-neutrals-medium">
+          <p class="pb-12 text-center text-base text-neutrals-medium">
             {{ t('CredentialDetails.DeleteModal.deleteCredentialConfirmMessage') }}
           </p>
         </div>

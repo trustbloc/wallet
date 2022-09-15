@@ -122,7 +122,7 @@
             <div class="mb-5 md:mx-0">
               <span class="text-xl font-bold text-neutrals-dark">{{ vault.name }}</span>
             </div>
-            <ul class="my-8 grid grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-8">
+            <ul id="credentials-list" class="my-8 grid grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-8">
               <li v-for="(credential, index) in vault.credentials" :key="index">
                 <CredentialPreviewComponent
                   :id="credential.id"
@@ -174,7 +174,6 @@ import FlyoutComponent from '@/components/Flyout/FlyoutComponent.vue';
 import FlyoutMenuComponent from '@/components/Flyout/FlyoutMenuComponent.vue';
 import FlyoutButtonComponent from '@/components/Flyout/FlyoutButtonComponent.vue';
 
-const filterBy = ['IssuerManifestCredential', 'GovernanceCredential'];
 export default {
   name: 'CredentialsPage',
   components: {
@@ -210,7 +209,6 @@ export default {
       allVaults: [], // vaults to display in the flyout
       selectedVaults: [], // vaults to display in the main view along with credentials stored in each
       credentialsFound: false,
-      credential: [],
     };
   },
   created: async function () {

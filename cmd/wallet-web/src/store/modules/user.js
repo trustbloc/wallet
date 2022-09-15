@@ -171,7 +171,7 @@ export default {
         console.error('user preference not found, may be user yet to get registered', e);
       }
     },
-    async logout({ commit, dispatch, getters }) {
+    async logout({ commit, dispatch }) {
       await dispatch('agent/destroy');
       commit('clearUser');
     },

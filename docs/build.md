@@ -56,10 +56,10 @@ There are 2 ways to run Wallet locally:
 - For the Static Build, run the following command:
 
   ```bash
-  make wallet-web-start
+  make start-wallet-web
   ```
 
 - For the Dev Mode, run the following command instead:
   ```bash
-  make wallet-web-dev-start
+  make start-wallet-web-dev
   ```

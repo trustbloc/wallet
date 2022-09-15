@@ -73,7 +73,7 @@ export default {
     },
   },
   emits: ['input', 'update'],
-  setup(props, { attrs, emit }) {
+  setup(props, { attrs }) {
     const { value, label, submitted } = toRefs(props);
     const characterCount = computed(() =>
       value ? value.value.length + '/' + attrs['maxlength'] : 0 + '/' + attrs['maxlength']

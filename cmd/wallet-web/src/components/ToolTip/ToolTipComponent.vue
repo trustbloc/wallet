@@ -1,11 +1,17 @@
+<!--
+ * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+-->
+
 <template>
   <div
-    class="inline-flex absolute top-14 right-0 z-20 justify-center py-1 px-5 bg-neutrals-dark rounded-lg"
+    class="absolute top-14 right-0 z-20 inline-flex justify-center rounded-lg bg-neutrals-dark py-1 px-5"
   >
     <div
-      class="absolute z-10 bg-neutrals-dark rounded-sm border-8 border-neutrals-dark rotate-45 triangle"
+      class="triangle absolute z-10 rotate-45 rounded-sm border-8 border-neutrals-dark bg-neutrals-dark"
     />
-    <span class="z-20 text-sm text-center text-neutrals-white whitespace-nowrap">{{
+    <span class="z-20 whitespace-nowrap text-center text-sm text-neutrals-white">{{
       toolTipLabel
     }}</span>
   </div>

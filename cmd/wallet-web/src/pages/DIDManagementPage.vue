@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <div class="flex flex-col justify-start items-start w-full">
+  <div class="flex w-full flex-col items-start justify-start">
     <TabsComponent :tabs="tabs">
       <template #tabPanel-0><PreferencesComponent v-model:allDIDs="allDIDs" /></template>
       <template #tabPanel-1><CreateOrbComponent v-model:allDIDs="allDIDs" /></template>

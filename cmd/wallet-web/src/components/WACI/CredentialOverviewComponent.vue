@@ -5,9 +5,9 @@
 -->
 
 <template>
-  <div v-bind="$attrs" class="flex relative flex-col justify-start items-start w-full">
+  <div v-bind="$attrs" class="relative flex w-full flex-col items-start justify-start">
     <div
-      class="flex z-10 flex-row justify-start items-center py-4 px-5 w-full h-auto bg-neutrals-white rounded-xl border"
+      class="z-10 flex h-auto w-full flex-row items-center justify-start rounded-xl border bg-neutrals-white py-4 px-5"
       :class="
         credential?.styles.background.color !== '#fff'
           ? `border-neutrals-black border-opacity-10`
@@ -15,11 +15,11 @@
       "
       :style="`background-color: ${credential?.styles.background.color}`"
     >
-      <div class="flex-none w-12 h-12 border-opacity-10">
+      <div class="h-12 w-12 flex-none border-opacity-10">
         <img :src="credentialIconSrc" />
       </div>
       <span
-        class="flex-1 pl-4 text-sm font-bold text-left text-ellipsis"
+        class="flex-1 text-ellipsis pl-4 text-left text-sm font-bold"
         :style="`color: ${credential?.styles.text.color}`"
         >{{ credentialHeading }}</span
       >

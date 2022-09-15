@@ -37,7 +37,7 @@ export async function loadFrameworks({ name = 'user-agent', logLevel = '' } = {}
     agentOpts['log-level'] = logLevel;
   }
 
-  return new Agent.Framework(agentOpts);
+  return await new Agent.Framework(agentOpts);
 }
 
 /**
@@ -113,20 +113,20 @@ export class Setup {
 
     let store = {
       getters: {
-        getCurrentUser(state) {
+        getCurrentUser() {
           return {
             username: user,
             profile: { user, token },
             preference,
           };
         },
-        getStaticAssetsUrl(state) {
+        getStaticAssetsUrl() {
           return '';
         },
-        getAgentOpts(state) {
+        getAgentOpts() {
           return agentStartupOpts;
         },
-        getCredentialManifests(state) {
+        getCredentialManifests() {
           return getTestData('credential-output-descriptors.json');
         },
       },
@@ -134,11 +134,11 @@ export class Setup {
         agent: {
           namespaced: true,
           actions: {
-            async init({ commit, rootState, state }) {},
-            async destroy({ commit, state }) {},
+            async init() {},
+            async destroy() {},
           },
           getters: {
-            getInstance(state) {
+            getInstance() {
               return agent;
             },
           },
@@ -161,7 +161,7 @@ export class MockCredentialHandler {
   setRequestEvent(event) {
     let respond;
     event.respondWith = async (promise) => {
-      respond(promise);
+      await respond(promise);
     };
 
     this.eventQueue.push(event);
@@ -169,7 +169,7 @@ export class MockCredentialHandler {
     // handle for event response
     return new Promise((resolve, reject) => {
       const timer = setTimeout(
-        (_) => reject(new Error('timeout waiting for credential event response')),
+        () => reject(new Error('timeout waiting for credential event response')),
         40000
       );
       respond = async (result) => {
@@ -182,7 +182,7 @@ export class MockCredentialHandler {
   async receiveCredentialEvent() {
     let event = this.eventQueue.pop();
 
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       if (!event) {
         reject(event);
       }
@@ -202,10 +202,7 @@ export function promiseWhen(fn, timeout, interval) {
   }
 
   return new Promise(function (resolve, reject) {
-    setTimeout(
-      (_) => reject(new Error('timeout waiting for condition')),
-      timeout ? timeout : 10000
-    );
+    setTimeout(() => reject(new Error('timeout waiting for condition')), timeout ? timeout : 10000);
     loop(resolve);
   });
 }
