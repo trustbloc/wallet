@@ -26,6 +26,7 @@
     "vue": "^3.2.20",
     "vue-i18n": "^9.2.2",
     "vue-router": "^4.0.12",
+    "vue3-qrcode-reader": "^0.0.1",
     "vuex": "^4.0.2",
     "vuex-shared-mutations": "^1.0.2",
     "web-credential-handler": "^1.0.1"
