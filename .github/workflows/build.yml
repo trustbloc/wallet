@@ -182,7 +182,7 @@ jobs:
   Publish:
     name: Publish image
     if: github.event_name == 'push' && (github.repository == 'trustbloc/wallet' && github.ref == 'refs/heads/main')
-    needs: [SemanticPR, Prettier, ESLint, License, Unit, VCWallet-e2e, Wallet-e2e]
+    needs: [Prettier, ESLint, License, Unit, VCWallet-e2e, Wallet-e2e]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
