@@ -1,0 +1,12 @@
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+**/package.json
+**/package-lock.json
+**/node_modules/
+**/dist/
+**/public/agent-js-worker/
+**/build/

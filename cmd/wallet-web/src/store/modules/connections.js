@@ -19,7 +19,7 @@ export default {
       let agent = getters['agent/getInstance'];
       // retrieves all agent connections
       let res = await agent.didexchange.queryConnections();
-      if (res.hasOwnProperty('results')) {
+      if (Object.prototype.hasOwnProperty.call(res, 'results')) {
         // sets connections
         commit('updateConnections', res.results);
       }

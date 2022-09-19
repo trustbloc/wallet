@@ -17,7 +17,7 @@ export default {
       let agent = getters['agent/getInstance'];
       // retrieves all agent credentials
       let res = await agent.verifiable.getPresentations();
-      if (!res.hasOwnProperty('result')) {
+      if (!Object.prototype.hasOwnProperty.call(res, 'results')) {
         return;
       }
 

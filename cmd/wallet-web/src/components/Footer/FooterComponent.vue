@@ -5,8 +5,8 @@
 -->
 
 <template>
-  <div class="py-6 px-15 mx-6 w-full text-center">
-    <div class="hidden mx-auto text-center text-neutrals-medium md:block">
+  <div class="mx-6 w-full py-6 px-15 text-center">
+    <div class="mx-auto hidden text-center text-neutrals-medium md:block">
       © {{ date }} TrustBloc ･ {{ t('Footer.privacyPolicy') }} ･ {{ t('Footer.terms') }} ･
       <LocaleSwitcherComponent />
     </div>

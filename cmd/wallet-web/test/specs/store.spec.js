@@ -26,20 +26,20 @@ after(function () {
 });
 
 describe('saving a credential into wallet', function () {
-  //test data
-  let samplePresentation = getTestData('sample-presentation-1.json');
-
   // credential handler
-  let credHandler = new MockCredentialHandler();
-  let response = credHandler.setRequestEvent({
-    type: 'credentialstore',
-    credentialRequestOrigin: 'https://issuer.example.dev',
-    credential: { type: 'web', dataType: 'VerifiablePresentation', data: samplePresentation },
-  });
+  const credHandler = new MockCredentialHandler();
+  let response;
 
   // mount vue component
   let wrapper;
   before(function () {
+    //test data
+    const samplePresentation = getTestData('sample-presentation-1.json');
+    response = credHandler.setRequestEvent({
+      type: 'credentialstore',
+      credentialRequestOrigin: 'https://issuer.example.dev',
+      credential: { type: 'web', dataType: 'VerifiablePresentation', data: samplePresentation },
+    });
     const store = setup.getStateStore();
     wrapper = shallowMount(Store, {
       global: {
@@ -52,15 +52,15 @@ describe('saving a credential into wallet', function () {
     });
   });
 
-  it('save credential wizard is loaded in wallet', async () => {
+  it('save credential wizard is loaded in wallet', async function () {
     await promiseWhen(() => !wrapper.vm.loading);
   });
 
-  it('credential to be saved are presented to user', async () => {
+  it('credential to be saved are presented to user', function () {
     expect(wrapper.vm.processedCredentials).to.have.lengthOf(1);
   });
 
-  it('saved credential into wallet successfully!', async () => {
+  it('saved credential into wallet successfully!', async function () {
     wrapper.find('button.btn-primary').trigger('click');
     await nextTick();
 
@@ -71,20 +71,20 @@ describe('saving a credential into wallet', function () {
 });
 
 describe('saving multiple credentials into wallet', function () {
-  //test data
-  let samplePresentation = getTestData('sample-presentation-2.json');
-
   // credential handler
-  let credHandler = new MockCredentialHandler();
-  let response = credHandler.setRequestEvent({
-    type: 'credentialstore',
-    credentialRequestOrigin: 'https://issuer.example.dev',
-    credential: { type: 'web', dataType: 'VerifiablePresentation', data: samplePresentation },
-  });
+  const credHandler = new MockCredentialHandler();
+  let response;
 
   // mount vue component
   let wrapper;
   before(function () {
+    //test data
+    let samplePresentation = getTestData('sample-presentation-2.json');
+    response = credHandler.setRequestEvent({
+      type: 'credentialstore',
+      credentialRequestOrigin: 'https://issuer.example.dev',
+      credential: { type: 'web', dataType: 'VerifiablePresentation', data: samplePresentation },
+    });
     const store = setup.getStateStore();
     wrapper = shallowMount(Store, {
       global: {
@@ -97,15 +97,15 @@ describe('saving multiple credentials into wallet', function () {
     });
   });
 
-  it('save credential wizard is loaded in wallet', async () => {
+  it('save credential wizard is loaded in wallet', async function () {
     await promiseWhen(() => !wrapper.vm.sendButton);
   });
 
-  it('credentials to be saved are presented to user', async () => {
+  it('credentials to be saved are presented to user', function () {
     expect(wrapper.vm.processedCredentials).to.have.lengthOf(2);
   });
 
-  it('saved credentials in wallet successfully', async () => {
+  it('saved credentials in wallet successfully', async function () {
     wrapper.find('button.btn-primary').trigger('click');
     await nextTick();
 

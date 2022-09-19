@@ -4,13 +4,12 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-"use strict";
+'use strict';
 
-const constants = require("./constants");
-const { allow } = require("./chapi");
+const constants = require('./constants');
+const { allow } = require('./chapi');
 
 const DIDS = constants.dids;
-const timeout = 60000;
 let signedUpUserEmail;
 
 /*************************** Public API ******************************/
@@ -37,7 +36,7 @@ exports.createOrbDID = async () => {
   await _createOrbDID();
 };
 
-exports.importDID = async ({ method, keyFormat }) => {
+exports.importDID = async ({ method }) => {
   await _importDID({ method: method });
 };
 
@@ -98,13 +97,12 @@ exports.waitForCredentials = async () => {
 };
 
 exports.didConnect = async () => {
-  const didConnectBtn = await $("#didconnect");
-  await didConnectBtn.waitForExist();
+  const didConnectBtn = await $('#didconnect');
   await didConnectBtn.waitForClickable();
   await didConnectBtn.click();
 
-  const successMsg = await $("div*=CONGRATULATIONS ");
-  await successMsg.waitForExist();
+  const successMsg = await $('div*=CONGRATULATIONS ');
+  await expect(successMsg).toExist();
 };
 
 exports.signOut = async () => {
@@ -121,28 +119,25 @@ exports.changeLocale = async () => {
 
 exports.validateCredentialDetails = async (vcData) => {
   for (const data of vcData) {
-    // TODO need a better way to validate name and value matches rather than text existance on the screen
-    const name = await $("td*=" + data.name);
-    await name.waitForExist();
+    // TODO need a better way to validate name and value matches rather than text existence on the screen
+    const name = await $('td*=' + data.name);
+    await expect(name).toExist();
 
-    const val = await $("td*=" + data.value);
-    await val.waitForExist();
+    const val = await $('td*=' + data.value);
+    await expect(val).toExist();
   }
 };
 
 exports.deleteCredential = async () => {
-  const flyoutMenuImage = await $("#credential-details-flyout-button");
-  await flyoutMenuImage.waitForExist();
+  const flyoutMenuImage = await $('#credential-details-flyout-button');
   await flyoutMenuImage.waitForClickable();
   await flyoutMenuImage.click();
 
-  const deleteCredentialList = await $("#deleteCredential");
-  await deleteCredentialList.waitForExist();
+  const deleteCredentialList = await $('#deleteCredential');
   await deleteCredentialList.waitForClickable();
   await deleteCredentialList.click();
 
-  const deleteButton = await $("#delete-credential-button");
-  await deleteButton.waitForExist();
+  const deleteButton = await $('#delete-credential-button');
   await deleteButton.waitForClickable();
   await deleteButton.click();
 };
@@ -152,267 +147,251 @@ exports.renameCredential = async (credentialName, errMsg) => {
 };
 
 async function _renameCredential(credentialName, errMsg) {
-  const flyoutMenuImage = await $("#credential-details-flyout-button");
-  await flyoutMenuImage.waitForExist();
+  const flyoutMenuImage = await $('#credential-details-flyout-button');
   await flyoutMenuImage.waitForClickable();
   await flyoutMenuImage.click();
 
-  const renameCredentialList = await $("#renameCredential");
-  await renameCredentialList.waitForExist();
+  const renameCredentialList = await $('#renameCredential');
   await renameCredentialList.waitForClickable();
   await renameCredentialList.click();
 
   await _updateCredentialName(credentialName);
-  const renameCredButton = await $("#rename-credential-button");
-  await renameCredButton.waitForExist();
+  const renameCredButton = await $('#rename-credential-button');
   await renameCredButton.waitForClickable();
   await renameCredButton.click();
-  // validating rename credetial name with the expected error Msg
+  // validating rename credential name with the expected error Msg
   if (errMsg) {
-    const errorMsg = await $("#input-CredentialName-error-msg");
-    expect(errorMsg).toHaveValue(errMsg);
-    const dangerIcon = await $(".danger-icon");
-    await dangerIcon.waitForExist();
+    const errorMsg = await $('#input-CredentialName-error-msg');
+    await errorMsg.waitForExist();
+    await expect(errorMsg).toHaveText(errMsg);
+    const dangerIcon = await $('.danger-icon');
+    await expect(dangerIcon).toExist();
     await _cancelRenameCredential();
   }
 }
 /*************************** Helper functions ******************************/
 
-async function _didAuth({ method = "trustbloc" } = {}) {
-  const authenticate = await $("#didauth");
-  await authenticate.waitForExist();
+async function _didAuth() {
+  const authenticate = await $('#didauth');
+  await authenticate.waitForClickable();
   await authenticate.click();
 }
 
 async function _acceptCredentials() {
-  const storeBtn = await $("#storeVCBtn");
-  await storeBtn.waitForExist();
+  const storeBtn = await $('#storeVCBtn');
   await storeBtn.waitForClickable();
   await storeBtn.click();
 }
 
 async function _sendCredentials() {
   // share
-  const shareBtn = await $("#share-credentials");
-  await shareBtn.waitForExist();
+  const shareBtn = await $('#share-credentials');
   await shareBtn.waitForClickable();
   await shareBtn.click();
 }
 
 async function _getSignUp(email) {
-  const signUpButton = await $("#mockbank");
-  await signUpButton.waitForExist();
+  const parentWindow = await browser.getWindowHandle();
+
+  const signUpButton = await $('#mockbank');
+  await signUpButton.waitForClickable();
   await signUpButton.click();
-  await _getThirdPartyLogin(email);
+
+  await _getThirdPartyLogin(email, parentWindow);
 }
 
 async function _signOutWallet() {
-  const signOutButton = await $("#signout-button");
-  await signOutButton.waitForExist();
+  const signOutButton = await $('#signout-button');
+  await signOutButton.waitForClickable();
   await signOutButton.click();
-
-  // wait for signout to complete and go to signup page
-  await browser.waitUntil(async () => {
-    const headingLink = await $("h1*=Sign up.");
-    expect(headingLink).toHaveValue("Sign up.");
-    return true;
-  });
+  await expect(browser).toHaveUrlContaining(browser.config.authURL + '/ui/sign-up');
 }
 
 async function _signIn(signedUpUserEmail) {
-  const signInButton = await $("#mockbank");
-  await signInButton.waitForExist();
+  const parentWindow = await browser.getWindowHandle();
+
+  const signInButton = await $('#mockbank');
+  await signInButton.waitForClickable();
   await signInButton.click();
-  await _getThirdPartyLogin(signedUpUserEmail);
-  return true;
+
+  await _getThirdPartyLogin(signedUpUserEmail, parentWindow);
 }
 
 async function _changeLocale() {
-  const localeSwitcherLink = await $("a*=Français");
-  await localeSwitcherLink.waitForExist();
+  const localeSwitcherLink = await $('a*=Français');
+  await localeSwitcherLink.waitForClickable();
   await localeSwitcherLink.click();
-  await browser.waitUntil(async () => {
-    const headingLink = await $("h1*=Inscrivez-vous. C’est gratuit!");
-    expect(headingLink).toHaveValue("Inscrivez-vous. C’est gratuit!");
-    return true;
-  });
+
+  const headingLink = await $('h1*=Inscrivez-vous. C’est gratuit!');
+  await expect(headingLink).toExist();
+  await expect(headingLink).toHaveText('Inscrivez-vous. C’est gratuit!');
 }
 
-async function _getThirdPartyLogin(email) {
-  await browser.waitUntil(async () => {
-    try {
-      await browser.switchWindow("Login Page");
-    } catch (err) {
-      console.warn("[warn] switch window to login page : ", err.message);
-      return false;
+async function _getThirdPartyLogin(email, parentWindow) {
+  const windows = await browser.getWindowHandles();
+
+  for (let i = 0; i < windows.length; i++) {
+    if (windows[i] !== parentWindow) {
+      await browser.switchToWindow(windows[i]);
+      break;
     }
-    return true;
-  });
+  }
 
-  await browser.waitUntil(async () => {
-    let emailInput = await $("#email");
-    await emailInput.waitForExist();
-    expect(emailInput).toHaveValue("john.smith@example.com");
-    await emailInput.setValue(email);
-    return true;
-  });
+  const emailInput = await $('#email');
+  await emailInput.waitForExist();
+  await emailInput.setValue(email);
 
-  const oidcLoginButton = await $("#accept");
+  const oidcLoginButton = await $('#accept');
+  await oidcLoginButton.waitForClickable();
   await oidcLoginButton.click();
 
-  await browser.switchWindow(browser.config.walletURL);
+  await browser.switchToWindow(parentWindow);
 }
 
 async function _waitForDefaultVault() {
-  await browser.waitUntil(async () => {
-    const defaultVault = await $("div*=Default Vault");
-    await defaultVault.waitForExist();
-    return true;
-  });
+  const defaultVault = await $('div*=Default Vault');
+  await expect(defaultVault).toExist();
 }
 
 async function _waitForCredentials() {
-  await browser.waitUntil(async () => {
-    const credentialsLink = await $("#navbar-link-credentials");
-    await credentialsLink.click();
-    let didResponse = await $("#loaded-credentials-container");
-    await didResponse.waitForExist({ timeout, interval: 5000 });
-    expect(didResponse).toBeDisplayed();
-    return true;
-  });
+  const credentialsLink = await $('#navbar-link-credentials');
+  await credentialsLink.waitForClickable();
+  await credentialsLink.click();
+  const didResponse = await $('#loaded-credentials-container');
+  await expect(didResponse).toExist();
+  await expect(didResponse).toBeDisplayed();
 }
 
 async function _checkStoredCredentials() {
-  const checkStoredCredential = await $("div*=Permanent Resident Card");
-  await checkStoredCredential.waitForExist();
-  return true;
+  const checkStoredCredential = await $('div*=Permanent Resident Card');
+  await expect(checkStoredCredential).toExist();
 }
 
 async function _importDID({ method }) {
-  const settingsTab = await $("a*=Settings");
-  await settingsTab.waitForExist();
-  await settingsTab.click();
-
-  const importDID = await $("label*=Import Any Digital Identity");
-  await importDID.waitForExist();
+  const importDID = await $('label*=Import Any Digital Identity');
+  await importDID.waitForClickable();
   await importDID.click();
 
   if (!DIDS[method]) {
-    throw `couldn't find did method '${did} in test config'`;
+    throw `couldn't find did method '${method} in test config'`;
   }
 
-  const didInput = await $("#did-input");
+  const didInput = await $('#did-input');
+  await didInput.waitForExist();
   await didInput.addValue(DIDS[method].did);
 
-  const jwkType = await $("#JWK");
+  const jwkType = await $('#JWK');
+  await jwkType.waitForClickable();
   await jwkType.click();
 
-  const privateKeyJWK = await $("#privateKeyStr");
+  const privateKeyJWK = await $('#privateKeyStr');
+  await privateKeyJWK.waitForExist();
   await privateKeyJWK.addValue(DIDS[method].pkjwk);
 
-  const keyID = await $("#keyID");
+  const keyID = await $('#keyID');
+  await keyID.waitForExist();
   await keyID.addValue(DIDS[method].keyID);
 
-  const submit = await $("#saveDIDBtn");
+  const submit = await $('#saveDIDBtn');
+  await submit.waitForClickable();
   await submit.click();
 
-  await browser.waitUntil(async () => {
-    let didResponse = await $("#save-anydid-success");
-    await didResponse.waitForExist({ timeout, interval: 2000 });
-    expect(didResponse).toHaveText("Saved your DID successfully.");
-    return true;
-  });
+  const didResponse = await $('#save-anydid-success');
+  await didResponse.waitForExist();
+  await expect(didResponse).toHaveText('Saved your DID successfully.');
 }
 
 async function _createOrbDID() {
-  const settingsTab = await $("a*=Settings");
-  await settingsTab.waitForExist();
+  const settingsTab = await $('a*=Settings');
+  await settingsTab.waitForClickable();
   await settingsTab.click();
 
-  const createOrbTab = await $("label*=Create ORB Digital Identity");
+  const createOrbTab = await $('label*=Create ORB Digital Identity');
   await createOrbTab.waitForClickable();
   await createOrbTab.click();
 
   // select key Type
-  const keyType = await $("#select-key");
+  const keyType = await $('#select-key');
+  await keyType.waitForExist();
   await keyType.addValue(DIDS.orb.keyType);
 
   // select signature Type
-  const signType = await $("#select-signature-suite");
+  const signType = await $('#select-signature-suite');
+  await signType.waitForExist();
   await signType.addValue(DIDS.orb.signatureType);
 
-  const submit = await $("#createDIDBtn");
+  const submit = await $('#createDIDBtn');
+  await submit.waitForClickable();
   await submit.click();
 
-  await browser.waitUntil(async () => {
-    let didResponse = await $("#create-did-success");
-    await didResponse.waitForExist({ timeout, interval: 2000 });
-    expect(didResponse).toHaveText("Saved your DID successfully.");
-    return true;
-  });
+  const didResponse = await $('#create-did-success');
+  await didResponse.waitForExist();
+  await expect(didResponse).toHaveText('Saved your DID successfully.');
 }
 
 async function _updatePreferences() {
-  const settingsTab = await $("a*=Settings");
-  await settingsTab.waitForExist();
-  await settingsTab.click();
-
-  const preferences = await $("label*=Digital Identity Preference");
-  await preferences.waitForExist();
+  const preferences = await $('label*=Digital Identity Preference');
+  await preferences.waitForClickable();
   await preferences.click();
 
-  const jwkType = await $("label*=JsonWebSignature2020");
+  const jwkType = await $('label*=JsonWebSignature2020');
+  await jwkType.waitForClickable();
   await jwkType.click();
 
-  const submit = await $("button*=Update Preferences");
+  const submit = await $('button*=Update Preferences');
+  await submit.waitForClickable();
   await submit.click();
 
-  // TODO validate success message
+  const successMessage = await $('#update-preferences-success');
+  await expect(successMessage).toExist();
 }
 
 async function _addNewVault(vaultName) {
   // User clicks on Add Vault button
-  const addVaultButton = await $("#add-new-vault-button");
-  await addVaultButton.waitForExist();
+  const addVaultButton = await $('#add-new-vault-button');
+  await addVaultButton.waitForClickable();
   await addVaultButton.click();
   await _vaultNameInput(vaultName);
   await _createVault();
 }
 
 async function _vaultNameInput(vaultName) {
-  const addVaultInput = await $("#input-VaultName");
+  const addVaultInput = await $('#input-VaultName');
+  await addVaultInput.waitForClickable();
   await addVaultInput.click();
   await addVaultInput.setValue(vaultName);
 }
 
 async function _updateCredentialName(credentialName) {
-  const renameCredInput = await $("#input-CredentialName");
+  const renameCredInput = await $('#input-CredentialName');
+  await renameCredInput.waitForClickable();
   await renameCredInput.click();
   await renameCredInput.setValue(credentialName);
 }
 
 async function _createVault() {
-  const addAction = await $(".btn-primary*=Add");
+  const addAction = await $('.btn-primary*=Add');
+  await addAction.waitForClickable();
   await addAction.click();
 }
 
 async function _validationError(msg) {
-  const errorMsg = await $("#input-VaultName-error-msg");
-  expect(errorMsg).toHaveValue(msg);
-  const dangerIcon = await $(".danger-icon");
-  await dangerIcon.waitForExist();
+  const errorMsg = await $('#input-VaultName-error-msg');
+  await expect(errorMsg).toHaveText(msg);
+  const dangerIcon = await $('.danger-icon');
+  await expect(dangerIcon).toExist();
 }
 
 async function _cancelAddVault() {
-  const cancelVaultButton = await $(".btn-outline*=Cancel");
+  const cancelVaultButton = await $('.btn-outline*=Cancel');
   await cancelVaultButton.click();
-  expect(browser.config.walletURL).toHaveValue("vaults");
+  await expect(browser).toHaveUrlContaining('vaults');
 }
 
 async function _cancelRenameCredential() {
-  const cancelCredentialButton = await $(".btn-outline*=Cancel");
+  const cancelCredentialButton = await $('.btn-outline*=Cancel');
   await cancelCredentialButton.click();
-  expect(browser.config.walletURL).toHaveValue("credentials");
+  await expect(browser).toHaveUrlContaining('credentials');
 }
 
 async function _validateUserInput(vaultName, errMsg) {
@@ -423,33 +402,36 @@ async function _validateUserInput(vaultName, errMsg) {
 
 async function _validateVaultNameWithSpaces(actualVal, expectedVal) {
   await _addNewVault(actualVal);
-  const vaultCard = await $(`#vault-card-${expectedVal.replaceAll(" ", "-")}`);
-  await vaultCard.waitForExist();
+  const vaultCard = await $(`#vault-card-${expectedVal.replaceAll(' ', '-')}`);
+  await expect(vaultCard).toExist();
 }
 
 async function _renameVault(oldName, newName) {
-  const vaultFlyoutButton = await $(
-    `#vaults-flyout-menu-button-${oldName.replaceAll(" ", "-")}`
-  );
-  await vaultFlyoutButton.waitForExist();
+  const vaultFlyoutButton = await $(`#vaults-flyout-menu-button-${oldName.replaceAll(' ', '-')}`);
+  await vaultFlyoutButton.waitForClickable();
   await vaultFlyoutButton.click();
-  const renameVaultButton = await $("#renameVault");
-  await renameVaultButton.waitForExist();
+
+  const renameVaultButton = await $('#renameVault');
+  await renameVaultButton.waitForClickable();
   await renameVaultButton.click();
+
   await _vaultNameInput(newName);
-  const renameButton = await $(".btn-primary*=Rename");
+
+  const renameButton = await $('.btn-primary*=Rename');
+  await renameButton.waitForClickable();
   await renameButton.click();
 }
 
 async function _removeVault(name) {
-  const vaultFlyoutButton = await $(
-    `#vaults-flyout-menu-button-${name.replaceAll(" ", "-")}`
-  );
-  await vaultFlyoutButton.waitForExist();
+  const vaultFlyoutButton = await $(`#vaults-flyout-menu-button-${name.replaceAll(' ', '-')}`);
+  await vaultFlyoutButton.waitForClickable();
   await vaultFlyoutButton.click();
-  const renameVaultButton = await $("#delete-vault-flyout-button");
-  await renameVaultButton.waitForExist();
+
+  const renameVaultButton = await $('#delete-vault-flyout-button');
+  await renameVaultButton.waitForClickable();
   await renameVaultButton.click();
-  const renameButton = await $(".btn-danger*=Delete");
+
+  const renameButton = await $('.btn-danger*=Delete');
+  await renameButton.waitForClickable();
   await renameButton.click();
 }

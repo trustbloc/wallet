@@ -4,35 +4,35 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-"use strict";
+'use strict';
 
 exports.config = {
-  runner: "local",
+  runner: 'local',
   // Maximum number of total parallel running workers
   maxInstances: 1,
   capabilities: [
     {
       // Maximum number of total parallel running workers per capability
       maxInstances: 1,
-      browserName: "chrome",
-      "goog:chromeOptions": {
+      browserName: 'chrome',
+      'goog:chromeOptions': {
         // to run chrome headless the following flags are required
         // (see https://developers.google.com/web/updates/2017/04/headless-chrome)
         args: [
-          "--headless",
-          "--no-sandbox",
-          "--disable-gpu",
-          "--disable-dev-shm-usage",
-          "--window-size=1920,1080",
-          "--disable-web-security",
-          "--ignore-certificate-errors",
+          '--headless',
+          '--no-sandbox',
+          '--disable-gpu',
+          '--disable-dev-shm-usage',
+          '--window-size=1920,1080',
+          '--disable-web-security',
+          '--ignore-certificate-errors',
         ],
       },
     },
   ],
 
   // Level of logging verbosity: trace | debug | info | warn | error | silent
-  logLevel: "warn",
+  logLevel: 'warn',
 
   // Default timeout for all waitFor* commands.
   waitforTimeout: 60000,
@@ -45,17 +45,17 @@ exports.config = {
   connectionRetryCount: 3,
 
   // Test runner services
-  services: ["chromedriver"],
+  services: ['chromedriver'],
 
   // Framework you want to run your specs with.
-  framework: "mocha",
+  framework: 'mocha',
 
-  reporters: ["spec"],
+  reporters: ['spec'],
 
   // Options to be passed to Mocha.
   mochaOpts: {
-    ui: "bdd",
+    ui: 'bdd',
     timeout: 120000,
-    require: ["@babel/register"],
+    require: ['@babel/register'],
   },
 };

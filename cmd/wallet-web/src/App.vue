@@ -34,8 +34,8 @@ onUnmounted(() => {
 });
 </script>
 <template>
-  <div class="w-screen h-screen font-sans bg-neutrals-mischka">
-    <div v-if="!userLoaded" class="flex relative top-1/3 flex-col justify-start items-center">
+  <div class="h-screen w-screen bg-neutrals-mischka font-sans">
+    <div v-if="!userLoaded" class="relative top-1/3 flex flex-col items-center justify-start">
       <SpinnerIcon />
       <span class="mt-6">Loading Wallet . . .</span>
     </div>

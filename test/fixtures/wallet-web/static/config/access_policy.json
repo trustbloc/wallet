@@ -1,25 +1,26 @@
 {
-	"access-types": [{
-			"reference": "userdata-access",
-			"permission": "NeedsConsent",
-			"expires-in": 3600,
-			"access": {
-				"type": "trustbloc.dev/types/gnap/userdata-access",
-				"actions": ["read", "write", "update", "delete"],
-				"locations": ["edv.provider.com/api"],
-				"subject-keys": ["sub"]
-			}
-		},
-		{
-			"reference": "kms-access",
-			"permission": "NeedsConsent",
-			"expires-in": 3600,
-			"access": {
-				"type": "trustbloc.dev/types/gnap/kms-access",
-				"actions": ["sign", "verify", "encrypt", "decrypt"],
-				"locations": ["kms.provider.com/api/user"],
-				"subject-keys": ["sub"]
-			}
-		}
-	]
+  "access-types": [
+    {
+      "reference": "userdata-access",
+      "permission": "NeedsConsent",
+      "expires-in": 3600,
+      "access": {
+        "type": "trustbloc.dev/types/gnap/userdata-access",
+        "actions": ["read", "write", "update", "delete"],
+        "locations": ["edv.provider.com/api"],
+        "subject-keys": ["sub"]
+      }
+    },
+    {
+      "reference": "kms-access",
+      "permission": "NeedsConsent",
+      "expires-in": 3600,
+      "access": {
+        "type": "trustbloc.dev/types/gnap/kms-access",
+        "actions": ["sign", "verify", "encrypt", "decrypt"],
+        "locations": ["kms.provider.com/api/user"],
+        "subject-keys": ["sub"]
+      }
+    }
+  ]
 }

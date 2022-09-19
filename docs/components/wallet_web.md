@@ -68,14 +68,14 @@ A single or multiple credentials can be stored into wallet through `store()` cal
 In below sample, a presentation with single or multiple credentials is stored into wallet,
 
 ```js
-const webCredential = new WebCredential("VerifiablePresentation", {
-  "@context": "https://www.w3.org/2018/credentials/v1",
+const webCredential = new WebCredential('VerifiablePresentation', {
+  '@context': 'https://www.w3.org/2018/credentials/v1',
   ...presentation,
 });
 
 const result = await navigator.credentials.store(webCredential);
 if (!result) {
-  console.log("store credential operation did not succeed");
+  console.log('store credential operation did not succeed');
 }
 ```
 
@@ -92,21 +92,21 @@ let credentialQuery = {
     VerifiablePresentation: {
       query: [
         {
-          type: "QueryByExample",
+          type: 'QueryByExample',
           credentialQuery: {
-            reason: "Please present a credential for JaneDoe.",
+            reason: 'Please present a credential for JaneDoe.',
             example: {
-              "@context": [
-                "https://www.w3.org/2018/credentials/v1",
-                "https://www.w3.org/2018/credentials/examples/v1",
+              '@context': [
+                'https://www.w3.org/2018/credentials/v1',
+                'https://www.w3.org/2018/credentials/examples/v1',
               ],
-              type: ["UniversityDegreeCredential"],
+              type: ['UniversityDegreeCredential'],
             },
           },
         },
       ],
-      challenge: "26e18e44-7c01-4e16-bbf9-1463e00df582",
-      domain: "example.com",
+      challenge: '26e18e44-7c01-4e16-bbf9-1463e00df582',
+      domain: 'example.com',
     },
   },
 };
@@ -125,10 +125,10 @@ let didAuthQuery = {
   web: {
     VerifiablePresentation: {
       query: {
-        type: "DIDAuth",
+        type: 'DIDAuth',
       },
-      challenge: "db926a16-791d-4a47-9d81-f9d5012bae0c",
-      domain: "example.com",
+      challenge: 'db926a16-791d-4a47-9d81-f9d5012bae0c',
+      domain: 'example.com',
     },
   },
 };
@@ -148,96 +148,92 @@ let presentationExchangeQuery = {
     VerifiablePresentation: {
       query: [
         {
-          type: "PresentationExchange",
+          type: 'PresentationExchange',
           credentialQuery: {
             submission_requirements: [
               {
-                name: "Education Qualification",
-                purpose: "We need to know if you are qualified for this job",
-                rule: "pick",
+                name: 'Education Qualification',
+                purpose: 'We need to know if you are qualified for this job',
+                rule: 'pick',
                 count: 1,
-                from: ["E"],
+                from: ['E'],
               },
               {
-                name: "Citizenship Information",
-                purpose: "You must be legally allowed to work in United States",
-                rule: "all",
-                from: ["C"],
+                name: 'Citizenship Information',
+                purpose: 'You must be legally allowed to work in United States',
+                rule: 'all',
+                from: ['C'],
               },
             ],
             input_descriptors: [
               {
-                id: "citizenship_input_1",
-                group: ["C"],
+                id: 'citizenship_input_1',
+                group: ['C'],
                 schema: {
                   uri: [
-                    "https://w3id.org/citizenship/v1",
-                    "https://w3id.org/citizenship/v2",
-                    "https://w3id.org/citizenship/v3",
+                    'https://w3id.org/citizenship/v1',
+                    'https://w3id.org/citizenship/v2',
+                    'https://w3id.org/citizenship/v3',
                   ],
-                  name: "US Permanent resident card",
+                  name: 'US Permanent resident card',
                 },
                 constraints: {
                   fields: [
                     {
-                      path: ["$.credentialSubject.lprCategory"],
+                      path: ['$.credentialSubject.lprCategory'],
                       filter: {
-                        type: "string",
-                        pattern: "C09|C52|C57",
+                        type: 'string',
+                        pattern: 'C09|C52|C57',
                       },
                     },
                   ],
                 },
               },
               {
-                id: "degree_input_1",
-                group: ["E"],
+                id: 'degree_input_1',
+                group: ['E'],
                 schema: {
-                  uri: [
-                    "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld",
-                  ],
-                  name: "University degree certificate",
-                  purpose: "We need your education qualification details.",
+                  uri: ['https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld'],
+                  name: 'University degree certificate',
+                  purpose: 'We need your education qualification details.',
                 },
                 constraints: {
                   fields: [
                     {
-                      path: ["$.credentialSubject.degree.type"],
-                      purpose: "Should be masters or bachelors degree",
+                      path: ['$.credentialSubject.degree.type'],
+                      purpose: 'Should be masters or bachelors degree',
                       filter: {
-                        type: "string",
-                        pattern: "BachelorDegree|MastersDegree",
+                        type: 'string',
+                        pattern: 'BachelorDegree|MastersDegree',
                       },
                     },
                   ],
                 },
               },
               {
-                id: "degree_input_2",
-                group: ["E"],
+                id: 'degree_input_2',
+                group: ['E'],
                 schema: {
-                  uri: [
-                    "https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld",
-                  ],
-                  name: "Diploma certificate",
-                  purpose: "We need your education qualification details.",
+                  uri: ['https://trustbloc.github.io/context/vc/examples-ext-v1.jsonld'],
+                  name: 'Diploma certificate',
+                  purpose: 'We need your education qualification details.',
                 },
                 constraints: {
                   fields: [
                     {
-                      path: ["$.credentialSubject.degree.type"],
-                      purpose: "Should have valid diploma",
+                      path: ['$.credentialSubject.degree.type'],
+                      purpose: 'Should have valid diploma',
                       filter: {
-                        type: "string",
-                        pattern: "Diploma",
+                        type: 'string',
+                        pattern: 'Diploma',
                       },
                     },
                     {
-                      path: ["$.credentialSubject.degree.coop"],
-                      purpose: "Should have co-op experience",
+                      path: ['$.credentialSubject.degree.coop'],
+                      purpose: 'Should have co-op experience',
                       filter: {
-                        type: "string",
-                        pattern: "Y",
+                        type: 'string',
+                        pattern: 'Y',
                       },
                     },
                   ],
@@ -247,15 +243,13 @@ let presentationExchangeQuery = {
           },
         },
       ],
-      challenge: "df840294-787e-442f-824a-1ccb5d6c1da9",
-      domain: "example.com",
+      challenge: 'df840294-787e-442f-824a-1ccb5d6c1da9',
+      domain: 'example.com',
     },
   },
 };
 
-const webCredential = await navigator.credentials.get(
-  presentationExchangeQuery
-);
+const webCredential = await navigator.credentials.get(presentationExchangeQuery);
 ```
 
 Note: `PresentaionExchange` can be mixed with other credential query types like QueryByExample, QueryByFrame etc. But it is not recommended since it might produce multiple presentations as a response.
@@ -276,28 +270,26 @@ let didConnectQuery = {
   web: {
     VerifiablePresentation: {
       query: {
-        type: "DIDConnect",
+        type: 'DIDConnect',
       },
       invitation: {
-        "@id": "2629b7f4-f8f9-43fc-8964-65740e73d0ab",
-        "@type": "https://didcomm.org/out-of-band/1.0/invitation",
-        label: "issuer",
+        '@id': '2629b7f4-f8f9-43fc-8964-65740e73d0ab',
+        '@type': 'https://didcomm.org/out-of-band/1.0/invitation',
+        label: 'issuer',
         services: [
           {
-            id: "2c757b3f-2f57-44bc-b9d2-0c2301571f41",
-            recipientKeys: [
-              "did:key:z6MkkYU4VfCzss5JuHQiHiXS9GKVHVrs5GFrA4RRTakNu7o2",
-            ],
-            serviceEndpoint: "https://adapter-issuer-didcomm.stg.trustbloc.dev",
-            type: "did-communication",
+            id: '2c757b3f-2f57-44bc-b9d2-0c2301571f41',
+            recipientKeys: ['did:key:z6MkkYU4VfCzss5JuHQiHiXS9GKVHVrs5GFrA4RRTakNu7o2'],
+            serviceEndpoint: 'https://adapter-issuer-didcomm.stg.trustbloc.dev',
+            type: 'did-communication',
           },
         ],
-        handshake_protocols: ["https://didcomm.org/didexchange/1.0"],
+        handshake_protocols: ['https://didcomm.org/didexchange/1.0'],
       },
       // credentials issuer wants to send like manifests, governance credential or any other credentials
       credentials: [],
-      challenge: "6919ac64-9771-4343-a50f-318bca774d86",
-      domain: "example.com",
+      challenge: '6919ac64-9771-4343-a50f-318bca774d86',
+      domain: 'example.com',
     },
   },
 };

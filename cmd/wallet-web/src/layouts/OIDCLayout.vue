@@ -6,17 +6,17 @@
 
 <template>
   <div
-    class="flex flex-col grow justify-start items-center mx-auto max-w-7xl h-screen max-h-screen shadow-main-container"
+    class="mx-auto flex h-screen max-h-screen max-w-7xl grow flex-col items-center justify-start shadow-main-container"
   >
     <HeaderComponent :has-custom-gradient="true">
       <template v-if="selectedCredentialId" #leftButtonContainer>
         <button
-          class="flex flex-row justify-start items-center outline-none focus:ring-2 focus:ring-primary-purple focus:ring-offset-2"
+          class="flex flex-row items-center justify-start outline-none focus:ring-2 focus:ring-primary-purple focus:ring-offset-2"
           @click="handleBackButtonClick"
         >
-          <div class="bg-neutrals-black rounded-full">
+          <div class="rounded-full bg-neutrals-black">
             <img
-              class="z-10 w-6 h-6 rotate-180"
+              class="z-10 h-6 w-6 rotate-180"
               src="@/assets/img/credential--arrow-right-icon-light.svg"
             />
           </div>
@@ -24,15 +24,15 @@
         </button>
       </template>
       <template #gradientContainer>
-        <div class="absolute h-15 bg-gradient-full oval" />
+        <div class="oval absolute h-15 bg-gradient-full" />
       </template>
     </HeaderComponent>
     <router-view
-      class="flex overflow-hidden relative z-10 flex-col grow justify-start items-start w-full h-full bg-neutrals-softWhite"
+      class="relative z-10 flex h-full w-full grow flex-col items-start justify-start overflow-hidden bg-neutrals-softWhite"
     />
 
     <FooterComponent
-      class="sticky bottom-0 z-20 bg-neutrals-magnolia border-t border-neutrals-thistle"
+      class="sticky bottom-0 z-20 border-t border-neutrals-thistle bg-neutrals-magnolia"
     />
   </div>
 </template>

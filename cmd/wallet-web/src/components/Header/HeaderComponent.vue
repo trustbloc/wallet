@@ -9,14 +9,14 @@
     <!-- Navbar Closed -->
     <div
       v-if="!isNavbarOpen"
-      class="flex relative flex-col justify-center items-center p-6 w-full h-auto bg-gradient-dark"
+      class="relative flex h-auto w-full flex-col items-center justify-center bg-gradient-dark p-6"
     >
-      <div class="flex absolute left-6 flex-row justify-start items-center">
+      <div class="absolute left-6 flex flex-row items-center justify-start">
         <slot name="leftButtonContainer" />
       </div>
       <slot v-if="hasCustomGradient" name="gradientContainer" />
-      <div v-else class="absolute w-full bg-gradient-full opacity-40 oval oval-navbar-closed" />
-      <div class="flex flex-row justify-center items-center">
+      <div v-else class="oval oval-navbar-closed absolute w-full bg-gradient-full opacity-40" />
+      <div class="flex flex-row items-center justify-center">
         <button
           v-if="!isNavbarHidden && showMenuDropdown"
           class="absolute left-6 z-10"
@@ -30,10 +30,10 @@
     <!-- Navbar Open -->
     <div
       v-else
-      class="flex relative flex-col justify-center items-center p-6 w-full h-full bg-gradient-dark"
+      class="relative flex h-full w-full flex-col items-center justify-center bg-gradient-dark p-6"
     >
-      <div class="absolute w-full bg-gradient-full opacity-40 oval oval-navbar-open" />
-      <div class="flex flex-row justify-center items-center">
+      <div class="oval oval-navbar-open absolute w-full bg-gradient-full opacity-40" />
+      <div class="flex flex-row items-center justify-center">
         <button class="absolute left-6 z-10" @click="toggleNavbar">
           <img src="@/assets/img/close.svg" />
         </button>

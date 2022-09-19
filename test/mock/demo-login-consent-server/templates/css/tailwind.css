@@ -67,8 +67,8 @@ Improve consistency of default fonts in all browsers. (https://github.com/sindre
 
 body {
   font-family: system-ui, -apple-system,
-    /* Firefox supports this but not yet `system-ui` */ "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    /* Firefox supports this but not yet `system-ui` */ 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
 }
 
 /*
@@ -120,8 +120,7 @@ code,
 kbd,
 samp,
 pre {
-  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo,
-    monospace;
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
   /* 1 */
   font-size: 1em;
   /* 2 */
@@ -213,9 +212,9 @@ Correct the inability to style clickable types in iOS and Safari.
 */
 
 button,
-[type="button"],
-[type="reset"],
-[type="submit"] {
+[type='button'],
+[type='reset'],
+[type='submit'] {
   -webkit-appearance: button;
 }
 
@@ -257,7 +256,7 @@ Correct the cursor style of increment and decrement buttons in Safari.
 2. Correct the outline style in Safari.
 */
 
-[type="search"] {
+[type='search'] {
   -webkit-appearance: textfield;
   /* 1 */
   outline-offset: -2px;
@@ -341,9 +340,9 @@ ul {
  */
 
 html {
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
   /* 1 */
   line-height: 1.5;
   /* 2 */
@@ -456,7 +455,7 @@ textarea::placeholder {
 }
 
 button,
-[role="button"] {
+[role='button'] {
   cursor: pointer;
 }
 
@@ -521,8 +520,8 @@ pre,
 code,
 kbd,
 samp {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
 }
 
 /**
@@ -663,13 +662,7 @@ h6 {
   min-height: 2.75rem;
   padding: 0 2rem;
   border-radius: 0.5rem;
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(#8631a0),
-    to(#360b4c)
-  );
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
   background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   -webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
@@ -681,19 +674,13 @@ h6 {
 }
 
 .btn-primary:hover {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(#b964d3),
-    to(#360b4c)
-  );
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#b964d3), to(#360b4c));
   background-image: linear-gradient(#b964d3 0%, #360b4c 100%);
 }
 
 .btn-primary:focus {
-  -webkit-box-shadow: 0px 0px 0px 2px #ffffff,
-    0px 0px 0px 4px rgba(138, 53, 183, 0.7), 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow: 0px 0px 0px 2px #ffffff, 0px 0px 0px 4px rgba(138, 53, 183, 0.7),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.1);
   box-shadow: 0px 0px 0px 2px #ffffff, 0px 0px 0px 4px rgba(138, 53, 183, 0.7),
     0px 1px 2px 0px rgba(0, 0, 0, 0.1);
 }
@@ -890,11 +877,7 @@ h6 {
     from(rgba(238, 234, 238, 0)),
     to(rgb(238, 234, 238))
   );
-  background: linear-gradient(
-    90deg,
-    rgba(238, 234, 238, 0) 0%,
-    rgb(238, 234, 238) 100%
-  );
+  background: linear-gradient(90deg, rgba(238, 234, 238, 0) 0%, rgb(238, 234, 238) 100%);
   border-radius: 0px 4px 0px 0px;
   height: 3.5rem;
   width: 68px;
@@ -1588,10 +1571,9 @@ h6 {
   --tw-skew-y: 0;
   --tw-scale-x: 1;
   --tw-scale-y: 1;
-  -webkit-transform: translateX(var(--tw-translate-x))
-    translateY(var(--tw-translate-y)) rotate(var(--tw-rotate))
-    skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
-    scaleY(var(--tw-scale-y));
+  -webkit-transform: translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y))
+    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
+    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
   transform: translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y))
     rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
     scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -2109,12 +2091,7 @@ h6 {
 }
 
 .bg-gradient-to-t {
-  background-image: -webkit-gradient(
-    linear,
-    left bottom,
-    left top,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, left bottom, left top, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to top, var(--tw-gradient-stops));
 }
 
@@ -2129,12 +2106,7 @@ h6 {
 }
 
 .bg-gradient-to-r {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    right top,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
 }
 
@@ -2149,12 +2121,7 @@ h6 {
 }
 
 .bg-gradient-to-b {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, left top, left bottom, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
 }
 
@@ -2169,12 +2136,7 @@ h6 {
 }
 
 .bg-gradient-to-l {
-  background-image: -webkit-gradient(
-    linear,
-    right top,
-    left top,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to left, var(--tw-gradient-stops));
 }
 
@@ -2225,13 +2187,7 @@ h6 {
 }
 
 .bg-gradient-purple {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(#8631a0),
-    to(#360b4c)
-  );
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
   background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
 }
 
@@ -2240,20 +2196,15 @@ h6 {
 }
 
 .bg-onboarding-sm {
-  background-image: url("~@/assets/img/onboarding-bg-sm.svg");
+  background-image: url('~@/assets/img/onboarding-bg-sm.svg');
 }
 
 .bg-onboarding-flare-lg {
-  background-image: url("~@/assets/img/onboarding-flare-lg.png");
+  background-image: url('~@/assets/img/onboarding-flare-lg.png');
 }
 
 .focus-within\:bg-gradient-to-t:focus-within {
-  background-image: -webkit-gradient(
-    linear,
-    left bottom,
-    left top,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, left bottom, left top, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to top, var(--tw-gradient-stops));
 }
 
@@ -2268,12 +2219,7 @@ h6 {
 }
 
 .focus-within\:bg-gradient-to-r:focus-within {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    right top,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
 }
 
@@ -2288,12 +2234,7 @@ h6 {
 }
 
 .focus-within\:bg-gradient-to-b:focus-within {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, left top, left bottom, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
 }
 
@@ -2308,12 +2249,7 @@ h6 {
 }
 
 .focus-within\:bg-gradient-to-l:focus-within {
-  background-image: -webkit-gradient(
-    linear,
-    right top,
-    left top,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to left, var(--tw-gradient-stops));
 }
 
@@ -2364,13 +2300,7 @@ h6 {
 }
 
 .focus-within\:bg-gradient-purple:focus-within {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(#8631a0),
-    to(#360b4c)
-  );
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
   background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
 }
 
@@ -2379,12 +2309,7 @@ h6 {
 }
 
 .hover\:bg-gradient-to-t:hover {
-  background-image: -webkit-gradient(
-    linear,
-    left bottom,
-    left top,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, left bottom, left top, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to top, var(--tw-gradient-stops));
 }
 
@@ -2399,12 +2324,7 @@ h6 {
 }
 
 .hover\:bg-gradient-to-r:hover {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    right top,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
 }
 
@@ -2419,12 +2339,7 @@ h6 {
 }
 
 .hover\:bg-gradient-to-b:hover {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, left top, left bottom, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
 }
 
@@ -2439,12 +2354,7 @@ h6 {
 }
 
 .hover\:bg-gradient-to-l:hover {
-  background-image: -webkit-gradient(
-    linear,
-    right top,
-    left top,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to left, var(--tw-gradient-stops));
 }
 
@@ -2495,13 +2405,7 @@ h6 {
 }
 
 .hover\:bg-gradient-purple:hover {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(#8631a0),
-    to(#360b4c)
-  );
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
   background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
 }
 
@@ -2510,12 +2414,7 @@ h6 {
 }
 
 .disabled\:bg-gradient-to-t:disabled {
-  background-image: -webkit-gradient(
-    linear,
-    left bottom,
-    left top,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, left bottom, left top, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to top, var(--tw-gradient-stops));
 }
 
@@ -2530,12 +2429,7 @@ h6 {
 }
 
 .disabled\:bg-gradient-to-r:disabled {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    right top,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
 }
 
@@ -2550,12 +2444,7 @@ h6 {
 }
 
 .disabled\:bg-gradient-to-b:disabled {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, left top, left bottom, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
 }
 
@@ -2570,12 +2459,7 @@ h6 {
 }
 
 .disabled\:bg-gradient-to-l:disabled {
-  background-image: -webkit-gradient(
-    linear,
-    right top,
-    left top,
-    from(var(--tw-gradient-stops))
-  );
+  background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
   background-image: linear-gradient(to left, var(--tw-gradient-stops));
 }
 
@@ -2626,13 +2510,7 @@ h6 {
 }
 
 .disabled\:bg-gradient-purple:disabled {
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(#8631a0),
-    to(#360b4c)
-  );
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
   background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
 }
 
@@ -2642,26 +2520,22 @@ h6 {
 
 .from-neutrals-black {
   --tw-gradient-from: #000000;
-  --tw-gradient-stops: var(--tw-gradient-from),
-    var(--tw-gradient-to, rgba(0, 0, 0, 0));
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(0, 0, 0, 0));
 }
 
 .from-haiti {
   --tw-gradient-from: #261131;
-  --tw-gradient-stops: var(--tw-gradient-from),
-    var(--tw-gradient-to, rgba(38, 17, 49, 0));
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(38, 17, 49, 0));
 }
 
 .focus-within\:from-neutrals-black:focus-within {
   --tw-gradient-from: #000000;
-  --tw-gradient-stops: var(--tw-gradient-from),
-    var(--tw-gradient-to, rgba(0, 0, 0, 0));
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(0, 0, 0, 0));
 }
 
 .hover\:from-neutrals-black:hover {
   --tw-gradient-from: #000000;
-  --tw-gradient-stops: var(--tw-gradient-from),
-    var(--tw-gradient-to, rgba(0, 0, 0, 0));
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(0, 0, 0, 0));
 }
 
 .to-jagger {
@@ -3021,9 +2895,9 @@ h6 {
 }
 
 .font-sans {
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 .text-xs {
@@ -3189,53 +3063,50 @@ h6 {
 
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
 }
 
 .shadow-md {
-  --tw-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
 }
 
 .shadow-lg {
-  --tw-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
 }
 
 .shadow-xl {
-  --tw-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
 }
 
 .shadow-main-container {
   --tw-shadow: 0px 0px 40px 0px rgba(25, 12, 33, 0.1);
-  -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
 }
 
 .focus-within\:shadow-inner-outline-blue:focus-within {
   --tw-shadow: inset 0px 2px 0px 0px #2883fb, inset 0px -2px 0px 0px #2883fb;
-  -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  -webkit-box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
 }
 
 .outline-none {
@@ -3260,47 +3131,43 @@ h6 {
 }
 
 .focus-within\:ring-2:focus-within {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width)
+    var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width))
+    var(--tw-ring-color);
   -webkit-box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
     var(--tw-shadow, 0 0 #0000);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
 .focus\:ring-1:focus {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width)
+    var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width))
+    var(--tw-ring-color);
   -webkit-box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
     var(--tw-shadow, 0 0 #0000);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
 .focus\:ring-2:focus {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width)
+    var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width))
+    var(--tw-ring-color);
   -webkit-box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
     var(--tw-shadow, 0 0 #0000);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
 .focus\:ring:focus {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width)
+    var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width))
+    var(--tw-ring-color);
   -webkit-box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
     var(--tw-shadow, 0 0 #0000);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
 .ring-primary-blue {
@@ -3611,12 +3478,10 @@ h6 {
   --tw-saturate: var(--tw-empty, /*!*/ /*!*/);
   --tw-sepia: var(--tw-empty, /*!*/ /*!*/);
   --tw-drop-shadow: var(--tw-empty, /*!*/ /*!*/);
-  -webkit-filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast)
-    var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate)
-    var(--tw-sepia) var(--tw-drop-shadow);
-  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast)
-    var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate)
-    var(--tw-sepia) var(--tw-drop-shadow);
+  -webkit-filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale)
+    var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale)
+    var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
 .blur {
@@ -3624,17 +3489,15 @@ h6 {
 }
 
 .transition {
-  -webkit-transition-property: background-color, border-color, color, fill,
-    stroke, opacity, -webkit-box-shadow, -webkit-transform, -webkit-filter,
+  -webkit-transition-property: background-color, border-color, color, fill, stroke, opacity,
+    -webkit-box-shadow, -webkit-transform, -webkit-filter, -webkit-backdrop-filter;
+  transition-property: background-color, border-color, color, fill, stroke, opacity,
+    -webkit-box-shadow, -webkit-transform, -webkit-filter, -webkit-backdrop-filter;
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow,
+    transform, filter, backdrop-filter;
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow,
+    transform, filter, backdrop-filter, -webkit-box-shadow, -webkit-transform, -webkit-filter,
     -webkit-backdrop-filter;
-  transition-property: background-color, border-color, color, fill, stroke,
-    opacity, -webkit-box-shadow, -webkit-transform, -webkit-filter,
-    -webkit-backdrop-filter;
-  transition-property: background-color, border-color, color, fill, stroke,
-    opacity, box-shadow, transform, filter, backdrop-filter;
-  transition-property: background-color, border-color, color, fill, stroke,
-    opacity, box-shadow, transform, filter, backdrop-filter, -webkit-box-shadow,
-    -webkit-transform, -webkit-filter, -webkit-backdrop-filter;
   -webkit-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   -webkit-transition-duration: 150ms;
@@ -3680,12 +3543,7 @@ h6 {
   }
 
   .sm\:bg-gradient-to-r {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -3696,10 +3554,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .sm\:bg-gradient-to-b {
@@ -3723,12 +3578,7 @@ h6 {
   }
 
   .sm\:bg-gradient-to-l {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -3779,13 +3629,7 @@ h6 {
   }
 
   .sm\:bg-gradient-purple {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -3814,12 +3658,7 @@ h6 {
   }
 
   .sm\:focus-within\:bg-gradient-to-r:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -3830,10 +3669,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .sm\:focus-within\:bg-gradient-to-b:focus-within {
@@ -3857,12 +3693,7 @@ h6 {
   }
 
   .sm\:focus-within\:bg-gradient-to-l:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -3913,13 +3744,7 @@ h6 {
   }
 
   .sm\:focus-within\:bg-gradient-purple:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -3948,12 +3773,7 @@ h6 {
   }
 
   .sm\:hover\:bg-gradient-to-r:hover {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -3964,10 +3784,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .sm\:hover\:bg-gradient-to-b:hover {
@@ -3991,12 +3808,7 @@ h6 {
   }
 
   .sm\:hover\:bg-gradient-to-l:hover {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -4047,13 +3859,7 @@ h6 {
   }
 
   .sm\:hover\:bg-gradient-purple:hover {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -4082,12 +3888,7 @@ h6 {
   }
 
   .sm\:disabled\:bg-gradient-to-r:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -4098,10 +3899,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .sm\:disabled\:bg-gradient-to-b:disabled {
@@ -4125,12 +3923,7 @@ h6 {
   }
 
   .sm\:disabled\:bg-gradient-to-l:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -4181,13 +3974,7 @@ h6 {
   }
 
   .sm\:disabled\:bg-gradient-purple:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -4650,12 +4437,7 @@ h6 {
   }
 
   .md\:bg-gradient-to-r {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -4666,10 +4448,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .md\:bg-gradient-to-b {
@@ -4693,12 +4472,7 @@ h6 {
   }
 
   .md\:bg-gradient-to-l {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -4749,13 +4523,7 @@ h6 {
   }
 
   .md\:bg-gradient-purple {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -4764,7 +4532,7 @@ h6 {
   }
 
   .md\:bg-onboarding {
-    background-image: url("~@/assets/img/onboarding-bg-lg.svg");
+    background-image: url('~@/assets/img/onboarding-bg-lg.svg');
   }
 
   .md\:focus-within\:bg-gradient-to-t:focus-within {
@@ -4788,12 +4556,7 @@ h6 {
   }
 
   .md\:focus-within\:bg-gradient-to-r:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -4804,10 +4567,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .md\:focus-within\:bg-gradient-to-b:focus-within {
@@ -4831,12 +4591,7 @@ h6 {
   }
 
   .md\:focus-within\:bg-gradient-to-l:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -4887,13 +4642,7 @@ h6 {
   }
 
   .md\:focus-within\:bg-gradient-purple:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -4922,12 +4671,7 @@ h6 {
   }
 
   .md\:hover\:bg-gradient-to-r:hover {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -4938,10 +4682,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .md\:hover\:bg-gradient-to-b:hover {
@@ -4965,12 +4706,7 @@ h6 {
   }
 
   .md\:hover\:bg-gradient-to-l:hover {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -5021,13 +4757,7 @@ h6 {
   }
 
   .md\:hover\:bg-gradient-purple:hover {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -5056,12 +4786,7 @@ h6 {
   }
 
   .md\:disabled\:bg-gradient-to-r:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -5072,10 +4797,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .md\:disabled\:bg-gradient-to-b:disabled {
@@ -5099,12 +4821,7 @@ h6 {
   }
 
   .md\:disabled\:bg-gradient-to-l:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -5155,13 +4872,7 @@ h6 {
   }
 
   .md\:disabled\:bg-gradient-purple:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -5644,12 +5355,7 @@ h6 {
   }
 
   .lg\:bg-gradient-to-r {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -5660,10 +5366,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .lg\:bg-gradient-to-b {
@@ -5687,12 +5390,7 @@ h6 {
   }
 
   .lg\:bg-gradient-to-l {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -5743,13 +5441,7 @@ h6 {
   }
 
   .lg\:bg-gradient-purple {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -5778,12 +5470,7 @@ h6 {
   }
 
   .lg\:focus-within\:bg-gradient-to-r:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -5794,10 +5481,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .lg\:focus-within\:bg-gradient-to-b:focus-within {
@@ -5821,12 +5505,7 @@ h6 {
   }
 
   .lg\:focus-within\:bg-gradient-to-l:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -5877,13 +5556,7 @@ h6 {
   }
 
   .lg\:focus-within\:bg-gradient-purple:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -5912,12 +5585,7 @@ h6 {
   }
 
   .lg\:hover\:bg-gradient-to-r:hover {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -5928,10 +5596,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .lg\:hover\:bg-gradient-to-b:hover {
@@ -5955,12 +5620,7 @@ h6 {
   }
 
   .lg\:hover\:bg-gradient-to-l:hover {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -6011,13 +5671,7 @@ h6 {
   }
 
   .lg\:hover\:bg-gradient-purple:hover {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -6046,12 +5700,7 @@ h6 {
   }
 
   .lg\:disabled\:bg-gradient-to-r:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -6062,10 +5711,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .lg\:disabled\:bg-gradient-to-b:disabled {
@@ -6089,12 +5735,7 @@ h6 {
   }
 
   .lg\:disabled\:bg-gradient-to-l:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -6145,13 +5786,7 @@ h6 {
   }
 
   .lg\:disabled\:bg-gradient-purple:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -6520,12 +6155,7 @@ h6 {
   }
 
   .xl\:bg-gradient-to-r {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -6536,10 +6166,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .xl\:bg-gradient-to-b {
@@ -6563,12 +6190,7 @@ h6 {
   }
 
   .xl\:bg-gradient-to-l {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -6619,13 +6241,7 @@ h6 {
   }
 
   .xl\:bg-gradient-purple {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -6654,12 +6270,7 @@ h6 {
   }
 
   .xl\:focus-within\:bg-gradient-to-r:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -6670,10 +6281,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .xl\:focus-within\:bg-gradient-to-b:focus-within {
@@ -6697,12 +6305,7 @@ h6 {
   }
 
   .xl\:focus-within\:bg-gradient-to-l:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -6753,13 +6356,7 @@ h6 {
   }
 
   .xl\:focus-within\:bg-gradient-purple:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -6788,12 +6385,7 @@ h6 {
   }
 
   .xl\:hover\:bg-gradient-to-r:hover {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -6804,10 +6396,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .xl\:hover\:bg-gradient-to-b:hover {
@@ -6831,12 +6420,7 @@ h6 {
   }
 
   .xl\:hover\:bg-gradient-to-l:hover {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -6887,13 +6471,7 @@ h6 {
   }
 
   .xl\:hover\:bg-gradient-purple:hover {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -6922,12 +6500,7 @@ h6 {
   }
 
   .xl\:disabled\:bg-gradient-to-r:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -6938,10 +6511,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .xl\:disabled\:bg-gradient-to-b:disabled {
@@ -6965,12 +6535,7 @@ h6 {
   }
 
   .xl\:disabled\:bg-gradient-to-l:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -7021,13 +6586,7 @@ h6 {
   }
 
   .xl\:disabled\:bg-gradient-purple:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -7343,12 +6902,7 @@ h6 {
   }
 
   .\32xl\:bg-gradient-to-r {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -7359,10 +6913,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .\32xl\:bg-gradient-to-b {
@@ -7386,12 +6937,7 @@ h6 {
   }
 
   .\32xl\:bg-gradient-to-l {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -7442,13 +6988,7 @@ h6 {
   }
 
   .\32xl\:bg-gradient-purple {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -7477,12 +7017,7 @@ h6 {
   }
 
   .\32xl\:focus-within\:bg-gradient-to-r:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -7493,10 +7028,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .\32xl\:focus-within\:bg-gradient-to-b:focus-within {
@@ -7520,12 +7052,7 @@ h6 {
   }
 
   .\32xl\:focus-within\:bg-gradient-to-l:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -7576,13 +7103,7 @@ h6 {
   }
 
   .\32xl\:focus-within\:bg-gradient-purple:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -7611,12 +7132,7 @@ h6 {
   }
 
   .\32xl\:hover\:bg-gradient-to-r:hover {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -7627,10 +7143,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .\32xl\:hover\:bg-gradient-to-b:hover {
@@ -7654,12 +7167,7 @@ h6 {
   }
 
   .\32xl\:hover\:bg-gradient-to-l:hover {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -7710,13 +7218,7 @@ h6 {
   }
 
   .\32xl\:hover\:bg-gradient-purple:hover {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -7745,12 +7247,7 @@ h6 {
   }
 
   .\32xl\:disabled\:bg-gradient-to-r:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -7761,10 +7258,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .\32xl\:disabled\:bg-gradient-to-b:disabled {
@@ -7788,12 +7282,7 @@ h6 {
   }
 
   .\32xl\:disabled\:bg-gradient-to-l:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -7844,13 +7333,7 @@ h6 {
   }
 
   .\32xl\:disabled\:bg-gradient-purple:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -8172,12 +7655,7 @@ h6 {
   }
 
   .xs\:bg-gradient-to-r {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -8188,10 +7666,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .xs\:bg-gradient-to-b {
@@ -8215,12 +7690,7 @@ h6 {
   }
 
   .xs\:bg-gradient-to-l {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -8271,13 +7741,7 @@ h6 {
   }
 
   .xs\:bg-gradient-purple {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -8306,12 +7770,7 @@ h6 {
   }
 
   .xs\:focus-within\:bg-gradient-to-r:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -8322,10 +7781,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .xs\:focus-within\:bg-gradient-to-b:focus-within {
@@ -8349,12 +7805,7 @@ h6 {
   }
 
   .xs\:focus-within\:bg-gradient-to-l:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -8405,13 +7856,7 @@ h6 {
   }
 
   .xs\:focus-within\:bg-gradient-purple:focus-within {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -8440,12 +7885,7 @@ h6 {
   }
 
   .xs\:hover\:bg-gradient-to-r:hover {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -8456,10 +7896,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .xs\:hover\:bg-gradient-to-b:hover {
@@ -8483,12 +7920,7 @@ h6 {
   }
 
   .xs\:hover\:bg-gradient-to-l:hover {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -8539,13 +7971,7 @@ h6 {
   }
 
   .xs\:hover\:bg-gradient-purple:hover {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 
@@ -8574,12 +8000,7 @@ h6 {
   }
 
   .xs\:disabled\:bg-gradient-to-r:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      right top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, left top, right top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
@@ -8590,10 +8011,7 @@ h6 {
       right bottom,
       from(var(--tw-gradient-stops))
     );
-    background-image: linear-gradient(
-      to bottom right,
-      var(--tw-gradient-stops)
-    );
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 
   .xs\:disabled\:bg-gradient-to-b:disabled {
@@ -8617,12 +8035,7 @@ h6 {
   }
 
   .xs\:disabled\:bg-gradient-to-l:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      right top,
-      left top,
-      from(var(--tw-gradient-stops))
-    );
+    background-image: -webkit-gradient(linear, right top, left top, from(var(--tw-gradient-stops)));
     background-image: linear-gradient(to left, var(--tw-gradient-stops));
   }
 
@@ -8673,13 +8086,7 @@ h6 {
   }
 
   .xs\:disabled\:bg-gradient-purple:disabled {
-    background-image: -webkit-gradient(
-      linear,
-      left top,
-      left bottom,
-      from(#8631a0),
-      to(#360b4c)
-    );
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#8631a0), to(#360b4c));
     background-image: linear-gradient(#8631a0 0%, #360b4c 100%);
   }
 

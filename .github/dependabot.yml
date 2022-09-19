@@ -11,105 +11,105 @@ version: 2
 
 updates:
   # Root package.json
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "04:00"
+      interval: 'weekly'
+      day: 'monday'
+      time: '04:00'
       # Use Eastern Standard Time (UTC -05:00)
-      timezone: "America/Toronto"
+      timezone: 'America/Toronto'
     open-pull-requests-limit: 1
     commit-message:
-      prefix: "chore(deps): "
+      prefix: 'chore(deps): '
     labels:
-      - "dependencies"
-      - "area: UI"
+      - 'dependencies'
+      - 'area: UI'
 
   # Wallet Web package.json
-  - package-ecosystem: "npm"
-    directory: "/cmd/wallet-web"
+  - package-ecosystem: 'npm'
+    directory: '/cmd/wallet-web'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
       # By default, the time is set to 05:00
-      timezone: "America/Toronto"
+      timezone: 'America/Toronto'
     open-pull-requests-limit: 1
     commit-message:
-      prefix: "chore(deps): "
+      prefix: 'chore(deps): '
     labels:
-      - "dependencies"
-      - "area: UI"
+      - 'dependencies'
+      - 'area: UI'
 
   # UI Automation package.json
-  - package-ecosystem: "npm"
-    directory: "/test/ui-automation"
+  - package-ecosystem: 'npm'
+    directory: '/test/ui-automation'
     schedule:
-      interval: "weekly"
-      day: "tuesday"
-      time: "04:00"
-      timezone: "America/Toronto"
+      interval: 'weekly'
+      day: 'tuesday'
+      time: '04:00'
+      timezone: 'America/Toronto'
     open-pull-requests-limit: 1
     commit-message:
-      prefix: "chore(deps): "
+      prefix: 'chore(deps): '
     labels:
-      - "dependencies"
-      - "area: integration tests"
+      - 'dependencies'
+      - 'area: integration tests'
 
   # Demo Login Consent Server go.mod
-  - package-ecosystem: "gomod"
-    directory: "/test/mock/demo-login-consent-server"
+  - package-ecosystem: 'gomod'
+    directory: '/test/mock/demo-login-consent-server'
     schedule:
-      interval: "weekly"
-      day: "wednesday"
-      timezone: "America/Toronto"
+      interval: 'weekly'
+      day: 'wednesday'
+      timezone: 'America/Toronto'
     open-pull-requests-limit: 1
     commit-message:
-      prefix: "chore(deps): "
+      prefix: 'chore(deps): '
     labels:
-      - "dependencies"
-      - "area: backend"
+      - 'dependencies'
+      - 'area: backend'
 
   # Wallet Web Dockerfile
-  - package-ecosystem: "docker"
-    directory: "/images/wallet-web"
+  - package-ecosystem: 'docker'
+    directory: '/images/wallet-web'
     schedule:
-      interval: "weekly"
-      day: "thursday"
-      time: "04:00"
-      timezone: "America/Toronto"
+      interval: 'weekly'
+      day: 'thursday'
+      time: '04:00'
+      timezone: 'America/Toronto'
     open-pull-requests-limit: 1
     commit-message:
-      prefix: "chore(deps): "
+      prefix: 'chore(deps): '
     labels:
-      - "dependencies"
-      - "area: docker"
+      - 'dependencies'
+      - 'area: docker'
 
   # Demo Login Consent Server Dockerfile
-  - package-ecosystem: "docker"
-    directory: "/test/mock/demo-login-consent-server/image"
+  - package-ecosystem: 'docker'
+    directory: '/test/mock/demo-login-consent-server/image'
     schedule:
-      interval: "weekly"
-      day: "thursday"
-      time: "06:00"
-      timezone: "America/Toronto"
+      interval: 'weekly'
+      day: 'thursday'
+      time: '06:00'
+      timezone: 'America/Toronto'
     open-pull-requests-limit: 1
     commit-message:
-      prefix: "chore(deps): "
+      prefix: 'chore(deps): '
     labels:
-      - "dependencies"
-      - "area: docker"
+      - 'dependencies'
+      - 'area: docker'
 
   # GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "friday"
-      timezone: "America/Toronto"
+      interval: 'weekly'
+      day: 'friday'
+      timezone: 'America/Toronto'
     open-pull-requests-limit: 1
     commit-message:
-      prefix: "chore(deps): "
+      prefix: 'chore(deps): '
     labels:
-      - "dependencies"
-      - "area: CI/CD"
+      - 'dependencies'
+      - 'area: CI/CD'

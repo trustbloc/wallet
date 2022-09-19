@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-version: "2"
+version: '2'
 
 services:
   vcwallet.trustbloc.local:
@@ -97,7 +97,7 @@ services:
       - ${MEDIATOR_API_PORT}:${MEDIATOR_API_PORT}
       - ${MEDIATOR_HTTP_INBOUND_PORT}:${MEDIATOR_HTTP_INBOUND_PORT}
       - ${MEDIATOR_WS_INBOUND_PORT}:${MEDIATOR_WS_INBOUND_PORT}
-    entrypoint: ""
+    entrypoint: ''
     command: /bin/sh -c "mediator start"
     volumes:
       - ../keys/tls:/etc/tls
@@ -127,7 +127,7 @@ services:
       - ${MEDIATOR2_API_PORT}:${MEDIATOR2_API_PORT}
       - ${MEDIATOR2_HTTP_INBOUND_PORT}:${MEDIATOR2_HTTP_INBOUND_PORT}
       - ${MEDIATOR2_WS_INBOUND_PORT}:${MEDIATOR2_WS_INBOUND_PORT}
-    entrypoint: ""
+    entrypoint: ''
     command: /bin/sh -c "mediator start"
     volumes:
       - ../keys/tls:/etc/tls

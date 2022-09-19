@@ -7,14 +7,14 @@ The license details are available at https://github.com/w3c-ccg/chapi-interop-te
 SPDX-License-Identifier: Apache-2.0
 */
 
-"use strict";
+'use strict';
 
 exports.chooseWallet = async ({ name }) => {
-  const chapiFrame = await $("iframe");
+  const chapiFrame = await $('iframe');
   await chapiFrame.waitForExist();
   await browser.switchToFrame(chapiFrame);
 
-  const rememberChoiceBtn = await $("span*=Remember");
+  const rememberChoiceBtn = await $('span*=Remember');
   await rememberChoiceBtn.waitForClickable();
   await rememberChoiceBtn.click();
 
@@ -22,30 +22,27 @@ exports.chooseWallet = async ({ name }) => {
   await demoWallet.waitForClickable();
   await demoWallet.click();
 
-  const innerWalletFrame = await $("iframe");
+  const innerWalletFrame = await $('iframe');
   await innerWalletFrame.waitForExist();
   await browser.switchToFrame(innerWalletFrame);
 
   let dialogs;
   await browser.waitUntil(async () => {
-    dialogs = await $$("dialog");
+    dialogs = await $$('dialog');
     return dialogs.length === 2;
   });
 
-  const innerWalletFrame2 = await dialogs[1].$("iframe");
+  const innerWalletFrame2 = await dialogs[1].$('iframe');
   await innerWalletFrame2.waitForExist();
   await browser.switchToFrame(innerWalletFrame2);
 };
 
 exports.allow = async () => {
-  const chapiFrame = await $("iframe");
+  const chapiFrame = await $('iframe');
   await chapiFrame.waitForExist();
-  await expect(chapiFrame).toHaveAttrContaining(
-    "src",
-    "https://authn.io/mediator"
-  );
+  await expect(chapiFrame).toHaveAttrContaining('src', 'https://authn.io/mediator');
   await browser.switchToFrame(chapiFrame);
-  const allowBtn = await $("button*=Allow");
+  const allowBtn = await $('button*=Allow');
   await allowBtn.waitForClickable();
   await allowBtn.click();
   await chapiFrame.waitForExist({ reverse: true });

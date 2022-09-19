@@ -26,13 +26,13 @@
     <a
       :id="id"
       tabindex="0"
-      class="flex flex-row justify-start items-center px-10 w-full h-16 focus:outline-none cursor-pointer"
+      class="flex h-16 w-full cursor-pointer flex-row items-center justify-start px-10 focus:outline-none"
       v-bind="$attrs"
       @click="handleClick($attrs)"
       @keyup.enter="handleClick($attrs)"
     >
-      <img v-if="icon" :src="iconUrl" class="w-8 h-8" />
-      <div v-else class="w-8 h-8" />
+      <img v-if="icon" :src="iconUrl" class="h-8 w-8" />
+      <div v-else class="h-8 w-8" />
       <span class="ml-4 text-lg text-neutrals-white">{{ heading }}</span>
     </a>
   </li>

@@ -5,25 +5,25 @@
 -->
 
 <template>
-  <div class="flex overflow-hidden relative justify-start items-start w-full h-full">
-    <div class="flex overflow-hidden flex-col grow justify-between items-center w-full h-full">
-      <div class="flex overflow-auto justify-center w-full">
+  <div class="relative flex h-full w-full items-start justify-start overflow-hidden">
+    <div class="flex h-full w-full grow flex-col items-center justify-between overflow-hidden">
+      <div class="flex w-full justify-center overflow-auto">
         <div
-          class="flex flex-col grow justify-start items-start py-8 px-5 w-full max-w-3xl h-full md:px-0"
+          class="flex h-full w-full max-w-3xl grow flex-col items-start justify-start py-8 px-5 md:px-0"
         >
           <span class="mb-6 text-3xl font-bold">{{ t('CHAPI.Share.shareCredential', 2) }}</span>
           <CredentialOverviewComponent
-            class="mb-5 waci-share-credential-overview-root"
+            class="waci-share-credential-overview-root mb-5"
             :credential="credential"
           >
             <template #bannerBottomContainer>
               <div
-                class="flex absolute flex-row justify-start items-start px-5 pt-13 pb-3 w-full bg-neutrals-white rounded-b-xl waci-share-credential-overview-vault"
+                class="waci-share-credential-overview-vault absolute flex w-full flex-row items-start justify-start rounded-b-xl bg-neutrals-white px-5 pt-13 pb-3"
               >
                 <span class="flex text-sm font-bold text-neutrals-dark">
                   {{ t('CredentialDetails.Banner.vault') }}
                 </span>
-                <span class="flex ml-3 text-sm text-neutrals-medium">
+                <span class="ml-3 flex text-sm text-neutrals-medium">
                   {{ credential?.vaultName }}
                 </span>
               </div>

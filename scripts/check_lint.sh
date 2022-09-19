@@ -9,5 +9,5 @@ set -e
 
 echo "Running $0"
 
-echo "Linting wallet-web..."
-(cd $(pwd)/cmd/wallet-web && npm install && npm run lint)
+echo "Checking linter..."
+(cd $(pwd) && npm install && npm run lint-check)

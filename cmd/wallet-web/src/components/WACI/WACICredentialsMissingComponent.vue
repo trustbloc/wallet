@@ -5,12 +5,12 @@
 -->
 
 <template>
-  <div class="flex flex-col justify-start items-center py-16 px-5">
+  <div class="flex flex-col items-center justify-start py-16 px-5">
     <img src="@/assets/img/icons-error.svg" />
-    <span class="mt-5 mb-3 text-xl font-bold text-center text-neutrals-dark">{{
+    <span class="mt-5 mb-3 text-center text-xl font-bold text-neutrals-dark">{{
       t('CHAPI.Share.CredentialsMissing.heading')
     }}</span>
-    <span class="text-lg text-center text-neutrals-medium">{{
+    <span class="text-center text-lg text-neutrals-medium">{{
       t('CHAPI.Share.CredentialsMissing.body')
     }}</span>
     <StyledButtonComponent

@@ -199,36 +199,6 @@ export class WalletGetByQuery {
   }
 }
 
-// retainOnlySelected retain only selected VCs and their respective descriptors
-function retainOnlySelected(presentationSubmission, selectedIndexes) {
-  let descriptors = [];
-  let vcs = [];
-
-  let vcCount = 0;
-  selectedIndexes.forEach(function (selected, index) {
-    presentationSubmission.verifiableCredential.forEach(function (vc, vcIndex) {
-      if (selected && index == vcIndex) {
-        vcs.push(vc);
-
-        let vcDescrs = jp.query(
-          presentationSubmission,
-          `$.presentation_submission.descriptor_map[?(@.path=="$.verifiableCredential[${vcIndex}]")].id`
-        );
-        vcDescrs.forEach(function (id) {
-          descriptors.push({ id, path: `$.verifiableCredential[${vcCount}]` });
-        });
-
-        vcCount++;
-      }
-    });
-  });
-
-  presentationSubmission.verifiableCredential = vcs;
-  presentationSubmission.presentation_submission.descriptor_map = descriptors;
-
-  return presentationSubmission;
-}
-
 function waitForCredentials(agent, pool) {
   let processed = 0;
   // eslint-disable-next-line no-async-promise-executor

@@ -6,9 +6,9 @@
 
 <template>
   <div
-    class="flex sticky bottom-0 z-20 flex-row justify-center items-center py-4 px-5 w-full bg-neutrals-magnolia border-t border-neutrals-thistle"
+    class="sticky bottom-0 z-20 flex w-full flex-row items-center justify-center border-t border-neutrals-thistle bg-neutrals-magnolia py-4 px-5"
   >
-    <div class="flex flex-row grow justify-between items-center w-full max-w-3xl">
+    <div class="flex w-full max-w-3xl grow flex-row items-center justify-between">
       <slot name="leftButton" />
       <slot name="rightButton" />
     </div>

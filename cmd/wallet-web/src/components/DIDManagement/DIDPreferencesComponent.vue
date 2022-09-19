@@ -5,8 +5,8 @@
 -->
 
 <template>
-  <div class="flex flex-col justify-start items-start py-8">
-    <div class="flex flex-col justify-start items-start w-full">
+  <div class="flex flex-col items-start justify-start py-8">
+    <div class="flex w-full flex-col items-start justify-start">
       <label for="did-selector" class="mb-1 text-base">Update Identity:</label>
       <select
         v-if="allDIDs.length"
@@ -20,7 +20,7 @@
       </select>
     </div>
 
-    <div class="flex flex-col grow justify-start items-start w-full">
+    <div class="flex w-full grow flex-col items-start justify-start">
       <label for="verification-method" class="mb-1 text-base">Key ID:</label>
       <select
         id="verification-method"
@@ -35,12 +35,12 @@
       </select>
     </div>
 
-    <div class="flex flex-col grow justify-start items-start w-full">
+    <div class="flex w-full grow flex-col items-start justify-start">
       <label for="signature-type-selector" class="mb-1 text-base">Update Signature Type:</label>
       <div
         v-for="signatureType in allSignatureTypes"
         :key="signatureType.id"
-        class="flex flex-row justify-start items-center"
+        class="flex flex-row items-center justify-start"
       >
         <input
           :id="['signature-type-selector-', signatureType.id]"

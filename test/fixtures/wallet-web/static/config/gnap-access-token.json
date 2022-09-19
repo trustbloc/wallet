@@ -1,6 +1,3 @@
 {
-	"access": [
-		"userdata-access",
-		"kms-access"
-	]
+  "access": ["userdata-access", "kms-access"]
 }

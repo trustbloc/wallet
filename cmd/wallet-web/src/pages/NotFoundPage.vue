@@ -37,20 +37,20 @@ function handleClick() {
 
 <template>
   <div
-    class="flex flex-col grow justify-start items-center mx-auto max-w-7xl h-screen max-h-screen shadow-main-container"
+    class="mx-auto flex h-screen max-h-screen max-w-7xl grow flex-col items-center justify-start shadow-main-container"
   >
     <HeaderComponent :has-custom-gradient="true" :show-menu-dropdown="false">
       <template #gradientContainer>
-        <div class="absolute h-15 bg-gradient-full oval" />
+        <div class="oval absolute h-15 bg-gradient-full" />
       </template>
     </HeaderComponent>
     <div
-      class="flex overflow-hidden relative z-10 flex-col grow justify-start items-center px-6 pt-32 w-full h-full bg-neutrals-softWhite"
+      class="relative z-10 flex h-full w-full grow flex-col items-center justify-start overflow-hidden bg-neutrals-softWhite px-6 pt-32"
     >
       <ErrorIcon />
-      <span class="text-neutrals-dark mt-6 text-3xl text-center">{{ title }}</span>
-      <span class="mx-2 mt-2 text-base text-center text-neutrals-medium">
-        <span class="text-neutrals-medium mx-2 mt-2 text-center text-base">
+      <span class="mt-6 text-center text-3xl text-neutrals-dark">{{ title }}</span>
+      <span class="mx-2 mt-2 text-center text-base text-neutrals-medium">
+        <span class="mx-2 mt-2 text-center text-base text-neutrals-medium">
           {{ message }}
         </span>
       </span>
@@ -60,7 +60,7 @@ function handleClick() {
     </div>
     <FooterComponent
       v-if="!(breakpoints.xs || breakpoints.sm)"
-      class="sticky bottom-0 z-20 bg-neutrals-magnolia border-t border-neutrals-thistle"
+      class="sticky bottom-0 z-20 border-t border-neutrals-thistle bg-neutrals-magnolia"
     />
   </div>
 </template>

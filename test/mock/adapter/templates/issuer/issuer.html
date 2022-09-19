@@ -11,8 +11,8 @@ SPDX-License-Identifier: Apache-2.0
     <meta charset="utf-8" />
     <title>Demo Issuer</title>
     <script type="text/javascript">
-      function submitAction( action ){
-        document.getElementById("waci-issuance-form").action = action
+      function submitAction(action) {
+        document.getElementById('waci-issuance-form').action = action;
       }
     </script>
   </head>
@@ -24,8 +24,10 @@ SPDX-License-Identifier: Apache-2.0
 
     <ul>
       <li id="waci"><a href="/issuer/waci">Wallet and Credential Interaction (WACI)</a></li>
-      <li id="oidc"><a href="/issuer/oidc">OpenID Connect for Verifiable Credential Issuance (OIDC)</a></li>
+      <li id="oidc">
+        <a href="/issuer/oidc">OpenID Connect for Verifiable Credential Issuance (OIDC)</a>
+      </li>
       <li id="chapi"><a href="/web-wallet">Credential Handler API (CHAPI)</a></li>
     </ul>
-</body>
+  </body>
 </html>

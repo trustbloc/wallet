@@ -5,7 +5,7 @@
 -->
 
 <template>
-  <div v-if="!showMainState" class="flex flex-col grow justify-center items-center w-full h-full">
+  <div v-if="!showMainState" class="flex h-full w-full grow flex-col items-center justify-center">
     <!-- Loading State -->
     <WACILoadingComponent v-if="loading" />
 
@@ -31,10 +31,10 @@
   </div>
 
   <!-- Main State -->
-  <div v-else class="flex overflow-hidden flex-col grow justify-between items-center w-full h-full">
-    <div class="flex overflow-auto justify-center w-full">
+  <div v-else class="flex h-full w-full grow flex-col items-center justify-between overflow-hidden">
+    <div class="flex w-full justify-center overflow-auto">
       <div
-        class="flex flex-col grow justify-start items-start py-8 px-5 w-full max-w-3xl h-full md:px-0"
+        class="flex h-full w-full max-w-3xl grow flex-col items-start justify-start py-8 px-5 md:px-0"
       >
         <span class="mb-6 text-3xl font-bold">{{ t('WACI.Issue.saveCredential') }}</span>
 
@@ -44,7 +44,7 @@
         >
           <template #bannerBottomContainer>
             <div
-              class="flex flex-col grow justify-start items-start px-4 mt-5 w-full bg-neutrals-lilacSoft rounded-t-lg border-b border-neutrals-dark"
+              class="mt-5 flex w-full grow flex-col items-start justify-start rounded-t-lg border-b border-neutrals-dark bg-neutrals-lilacSoft px-4"
             >
               <label for="select-key" class="mb-1 text-sm font-bold text-neutrals-dark">{{
                 t('Vaults.selectVault')
@@ -144,14 +144,14 @@ export default {
     const defVault = this.fetchAllVaults(token, collectionManager);
     this.didcomm = new DIDComm({ agent: this.getAgentInstance(), user });
     try {
-      const { threadID, presentations, response, manifest, domain, challenge, error } =
+      const { threadID, response, manifest, domain, challenge, error } =
         await this.didcomm.initiateCredentialIssuance(token, invitation, {
           userAnyRouterConnection: true,
         });
 
       // business error
       if (error) {
-        const { status, url, code } = error;
+        const { url } = error;
         if (url) {
           this.protocolHandler.done(url);
         }

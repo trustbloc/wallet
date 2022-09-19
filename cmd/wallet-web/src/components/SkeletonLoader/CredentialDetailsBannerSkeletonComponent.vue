@@ -10,21 +10,21 @@ import CredentialPreviewSkeletonComponent from './CredentialPreviewSkeletonCompo
 const numOfSkeletons = ref(4);
 </script>
 <template>
-  <div class="flex flex-col justify-start items-start px-3 pt-10 w-full md:px-0">
+  <div class="flex w-full flex-col items-start justify-start px-3 pt-10 md:px-0">
     <CredentialPreviewSkeletonComponent :is-tall="true" />
     <div
-      class="flex relative flex-col px-6 pt-12 pb-4 mb-1 w-full bg-neutrals-white rounded-b-xl lg:flex-row lg:pt-14 lg:pb-6 sub-container"
+      class="sub-container relative mb-1 flex w-full flex-col rounded-b-xl bg-neutrals-white px-6 pt-12 pb-4 lg:flex-row lg:pt-14 lg:pb-6"
     >
       <div
         v-for="id in numOfSkeletons"
         :key="`cred-details-skeleton-${id}`"
-        class="justify-start items-center lg:w-1/2"
+        class="items-center justify-start lg:w-1/2"
       >
         <div
-          class="overflow-hidden relative mt-2 w-20 h-4 bg-neutrals-softWhite rounded-3xl skeleton-data"
+          class="skeleton-data relative mt-2 h-4 w-20 overflow-hidden rounded-3xl bg-neutrals-softWhite"
         />
         <div
-          class="overflow-hidden relative mt-2 w-2/5 h-5 bg-neutrals-softWhite rounded-3xl lg:w-32 skeleton-data"
+          class="skeleton-data relative mt-2 h-5 w-2/5 overflow-hidden rounded-3xl bg-neutrals-softWhite lg:w-32"
         />
       </div>
     </div>

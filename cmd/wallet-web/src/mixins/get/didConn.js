@@ -4,7 +4,7 @@ Copyright SecureKey Technologies Inc. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-import { CHAPIEventHandler, prepareCredentialManifest } from '../';
+import { prepareCredentialManifest } from '../';
 import { BlindedRouter, CredentialManager, DIDComm } from '@trustbloc/wallet-sdk';
 import jp from 'jsonpath';
 

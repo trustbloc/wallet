@@ -44,7 +44,7 @@ export default [
             meta: { requiresAuth: true },
           },
           {
-            path: 'credentials/:id',
+            path: 'credentials/:id/:vaultName',
             name: 'credential-details',
             component: load('pages/CredentialDetailsPage'),
             meta: { requiresAuth: true },

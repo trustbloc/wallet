@@ -8,13 +8,13 @@
   <ModalComponent :show="showModal" :show-close-button="true" @close="handleClose">
     <template #content>
       <div
-        class="flex justify-between items-center py-4 px-8 w-full border-b-2 border-neutrals-thistle"
+        class="flex w-full items-center justify-between border-b-2 border-neutrals-thistle py-4 px-8"
       >
         <span class="text-lg font-bold text-neutrals-dark">
           {{ t('Vaults.RenameModal.renameVault') }}
         </span>
       </div>
-      <div class="flex items-center px-8 pt-10 w-full">
+      <div class="flex w-full items-center px-8 pt-10">
         <InputFieldComponent
           v-model="vaultName"
           type="text"

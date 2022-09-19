@@ -4,12 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-name: "wallet release"
+name: 'wallet release'
 
 on:
   push:
     tags:
-      - "v*"
+      - 'v*'
 jobs:
   publish:
     name: Publish image
@@ -36,7 +36,7 @@ jobs:
           echo '@hyperledger:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc-cicd:registry=https://npm.pkg.github.com' >> ~/.npmrc
           echo '@trustbloc:registry=https://npm.pkg.github.com' >> ~/.npmrc
-          make wallet-web
+          make build-wallet-web
         env:
           DOCKER_USER: ${{ secrets.CR_USER }}
           DOCKER_PASSWORD: ${{ secrets.CR_PAT }}
