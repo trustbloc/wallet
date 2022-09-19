@@ -76,7 +76,7 @@ export default {
   setup(props, { attrs }) {
     const { value, label, submitted } = toRefs(props);
     const characterCount = computed(() =>
-      value ? value.value.length + '/' + attrs['maxlength'] : 0 + '/' + attrs['maxlength']
+      value.value ? value.value.length + '/' + attrs['maxlength'] : 0 + '/' + attrs['maxlength']
     );
     const name = computed(() => label.value.toLowerCase());
     const id = computed(() => {

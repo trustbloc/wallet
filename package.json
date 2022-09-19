@@ -33,7 +33,7 @@
     "eslint-plugin-mocha": "^10.1.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-tailwindcss": "^3.6.0",
-    "eslint-plugin-vue": "^9.3.0",
+    "eslint-plugin-vue": "^9.5.1",
     "eslint-plugin-wdio": "^7.20.8",
     "husky": "^8.0.1",
     "prettier": "^2.7.1",
