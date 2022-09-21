@@ -294,12 +294,18 @@ export default {
     },
     async generateVPToken() {
       const { controller } = this.getCurrentUser().preference;
-      const { presentation } = await this.credentialManager.present(
-        this.token,
-        { rawCredentials: this.presentations[0].verifiableCredential },
-        { controller }
-      );
-      this.vpToken = encodeURIComponent(JSON.stringify(presentation));
+      try {
+        const { presentation } = await this.credentialManager.present(
+          this.token,
+          { rawCredentials: this.presentations[0].verifiableCredential },
+          { controller }
+        );
+        console.log('presentation', presentation);
+        this.vpToken = encodeURIComponent(JSON.stringify(presentation));
+        console.log('vpToken', this.vpToken);
+      } catch (e) {
+        console.error('error sharing a credential:', e);
+      }
     },
     handleOverviewClick: function (id) {
       OIDCMutations.setSelectedCredentialId(id);
