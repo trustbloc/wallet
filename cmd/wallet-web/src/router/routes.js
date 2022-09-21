@@ -184,6 +184,11 @@ export default [
         name: 'block-no-auth',
         component: load('pages/BlockNoAuthPage'),
       },
+      {
+        path: 'initiateProtocol',
+        name: 'Initiate Protocol',
+        component: load('pages/InitiateProtocolPage'),
+      },
     ],
   },
   {
