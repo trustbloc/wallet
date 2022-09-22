@@ -56,6 +56,7 @@ services:
       - KMS_SECRET_LOCK_KEY_PATH=/etc/tls/secret-lock.key
       - KMS_CACHE_EXPIRATION=10m
       - KMS_LOG_LEVEL=debug
+      - KMS_AUTH_TYPE=GNAP
       - KMS_GNAP_SIGNING_KEY=/etc/gnap-kms-priv-key.pem
       - KMS_AUTH_SERVER_URL=https://auth.trustbloc.local:8044
       - KMS_CORS_ENABLE=true
