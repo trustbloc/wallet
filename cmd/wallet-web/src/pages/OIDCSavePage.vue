@@ -103,6 +103,8 @@ import {
   requestCredential,
   requestToken,
   resolveManifest,
+  parseJWTVC,
+  verifiableDataFormatCode,
 } from '@/mixins';
 import Cookies from 'js-cookie';
 import jp from 'jsonpath';
@@ -144,7 +146,10 @@ export default {
   created: async function () {
     this.loading = true;
 
-    const { user, token } = this.getCurrentUser().profile;
+    const { profile, preference } = this.getCurrentUser();
+    const { user, token } = profile;
+    const vcFormat = verifiableDataFormatCode(preference.proofFormat);
+
     this.token = token;
     this.credentialManager = new CredentialManager({ agent: this.getAgentInstance(), user });
     const collectionManager = new CollectionManager({ agent: this.getAgentInstance(), user });
@@ -174,6 +179,7 @@ export default {
           access_token,
           token_type,
           credentialType,
+          format: vcFormat,
         });
 
         const { processed, descriptorID, manifest } = await this.prepareCards(
@@ -202,18 +208,19 @@ export default {
       this.errors.length = 0;
       this.saving = true;
 
-      const { profile } = this.getCurrentUser();
+      const { profile, preference } = this.getCurrentUser();
+      const vcFormat = verifiableDataFormatCode(preference.proofFormat);
 
       this.saveData.forEach(({ credential, manifest, descriptorID }) => {
         this.credentialManager.save(
           profile.token,
-          { credentials: [credential] },
+          { credentials: [parseJWTVC(credential)] },
           {
             manifest,
             descriptorMap: [
               {
                 id: descriptorID,
-                format: 'ldp_vc',
+                format: vcFormat,
                 path: '$[0]',
               },
             ],

@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import jp from 'jsonpath';
 import { v4 as uuidv4 } from 'uuid';
-const { encodeURI } = require('js-base64');
+const { decode, encodeURI } = require('js-base64');
 import { PresentationExchange } from './presentationExchange';
 
 var flatten = require('flat');
@@ -90,6 +90,81 @@ export const isVPType = (type) => toLower(type) == 'verifiablepresentation';
 
 export const getCredentialType = (types) =>
   types.filter((type) => type != 'VerifiableCredential')[0];
+
+export function parseJWTVC(jwtVC) {
+  if (typeof jwtVC !== 'string') {
+    return jwtVC;
+  }
+
+  const split = jwtVC.split('.');
+
+  if (split.length < 2) {
+    throw 'jwt vc expected to be compact jwt';
+  }
+
+  const claims = JSON.parse(decode(split[1]));
+
+  const vc = claims.vc;
+
+  if (Object.prototype.hasOwnProperty.call(claims, 'jti')) {
+    vc.id = claims.jti;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(claims, 'iss')) {
+    if (Object.prototype.hasOwnProperty.call(vc, 'issuer')) {
+      if (typeof vc.issuer === 'string') {
+        vc.issuer = claims.iss;
+      } else if (typeof vc.issuer === 'object') {
+        vc.issuer.id = claims.iss;
+      }
+    } else {
+      vc.issuer = claims.iss;
+    }
+  }
+
+  const utcSecToISO = (secs) => new Date(secs * 1000).toISOString();
+
+  if (Object.prototype.hasOwnProperty.call(claims, 'iat')) {
+    vc.issuanceDate = utcSecToISO(claims.iat);
+  } else if (Object.prototype.hasOwnProperty.call(claims, 'nbf')) {
+    // fallback to nbf if iat not present
+    vc.issuanceDate = utcSecToISO(claims.nbf);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(claims, 'exp')) {
+    vc.expirationDate = utcSecToISO(claims.exp);
+  }
+
+  vc.jwt = jwtVC;
+
+  return vc;
+}
+
+// verifiableDataFormatCode cleans up a given format code to fit the regex `(jwt|ldp)_(vc|vp)`. Defaults to ldp_vc.
+export function verifiableDataFormatCode(rawFormatCode, isVP = false) {
+  const split = rawFormatCode.split('_');
+
+  const dataFormat = split[0] === 'jwt' ? 'jwt' : 'ldp';
+
+  let vcOrVP = isVP ? 'vp' : 'vc';
+
+  if (split.length > 1 && (split[1] === 'vc' || split[1] === 'vp')) {
+    vcOrVP = split[1];
+  }
+
+  return dataFormat + '_' + vcOrVP;
+}
+
+// toProofFormat returns the wallet ProofFormat string for the given format code (jwt/ldp). Treats invalid input as ldp.
+export function toProofFormat(formatCode) {
+  const dataFormat = formatCode.split('_')[0];
+
+  if (dataFormat === 'jwt') {
+    return 'ExternalJWTProofFormat';
+  } else {
+    return 'EmbeddedLDProofFormat';
+  }
+}
 
 function contextCacheClosure() {
   let contextCache = {};
@@ -337,6 +412,7 @@ export function prepareCredentialManifest(presentation, manifestDictionary, issu
     // prepare response,
     response.descriptor_map.push({
       id: entry['output_descriptors'][0].id,
+      // TODO: support jwt_vc
       format: 'ldp_vc',
       path: `$.verifiableCredential[${index}]`,
     });
@@ -371,7 +447,7 @@ export function resolveManifest(
   auth,
   { credentialID, credential, response, manifestID, manifest, descriptorID }
 ) {
-  const cred = credential || response.verifiableCredential[0];
+  const cred = parseJWTVC(credential || response.verifiableCredential[0]);
   const filledManifest = checkManifestForMissingFields(
     manifest,
     getCredentialType(cred.type),

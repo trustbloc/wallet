@@ -6,7 +6,6 @@ SPDX-License-Identifier: Apache-2.0
 
 import axios from 'axios';
 
-const format = 'ldp_vc';
 const responseType = 'code';
 const scope = 'openid';
 
@@ -29,7 +28,13 @@ export async function readOpenIDConfiguration(server) {
 /**
  * Performs OIDC issuer authorize redirect by reading give OIDC server configuration, initiate issuance params.
  */
-export function sendCredentialAuthorizeRequest(configuration, initiateRequest, callback, state) {
+export function sendCredentialAuthorizeRequest(
+  configuration,
+  initiateRequest,
+  callback,
+  state,
+  format = 'ldp_vc'
+) {
   if (!configuration.authorization_endpoint) {
     throw "unable to read 'authorization_endpoint' from OIDC server configuration";
   }

@@ -344,7 +344,7 @@ describe('TrustBloc Wallet - OIDC flow', function () {
     await shareBtn.waitForClickable();
     await shareBtn.click();
 
-    const tknText = await $('p*=VP_TOKEN');
+    const tknText = await $('p*=DECODED_VP_TOKEN');
     await expect(tknText).toExist();
     await expect(tknText).toHaveTextContaining('PermanentResidentCard');
 

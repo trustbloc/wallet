@@ -10,8 +10,13 @@
 
 <script>
 import { v4 as uuidv4 } from 'uuid';
-import { readOpenIDConfiguration, sendCredentialAuthorizeRequest } from '@/mixins';
+import {
+  readOpenIDConfiguration,
+  sendCredentialAuthorizeRequest,
+  verifiableDataFormatCode,
+} from '@/mixins';
 import Cookies from 'js-cookie';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'OIDCInitiateLayout',
@@ -28,13 +33,21 @@ export default {
           manifestID: manifest_id,
         })
       );
+
+      const { preference } = this.getCurrentUser();
+      const vcFormat = verifiableDataFormatCode(preference.proofFormat);
+
       sendCredentialAuthorizeRequest(
         configuration,
         this.$route.query,
         `${location.protocol}//${location.host}/oidc/save`,
-        opState
+        opState,
+        vcFormat
       );
     }
+  },
+  methods: {
+    ...mapGetters(['getCurrentUser']),
   },
 };
 </script>

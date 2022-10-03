@@ -112,6 +112,7 @@
 import { mapGetters } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { decode, encode } from 'js-base64';
+import { toProofFormat, parseJWTVC } from '@/mixins';
 import { CollectionManager, CredentialManager } from '@trustbloc/wallet-sdk';
 import { OIDCMutations } from '@/layouts/OIDCLayout.vue';
 import { OIDCShareLayoutMutations } from '@/layouts/OIDCShareLayout.vue';
@@ -225,8 +226,9 @@ export default {
           []
         );
         await credentials.map(async (credential) => {
+          const cred = parseJWTVC(credential);
           const { id, collection, name, issuanceDate, resolved } =
-            await this.credentialManager.getCredentialMetadata(this.token, credential.id);
+            await this.credentialManager.getCredentialMetadata(this.token, cred.id);
           const {
             content: { name: vaultName },
           } = await this.collectionManager.get(this.token, collection);
@@ -293,11 +295,11 @@ export default {
       this.idToken = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
     },
     async generateVPToken() {
-      const { controller } = this.getCurrentUser().preference;
+      const { controller, proofFormat } = this.getCurrentUser().preference;
       const { presentation } = await this.credentialManager.present(
         this.token,
         { rawCredentials: this.presentations[0].verifiableCredential },
-        { controller }
+        { controller, proofFormat: toProofFormat(proofFormat) }
       );
       this.vpToken = encodeURIComponent(JSON.stringify(presentation));
     },
