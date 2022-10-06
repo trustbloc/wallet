@@ -91,7 +91,7 @@ export class RegisterWallet {
     let controller = docres.didDocument.id;
 
     let walletUser = new WalletUser({ agent: this.agent, user });
-    await walletUser.savePreferences(token, { name, controller, proofType });
+    await walletUser.savePreferences(token, { name, controller, proofType, proofFormat: 'jwt_vc' });
     console.timeEnd('time tracking: create did time');
   }
 

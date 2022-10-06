@@ -458,7 +458,7 @@ func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
 
 	logger.Infof("oidc share callback : _vp_token=%v vp_token=%s", string(presSubBytes), vpToken)
 
-	_, err = verifiable.ParsePresentation([]byte(vpToken), verifiable.WithPresJSONLDDocumentLoader(ld.NewDefaultDocumentLoader(nil)), verifiable.WithPresDisabledProofCheck())
+	pres, err := verifiable.ParsePresentation([]byte(vpToken), verifiable.WithPresJSONLDDocumentLoader(ld.NewDefaultDocumentLoader(nil)), verifiable.WithPresDisabledProofCheck())
 	if err != nil {
 		loadTemplate(w, oidcVerifierHTML,
 			map[string]interface{}{
@@ -472,12 +472,17 @@ func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	pres.JWT = ""
+
+	presBytes, _ := pres.MarshalJSON()
+
 	loadTemplate(w, oidcVerifierHTML,
 		map[string]interface{}{
 			"Msg":                       "Successfully Received Presentation",
 			"ID_TOKEN":                  "\n" + idToken,
 			"DECODED_VPDEF_IN_ID_TOKEN": string(presSubBytes),
 			"VP_TOKEN":                  string(vpToken),
+			"DECODED_VP_TOKEN":          string(presBytes),
 		},
 	)
 }
@@ -758,7 +763,7 @@ func (v *adapterApp) issuerCredentialEndpoint(w http.ResponseWriter, r *http.Req
 	format := r.FormValue("format")
 	credentialType := r.FormValue("type")
 
-	if format != "" && format != "ldp_vc" {
+	if format != "" && format != "ldp_vc" && format != "jwt_vc" {
 		sendOIDCErrorResponse(w, "unsupported format requested", http.StatusBadRequest)
 		return
 	}
@@ -800,16 +805,35 @@ func (v *adapterApp) issuerCredentialEndpoint(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = signCredentialWithED25519(credential)
-	if err != nil {
-		sendOIDCErrorResponse(w, "failed to issue credential", http.StatusInternalServerError)
-		return
-	}
+	var credBytes []byte
 
-	credBytes, err := credential.MarshalJSON()
-	if err != nil {
-		sendOIDCErrorResponse(w, "failed to write credential bytes", http.StatusInternalServerError)
-		return
+	switch format {
+	case "", "ldp", "ldp_vc":
+		err = signCredentialWithED25519(credential)
+		if err != nil {
+			sendOIDCErrorResponse(w, "failed to issue credential", http.StatusInternalServerError)
+			return
+		}
+
+		credBytes, err = credential.MarshalJSON()
+		if err != nil {
+			sendOIDCErrorResponse(w, "failed to write credential bytes", http.StatusInternalServerError)
+			return
+		}
+	case "jwt", "jwt_vc":
+		claims, err := credential.JWTClaims(false)
+		if err != nil {
+			sendOIDCErrorResponse(w, "failed to create credential claims", http.StatusInternalServerError)
+			return
+		}
+
+		jws, err := signJWTCredentialWithED25519(claims)
+		if err != nil {
+			sendOIDCErrorResponse(w, "failed to issue JWT credential", http.StatusInternalServerError)
+			return
+		}
+
+		credBytes = []byte("\"" + jws + "\"")
 	}
 
 	response, err := json.Marshal(map[string]interface{}{
@@ -1136,6 +1160,13 @@ func signCredentialWithED25519(vc *verifiable.Credential) error {
 	}
 
 	return vc.AddLinkedDataProof(ldpContext, jsonld.WithDocumentLoader(ld.NewDefaultDocumentLoader(nil)))
+}
+
+func signJWTCredentialWithED25519(claims *verifiable.JWTCredClaims) (string, error) {
+	edPriv := ed25519.PrivateKey(base58.Decode(pkBase58))
+	edSigner := &edd25519Signer{edPriv}
+
+	return claims.MarshalJWS(verifiable.EdDSA, edSigner, kid)
 }
 
 func signPresentationWithED25519(vc *verifiable.Presentation) error {
