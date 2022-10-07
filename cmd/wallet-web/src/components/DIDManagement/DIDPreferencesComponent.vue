@@ -56,6 +56,27 @@
       </div>
     </div>
 
+    <div class="flex w-full grow flex-col items-start justify-start">
+      <label for="proof-format-selector" class="mb-1 text-base">Update Proof Format:</label>
+      <div
+        v-for="proofFormat in allProofFormats"
+        :key="proofFormat.id"
+        class="flex flex-row items-center justify-start"
+      >
+        <input
+          :id="['proof-format-selector-', proofFormat.id]"
+          v-model="selectedProofFormat"
+          :value="proofFormat.id"
+          type="radio"
+          name="Proof Format"
+          checked
+        />
+        <label :for="['proof-format-selector-', proofFormat.id]" class="pl-1"
+          >{{ String.prototype.toUpperCase.call(proofFormat.id) }}
+        </label>
+      </div>
+    </div>
+
     <StyledButtonComponent
       id="update-btn"
       class="mt-5"
@@ -99,8 +120,10 @@ export default {
     return {
       keyID: '',
       allSignatureTypes: [{ id: 'Ed25519Signature2018' }, { id: 'JsonWebSignature2020' }],
+      allProofFormats: [{ id: 'ldp' }, { id: 'jwt' }],
       selectedDID: '',
       selectedSignType: '',
+      selectedProofFormat: '',
       verificationMethod: '',
       updateSuccessful: false,
       loading: false,
@@ -110,11 +133,14 @@ export default {
   },
   computed: {
     preferencesChanged() {
-      const { controller, proofType, verificationMethod } = this.preference;
+      const { controller, proofType, proofFormat, verificationMethod } = this.preference;
       if (controller !== this.selectedDID) {
         return true;
       }
       if (proofType !== this.selectedSignType) {
+        return true;
+      }
+      if (proofFormat !== this.selectedProofFormat) {
         return true;
       }
       if (verificationMethod !== this.verificationMethod) {
@@ -145,6 +171,7 @@ export default {
       const { content } = await this.walletUser.getPreferences(this.getCurrentUser().profile.token);
       this.selectedDID = content.controller;
       this.selectedSignType = content.proofType;
+      this.selectedProofFormat = content.proofFormat;
       this.preference = {
         ...content,
         verificationMethod: content.verificationMethod ? content.verificationMethod : 'default',
@@ -158,6 +185,7 @@ export default {
         .updatePreferences(this.getCurrentUser().profile.token, {
           controller: this.selectedDID,
           proofType: this.selectedSignType,
+          proofFormat: this.selectedProofFormat,
           verificationMethod: this.verificationMethod !== 'default' ? this.verificationMethod : '',
         })
         .then(() => {
@@ -166,6 +194,7 @@ export default {
 
       this.preference.controller = this.selectedDID;
       this.preference.proofType = this.selectedSignType;
+      this.preference.proofFormat = this.selectedProofFormat;
       this.preference.verificationMethod = this.verificationMethod;
       this.loading = false;
       this.updateSuccessful = true;
