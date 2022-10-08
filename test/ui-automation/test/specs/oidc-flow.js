@@ -280,6 +280,9 @@ describe('TrustBloc Wallet - OIDC flow', function () {
     await wallet.signUp(ctx, browser.config.isCHAPIEnabled);
 
     await wallet.waitForCredentials();
+
+    // In this test, use JWT credentials instead of default JSON-LD, so both are tested.
+    await wallet.useJWTCredentials();
   });
 
   it(`User offered to save credential through OIDC Issuance: already signed-in`, async function () {

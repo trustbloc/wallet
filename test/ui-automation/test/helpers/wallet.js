@@ -44,6 +44,10 @@ exports.updatePreferences = async () => {
   await _updatePreferences();
 };
 
+exports.useJWTCredentials = async () => {
+  await _useJWTCredentials();
+};
+
 exports.authenticate = async ({ did }) => {
   await _didAuth({ method: did });
 };
@@ -337,6 +341,23 @@ async function _updatePreferences() {
   const jwkType = await $('label*=JsonWebSignature2020');
   await jwkType.waitForClickable();
   await jwkType.click();
+
+  const submit = await $('button*=Update Preferences');
+  await submit.waitForClickable();
+  await submit.click();
+
+  const successMessage = await $('#update-preferences-success');
+  await expect(successMessage).toExist();
+}
+
+async function _useJWTCredentials() {
+  const settingsTab = await $('a*=Settings');
+  await settingsTab.waitForClickable();
+  await settingsTab.click();
+
+  const ldpType = await $('label*=JWT');
+  await ldpType.waitForClickable();
+  await ldpType.click();
 
   const submit = await $('button*=Update Preferences');
   await submit.waitForClickable();
