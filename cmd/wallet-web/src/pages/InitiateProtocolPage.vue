@@ -1,8 +1,73 @@
 <!--
  * Copyright SecureKey Technologies Inc. All Rights Reserved.
+ * Copyright Avast Software. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
 -->
+
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import HeaderComponent from '@/components/Header/HeaderComponent.vue';
+import FooterComponent from '@/components/Footer/FooterComponent.vue';
+import StyledButtonComponent from '@/components/StyledButton/StyledButtonComponent.vue';
+import { QrcodeStream } from 'vue3-qrcode-reader';
+
+// Local Variables
+const initiateRequest = ref('');
+const loading = ref(false);
+const error = ref('');
+const decodedString = ref('');
+const loadingScanner = ref(false);
+
+// Hooks
+const router = useRouter();
+
+// Methods
+function initiateIssuanceFlow() {
+  const initiateRequestDataUrl = new URL(initiateRequest.value);
+  if (
+    initiateRequestDataUrl.protocol.includes('openid-initiate-issuance') ||
+    initiateRequestDataUrl.pathname.includes('initiate_issuance')
+  ) {
+    loading.value = true;
+    router.push({ name: 'save' });
+  }
+  // For presentation initiate messages
+  else if (
+    initiateRequestDataUrl.protocol.includes('openid-vc:') &&
+    initiateRequestDataUrl.searchParams.has('request_uri')
+  ) {
+    loading.value = true;
+    router.push({
+      name: 'openid4vc-share',
+      query: { url: initiateRequest.value },
+    });
+  }
+}
+async function onInit(promise) {
+  try {
+    await promise;
+  } catch (error) {
+    if (error.name === 'NotAllowedError') {
+      error.value = 'user denied camera access permission';
+    } else if (error.name === 'NotFoundError') {
+      error.value = 'no suitable camera device installed';
+    } else if (error.name === 'NotSupportedError') {
+      error.value = 'page is not served over HTTPS (or localhost)';
+    } else if (error.name === 'NotReadableError') {
+      error.value = 'maybe camera is already in use';
+    } else if (error.name === 'OverconstrainedError') {
+      error.value = 'did you requested the front camera although there is none?';
+    } else if (error.name === 'StreamApiNotSupportedError') {
+      error.value = 'browser seems to be lacking features';
+    }
+  }
+}
+function onDecode(decodedString) {
+  window.location.replace(decodedString);
+}
+</script>
 
 <template>
   <div
@@ -13,7 +78,7 @@
         <div class="oval absolute h-15 bg-gradient-full" />
       </template>
     </HeaderComponent>
-    <div class="grid grid-cols-2 w-full h-full divide-x">
+    <div class="grid h-full w-full grid-cols-2 divide-x">
       <div
         class="relative z-10 flex h-full w-full grow flex-col items-center justify-start overflow-hidden bg-neutrals-softWhite px-6 pt-32"
       >
@@ -22,7 +87,7 @@
           id="initiateIssuanceRequest"
           v-model="initiateRequest"
           placeholder="Paste Initiate URL"
-          class="w-full h-auto border-b"
+          class="h-auto w-full border-b"
         >
         </textarea>
         <StyledButtonComponent
@@ -41,7 +106,7 @@
         <h4>Scan a QR Code</h4>
         <img
           src="@/assets/img/qr-code-scan-icon.svg"
-          class="w-16 h-16"
+          class="h-16 w-16"
           @click="loadingScanner = !loadingScanner"
         />
         <div
@@ -50,7 +115,7 @@
         >
           <p v-if="error">Error: {{ error }}</p>
           <p>Result: {{ decodedString }}</p>
-          <qrcode-stream @init="onInit" @decode="onDecode" @detect="onDetect"></qrcode-stream>
+          <qrcode-stream @init="onInit" @decode="onDecode" @detect="onDetect" />
         </div>
       </div>
     </div>
@@ -60,70 +125,6 @@
     class="sticky bottom-0 z-20 border-t border-neutrals-thistle bg-neutrals-magnolia"
   />
 </template>
-<script>
-import HeaderComponent from '@/components/Header/HeaderComponent.vue';
-import FooterComponent from '@/components/Footer/FooterComponent.vue';
-import StyledButtonComponent from '@/components/StyledButton/StyledButtonComponent.vue';
-import { QrcodeStream } from 'vue3-qrcode-reader';
-
-export default {
-  name: 'InitiateProtocolPage',
-  components: {
-    StyledButtonComponent,
-    HeaderComponent,
-    FooterComponent,
-    QrcodeStream,
-  },
-  data() {
-    return {
-      initiateRequest: '',
-      loading: false,
-      error: '',
-      decodedString: '',
-      loadingScanner: false,
-    };
-  },
-  methods: {
-    initiateIssuanceFlow() {
-      const initiateRequestDataUrl = new URL(this.initiateRequest);
-      if (
-        initiateRequestDataUrl.protocol.includes('openid-initiate-issuance') ||
-        initiateRequestDataUrl.pathname.includes('initiate_issuance')
-      ) {
-        this.loading = true;
-        this.$router.push({ name: 'save' });
-      }
-      // For presentation initiate messages
-      if (initiateRequestDataUrl.protocol.includes('openid:')) {
-        this.loading = true;
-        this.$router.push({ name: 'share' });
-      }
-    },
-    async onInit(promise) {
-      try {
-        await promise;
-      } catch (error) {
-        if (error.name === 'NotAllowedError') {
-          this.error = 'user denied camera access permisson';
-        } else if (error.name === 'NotFoundError') {
-          this.error = 'no suitable camera device installed';
-        } else if (error.name === 'NotSupportedError') {
-          this.error = 'page is not served over HTTPS (or localhost)';
-        } else if (error.name === 'NotReadableError') {
-          this.error = 'maybe camera is already in use';
-        } else if (error.name === 'OverconstrainedError') {
-          this.error = 'did you requested the front camera although there is none?';
-        } else if (error.name === 'StreamApiNotSupportedError') {
-          this.error = 'browser seems to be lacking features';
-        }
-      }
-    },
-    onDecode(decodedString) {
-      window.location.replace(decodedString);
-    },
-  },
-};
-</script>
 
 <style scoped>
 .oval {

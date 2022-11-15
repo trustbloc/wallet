@@ -1,5 +1,6 @@
 /*
 Copyright SecureKey Technologies Inc. All Rights Reserved.
+Copyright Avast Software. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -116,6 +117,20 @@ export default [
             path: 'initiate',
             name: 'initiate',
             component: load('layouts/OIDCInitiateLayout'),
+          },
+        ],
+      },
+      {
+        path: 'openid4vc',
+        name: 'openid4vc',
+        component: load('layouts/OpenID4VCLayout'),
+        redirect: 'NotFound',
+        meta: { requiresAuth: true, signin: true, disableCHAPI: true, isNavbarHidden: true },
+        children: [
+          {
+            path: 'share',
+            name: 'openid4vc-share',
+            component: load('layouts/OpenID4VCShareLayout'),
           },
         ],
       },

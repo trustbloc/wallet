@@ -57,9 +57,10 @@ const (
 	oidcIssuerLoginHTML = "./templates/issuer/oidc-login.html"
 
 	// verifier html templates
-	verifierHTML     = "./templates/verifier/verifier.html"
-	waciVerifierHTML = "./templates/verifier/waci-verifier.html"
-	oidcVerifierHTML = "./templates/verifier/oidc-verifier.html"
+	verifierHTML          = "./templates/verifier/verifier.html"
+	waciVerifierHTML      = "./templates/verifier/waci-verifier.html"
+	oidcVerifierHTML      = "./templates/verifier/oidc-verifier.html"
+	openid4vcVerifierHTML = "./templates/verifier/openid4vc-verifier.html"
 
 	// CHAPI html templates
 	webWalletHTML = "./templates/webWallet.html"
@@ -149,6 +150,8 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 	router.HandleFunc("/verifier/oidc", app.oidcVerifier)
 	router.HandleFunc("/verifier/oidc/share", app.oidcShare)
 	router.HandleFunc("/verifier/oidc/share/cb", app.oidcShareCallback)
+	router.HandleFunc("/verifier/openid4vc", app.openid4vcVerifier)
+	router.HandleFunc("/verifier/openid4vc/share", app.openid4vcShare)
 
 	// CHAPI flow routes
 	router.HandleFunc("/web-wallet", app.webWallet)
@@ -184,6 +187,10 @@ func (v *adapterApp) waciVerifier(w http.ResponseWriter, r *http.Request) {
 
 func (v *adapterApp) oidcVerifier(w http.ResponseWriter, r *http.Request) {
 	loadTemplate(w, oidcVerifierHTML, nil)
+}
+
+func (v *adapterApp) openid4vcVerifier(w http.ResponseWriter, r *http.Request) {
+	loadTemplate(w, openid4vcVerifierHTML, nil)
 }
 
 // chapi html template endpoints
@@ -485,6 +492,15 @@ func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
 			"DECODED_VP_TOKEN":          string(presBytes),
 		},
 	)
+}
+
+func (v *adapterApp) openid4vcShare(w http.ResponseWriter, r *http.Request) {
+	// TODO: create and sign request object dynamically here
+	requestObject := []byte(`eyJhbGciOiJFUzI1NiIsImNydiI6IlAtMjU2Iiwia2lkIjoiZGlkOmtleTp6RG5hZWtkMndMa3ltcWhCWEs3SnJhTTN5c3lOOGNvZmtEcHJ2c3puTnNqb0hZd013IiwidHlwIjoiSldUIn0.CgkJewogICAgICAgICAgIm5vbmNlIjogIk8xbVpHbnVldCsrSWxnMmMxalI0akE9PSIsCiAgICAgICAgICAiY2xpZW50X2lkIjogImRpZDppb246RWlBdjBlSjVjQjBoR1dWSDVZYlktdXcxSzcxRXBPU1Q2enR1ZUVRelZDRWMwQTpleUprWld4MFlTSTZleUp3WVhSamFHVnpJanBiZXlKaFkzUnBiMjRpT2lKeVpYQnNZV05sSWl3aVpHOWpkVzFsYm5RaU9uc2ljSFZpYkdsalMyVjVjeUk2VzNzaWFXUWlPaUp6YVdkZlkyRmlOalZoWVRBaUxDSndkV0pzYVdOTFpYbEtkMnNpT25zaVkzSjJJam9pYzJWamNESTFObXN4SWl3aWEzUjVJam9pUlVNaUxDSjRJam9pT0cxNU1IRktVR3Q2T1ZOUlJUa3lSVGxtUkZnNFpqSjRiVFIyWDI5Wk1YZE5URXBXV2xRMVN6aFJkeUlzSW5raU9pSXhiMHhzVkc1ck56TTJSVE5IT1VOTlVUaDNXakpRU2xWQk0wcGhWblk1VnpGYVZHVkdTbUpSV1RGRkluMHNJbkIxY25CdmMyVnpJanBiSW1GMWRHaGxiblJwWTJGMGFXOXVJaXdpWVhOelpYSjBhVzl1VFdWMGFHOWtJbDBzSW5SNWNHVWlPaUpGWTJSellWTmxZM0F5TlRack1WWmxjbWxtYVdOaGRHbHZia3RsZVRJd01Ua2lmVjBzSW5ObGNuWnBZMlZ6SWpwYmV5SnBaQ0k2SW14cGJtdGxaR1J2YldGcGJuTWlMQ0p6WlhKMmFXTmxSVzVrY0c5cGJuUWlPbnNpYjNKcFoybHVjeUk2V3lKb2RIUndjem92TDNOM1pXVndjM1JoYTJWekxtUnBaQzV0YVdOeWIzTnZablF1WTI5dEx5SmRmU3dpZEhsd1pTSTZJa3hwYm10bFpFUnZiV0ZwYm5NaWZWMTlmVjBzSW5Wd1pHRjBaVU52YlcxcGRHMWxiblFpT2lKRmFVRndjbVZUTnkxRWN6aDVNREZuVXprMmNFNWlWbnBvUm1ZeFVscHZibFozVWtzd2JHOW1aSGRPWjJGQkluMHNJbk4xWm1acGVFUmhkR0VpT25zaVpHVnNkR0ZJWVhOb0lqb2lSV2xFTVdSRmRVVmxkRVJuTW5oaVZFczBVRFpWVFROdVdFTktWbkZNUkUxMU0yOUlWV05NYW10Wk1XRlRkeUlzSW5KbFkyOTJaWEo1UTI5dGJXbDBiV1Z1ZENJNklrVnBSRUZrU3pGV05rcGphMUJwWTBSQmNHRnhWMkl5WkU5NU1GUk5jbUpLVG1sbE5tbEtWems0Wms1NGJrRWlmWDAiLAogICAgICAgICAgInJlZGlyZWN0X3VyaSI6ICJodHRwczovL2JldGEuZGlkLm1zaWRlbnRpdHkuY29tL3YxLjAvZTFmNjZmMmUtYzA1MC00MzA4LTgxYjMtM2Q3ZWE3ZWYzYjFiL3ZlcmlmaWFibGVjcmVkZW50aWFscy9wcmVzZW50IiwKCQkgICJjbGFpbXMiOiB7CgkJCSJ2cF90b2tlbiI6IHsKCQkJICAiaWQiOiAiMjJjNzcxNTUtZWRmMi00ZWM1LThkNDQtYjM5M2I0ZTRmYTM4IiwKCQkJICAiaW5wdXRfZGVzY3JpcHRvcnMiOiBbCgkJCQl7CgkJCQkgICJpZCI6ICIyMGIwNzNiYi1jZWRlLTQ5MTItOWU5ZC0zMzRlNTcwMjA3N2IiLAoJCQkJICAic2NoZW1hIjogWwoJCQkJCXsKCQkJCQkgICJ1cmkiOiAiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMjVmVyaWZpYWJsZUNyZWRlbnRpYWwiCgkJCQkJfQoJCQkJICBdLAoJCQkJICAiY29uc3RyYWludHMiOiB7CgkJCQkJImZpZWxkcyI6IFsKCQkJCQkgIHsKCQkJCQkJInBhdGgiOiBbCgkJCQkJCSAgIiQuY3JlZGVudGlhbFN1YmplY3QuZmFtaWx5TmFtZSIKCQkJCQkJXQoJCQkJCSAgfQoJCQkJCV0KCQkJCSAgfQoJCQkJfQoJCQkgIF0KCQkJfQoJCSAgfQoJCX0KCQ.qVoI0Epd-4OWZ2I1rBZkN3l7uIu1QnNP1Ni9UnqMc_7EeYpI9QoJVwf6paxJ8lHsOUbta9cxLWvagos9A9H-2Q`)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	w.Write(requestObject)
 }
 
 func (v *adapterApp) initiateIssuance(w http.ResponseWriter, r *http.Request) {
