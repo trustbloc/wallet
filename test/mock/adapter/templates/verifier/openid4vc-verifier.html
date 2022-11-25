@@ -1,5 +1,5 @@
 <!--
-Copyright SecureKey Technologies Inc. All Rights Reserved.
+* Copyright Avast Software. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
  -->
@@ -10,12 +10,26 @@ SPDX-License-Identifier: Apache-2.0
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
     <title>Demo OpenID4VC Verifier</title>
+    <script type="text/javascript">
+      function copyToClipboard() {
+        loading = true;
+        const copyText = document.getElementById('openid4vp-request-url');
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(copyText.value);
+      }
+    </script>
   </head>
 
   <body>
     <h1>Initiate OpenID4VP Demo Request URL</h1>
-    <p>
-      openid-vc://?request_uri=https://demo-adapter.trustbloc.local:8094/verifier/openid4vc/share
-    </p>
+    <input
+      type="text"
+      id="openid4vp-request-url"
+      name="openid4vp-request-url"
+      value="openid-vc://?request_uri=https://demo-adapter.trustbloc.local:8094/verifier/openid4vc/share"
+      size="100"
+    />
+    <button onclick="copyToClipboard()">Copy Initiate URL</button>
   </body>
 </html>

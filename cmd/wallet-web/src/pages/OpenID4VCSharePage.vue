@@ -7,11 +7,11 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { parseJWTVC } from '@/mixins';
-import { CollectionManager, CredentialManager, OpenID4VP } from '@trustbloc/wallet-sdk';
+import { CollectionManager, CredentialManager, DIDManager, OpenID4VP } from '@trustbloc/wallet-sdk';
 import { OpenID4VCMutations } from '@/layouts/OpenID4VCLayout.vue';
 import { OpenID4VCShareLayoutMutations } from '@/layouts/OpenID4VCShareLayout.vue';
 import StyledButtonComponent from '@/components/StyledButton/StyledButtonComponent.vue';
@@ -21,13 +21,14 @@ import WACIActionButtonsContainerComponent from '@/components/WACI/WACIActionBut
 import WACICredentialsMissingComponent from '@/components/WACI/WACICredentialsMissingComponent.vue';
 import WACIErrorComponent from '@/components/WACI/WACIErrorComponent.vue';
 import WACILoadingComponent from '@/components/WACI/WACILoadingComponent.vue';
+import WACISuccessComponent from '@/components/WACI/WACISuccessComponent.vue';
 import CredentialDetailsTableComponent from '@/components/WACI/CredentialDetailsTableComponent.vue';
 import OIDCShareOverviewPage from '@/pages/OIDCShareOverviewPage.vue';
 
 // Hooks
 const { t } = useI18n();
+const router = useRouter();
 const route = useRoute();
-console.log('route', route);
 const store = useStore();
 
 // Local Variables
@@ -36,14 +37,22 @@ const requestOrigin = ref();
 const loading = ref(true);
 const noCredentialFound = ref(false);
 const sharing = ref(false);
+const sharedSuccessfully = ref(false);
 const processedCredentials = ref([]);
 const token = ref(null);
 const showMainState = computed(
-  () => !loading.value && !errors.value.length && !sharing.value && !noCredentialFound.value
+  () =>
+    !loading.value &&
+    !errors.value.length &&
+    !sharing.value &&
+    !noCredentialFound.value &&
+    !sharedSuccessfully.value
 );
 const credentialManager = ref(null);
 const collectionManager = ref(null);
+const didManager = ref(null);
 const openID4VP = ref(null);
+const presentation = ref(null);
 
 // Store Getters
 const currentUser = computed(() => store.getters['getCurrentUser']);
@@ -77,17 +86,30 @@ async function prepareRecords(presentations) {
     loading.value = false;
   }
 }
-function share() {
+async function share() {
   sharing.value = true;
-
-  // TODO: call submitOIDCPresentation
-
+  const { contents } = await didManager.value.getAllDIDs(token.value);
+  // Selecting the first verification method to be used for now
+  // since selection logic is not defined in the current openid4vp spec
+  const kid = Object.values(contents)[0].didDocument.verificationMethod[0].id;
+  await openID4VP.value
+    .submitOIDCPresentation({
+      kid,
+      presentation: presentation.value,
+      expiry: Math.floor(Date.now() / 1000 + 60 * 10),
+    })
+    .then(() => {
+      sharedSuccessfully.value = true;
+    })
+    .catch((e) => {
+      console.error(e);
+      errors.value.push('presentation submission failed:', e);
+    });
   sharing.value = false;
 }
-// TODO figure out if this method is still needed
-// function finish() {
-//   window.location.href = redirectUrl.value;
-// }
+function finish() {
+  router.push('/credentials');
+}
 function cancel() {
   window.location = window.location.origin;
 }
@@ -103,16 +125,15 @@ onMounted(async () => {
 
   credentialManager.value = new CredentialManager({ agent: agentInstance.value, user });
   collectionManager.value = new CollectionManager({ agent: agentInstance.value, user });
+  didManager.value = new DIDManager({ agent: agentInstance.value, user });
   openID4VP.value = new OpenID4VP({ agent: agentInstance.value, user });
 
-  const presentationSubmission = await openID4VP.value.initiateOIDCPresentation({
+  presentation.value = await openID4VP.value.initiateOIDCPresentation({
     authToken: token.value,
     url: route.query.url,
   });
-  console.log('presentationSubmission', presentationSubmission);
-  console.log('vc', presentationSubmission[0].verifiableCredential[0]);
 
-  await prepareRecords(presentationSubmission);
+  await prepareRecords(presentation.value);
   OpenID4VCMutations.setProcessedCredentials(processedCredentials.value);
   // TODO: get Requestor
   loading.value = false;
@@ -135,6 +156,29 @@ onMounted(async () => {
 
     <!-- Credentials Missing State -->
     <WACICredentialsMissingComponent v-else-if="noCredentialFound" @click="cancel" />
+
+    <!-- Success State -->
+    <WACISuccessComponent
+      v-else-if="sharedSuccessfully"
+      id="share-credentials-ok-btn"
+      :heading="t('WACI.Share.success', processedCredentials.length)"
+      :message="
+        t(
+          'WACI.Share.message',
+          {
+            subject:
+              processedCredentials.length === 1
+                ? processedCredentials[0].title
+                : processedCredentials.length,
+            // TODO: issue-1055 Read meta data from external urls
+            requestor: 'Requestor',
+          },
+          processedCredentials.length
+        )
+      "
+      :button-label="t('WACI.ok')"
+      @click="finish"
+    />
   </div>
 
   <!-- Main State -->
