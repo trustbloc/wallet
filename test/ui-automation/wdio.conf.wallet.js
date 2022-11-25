@@ -1,5 +1,6 @@
 /*
 Copyright SecureKey Technologies Inc. All Rights Reserved.
+Copyright Avast Software. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -15,6 +16,7 @@ exports.config = {
 
   // Test files
   specs: [
+    './test/specs/openid4vc-flow.js',
     './test/specs/oidc-flow.js',
     './test/specs/waci-flow.js',
     './test/specs/credential-interaction-flow.js',
@@ -25,6 +27,9 @@ exports.config = {
   walletURL: 'https://wallet.trustbloc.local:8091',
   walletURLFrench: 'https://wallet.trustbloc.local:8091/fr/',
   authURL: 'https://auth.trustbloc.local:8044',
+
+  // openid4vc
+  openid4vpInitiateRequestURL: `openid-vc://?request_uri=${mockDemoDomain}/verifier/openid4vc/share`,
 
   // oidc
   oidcDemoVerifierURL: mockDemoDomain + '/verifier/oidc',
