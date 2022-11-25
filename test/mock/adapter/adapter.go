@@ -1,5 +1,6 @@
 /*
 Copyright SecureKey Technologies Inc. All Rights Reserved.
+Copyright Avast Software. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -95,6 +96,30 @@ type adapterApp struct {
 	store storage.Store
 }
 
+type vpToken struct {
+	PresentationDefinition presexch.PresentationDefinition `json:"presentation_definition"`
+}
+
+type claims struct {
+	VPToken vpToken `json:"vp_token"`
+}
+
+type openid4vcShareRequestHeader struct {
+	Kid string `json:"kid"`
+}
+
+type openid4vcShareRequestPayload struct {
+	IssuedAt     int64  `json:"iat"`
+	ResponseType string `json:"response_type"`
+	Scope        string `json:"scope,omitempty"`
+	Nonce        string `json:"nonce"`
+	ClientId     string `json:"client_id"`
+	RedirectURI  string `json:"redirect_uri"`
+	State        string `json:"state,omitempty"`
+	Expiry       int64  `json:"exp"`
+	Claims       claims `json:"claims"`
+}
+
 func startAdapterApp(agent *didComm, router *mux.Router) error {
 	log.SetLevel("", arieslog.DEBUG)
 
@@ -152,6 +177,7 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 	router.HandleFunc("/verifier/oidc/share/cb", app.oidcShareCallback)
 	router.HandleFunc("/verifier/openid4vc", app.openid4vcVerifier)
 	router.HandleFunc("/verifier/openid4vc/share", app.openid4vcShare)
+	router.HandleFunc("/verifier/openid4vc/share/cb", app.openid4vcShareCallback)
 
 	// CHAPI flow routes
 	router.HandleFunc("/web-wallet", app.webWallet)
@@ -495,12 +521,93 @@ func (v *adapterApp) oidcShareCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 func (v *adapterApp) openid4vcShare(w http.ResponseWriter, r *http.Request) {
-	// TODO: create and sign request object dynamically here
-	requestObject := []byte(`eyJhbGciOiJFUzI1NiIsImNydiI6IlAtMjU2Iiwia2lkIjoiZGlkOmtleTp6RG5hZWtkMndMa3ltcWhCWEs3SnJhTTN5c3lOOGNvZmtEcHJ2c3puTnNqb0hZd013IiwidHlwIjoiSldUIn0.CgkJewogICAgICAgICAgIm5vbmNlIjogIk8xbVpHbnVldCsrSWxnMmMxalI0akE9PSIsCiAgICAgICAgICAiY2xpZW50X2lkIjogImRpZDppb246RWlBdjBlSjVjQjBoR1dWSDVZYlktdXcxSzcxRXBPU1Q2enR1ZUVRelZDRWMwQTpleUprWld4MFlTSTZleUp3WVhSamFHVnpJanBiZXlKaFkzUnBiMjRpT2lKeVpYQnNZV05sSWl3aVpHOWpkVzFsYm5RaU9uc2ljSFZpYkdsalMyVjVjeUk2VzNzaWFXUWlPaUp6YVdkZlkyRmlOalZoWVRBaUxDSndkV0pzYVdOTFpYbEtkMnNpT25zaVkzSjJJam9pYzJWamNESTFObXN4SWl3aWEzUjVJam9pUlVNaUxDSjRJam9pT0cxNU1IRktVR3Q2T1ZOUlJUa3lSVGxtUkZnNFpqSjRiVFIyWDI5Wk1YZE5URXBXV2xRMVN6aFJkeUlzSW5raU9pSXhiMHhzVkc1ck56TTJSVE5IT1VOTlVUaDNXakpRU2xWQk0wcGhWblk1VnpGYVZHVkdTbUpSV1RGRkluMHNJbkIxY25CdmMyVnpJanBiSW1GMWRHaGxiblJwWTJGMGFXOXVJaXdpWVhOelpYSjBhVzl1VFdWMGFHOWtJbDBzSW5SNWNHVWlPaUpGWTJSellWTmxZM0F5TlRack1WWmxjbWxtYVdOaGRHbHZia3RsZVRJd01Ua2lmVjBzSW5ObGNuWnBZMlZ6SWpwYmV5SnBaQ0k2SW14cGJtdGxaR1J2YldGcGJuTWlMQ0p6WlhKMmFXTmxSVzVrY0c5cGJuUWlPbnNpYjNKcFoybHVjeUk2V3lKb2RIUndjem92TDNOM1pXVndjM1JoYTJWekxtUnBaQzV0YVdOeWIzTnZablF1WTI5dEx5SmRmU3dpZEhsd1pTSTZJa3hwYm10bFpFUnZiV0ZwYm5NaWZWMTlmVjBzSW5Wd1pHRjBaVU52YlcxcGRHMWxiblFpT2lKRmFVRndjbVZUTnkxRWN6aDVNREZuVXprMmNFNWlWbnBvUm1ZeFVscHZibFozVWtzd2JHOW1aSGRPWjJGQkluMHNJbk4xWm1acGVFUmhkR0VpT25zaVpHVnNkR0ZJWVhOb0lqb2lSV2xFTVdSRmRVVmxkRVJuTW5oaVZFczBVRFpWVFROdVdFTktWbkZNUkUxMU0yOUlWV05NYW10Wk1XRlRkeUlzSW5KbFkyOTJaWEo1UTI5dGJXbDBiV1Z1ZENJNklrVnBSRUZrU3pGV05rcGphMUJwWTBSQmNHRnhWMkl5WkU5NU1GUk5jbUpLVG1sbE5tbEtWems0Wms1NGJrRWlmWDAiLAogICAgICAgICAgInJlZGlyZWN0X3VyaSI6ICJodHRwczovL2JldGEuZGlkLm1zaWRlbnRpdHkuY29tL3YxLjAvZTFmNjZmMmUtYzA1MC00MzA4LTgxYjMtM2Q3ZWE3ZWYzYjFiL3ZlcmlmaWFibGVjcmVkZW50aWFscy9wcmVzZW50IiwKCQkgICJjbGFpbXMiOiB7CgkJCSJ2cF90b2tlbiI6IHsKCQkJICAiaWQiOiAiMjJjNzcxNTUtZWRmMi00ZWM1LThkNDQtYjM5M2I0ZTRmYTM4IiwKCQkJICAiaW5wdXRfZGVzY3JpcHRvcnMiOiBbCgkJCQl7CgkJCQkgICJpZCI6ICIyMGIwNzNiYi1jZWRlLTQ5MTItOWU5ZC0zMzRlNTcwMjA3N2IiLAoJCQkJICAic2NoZW1hIjogWwoJCQkJCXsKCQkJCQkgICJ1cmkiOiAiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMjVmVyaWZpYWJsZUNyZWRlbnRpYWwiCgkJCQkJfQoJCQkJICBdLAoJCQkJICAiY29uc3RyYWludHMiOiB7CgkJCQkJImZpZWxkcyI6IFsKCQkJCQkgIHsKCQkJCQkJInBhdGgiOiBbCgkJCQkJCSAgIiQuY3JlZGVudGlhbFN1YmplY3QuZmFtaWx5TmFtZSIKCQkJCQkJXQoJCQkJCSAgfQoJCQkJCV0KCQkJCSAgfQoJCQkJfQoJCQkgIF0KCQkJfQoJCSAgfQoJCX0KCQ.qVoI0Epd-4OWZ2I1rBZkN3l7uIu1QnNP1Ni9UnqMc_7EeYpI9QoJVwf6paxJ8lHsOUbta9cxLWvagos9A9H-2Q`)
+	pdBytes := []byte(`
+		{
+			"id": "22c77155-edf2-4ec5-8d44-b393b4e4fa38",
+			"input_descriptors": [
+				{
+					"id": "20b073bb-cede-4912-9e9d-334e5702077b",
+					"schema": [
+						{
+							"uri": "https://www.w3.org/2018/credentials#VerifiableCredential"
+						}
+					],
+					"constraints": {
+						"fields": [
+							{
+								"path": [
+									"$.credentialSubject.familyName"
+								]
+							}
+						]
+					}
+				}
+			]
+		}
+	`)
+	var pd *presexch.PresentationDefinition
+	json.Unmarshal(pdBytes, &pd)
 
-	w.Header().Set("Content-Type", "application/json")
+	claims := claims{VPToken: vpToken{PresentationDefinition: *pd}}
+
+	requestObjectPayload, err := json.Marshal(&openid4vcShareRequestPayload{
+		IssuedAt:     time.Now().Unix(),
+		ResponseType: "id_token",
+		Scope:        "openid",
+		Nonce:        uuid.NewString(),
+		ClientId:     "did:ion:EiAv0eJ5cB0hGWVH5YbY-uw1K71EpOST6ztueEQzVCEc0A:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJzaWdfY2FiNjVhYTAiLCJwdWJsaWNLZXlKd2siOnsiY3J2Ijoic2VjcDI1NmsxIiwia3R5IjoiRUMiLCJ4IjoiOG15MHFKUGt6OVNRRTkyRTlmRFg4ZjJ4bTR2X29ZMXdNTEpWWlQ1SzhRdyIsInkiOiIxb0xsVG5rNzM2RTNHOUNNUTh3WjJQSlVBM0phVnY5VzFaVGVGSmJRWTFFIn0sInB1cnBvc2VzIjpbImF1dGhlbnRpY2F0aW9uIiwiYXNzZXJ0aW9uTWV0aG9kIl0sInR5cGUiOiJFY2RzYVNlY3AyNTZrMVZlcmlmaWNhdGlvbktleTIwMTkifV0sInNlcnZpY2VzIjpbeyJpZCI6ImxpbmtlZGRvbWFpbnMiLCJzZXJ2aWNlRW5kcG9pbnQiOnsib3JpZ2lucyI6WyJodHRwczovL3N3ZWVwc3Rha2VzLmRpZC5taWNyb3NvZnQuY29tLyJdfSwidHlwZSI6IkxpbmtlZERvbWFpbnMifV19fV0sInVwZGF0ZUNvbW1pdG1lbnQiOiJFaUFwcmVTNy1Eczh5MDFnUzk2cE5iVnpoRmYxUlpvblZ3UkswbG9mZHdOZ2FBIn0sInN1ZmZpeERhdGEiOnsiZGVsdGFIYXNoIjoiRWlEMWRFdUVldERnMnhiVEs0UDZVTTNuWENKVnFMRE11M29IVWNMamtZMWFTdyIsInJlY292ZXJ5Q29tbWl0bWVudCI6IkVpREFkSzFWNkpja1BpY0RBcGFxV2IyZE95MFRNcmJKTmllNmlKVzk4Zk54bkEifX0",
+		RedirectURI:  os.Getenv(demoExternalURLEnvKey) + "/verifier/openid4vc/share/cb",
+		Expiry:       time.Now().Unix() + 60*10,
+		Claims:       claims,
+	})
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to construct OpenID4VC Share Request Object : %s", err))
+
+		return
+	}
+	fmt.Println(string(requestObjectPayload))
+
+	headerBytes, err := json.Marshal(openid4vcShareRequestHeader{Kid: strings.Split(kid, "#")[0]})
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to marshal request object header bytes : %s", err))
+
+		return
+	}
+
+	// TODO add signature
+	encodedHeader := base64.URLEncoding.EncodeToString(headerBytes)
+	fmt.Println(encodedHeader)
+
+	encodedPayload := base64.URLEncoding.EncodeToString(requestObjectPayload)
+	fmt.Println(encodedPayload)
+
+	encodedSignature := base64.URLEncoding.EncodeToString([]byte("mock-signature"))
+	fmt.Println(encodedSignature)
+
+	w.Header().Set("Content-Type", "application/jwt")
 	w.WriteHeader(200)
-	w.Write(requestObject)
+	w.Write([]byte(encodedHeader + "." + encodedPayload + "." + encodedSignature))
+}
+
+func (v *adapterApp) openid4vcShareCallback(w http.ResponseWriter, r *http.Request) {
+	idToken := r.FormValue("id_token")
+	vpToken := r.FormValue("vp_token")
+
+	logger.Infof("oidc share callback : id_token=%s vp_token=%s",
+		idToken, vpToken)
+
+	// TODO add validation and signature verification
+	if len(idToken) > 0 && len(vpToken) > 0 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(200)
+		return
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(400)
+		return
+	}
 }
 
 func (v *adapterApp) initiateIssuance(w http.ResponseWriter, r *http.Request) {
