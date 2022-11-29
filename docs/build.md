@@ -4,7 +4,7 @@
 
 In order to build Wallet from the source, first make sure to install the following:
 
-- [Go 1.17](https://go.dev/doc/install)
+- [Go 1.19](https://go.dev/doc/install)
 - [Npm 8](https://docs.npmjs.com/cli/v8/configuring-npm/install)
 - [Node 16](https://nodejs.org/)
 - GitHub packages setup: you will need to authenticate to GitHub packages with your [personal token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line#creating-a-token).

@@ -6,7 +6,7 @@
 # GO version
 ALPINE_VER ?= 3.15
 GO_TAGS    ?=
-GO_VER     ?= 1.17
+GO_VER     ?= 1.19
 
 # open API configuration
 OPENAPI_SPEC_PATH=build/rest/openapi/spec
@@ -38,7 +38,7 @@ check-lint:
 .PHONY: check-prettier
 check-prettier:
 	@set -e
-	@cd npm install && npm run prettier-check
+	npm install && npm run prettier-check
 
 .PHONY: build-wallet-web
 build-wallet-web:
