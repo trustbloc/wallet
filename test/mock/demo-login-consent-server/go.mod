@@ -4,7 +4,7 @@
 
 module github.com/trustbloc/wallet/test/mock/demo-login-consent-server
 
-go 1.17
+go 1.19
 
 require (
 	github.com/go-openapi/strfmt v0.21.3
@@ -30,7 +30,7 @@ require (
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
-	github.com/mitchellh/mapstructure v1.4.3 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
