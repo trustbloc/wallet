@@ -6,7 +6,7 @@
 -->
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, toRaw } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
@@ -94,8 +94,9 @@ async function share() {
   const kid = Object.values(contents)[0].didDocument.verificationMethod[0].id;
   await openID4VP.value
     .submitOIDCPresentation({
+      authToken: token.value,
       kid,
-      presentation: presentation.value,
+      presentation: toRaw(presentation.value),
       expiry: Math.floor(Date.now() / 1000 + 60 * 10),
     })
     .then(() => {
