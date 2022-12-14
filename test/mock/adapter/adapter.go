@@ -647,21 +647,37 @@ func (v *adapterApp) openid4vcShare(w http.ResponseWriter, r *http.Request) {
 
 func (v *adapterApp) openid4vcShareCallback(w http.ResponseWriter, r *http.Request) {
 	idToken := r.FormValue("id_token")
-	vpToken := r.FormValue("vp_token")
-
-	logger.Infof("oidc share callback : id_token=%s vp_token=%s",
-		idToken, vpToken)
-
-	// TODO add validation and signature verification
-	if len(idToken) > 0 && len(vpToken) > 0 {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		return
-	} else {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
+	if len(idToken) == 0 {
+		handleError(w, http.StatusInternalServerError, fmt.Sprintf("failed to verify presentation: id_token is empty"))
 		return
 	}
+
+	err := didsignjwt.VerifyJWT(idToken, v.vdr)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError, fmt.Sprintf("failed to verify signature on id_token: %s", err))
+		return
+	}
+
+	vpToken := r.FormValue("vp_token")
+	if len(vpToken) == 0 {
+		handleError(w, http.StatusInternalServerError, fmt.Sprintf("failed to verify presentation: vp_token is empty"))
+		return
+	}
+
+	err = didsignjwt.VerifyJWT(vpToken, v.vdr)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError, fmt.Sprintf("failed to verify signature on vp_token: %s", err))
+		return
+	}
+
+	logger.Infof("oidc share callback: id_token=%s", idToken)
+	logger.Infof("oidc share callback: vp_token=%s", vpToken)
+
+	// TODO add validation
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	return
 }
 
 func (v *adapterApp) initiateIssuance(w http.ResponseWriter, r *http.Request) {
