@@ -9,11 +9,17 @@ package main
 
 import (
 	"crypto/ed25519"
+	"crypto/tls"
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/hyperledger/aries-framework-go/pkg/crypto/tinkcrypto"
+	"github.com/hyperledger/aries-framework-go/pkg/doc/util/didsignjwt"
+	"github.com/hyperledger/aries-framework-go/pkg/kms/localkms"
+	"github.com/hyperledger/aries-framework-go/pkg/secretlock/noop"
+	"github.com/hyperledger/aries-framework-go/pkg/vdr/key"
 	"net/http"
 	"net/url"
 	"os"
@@ -36,6 +42,7 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/client/outofbandv2"
 	"github.com/hyperledger/aries-framework-go/pkg/client/presentproof"
 	"github.com/hyperledger/aries-framework-go/pkg/common/log"
+	cryptoapi "github.com/hyperledger/aries-framework-go/pkg/crypto"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/common/service"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/decorator"
 	"github.com/hyperledger/aries-framework-go/pkg/didcomm/protocol/issuecredential"
@@ -44,6 +51,11 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/doc/cm"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/presexch"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/verifiable"
+	vdrapi "github.com/hyperledger/aries-framework-go/pkg/framework/aries/api/vdr"
+	kmsapi "github.com/hyperledger/aries-framework-go/pkg/kms"
+	mockkms "github.com/hyperledger/aries-framework-go/pkg/mock/kms"
+	vdrpkg "github.com/hyperledger/aries-framework-go/pkg/vdr"
+	"github.com/hyperledger/aries-framework-go/pkg/vdr/web"
 	arieslog "github.com/hyperledger/aries-framework-go/spi/log"
 	"github.com/hyperledger/aries-framework-go/spi/storage"
 )
@@ -92,8 +104,11 @@ type waciIssuanceData struct {
 }
 
 type adapterApp struct {
-	agent *didComm
-	store storage.Store
+	agent  *didComm
+	store  storage.Store
+	kms    kmsapi.KeyManager
+	vdr    vdrapi.Registry
+	crypto cryptoapi.Crypto
 }
 
 type vpToken struct {
@@ -130,7 +145,38 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 		return fmt.Errorf("failed to create store : %w", err)
 	}
 
-	app := adapterApp{agent: agent, store: store}
+	kmsProv, err := mockkms.NewProviderForKMS(prov, &noop.NoLock{})
+	if err != nil {
+		return fmt.Errorf("failed to create kms provider : %w", err)
+	}
+
+	keyManager, err := localkms.New("local-lock://test/master/key/", kmsProv)
+	if err != nil {
+		return fmt.Errorf("failed to create key manager : %w", err)
+	}
+
+	edPriv := ed25519.PrivateKey(base58.Decode(pkBase58))
+	if len(edPriv) == 0 {
+		return fmt.Errorf("error converting bad public key")
+	}
+
+	_, _, err = keyManager.ImportPrivateKey(edPriv, kmsapi.ED25519Type, kmsapi.WithKeyID("dfiDkP85Xq5Cald-Q7nT4515MNAcguRJzJpD4CsepAg"))
+
+	crypto, err := tinkcrypto.New()
+	if err != nil {
+		return fmt.Errorf("failed to create crypto : %w", err)
+	}
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	vdr := vdrpkg.New(vdrpkg.WithVDR(key.New()), vdrpkg.WithVDR(&webVDR{
+		http: &http.Client{Transport: tr},
+		VDR:  web.New(),
+	}))
+
+	app := adapterApp{agent: agent, store: store, kms: keyManager, crypto: crypto, vdr: vdr}
 
 	actionCh := make(chan service.DIDCommAction)
 
@@ -566,29 +612,37 @@ func (v *adapterApp) openid4vcShare(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	fmt.Println(string(requestObjectPayload))
 
-	headerBytes, err := json.Marshal(openid4vcShareRequestHeader{Kid: strings.Split(kid, "#")[0]})
+	requestClaims := map[string]interface{}{}
+	err = json.Unmarshal(requestObjectPayload, &requestClaims)
 	if err != nil {
-		handleError(w, http.StatusInternalServerError,
-			fmt.Sprintf("failed to marshal request object header bytes : %s", err))
-
+		handleError(w, http.StatusInternalServerError, fmt.Sprintf("failed to unmarshal request claims : %s", err))
 		return
 	}
 
-	// TODO add signature
-	encodedHeader := base64.URLEncoding.EncodeToString(headerBytes)
-	fmt.Println(encodedHeader)
+	requestObjectHeaders, err := json.Marshal(openid4vcShareRequestHeader{Kid: strings.Split(kid, "#")[0]})
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to marshal request object header bytes : %s", err))
+		return
+	}
 
-	encodedPayload := base64.URLEncoding.EncodeToString(requestObjectPayload)
-	fmt.Println(encodedPayload)
+	requestHeaders := map[string]interface{}{}
+	err = json.Unmarshal(requestObjectHeaders, &requestHeaders)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError, fmt.Sprintf("failed to unmarshal request headers : %s", err))
+		return
+	}
 
-	encodedSignature := base64.URLEncoding.EncodeToString([]byte("mock-signature"))
-	fmt.Println(encodedSignature)
+	result, err := didsignjwt.SignJWT(requestHeaders, requestClaims, kid, didsignjwt.UseDefaultSigner(v.kms, v.crypto), v.vdr)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError, fmt.Sprintf("failed to sign request object : %s", err))
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/jwt")
 	w.WriteHeader(200)
-	w.Write([]byte(encodedHeader + "." + encodedPayload + "." + encodedSignature))
+	w.Write([]byte(result))
 }
 
 func (v *adapterApp) openid4vcShareCallback(w http.ResponseWriter, r *http.Request) {
