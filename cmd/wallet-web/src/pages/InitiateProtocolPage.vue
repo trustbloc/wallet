@@ -27,11 +27,11 @@ const router = useRouter();
 function initiateIssuanceFlow() {
   const initiateRequestDataUrl = new URL(initiateRequest.value);
   if (
-    initiateRequestDataUrl.protocol.includes('openid-initiate-issuance') ||
+    initiateRequestDataUrl.protocol.includes('openid-initiate-issuance:') ||
     initiateRequestDataUrl.pathname.includes('initiate_issuance')
   ) {
     loading.value = true;
-    router.push({ name: 'save' });
+    router.push({ name: 'openid4vc-save', query: { url: initiateRequest.value } });
   }
   // For presentation initiate messages
   else if (
@@ -43,6 +43,8 @@ function initiateIssuanceFlow() {
       name: 'openid4vc-share',
       query: { url: initiateRequest.value },
     });
+  } else {
+    console.error('unknown initiate request url');
   }
 }
 async function onInit(promise) {

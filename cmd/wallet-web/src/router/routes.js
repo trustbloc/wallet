@@ -128,6 +128,11 @@ export default [
         meta: { requiresAuth: true, signin: true, disableCHAPI: true, isNavbarHidden: true },
         children: [
           {
+            path: 'save',
+            name: 'openid4vc-save',
+            component: load('layouts/OpenID4VCSaveLayout'),
+          },
+          {
             path: 'share',
             name: 'openid4vc-share',
             component: load('layouts/OpenID4VCShareLayout'),
