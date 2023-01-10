@@ -9,7 +9,8 @@ import { computed, onMounted, ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
-import { CollectionManager, CredentialManager, OpenID4CI } from '@trustbloc/wallet-sdk';
+import { CollectionManager, CredentialManager, DIDManager, OpenID4CI } from '@trustbloc/wallet-sdk';
+import { verifiableDataFormatCode } from '@/mixins';
 import CustomSelectComponent from '@/components/CustomSelect/CustomSelectComponent.vue';
 import StyledButtonComponent from '@/components/StyledButton/StyledButtonComponent.vue';
 import CredentialOverviewComponent from '@/components/WACI/CredentialOverviewComponent.vue';
@@ -35,6 +36,7 @@ const savedSuccessfully = ref(false);
 const token = ref(null);
 const credentialManager = ref(null);
 const collectionManager = ref(null);
+const didManager = ref(null);
 const openID4CI = ref(null);
 const pinEntryRequired = ref(false);
 const pin = ref(null);
@@ -67,7 +69,7 @@ async function fetchAllVaults() {
 }
 
 onMounted(async () => {
-  const { profile } = currentUser.value;
+  const { profile, preference } = currentUser.value;
   const { user } = profile;
   token.value = profile.token;
 
@@ -82,7 +84,14 @@ onMounted(async () => {
 
   credentialManager.value = new CredentialManager({ agent: agentInstance.value, user });
   collectionManager.value = new CollectionManager({ agent: agentInstance.value, user });
-  openID4CI.value = new OpenID4CI({ agent: agentInstance.value, user });
+  didManager.value = new DIDManager({ agent: agentInstance.value, user });
+  const { contents } = await didManager.value.getAllDIDs(token.value);
+  const kid = Object.values(contents)[0].didDocument.verificationMethod[0].id;
+  openID4CI.value = new OpenID4CI({
+    agent: agentInstance.value,
+    user,
+    clientConfig: { userDID: kid, clientID: 'test-client-id' },
+  });
 
   await fetchAllVaults();
 
@@ -91,11 +100,12 @@ onMounted(async () => {
   req.credential_type = credential_type;
   req['pre-authorized_code'] = preAuthCode;
   req.user_pin_required = user_pin_required;
+  req.format = verifiableDataFormatCode(preference.proofFormat);
   if (op_state) req.op_state = op_state;
 
   watchEffect(async () => {
     if (pin.value && !pinEntryRequired.value) {
-      authorizeResp.value = await openID4CI.value.authorize(req, pin.value);
+      authorizeResp.value = await openID4CI.value.authorize(token.value, kid, req, pin.value);
     }
   });
 
