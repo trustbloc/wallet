@@ -9,22 +9,27 @@ package main
 
 import (
 	"crypto/ed25519"
+	"crypto/rand"
 	"crypto/tls"
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
+	"math/big"
+	"net/http"
+	"net/url"
+	"os"
+	"strings"
+	"text/template"
+	"time"
+
 	"github.com/hyperledger/aries-framework-go/pkg/crypto/tinkcrypto"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/util/didsignjwt"
 	"github.com/hyperledger/aries-framework-go/pkg/kms/localkms"
 	"github.com/hyperledger/aries-framework-go/pkg/secretlock/noop"
 	"github.com/hyperledger/aries-framework-go/pkg/vdr/key"
-	"net/http"
-	"net/url"
-	"os"
-	"strings"
-	"time"
 
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/jsonld"
 	"github.com/hyperledger/aries-framework-go/pkg/doc/signature/suite"
@@ -68,6 +73,7 @@ const (
 	waciIssuerHTML      = "./templates/issuer/waci-issuer.html"
 	oidcIssuerHTML      = "./templates/issuer/oidc-issuer.html"
 	oidcIssuerLoginHTML = "./templates/issuer/oidc-login.html"
+	openid4vcIssuerHTML = "./templates/issuer/openid4vc-issuer.html"
 
 	// verifier html templates
 	verifierHTML          = "./templates/verifier/verifier.html"
@@ -84,6 +90,7 @@ const (
 	didKey   = "did:key:z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5"
 	pkBase58 = "2MP5gWCnf67jvW3E4Lz8PpVrDWAXMYY1sDxjnkEnKhkkbKD7yP2mkVeyVpu5nAtr3TeDgMNjBPirk2XcQacs3dvZ"
 	kid      = "did:key:z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5#z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5"
+	secret   = "mock-issuer-pin-secret"
 )
 
 var logger = log.New("mock-adapter")
@@ -94,6 +101,18 @@ type issuerConfiguration struct {
 	CredentialEndpoint    string          `json:"credential_endpoint"`
 	TokenEndpoint         string          `json:"token_endpoint"`
 	CredentialManifests   json.RawMessage `json:"credential_manifests"`
+}
+
+type openid4vcIssuerConfiguration struct {
+	CredentialEndpoint   string          `json:"credential_endpoint"`
+	CredentialsSupported json.RawMessage `json:"credentials_supported"`
+	CredentialIssuer     json.RawMessage `json:"credential_issuer,omitempty"`
+	TokenEndpoint        string          `json:"token_endpoint"`
+}
+
+type openid4ciDemo struct {
+	InitiateUrl string
+	Pin         int
 }
 
 // waciIssuanceData contains state of WACI demo.
@@ -133,6 +152,10 @@ type openid4vcShareRequestPayload struct {
 	State        string `json:"state,omitempty"`
 	Expiry       int64  `json:"exp"`
 	Claims       claims `json:"claims"`
+}
+
+type openid4vcIssuerStore struct {
+	Pin int `json:"pin"`
 }
 
 func startAdapterApp(agent *didComm, router *mux.Router) error {
@@ -211,6 +234,8 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 	router.HandleFunc("/issuer/oidc/authorize-request", app.issuerSendAuthorizeResponse).Methods(http.MethodPost)
 	router.HandleFunc("/{id}/issuer/oidc/token", app.issuerTokenEndpoint).Methods(http.MethodPost)
 	router.HandleFunc("/{id}/issuer/oidc/credential", app.issuerCredentialEndpoint).Methods(http.MethodPost)
+	router.HandleFunc("/issuer/openid4vc", app.openid4vcIssuer)
+	router.HandleFunc("/issuer/openid4vc/issuance", app.openid4vcInitiatePreAuthorizedIssuance).Methods(http.MethodPost)
 
 	// verifier routes
 	router.HandleFunc("/verifier", app.verifier)
@@ -242,6 +267,10 @@ func (v *adapterApp) waciIssuer(w http.ResponseWriter, r *http.Request) {
 
 func (v *adapterApp) oidcIssuer(w http.ResponseWriter, r *http.Request) {
 	loadTemplate(w, oidcIssuerHTML, nil)
+}
+
+func (v *adapterApp) openid4vcIssuer(w http.ResponseWriter, r *http.Request) {
+	loadTemplate(w, openid4vcIssuerHTML, nil)
 }
 
 func (v *adapterApp) oidcIssuerLogin(w http.ResponseWriter, r *http.Request) {
@@ -1042,6 +1071,71 @@ func (v *adapterApp) issuerCredentialEndpoint(w http.ResponseWriter, r *http.Req
 	w.Write(response)
 }
 
+func (v *adapterApp) openid4vcInitiatePreAuthorizedIssuance(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	issuerURL := r.FormValue("issuerURL")
+	credentialsSupported := r.FormValue("credentialsSupported")
+
+	var data map[string]map[string]interface{}
+	var credType string
+
+	if err := json.Unmarshal([]byte(credentialsSupported), &data); err != nil {
+		panic(err)
+	}
+
+	for _, u := range data {
+		credType = fmt.Sprintf("%v", u["types"].([]interface{})[1])
+	}
+
+	pinNumber, err := generateRandomNumber(6)
+
+	issuerData, err := json.MarshalIndent(&openid4vcIssuerStore{
+		Pin: pinNumber,
+	}, "", "	")
+	err = v.store.Put(secret, issuerData)
+
+	key := uuid.NewString()
+	issuer := issuerURL + "/" + key
+	issuerConf, err := json.MarshalIndent(&openid4vcIssuerConfiguration{
+		CredentialsSupported: []byte(credentialsSupported),
+		CredentialEndpoint:   issuer + "/issuer/openid4vc/credential",
+		TokenEndpoint:        issuer + "/issuer/openid4vc/token",
+	}, "", "	")
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to prepare issuer wellknown configuration : %s", err))
+		return
+	}
+
+	t, err := template.ParseFiles(openid4vcIssuerHTML)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to parse issuer html template : %s", err))
+		return
+	}
+
+	if err != nil {
+		logger.Errorf(fmt.Sprintf("execute html template: %s", err.Error()))
+	}
+
+	err = v.store.Put(key, issuerConf)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to prepare server configuration : %s", err))
+
+		return
+	}
+
+	initiateUrl := "openid-initiate-issuance://?issuer=" + url.QueryEscape(issuer) + "&credential_type=" +
+		url.QueryEscape(credType) + "&pre-authorized_code=" + url.QueryEscape(uuid.NewString()) + "&user_pin_required=true"
+
+	err = t.Execute(w, openid4ciDemo{
+		InitiateUrl: initiateUrl,
+		Pin:         pinNumber,
+	})
+}
+
 func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Store) {
 	for action := range actionCh {
 		logger.Infof("received action message : type=%s", action.Message.Type())
@@ -1441,4 +1535,26 @@ func (s *edd25519Signer) Sign(doc []byte) ([]byte, error) {
 
 func (s *edd25519Signer) Alg() string {
 	return ""
+}
+
+// generateRandomNumber generates random integer of n digits.
+func generateRandomNumber(numberOfDigits int) (int, error) {
+	maxLimit := int64(int(math.Pow10(numberOfDigits)) - 1)
+	lowLimit := int(math.Pow10(numberOfDigits - 1))
+
+	randomNumber, err := rand.Int(rand.Reader, big.NewInt(maxLimit))
+	if err != nil {
+		return 0, err
+	}
+	randomNumberInt := int(randomNumber.Int64())
+
+	// Handling integers between 0, 10^(n-1) .. for n=4, handling cases between (0, 999)
+	if randomNumberInt <= lowLimit {
+		randomNumberInt += lowLimit
+	}
+
+	if randomNumberInt > int(maxLimit) {
+		randomNumberInt = int(maxLimit)
+	}
+	return randomNumberInt, nil
 }
