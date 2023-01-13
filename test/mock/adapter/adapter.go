@@ -16,13 +16,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"math"
 	"math/big"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/hyperledger/aries-framework-go/pkg/crypto/tinkcrypto"
@@ -90,7 +90,6 @@ const (
 	didKey   = "did:key:z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5"
 	pkBase58 = "2MP5gWCnf67jvW3E4Lz8PpVrDWAXMYY1sDxjnkEnKhkkbKD7yP2mkVeyVpu5nAtr3TeDgMNjBPirk2XcQacs3dvZ"
 	kid      = "did:key:z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5#z6MknC1wwS6DEYwtGbZZo2QvjQjkh2qSBjb4GYmbye8dv4S5"
-	secret   = "mock-issuer-pin-secret"
 )
 
 var logger = log.New("mock-adapter")
@@ -104,6 +103,7 @@ type issuerConfiguration struct {
 }
 
 type openid4vcIssuerConfiguration struct {
+	Issuer               string          `json:"issuer"`
 	CredentialEndpoint   string          `json:"credential_endpoint"`
 	CredentialsSupported json.RawMessage `json:"credentials_supported"`
 	CredentialIssuer     json.RawMessage `json:"credential_issuer,omitempty"`
@@ -112,7 +112,7 @@ type openid4vcIssuerConfiguration struct {
 
 type openid4ciDemo struct {
 	InitiateUrl string
-	Pin         int
+	Pin         string
 }
 
 // waciIssuanceData contains state of WACI demo.
@@ -152,10 +152,6 @@ type openid4vcShareRequestPayload struct {
 	State        string `json:"state,omitempty"`
 	Expiry       int64  `json:"exp"`
 	Claims       claims `json:"claims"`
-}
-
-type openid4vcIssuerStore struct {
-	Pin int `json:"pin"`
 }
 
 func startAdapterApp(agent *didComm, router *mux.Router) error {
@@ -236,6 +232,8 @@ func startAdapterApp(agent *didComm, router *mux.Router) error {
 	router.HandleFunc("/{id}/issuer/oidc/credential", app.issuerCredentialEndpoint).Methods(http.MethodPost)
 	router.HandleFunc("/issuer/openid4vc", app.openid4vcIssuer)
 	router.HandleFunc("/issuer/openid4vc/issuance", app.openid4vcInitiatePreAuthorizedIssuance).Methods(http.MethodPost)
+	router.HandleFunc("/{id}/issuer/openid4vc/token", app.openid4vcIssuerTokenEndpoint).Methods(http.MethodPost)
+	router.HandleFunc("/{id}/issuer/openid4vc/credential", app.openid4vcIssuerCredentialEndpoint).Methods(http.MethodPost)
 
 	// verifier routes
 	router.HandleFunc("/verifier", app.verifier)
@@ -1075,29 +1073,23 @@ func (v *adapterApp) openid4vcInitiatePreAuthorizedIssuance(w http.ResponseWrite
 	r.ParseForm()
 
 	issuerURL := r.FormValue("issuerURL")
+	credType := r.FormValue("credentialType")
 	credentialsSupported := r.FormValue("credentialsSupported")
-
-	var data map[string]map[string]interface{}
-	var credType string
-
-	if err := json.Unmarshal([]byte(credentialsSupported), &data); err != nil {
-		panic(err)
-	}
-
-	for _, u := range data {
-		credType = fmt.Sprintf("%v", u["types"].([]interface{})[1])
-	}
+	credentials := r.FormValue("credsToIssue")
 
 	pinNumber, err := generateRandomNumber(6)
+	preAuthCode := uuid.NewString()
 
-	issuerData, err := json.MarshalIndent(&openid4vcIssuerStore{
-		Pin: pinNumber,
-	}, "", "	")
-	err = v.store.Put(secret, issuerData)
+	authRequest, err := json.Marshal(map[string]string{
+		"code": preAuthCode,
+		"pin":  pinNumber,
+	})
+	err = v.store.Put(getPreAuthCodeKeyPrefix(preAuthCode), authRequest)
 
 	key := uuid.NewString()
 	issuer := issuerURL + "/" + key
 	issuerConf, err := json.MarshalIndent(&openid4vcIssuerConfiguration{
+		Issuer:               issuer,
 		CredentialsSupported: []byte(credentialsSupported),
 		CredentialEndpoint:   issuer + "/issuer/openid4vc/credential",
 		TokenEndpoint:        issuer + "/issuer/openid4vc/token",
@@ -1127,13 +1119,190 @@ func (v *adapterApp) openid4vcInitiatePreAuthorizedIssuance(w http.ResponseWrite
 		return
 	}
 
+	var credentialsToSave map[string]json.RawMessage
+	err = json.Unmarshal([]byte(credentials), &credentialsToSave)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to parse credentials : %s", err))
+
+		return
+	}
+
+	for ct, credential := range credentialsToSave {
+		err = v.store.Put(getCredStoreKeyPrefix(key, ct), credential)
+		if err != nil {
+			handleError(w, http.StatusInternalServerError,
+				fmt.Sprintf("failed to server configuration : %s", err))
+
+			return
+		}
+	}
+
 	initiateUrl := "openid-initiate-issuance://?issuer=" + url.QueryEscape(issuer) + "&credential_type=" +
-		url.QueryEscape(credType) + "&pre-authorized_code=" + url.QueryEscape(uuid.NewString()) + "&user_pin_required=true"
+		url.QueryEscape(credType) + "&pre-authorized_code=" + url.QueryEscape(preAuthCode) + "&user_pin_required=true"
 
 	err = t.Execute(w, openid4ciDemo{
 		InitiateUrl: initiateUrl,
 		Pin:         pinNumber,
 	})
+}
+
+func (v *adapterApp) openid4vcIssuerTokenEndpoint(w http.ResponseWriter, r *http.Request) {
+	setOIDCResponseHeaders(w)
+
+	code := r.FormValue("pre-authorized_code")
+	userPin := r.FormValue("user_pin")
+	grantType := r.FormValue("grant_type")
+
+	if grantType != "urn:ietf:params:oauth:grant-type:pre-authorized_code" {
+		sendOIDCErrorResponse(w, "unsupported grant type", http.StatusBadRequest)
+		return
+	}
+
+	authRqstBytes, err := v.store.Get(getPreAuthCodeKeyPrefix(code))
+	if err != nil {
+		sendOIDCErrorResponse(w, "invalid request", http.StatusBadRequest)
+		handleError(w, http.StatusInternalServerError,
+			fmt.Sprintf("failed to fetch auth state : %s", err))
+		return
+	}
+
+	var authRequest map[string]string
+	err = json.Unmarshal(authRqstBytes, &authRequest)
+	if err != nil {
+		sendOIDCErrorResponse(w, "failed to read request", http.StatusInternalServerError)
+		return
+	}
+
+	if userPin != authRequest["pin"] {
+		sendOIDCErrorResponse(w, "request validation failed", http.StatusInternalServerError)
+		return
+	}
+
+	mockAccessToken := uuid.NewString()
+	mockIssuerID := mux.Vars(r)["id"]
+
+	err = v.store.Put(getAccessTokenKeyPrefix(mockAccessToken), []byte(mockIssuerID))
+	if err != nil {
+		sendOIDCErrorResponse(w, "failed to save token state", http.StatusInternalServerError)
+		return
+	}
+
+	response, err := json.Marshal(map[string]interface{}{
+		"token_type":         "Bearer",
+		"access_token":       mockAccessToken,
+		"expires_in":         3600 * time.Second,
+		"c_nonce":            uuid.NewString(),
+		"c_nonce_expires_in": 3600 * time.Second,
+	})
+	if err != nil {
+		sendOIDCErrorResponse(w, "response_write_error", http.StatusBadRequest)
+		return
+	}
+
+	w.Write(response)
+}
+
+func (v *adapterApp) openid4vcIssuerCredentialEndpoint(w http.ResponseWriter, r *http.Request) {
+	setOIDCResponseHeaders(w)
+
+	request := map[string]interface{}{}
+	err := json.NewDecoder(r.Body).Decode(&request)
+
+	proof, isValid := request["proof"].(map[string]interface{})
+	if !isValid {
+		sendOIDCErrorResponse(w, "couldn't read proof parameter", http.StatusBadRequest)
+	}
+
+	jwt := fmt.Sprintf("%v", proof["jwt"])
+	err = didsignjwt.VerifyJWT(jwt, v.vdr)
+	if err != nil {
+		handleError(w, http.StatusInternalServerError, fmt.Sprintf("failed to verify signature on credential request: %s", err))
+		return
+	}
+
+	credentialType := request["type"]
+	format := request["format"]
+
+	authHeader := strings.Split(r.Header.Get("Authorization"), "Bearer ")
+	if len(authHeader) != 2 {
+		sendOIDCErrorResponse(w, "malformed token", http.StatusBadRequest)
+		return
+	}
+
+	if authHeader[1] == "" {
+		sendOIDCErrorResponse(w, "invalid token", http.StatusForbidden)
+		return
+	}
+
+	mockIssuerID := mux.Vars(r)["id"]
+
+	issuerID, err := v.store.Get(getAccessTokenKeyPrefix(authHeader[1]))
+	if err != nil {
+		sendOIDCErrorResponse(w, "unsupported format requested", http.StatusBadRequest)
+		return
+	}
+
+	if mockIssuerID != string(issuerID) {
+		sendOIDCErrorResponse(w, "invalid transaction", http.StatusForbidden)
+		return
+	}
+
+	credentialBytes, err := v.store.Get(getCredStoreKeyPrefix(mockIssuerID, fmt.Sprintf("%v", credentialType)))
+	if err != nil {
+		sendOIDCErrorResponse(w, "failed to get credential", http.StatusInternalServerError)
+		return
+	}
+
+	docLoader := ld.NewDefaultDocumentLoader(nil)
+	credential, err := verifiable.ParseCredential(credentialBytes, verifiable.WithJSONLDDocumentLoader(docLoader))
+	if err != nil {
+		sendOIDCErrorResponse(w, "failed to prepare credential", http.StatusInternalServerError)
+		return
+	}
+
+	var credBytes []byte
+
+	switch format {
+	case "", "ldp", "ldp_vc":
+		err = signCredentialWithED25519(credential)
+		if err != nil {
+			sendOIDCErrorResponse(w, "failed to issue credential", http.StatusInternalServerError)
+			return
+		}
+
+		credBytes, err = credential.MarshalJSON()
+		if err != nil {
+			sendOIDCErrorResponse(w, "failed to write credential bytes", http.StatusInternalServerError)
+			return
+		}
+	case "jwt", "jwt_vc":
+		claims, err := credential.JWTClaims(false)
+		if err != nil {
+			sendOIDCErrorResponse(w, "failed to create credential claims", http.StatusInternalServerError)
+			return
+		}
+
+		jws, err := signJWTCredentialWithED25519(claims)
+		if err != nil {
+			sendOIDCErrorResponse(w, "failed to issue JWT credential", http.StatusInternalServerError)
+			return
+		}
+
+		credBytes = []byte("\"" + jws + "\"")
+	}
+
+	response, err := json.Marshal(map[string]interface{}{
+		"format":     format,
+		"credential": json.RawMessage(credBytes),
+	})
+	// TODO add support for acceptance token & nonce for deferred flow.
+	if err != nil {
+		sendOIDCErrorResponse(w, "response_write_error", http.StatusBadRequest)
+		return
+	}
+
+	w.Write(response)
 }
 
 func listenForDIDCommMsg(actionCh chan service.DIDCommAction, store storage.Store) {
@@ -1407,6 +1576,10 @@ func getAuthCodeKeyPrefix(key string) string {
 	return fmt.Sprintf("authcode_%s", key)
 }
 
+func getPreAuthCodeKeyPrefix(key string) string {
+	return fmt.Sprintf("pre-authcode_%s", key)
+}
+
 func getAccessTokenKeyPrefix(key string) string {
 	return fmt.Sprintf("access_token_%s", key)
 }
@@ -1538,13 +1711,13 @@ func (s *edd25519Signer) Alg() string {
 }
 
 // generateRandomNumber generates random integer of n digits.
-func generateRandomNumber(numberOfDigits int) (int, error) {
+func generateRandomNumber(numberOfDigits int) (string, error) {
 	maxLimit := int64(int(math.Pow10(numberOfDigits)) - 1)
 	lowLimit := int(math.Pow10(numberOfDigits - 1))
 
 	randomNumber, err := rand.Int(rand.Reader, big.NewInt(maxLimit))
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	randomNumberInt := int(randomNumber.Int64())
 
@@ -1556,5 +1729,5 @@ func generateRandomNumber(numberOfDigits int) (int, error) {
 	if randomNumberInt > int(maxLimit) {
 		randomNumberInt = int(maxLimit)
 	}
-	return randomNumberInt, nil
+	return fmt.Sprintf("%v", randomNumberInt), nil
 }
