@@ -5,12 +5,13 @@
 -->
 
 <script setup>
-import { computed, onMounted, ref, watchEffect } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, onMounted, ref, toRaw, watchEffect } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
+import { v4 as uuidv4 } from 'uuid';
 import { CollectionManager, CredentialManager, DIDManager, OpenID4CI } from '@trustbloc/wallet-sdk';
-import { verifiableDataFormatCode } from '@/mixins';
+import { parseJWTVC, resolveManifest, verifiableDataFormatCode } from '@/mixins';
 import CustomSelectComponent from '@/components/CustomSelect/CustomSelectComponent.vue';
 import StyledButtonComponent from '@/components/StyledButton/StyledButtonComponent.vue';
 import CredentialOverviewComponent from '@/components/WACI/CredentialOverviewComponent.vue';
@@ -23,6 +24,7 @@ import CredentialDetailsTableComponent from '@/components/WACI/CredentialDetails
 // Hooks
 const store = useStore();
 const route = useRoute();
+const router = useRouter();
 const { t } = useI18n();
 
 // Local Variables
@@ -40,6 +42,8 @@ const didManager = ref(null);
 const openID4CI = ref(null);
 const pinEntryRequired = ref(false);
 const pin = ref(null);
+const credentialType = ref(null);
+const saveData = ref(null);
 const authorizeResp = ref();
 const showMainState = computed(
   () =>
@@ -54,10 +58,16 @@ const successButtonLabel = computed(() => t('WACI.Issue.viewCredential'));
 // Store Getters
 const currentUser = computed(() => store.getters['getCurrentUser']);
 const agentInstance = computed(() => store.getters['agent/getInstance']);
+const credentialManifests = computed(() => store.getters['getCredentialManifests']);
 
 // Methods
 function setPinEntryRequired(value) {
   pinEntryRequired.value = value;
+}
+
+function handleError(msg) {
+  errors.value.push(msg);
+  console.error(msg);
 }
 
 // Fetches all vaults and sets selected vault to default
@@ -68,6 +78,69 @@ async function fetchAllVaults() {
   selectedVault.value = vaults.value.find((vault) => vault.name === 'Default Vault').id;
 }
 
+async function prepareCards(credential, manifests, type) {
+  let manifest;
+  let descriptorID;
+
+  for (const manifestType of Object.values(manifests)) {
+    if (Object.keys(manifestType)[0] === type) {
+      manifest = Object.values(manifestType)[0];
+      descriptorID = Object.values(manifestType)[0].output_descriptors[0].id;
+      break;
+    }
+  }
+
+  if (!manifest) {
+    throw 'unable to find matching manifest'; // TODO handle this error, Issue #1531
+  }
+
+  const processed = await resolveManifest(
+    credentialManager.value,
+    credentialManifests.value,
+    token.value,
+    {
+      credential,
+      manifest,
+      descriptorID,
+    }
+  );
+
+  return { processed, descriptorID, manifest };
+}
+
+async function save() {
+  errors.value.length = 0;
+  saving.value = true;
+
+  const { profile, preference } = currentUser.value;
+  const vcFormat = verifiableDataFormatCode(preference.proofFormat);
+
+  await credentialManager.value
+    .save(
+      profile.token,
+      { credentials: [parseJWTVC(saveData.value.credential)] },
+      {
+        manifest: toRaw(saveData.value.manifest),
+        descriptorMap: [
+          {
+            id: saveData.value.descriptorID,
+            format: vcFormat,
+            path: '$[0]',
+          },
+        ],
+        collection: selectedVault.value,
+      }
+    )
+    .catch((e) => {
+      handleError('Error saving a credential:', e);
+      saving.value = false;
+    })
+    .then(() => {
+      savedSuccessfully.value = true;
+      saving.value = false;
+    });
+}
+
 onMounted(async () => {
   const { profile, preference } = currentUser.value;
   const { user } = profile;
@@ -76,36 +149,61 @@ onMounted(async () => {
   const requestUrl = new URL(route.query.url);
 
   const issuer = requestUrl.searchParams.get('issuer');
-  const credential_type = requestUrl.searchParams.get('credential_type');
+  credentialType.value = requestUrl.searchParams.get('credential_type');
   const preAuthCode = requestUrl.searchParams.get('pre-authorized_code');
   const op_state = requestUrl.searchParams.get('op_state');
   const user_pin_required = requestUrl.searchParams.get('user_pin_required') === 'true';
-  pinEntryRequired.value = user_pin_required;
+  setPinEntryRequired(user_pin_required);
 
   credentialManager.value = new CredentialManager({ agent: agentInstance.value, user });
   collectionManager.value = new CollectionManager({ agent: agentInstance.value, user });
   didManager.value = new DIDManager({ agent: agentInstance.value, user });
-  const { contents } = await didManager.value.getAllDIDs(token.value);
-  const kid = Object.values(contents)[0].didDocument.verificationMethod[0].id;
+  const { contents: DIDs } = await didManager.value.getAllDIDs(token.value);
+  const userDID = Object.keys(DIDs)[0];
+  // TODO: using random client id for now, to be revisited once oidc registration approach is finalized
+  const clientID = uuidv4();
+
   openID4CI.value = new OpenID4CI({
     agent: agentInstance.value,
     user,
-    clientConfig: { userDID: kid, clientID: 'test-client-id' },
+    clientConfig: { userDID, clientID },
   });
 
   await fetchAllVaults();
 
   const req = {};
   req.issuer = issuer;
-  req.credential_type = credential_type;
+  req.credential_type = credentialType.value;
   req['pre-authorized_code'] = preAuthCode;
   req.user_pin_required = user_pin_required;
   req.format = verifiableDataFormatCode(preference.proofFormat);
   if (op_state) req.op_state = op_state;
 
   watchEffect(async () => {
-    if (pin.value && !pinEntryRequired.value) {
-      authorizeResp.value = await openID4CI.value.authorize(token.value, kid, req, pin.value);
+    if (!pinEntryRequired.value || (pin.value && !pinEntryRequired.value)) {
+      loading.value = true;
+      authorizeResp.value = await openID4CI.value
+        .authorize(token.value, userDID, req, pin.value)
+        .catch((e) => {
+          handleError('Error authorizing issuance:', e);
+          loading.value = false;
+        });
+
+      const { processed, descriptorID, manifest } = await prepareCards(
+        authorizeResp.value.credential,
+        credentialManifests.value,
+        credentialType.value
+      );
+
+      processedCredentials.value.push(...processed);
+
+      saveData.value = {
+        credential: authorizeResp.value.credential,
+        manifest,
+        descriptorID,
+      };
+
+      loading.value = false;
     }
   });
 
@@ -122,7 +220,7 @@ onMounted(async () => {
     <WACILoadingComponent v-else-if="saving" :message="t('WACI.Issue.savingCredential')" />
 
     <!-- Error State -->
-    <WACIErrorComponent v-else-if="errors.length" @click="cancel" />
+    <WACIErrorComponent v-else-if="errors.length" @click="() => router.push('/credentials')" />
 
     <!-- Pin Prompt State -->
     <div
@@ -130,7 +228,7 @@ onMounted(async () => {
       class="flex h-full w-full grow flex-col items-center justify-center"
     >
       <h4>Please, enter a PIN</h4>
-      <div class="input-container mb-0 mt-5 w-auto pr-4">
+      <div class="input-container mb-0 mt-5 w-auto">
         <input
           id="pin-input"
           v-model="pin"
@@ -142,7 +240,7 @@ onMounted(async () => {
           maxlength="6"
           autocomplete="off"
           placeholder="6-digit PIN"
-          size="6"
+          size="10"
         />
         <label for="pin-input" class="input-label">PIN</label>
       </div>
@@ -167,10 +265,9 @@ onMounted(async () => {
         })
       "
       :button-label="successButtonLabel"
-      @click="finish"
+      @click="() => router.push('/credentials')"
     />
   </div>
-
   <!-- Main State -->
   <div v-else class="flex h-full w-full grow flex-col items-center justify-between overflow-hidden">
     <div class="flex w-full justify-center overflow-auto">
@@ -214,7 +311,11 @@ onMounted(async () => {
 
     <WACIActionButtonsContainerComponent>
       <template #leftButton>
-        <StyledButtonComponent id="cancelBtn" type="btn-outline" @click="cancel">
+        <StyledButtonComponent
+          id="cancelBtn"
+          type="btn-outline"
+          @click="() => router.push('/credentials')"
+        >
           {{ t('CHAPI.Share.decline') }}
         </StyledButtonComponent>
       </template>
